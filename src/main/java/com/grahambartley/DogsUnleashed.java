@@ -18,6 +18,8 @@ public class DogsUnleashed implements ModInitializer {
     // However, some things (like resources) may still be uninitialized.
     // Proceed with mild caution.
 
-    LOGGER.info("Hello Fabric world!"); // test trailing spaces
+    ModEntities.initialize();
+
+    LOGGER.info("Dogs Unleashed loaded successfully"); // test trailing spaces
   }
 }
