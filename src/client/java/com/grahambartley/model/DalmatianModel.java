@@ -1,18 +1,26 @@
 package com.grahambartley.model;
 
-import net.minecraft.client.model.*;
-import net.minecraft.client.render.entity.model.WolfEntityModel;
+import static com.grahambartley.DogsUnleashed.MOD_ID;
 
-public class DalmatianModel extends WolfEntityModel {
+import com.grahambartley.entity.DalmatianEntity;
+import net.minecraft.util.Identifier;
+import software.bernie.geckolib.model.GeoModel;
 
-  public DalmatianModel(ModelPart root) {
-    super(root);
+public class DalmatianModel extends GeoModel<DalmatianEntity> {
+
+  @Override
+  public Identifier getModelResource(DalmatianEntity animatable) {
+    return Identifier.of(MOD_ID, "geo/dalmatian.geo.json");
   }
 
-  public static TexturedModelData getTexturedModelData() {
-    // TODO: Replace this with the actual model data exported from Blockbench
-    // For now, using vanilla wolf model as placeholder
-    ModelData modelData = WolfEntityModel.getTexturedModelData(Dilation.NONE);
-    return TexturedModelData.of(modelData, 64, 32);
+  @Override
+  public Identifier getTextureResource(DalmatianEntity animatable) {
+    return Identifier.of(MOD_ID, "textures/entity/dalmatian.png");
+  }
+
+  @Override
+  public Identifier getAnimationResource(DalmatianEntity animatable) {
+    // No animations for this entity
+    return null;
   }
 }

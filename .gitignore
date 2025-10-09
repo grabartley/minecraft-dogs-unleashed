@@ -25,6 +25,8 @@ replay_pid*
 
 .idea/
 .gradle/
+run/
 build/
 AGENTS.md
 CLAUDE.md
+.DS_Store
