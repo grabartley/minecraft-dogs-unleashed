@@ -27,7 +27,7 @@ public class HuskyRenderer extends GeoEntityRenderer<HuskyEntity> {
 
   @Override
   public float getShadowRadius(HuskyEntity entity) {
-    return entity.isBaby() ? 0.25f : 0.5f;
+    return entity.isBaby() ? 0.25f : 0.65f;
   }
 
   @Override
@@ -42,10 +42,7 @@ public class HuskyRenderer extends GeoEntityRenderer<HuskyEntity> {
       int packedLight,
       int packedOverlay,
       int colour) {
-    float scale = 1.0f;
-    if (animatable.isBaby()) {
-      scale = 0.5f;
-    }
+    final float scale = animatable.isBaby() ? 0.5f : 1.3f;
     poseStack.scale(scale, scale, scale);
     super.preRender(
         poseStack,

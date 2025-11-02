@@ -5,8 +5,8 @@ public class ModConstants {
   public static final int HUSKY_SPAWN_EGG_PRIMARY_COLOR = 0xFFFFFF;
   public static final int HUSKY_SPAWN_EGG_SECONDARY_COLOR = 0x808080;
 
-  public static final float HUSKY_WIDTH = 0.6f;
-  public static final float HUSKY_HEIGHT = 0.85f;
+  public static final float HUSKY_WIDTH = 0.8f;
+  public static final float HUSKY_HEIGHT = 1.1f;
 
   public static final int HUSKY_SPAWN_WEIGHT = 10;
   public static final int HUSKY_SPAWN_MIN_GROUP = 2;
