@@ -1,5 +1,7 @@
 package com.grahambartley.entity;
 
+import static com.grahambartley.ModConstants.MINECRAFT_TICK_RATE;
+
 import com.grahambartley.ModEntities;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
@@ -61,7 +63,8 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
   private static final UniformIntProvider ANGER_TIME_RANGE = TimeHelper.betweenSeconds(20, 39);
   private java.util.UUID angryAt;
   private static final float TAIL_WAG_DURATION_SECONDS = 3.75f;
-  private static final int TAIL_WAG_DURATION_TICKS = (int) (TAIL_WAG_DURATION_SECONDS * 20);
+  private static final int TAIL_WAG_DURATION_TICKS =
+      (int) (TAIL_WAG_DURATION_SECONDS * MINECRAFT_TICK_RATE);
   private static final Ingredient BREEDING_INGREDIENT =
       Ingredient.ofItems(
           Items.CHICKEN,
@@ -155,6 +158,7 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
         this.jumping = false;
         this.navigation.stop();
         this.setTarget(null);
+        this.dataTracker.set(TAIL_WAG_TIMER, 0);
         return ActionResult.SUCCESS;
       }
 

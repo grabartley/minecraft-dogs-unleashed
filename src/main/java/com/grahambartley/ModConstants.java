@@ -2,6 +2,8 @@ package com.grahambartley;
 
 public class ModConstants {
 
+  public static final int MINECRAFT_TICK_RATE = 20;
+
   public static final int HUSKY_SPAWN_EGG_PRIMARY_COLOR = 0xFFFFFF;
   public static final int HUSKY_SPAWN_EGG_SECONDARY_COLOR = 0x808080;
 
