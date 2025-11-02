@@ -36,6 +36,7 @@ import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
@@ -60,12 +61,22 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
       DataTracker.registerData(HuskyEntity.class, TrackedDataHandlerRegistry.INTEGER);
   private static final TrackedData<Integer> TAIL_WAG_TIMER =
       DataTracker.registerData(HuskyEntity.class, TrackedDataHandlerRegistry.INTEGER);
+  private static final TrackedData<Integer> SHAKE_PROGRESS =
+      DataTracker.registerData(HuskyEntity.class, TrackedDataHandlerRegistry.INTEGER);
 
   private static final UniformIntProvider ANGER_TIME_RANGE = TimeHelper.betweenSeconds(20, 39);
   private java.util.UUID angryAt;
   private static final float TAIL_WAG_DURATION_SECONDS = 3.75f;
   private static final int TAIL_WAG_DURATION_TICKS =
       (int) (TAIL_WAG_DURATION_SECONDS * MINECRAFT_TICK_RATE);
+  private static final float SHAKE_DURATION_SECONDS = 1.08f;
+  private static final int SHAKE_DURATION_TICKS =
+      (int) (SHAKE_DURATION_SECONDS * MINECRAFT_TICK_RATE);
+  private static final int SHAKE_PARTICLE_START_TICK = 10;
+  private static final int SHAKE_DELAY_TICKS = 20;
+
+  private boolean wasInWater = false;
+  private int ticksSinceLeftWater = 0;
   private static final Ingredient BREEDING_INGREDIENT =
       Ingredient.ofItems(
           Items.CHICKEN,
@@ -107,14 +118,49 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
     builder.add(ANGER_TIME, 0);
     builder.add(COLLAR_COLOR, DyeColor.RED.getId());
     builder.add(TAIL_WAG_TIMER, 0);
+    builder.add(SHAKE_PROGRESS, 0);
   }
 
   public DyeColor getCollarColor() {
     return DyeColor.byId(this.dataTracker.get(COLLAR_COLOR));
   }
 
-  public void setCollarColor(DyeColor color) {
+  public void setCollarColor(final DyeColor color) {
     this.dataTracker.set(COLLAR_COLOR, color.getId());
+  }
+
+  public int getShakeProgress() {
+    return this.dataTracker.get(SHAKE_PROGRESS);
+  }
+
+  public boolean isShaking() {
+    return this.getShakeProgress() > 0;
+  }
+
+  private void startShaking() {
+    if (!this.isShaking() && !this.isInSittingPose()) {
+      this.dataTracker.set(SHAKE_PROGRESS, SHAKE_DURATION_TICKS);
+    }
+  }
+
+  public void spawnShakeParticles() {
+    if (this.getWorld() instanceof ServerWorld serverWorld) {
+      for (int i = 0; i < 20; i++) {
+        final double offsetX = (this.random.nextDouble() - 0.5) * 0.5;
+        final double offsetY = this.random.nextDouble() * 0.5;
+        final double offsetZ = (this.random.nextDouble() - 0.5) * 0.5;
+        serverWorld.spawnParticles(
+            ParticleTypes.SPLASH,
+            this.getX() + offsetX,
+            this.getY() + offsetY + 0.5,
+            this.getZ() + offsetZ,
+            1,
+            (this.random.nextDouble() - 0.5) * 0.3,
+            this.random.nextDouble() * 0.1,
+            (this.random.nextDouble() - 0.5) * 0.3,
+            0.1);
+      }
+    }
   }
 
   @Override
@@ -273,6 +319,33 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
       } else if (currentTimer > 0) {
         this.dataTracker.set(TAIL_WAG_TIMER, currentTimer - 1);
       }
+
+      final boolean inWater = this.isTouchingWater();
+
+      if (inWater) {
+        this.ticksSinceLeftWater = 0;
+      } else {
+        if (this.wasInWater) {
+          this.ticksSinceLeftWater = 1;
+        } else if (this.ticksSinceLeftWater > 0) {
+          this.ticksSinceLeftWater++;
+        }
+
+        if (this.ticksSinceLeftWater == SHAKE_DELAY_TICKS && !this.isShaking()) {
+          this.startShaking();
+        }
+      }
+
+      this.wasInWater = inWater;
+
+      final int shakeProgress = this.getShakeProgress();
+      if (shakeProgress > 0) {
+        final int ticksElapsed = SHAKE_DURATION_TICKS - shakeProgress;
+        if (ticksElapsed == SHAKE_PARTICLE_START_TICK) {
+          this.spawnShakeParticles();
+        }
+        this.dataTracker.set(SHAKE_PROGRESS, shakeProgress - 1);
+      }
     }
   }
 
@@ -292,6 +365,9 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
     super.writeCustomDataToNbt(nbt);
     this.writeAngerToNbt(nbt);
     nbt.putInt("CollarColor", this.getCollarColor().getId());
+    nbt.putInt("ShakeProgress", this.getShakeProgress());
+    nbt.putBoolean("WasInWater", this.wasInWater);
+    nbt.putInt("TicksSinceLeftWater", this.ticksSinceLeftWater);
   }
 
   @Override
@@ -300,6 +376,15 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
     this.readAngerFromNbt(this.getWorld(), nbt);
     if (nbt.contains("CollarColor", 99)) {
       this.setCollarColor(DyeColor.byId(nbt.getInt("CollarColor")));
+    }
+    if (nbt.contains("ShakeProgress", 99)) {
+      this.dataTracker.set(SHAKE_PROGRESS, nbt.getInt("ShakeProgress"));
+    }
+    if (nbt.contains("WasInWater")) {
+      this.wasInWater = nbt.getBoolean("WasInWater");
+    }
+    if (nbt.contains("TicksSinceLeftWater", 99)) {
+      this.ticksSinceLeftWater = nbt.getInt("TicksSinceLeftWater");
     }
   }
 
@@ -354,6 +439,18 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
               final HuskyEntity husky = state.getAnimatable();
               if (husky.dataTracker.get(TAIL_WAG_TIMER) > 0) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("tail_wag"));
+              }
+              return PlayState.STOP;
+            }));
+
+    controllers.add(
+        new AnimationController<>(
+            this,
+            "shake",
+            0,
+            state -> {
+              if (state.getAnimatable().isShaking()) {
+                return state.setAndContinue(RawAnimation.begin().thenPlayAndHold("shake"));
               }
               return PlayState.STOP;
             }));
