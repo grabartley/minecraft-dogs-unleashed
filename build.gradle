@@ -24,6 +24,13 @@ repositories {
 	}
 }
 
+sourceSets {
+	gametest {
+		compileClasspath += main.compileClasspath + main.output
+		runtimeClasspath += main.runtimeClasspath + main.output
+	}
+}
+
 loom {
 	splitEnvironmentSourceSets()
 
@@ -31,9 +38,27 @@ loom {
 		"dogs-unleashed" {
 			sourceSet sourceSets.main
 			sourceSet sourceSets.client
+			sourceSet sourceSets.gametest
 		}
 	}
 
+	runs {
+		gametest {
+			server()
+			name "Game Test"
+			vmArg "-ea"
+			runDir "build/gametest"
+			programArgs "--nogui"
+			source sourceSets.main
+			source sourceSets.gametest
+			property "fabric-api.gametest", "true"
+			property "fabric-api.gametest.report-file", "${project.buildDir}/gametest-results.xml"
+		}
+		gametestServer {
+			inherit gametest
+			name "Game Test Server"
+		}
+	}
 }
 
 fabricApi {
@@ -57,10 +82,13 @@ dependencies {
 }
 
 processResources {
-	inputs.property "version", project.version
+	inputs.property("version", project.version)
 
 	filesMatching("fabric.mod.json") {
-		expand "version": inputs.properties.version
+		expand([
+				version: project.version,
+				group  : project.group
+		])
 	}
 }
 
@@ -133,6 +161,7 @@ publishing {
 spotless {
 	java {
 		target 'src/**/*.java'
+		targetExclude 'build/**'
 		googleJavaFormat('1.19.2')
 		removeUnusedImports()
 		trimTrailingWhitespace()
