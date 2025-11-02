@@ -55,9 +55,13 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
       DataTracker.registerData(HuskyEntity.class, TrackedDataHandlerRegistry.INTEGER);
   private static final TrackedData<Integer> COLLAR_COLOR =
       DataTracker.registerData(HuskyEntity.class, TrackedDataHandlerRegistry.INTEGER);
+  private static final TrackedData<Integer> TAIL_WAG_TIMER =
+      DataTracker.registerData(HuskyEntity.class, TrackedDataHandlerRegistry.INTEGER);
 
   private static final UniformIntProvider ANGER_TIME_RANGE = TimeHelper.betweenSeconds(20, 39);
   private java.util.UUID angryAt;
+  private static final float TAIL_WAG_DURATION_SECONDS = 3.75f;
+  private static final int TAIL_WAG_DURATION_TICKS = (int) (TAIL_WAG_DURATION_SECONDS * 20);
   private static final Ingredient BREEDING_INGREDIENT =
       Ingredient.ofItems(
           Items.CHICKEN,
@@ -84,6 +88,7 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
     super.initDataTracker(builder);
     builder.add(ANGER_TIME, 0);
     builder.add(COLLAR_COLOR, DyeColor.RED.getId());
+    builder.add(TAIL_WAG_TIMER, 0);
   }
 
   public DyeColor getCollarColor() {
@@ -213,6 +218,22 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
   }
 
   @Override
+  public void tick() {
+    super.tick();
+    if (!this.getWorld().isClient) {
+      final int currentTimer = this.dataTracker.get(TAIL_WAG_TIMER);
+      if (currentTimer > 0) {
+        this.dataTracker.set(TAIL_WAG_TIMER, currentTimer - 1);
+      } else if (this.isTamed()
+          && !this.isInSittingPose()
+          && this.getAngerTime() <= 0
+          && this.random.nextInt(200) == 0) {
+        this.dataTracker.set(TAIL_WAG_TIMER, TAIL_WAG_DURATION_TICKS);
+      }
+    }
+  }
+
+  @Override
   public boolean damage(DamageSource source, float amount) {
     if (this.isInvulnerableTo(source)) {
       return false;
@@ -288,10 +309,7 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
             0,
             state -> {
               final HuskyEntity husky = state.getAnimatable();
-              if (husky.isTamed()
-                  && !husky.isInSittingPose()
-                  && husky.getAngerTime() <= 0
-                  && this.random.nextInt(100) == 0) {
+              if (husky.dataTracker.get(TAIL_WAG_TIMER) > 0) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("tail_wag"));
               }
               return PlayState.STOP;
