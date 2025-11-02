@@ -1,0 +1,25 @@
+package com.grahambartley.model;
+
+import static com.grahambartley.DogsUnleashed.MOD_ID;
+
+import com.grahambartley.entity.HuskyEntity;
+import net.minecraft.util.Identifier;
+import software.bernie.geckolib.model.GeoModel;
+
+public class HuskyModel extends GeoModel<HuskyEntity> {
+
+  @Override
+  public Identifier getModelResource(HuskyEntity animatable) {
+    return Identifier.of(MOD_ID, "geo/husky.geo.json");
+  }
+
+  @Override
+  public Identifier getTextureResource(HuskyEntity animatable) {
+    return Identifier.of(MOD_ID, "textures/entity/husky.png");
+  }
+
+  @Override
+  public Identifier getAnimationResource(HuskyEntity animatable) {
+    return Identifier.of(MOD_ID, "animations/husky.animation.json");
+  }
+}
