@@ -35,7 +35,7 @@ public class HuskyEntity extends WolfEntity implements GeoEntity {
             "controller",
             0,
             state -> {
-              if (state.getAnimatable().isSitting()) {
+              if (state.getAnimatable().isInSittingPose()) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("sit"));
               }
               if (state.getAnimatable().getVelocity().horizontalLengthSquared() > 0.01) {
