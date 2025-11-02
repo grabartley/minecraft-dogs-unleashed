@@ -2,8 +2,6 @@ package com.grahambartley;
 
 import com.grahambartley.entity.HuskyEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
-import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.registry.Registries;
@@ -16,10 +14,9 @@ public class ModEntities {
       Registry.register(
           Registries.ENTITY_TYPE,
           Identifier.of(DogsUnleashed.MOD_ID, "husky"),
-          FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, HuskyEntity::new)
-              .dimensions(
-                  EntityDimensions.fixed(ModConstants.HUSKY_WIDTH, ModConstants.HUSKY_HEIGHT))
-              .build());
+          EntityType.Builder.create(HuskyEntity::new, SpawnGroup.CREATURE)
+              .dimensions(ModConstants.HUSKY_WIDTH, ModConstants.HUSKY_HEIGHT)
+              .build(Identifier.of(DogsUnleashed.MOD_ID, "husky").toString()));
 
   public static void initialize() {
     FabricDefaultAttributeRegistry.register(HUSKY, HuskyEntity.createHuskyAttributes());
