@@ -2,8 +2,11 @@ package com.grahambartley.gametest;
 
 import com.grahambartley.ModEntities;
 import com.grahambartley.entity.HuskyEntity;
+import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.passive.TameableEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.GameTest;
@@ -282,6 +285,80 @@ public final class HuskyEntityGameTest implements FabricGameTest {
                 context.assertTrue(baby != null, "Baby should be created from breeding");
                 context.assertTrue(baby.isTamed(), "Baby should inherit tamed status");
                 context.assertTrue(baby.isBaby(), "Created entity should be a baby");
+                context.complete();
+              });
+        });
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void boneIsTamingItem(final TestContext context) {
+    final BlockPos spawnPos = new BlockPos(0, 1, 0);
+    final ServerWorld world = context.getWorld();
+
+    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
+    husky.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
+    world.spawnEntity(husky);
+
+    final ItemStack bone = new ItemStack(Items.BONE);
+
+    context.assertTrue(husky.isTamingItem(bone), "Bone should be a taming item");
+    context.assertFalse(husky.isBreedingItem(bone), "Bone should not be a breeding item");
+    context.complete();
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void meatItemsAreBothTamingAndBreeding(final TestContext context) {
+    final BlockPos spawnPos = new BlockPos(0, 1, 0);
+    final ServerWorld world = context.getWorld();
+
+    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
+    husky.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
+    world.spawnEntity(husky);
+
+    final ItemStack chicken = new ItemStack(Items.CHICKEN);
+
+    context.assertTrue(husky.isTamingItem(chicken), "Chicken should be a taming item");
+    context.assertTrue(husky.isBreedingItem(chicken), "Chicken should be a breeding item");
+    context.complete();
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+  public void tamedStatusPersistsAfterNbtReload(final TestContext context) {
+    final BlockPos spawnPos = new BlockPos(0, 1, 0);
+    final ServerWorld world = context.getWorld();
+
+    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
+    husky.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
+    world.spawnEntity(husky);
+
+    context.runAtTick(
+        10,
+        () -> {
+          final UUID ownerUuid = UUID.randomUUID();
+          husky.setOwnerUuid(ownerUuid);
+          husky.setTamed(true, true);
+          husky.setCollarColor(DyeColor.GREEN);
+
+          final NbtCompound nbt = new NbtCompound();
+          husky.writeCustomDataToNbt(nbt);
+
+          final HuskyEntity reloadedHusky = new HuskyEntity(ModEntities.HUSKY, world);
+          reloadedHusky.readCustomDataFromNbt(nbt);
+
+          context.runAtTick(
+              20,
+              () -> {
+                context.assertTrue(
+                    reloadedHusky.isTamed(), "Tamed status should persist after NBT reload");
+                context.assertTrue(
+                    reloadedHusky.getOwnerUuid() != null,
+                    "Owner UUID should persist after NBT reload");
+                context.assertTrue(
+                    reloadedHusky.getOwnerUuid().equals(ownerUuid),
+                    "Owner UUID should match original owner");
+                context.assertTrue(
+                    reloadedHusky.getCollarColor() == DyeColor.GREEN,
+                    "Collar color should persist after NBT reload");
                 context.complete();
               });
         });

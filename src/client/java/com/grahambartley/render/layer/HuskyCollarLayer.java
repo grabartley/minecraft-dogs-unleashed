@@ -38,14 +38,9 @@ public class HuskyCollarLayer extends GeoRenderLayer<HuskyEntity> {
     }
 
     final DyeColor collarColor = animatable.getCollarColor();
-    final int color = collarColor.getFireworkColor();
-
-    final float red = (float) (color >> 16 & 255) / 255.0f;
-    final float green = (float) (color >> 8 & 255) / 255.0f;
-    final float blue = (float) (color & 255) / 255.0f;
+    final int color = collarColor.getEntityColor();
 
     final RenderLayer collarRenderType = RenderLayer.getEntityCutoutNoCull(COLLAR_TEXTURE);
-
     this.getRenderer()
         .reRender(
             bakedModel,
@@ -57,6 +52,6 @@ public class HuskyCollarLayer extends GeoRenderLayer<HuskyEntity> {
             partialTick,
             packedLight,
             OverlayTexture.DEFAULT_UV,
-            (int) (red * 255) << 16 | (int) (green * 255) << 8 | (int) (blue * 255));
+            color);
   }
 }

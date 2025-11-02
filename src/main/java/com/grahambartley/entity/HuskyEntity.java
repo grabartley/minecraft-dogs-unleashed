@@ -16,6 +16,7 @@ import net.minecraft.entity.ai.goal.PounceAtTargetGoal;
 import net.minecraft.entity.ai.goal.RevengeGoal;
 import net.minecraft.entity.ai.goal.SitGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
+import net.minecraft.entity.ai.goal.TemptGoal;
 import net.minecraft.entity.ai.goal.TrackOwnerAttackerGoal;
 import net.minecraft.entity.ai.goal.UniversalAngerGoal;
 import net.minecraft.entity.ai.goal.WanderAroundFarGoal;
@@ -78,6 +79,20 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
           Items.RABBIT,
           Items.COOKED_RABBIT,
           Items.ROTTEN_FLESH);
+  private static final Ingredient TAMING_INGREDIENT =
+      Ingredient.ofItems(
+          Items.CHICKEN,
+          Items.COOKED_CHICKEN,
+          Items.BEEF,
+          Items.COOKED_BEEF,
+          Items.PORKCHOP,
+          Items.COOKED_PORKCHOP,
+          Items.MUTTON,
+          Items.COOKED_MUTTON,
+          Items.RABBIT,
+          Items.COOKED_RABBIT,
+          Items.ROTTEN_FLESH,
+          Items.BONE);
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -106,14 +121,15 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
   protected void initGoals() {
     this.goalSelector.add(1, new SwimGoal(this));
     this.goalSelector.add(2, new SitGoal(this));
-    this.goalSelector.add(3, new EscapeDangerGoal(this, 1.5));
-    this.goalSelector.add(4, new PounceAtTargetGoal(this, 0.4F));
-    this.goalSelector.add(5, new MeleeAttackGoal(this, 1.0, true));
-    this.goalSelector.add(6, new FollowOwnerGoal(this, 1.0, 10.0F, 2.0F));
-    this.goalSelector.add(7, new AnimalMateGoal(this, 1.0));
-    this.goalSelector.add(8, new WanderAroundFarGoal(this, 1.0));
-    this.goalSelector.add(9, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F));
-    this.goalSelector.add(10, new LookAroundGoal(this));
+    this.goalSelector.add(3, new TemptGoal(this, 1.0, TAMING_INGREDIENT, false));
+    this.goalSelector.add(4, new EscapeDangerGoal(this, 1.5));
+    this.goalSelector.add(5, new PounceAtTargetGoal(this, 0.4F));
+    this.goalSelector.add(6, new MeleeAttackGoal(this, 1.0, true));
+    this.goalSelector.add(7, new FollowOwnerGoal(this, 1.0, 10.0F, 2.0F));
+    this.goalSelector.add(8, new AnimalMateGoal(this, 1.0));
+    this.goalSelector.add(9, new WanderAroundFarGoal(this, 1.0));
+    this.goalSelector.add(10, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F));
+    this.goalSelector.add(11, new LookAroundGoal(this));
 
     this.targetSelector.add(1, new TrackOwnerAttackerGoal(this));
     this.targetSelector.add(2, new AttackWithOwnerGoal(this));
@@ -153,7 +169,7 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
         return ActionResult.SUCCESS;
       }
 
-      if (this.isOwner(player) && !this.isBreedingItem(itemStack)) {
+      if (this.isOwner(player) && !this.isTamingItem(itemStack)) {
         this.setSitting(!this.isSitting());
         this.jumping = false;
         this.navigation.stop();
@@ -166,7 +182,7 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
       if (actionResult.isAccepted() || this.isBreedingItem(itemStack)) {
         return actionResult;
       }
-    } else if (this.isBreedingItem(itemStack)) {
+    } else if (this.isTamingItem(itemStack)) {
       itemStack.decrementUnlessCreative(1, player);
       if (this.random.nextInt(3) == 0) {
         this.setOwner(player);
@@ -186,6 +202,10 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
   @Override
   public boolean isBreedingItem(ItemStack stack) {
     return BREEDING_INGREDIENT.test(stack);
+  }
+
+  public boolean isTamingItem(ItemStack stack) {
+    return TAMING_INGREDIENT.test(stack);
   }
 
   @Override
@@ -226,13 +246,32 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
     super.tick();
     if (!this.getWorld().isClient) {
       final int currentTimer = this.dataTracker.get(TAIL_WAG_TIMER);
-      if (currentTimer > 0) {
+
+      if (!this.isInSittingPose() && this.getAngerTime() <= 0) {
+        final PlayerEntity nearbyPlayer = this.getWorld().getClosestPlayer(this, 10.0D);
+        boolean shouldWag = false;
+
+        if (nearbyPlayer != null) {
+          final boolean holdingTamingItem =
+              this.isTamingItem(nearbyPlayer.getMainHandStack())
+                  || this.isTamingItem(nearbyPlayer.getOffHandStack());
+          final boolean holdingBreedingItem =
+              this.isBreedingItem(nearbyPlayer.getMainHandStack())
+                  || this.isBreedingItem(nearbyPlayer.getOffHandStack());
+
+          shouldWag =
+              (!this.isTamed() && holdingTamingItem) || (this.isTamed() && holdingBreedingItem);
+        }
+
+        if (shouldWag) {
+          this.dataTracker.set(TAIL_WAG_TIMER, TAIL_WAG_DURATION_TICKS);
+        } else if (currentTimer > 0) {
+          this.dataTracker.set(TAIL_WAG_TIMER, currentTimer - 1);
+        } else if (this.isTamed() && this.random.nextInt(200) == 0) {
+          this.dataTracker.set(TAIL_WAG_TIMER, TAIL_WAG_DURATION_TICKS);
+        }
+      } else if (currentTimer > 0) {
         this.dataTracker.set(TAIL_WAG_TIMER, currentTimer - 1);
-      } else if (this.isTamed()
-          && !this.isInSittingPose()
-          && this.getAngerTime() <= 0
-          && this.random.nextInt(200) == 0) {
-        this.dataTracker.set(TAIL_WAG_TIMER, TAIL_WAG_DURATION_TICKS);
       }
     }
   }
