@@ -71,23 +71,23 @@ void testNullInput(@Mock SomeClass mock) {
 
 This project uses JaCoCo for code coverage reporting.
 
-### Coverage Requirements
-- **Minimum Overall Coverage**: 80%
-- **No exclusions** - all Java code is subject to coverage requirements
-- Tests validate configuration values, constants, and logical assertions
-- Minecraft-dependent classes are tested via value validation rather than instantiation
+### Coverage Reporting
+- Coverage reports are generated for informational purposes
+- No minimum coverage threshold enforced (most Minecraft code requires game runtime)
+- Tests focus on testable logic like utilities and configuration validation
+- Minecraft-dependent classes (entities, registries, renderers) cannot be easily unit tested
 
 ### Viewing Coverage Reports
-After running `./gradlew check`:
+After running `./gradlew test`:
 - **HTML Report**: `build/reports/jacoco/test/html/index.html`
 - **XML Report**: `build/reports/jacoco/test/jacocoTestReport.xml`
 
-### Coverage Enforcement
-The build will **fail** if coverage drops below 80%. This ensures:
-- All configuration values are validated
-- New utility code has tests
-- Refactoring doesn't remove test coverage
-- Quality standards are maintained
+### Coverage Philosophy
+Coverage is a tool for visibility, not a strict gate. The build focuses on:
+- Testing what can be tested (utilities, helper methods)
+- Validating configuration values are sensible
+- Ensuring code formatting and test execution pass
+- Manual in-game testing for Minecraft-dependent features
 
 ## Test Structure
 
@@ -137,6 +137,6 @@ The workflow (`.github/workflows/gradle.yml`) runs:
 
 ## Current Test Coverage
 
-- **Total Tests**: 19 passing tests
-- **Coverage**: 80%+ (enforced)
-- **Test Classes**: 9 test classes covering all main code
+- **Total Tests**: 24 passing tests
+- **Coverage**: Reported but not enforced
+- **Test Classes**: 9 test classes validating testable code
