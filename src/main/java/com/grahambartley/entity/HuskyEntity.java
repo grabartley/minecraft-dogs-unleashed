@@ -69,9 +69,7 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
   private static final float TAIL_WAG_DURATION_SECONDS = 3.75f;
   private static final int TAIL_WAG_DURATION_TICKS =
       (int) (TAIL_WAG_DURATION_SECONDS * MINECRAFT_TICK_RATE);
-  private static final float SHAKE_DURATION_SECONDS = 1.08f;
-  private static final int SHAKE_DURATION_TICKS =
-      (int) (SHAKE_DURATION_SECONDS * MINECRAFT_TICK_RATE);
+  private static final int SHAKE_DURATION_TICKS = 22;
   private static final int SHAKE_PARTICLE_START_TICK = 10;
   private static final int SHAKE_DELAY_TICKS = 20;
 
@@ -450,7 +448,7 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
             0,
             state -> {
               if (state.getAnimatable().isShaking()) {
-                return state.setAndContinue(RawAnimation.begin().thenPlayAndHold("shake"));
+                return state.setAndContinue(RawAnimation.begin().thenLoop("shake"));
               }
               return PlayState.STOP;
             }));
