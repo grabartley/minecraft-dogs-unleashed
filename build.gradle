@@ -24,13 +24,6 @@ repositories {
 	}
 }
 
-sourceSets {
-	gametest {
-		compileClasspath += main.compileClasspath + main.output
-		runtimeClasspath += main.runtimeClasspath + main.output
-	}
-}
-
 loom {
 	splitEnvironmentSourceSets()
 
@@ -38,7 +31,6 @@ loom {
 		"dogs-unleashed" {
 			sourceSet sourceSets.main
 			sourceSet sourceSets.client
-			sourceSet sourceSets.gametest
 		}
 	}
 
@@ -49,8 +41,6 @@ loom {
 			vmArg "-ea"
 			runDir "build/gametest"
 			programArgs "--nogui"
-			source sourceSets.main
-			source sourceSets.gametest
 			property "fabric-api.gametest", "true"
 			property "fabric-api.gametest.report-file", "${project.buildDir}/gametest-results.xml"
 		}
@@ -82,13 +72,14 @@ dependencies {
 }
 
 processResources {
-	inputs.property("version", project.version)
+	def templateVersion = project.version
+	def templateGroup = project.group
+
+	inputs.property "version", templateVersion
+	inputs.property "group", templateGroup
 
 	filesMatching("fabric.mod.json") {
-		expand([
-				version: project.version,
-				group  : project.group
-		])
+		expand "version": templateVersion, "group": templateGroup
 	}
 }
 

@@ -25,10 +25,11 @@ Results are published to `build/gametest-results.xml`
 
 ## Writing Game Tests
 
-1. Create test class in `src/gametest/java/com/grahambartley/gametest/`
+1. Create test class in `src/main/java/com/grahambartley/gametest/`
 2. Implement `FabricGameTest` interface
 3. Add methods annotated with `@GameTest`
-4. Use `TestContext` for assertions
+4. Register in `fabric.mod.json` under `fabric-gametest` entrypoint
+5. Use `TestContext` for assertions
 
 ### Example
 
