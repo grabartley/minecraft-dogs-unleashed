@@ -13,7 +13,6 @@ public class HuskyRenderer extends GeoEntityRenderer<HuskyEntity> {
 
   public HuskyRenderer(EntityRendererFactory.Context context) {
     super(context, new HuskyModel());
-    this.shadowRadius = 0.5f;
   }
 
   @Override
@@ -24,6 +23,11 @@ public class HuskyRenderer extends GeoEntityRenderer<HuskyEntity> {
   @Override
   protected float getDeathMaxRotation(HuskyEntity animatable) {
     return 0f;
+  }
+
+  @Override
+  public float getShadowRadius(HuskyEntity entity) {
+    return entity.isBaby() ? 0.25f : 0.5f;
   }
 
   @Override
@@ -38,7 +42,11 @@ public class HuskyRenderer extends GeoEntityRenderer<HuskyEntity> {
       int packedLight,
       int packedOverlay,
       int colour) {
-    poseStack.scale(1.0f, 1.0f, 1.0f);
+    float scale = 1.0f;
+    if (animatable.isBaby()) {
+      scale = 0.5f;
+    }
+    poseStack.scale(scale, scale, scale);
     super.preRender(
         poseStack,
         animatable,

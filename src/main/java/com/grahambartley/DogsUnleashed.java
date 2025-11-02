@@ -14,12 +14,10 @@ public class DogsUnleashed implements ModInitializer {
 
   @Override
   public void onInitialize() {
-    // This code runs as soon as Minecraft is in a mod-load-ready state.
-    // However, some things (like resources) may still be uninitialized.
-    // Proceed with mild caution.
-
     ModEntities.initialize();
+    ModItems.initialize();
+    ModSpawns.initialize();
 
-    LOGGER.info("Dogs Unleashed loaded successfully"); // test trailing spaces
+    LOGGER.info("Dogs Unleashed loaded successfully");
   }
 }
