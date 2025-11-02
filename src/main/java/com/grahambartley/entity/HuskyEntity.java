@@ -29,12 +29,14 @@ import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.DyeColor;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TimeHelper;
 import net.minecraft.util.math.intprovider.UniformIntProvider;
@@ -43,12 +45,15 @@ import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable {
 
   private static final TrackedData<Integer> ANGER_TIME =
+      DataTracker.registerData(HuskyEntity.class, TrackedDataHandlerRegistry.INTEGER);
+  private static final TrackedData<Integer> COLLAR_COLOR =
       DataTracker.registerData(HuskyEntity.class, TrackedDataHandlerRegistry.INTEGER);
 
   private static final UniformIntProvider ANGER_TIME_RANGE = TimeHelper.betweenSeconds(20, 39);
@@ -78,6 +83,15 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
   protected void initDataTracker(DataTracker.Builder builder) {
     super.initDataTracker(builder);
     builder.add(ANGER_TIME, 0);
+    builder.add(COLLAR_COLOR, DyeColor.RED.getId());
+  }
+
+  public DyeColor getCollarColor() {
+    return DyeColor.byId(this.dataTracker.get(COLLAR_COLOR));
+  }
+
+  public void setCollarColor(DyeColor color) {
+    this.dataTracker.set(COLLAR_COLOR, color.getId());
   }
 
   @Override
@@ -121,6 +135,13 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
       if (this.isBreedingItem(itemStack) && this.getHealth() < this.getMaxHealth()) {
         itemStack.decrementUnlessCreative(1, player);
         this.heal(2.0F);
+        return ActionResult.SUCCESS;
+      }
+
+      if (itemStack.getItem() instanceof DyeItem dyeItem) {
+        final DyeColor dyeColor = dyeItem.getColor();
+        this.setCollarColor(dyeColor);
+        itemStack.decrementUnlessCreative(1, player);
         return ActionResult.SUCCESS;
       }
 
@@ -205,12 +226,16 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
   public void writeCustomDataToNbt(NbtCompound nbt) {
     super.writeCustomDataToNbt(nbt);
     this.writeAngerToNbt(nbt);
+    nbt.putInt("CollarColor", this.getCollarColor().getId());
   }
 
   @Override
   public void readCustomDataFromNbt(NbtCompound nbt) {
     super.readCustomDataFromNbt(nbt);
     this.readAngerFromNbt(this.getWorld(), nbt);
+    if (nbt.contains("CollarColor", 99)) {
+      this.setCollarColor(DyeColor.byId(nbt.getInt("CollarColor")));
+    }
   }
 
   @Override
@@ -243,7 +268,7 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
     controllers.add(
         new AnimationController<>(
             this,
-            "controller",
+            "movement",
             0,
             state -> {
               if (state.getAnimatable().isInSittingPose()) {
@@ -253,6 +278,19 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
                 return state.setAndContinue(RawAnimation.begin().thenLoop("walk"));
               }
               return state.setAndContinue(RawAnimation.begin().thenLoop("idle"));
+            }));
+
+    controllers.add(
+        new AnimationController<>(
+            this,
+            "tail",
+            0,
+            state -> {
+              final HuskyEntity husky = state.getAnimatable();
+              if (husky.isTamed() && !husky.isInSittingPose() && husky.getAngerTime() <= 0) {
+                return state.setAndContinue(RawAnimation.begin().thenLoop("tail_wag"));
+              }
+              return PlayState.STOP;
             }));
   }
 
