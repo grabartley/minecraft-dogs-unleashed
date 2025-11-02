@@ -202,6 +202,7 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
   @Override
   public PassiveEntity createChild(ServerWorld world, PassiveEntity entity) {
     final HuskyEntity baby = new HuskyEntity(ModEntities.HUSKY, world);
+    baby.setBaby(true);
     if (entity instanceof HuskyEntity otherParent) {
       if (this.isTamed()) {
         baby.setOwnerUuid(this.getOwnerUuid());
@@ -287,7 +288,10 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
             0,
             state -> {
               final HuskyEntity husky = state.getAnimatable();
-              if (husky.isTamed() && !husky.isInSittingPose() && husky.getAngerTime() <= 0) {
+              if (husky.isTamed()
+                  && !husky.isInSittingPose()
+                  && husky.getAngerTime() <= 0
+                  && this.random.nextInt(100) == 0) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("tail_wag"));
               }
               return PlayState.STOP;
