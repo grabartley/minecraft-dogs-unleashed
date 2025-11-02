@@ -1,17 +1,43 @@
 package com.grahambartley.entity;
 
-import net.minecraft.entity.EntityData;
+import com.grahambartley.ModEntities;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.ai.goal.ActiveTargetGoal;
+import net.minecraft.entity.ai.goal.AnimalMateGoal;
+import net.minecraft.entity.ai.goal.AttackWithOwnerGoal;
+import net.minecraft.entity.ai.goal.EscapeDangerGoal;
+import net.minecraft.entity.ai.goal.FollowOwnerGoal;
+import net.minecraft.entity.ai.goal.LookAroundGoal;
+import net.minecraft.entity.ai.goal.LookAtEntityGoal;
+import net.minecraft.entity.ai.goal.MeleeAttackGoal;
+import net.minecraft.entity.ai.goal.PounceAtTargetGoal;
+import net.minecraft.entity.ai.goal.RevengeGoal;
+import net.minecraft.entity.ai.goal.SitGoal;
+import net.minecraft.entity.ai.goal.SwimGoal;
+import net.minecraft.entity.ai.goal.TrackOwnerAttackerGoal;
+import net.minecraft.entity.ai.goal.UniversalAngerGoal;
+import net.minecraft.entity.ai.goal.WanderAroundFarGoal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.passive.WolfEntity;
-import net.minecraft.entity.passive.WolfVariant;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.data.TrackedData;
+import net.minecraft.entity.data.TrackedDataHandlerRegistry;
+import net.minecraft.entity.mob.Angerable;
+import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.entity.passive.AnimalEntity;
+import net.minecraft.entity.passive.PassiveEntity;
+import net.minecraft.entity.passive.TameableEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.world.LocalDifficulty;
-import net.minecraft.world.ServerWorldAccess;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
+import net.minecraft.util.TimeHelper;
+import net.minecraft.util.math.intprovider.UniformIntProvider;
 import net.minecraft.world.World;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -20,51 +46,196 @@ import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class HuskyEntity extends WolfEntity implements GeoEntity {
+public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable {
+
+  private static final TrackedData<Integer> ANGER_TIME =
+      DataTracker.registerData(HuskyEntity.class, TrackedDataHandlerRegistry.INTEGER);
+
+  private static final UniformIntProvider ANGER_TIME_RANGE = TimeHelper.betweenSeconds(20, 39);
+  private java.util.UUID angryAt;
+  private static final Ingredient BREEDING_INGREDIENT =
+      Ingredient.ofItems(
+          Items.CHICKEN,
+          Items.COOKED_CHICKEN,
+          Items.BEEF,
+          Items.COOKED_BEEF,
+          Items.PORKCHOP,
+          Items.COOKED_PORKCHOP,
+          Items.MUTTON,
+          Items.COOKED_MUTTON,
+          Items.RABBIT,
+          Items.COOKED_RABBIT,
+          Items.ROTTEN_FLESH);
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-  public HuskyEntity(EntityType<? extends WolfEntity> entityType, World world) {
+  public HuskyEntity(EntityType<? extends TameableEntity> entityType, World world) {
     super(entityType, world);
+    this.setTamed(false, false);
   }
 
   @Override
-  public EntityData initialize(
-      ServerWorldAccess world,
-      LocalDifficulty difficulty,
-      SpawnReason spawnReason,
-      EntityData entityData) {
-    RegistryEntry<WolfVariant> variant =
-        world
-            .getRegistryManager()
-            .get(RegistryKeys.WOLF_VARIANT)
-            .getDefaultEntry()
-            .orElseThrow(() -> new IllegalStateException("Missing default wolf variant"));
-    this.setVariant(variant);
-    return super.initialize(world, difficulty, spawnReason, entityData);
+  protected void initDataTracker(DataTracker.Builder builder) {
+    super.initDataTracker(builder);
+    builder.add(ANGER_TIME, 0);
+  }
+
+  @Override
+  protected void initGoals() {
+    this.goalSelector.add(1, new SwimGoal(this));
+    this.goalSelector.add(2, new SitGoal(this));
+    this.goalSelector.add(3, new EscapeDangerGoal(this, 1.5));
+    this.goalSelector.add(4, new PounceAtTargetGoal(this, 0.4F));
+    this.goalSelector.add(5, new MeleeAttackGoal(this, 1.0, true));
+    this.goalSelector.add(6, new FollowOwnerGoal(this, 1.0, 10.0F, 2.0F));
+    this.goalSelector.add(7, new AnimalMateGoal(this, 1.0));
+    this.goalSelector.add(8, new WanderAroundFarGoal(this, 1.0));
+    this.goalSelector.add(9, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F));
+    this.goalSelector.add(10, new LookAroundGoal(this));
+
+    this.targetSelector.add(1, new TrackOwnerAttackerGoal(this));
+    this.targetSelector.add(2, new AttackWithOwnerGoal(this));
+    this.targetSelector.add(3, new RevengeGoal(this));
+    this.targetSelector.add(
+        4, new ActiveTargetGoal<>(this, PlayerEntity.class, 10, true, false, this::shouldAngerAt));
+    this.targetSelector.add(5, new UniversalAngerGoal<>(this, true));
+  }
+
+  public static DefaultAttributeContainer.Builder createHuskyAttributes() {
+    return MobEntity.createMobAttributes()
+        .add(EntityAttributes.GENERIC_MAX_HEALTH, 25.0)
+        .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.35)
+        .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 5.0);
+  }
+
+  @Override
+  public ActionResult interactMob(PlayerEntity player, Hand hand) {
+    final ItemStack itemStack = player.getStackInHand(hand);
+
+    if (this.getWorld().isClient) {
+      final boolean shouldInteract = this.isOwner(player) || !this.isTamed();
+      return shouldInteract ? ActionResult.CONSUME : ActionResult.PASS;
+    }
+
+    if (this.isTamed()) {
+      if (this.isBreedingItem(itemStack) && this.getHealth() < this.getMaxHealth()) {
+        itemStack.decrementUnlessCreative(1, player);
+        this.heal(2.0F);
+        return ActionResult.SUCCESS;
+      }
+
+      if (this.isOwner(player) && !this.isBreedingItem(itemStack)) {
+        this.setSitting(!this.isSitting());
+        this.jumping = false;
+        this.navigation.stop();
+        this.setTarget(null);
+        return ActionResult.SUCCESS;
+      }
+
+      ActionResult actionResult = super.interactMob(player, hand);
+      if (actionResult.isAccepted() || this.isBreedingItem(itemStack)) {
+        return actionResult;
+      }
+    } else if (this.isBreedingItem(itemStack)) {
+      itemStack.decrementUnlessCreative(1, player);
+      if (this.random.nextInt(3) == 0) {
+        this.setOwner(player);
+        this.navigation.stop();
+        this.setTarget(null);
+        this.setSitting(true);
+        this.getWorld().sendEntityStatus(this, (byte) 7);
+      } else {
+        this.getWorld().sendEntityStatus(this, (byte) 6);
+      }
+      return ActionResult.SUCCESS;
+    }
+
+    return super.interactMob(player, hand);
+  }
+
+  @Override
+  public boolean isBreedingItem(ItemStack stack) {
+    return BREEDING_INGREDIENT.test(stack);
+  }
+
+  @Override
+  public boolean canBreedWith(AnimalEntity other) {
+    if (other == this) {
+      return false;
+    }
+    if (!this.isTamed()) {
+      return false;
+    }
+    if (!(other instanceof HuskyEntity otherHusky)) {
+      return false;
+    }
+    if (!otherHusky.isTamed()) {
+      return false;
+    }
+    if (otherHusky.isInSittingPose()) {
+      return false;
+    }
+    return this.isInLove() && otherHusky.isInLove();
+  }
+
+  @Override
+  public PassiveEntity createChild(ServerWorld world, PassiveEntity entity) {
+    final HuskyEntity baby = new HuskyEntity(ModEntities.HUSKY, world);
+    if (entity instanceof HuskyEntity otherParent) {
+      if (this.isTamed()) {
+        baby.setOwnerUuid(this.getOwnerUuid());
+        baby.setTamed(true, true);
+      }
+    }
+    return baby;
+  }
+
+  @Override
+  public boolean damage(DamageSource source, float amount) {
+    if (this.isInvulnerableTo(source)) {
+      return false;
+    }
+    if (!this.getWorld().isClient) {
+      this.setSitting(false);
+    }
+    return super.damage(source, amount);
+  }
+
+  @Override
+  public void writeCustomDataToNbt(NbtCompound nbt) {
+    super.writeCustomDataToNbt(nbt);
+    this.writeAngerToNbt(nbt);
   }
 
   @Override
   public void readCustomDataFromNbt(NbtCompound nbt) {
     super.readCustomDataFromNbt(nbt);
-    if (!nbt.contains("variant")) {
-      RegistryEntry<WolfVariant> defaultVariant =
-          this.getWorld()
-              .getRegistryManager()
-              .get(RegistryKeys.WOLF_VARIANT)
-              .getDefaultEntry()
-              .orElse(null);
-      if (defaultVariant != null) {
-        this.setVariant(defaultVariant);
-      }
-    }
+    this.readAngerFromNbt(this.getWorld(), nbt);
   }
 
-  public static DefaultAttributeContainer.Builder createHuskyAttributes() {
-    return WolfEntity.createWolfAttributes()
-        .add(EntityAttributes.GENERIC_MAX_HEALTH, 25.0)
-        .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.35)
-        .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 5.0);
+  @Override
+  public int getAngerTime() {
+    return this.dataTracker.get(ANGER_TIME);
+  }
+
+  @Override
+  public void setAngerTime(int angerTime) {
+    this.dataTracker.set(ANGER_TIME, angerTime);
+  }
+
+  @Override
+  public void chooseRandomAngerTime() {
+    this.setAngerTime(ANGER_TIME_RANGE.get(this.random));
+  }
+
+  @Override
+  public java.util.UUID getAngryAt() {
+    return this.angryAt;
+  }
+
+  @Override
+  public void setAngryAt(java.util.UUID uuid) {
+    this.angryAt = uuid;
   }
 
   @Override

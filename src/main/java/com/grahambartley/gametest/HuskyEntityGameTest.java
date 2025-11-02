@@ -3,7 +3,7 @@ package com.grahambartley.gametest;
 import com.grahambartley.ModEntities;
 import com.grahambartley.entity.HuskyEntity;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
-import net.minecraft.entity.passive.WolfEntity;
+import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
@@ -16,11 +16,7 @@ public final class HuskyEntityGameTest implements FabricGameTest {
     final BlockPos spawnPos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
-    final HuskyEntity husky = ModEntities.HUSKY.create(world);
-    if (husky == null) {
-      context.throwPositionedException("Failed to create husky entity", spawnPos);
-      return;
-    }
+    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
 
     husky.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
     world.spawnEntity(husky);
@@ -37,20 +33,16 @@ public final class HuskyEntityGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void huskyIsWolfVariant(final TestContext context) {
+  public void huskyIsTameable(final TestContext context) {
     final BlockPos spawnPos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
-    final HuskyEntity husky = ModEntities.HUSKY.create(world);
-    if (husky == null) {
-      context.throwPositionedException("Failed to create husky entity", spawnPos);
-      return;
-    }
+    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
 
     husky.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
     world.spawnEntity(husky);
 
-    context.assertTrue(husky instanceof WolfEntity, "Husky must be a WolfEntity");
+    context.assertTrue(husky instanceof TameableEntity, "Husky must be a TameableEntity");
     context.complete();
   }
 
@@ -59,11 +51,7 @@ public final class HuskyEntityGameTest implements FabricGameTest {
     final BlockPos spawnPos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
-    final HuskyEntity husky = ModEntities.HUSKY.create(world);
-    if (husky == null) {
-      context.throwPositionedException("Failed to create husky entity", spawnPos);
-      return;
-    }
+    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
 
     husky.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
     world.spawnEntity(husky);
@@ -89,17 +77,13 @@ public final class HuskyEntityGameTest implements FabricGameTest {
     final BlockPos spawnPos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
-    final HuskyEntity husky = ModEntities.HUSKY.create(world);
-    if (husky == null) {
-      context.throwPositionedException("Failed to create husky entity", spawnPos);
-      return;
-    }
+    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
 
     husky.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
     world.spawnEntity(husky);
 
-    final float expectedWidth = 0.6f;
-    final float expectedHeight = 0.85f;
+    final float expectedWidth = 0.8f;
+    final float expectedHeight = 1.1f;
 
     context.assertTrue(
         Math.abs(husky.getWidth() - expectedWidth) < 0.01f,
@@ -115,11 +99,7 @@ public final class HuskyEntityGameTest implements FabricGameTest {
     final BlockPos spawnPos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
-    final HuskyEntity husky = ModEntities.HUSKY.create(world);
-    if (husky == null) {
-      context.throwPositionedException("Failed to create husky entity", spawnPos);
-      return;
-    }
+    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
 
     husky.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
     world.spawnEntity(husky);
