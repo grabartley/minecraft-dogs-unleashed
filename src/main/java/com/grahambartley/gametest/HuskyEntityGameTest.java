@@ -320,4 +320,61 @@ public final class HuskyEntityGameTest implements FabricGameTest {
     context.assertTrue(husky.isBreedingItem(chicken), "Chicken should be a breeding item");
     context.complete();
   }
+
+  @GameTest(templateName = "fabric-gametest-api-v1:empty", tickLimit = 100)
+  public void huskyShakesOnceWhenLeavingWater(final TestContext context) {
+    final BlockPos spawnPos = new BlockPos(0, 1, 0);
+    final ServerWorld world = context.getWorld();
+    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
+    husky.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
+    world.spawnEntity(husky);
+
+    context.runAtTick(
+        5,
+        () -> {
+          context.assertTrue(husky.getShakeProgress() == 0, "Shake progress should start at 0");
+          context.assertFalse(husky.isShaking(), "Husky should not be shaking initially");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = "fabric-gametest-api-v1:empty", tickLimit = 100)
+  public void shakeProgressDecrementsEachTick(final TestContext context) {
+    final BlockPos spawnPos = new BlockPos(0, 1, 0);
+    final ServerWorld world = context.getWorld();
+    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
+    husky.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
+    world.spawnEntity(husky);
+
+    context.assertTrue(husky.getShakeProgress() == 0, "Initial shake progress should be 0");
+    context.complete();
+  }
+
+  @GameTest(templateName = "fabric-gametest-api-v1:empty", tickLimit = 100)
+  public void shakeProgressPersistsInNbt(final TestContext context) {
+    final BlockPos spawnPos = new BlockPos(0, 1, 0);
+    final ServerWorld world = context.getWorld();
+    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
+    husky.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
+    world.spawnEntity(husky);
+
+    context.runAtTick(
+        5,
+        () -> {
+          final NbtCompound nbt = new NbtCompound();
+          husky.writeCustomDataToNbt(nbt);
+
+          context.assertTrue(
+              nbt.contains("ShakeProgress"), "NBT should contain ShakeProgress data");
+          context.assertTrue(nbt.contains("WasInWater"), "NBT should contain WasInWater data");
+
+          final HuskyEntity newHusky = new HuskyEntity(ModEntities.HUSKY, world);
+          newHusky.readCustomDataFromNbt(nbt);
+
+          context.assertTrue(
+              newHusky.getShakeProgress() == husky.getShakeProgress(),
+              "Shake progress should persist after NBT load");
+          context.complete();
+        });
+  }
 }
