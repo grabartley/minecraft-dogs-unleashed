@@ -10,13 +10,9 @@ import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import software.bernie.geckolib.animatable.GeoEntity;
 
 public class DachshundEntity extends UnleashedDogEntity implements GeoEntity, Angerable {
-
-  public static final Logger log = LoggerFactory.getLogger(DachshundEntity.class);
 
   public static DefaultAttributeContainer.Builder createAttributes() {
     return MobEntity.createMobAttributes()

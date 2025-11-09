@@ -333,7 +333,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   }
 
   protected boolean isMoving(final AnimationState<UnleashedDogEntity> animationState) {
-    return animationState.getAnimatable().getVelocity().horizontalLengthSquared() > 0;
+    return animationState.getAnimatable().getVelocity().horizontalLengthSquared() > 0.001;
   }
 
   @Override
