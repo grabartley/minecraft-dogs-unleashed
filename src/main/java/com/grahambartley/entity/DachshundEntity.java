@@ -1,36 +1,37 @@
 package com.grahambartley.entity;
 
-import static com.grahambartley.ModEntities.HUSKY;
+import static com.grahambartley.ModEntities.DACHSHUND;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.mob.Angerable;
 import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
 import software.bernie.geckolib.animatable.GeoEntity;
 
-public class HuskyEntity extends UnleashedDogEntity implements GeoEntity, Angerable {
+public class DachshundEntity extends UnleashedDogEntity implements GeoEntity, Angerable {
 
-  public HuskyEntity(EntityType<? extends UnleashedDogEntity> entityType, World world) {
+  public DachshundEntity(EntityType<? extends TameableEntity> entityType, World world) {
     super(entityType, world);
   }
 
   public static DefaultAttributeContainer.Builder createAttributes() {
     return MobEntity.createMobAttributes()
-        .add(EntityAttributes.GENERIC_MAX_HEALTH, 25.0)
-        .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.30)
-        .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 5.0);
+        .add(EntityAttributes.GENERIC_MAX_HEALTH, 10.0)
+        .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.25)
+        .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 2.0);
   }
 
   @Override
   protected UnleashedDogEntity createBaby(ServerWorld world) {
-    return new HuskyEntity(HUSKY, world);
+    return new DachshundEntity(DACHSHUND, world);
   }
 
   @Override
   protected boolean isSameSpecies(MobEntity entity) {
-    return entity instanceof HuskyEntity;
+    return entity instanceof DachshundEntity;
   }
 }
