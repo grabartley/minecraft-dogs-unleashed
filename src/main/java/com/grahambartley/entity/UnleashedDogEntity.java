@@ -46,6 +46,7 @@ import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
@@ -331,6 +332,10 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     }
   }
 
+  protected boolean isMoving(final AnimationState<UnleashedDogEntity> animationState) {
+    return animationState.getAnimatable().getVelocity().horizontalLengthSquared() > 0;
+  }
+
   @Override
   public void tick() {
     super.tick();
@@ -444,7 +449,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
               if (state.getAnimatable().isInSittingPose()) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("sit"));
               }
-              if (state.getAnimatable().getVelocity().horizontalLengthSquared() > 0.01) {
+              if (this.isMoving(state)) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("walk"));
               }
               return state.setAndContinue(RawAnimation.begin().thenLoop("idle"));

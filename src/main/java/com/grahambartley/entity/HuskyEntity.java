@@ -13,15 +13,15 @@ import software.bernie.geckolib.animatable.GeoEntity;
 
 public class HuskyEntity extends UnleashedDogEntity implements GeoEntity, Angerable {
 
-  public HuskyEntity(EntityType<? extends UnleashedDogEntity> entityType, World world) {
-    super(entityType, world);
-  }
-
   public static DefaultAttributeContainer.Builder createAttributes() {
     return MobEntity.createMobAttributes()
         .add(EntityAttributes.GENERIC_MAX_HEALTH, 25.0)
         .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.30)
         .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 5.0);
+  }
+
+  public HuskyEntity(EntityType<? extends UnleashedDogEntity> entityType, World world) {
+    super(entityType, world);
   }
 
   @Override

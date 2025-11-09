@@ -26,6 +26,6 @@ class DogsUnleashedTest {
   @Test
   @DisplayName("Logger should have correct name")
   void testLoggerName() {
-    assertEquals(DogsUnleashed.MOD_ID, DogsUnleashed.LOGGER.getName());
+    assertEquals(DogsUnleashed.MOD_ID, DogsUnleashed.log.getName());
   }
 }

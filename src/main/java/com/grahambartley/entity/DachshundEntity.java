@@ -10,19 +10,23 @@ import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import software.bernie.geckolib.animatable.GeoEntity;
 
 public class DachshundEntity extends UnleashedDogEntity implements GeoEntity, Angerable {
 
-  public DachshundEntity(EntityType<? extends TameableEntity> entityType, World world) {
-    super(entityType, world);
-  }
+  public static final Logger log = LoggerFactory.getLogger(DachshundEntity.class);
 
   public static DefaultAttributeContainer.Builder createAttributes() {
     return MobEntity.createMobAttributes()
         .add(EntityAttributes.GENERIC_MAX_HEALTH, 10.0)
         .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.25)
         .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 2.0);
+  }
+
+  public DachshundEntity(EntityType<? extends TameableEntity> entityType, World world) {
+    super(entityType, world);
   }
 
   @Override
