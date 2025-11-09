@@ -63,6 +63,8 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
       DataTracker.registerData(HuskyEntity.class, TrackedDataHandlerRegistry.INTEGER);
   private static final TrackedData<Integer> SHAKE_PROGRESS =
       DataTracker.registerData(HuskyEntity.class, TrackedDataHandlerRegistry.INTEGER);
+  private static final TrackedData<Boolean> HEAD_TILTING =
+      DataTracker.registerData(HuskyEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 
   private static final UniformIntProvider ANGER_TIME_RANGE = TimeHelper.betweenSeconds(20, 39);
   private java.util.UUID angryAt;
@@ -117,6 +119,7 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
     builder.add(COLLAR_COLOR, DyeColor.RED.getId());
     builder.add(TAIL_WAG_TIMER, 0);
     builder.add(SHAKE_PROGRESS, 0);
+    builder.add(HEAD_TILTING, false);
   }
 
   public DyeColor getCollarColor() {
@@ -133,6 +136,10 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
 
   public boolean isShaking() {
     return this.getShakeProgress() > 0;
+  }
+
+  public boolean isHeadTilting() {
+    return this.dataTracker.get(HEAD_TILTING);
   }
 
   private void startShaking() {
@@ -285,38 +292,57 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
     return baby;
   }
 
+  private boolean isPlayerHoldingTamingOrBreedingItem(final PlayerEntity player) {
+    return this.isTamingItem(player.getMainHandStack())
+        || this.isTamingItem(player.getOffHandStack())
+        || this.isBreedingItem(player.getMainHandStack())
+        || this.isBreedingItem(player.getOffHandStack());
+  }
+
+  private void updateHeadTilt(final PlayerEntity nearbyPlayer) {
+    final boolean shouldTilt =
+        nearbyPlayer != null && this.isPlayerHoldingTamingOrBreedingItem(nearbyPlayer);
+    this.dataTracker.set(HEAD_TILTING, shouldTilt);
+  }
+
+  private void updateTailWag(final PlayerEntity nearbyPlayer) {
+    final int currentTimer = this.dataTracker.get(TAIL_WAG_TIMER);
+
+    if (!this.isInSittingPose() && this.getAngerTime() <= 0) {
+      boolean shouldWag = false;
+
+      if (nearbyPlayer != null) {
+        final boolean holdingTamingItem =
+            this.isTamingItem(nearbyPlayer.getMainHandStack())
+                || this.isTamingItem(nearbyPlayer.getOffHandStack());
+        final boolean holdingBreedingItem =
+            this.isBreedingItem(nearbyPlayer.getMainHandStack())
+                || this.isBreedingItem(nearbyPlayer.getOffHandStack());
+
+        shouldWag =
+            (!this.isTamed() && holdingTamingItem) || (this.isTamed() && holdingBreedingItem);
+      }
+
+      if (shouldWag) {
+        this.dataTracker.set(TAIL_WAG_TIMER, TAIL_WAG_DURATION_TICKS);
+      } else if (currentTimer > 0) {
+        this.dataTracker.set(TAIL_WAG_TIMER, currentTimer - 1);
+      } else if (this.isTamed() && this.random.nextInt(200) == 0) {
+        this.dataTracker.set(TAIL_WAG_TIMER, TAIL_WAG_DURATION_TICKS);
+      }
+    } else if (currentTimer > 0) {
+      this.dataTracker.set(TAIL_WAG_TIMER, currentTimer - 1);
+    }
+  }
+
   @Override
   public void tick() {
     super.tick();
     if (!this.getWorld().isClient) {
-      final int currentTimer = this.dataTracker.get(TAIL_WAG_TIMER);
+      final PlayerEntity nearbyPlayer = this.getWorld().getClosestPlayer(this, 10.0D);
 
-      if (!this.isInSittingPose() && this.getAngerTime() <= 0) {
-        final PlayerEntity nearbyPlayer = this.getWorld().getClosestPlayer(this, 10.0D);
-        boolean shouldWag = false;
-
-        if (nearbyPlayer != null) {
-          final boolean holdingTamingItem =
-              this.isTamingItem(nearbyPlayer.getMainHandStack())
-                  || this.isTamingItem(nearbyPlayer.getOffHandStack());
-          final boolean holdingBreedingItem =
-              this.isBreedingItem(nearbyPlayer.getMainHandStack())
-                  || this.isBreedingItem(nearbyPlayer.getOffHandStack());
-
-          shouldWag =
-              (!this.isTamed() && holdingTamingItem) || (this.isTamed() && holdingBreedingItem);
-        }
-
-        if (shouldWag) {
-          this.dataTracker.set(TAIL_WAG_TIMER, TAIL_WAG_DURATION_TICKS);
-        } else if (currentTimer > 0) {
-          this.dataTracker.set(TAIL_WAG_TIMER, currentTimer - 1);
-        } else if (this.isTamed() && this.random.nextInt(200) == 0) {
-          this.dataTracker.set(TAIL_WAG_TIMER, TAIL_WAG_DURATION_TICKS);
-        }
-      } else if (currentTimer > 0) {
-        this.dataTracker.set(TAIL_WAG_TIMER, currentTimer - 1);
-      }
+      this.updateHeadTilt(nearbyPlayer);
+      this.updateTailWag(nearbyPlayer);
 
       final boolean inWater = this.isTouchingWater();
 
@@ -449,6 +475,23 @@ public class HuskyEntity extends TameableEntity implements GeoEntity, Angerable 
             state -> {
               if (state.getAnimatable().isShaking()) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("shake"));
+              }
+              return PlayState.STOP;
+            }));
+
+    controllers.add(
+        new AnimationController<>(
+            this,
+            "head_tilt",
+            5,
+            state -> {
+              final HuskyEntity husky = state.getAnimatable();
+              if (husky.isHeadTilting()) {
+                if (state.getController().getAnimationState()
+                    == AnimationController.State.STOPPED) {
+                  state.getController().forceAnimationReset();
+                }
+                return state.setAndContinue(RawAnimation.begin().thenPlayAndHold("head_tilt"));
               }
               return PlayState.STOP;
             }));

@@ -377,4 +377,20 @@ public final class HuskyEntityGameTest implements FabricGameTest {
           context.complete();
         });
   }
+
+  @GameTest(templateName = "fabric-gametest-api-v1:empty", tickLimit = 100)
+  public void huskyHeadTiltingStateCanBeTracked(final TestContext context) {
+    final BlockPos spawnPos = new BlockPos(0, 1, 0);
+    final ServerWorld world = context.getWorld();
+    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
+    husky.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
+    world.spawnEntity(husky);
+
+    context.runAtTick(
+        5,
+        () -> {
+          context.assertFalse(husky.isHeadTilting(), "Husky should not be tilting head initially");
+          context.complete();
+        });
+  }
 }
