@@ -1,47 +1,49 @@
 {
-	"schemaVersion": 1,
-	"id": "dogs-unleashed",
-	"version": "${version}",
-	"name": "Dogs Unleashed",
-	"description": "This is an example description! Tell everyone what your mod is about!",
-	"authors": [
-		"Me!"
-	],
-	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
-	},
-	"license": "CC0-1.0",
-	"icon": "assets/dogs-unleashed/icon.png",
-	"environment": "*",
-	"entrypoints": {
-		"main": [
-			"com.grahambartley.DogsUnleashed"
-		],
-		"client": [
-			"com.grahambartley.DogsUnleashedClient"
-		],
-		"fabric-datagen": [
-			"com.grahambartley.DogsUnleashedDataGenerator"
-		],
-		"fabric-gametest": [
-			"com.grahambartley.gametest.HuskyEntityGameTest"
-		]
-	},
-	"mixins": [
-		"dogs-unleashed.mixins.json",
-		{
-			"config": "dogs-unleashed.client.mixins.json",
-			"environment": "client"
-		}
-	],
-	"depends": {
-		"fabricloader": ">=0.16.5",
-		"minecraft": "~1.21.1",
-		"java": ">=21",
-		"fabric-api": "*"
-	},
-	"suggests": {
-		"another-mod": "*"
-	}
+  "schemaVersion": 1,
+  "id": "dogs-unleashed",
+  "version": "${version}",
+  "name": "Dogs Unleashed",
+  "description": "Adds additional dog breeds to Minecraft, each with unique behaviors and traits.",
+  "authors": [
+    "Vitória Vedana",
+    "Graham Bartley"
+  ],
+  "contact": {
+    "homepage": "https://grahambartley.com/",
+    "sources": "https://github.com/grabartley/minecraft-dogs-unleashed"
+  },
+  "license": "CC0-1.0",
+  "icon": "assets/dogs-unleashed/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.grahambartley.DogsUnleashed"
+    ],
+    "client": [
+      "com.grahambartley.DogsUnleashedClient"
+    ],
+    "fabric-datagen": [
+      "com.grahambartley.DogsUnleashedDataGenerator"
+    ],
+    "fabric-gametest": [
+      "com.grahambartley.gametest.HuskyEntityGameTest"
+    ]
+  },
+  "mixins": [
+    "dogs-unleashed.mixins.json",
+    {
+      "config": "dogs-unleashed.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.5",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": ">=0.107.0+1.21.1",
+    "geckolib": ">=4.7"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
 }
