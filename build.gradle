@@ -5,7 +5,7 @@ plugins {
 	id 'jacoco'
 }
 
-version = project.mod_version
+version = project.hasProperty('version') ? project.property('version') : project.mod_version
 group = project.maven_group
 
 base {
