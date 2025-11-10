@@ -34,6 +34,14 @@ public class ModSpawns {
         ModConstants.DACHSHUND_SPAWN_MIN_GROUP,
         ModConstants.DACHSHUND_SPAWN_MAX_GROUP);
 
+    BiomeModifications.addSpawn(
+        BiomeSelectors.includeByKey(BiomeKeys.FLOWER_FOREST),
+        SpawnGroup.CREATURE,
+        ModEntities.BEAGLE,
+        ModConstants.BEAGLE_SPAWN_WEIGHT,
+        ModConstants.BEAGLE_SPAWN_MIN_GROUP,
+        ModConstants.BEAGLE_SPAWN_MAX_GROUP);
+
     SpawnRestriction.register(
         ModEntities.HUSKY,
         SpawnLocationTypes.ON_GROUND,
@@ -42,6 +50,12 @@ public class ModSpawns {
 
     SpawnRestriction.register(
         ModEntities.DACHSHUND,
+        SpawnLocationTypes.ON_GROUND,
+        Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
+        AnimalEntity::isValidNaturalSpawn);
+
+    SpawnRestriction.register(
+        ModEntities.BEAGLE,
         SpawnLocationTypes.ON_GROUND,
         Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
         AnimalEntity::isValidNaturalSpawn);

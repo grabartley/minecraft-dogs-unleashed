@@ -30,10 +30,22 @@ public class ModItems {
               ModConstants.DACHSHUND_SPAWN_EGG_SECONDARY_COLOR,
               new Item.Settings()));
 
+  public static final Item BEAGLE_SPAWN_EGG =
+      Registry.register(
+          Registries.ITEM,
+          Identifier.of(DogsUnleashed.MOD_ID, "beagle_spawn_egg"),
+          new SpawnEggItem(
+              ModEntities.BEAGLE,
+              ModConstants.BEAGLE_SPAWN_EGG_PRIMARY_COLOR,
+              ModConstants.BEAGLE_SPAWN_EGG_SECONDARY_COLOR,
+              new Item.Settings()));
+
   public static void initialize() {
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS)
         .register(entries -> entries.add(HUSKY_SPAWN_EGG));
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS)
         .register(entries -> entries.add(DACHSHUND_SPAWN_EGG));
+    ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS)
+        .register(entries -> entries.add(BEAGLE_SPAWN_EGG));
   }
 }
