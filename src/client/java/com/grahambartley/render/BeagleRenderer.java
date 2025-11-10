@@ -34,7 +34,7 @@ public class BeagleRenderer extends GeoEntityRenderer<BeagleEntity> {
       int packedOverlay,
       int colour) {
     if (!isReRender) {
-      final float scale = animatable.isBaby() ? 0.5f : 1.3f;
+      final float scale = animatable.isBaby() ? 0.75f : 1.5f;
       poseStack.scale(scale, scale, scale);
     }
     super.preRender(
