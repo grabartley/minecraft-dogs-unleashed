@@ -9,8 +9,8 @@ public class BeagleCollarLayer extends CollarLayer<BeagleEntity> {
   private final Identifier collarTexture =
       Identifier.of("dogs-unleashed", "textures/entity/beagle_collar.png");
 
-  public BeagleCollarLayer(final BeagleRenderer dachshundRenderer) {
-    super(dachshundRenderer);
+  public BeagleCollarLayer(final BeagleRenderer beagleRenderer) {
+    super(beagleRenderer);
   }
 
   public Identifier getCollarTexture() {
