@@ -2,5 +2,7 @@
   "entity.dogs-unleashed.husky": "Husky",
   "item.dogs-unleashed.husky_spawn_egg": "Husky Spawn Egg",
   "entity.dogs-unleashed.dachshund": "Dachshund",
-  "item.dogs-unleashed.dachshund_spawn_egg": "Dachshund Spawn Egg"
+  "item.dogs-unleashed.dachshund_spawn_egg": "Dachshund Spawn Egg",
+  "entity.dogs-unleashed.beagle": "Beagle",
+  "item.dogs-unleashed.beagle_spawn_egg": "Beagle Spawn Egg"
 }

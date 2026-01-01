@@ -1,5 +1,6 @@
 package com.grahambartley;
 
+import com.grahambartley.entity.BeagleEntity;
 import com.grahambartley.entity.DachshundEntity;
 import com.grahambartley.entity.HuskyEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
@@ -27,8 +28,17 @@ public class ModEntities {
               .dimensions(ModConstants.DACHSHUND_WIDTH, ModConstants.DACHSHUND_HEIGHT)
               .build(Identifier.of(DogsUnleashed.MOD_ID, "dachshund").toString()));
 
+  public static final EntityType<BeagleEntity> BEAGLE =
+      Registry.register(
+          Registries.ENTITY_TYPE,
+          Identifier.of(DogsUnleashed.MOD_ID, "beagle"),
+          EntityType.Builder.create(BeagleEntity::new, SpawnGroup.CREATURE)
+              .dimensions(ModConstants.BEAGLE_WIDTH, ModConstants.BEAGLE_HEIGHT)
+              .build(Identifier.of(DogsUnleashed.MOD_ID, "beagle").toString()));
+
   public static void initialize() {
     FabricDefaultAttributeRegistry.register(HUSKY, HuskyEntity.createAttributes());
     FabricDefaultAttributeRegistry.register(DACHSHUND, DachshundEntity.createAttributes());
+    FabricDefaultAttributeRegistry.register(BEAGLE, BeagleEntity.createAttributes());
   }
 }
