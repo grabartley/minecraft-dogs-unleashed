@@ -1,6 +1,7 @@
 package com.grahambartley;
 
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.SpawnEggItem;
@@ -9,6 +10,12 @@ import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 
 public class ModItems {
+
+  public static final Item DOG_BED =
+      Registry.register(
+          Registries.ITEM,
+          Identifier.of(DogsUnleashed.MOD_ID, "dog_bed"),
+          new BlockItem(ModBlocks.DOG_BED, new Item.Settings()));
 
   public static final Item HUSKY_SPAWN_EGG =
       Registry.register(
@@ -41,6 +48,8 @@ public class ModItems {
               new Item.Settings()));
 
   public static void initialize() {
+    ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL)
+        .register(entries -> entries.add(DOG_BED));
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS)
         .register(entries -> entries.add(HUSKY_SPAWN_EGG));
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS)

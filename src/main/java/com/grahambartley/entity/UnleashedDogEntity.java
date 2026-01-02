@@ -2,6 +2,8 @@ package com.grahambartley.entity;
 
 import static com.grahambartley.ModConstants.MINECRAFT_TICK_RATE;
 
+import com.grahambartley.entity.goal.SleepInBedGoal;
+import java.util.Optional;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.ai.goal.AnimalMateGoal;
@@ -40,6 +42,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TimeHelper;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.intprovider.UniformIntProvider;
 import net.minecraft.world.World;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -63,6 +66,11 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
       DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.INTEGER);
   private static final TrackedData<Boolean> HEAD_TILTING =
       DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+  private static final TrackedData<Boolean> SLEEPING_IN_BED =
+      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+  private static final TrackedData<Optional<BlockPos>> ASSIGNED_BED_POS =
+      DataTracker.registerData(
+          UnleashedDogEntity.class, TrackedDataHandlerRegistry.OPTIONAL_BLOCK_POS);
 
   private static final UniformIntProvider ANGER_TIME_RANGE = TimeHelper.betweenSeconds(20, 39);
   private java.util.UUID angryAt;
@@ -122,6 +130,8 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     builder.add(TAIL_WAG_TIMER, 0);
     builder.add(SHAKE_PROGRESS, 0);
     builder.add(HEAD_TILTING, false);
+    builder.add(SLEEPING_IN_BED, false);
+    builder.add(ASSIGNED_BED_POS, Optional.empty());
   }
 
   public DyeColor getCollarColor() {
@@ -142,6 +152,41 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
 
   public boolean isHeadTilting() {
     return this.dataTracker.get(HEAD_TILTING);
+  }
+
+  public boolean isSleepingInBed() {
+    return this.dataTracker.get(SLEEPING_IN_BED);
+  }
+
+  public Optional<BlockPos> getAssignedBedPos() {
+    return this.dataTracker.get(ASSIGNED_BED_POS);
+  }
+
+  public void setAssignedBedPos(BlockPos pos) {
+    this.dataTracker.set(ASSIGNED_BED_POS, Optional.ofNullable(pos));
+  }
+
+  public void clearAssignedBed() {
+    this.dataTracker.set(ASSIGNED_BED_POS, Optional.empty());
+    this.wakeUp();
+  }
+
+  public void commandToSleep(BlockPos bedPos) {
+    if (!this.isTamed()) {
+      return;
+    }
+    this.setAssignedBedPos(bedPos);
+    this.setSitting(false);
+    this.dataTracker.set(SLEEPING_IN_BED, true);
+    this.navigation.startMovingTo(bedPos.getX() + 0.5, bedPos.getY(), bedPos.getZ() + 0.5, 1.0);
+  }
+
+  public void wakeUp() {
+    this.dataTracker.set(SLEEPING_IN_BED, false);
+  }
+
+  public boolean hasAssignedBed() {
+    return this.getAssignedBedPos().isPresent();
   }
 
   private void startShaking() {
@@ -174,15 +219,16 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   protected void initGoals() {
     this.goalSelector.add(1, new SwimGoal(this));
     this.goalSelector.add(2, new SitGoal(this));
-    this.goalSelector.add(3, new TemptGoal(this, 1.0, TAMING_INGREDIENT, false));
-    this.goalSelector.add(4, new EscapeDangerGoal(this, 1.5));
-    this.goalSelector.add(5, new PounceAtTargetGoal(this, 0.4F));
-    this.goalSelector.add(6, new MeleeAttackGoal(this, 1.0, true));
-    this.goalSelector.add(7, new FollowOwnerGoal(this, 1.0, 10.0F, 2.0F));
-    this.goalSelector.add(8, new AnimalMateGoal(this, 1.0));
-    this.goalSelector.add(9, new WanderAroundFarGoal(this, 1.0));
-    this.goalSelector.add(10, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F));
-    this.goalSelector.add(11, new LookAroundGoal(this));
+    this.goalSelector.add(3, new SleepInBedGoal(this));
+    this.goalSelector.add(4, new TemptGoal(this, 1.0, TAMING_INGREDIENT, false));
+    this.goalSelector.add(5, new EscapeDangerGoal(this, 1.5));
+    this.goalSelector.add(6, new PounceAtTargetGoal(this, 0.4F));
+    this.goalSelector.add(7, new MeleeAttackGoal(this, 1.0, true));
+    this.goalSelector.add(8, new FollowOwnerGoal(this, 1.0, 10.0F, 2.0F));
+    this.goalSelector.add(9, new AnimalMateGoal(this, 1.0));
+    this.goalSelector.add(10, new WanderAroundFarGoal(this, 1.0));
+    this.goalSelector.add(11, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F));
+    this.goalSelector.add(12, new LookAroundGoal(this));
 
     this.targetSelector.add(1, new TrackOwnerAttackerGoal(this));
     this.targetSelector.add(2, new AttackWithOwnerGoal(this));
@@ -381,6 +427,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     }
     if (!this.getWorld().isClient) {
       this.setSitting(false);
+      this.wakeUp();
     }
     return super.damage(source, amount);
   }
@@ -393,6 +440,14 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     nbt.putInt("ShakeProgress", this.getShakeProgress());
     nbt.putBoolean("WasInWater", this.wasInWater);
     nbt.putInt("TicksSinceLeftWater", this.ticksSinceLeftWater);
+    nbt.putBoolean("SleepingInBed", this.isSleepingInBed());
+    this.getAssignedBedPos()
+        .ifPresent(
+            pos -> {
+              nbt.putInt("BedPosX", pos.getX());
+              nbt.putInt("BedPosY", pos.getY());
+              nbt.putInt("BedPosZ", pos.getZ());
+            });
   }
 
   @Override
@@ -410,6 +465,13 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     }
     if (nbt.contains("TicksSinceLeftWater", 99)) {
       this.ticksSinceLeftWater = nbt.getInt("TicksSinceLeftWater");
+    }
+    if (nbt.contains("SleepingInBed")) {
+      this.dataTracker.set(SLEEPING_IN_BED, nbt.getBoolean("SleepingInBed"));
+    }
+    if (nbt.contains("BedPosX") && nbt.contains("BedPosY") && nbt.contains("BedPosZ")) {
+      this.setAssignedBedPos(
+          new BlockPos(nbt.getInt("BedPosX"), nbt.getInt("BedPosY"), nbt.getInt("BedPosZ")));
     }
   }
 
@@ -446,6 +508,9 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
             "movement",
             0,
             state -> {
+              if (state.getAnimatable().isSleepingInBed()) {
+                return state.setAndContinue(RawAnimation.begin().thenLoop("sleep"));
+              }
               if (state.getAnimatable().isInSittingPose()) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("sit"));
               }

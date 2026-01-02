@@ -28,7 +28,9 @@
     "fabric-gametest": [
       "com.grahambartley.gametest.HuskyEntityGameTest",
       "com.grahambartley.gametest.DachshundEntityGameTest",
-      "com.grahambartley.gametest.UnleashedDogEntityGameTest"
+      "com.grahambartley.gametest.BeagleEntityGameTest",
+      "com.grahambartley.gametest.UnleashedDogEntityGameTest",
+      "com.grahambartley.gametest.DogBedBlockGameTest"
     ]
   },
   "mixins": [
