@@ -8,7 +8,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 class DogRendererTest {
   @ParameterizedTest
-  @ValueSource(strings = {"HuskyRenderer", "DachshundRenderer", "BeagleRenderer"})
+  @ValueSource(
+      strings = {"HuskyRenderer", "DachshundRenderer", "BeagleRenderer", "GoldenRetrieverRenderer"})
   @DisplayName("Renderer class should exist")
   void testRendererClassExists(String rendererClassName) {
     assertDoesNotThrow(

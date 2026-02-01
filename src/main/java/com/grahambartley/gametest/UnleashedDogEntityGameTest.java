@@ -3,6 +3,7 @@ package com.grahambartley.gametest;
 import com.grahambartley.ModEntities;
 import com.grahambartley.entity.BeagleEntity;
 import com.grahambartley.entity.DachshundEntity;
+import com.grahambartley.entity.GoldenRetrieverEntity;
 import com.grahambartley.entity.HuskyEntity;
 import com.grahambartley.entity.UnleashedDogEntity;
 import java.util.function.BiFunction;
@@ -43,6 +44,14 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
           0.8f,
           1.1f);
 
+  private static final TestData<GoldenRetrieverEntity> GOLDEN_RETRIEVER_DATA =
+      new TestData<>(
+          ModEntities.GOLDEN_RETRIEVER,
+          (type, world) ->
+              new GoldenRetrieverEntity((EntityType<? extends UnleashedDogEntity>) type, world),
+          0.8f,
+          1.1f);
+
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 20)
   public void huskySpawnsCorrectly(final TestContext context) {
     testDogSpawnsCorrectly(context, HUSKY_DATA);
@@ -58,6 +67,11 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
     testDogSpawnsCorrectly(context, BEAGLE_DATA);
   }
 
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 20)
+  public void goldenRetrieverSpawnsCorrectly(final TestContext context) {
+    testDogSpawnsCorrectly(context, GOLDEN_RETRIEVER_DATA);
+  }
+
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void huskyIsTameable(final TestContext context) {
     testDogIsTameable(context, HUSKY_DATA);
@@ -71,6 +85,11 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void beagleIsTameable(final TestContext context) {
     testDogIsTameable(context, BEAGLE_DATA);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void goldenRetrieverIsTameable(final TestContext context) {
+    testDogIsTameable(context, GOLDEN_RETRIEVER_DATA);
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
@@ -89,6 +108,11 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+  public void goldenRetrieverCanBeTamed(final TestContext context) {
+    testDogCanBeTamed(context, GOLDEN_RETRIEVER_DATA);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void huskyHasCorrectDimensions(final TestContext context) {
     testDogHasCorrectDimensions(context, HUSKY_DATA);
   }
@@ -101,6 +125,11 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void beagleHasCorrectDimensions(final TestContext context) {
     testDogHasCorrectDimensions(context, BEAGLE_DATA);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+  public void goldenRetrieverHasCorrectDimensions(final TestContext context) {
+    testDogHasCorrectDimensions(context, GOLDEN_RETRIEVER_DATA);
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
@@ -119,6 +148,11 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void goldenRetrieverHasAnimatableInstanceCache(final TestContext context) {
+    testDogHasAnimatableInstanceCache(context, GOLDEN_RETRIEVER_DATA);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void untamedHuskyHasDefaultCollarColor(final TestContext context) {
     testUntamedDogHasDefaultCollarColor(context, HUSKY_DATA);
   }
@@ -131,6 +165,11 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void untamedBeagleHasDefaultCollarColor(final TestContext context) {
     testUntamedDogHasDefaultCollarColor(context, BEAGLE_DATA);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void untamedGoldenRetrieverHasDefaultCollarColor(final TestContext context) {
+    testUntamedDogHasDefaultCollarColor(context, GOLDEN_RETRIEVER_DATA);
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
@@ -149,6 +188,11 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+  public void tamedGoldenRetrieverCollarColorCanBeChanged(final TestContext context) {
+    testTamedDogCollarColorCanBeChanged(context, GOLDEN_RETRIEVER_DATA);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void huskyCollarColorPersistsInNbt(final TestContext context) {
     testCollarColorPersistsInNbt(context, HUSKY_DATA);
   }
@@ -161,6 +205,11 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void beagleCollarColorPersistsInNbt(final TestContext context) {
     testCollarColorPersistsInNbt(context, BEAGLE_DATA);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+  public void goldenRetrieverCollarColorPersistsInNbt(final TestContext context) {
+    testCollarColorPersistsInNbt(context, GOLDEN_RETRIEVER_DATA);
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
@@ -179,6 +228,11 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+  public void babyGoldenRetrieverHasCollarWhenTamed(final TestContext context) {
+    testBabyDogHasCollarWhenTamed(context, GOLDEN_RETRIEVER_DATA);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void huskyAllDyeColorsWorkOnCollar(final TestContext context) {
     testAllDyeColorsWorkOnCollar(context, HUSKY_DATA);
   }
@@ -191,6 +245,11 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void beagleAllDyeColorsWorkOnCollar(final TestContext context) {
     testAllDyeColorsWorkOnCollar(context, BEAGLE_DATA);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+  public void goldenRetrieverAllDyeColorsWorkOnCollar(final TestContext context) {
+    testAllDyeColorsWorkOnCollar(context, GOLDEN_RETRIEVER_DATA);
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
@@ -206,6 +265,11 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
   public void beagleBredBabyInheritsParentTamedStatus(final TestContext context) {
     testBredBabyInheritsParentTamedStatus(context, BEAGLE_DATA);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
+  public void goldenRetrieverBredBabyInheritsParentTamedStatus(final TestContext context) {
+    testBredBabyInheritsParentTamedStatus(context, GOLDEN_RETRIEVER_DATA);
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
@@ -224,6 +288,11 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void goldenRetrieverBoneIsTamingItem(final TestContext context) {
+    testBoneIsTamingItem(context, GOLDEN_RETRIEVER_DATA);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void huskyMeatItemsAreBothTamingAndBreeding(final TestContext context) {
     testMeatItemsAreBothTamingAndBreeding(context, HUSKY_DATA);
   }
@@ -236,6 +305,11 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void beagleMeatItemsAreBothTamingAndBreeding(final TestContext context) {
     testMeatItemsAreBothTamingAndBreeding(context, BEAGLE_DATA);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void goldenRetrieverMeatItemsAreBothTamingAndBreeding(final TestContext context) {
+    testMeatItemsAreBothTamingAndBreeding(context, GOLDEN_RETRIEVER_DATA);
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
@@ -254,6 +328,11 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+  public void goldenRetrieverShakesOnceWhenLeavingWater(final TestContext context) {
+    testDogShakesOnceWhenLeavingWater(context, GOLDEN_RETRIEVER_DATA);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void huskyShakeProgressDecrementsEachTick(final TestContext context) {
     testShakeProgressDecrementsEachTick(context, HUSKY_DATA);
   }
@@ -266,6 +345,11 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void beagleShakeProgressDecrementsEachTick(final TestContext context) {
     testShakeProgressDecrementsEachTick(context, BEAGLE_DATA);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+  public void goldenRetrieverShakeProgressDecrementsEachTick(final TestContext context) {
+    testShakeProgressDecrementsEachTick(context, GOLDEN_RETRIEVER_DATA);
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
@@ -284,6 +368,11 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+  public void goldenRetrieverShakeProgressPersistsInNbt(final TestContext context) {
+    testShakeProgressPersistsInNbt(context, GOLDEN_RETRIEVER_DATA);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void huskyHeadTiltingStateCanBeTracked(final TestContext context) {
     testHeadTiltingStateCanBeTracked(context, HUSKY_DATA);
   }
@@ -296,6 +385,11 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void beagleHeadTiltingStateCanBeTracked(final TestContext context) {
     testHeadTiltingStateCanBeTracked(context, BEAGLE_DATA);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+  public void goldenRetrieverHeadTiltingStateCanBeTracked(final TestContext context) {
+    testHeadTiltingStateCanBeTracked(context, GOLDEN_RETRIEVER_DATA);
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
@@ -365,6 +459,31 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
         10,
         () -> {
           context.assertFalse(beagle.canBreedWith(husky), "Beagle should not breed with Husky");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+  public void goldenRetrieverOnlyBreedsSameSpecies(final TestContext context) {
+    final BlockPos spawnPos = new BlockPos(0, 1, 0);
+    final ServerWorld world = context.getWorld();
+
+    final GoldenRetrieverEntity goldenRetriever =
+        new GoldenRetrieverEntity(ModEntities.GOLDEN_RETRIEVER, world);
+    goldenRetriever.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
+    goldenRetriever.setTamed(true, true);
+    world.spawnEntity(goldenRetriever);
+
+    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
+    husky.refreshPositionAndAngles(new BlockPos(1, 1, 0), 0.0f, 0.0f);
+    husky.setTamed(true, true);
+    world.spawnEntity(husky);
+
+    context.runAtTick(
+        10,
+        () -> {
+          context.assertFalse(
+              goldenRetriever.canBreedWith(husky), "Golden Retriever should not breed with Husky");
           context.complete();
         });
   }

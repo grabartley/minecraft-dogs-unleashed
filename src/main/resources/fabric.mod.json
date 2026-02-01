@@ -28,6 +28,8 @@
     "fabric-gametest": [
       "com.grahambartley.gametest.HuskyEntityGameTest",
       "com.grahambartley.gametest.DachshundEntityGameTest",
+      "com.grahambartley.gametest.BeagleEntityGameTest",
+      "com.grahambartley.gametest.GoldenRetrieverEntityGameTest",
       "com.grahambartley.gametest.UnleashedDogEntityGameTest"
     ]
   },

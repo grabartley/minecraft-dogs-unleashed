@@ -59,5 +59,19 @@ public class ModSpawns {
         SpawnLocationTypes.ON_GROUND,
         Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
         AnimalEntity::isValidNaturalSpawn);
+
+    BiomeModifications.addSpawn(
+        BiomeSelectors.includeByKey(BiomeKeys.BEACH),
+        SpawnGroup.CREATURE,
+        ModEntities.GOLDEN_RETRIEVER,
+        ModConstants.GOLDEN_RETRIEVER_SPAWN_WEIGHT,
+        ModConstants.GOLDEN_RETRIEVER_SPAWN_MIN_GROUP,
+        ModConstants.GOLDEN_RETRIEVER_SPAWN_MAX_GROUP);
+
+    SpawnRestriction.register(
+        ModEntities.GOLDEN_RETRIEVER,
+        SpawnLocationTypes.ON_GROUND,
+        Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
+        AnimalEntity::isValidNaturalSpawn);
   }
 }
