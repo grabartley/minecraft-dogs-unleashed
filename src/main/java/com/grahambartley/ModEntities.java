@@ -3,6 +3,7 @@ package com.grahambartley;
 import com.grahambartley.entity.BeagleEntity;
 import com.grahambartley.entity.DachshundEntity;
 import com.grahambartley.entity.HuskyEntity;
+import com.grahambartley.entity.ShibaInuEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
@@ -36,9 +37,18 @@ public class ModEntities {
               .dimensions(ModConstants.BEAGLE_WIDTH, ModConstants.BEAGLE_HEIGHT)
               .build(Identifier.of(DogsUnleashed.MOD_ID, "beagle").toString()));
 
+  public static final EntityType<ShibaInuEntity> SHIBA_INU =
+      Registry.register(
+          Registries.ENTITY_TYPE,
+          Identifier.of(DogsUnleashed.MOD_ID, "shibainu"),
+          EntityType.Builder.create(ShibaInuEntity::new, SpawnGroup.CREATURE)
+              .dimensions(ModConstants.SHIBA_INU_WIDTH, ModConstants.SHIBA_INU_HEIGHT)
+              .build(Identifier.of(DogsUnleashed.MOD_ID, "shibainu").toString()));
+
   public static void initialize() {
     FabricDefaultAttributeRegistry.register(HUSKY, HuskyEntity.createAttributes());
     FabricDefaultAttributeRegistry.register(DACHSHUND, DachshundEntity.createAttributes());
     FabricDefaultAttributeRegistry.register(BEAGLE, BeagleEntity.createAttributes());
+    FabricDefaultAttributeRegistry.register(SHIBA_INU, ShibaInuEntity.createAttributes());
   }
 }

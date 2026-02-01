@@ -4,5 +4,7 @@
   "entity.dogs-unleashed.dachshund": "Dachshund",
   "item.dogs-unleashed.dachshund_spawn_egg": "Dachshund Spawn Egg",
   "entity.dogs-unleashed.beagle": "Beagle",
-  "item.dogs-unleashed.beagle_spawn_egg": "Beagle Spawn Egg"
+  "item.dogs-unleashed.beagle_spawn_egg": "Beagle Spawn Egg",
+  "entity.dogs-unleashed.shibainu": "Shiba Inu",
+  "item.dogs-unleashed.shibainu_spawn_egg": "Shiba Inu Spawn Egg"
 }

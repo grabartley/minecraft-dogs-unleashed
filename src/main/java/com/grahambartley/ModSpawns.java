@@ -59,5 +59,19 @@ public class ModSpawns {
         SpawnLocationTypes.ON_GROUND,
         Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
         AnimalEntity::isValidNaturalSpawn);
+
+    BiomeModifications.addSpawn(
+        BiomeSelectors.includeByKey(BiomeKeys.CHERRY_GROVE),
+        SpawnGroup.CREATURE,
+        ModEntities.SHIBA_INU,
+        ModConstants.SHIBA_INU_SPAWN_WEIGHT,
+        ModConstants.SHIBA_INU_SPAWN_MIN_GROUP,
+        ModConstants.SHIBA_INU_SPAWN_MAX_GROUP);
+
+    SpawnRestriction.register(
+        ModEntities.SHIBA_INU,
+        SpawnLocationTypes.ON_GROUND,
+        Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
+        AnimalEntity::isValidNaturalSpawn);
   }
 }
