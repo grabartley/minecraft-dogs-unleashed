@@ -42,6 +42,22 @@ public class ModSpawns {
         ModConstants.BEAGLE_SPAWN_MIN_GROUP,
         ModConstants.BEAGLE_SPAWN_MAX_GROUP);
 
+    BiomeModifications.addSpawn(
+        BiomeSelectors.includeByKey(BiomeKeys.BEACH),
+        SpawnGroup.CREATURE,
+        ModEntities.GOLDEN_RETRIEVER,
+        ModConstants.GOLDEN_RETRIEVER_SPAWN_WEIGHT,
+        ModConstants.GOLDEN_RETRIEVER_SPAWN_MIN_GROUP,
+        ModConstants.GOLDEN_RETRIEVER_SPAWN_MAX_GROUP);
+
+    BiomeModifications.addSpawn(
+        BiomeSelectors.includeByKey(BiomeKeys.CHERRY_GROVE),
+        SpawnGroup.CREATURE,
+        ModEntities.SHIBA_INU,
+        ModConstants.SHIBA_INU_SPAWN_WEIGHT,
+        ModConstants.SHIBA_INU_SPAWN_MIN_GROUP,
+        ModConstants.SHIBA_INU_SPAWN_MAX_GROUP);
+
     SpawnRestriction.register(
         ModEntities.HUSKY,
         SpawnLocationTypes.ON_GROUND,
@@ -60,16 +76,14 @@ public class ModSpawns {
         Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
         AnimalEntity::isValidNaturalSpawn);
 
-    BiomeModifications.addSpawn(
-        BiomeSelectors.includeByKey(BiomeKeys.BEACH),
-        SpawnGroup.CREATURE,
-        ModEntities.GOLDEN_RETRIEVER,
-        ModConstants.GOLDEN_RETRIEVER_SPAWN_WEIGHT,
-        ModConstants.GOLDEN_RETRIEVER_SPAWN_MIN_GROUP,
-        ModConstants.GOLDEN_RETRIEVER_SPAWN_MAX_GROUP);
-
     SpawnRestriction.register(
         ModEntities.GOLDEN_RETRIEVER,
+        SpawnLocationTypes.ON_GROUND,
+        Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
+        AnimalEntity::isValidNaturalSpawn);
+
+    SpawnRestriction.register(
+        ModEntities.SHIBA_INU,
         SpawnLocationTypes.ON_GROUND,
         Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
         AnimalEntity::isValidNaturalSpawn);

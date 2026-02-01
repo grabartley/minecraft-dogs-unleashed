@@ -8,7 +8,14 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 class DogModelTest {
   @ParameterizedTest
-  @ValueSource(strings = {"HuskyModel", "DachshundModel", "BeagleModel", "GoldenRetrieverModel"})
+  @ValueSource(
+      strings = {
+        "HuskyModel",
+        "DachshundModel",
+        "BeagleModel",
+        "GoldenRetrieverModel",
+        "ShibaInuModel"
+      })
   @DisplayName("Model class should exist")
   void testModelClassExists(String modelClassName) {
     assertDoesNotThrow(

@@ -30,6 +30,7 @@
       "com.grahambartley.gametest.DachshundEntityGameTest",
       "com.grahambartley.gametest.BeagleEntityGameTest",
       "com.grahambartley.gametest.GoldenRetrieverEntityGameTest",
+      "com.grahambartley.gametest.ShibaInuEntityGameTest",
       "com.grahambartley.gametest.UnleashedDogEntityGameTest"
     ]
   },

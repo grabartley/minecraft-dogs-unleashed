@@ -4,6 +4,7 @@ import com.grahambartley.render.BeagleRenderer;
 import com.grahambartley.render.DachshundRenderer;
 import com.grahambartley.render.GoldenRetrieverRenderer;
 import com.grahambartley.render.HuskyRenderer;
+import com.grahambartley.render.ShibaInuRenderer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 
@@ -14,5 +15,6 @@ public class DogsUnleashedClient implements ClientModInitializer {
     EntityRendererRegistry.register(ModEntities.DACHSHUND, DachshundRenderer::new);
     EntityRendererRegistry.register(ModEntities.BEAGLE, BeagleRenderer::new);
     EntityRendererRegistry.register(ModEntities.GOLDEN_RETRIEVER, GoldenRetrieverRenderer::new);
+    EntityRendererRegistry.register(ModEntities.SHIBA_INU, ShibaInuRenderer::new);
   }
 }
