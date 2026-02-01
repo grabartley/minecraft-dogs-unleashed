@@ -35,7 +35,7 @@ public class GoldenRetrieverRenderer extends GeoEntityRenderer<GoldenRetrieverEn
       int packedOverlay,
       int colour) {
     if (!isReRender) {
-      final float scale = animatable.isBaby() ? 0.5f : 1.3f;
+      final float scale = animatable.isBaby() ? 0.85f : 1.7f;
       poseStack.scale(scale, scale, scale);
     }
     super.preRender(
