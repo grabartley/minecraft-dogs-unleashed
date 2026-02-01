@@ -21,6 +21,12 @@ Before running the client:
 ## Running the Client
 
 ```bash
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/amazon-corretto-21.jdk/Contents/Home && ./gradlew runClient
+```
+
+Or if Java 21 is already your default:
+
+```bash
 ./gradlew runClient
 ```
 
@@ -56,7 +62,7 @@ Biome spawn locations are configured in `ModSpawns.java`. Use `/locate biome min
 For server-side testing:
 
 ```bash
-./gradlew runServer
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/amazon-corretto-21.jdk/Contents/Home && ./gradlew runServer
 ```
 
 Then connect with a Minecraft client to `localhost`.
@@ -65,7 +71,10 @@ Then connect with a Minecraft client to `localhost`.
 
 ### Client won't start
 
-1. Check Java version: `java -version` (needs 21+)
+1. **Check Java version** - Must be Java 21+. Set explicitly:
+```bash
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/amazon-corretto-21.jdk/Contents/Home
+```
 2. Try a clean build: `./gradlew clean build`
 3. Check for port conflicts if running multiple instances
 

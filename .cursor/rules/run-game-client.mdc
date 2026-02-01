@@ -16,7 +16,7 @@ Runs the Minecraft client with the Dogs Unleashed mod for manual testing.
 ## Quick Start
 
 ```bash
-./gradlew runClient
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/amazon-corretto-21.jdk/Contents/Home && ./gradlew runClient
 ```
 
 ## Testing Commands
