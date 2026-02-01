@@ -8,8 +8,10 @@ Runs the Minecraft client with the Dogs Unleashed mod for manual testing.
 
 ## Quick Start
 
+Ensure Java 21 is active (`jenv local 21` or `sdk use java 21-amzn`), then:
+
 ```bash
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/amazon-corretto-21.jdk/Contents/Home && ./gradlew runClient
+./gradlew runClient
 ```
 
 ## Testing Commands

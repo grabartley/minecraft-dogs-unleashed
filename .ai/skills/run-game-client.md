@@ -18,13 +18,29 @@ Before running the client:
 1. **Java 21** must be installed and active
 2. **Build must pass** - run `./gradlew build` first if you've made changes
 
-## Running the Client
+## Setting Java 21
 
+Use your preferred Java version manager:
+
+**jenv:**
 ```bash
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/amazon-corretto-21.jdk/Contents/Home && ./gradlew runClient
+jenv local 21
+./gradlew runClient
 ```
 
-Or if Java 21 is already your default:
+**SDKMAN:**
+```bash
+sdk use java 21-amzn
+./gradlew runClient
+```
+
+**Manual JAVA_HOME:**
+```bash
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/amazon-corretto-21.jdk/Contents/Home
+./gradlew runClient
+```
+
+Or if Java 21 is already your default, just run:
 
 ```bash
 ./gradlew runClient
@@ -59,10 +75,10 @@ Biome spawn locations are configured in `ModSpawns.java`. Use `/locate biome min
 
 ## Running the Server
 
-For server-side testing:
+For server-side testing (ensure Java 21 is active):
 
 ```bash
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/amazon-corretto-21.jdk/Contents/Home && ./gradlew runServer
+./gradlew runServer
 ```
 
 Then connect with a Minecraft client to `localhost`.
@@ -71,10 +87,7 @@ Then connect with a Minecraft client to `localhost`.
 
 ### Client won't start
 
-1. **Check Java version** - Must be Java 21+. Set explicitly:
-```bash
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/amazon-corretto-21.jdk/Contents/Home
-```
+1. **Check Java version** - Must be Java 21+. Use `jenv local 21` or `sdk use java 21-amzn`
 2. Try a clean build: `./gradlew clean build`
 3. Check for port conflicts if running multiple instances
 
