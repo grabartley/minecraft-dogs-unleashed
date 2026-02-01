@@ -36,26 +36,15 @@ This will:
 Use creative mode or spawn eggs:
 - `/gamemode creative` - switch to creative mode
 - Find spawn eggs in the creative inventory under "Spawn Eggs" tab
-- Or use commands like `/summon dogs-unleashed:goldenretriever`
+- Or use `/summon dogs-unleashed:<entity_id>` command
 
-### Available Entity IDs
+### Finding Entity IDs
 
-- `dogs-unleashed:husky`
-- `dogs-unleashed:dachshund`
-- `dogs-unleashed:beagle`
-- `dogs-unleashed:goldenretriever`
-- `dogs-unleashed:shibainu`
+Entity IDs are registered in `ModEntities.java`. The format is `dogs-unleashed:<entity_id>`.
 
 ### Testing Biome Spawns
 
-Travel to specific biomes to test natural spawning:
-- **Husky**: Snowy biomes (snowy taiga, snowy plains, ice spikes)
-- **Dachshund**: Plains
-- **Beagle**: Flower forest
-- **Golden Retriever**: Beach
-- **Shiba Inu**: Cherry grove
-
-Use `/locate biome minecraft:beach` to find biomes quickly.
+Biome spawn locations are configured in `ModSpawns.java`. Use `/locate biome minecraft:<biome>` to find specific biomes.
 
 ### Hot Reloading
 

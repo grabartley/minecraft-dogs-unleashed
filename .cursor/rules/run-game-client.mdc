@@ -19,19 +19,11 @@ Runs the Minecraft client with the Dogs Unleashed mod for manual testing.
 ./gradlew runClient
 ```
 
-## Entity IDs for Testing
-
-- `dogs-unleashed:husky` - spawns in snowy biomes
-- `dogs-unleashed:dachshund` - spawns in plains
-- `dogs-unleashed:beagle` - spawns in flower forest
-- `dogs-unleashed:goldenretriever` - spawns on beaches
-- `dogs-unleashed:shibainu` - spawns in cherry groves
-
-## Useful Commands
+## Testing Commands
 
 - `/gamemode creative` - access spawn eggs
-- `/summon dogs-unleashed:goldenretriever` - spawn entity directly
-- `/locate biome minecraft:beach` - find biomes
+- `/summon dogs-unleashed:<entity_id>` - spawn entity directly (see `ModEntities.java` for IDs)
+- `/locate biome minecraft:<biome>` - find biomes (see `ModSpawns.java` for spawn locations)
 
 ## Hot Reload
 
