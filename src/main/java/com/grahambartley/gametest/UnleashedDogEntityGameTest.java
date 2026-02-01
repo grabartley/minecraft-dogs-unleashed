@@ -7,7 +7,7 @@ import com.grahambartley.entity.GoldenRetrieverEntity;
 import com.grahambartley.entity.HuskyEntity;
 import com.grahambartley.entity.ShibaInuEntity;
 import com.grahambartley.entity.UnleashedDogEntity;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.passive.TameableEntity;
@@ -25,39 +25,30 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
 
   private static final TestData<HuskyEntity> HUSKY_DATA =
       new TestData<>(
-          ModEntities.HUSKY,
-          (type, world) -> new HuskyEntity((EntityType<? extends UnleashedDogEntity>) type, world),
-          0.8f,
-          1.1f);
+          ModEntities.HUSKY, world -> new HuskyEntity(ModEntities.HUSKY, world), 0.8f, 1.1f);
 
   private static final TestData<DachshundEntity> DACHSHUND_DATA =
       new TestData<>(
           ModEntities.DACHSHUND,
-          (type, world) ->
-              new DachshundEntity((EntityType<? extends UnleashedDogEntity>) type, world),
+          world -> new DachshundEntity(ModEntities.DACHSHUND, world),
           0.8f,
           1.1f);
 
   private static final TestData<BeagleEntity> BEAGLE_DATA =
       new TestData<>(
-          ModEntities.BEAGLE,
-          (type, world) -> new BeagleEntity((EntityType<? extends UnleashedDogEntity>) type, world),
-          0.8f,
-          1.1f);
+          ModEntities.BEAGLE, world -> new BeagleEntity(ModEntities.BEAGLE, world), 0.8f, 1.1f);
 
   private static final TestData<GoldenRetrieverEntity> GOLDEN_RETRIEVER_DATA =
       new TestData<>(
           ModEntities.GOLDEN_RETRIEVER,
-          (type, world) ->
-              new GoldenRetrieverEntity((EntityType<? extends UnleashedDogEntity>) type, world),
+          world -> new GoldenRetrieverEntity(ModEntities.GOLDEN_RETRIEVER, world),
           0.8f,
           1.1f);
 
   private static final TestData<ShibaInuEntity> SHIBA_INU_DATA =
       new TestData<>(
           ModEntities.SHIBA_INU,
-          (type, world) ->
-              new ShibaInuEntity((EntityType<? extends UnleashedDogEntity>) type, world),
+          world -> new ShibaInuEntity(ModEntities.SHIBA_INU, world),
           0.8f,
           1.1f);
 
@@ -611,7 +602,7 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
     final BlockPos spawnPos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
-    final T dog = data.factory.apply(data.entityType, world);
+    final T dog = data.factory.apply(world);
 
     dog.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
     world.spawnEntity(dog);
@@ -632,7 +623,7 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
     final BlockPos spawnPos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
-    final T dog = data.factory.apply(data.entityType, world);
+    final T dog = data.factory.apply(world);
 
     dog.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
     world.spawnEntity(dog);
@@ -646,7 +637,7 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
     final BlockPos spawnPos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
-    final T dog = data.factory.apply(data.entityType, world);
+    final T dog = data.factory.apply(world);
 
     dog.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
     world.spawnEntity(dog);
@@ -672,7 +663,7 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
     final BlockPos spawnPos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
-    final T dog = data.factory.apply(data.entityType, world);
+    final T dog = data.factory.apply(world);
 
     dog.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
     world.spawnEntity(dog);
@@ -691,7 +682,7 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
     final BlockPos spawnPos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
-    final T dog = data.factory.apply(data.entityType, world);
+    final T dog = data.factory.apply(world);
 
     dog.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
     world.spawnEntity(dog);
@@ -707,7 +698,7 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
     final BlockPos spawnPos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
-    final T dog = data.factory.apply(data.entityType, world);
+    final T dog = data.factory.apply(world);
     dog.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
     world.spawnEntity(dog);
 
@@ -722,7 +713,7 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
     final BlockPos spawnPos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
-    final T dog = data.factory.apply(data.entityType, world);
+    final T dog = data.factory.apply(world);
     dog.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
     world.spawnEntity(dog);
 
@@ -751,7 +742,7 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
     final BlockPos spawnPos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
-    final T dog = data.factory.apply(data.entityType, world);
+    final T dog = data.factory.apply(world);
     dog.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
     world.spawnEntity(dog);
 
@@ -768,7 +759,7 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
           context.assertTrue(
               nbt.getInt("CollarColor") == DyeColor.LIME.getId(), "NBT should store LIME color ID");
 
-          final T newDog = data.factory.apply(data.entityType, world);
+          final T newDog = data.factory.apply(world);
           newDog.readCustomDataFromNbt(nbt);
 
           context.runAtTick(
@@ -787,7 +778,7 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
     final BlockPos spawnPos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
-    final T babyDog = data.factory.apply(data.entityType, world);
+    final T babyDog = data.factory.apply(world);
     babyDog.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
     babyDog.setBaby(true);
     world.spawnEntity(babyDog);
@@ -817,7 +808,7 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
     final BlockPos spawnPos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
-    final T dog = data.factory.apply(data.entityType, world);
+    final T dog = data.factory.apply(world);
     dog.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
     world.spawnEntity(dog);
 
@@ -849,7 +840,7 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
     final BlockPos spawnPos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
-    final T parent = data.factory.apply(data.entityType, world);
+    final T parent = data.factory.apply(world);
     parent.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
     world.spawnEntity(parent);
 
@@ -859,7 +850,7 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
           parent.setTamed(true, true);
           parent.setCollarColor(DyeColor.YELLOW);
 
-          final T otherParent = data.factory.apply(data.entityType, world);
+          final T otherParent = data.factory.apply(world);
           otherParent.refreshPositionAndAngles(new BlockPos(1, 1, 0), 0.0f, 0.0f);
           otherParent.setTamed(true, true);
           world.spawnEntity(otherParent);
@@ -883,7 +874,7 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
     final BlockPos spawnPos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
-    final T dog = data.factory.apply(data.entityType, world);
+    final T dog = data.factory.apply(world);
     dog.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
     world.spawnEntity(dog);
 
@@ -899,7 +890,7 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
     final BlockPos spawnPos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
-    final T dog = data.factory.apply(data.entityType, world);
+    final T dog = data.factory.apply(world);
     dog.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
     world.spawnEntity(dog);
 
@@ -914,7 +905,7 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
       final TestContext context, final TestData<T> data) {
     final BlockPos spawnPos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
-    final T dog = data.factory.apply(data.entityType, world);
+    final T dog = data.factory.apply(world);
     dog.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
     world.spawnEntity(dog);
 
@@ -931,7 +922,7 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
       final TestContext context, final TestData<T> data) {
     final BlockPos spawnPos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
-    final T dog = data.factory.apply(data.entityType, world);
+    final T dog = data.factory.apply(world);
     dog.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
     world.spawnEntity(dog);
 
@@ -943,7 +934,7 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
       final TestContext context, final TestData<T> data) {
     final BlockPos spawnPos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
-    final T dog = data.factory.apply(data.entityType, world);
+    final T dog = data.factory.apply(world);
     dog.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
     world.spawnEntity(dog);
 
@@ -957,7 +948,7 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
               nbt.contains("ShakeProgress"), "NBT should contain ShakeProgress data");
           context.assertTrue(nbt.contains("WasInWater"), "NBT should contain WasInWater data");
 
-          final T newDog = data.factory.apply(data.entityType, world);
+          final T newDog = data.factory.apply(world);
           newDog.readCustomDataFromNbt(nbt);
 
           context.assertTrue(
@@ -971,7 +962,7 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
       final TestContext context, final TestData<T> data) {
     final BlockPos spawnPos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
-    final T dog = data.factory.apply(data.entityType, world);
+    final T dog = data.factory.apply(world);
     dog.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
     world.spawnEntity(dog);
 
@@ -985,7 +976,7 @@ public final class UnleashedDogEntityGameTest implements FabricGameTest {
 
   private record TestData<T extends UnleashedDogEntity>(
       EntityType<T> entityType,
-      BiFunction<EntityType<? extends TameableEntity>, World, T> factory,
+      Function<World, T> factory,
       float expectedWidth,
       float expectedHeight) {}
 }
