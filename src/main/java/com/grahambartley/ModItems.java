@@ -47,6 +47,26 @@ public class ModItems {
               ModConstants.BEAGLE_SPAWN_EGG_SECONDARY_COLOR,
               new Item.Settings()));
 
+  public static final Item GOLDEN_RETRIEVER_SPAWN_EGG =
+      Registry.register(
+          Registries.ITEM,
+          Identifier.of(DogsUnleashed.MOD_ID, "goldenretriever_spawn_egg"),
+          new SpawnEggItem(
+              ModEntities.GOLDEN_RETRIEVER,
+              ModConstants.GOLDEN_RETRIEVER_SPAWN_EGG_PRIMARY_COLOR,
+              ModConstants.GOLDEN_RETRIEVER_SPAWN_EGG_SECONDARY_COLOR,
+              new Item.Settings()));
+
+  public static final Item SHIBA_INU_SPAWN_EGG =
+      Registry.register(
+          Registries.ITEM,
+          Identifier.of(DogsUnleashed.MOD_ID, "shibainu_spawn_egg"),
+          new SpawnEggItem(
+              ModEntities.SHIBA_INU,
+              ModConstants.SHIBA_INU_SPAWN_EGG_PRIMARY_COLOR,
+              ModConstants.SHIBA_INU_SPAWN_EGG_SECONDARY_COLOR,
+              new Item.Settings()));
+
   public static void initialize() {
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL)
         .register(entries -> entries.add(DOG_BED));
@@ -56,5 +76,9 @@ public class ModItems {
         .register(entries -> entries.add(DACHSHUND_SPAWN_EGG));
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS)
         .register(entries -> entries.add(BEAGLE_SPAWN_EGG));
+    ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS)
+        .register(entries -> entries.add(GOLDEN_RETRIEVER_SPAWN_EGG));
+    ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS)
+        .register(entries -> entries.add(SHIBA_INU_SPAWN_EGG));
   }
 }

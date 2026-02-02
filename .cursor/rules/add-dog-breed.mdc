@@ -1,0 +1,37 @@
+---
+description: Add a new dog breed to the Dogs Unleashed Minecraft mod with all required files and tests
+globs:
+alwaysApply: false
+---
+
+# Add Dog Breed Skill
+
+Follow the guidelines in `.ai/skills/add-dog-breed.md` to add a new dog breed.
+
+## Prerequisites
+
+Ensure you have these files ready:
+- `{breed_name}.animation.json` - GeckoLib animation file
+- `{breed_name}.geo.json` - GeckoLib model file
+- `{breed_name}.png` - Entity texture
+- `{breed_name}_collar.png` - Collar overlay texture
+
+## Files to Create/Modify
+
+1. **Entity**: `src/main/java/com/grahambartley/entity/{BreedName}Entity.java`
+2. **Constants**: `src/main/java/com/grahambartley/ModConstants.java`
+3. **Entity Registration**: `src/main/java/com/grahambartley/ModEntities.java`
+4. **Items**: `src/main/java/com/grahambartley/ModItems.java`
+5. **Spawns**: `src/main/java/com/grahambartley/ModSpawns.java`
+6. **Model**: `src/client/java/com/grahambartley/model/{BreedName}Model.java`
+7. **Collar Layer**: `src/client/java/com/grahambartley/render/layer/{BreedName}CollarLayer.java`
+8. **Renderer**: `src/client/java/com/grahambartley/render/{BreedName}Renderer.java`
+9. **Client Init**: `src/client/java/com/grahambartley/DogsUnleashedClient.java`
+10. **Language**: `src/main/resources/assets/dogs-unleashed/lang/en_us.json`
+11. **Spawn Egg Model**: `src/main/resources/assets/dogs-unleashed/models/item/{breed_name}_spawn_egg.json`
+12. **fabric.mod.json**: Add game test entrypoint
+13. **Game Tests**: `src/main/java/com/grahambartley/gametest/{BreedName}EntityGameTest.java`
+14. **Common Tests**: Update `UnleashedDogEntityGameTest.java`
+15. **Unit Tests**: Update `DogModelTest.java` and `DogRendererTest.java`
+
+See `.ai/skills/add-dog-breed.md` for full details and code templates.
