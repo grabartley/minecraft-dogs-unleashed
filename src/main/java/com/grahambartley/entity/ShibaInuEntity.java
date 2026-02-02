@@ -31,4 +31,9 @@ public class ShibaInuEntity extends UnleashedDogEntity {
   protected boolean isSameSpecies(MobEntity entity) {
     return entity instanceof ShibaInuEntity;
   }
+
+  @Override
+  public String getBreedId() {
+    return "shibainu";
+  }
 }

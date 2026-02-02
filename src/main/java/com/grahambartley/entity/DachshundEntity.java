@@ -32,4 +32,9 @@ public class DachshundEntity extends UnleashedDogEntity {
   protected boolean isSameSpecies(MobEntity entity) {
     return entity instanceof DachshundEntity;
   }
+
+  @Override
+  public String getBreedId() {
+    return "dachshund";
+  }
 }

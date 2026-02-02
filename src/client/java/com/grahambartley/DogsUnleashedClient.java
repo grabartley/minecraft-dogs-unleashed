@@ -1,5 +1,6 @@
 package com.grahambartley;
 
+import com.grahambartley.network.ModNetworkingClient;
 import com.grahambartley.render.BeagleRenderer;
 import com.grahambartley.render.DachshundRenderer;
 import com.grahambartley.render.GoldenRetrieverRenderer;
@@ -16,5 +17,8 @@ public class DogsUnleashedClient implements ClientModInitializer {
     EntityRendererRegistry.register(ModEntities.BEAGLE, BeagleRenderer::new);
     EntityRendererRegistry.register(ModEntities.GOLDEN_RETRIEVER, GoldenRetrieverRenderer::new);
     EntityRendererRegistry.register(ModEntities.SHIBA_INU, ShibaInuRenderer::new);
+
+    ModKeyBindings.register();
+    ModNetworkingClient.registerClientReceivers();
   }
 }
