@@ -38,7 +38,26 @@ Make your code changes following the project's architecture:
 
 ### 3. Run Automated Tests
 
-Before any manual testing, ensure automated tests pass:
+Before any manual testing, ensure automated tests pass.
+
+**Java 21 is required.** Use your preferred version manager:
+
+**jenv:**
+```bash
+jenv local 21
+```
+
+**SDKMAN:**
+```bash
+sdk use java 21-amzn
+```
+
+**Manual JAVA_HOME:**
+```bash
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/amazon-corretto-21.jdk/Contents/Home
+```
+
+Then run the tests:
 
 ```bash
 # Apply code formatting
@@ -65,8 +84,22 @@ Use the **run-game-client** skill to:
 4. Test user interactions work as expected
 5. **Wait for developer approval** before proceeding
 
+**Java 21 is required.** Use your preferred version manager:
+
+**jenv:**
 ```bash
-# Set Java 21 and run client
+jenv local 21
+./gradlew runClient
+```
+
+**SDKMAN:**
+```bash
+sdk use java 21-amzn
+./gradlew runClient
+```
+
+**Manual JAVA_HOME:**
+```bash
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/amazon-corretto-21.jdk/Contents/Home
 ./gradlew runClient
 ```
@@ -75,7 +108,26 @@ See `.ai/skills/run-game-client.md` for full manual testing details.
 
 ### 5. Commit and Push
 
-Only after receiving developer approval from manual testing:
+Only after receiving developer approval from manual testing.
+
+This project uses **[Conventional Commits](https://www.conventionalcommits.org/)** for all commit messages:
+
+```
+<type>: <description>
+
+[optional body]
+```
+
+**Commit Types:**
+| Type | Description | Example |
+|------|-------------|---------|
+| `feat` | New feature | `feat: add pet tracking system` |
+| `fix` | Bug fix | `fix: correct collar rendering for baby dogs` |
+| `docs` | Documentation only | `docs: update README with new breeds` |
+| `style` | Code style (formatting) | `style: apply Spotless formatting` |
+| `refactor` | Code refactoring | `refactor: extract common entity logic` |
+| `test` | Adding or fixing tests | `test: add game tests for new breed` |
+| `chore` | Maintenance tasks | `chore: update dependencies` |
 
 ```bash
 # Stage changes

@@ -19,6 +19,13 @@ git checkout -b feat/your-feature-name
 
 3. **Always use create-pr skill** when creating pull requests
 
+## Java 21 Required
+
+Use your preferred version manager before running gradle commands:
+- **jenv**: `jenv local 21`
+- **SDKMAN**: `sdk use java 21-amzn`
+- **Manual**: `export JAVA_HOME=/Library/Java/JavaVirtualMachines/amazon-corretto-21.jdk/Contents/Home`
+
 ## Quick Workflow
 
 1. Create branch: `git checkout main && git pull && git checkout -b feat/name`
@@ -27,7 +34,7 @@ git checkout -b feat/your-feature-name
 4. Test: `./gradlew test && ./gradlew runGametestServer`
 5. Build: `./gradlew clean build`
 6. **Manual test: Run game client and get developer blessing**
-7. Commit: `git commit -m "feat: description"`
+7. Commit using **Conventional Commits**: `git commit -m "feat: description"`
 8. Push: `git push -u origin feat/name`
 9. Create PR using create-pr skill
 
