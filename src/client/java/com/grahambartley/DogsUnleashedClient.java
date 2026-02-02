@@ -8,8 +8,10 @@ import com.grahambartley.render.GoldenRetrieverRenderer;
 import com.grahambartley.render.HuskyRenderer;
 import com.grahambartley.render.ShibaInuRenderer;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
+import net.minecraft.util.DyeColor;
 
 public class DogsUnleashedClient implements ClientModInitializer {
   @Override
@@ -21,6 +23,13 @@ public class DogsUnleashedClient implements ClientModInitializer {
     EntityRendererRegistry.register(ModEntities.SHIBA_INU, ShibaInuRenderer::new);
 
     BlockEntityRendererFactories.register(ModBlockEntities.DOG_BED, DogBedBlockEntityRenderer::new);
+
+    ColorProviderRegistry.ITEM.register(
+        (stack, tintIndex) -> {
+          DyeColor color = stack.getOrDefault(ModComponents.DOG_BED_COLOR, DyeColor.WHITE);
+          return color.getEntityColor() | 0xFF000000;
+        },
+        ModBlocks.DOG_BED);
 
     ModKeyBindings.register();
     ModNetworkingClient.registerClientReceivers();
