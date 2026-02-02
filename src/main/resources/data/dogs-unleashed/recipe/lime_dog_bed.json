@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "group": "dog_bed",
   "pattern": [
     "CC",
     "PP"
@@ -15,4 +16,3 @@
     }
   }
 }
-

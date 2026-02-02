@@ -2,6 +2,7 @@ package com.grahambartley.entity;
 
 import static com.grahambartley.ModConstants.MINECRAFT_TICK_RATE;
 
+import com.grahambartley.entity.goal.AutoSleepGoal;
 import com.grahambartley.entity.goal.SleepInBedGoal;
 import com.grahambartley.network.ModNetworking;
 import com.grahambartley.pet.PetData;
@@ -247,15 +248,16 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     this.goalSelector.add(1, new SwimGoal(this));
     this.goalSelector.add(2, new SitGoal(this));
     this.goalSelector.add(3, new SleepInBedGoal(this));
-    this.goalSelector.add(4, new TemptGoal(this, 1.0, TAMING_INGREDIENT, false));
-    this.goalSelector.add(5, new EscapeDangerGoal(this, 1.5));
-    this.goalSelector.add(6, new PounceAtTargetGoal(this, 0.4F));
-    this.goalSelector.add(7, new MeleeAttackGoal(this, 1.0, true));
-    this.goalSelector.add(8, new FollowOwnerGoal(this, 1.0, 10.0F, 2.0F));
-    this.goalSelector.add(9, new AnimalMateGoal(this, 1.0));
-    this.goalSelector.add(10, new WanderAroundFarGoal(this, 1.0));
-    this.goalSelector.add(11, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F));
-    this.goalSelector.add(12, new LookAroundGoal(this));
+    this.goalSelector.add(4, new AutoSleepGoal(this));
+    this.goalSelector.add(5, new TemptGoal(this, 1.0, TAMING_INGREDIENT, false));
+    this.goalSelector.add(6, new EscapeDangerGoal(this, 1.5));
+    this.goalSelector.add(7, new PounceAtTargetGoal(this, 0.4F));
+    this.goalSelector.add(8, new MeleeAttackGoal(this, 1.0, true));
+    this.goalSelector.add(9, new FollowOwnerGoal(this, 1.0, 10.0F, 2.0F));
+    this.goalSelector.add(10, new AnimalMateGoal(this, 1.0));
+    this.goalSelector.add(11, new WanderAroundFarGoal(this, 1.0));
+    this.goalSelector.add(12, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F));
+    this.goalSelector.add(13, new LookAroundGoal(this));
 
     this.targetSelector.add(1, new TrackOwnerAttackerGoal(this));
     this.targetSelector.add(2, new AttackWithOwnerGoal(this));
