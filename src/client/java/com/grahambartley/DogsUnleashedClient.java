@@ -4,14 +4,14 @@ import com.grahambartley.network.ModNetworkingClient;
 import com.grahambartley.render.BeagleRenderer;
 import com.grahambartley.render.DachshundRenderer;
 import com.grahambartley.render.DogBedBlockEntityRenderer;
+import com.grahambartley.render.DogBedItemRenderer;
 import com.grahambartley.render.GoldenRetrieverRenderer;
 import com.grahambartley.render.HuskyRenderer;
 import com.grahambartley.render.ShibaInuRenderer;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
-import net.minecraft.util.DyeColor;
 
 public class DogsUnleashedClient implements ClientModInitializer {
   @Override
@@ -24,12 +24,7 @@ public class DogsUnleashedClient implements ClientModInitializer {
 
     BlockEntityRendererFactories.register(ModBlockEntities.DOG_BED, DogBedBlockEntityRenderer::new);
 
-    ColorProviderRegistry.ITEM.register(
-        (stack, tintIndex) -> {
-          DyeColor color = stack.getOrDefault(ModComponents.DOG_BED_COLOR, DyeColor.WHITE);
-          return color.getEntityColor() | 0xFF000000;
-        },
-        ModBlocks.DOG_BED);
+    BuiltinItemRendererRegistry.INSTANCE.register(ModBlocks.DOG_BED, new DogBedItemRenderer());
 
     ModKeyBindings.register();
     ModNetworkingClient.registerClientReceivers();

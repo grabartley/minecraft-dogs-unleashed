@@ -26,7 +26,7 @@ public class DogBedBlockEntity extends BlockEntity implements GeoBlockEntity {
   private static final String NBT_ASSIGNED_DOG = "AssignedDog";
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-  private DyeColor color = DyeColor.RED;
+  private DyeColor color = DyeColor.WHITE;
   private UUID assignedDogUuid = null;
 
   public DogBedBlockEntity(BlockPos pos, BlockState state) {

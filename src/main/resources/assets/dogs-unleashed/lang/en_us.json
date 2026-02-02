@@ -11,6 +11,7 @@
   "item.dogs-unleashed.shibainu_spawn_egg": "Shiba Inu Spawn Egg",
 
   "block.dogs-unleashed.dog_bed": "Dog Bed",
+  "block.dogs-unleashed.dog_bed.colored": "%s Dog Bed",
   "block.dogs-unleashed.dog_bed.assigned": "%s will sleep here",
   "block.dogs-unleashed.dog_bed.unassigned": "%s is no longer assigned to this bed",
   "block.dogs-unleashed.dog_bed.sleep_command": "%s is going to sleep",
