@@ -9,7 +9,13 @@ import org.junit.jupiter.params.provider.ValueSource;
 class DogRendererTest {
   @ParameterizedTest
   @ValueSource(
-      strings = {"HuskyRenderer", "DachshundRenderer", "BeagleRenderer", "ShibaInuRenderer"})
+      strings = {
+        "HuskyRenderer",
+        "DachshundRenderer",
+        "BeagleRenderer",
+        "GoldenRetrieverRenderer",
+        "ShibaInuRenderer"
+      })
   @DisplayName("Renderer class should exist")
   void testRendererClassExists(String rendererClassName) {
     assertDoesNotThrow(
