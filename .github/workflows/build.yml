@@ -64,13 +64,6 @@ jobs:
           include_passed: true
           check_name: 'Game Test Report'
 
-      - name: Add Coverage Comment to PR
-        uses: madrapps/jacoco-report@v1.7.1
-        if: github.event_name == 'pull_request'
-        with:
-          paths: ${{ github.workspace }}/build/reports/jacoco/test/jacocoTestReport.xml
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v4
         if: success() || failure()

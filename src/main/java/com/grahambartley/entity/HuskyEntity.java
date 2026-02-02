@@ -5,13 +5,11 @@ import static com.grahambartley.ModEntities.HUSKY;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.mob.Angerable;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
-import software.bernie.geckolib.animatable.GeoEntity;
 
-public class HuskyEntity extends UnleashedDogEntity implements GeoEntity, Angerable {
+public class HuskyEntity extends UnleashedDogEntity {
 
   public static DefaultAttributeContainer.Builder createAttributes() {
     return MobEntity.createMobAttributes()
