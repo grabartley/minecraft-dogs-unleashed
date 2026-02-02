@@ -33,4 +33,9 @@ public class HuskyEntity extends UnleashedDogEntity implements GeoEntity, Angera
   protected boolean isSameSpecies(MobEntity entity) {
     return entity instanceof HuskyEntity;
   }
+
+  @Override
+  public String getBreedId() {
+    return "husky";
+  }
 }

@@ -33,4 +33,9 @@ public class ShibaInuEntity extends UnleashedDogEntity implements GeoEntity, Ang
   protected boolean isSameSpecies(MobEntity entity) {
     return entity instanceof ShibaInuEntity;
   }
+
+  @Override
+  public String getBreedId() {
+    return "shibainu";
+  }
 }

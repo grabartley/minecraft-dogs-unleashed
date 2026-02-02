@@ -2,6 +2,10 @@ package com.grahambartley.entity;
 
 import static com.grahambartley.ModConstants.MINECRAFT_TICK_RATE;
 
+import com.grahambartley.network.ModNetworking;
+import com.grahambartley.pet.PetData;
+import com.grahambartley.pet.PetManager;
+import com.grahambartley.util.DogNames;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.ai.goal.AnimalMateGoal;
@@ -35,6 +39,7 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.recipe.Ingredient;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
@@ -113,6 +118,8 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   protected abstract UnleashedDogEntity createBaby(ServerWorld world);
 
   protected abstract boolean isSameSpecies(MobEntity entity);
+
+  public abstract String getBreedId();
 
   @Override
   protected void initDataTracker(DataTracker.Builder builder) {
@@ -236,6 +243,27 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
         this.setTarget(null);
         this.setSitting(true);
         this.getWorld().sendEntityStatus(this, (byte) 7);
+
+        if (this.getWorld() instanceof ServerWorld serverWorld) {
+          final PetManager petManager = PetManager.get(serverWorld.getServer());
+          final PetData petData =
+              new PetData(
+                  this.getUuid(),
+                  player.getUuid(),
+                  this.getBreedId(),
+                  DogNames.getRandomName(),
+                  this.getHealth(),
+                  this.getMaxHealth(),
+                  this.getBlockPos(),
+                  serverWorld.getRegistryKey().getValue().toString(),
+                  true);
+          petManager.registerPet(petData);
+
+          if (player instanceof ServerPlayerEntity serverPlayer) {
+            ModNetworking.sendOpenNamingScreen(
+                serverPlayer, this.getUuid(), this.getBreedId(), petData.getName());
+          }
+        }
       } else {
         this.getWorld().sendEntityStatus(this, (byte) 6);
       }
@@ -383,6 +411,15 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
       this.setSitting(false);
     }
     return super.damage(source, amount);
+  }
+
+  @Override
+  public void onDeath(DamageSource damageSource) {
+    super.onDeath(damageSource);
+    if (this.getWorld() instanceof ServerWorld serverWorld && this.isTamed()) {
+      final PetManager petManager = PetManager.get(serverWorld.getServer());
+      petManager.markPetDeceased(this.getUuid());
+    }
   }
 
   @Override

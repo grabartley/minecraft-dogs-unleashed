@@ -6,5 +6,27 @@
   "entity.dogs-unleashed.beagle": "Beagle",
   "item.dogs-unleashed.beagle_spawn_egg": "Beagle Spawn Egg",
   "entity.dogs-unleashed.shibainu": "Shiba Inu",
-  "item.dogs-unleashed.shibainu_spawn_egg": "Shiba Inu Spawn Egg"
+  "item.dogs-unleashed.shibainu_spawn_egg": "Shiba Inu Spawn Egg",
+
+  "key.dogs-unleashed.open_pet_manager": "Open Pet Manager",
+  "category.dogs-unleashed.general": "Dogs Unleashed",
+
+  "screen.dogs-unleashed.pet_naming.title": "Name Your New Friend!",
+  "screen.dogs-unleashed.pet_naming.header": "You just tamed a %s!",
+  "screen.dogs-unleashed.pet_naming.prompt": "What would you like to name them?",
+  "screen.dogs-unleashed.pet_naming.name_field": "Pet Name",
+  "screen.dogs-unleashed.pet_naming.confirm": "Welcome Home! 🐕",
+
+  "screen.dogs-unleashed.pet_manager.title": "My Pets",
+  "screen.dogs-unleashed.pet_manager.search": "Search by name...",
+  "screen.dogs-unleashed.pet_manager.search_button": "Search",
+  "screen.dogs-unleashed.pet_manager.breed_filter": "Breed",
+  "screen.dogs-unleashed.pet_manager.status_filter": "Status",
+  "screen.dogs-unleashed.pet_manager.all_breeds": "All Breeds",
+  "screen.dogs-unleashed.pet_manager.all_status": "All",
+  "screen.dogs-unleashed.pet_manager.alive_only": "Alive",
+  "screen.dogs-unleashed.pet_manager.deceased_only": "Deceased",
+  "screen.dogs-unleashed.pet_manager.summon": "Summon Pet",
+  "screen.dogs-unleashed.pet_manager.no_pets": "No pets found",
+  "screen.dogs-unleashed.pet_manager.deceased": "Rest in peace 🌈"
 }

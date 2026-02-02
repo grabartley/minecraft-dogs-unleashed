@@ -34,4 +34,9 @@ public class DachshundEntity extends UnleashedDogEntity implements GeoEntity, An
   protected boolean isSameSpecies(MobEntity entity) {
     return entity instanceof DachshundEntity;
   }
+
+  @Override
+  public String getBreedId() {
+    return "dachshund";
+  }
 }
