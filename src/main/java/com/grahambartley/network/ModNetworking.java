@@ -237,6 +237,7 @@ public final class ModNetworking {
               if (petData != null && petData.isAlive()) {
                 final Entity entity = findEntityByUuid(world, payload.petId());
                 if (entity instanceof UnleashedDogEntity dog) {
+                  dog.wakeUp();
                   dog.teleport(
                       world,
                       player.getX(),

@@ -1,4 +1,6 @@
 {
-  "parent": "dogs-unleashed:block/dog_bed"
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "dogs-unleashed:item/dog_bed"
+  }
 }
-

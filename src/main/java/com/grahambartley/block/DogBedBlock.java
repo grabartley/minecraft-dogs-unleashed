@@ -3,6 +3,8 @@ package com.grahambartley.block;
 import com.grahambartley.ModComponents;
 import com.grahambartley.block.entity.DogBedBlockEntity;
 import com.grahambartley.entity.UnleashedDogEntity;
+import com.grahambartley.pet.PetData;
+import com.grahambartley.pet.PetManager;
 import com.mojang.serialization.MapCodec;
 import java.util.Comparator;
 import java.util.List;
@@ -17,9 +19,11 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
@@ -63,7 +67,7 @@ public class DogBedBlock extends HorizontalFacingBlock implements BlockEntityPro
 
   @Override
   public BlockState getPlacementState(ItemPlacementContext ctx) {
-    return this.getDefaultState().with(FACING, ctx.getHorizontalPlayerFacing().getOpposite());
+    return this.getDefaultState().with(FACING, ctx.getHorizontalPlayerFacing());
   }
 
   @Override
@@ -123,7 +127,11 @@ public class DogBedBlock extends HorizontalFacingBlock implements BlockEntityPro
 
     if (player.isSneaking() && heldStack.isEmpty()) {
       if (dogBedBlockEntity.hasAssignedDog()) {
+        final UnleashedDogEntity assignedDog = dogBedBlockEntity.getAssignedDog(world);
+        final String dogName = getDogName(world, assignedDog);
         dogBedBlockEntity.clearAssignedDog(world);
+        player.sendMessage(
+            Text.translatable("block.dogs-unleashed.dog_bed.unassigned", dogName), true);
         return ActionResult.SUCCESS;
       }
 
@@ -134,15 +142,28 @@ public class DogBedBlock extends HorizontalFacingBlock implements BlockEntityPro
         }
         dogBedBlockEntity.setAssignedDog(nearestDog);
         nearestDog.setAssignedBedPos(pos);
+        final String dogName = getDogName(world, nearestDog);
+        player.sendMessage(
+            Text.translatable("block.dogs-unleashed.dog_bed.assigned", dogName), true);
         return ActionResult.SUCCESS;
       }
+      player.sendMessage(Text.translatable("block.dogs-unleashed.dog_bed.no_dog_nearby"), true);
       return ActionResult.PASS;
     }
 
     if (dogBedBlockEntity.hasAssignedDog()) {
       final UnleashedDogEntity dog = dogBedBlockEntity.getAssignedDog(world);
       if (dog != null && dog.isOwner(player)) {
-        dog.commandToSleep(pos);
+        final String dogName = getDogName(world, dog);
+        if (dog.isSleepingInBed()) {
+          dog.wakeUp();
+          player.sendMessage(
+              Text.translatable("block.dogs-unleashed.dog_bed.wake_command", dogName), true);
+        } else {
+          dog.commandToSleep(pos);
+          player.sendMessage(
+              Text.translatable("block.dogs-unleashed.dog_bed.sleep_command", dogName), true);
+        }
         return ActionResult.SUCCESS;
       }
     }
@@ -159,6 +180,20 @@ public class DogBedBlock extends HorizontalFacingBlock implements BlockEntityPro
     return dogs.stream()
         .min(Comparator.comparingDouble(dog -> dog.squaredDistanceTo(player)))
         .orElse(null);
+  }
+
+  private String getDogName(World world, UnleashedDogEntity dog) {
+    if (dog == null) {
+      return "Dog";
+    }
+    if (world instanceof ServerWorld serverWorld) {
+      final PetManager petManager = PetManager.get(serverWorld.getServer());
+      final PetData petData = petManager.getPetByEntityId(dog.getUuid());
+      if (petData != null) {
+        return petData.getName();
+      }
+    }
+    return Text.translatable("entity.dogs-unleashed." + dog.getBreedId()).getString();
   }
 
   @Override

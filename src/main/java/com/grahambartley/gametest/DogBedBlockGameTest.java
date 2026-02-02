@@ -120,7 +120,7 @@ public final class DogBedBlockGameTest implements FabricGameTest {
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void dogCanBeCommandedToSleep(final TestContext context) {
     final BlockPos bedPos = new BlockPos(0, 1, 0);
-    final BlockPos dogPos = new BlockPos(2, 1, 0);
+    final BlockPos dogPos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
     world.setBlockState(bedPos, ModBlocks.DOG_BED.getDefaultState());
@@ -133,9 +133,11 @@ public final class DogBedBlockGameTest implements FabricGameTest {
     context.runAtTick(
         10,
         () -> {
-          husky.commandToSleep(bedPos);
+          husky.setAssignedBedPos(bedPos);
+          husky.startSleepingInBed(bedPos);
 
-          context.assertTrue(husky.isSleepingInBed(), "Dog should be sleeping after command");
+          context.assertTrue(
+              husky.isSleepingInBed(), "Dog should be sleeping after startSleepingInBed");
           context.assertTrue(
               husky.getAssignedBedPos().isPresent()
                   && husky.getAssignedBedPos().get().equals(bedPos),
@@ -147,7 +149,7 @@ public final class DogBedBlockGameTest implements FabricGameTest {
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void dogWakesUpWhenDamaged(final TestContext context) {
     final BlockPos bedPos = new BlockPos(0, 1, 0);
-    final BlockPos dogPos = new BlockPos(2, 1, 0);
+    final BlockPos dogPos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
     world.setBlockState(bedPos, ModBlocks.DOG_BED.getDefaultState());
@@ -160,7 +162,8 @@ public final class DogBedBlockGameTest implements FabricGameTest {
     context.runAtTick(
         10,
         () -> {
-          husky.commandToSleep(bedPos);
+          husky.setAssignedBedPos(bedPos);
+          husky.startSleepingInBed(bedPos);
           context.assertTrue(husky.isSleepingInBed(), "Dog should be sleeping");
         });
 

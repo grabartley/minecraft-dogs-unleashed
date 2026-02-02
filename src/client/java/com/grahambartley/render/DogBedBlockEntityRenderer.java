@@ -13,8 +13,38 @@ import software.bernie.geckolib.renderer.GeoBlockRenderer;
 
 public class DogBedBlockEntityRenderer extends GeoBlockRenderer<DogBedBlockEntity> {
 
+  private static final float BED_SCALE = 2.0f;
+
   public DogBedBlockEntityRenderer(BlockEntityRendererFactory.Context context) {
     super(new DogBedModel());
+  }
+
+  @Override
+  public void preRender(
+      MatrixStack poseStack,
+      DogBedBlockEntity animatable,
+      BakedGeoModel model,
+      VertexConsumerProvider bufferSource,
+      VertexConsumer buffer,
+      boolean isReRender,
+      float partialTick,
+      int packedLight,
+      int packedOverlay,
+      int colour) {
+    poseStack.translate(0.5, 0, 0.5);
+    poseStack.scale(BED_SCALE, BED_SCALE, BED_SCALE);
+    poseStack.translate(-0.5, 0, -0.5);
+    super.preRender(
+        poseStack,
+        animatable,
+        model,
+        bufferSource,
+        buffer,
+        isReRender,
+        partialTick,
+        packedLight,
+        packedOverlay,
+        colour);
   }
 
   @Override

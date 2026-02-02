@@ -1,7 +1,6 @@
 package com.grahambartley.entity.goal;
 
 import com.grahambartley.ModBlocks;
-import com.grahambartley.block.entity.DogBedBlockEntity;
 import com.grahambartley.entity.UnleashedDogEntity;
 import java.util.EnumSet;
 import net.minecraft.block.BlockState;
@@ -11,12 +10,10 @@ import net.minecraft.world.World;
 
 public class SleepInBedGoal extends Goal {
 
-  private static final int BED_SEARCH_RANGE = 16;
   private static final double CLOSE_ENOUGH_DISTANCE = 2.0;
 
   private final UnleashedDogEntity dog;
   private BlockPos targetBedPos;
-  private int cooldown;
 
   public SleepInBedGoal(UnleashedDogEntity dog) {
     this.dog = dog;
@@ -31,60 +28,20 @@ public class SleepInBedGoal extends Goal {
     if (this.dog.isInSittingPose()) {
       return false;
     }
-    if (this.dog.isSleepingInBed()) {
-      return true;
-    }
-
-    if (this.cooldown > 0) {
-      this.cooldown--;
+    if (!this.dog.isSleepingInBed() && !this.dog.isCommandedToSleep()) {
       return false;
     }
-
-    if (this.dog.hasAssignedBed()) {
-      final BlockPos bedPos = this.dog.getAssignedBedPos().get();
-      if (this.isValidBed(bedPos)) {
-        this.targetBedPos = bedPos;
-        return this.shouldSleep();
-      }
+    if (!this.dog.hasAssignedBed()) {
+      return false;
     }
-
-    this.targetBedPos = this.findNearbyBed();
-    if (this.targetBedPos != null) {
-      return this.shouldSleep();
-    }
-
-    this.cooldown = 100;
-    return false;
-  }
-
-  private boolean shouldSleep() {
-    final World world = this.dog.getWorld();
-    return world.isNight() && !world.isRaining();
+    this.targetBedPos = this.dog.getAssignedBedPos().get();
+    return this.isValidBed(this.targetBedPos);
   }
 
   private boolean isValidBed(BlockPos pos) {
     final World world = this.dog.getWorld();
     final BlockState state = world.getBlockState(pos);
     return state.isOf(ModBlocks.DOG_BED);
-  }
-
-  private BlockPos findNearbyBed() {
-    final World world = this.dog.getWorld();
-    final BlockPos dogPos = this.dog.getBlockPos();
-
-    for (BlockPos pos :
-        BlockPos.iterateOutwards(dogPos, BED_SEARCH_RANGE, BED_SEARCH_RANGE, BED_SEARCH_RANGE)) {
-      if (this.isValidBed(pos)) {
-        final var blockEntity = world.getBlockEntity(pos);
-        if (blockEntity instanceof DogBedBlockEntity dogBedEntity) {
-          if (!dogBedEntity.hasAssignedDog()
-              || dogBedEntity.getAssignedDogUuid().equals(this.dog.getUuid())) {
-            return pos;
-          }
-        }
-      }
-    }
-    return null;
   }
 
   @Override
@@ -101,7 +58,7 @@ public class SleepInBedGoal extends Goal {
     if (!this.isValidBed(this.targetBedPos)) {
       return false;
     }
-    return this.shouldSleep() || this.dog.isSleepingInBed();
+    return this.dog.isSleepingInBed() || this.dog.isCommandedToSleep();
   }
 
   @Override
@@ -130,19 +87,14 @@ public class SleepInBedGoal extends Goal {
       return;
     }
 
+    if (this.dog.isSleepingInBed()) {
+      return;
+    }
+
     final double distanceToBed = this.dog.getBlockPos().getSquaredDistance(this.targetBedPos);
 
     if (distanceToBed <= CLOSE_ENOUGH_DISTANCE * CLOSE_ENOUGH_DISTANCE) {
-      if (!this.dog.isSleepingInBed()) {
-        this.dog.commandToSleep(this.targetBedPos);
-      }
-      this.dog.getNavigation().stop();
-      this.dog
-          .getLookControl()
-          .lookAt(
-              this.targetBedPos.getX() + 0.5,
-              this.targetBedPos.getY(),
-              this.targetBedPos.getZ() + 0.5);
+      this.dog.startSleepingInBed(this.targetBedPos);
     } else {
       this.dog
           .getNavigation()
@@ -156,6 +108,6 @@ public class SleepInBedGoal extends Goal {
 
   @Override
   public boolean canStop() {
-    return !this.dog.isSleepingInBed();
+    return !this.dog.isSleepingInBed() && !this.dog.isCommandedToSleep();
   }
 }
