@@ -16,6 +16,12 @@ import net.minecraft.util.Identifier;
 
 public class PetManagerScreen extends Screen {
 
+  private enum AliveFilter {
+    ALL,
+    ALIVE,
+    DECEASED
+  }
+
   private static final int ENTRY_HEIGHT = 60;
   private static final int ENTRY_WIDTH = 280;
   private static final int ENTRIES_PER_PAGE = 4;
@@ -27,7 +33,7 @@ public class PetManagerScreen extends Screen {
   private List<ModNetworking.PetSyncData> pets = new ArrayList<>();
   private TextFieldWidget searchField;
   private String currentBreedFilter = "";
-  private Boolean currentAliveFilter = null;
+  private AliveFilter currentAliveFilter = AliveFilter.ALL;
   private int scrollOffset = 0;
   private ModNetworking.PetSyncData selectedPet = null;
 
@@ -78,16 +84,16 @@ public class PetManagerScreen extends Screen {
                 }));
 
     addDrawableChild(
-        CyclingButtonWidget.<Boolean>builder(
-                alive -> {
-                  if (alive == null) {
-                    return Text.translatable("screen.dogs-unleashed.pet_manager.all_status");
-                  }
-                  return alive
-                      ? Text.translatable("screen.dogs-unleashed.pet_manager.alive_only")
-                      : Text.translatable("screen.dogs-unleashed.pet_manager.deceased_only");
-                })
-            .values(List.of((Boolean) null, true, false))
+        CyclingButtonWidget.<AliveFilter>builder(
+                filter ->
+                    switch (filter) {
+                      case ALL -> Text.translatable("screen.dogs-unleashed.pet_manager.all_status");
+                      case ALIVE ->
+                          Text.translatable("screen.dogs-unleashed.pet_manager.alive_only");
+                      case DECEASED ->
+                          Text.translatable("screen.dogs-unleashed.pet_manager.deceased_only");
+                    })
+            .values(AliveFilter.values())
             .initially(currentAliveFilter)
             .build(
                 centerX + 5,
@@ -123,8 +129,8 @@ public class PetManagerScreen extends Screen {
 
   private void refreshPetsList() {
     final String searchQuery = searchField != null ? searchField.getText() : "";
-    final boolean filterAlive = currentAliveFilter != null;
-    final boolean aliveValue = currentAliveFilter != null && currentAliveFilter;
+    final boolean filterAlive = currentAliveFilter != AliveFilter.ALL;
+    final boolean aliveValue = currentAliveFilter == AliveFilter.ALIVE;
     ModNetworkingClient.sendRequestPets(currentBreedFilter, filterAlive, aliveValue, searchQuery);
   }
 
