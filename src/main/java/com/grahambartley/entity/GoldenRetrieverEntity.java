@@ -31,4 +31,9 @@ public class GoldenRetrieverEntity extends UnleashedDogEntity {
   protected boolean isSameSpecies(MobEntity entity) {
     return entity instanceof GoldenRetrieverEntity;
   }
+
+  @Override
+  public String getBreedId() {
+    return "goldenretriever";
+  }
 }

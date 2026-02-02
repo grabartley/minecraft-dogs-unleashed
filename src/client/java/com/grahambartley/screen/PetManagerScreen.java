@@ -22,7 +22,7 @@ public class PetManagerScreen extends Screen {
   private static final int THUMBNAIL_SIZE = 48;
 
   private static final List<String> BREED_OPTIONS =
-      List.of("", "husky", "dachshund", "beagle", "shibainu");
+      List.of("", "husky", "dachshund", "beagle", "goldenretriever", "shibainu");
 
   private List<ModNetworking.PetSyncData> pets = new ArrayList<>();
   private TextFieldWidget searchField;
