@@ -18,6 +18,10 @@
   "block.dogs-unleashed.dog_bed.wake_command": "%s is waking up",
   "block.dogs-unleashed.dog_bed.no_dog_nearby": "No tamed dog nearby",
 
+  "message.dogs-unleashed.pending_bed_assignment": "Selected %s! Now right-click a dog bed to assign them",
+  "message.dogs-unleashed.bed_assigned": "%s has been assigned to this bed",
+  "message.dogs-unleashed.no_pending_assignment": "Sneak + right-click a dog first, then right-click this bed",
+
   "key.dogs-unleashed.open_pet_manager": "Open Pet Manager",
   "category.dogs-unleashed.general": "Dogs Unleashed",
 

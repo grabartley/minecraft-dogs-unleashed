@@ -6,8 +6,9 @@ import com.grahambartley.entity.UnleashedDogEntity;
 import com.grahambartley.pet.PetData;
 import com.grahambartley.pet.PetManager;
 import com.mojang.serialization.MapCodec;
-import java.util.Comparator;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
@@ -32,7 +33,6 @@ import net.minecraft.util.DyeColor;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
@@ -44,6 +44,15 @@ public class DogBedBlock extends HorizontalFacingBlock implements BlockEntityPro
   public static final MapCodec<DogBedBlock> CODEC = createCodec(DogBedBlock::new);
   public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
   private static final VoxelShape SHAPE = VoxelShapes.cuboid(0.0, 0.0, 0.0, 1.0, 0.25, 1.0);
+  private static final Map<UUID, UUID> pendingBedAssignments = new HashMap<>();
+
+  public static void setPendingAssignment(UUID playerUuid, UUID dogUuid) {
+    pendingBedAssignments.put(playerUuid, dogUuid);
+  }
+
+  public static UUID consumePendingAssignment(UUID playerUuid) {
+    return pendingBedAssignments.remove(playerUuid);
+  }
 
   public DogBedBlock(Settings settings) {
     super(settings);
@@ -131,21 +140,30 @@ public class DogBedBlock extends HorizontalFacingBlock implements BlockEntityPro
             Text.translatable("block.dogs-unleashed.dog_bed.unassigned", dogName), true);
         return ActionResult.SUCCESS;
       }
+      return ActionResult.PASS;
+    }
 
-      final UnleashedDogEntity nearestDog = findNearestOwnedDog(world, player, pos);
-      if (nearestDog != null) {
-        if (nearestDog.hasAssignedBed()) {
-          nearestDog.clearAssignedBed();
+    final UUID pendingDogUuid = consumePendingAssignment(player.getUuid());
+    if (pendingDogUuid != null && world instanceof ServerWorld serverWorld) {
+      final net.minecraft.entity.Entity entity = serverWorld.getEntity(pendingDogUuid);
+      if (entity instanceof UnleashedDogEntity dog && dog.isOwner(player)) {
+        if (dog.isSleepingInBed()) {
+          dog.wakeUp();
         }
-        dogBedBlockEntity.setAssignedDog(nearestDog);
-        nearestDog.setAssignedBedPos(pos);
-        final String dogName = getDogName(world, nearestDog);
-        player.sendMessage(
-            Text.translatable("block.dogs-unleashed.dog_bed.assigned", dogName), true);
+        dog.getAssignedBedPos()
+            .ifPresent(
+                oldBedPos -> {
+                  if (serverWorld.getBlockEntity(oldBedPos)
+                      instanceof DogBedBlockEntity oldBedEntity) {
+                    oldBedEntity.clearAssignedDog(null);
+                  }
+                });
+        dogBedBlockEntity.setAssignedDog(dog);
+        dog.setAssignedBedPos(pos);
+        final String dogName = getDogName(world, dog);
+        player.sendMessage(Text.translatable("message.dogs-unleashed.bed_assigned", dogName), true);
         return ActionResult.SUCCESS;
       }
-      player.sendMessage(Text.translatable("block.dogs-unleashed.dog_bed.no_dog_nearby"), true);
-      return ActionResult.PASS;
     }
 
     if (dogBedBlockEntity.hasAssignedDog()) {
@@ -165,18 +183,12 @@ public class DogBedBlock extends HorizontalFacingBlock implements BlockEntityPro
       }
     }
 
+    if (!dogBedBlockEntity.hasAssignedDog()) {
+      player.sendMessage(Text.translatable("message.dogs-unleashed.no_pending_assignment"), true);
+      return ActionResult.SUCCESS;
+    }
+
     return ActionResult.PASS;
-  }
-
-  private UnleashedDogEntity findNearestOwnedDog(
-      World world, PlayerEntity player, BlockPos bedPos) {
-    final Box searchBox = new Box(bedPos).expand(16.0);
-    final List<UnleashedDogEntity> dogs =
-        world.getEntitiesByClass(UnleashedDogEntity.class, searchBox, dog -> dog.isOwner(player));
-
-    return dogs.stream()
-        .min(Comparator.comparingDouble(dog -> dog.squaredDistanceTo(player)))
-        .orElse(null);
   }
 
   private String getDogName(World world, UnleashedDogEntity dog) {

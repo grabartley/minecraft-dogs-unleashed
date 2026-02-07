@@ -2,8 +2,10 @@ package com.grahambartley.gametest;
 
 import com.grahambartley.ModBlocks;
 import com.grahambartley.ModEntities;
+import com.grahambartley.block.DogBedBlock;
 import com.grahambartley.block.entity.DogBedBlockEntity;
 import com.grahambartley.entity.HuskyEntity;
+import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -217,5 +219,111 @@ public final class DogBedBlockGameTest implements FabricGameTest {
     final float hardness = ModBlocks.DOG_BED.getHardness();
     context.assertTrue(hardness == 2.0f, "Dog bed should have hardness of 2.0 (same as oak wood)");
     context.complete();
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+  public void pendingAssignmentCanBeSetAndConsumed(final TestContext context) {
+    final UUID playerUuid = UUID.randomUUID();
+    final UUID dogUuid = UUID.randomUUID();
+
+    DogBedBlock.setPendingAssignment(playerUuid, dogUuid);
+
+    final UUID consumed = DogBedBlock.consumePendingAssignment(playerUuid);
+    context.assertTrue(
+        dogUuid.equals(consumed), "Consumed pending assignment should match dog UUID");
+
+    final UUID secondConsume = DogBedBlock.consumePendingAssignment(playerUuid);
+    context.assertTrue(
+        secondConsume == null, "Pending assignment should be null after consumption");
+    context.complete();
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+  public void reAssigningDogToNewBedClearsOldBed(final TestContext context) {
+    final BlockPos oldBedPos = new BlockPos(0, 1, 0);
+    final BlockPos newBedPos = new BlockPos(3, 1, 0);
+    final BlockPos dogPos = new BlockPos(1, 1, 0);
+    final ServerWorld world = context.getWorld();
+
+    world.setBlockState(oldBedPos, ModBlocks.DOG_BED.getDefaultState());
+    world.setBlockState(newBedPos, ModBlocks.DOG_BED.getDefaultState());
+
+    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
+    husky.refreshPositionAndAngles(dogPos, 0.0f, 0.0f);
+    husky.setTamed(true, true);
+    world.spawnEntity(husky);
+
+    context.runAtTick(
+        10,
+        () -> {
+          final DogBedBlockEntity oldBedEntity =
+              (DogBedBlockEntity) world.getBlockEntity(oldBedPos);
+          oldBedEntity.setAssignedDog(husky);
+          husky.setAssignedBedPos(oldBedPos);
+
+          context.assertTrue(oldBedEntity.hasAssignedDog(), "Old bed should have assigned dog");
+
+          final DogBedBlockEntity newBedEntity =
+              (DogBedBlockEntity) world.getBlockEntity(newBedPos);
+          final DogBedBlockEntity oldBedCheck = (DogBedBlockEntity) world.getBlockEntity(oldBedPos);
+
+          husky
+              .getAssignedBedPos()
+              .ifPresent(
+                  pos -> {
+                    if (world.getBlockEntity(pos) instanceof DogBedBlockEntity oldEntity) {
+                      oldEntity.clearAssignedDog(null);
+                    }
+                  });
+          newBedEntity.setAssignedDog(husky);
+          husky.setAssignedBedPos(newBedPos);
+
+          context.assertTrue(newBedEntity.hasAssignedDog(), "New bed should have assigned dog");
+          context.assertTrue(
+              !oldBedCheck.hasAssignedDog(), "Old bed should no longer have assigned dog");
+          context.assertTrue(
+              husky.getAssignedBedPos().isPresent()
+                  && husky.getAssignedBedPos().get().equals(newBedPos),
+              "Dog's bed pos should be new bed");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+  public void dogDeathFreesAssignedBed(final TestContext context) {
+    final BlockPos bedPos = new BlockPos(0, 1, 0);
+    final BlockPos dogPos = new BlockPos(1, 1, 0);
+    final ServerWorld world = context.getWorld();
+
+    world.setBlockState(bedPos, ModBlocks.DOG_BED.getDefaultState());
+
+    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
+    husky.refreshPositionAndAngles(dogPos, 0.0f, 0.0f);
+    husky.setTamed(true, true);
+    world.spawnEntity(husky);
+
+    context.runAtTick(
+        10,
+        () -> {
+          final DogBedBlockEntity bedEntity = (DogBedBlockEntity) world.getBlockEntity(bedPos);
+          bedEntity.setAssignedDog(husky);
+          husky.setAssignedBedPos(bedPos);
+
+          context.assertTrue(bedEntity.hasAssignedDog(), "Bed should have assigned dog");
+        });
+
+    context.runAtTick(
+        20,
+        () -> {
+          husky.damage(world.getDamageSources().generic(), 999.0f);
+        });
+
+    context.runAtTick(
+        30,
+        () -> {
+          final DogBedBlockEntity bedEntity = (DogBedBlockEntity) world.getBlockEntity(bedPos);
+          context.assertTrue(!bedEntity.hasAssignedDog(), "Bed should be free after dog death");
+          context.complete();
+        });
   }
 }

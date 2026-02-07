@@ -7,6 +7,8 @@ import static com.grahambartley.ModConstants.LOW_HEALTH_THRESHOLD;
 import static com.grahambartley.ModConstants.MINECRAFT_TICK_RATE;
 import static com.grahambartley.ModConstants.RANDOM_BARK_CHANCE;
 
+import com.grahambartley.block.DogBedBlock;
+import com.grahambartley.block.entity.DogBedBlockEntity;
 import com.grahambartley.entity.goal.AutoSleepGoal;
 import com.grahambartley.entity.goal.SleepInBedGoal;
 import com.grahambartley.network.ModNetworking;
@@ -331,7 +333,12 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
       }
 
       if (this.isOwner(player) && !this.isTamingItem(itemStack)) {
-        if (this.isSleepingInBed()) {
+        if (player.isSneaking()) {
+          final String dogName = this.getDogNameForMessage();
+          DogBedBlock.setPendingAssignment(player.getUuid(), this.getUuid());
+          player.sendMessage(
+              Text.translatable("message.dogs-unleashed.pending_bed_assignment", dogName), true);
+        } else if (this.isSleepingInBed()) {
           this.wakeUp();
           final String dogName = this.getDogNameForMessage();
           player.sendMessage(
@@ -556,6 +563,14 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     if (this.getWorld() instanceof ServerWorld serverWorld && this.isTamed()) {
       final PetManager petManager = PetManager.get(serverWorld.getServer());
       petManager.markPetDeceased(this.getUuid());
+
+      this.getAssignedBedPos()
+          .ifPresent(
+              bedPos -> {
+                if (serverWorld.getBlockEntity(bedPos) instanceof DogBedBlockEntity bedEntity) {
+                  bedEntity.clearAssignedDog(serverWorld);
+                }
+              });
     }
   }
 
