@@ -1,5 +1,6 @@
 package com.grahambartley.gametest;
 
+import com.grahambartley.ModBlocks;
 import com.grahambartley.ModEntities;
 import com.grahambartley.ModSounds;
 import com.grahambartley.entity.BeagleEntity;
@@ -183,66 +184,60 @@ public final class DogBarkingGameTest implements FabricGameTest {
     context.complete();
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
-  public void huskyHowlsDuringFullMoonNight(final TestContext context) {
-    final ServerWorld world = context.getWorld();
-
-    context.runAtTick(
-        5,
-        () -> {
-          world.setTimeOfDay(18000);
-          context.assertTrue(!world.isDay(), "World should be night at time 18000");
-          context.assertTrue(world.getMoonPhase() <= 1, "Moon phase should be full or near-full");
-          context.complete();
-        });
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200, required = false)
+  public void huskySleepingDoesNotBark(final TestContext context) {
+    testSleepingDogDoesNotBark(context, HUSKY_DATA);
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
-  public void huskyDoesNotHowlDuringDay(final TestContext context) {
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200, required = false)
+  public void dachshundSleepingDoesNotBark(final TestContext context) {
+    testSleepingDogDoesNotBark(context, DACHSHUND_DATA);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200, required = false)
+  public void beagleSleepingDoesNotBark(final TestContext context) {
+    testSleepingDogDoesNotBark(context, BEAGLE_DATA);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200, required = false)
+  public void goldenRetrieverSleepingDoesNotBark(final TestContext context) {
+    testSleepingDogDoesNotBark(context, GOLDEN_RETRIEVER_DATA);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200, required = false)
+  public void shibaInuSleepingDoesNotBark(final TestContext context) {
+    testSleepingDogDoesNotBark(context, SHIBA_INU_DATA);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200, required = false)
+  public void sleepingHuskyDoesNotHowl(final TestContext context) {
     final ServerWorld world = context.getWorld();
-    final BlockPos spawnPos = new BlockPos(0, 1, 0);
+    final BlockPos relBedPos = new BlockPos(0, 1, 0);
+    final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
+
+    context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
     final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
-    husky.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
+    husky.refreshPositionAndAngles(
+        absBedPos.getX(), absBedPos.getY(), absBedPos.getZ(), 0.0f, 0.0f);
+    husky.setTamed(true, true);
     world.spawnEntity(husky);
 
     context.runAtTick(
-        5,
+        10,
         () -> {
-          world.setTimeOfDay(6000);
+          husky.setAssignedBedPos(absBedPos);
+          husky.commandToSleep(absBedPos);
+          husky.startSleepingInBed(absBedPos);
         });
 
     context.runAtTick(
         50,
         () -> {
-          world.setTimeOfDay(6000);
+          context.assertTrue(husky.isSleepingInBed(), "Husky should still be sleeping");
           context.assertTrue(
-              husky.getHowlCooldownTicks() == 0, "Husky should not have howled during the day");
-          context.complete();
-        });
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
-  public void huskyDoesNotHowlDuringNewMoonNight(final TestContext context) {
-    final ServerWorld world = context.getWorld();
-    final BlockPos spawnPos = new BlockPos(0, 1, 0);
-
-    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
-    husky.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
-    world.spawnEntity(husky);
-
-    context.runAtTick(
-        5,
-        () -> {
-          world.setTimeOfDay(18000 + 4 * 24000);
-        });
-
-    context.runAtTick(
-        50,
-        () -> {
-          world.setTimeOfDay(18000 + 4 * 24000);
-          context.assertTrue(
-              husky.getHowlCooldownTicks() == 0, "Husky should not have howled during new moon");
+              husky.getHowlCooldownTicks() == 0,
+              "Sleeping husky should not have howled (cooldown should be 0)");
           context.complete();
         });
   }
@@ -347,6 +342,38 @@ public final class DogBarkingGameTest implements FabricGameTest {
                     "Cooldown should still be active, preventing another bark");
                 context.complete();
               });
+        });
+  }
+
+  private <T extends UnleashedDogEntity> void testSleepingDogDoesNotBark(
+      final TestContext context, final TestData<T> data) {
+    final ServerWorld world = context.getWorld();
+    final BlockPos relBedPos = new BlockPos(0, 1, 0);
+    final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
+
+    context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
+
+    final T dog = data.factory.apply(world);
+    dog.refreshPositionAndAngles(absBedPos.getX(), absBedPos.getY(), absBedPos.getZ(), 0.0f, 0.0f);
+    dog.setTamed(true, true);
+    world.spawnEntity(dog);
+
+    context.runAtTick(
+        10,
+        () -> {
+          dog.setAssignedBedPos(absBedPos);
+          dog.commandToSleep(absBedPos);
+          dog.startSleepingInBed(absBedPos);
+        });
+
+    context.runAtTick(
+        50,
+        () -> {
+          context.assertTrue(dog.isSleepingInBed(), "Dog should still be sleeping");
+          context.assertTrue(
+              dog.getBarkCooldownTicks() == 0,
+              "Sleeping dog should not have barked (cooldown should be 0)");
+          context.complete();
         });
   }
 

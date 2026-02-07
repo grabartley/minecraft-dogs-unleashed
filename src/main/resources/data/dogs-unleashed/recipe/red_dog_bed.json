@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "dog_bed",
+  "pattern": [
+    "CC",
+    "PP"
+  ],
+  "key": {
+    "C": { "item": "minecraft:red_carpet" },
+    "P": { "tag": "minecraft:planks" }
+  },
+  "result": {
+    "id": "dogs-unleashed:dog_bed",
+    "components": {
+      "dogs-unleashed:dog_bed_color": "red"
+    }
+  }
+}

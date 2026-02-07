@@ -56,6 +56,7 @@ public class HuskyEntity extends UnleashedDogEntity {
 
   private boolean canHowl() {
     return !this.isDead()
+        && !this.isSleepingInBed()
         && this.howlCooldownTicks <= 0
         && !this.getWorld().isDay()
         && this.getWorld().getMoonPhase() <= NEAR_FULL_MOON_THRESHOLD;

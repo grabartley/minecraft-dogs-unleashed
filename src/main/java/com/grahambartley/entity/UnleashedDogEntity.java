@@ -7,10 +7,13 @@ import static com.grahambartley.ModConstants.LOW_HEALTH_THRESHOLD;
 import static com.grahambartley.ModConstants.MINECRAFT_TICK_RATE;
 import static com.grahambartley.ModConstants.RANDOM_BARK_CHANCE;
 
+import com.grahambartley.entity.goal.AutoSleepGoal;
+import com.grahambartley.entity.goal.SleepInBedGoal;
 import com.grahambartley.network.ModNetworking;
 import com.grahambartley.pet.PetData;
 import com.grahambartley.pet.PetManager;
 import com.grahambartley.util.DogNames;
+import java.util.Optional;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.ai.goal.AnimalMateGoal;
@@ -47,10 +50,12 @@ import net.minecraft.recipe.Ingredient;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TimeHelper;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.intprovider.UniformIntProvider;
 import net.minecraft.world.World;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -74,6 +79,13 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
       DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.INTEGER);
   private static final TrackedData<Boolean> HEAD_TILTING =
       DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+  private static final TrackedData<Boolean> SLEEPING_IN_BED =
+      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+  private static final TrackedData<Boolean> COMMANDED_TO_SLEEP =
+      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+  private static final TrackedData<Optional<BlockPos>> ASSIGNED_BED_POS =
+      DataTracker.registerData(
+          UnleashedDogEntity.class, TrackedDataHandlerRegistry.OPTIONAL_BLOCK_POS);
 
   private static final UniformIntProvider ANGER_TIME_RANGE = TimeHelper.betweenSeconds(20, 39);
   private java.util.UUID angryAt;
@@ -120,7 +132,6 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
 
   public UnleashedDogEntity(EntityType<? extends TameableEntity> entityType, World world) {
     super(entityType, world);
-    this.setTamed(false, false);
   }
 
   protected abstract UnleashedDogEntity createBaby(ServerWorld world);
@@ -138,7 +149,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   }
 
   private boolean canBark() {
-    return !this.isDead() && this.barkCooldownTicks <= 0;
+    return !this.isDead() && !this.isSleepingInBed() && this.barkCooldownTicks <= 0;
   }
 
   private boolean shouldBark(final PlayerEntity nearbyPlayer) {
@@ -169,6 +180,9 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     builder.add(TAIL_WAG_TIMER, 0);
     builder.add(SHAKE_PROGRESS, 0);
     builder.add(HEAD_TILTING, false);
+    builder.add(SLEEPING_IN_BED, false);
+    builder.add(COMMANDED_TO_SLEEP, false);
+    builder.add(ASSIGNED_BED_POS, Optional.empty());
   }
 
   public DyeColor getCollarColor() {
@@ -189,6 +203,58 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
 
   public boolean isHeadTilting() {
     return this.dataTracker.get(HEAD_TILTING);
+  }
+
+  public boolean isSleepingInBed() {
+    return this.dataTracker.get(SLEEPING_IN_BED);
+  }
+
+  public Optional<BlockPos> getAssignedBedPos() {
+    return this.dataTracker.get(ASSIGNED_BED_POS);
+  }
+
+  public void setAssignedBedPos(BlockPos pos) {
+    this.dataTracker.set(ASSIGNED_BED_POS, Optional.ofNullable(pos));
+  }
+
+  public void clearAssignedBed() {
+    this.dataTracker.set(ASSIGNED_BED_POS, Optional.empty());
+    this.wakeUp();
+  }
+
+  public void commandToSleep(BlockPos bedPos) {
+    if (!this.isTamed()) {
+      return;
+    }
+    this.setAssignedBedPos(bedPos);
+    this.setSitting(false);
+    this.dataTracker.set(COMMANDED_TO_SLEEP, true);
+    this.navigation.startMovingTo(bedPos.getX() + 0.5, bedPos.getY(), bedPos.getZ() + 0.5, 1.0);
+  }
+
+  public boolean isCommandedToSleep() {
+    return this.dataTracker.get(COMMANDED_TO_SLEEP);
+  }
+
+  public void startSleepingInBed(BlockPos bedPos) {
+    this.dataTracker.set(SLEEPING_IN_BED, true);
+    this.refreshPositionAndAngles(
+        bedPos.getX() + 0.5,
+        bedPos.getY() + 0.1,
+        bedPos.getZ() + 0.5,
+        this.getYaw(),
+        this.getPitch());
+    this.setVelocity(0, 0, 0);
+    this.navigation.stop();
+  }
+
+  public void wakeUp() {
+    this.dataTracker.set(SLEEPING_IN_BED, false);
+    this.dataTracker.set(COMMANDED_TO_SLEEP, false);
+  }
+
+  public boolean hasAssignedBed() {
+    return this.getAssignedBedPos().isPresent();
   }
 
   private void startShaking() {
@@ -221,15 +287,17 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   protected void initGoals() {
     this.goalSelector.add(1, new SwimGoal(this));
     this.goalSelector.add(2, new SitGoal(this));
-    this.goalSelector.add(3, new TemptGoal(this, 1.0, TAMING_INGREDIENT, false));
-    this.goalSelector.add(4, new EscapeDangerGoal(this, 1.5));
-    this.goalSelector.add(5, new PounceAtTargetGoal(this, 0.4F));
-    this.goalSelector.add(6, new MeleeAttackGoal(this, 1.0, true));
-    this.goalSelector.add(7, new FollowOwnerGoal(this, 1.0, 10.0F, 2.0F));
-    this.goalSelector.add(8, new AnimalMateGoal(this, 1.0));
-    this.goalSelector.add(9, new WanderAroundFarGoal(this, 1.0));
-    this.goalSelector.add(10, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F));
-    this.goalSelector.add(11, new LookAroundGoal(this));
+    this.goalSelector.add(3, new SleepInBedGoal(this));
+    this.goalSelector.add(4, new AutoSleepGoal(this));
+    this.goalSelector.add(5, new TemptGoal(this, 1.0, TAMING_INGREDIENT, false));
+    this.goalSelector.add(6, new EscapeDangerGoal(this, 1.5));
+    this.goalSelector.add(7, new PounceAtTargetGoal(this, 0.4F));
+    this.goalSelector.add(8, new MeleeAttackGoal(this, 1.0, true));
+    this.goalSelector.add(9, new FollowOwnerGoal(this, 1.0, 10.0F, 2.0F));
+    this.goalSelector.add(10, new AnimalMateGoal(this, 1.0));
+    this.goalSelector.add(11, new WanderAroundFarGoal(this, 1.0));
+    this.goalSelector.add(12, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F));
+    this.goalSelector.add(13, new LookAroundGoal(this));
 
     this.targetSelector.add(1, new TrackOwnerAttackerGoal(this));
     this.targetSelector.add(2, new AttackWithOwnerGoal(this));
@@ -263,7 +331,14 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
       }
 
       if (this.isOwner(player) && !this.isTamingItem(itemStack)) {
-        this.setSitting(!this.isSitting());
+        if (this.isSleepingInBed()) {
+          this.wakeUp();
+          final String dogName = this.getDogNameForMessage();
+          player.sendMessage(
+              Text.translatable("block.dogs-unleashed.dog_bed.wake_command", dogName), true);
+        } else {
+          this.setSitting(!this.isSitting());
+        }
         this.jumping = false;
         this.navigation.stop();
         this.setTarget(null);
@@ -320,6 +395,17 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
 
   public boolean isTamingItem(ItemStack stack) {
     return TAMING_INGREDIENT.test(stack);
+  }
+
+  private String getDogNameForMessage() {
+    if (this.getWorld() instanceof ServerWorld serverWorld) {
+      final PetManager petManager = PetManager.get(serverWorld.getServer());
+      final PetData petData = petManager.getPetByEntityId(this.getUuid());
+      if (petData != null) {
+        return petData.getName();
+      }
+    }
+    return Text.translatable("entity.dogs-unleashed." + this.getBreedId()).getString();
   }
 
   @Override
@@ -455,6 +541,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     }
     if (!this.getWorld().isClient) {
       this.setSitting(false);
+      this.wakeUp();
       if (this.canBark()) {
         this.playSound(this.getBarkSound(), BARK_VOLUME, BARK_PITCH);
         this.barkCooldownTicks = BARK_COOLDOWN_TICKS;
@@ -480,6 +567,20 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     nbt.putInt("ShakeProgress", this.getShakeProgress());
     nbt.putBoolean("WasInWater", this.wasInWater);
     nbt.putInt("TicksSinceLeftWater", this.ticksSinceLeftWater);
+    nbt.putBoolean("SleepingInBed", this.isSleepingInBed());
+    this.getAssignedBedPos()
+        .ifPresent(
+            pos -> {
+              nbt.putInt("BedPosX", pos.getX());
+              nbt.putInt("BedPosY", pos.getY());
+              nbt.putInt("BedPosZ", pos.getZ());
+            });
+    com.grahambartley.DogsUnleashed.log.info(
+        "[SAVE] {} (UUID={}) - isTamed={}, ownerUuid={}",
+        this.getBreedId(),
+        this.getUuid(),
+        this.isTamed(),
+        this.getOwnerUuid());
   }
 
   @Override
@@ -498,6 +599,20 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     if (nbt.contains("TicksSinceLeftWater", 99)) {
       this.ticksSinceLeftWater = nbt.getInt("TicksSinceLeftWater");
     }
+    if (nbt.contains("SleepingInBed")) {
+      this.dataTracker.set(SLEEPING_IN_BED, nbt.getBoolean("SleepingInBed"));
+    }
+    if (nbt.contains("BedPosX") && nbt.contains("BedPosY") && nbt.contains("BedPosZ")) {
+      this.setAssignedBedPos(
+          new BlockPos(nbt.getInt("BedPosX"), nbt.getInt("BedPosY"), nbt.getInt("BedPosZ")));
+    }
+    com.grahambartley.DogsUnleashed.log.info(
+        "[LOAD] {} (UUID={}) - isTamed={}, ownerUuid={}, nbt.hasOwner={}",
+        this.getBreedId(),
+        this.getUuid(),
+        this.isTamed(),
+        this.getOwnerUuid(),
+        nbt.containsUuid("Owner"));
   }
 
   @Override
@@ -533,6 +648,9 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
             "movement",
             0,
             state -> {
+              if (state.getAnimatable().isSleepingInBed()) {
+                return state.setAndContinue(RawAnimation.begin().thenLoop("sit"));
+              }
               if (state.getAnimatable().isInSittingPose()) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("sit"));
               }

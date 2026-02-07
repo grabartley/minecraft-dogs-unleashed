@@ -10,6 +10,14 @@
   "entity.dogs-unleashed.shibainu": "Shiba Inu",
   "item.dogs-unleashed.shibainu_spawn_egg": "Shiba Inu Spawn Egg",
 
+  "block.dogs-unleashed.dog_bed": "Dog Bed",
+  "block.dogs-unleashed.dog_bed.colored": "%s Dog Bed",
+  "block.dogs-unleashed.dog_bed.assigned": "%s will sleep here",
+  "block.dogs-unleashed.dog_bed.unassigned": "%s is no longer assigned to this bed",
+  "block.dogs-unleashed.dog_bed.sleep_command": "%s is going to sleep",
+  "block.dogs-unleashed.dog_bed.wake_command": "%s is waking up",
+  "block.dogs-unleashed.dog_bed.no_dog_nearby": "No tamed dog nearby",
+
   "key.dogs-unleashed.open_pet_manager": "Open Pet Manager",
   "category.dogs-unleashed.general": "Dogs Unleashed",
 
