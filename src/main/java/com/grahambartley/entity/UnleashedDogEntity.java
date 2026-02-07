@@ -1,6 +1,11 @@
 package com.grahambartley.entity;
 
+import static com.grahambartley.ModConstants.BARK_COOLDOWN_TICKS;
+import static com.grahambartley.ModConstants.BARK_PITCH;
+import static com.grahambartley.ModConstants.BARK_VOLUME;
+import static com.grahambartley.ModConstants.LOW_HEALTH_THRESHOLD;
 import static com.grahambartley.ModConstants.MINECRAFT_TICK_RATE;
+import static com.grahambartley.ModConstants.RANDOM_BARK_CHANCE;
 
 import com.grahambartley.network.ModNetworking;
 import com.grahambartley.pet.PetData;
@@ -41,6 +46,7 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Hand;
@@ -108,6 +114,8 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
           Items.ROTTEN_FLESH,
           Items.BONE);
 
+  private int barkCooldownTicks = 0;
+
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
   public UnleashedDogEntity(EntityType<? extends TameableEntity> entityType, World world) {
@@ -120,6 +128,38 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   protected abstract boolean isSameSpecies(MobEntity entity);
 
   public abstract String getBreedId();
+
+  protected abstract SoundEvent getBarkSound();
+
+  protected void tickBreedSpecificSounds() {}
+
+  public int getBarkCooldownTicks() {
+    return this.barkCooldownTicks;
+  }
+
+  private boolean canBark() {
+    return !this.isDead() && this.barkCooldownTicks <= 0;
+  }
+
+  private boolean shouldBark(final PlayerEntity nearbyPlayer) {
+    if (nearbyPlayer != null && this.isPlayerHoldingTamingOrBreedingItem(nearbyPlayer)) {
+      return true;
+    }
+    if (this.getHealth() < this.getMaxHealth() * LOW_HEALTH_THRESHOLD) {
+      return true;
+    }
+    if (this.getTarget() != null) {
+      return true;
+    }
+    return this.random.nextInt(RANDOM_BARK_CHANCE) == 0;
+  }
+
+  private void tryBark(final PlayerEntity nearbyPlayer) {
+    if (this.canBark() && this.shouldBark(nearbyPlayer)) {
+      this.playSound(this.getBarkSound(), BARK_VOLUME, BARK_PITCH);
+      this.barkCooldownTicks = BARK_COOLDOWN_TICKS;
+    }
+  }
 
   @Override
   protected void initDataTracker(DataTracker.Builder builder) {
@@ -372,6 +412,12 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
 
       this.updateHeadTilt(nearbyPlayer);
       this.updateTailWag(nearbyPlayer);
+
+      if (this.barkCooldownTicks > 0) {
+        this.barkCooldownTicks--;
+      }
+      this.tryBark(nearbyPlayer);
+      this.tickBreedSpecificSounds();
 
       final boolean inWater = this.isTouchingWater();
 

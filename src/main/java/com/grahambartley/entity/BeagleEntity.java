@@ -2,12 +2,14 @@ package com.grahambartley.entity;
 
 import static com.grahambartley.ModEntities.BEAGLE;
 
+import com.grahambartley.ModSounds;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.world.World;
 
 public class BeagleEntity extends UnleashedDogEntity {
@@ -36,5 +38,10 @@ public class BeagleEntity extends UnleashedDogEntity {
   @Override
   public String getBreedId() {
     return "beagle";
+  }
+
+  @Override
+  protected SoundEvent getBarkSound() {
+    return ModSounds.BEAGLE_BARK;
   }
 }
