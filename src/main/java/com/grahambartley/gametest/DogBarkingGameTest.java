@@ -11,6 +11,7 @@ import com.grahambartley.entity.UnleashedDogEntity;
 import java.util.function.Function;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.ZombieEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
@@ -149,6 +150,31 @@ public final class DogBarkingGameTest implements FabricGameTest {
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
   public void shibaInuCooldownPreventsBark(final TestContext context) {
     testCooldownPreventsBark(context, SHIBA_INU_DATA);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
+  public void huskyBarksWhenTakingDamage(final TestContext context) {
+    testDogBarksWhenTakingDamage(context, HUSKY_DATA);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
+  public void dachshundBarksWhenTakingDamage(final TestContext context) {
+    testDogBarksWhenTakingDamage(context, DACHSHUND_DATA);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
+  public void beagleBarksWhenTakingDamage(final TestContext context) {
+    testDogBarksWhenTakingDamage(context, BEAGLE_DATA);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
+  public void goldenRetrieverBarksWhenTakingDamage(final TestContext context) {
+    testDogBarksWhenTakingDamage(context, GOLDEN_RETRIEVER_DATA);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
+  public void shibaInuBarksWhenTakingDamage(final TestContext context) {
+    testDogBarksWhenTakingDamage(context, SHIBA_INU_DATA);
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
@@ -321,6 +347,31 @@ public final class DogBarkingGameTest implements FabricGameTest {
                     "Cooldown should still be active, preventing another bark");
                 context.complete();
               });
+        });
+  }
+
+  private <T extends UnleashedDogEntity> void testDogBarksWhenTakingDamage(
+      final TestContext context, final TestData<T> data) {
+    final ServerWorld world = context.getWorld();
+    final BlockPos spawnPos = new BlockPos(0, 1, 0);
+    final T dog = data.factory.apply(world);
+    dog.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
+    world.spawnEntity(dog);
+
+    context.runAtTick(
+        5,
+        () -> {
+          final DamageSource source = world.getDamageSources().generic();
+          dog.damage(source, 1.0f);
+        });
+
+    context.runAtTick(
+        10,
+        () -> {
+          context.assertTrue(
+              dog.getBarkCooldownTicks() > 0,
+              "Dog should have barked when taking damage (cooldown should be > 0)");
+          context.complete();
         });
   }
 

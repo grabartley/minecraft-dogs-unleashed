@@ -455,6 +455,10 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     }
     if (!this.getWorld().isClient) {
       this.setSitting(false);
+      if (this.canBark()) {
+        this.playSound(this.getBarkSound(), BARK_VOLUME, BARK_PITCH);
+        this.barkCooldownTicks = BARK_COOLDOWN_TICKS;
+      }
     }
     return super.damage(source, amount);
   }
