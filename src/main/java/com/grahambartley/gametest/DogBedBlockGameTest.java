@@ -202,4 +202,20 @@ public final class DogBedBlockGameTest implements FabricGameTest {
           context.complete();
         });
   }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void dogBedIsInAxeMineableTag(final TestContext context) {
+    final BlockState dogBedState = ModBlocks.DOG_BED.getDefaultState();
+    context.assertTrue(
+        dogBedState.isIn(net.minecraft.registry.tag.BlockTags.AXE_MINEABLE),
+        "Dog bed should be in axe mineable tag");
+    context.complete();
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void dogBedHasCorrectHardness(final TestContext context) {
+    final float hardness = ModBlocks.DOG_BED.getHardness();
+    context.assertTrue(hardness == 2.0f, "Dog bed should have hardness of 2.0 (same as oak wood)");
+    context.complete();
+  }
 }

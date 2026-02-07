@@ -18,7 +18,7 @@ public class ModBlocks {
           new DogBedBlock(
               AbstractBlock.Settings.create()
                   .mapColor(MapColor.WHITE)
-                  .strength(0.2f)
+                  .strength(2.0f)
                   .sounds(BlockSoundGroup.WOOL)
                   .nonOpaque()));
 

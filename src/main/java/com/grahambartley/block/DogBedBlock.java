@@ -19,6 +19,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ShearsItem;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.DirectionProperty;
@@ -88,12 +89,6 @@ public class DogBedBlock extends HorizontalFacingBlock implements BlockEntityPro
   @Override
   public void onPlaced(
       World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
-    super.onPlaced(world, pos, state, placer, itemStack);
-
-    if (world.isClient) {
-      return;
-    }
-
     if (itemStack.contains(ModComponents.DOG_BED_COLOR)) {
       final BlockEntity blockEntity = world.getBlockEntity(pos);
       if (blockEntity instanceof DogBedBlockEntity dogBedBlockEntity) {
@@ -103,6 +98,8 @@ public class DogBedBlock extends HorizontalFacingBlock implements BlockEntityPro
         }
       }
     }
+
+    super.onPlaced(world, pos, state, placer, itemStack);
   }
 
   @Override
@@ -206,5 +203,18 @@ public class DogBedBlock extends HorizontalFacingBlock implements BlockEntityPro
       }
     }
     super.onStateReplaced(state, world, pos, newState, moved);
+  }
+
+  @Override
+  protected float calcBlockBreakingDelta(
+      BlockState state, PlayerEntity player, BlockView world, BlockPos pos) {
+    final float baseSpeed = super.calcBlockBreakingDelta(state, player, world, pos);
+    final ItemStack heldStack = player.getMainHandStack();
+
+    if (heldStack.getItem() instanceof ShearsItem) {
+      return baseSpeed * 5.0f;
+    }
+
+    return baseSpeed;
   }
 }

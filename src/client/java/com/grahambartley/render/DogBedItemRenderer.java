@@ -43,7 +43,7 @@ public class DogBedItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
 
     switch (mode) {
       case GUI -> {
-        matrices.translate(0.5, 0.15, 0);
+        matrices.translate(0.5, 0.3, 0);
         matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_X.rotationDegrees(30));
         matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_Y.rotationDegrees(45));
         matrices.scale(1.2f, 1.2f, 1.2f);
@@ -59,16 +59,24 @@ public class DogBedItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
         matrices.scale(1.0f, 1.0f, 1.0f);
       }
       case THIRD_PERSON_LEFT_HAND, THIRD_PERSON_RIGHT_HAND -> {
-        matrices.translate(0.5, 0.4, 0.5);
+        matrices.translate(0.5, 0.35, 0.5);
         matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_X.rotationDegrees(75));
         matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_Y.rotationDegrees(45));
         matrices.scale(0.8f, 0.8f, 0.8f);
       }
-      case FIRST_PERSON_LEFT_HAND, FIRST_PERSON_RIGHT_HAND -> {
-        matrices.translate(0.5, 0.4, 0.5);
-        matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_X.rotationDegrees(0));
-        matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_Y.rotationDegrees(45));
-        matrices.scale(0.8f, 0.8f, 0.8f);
+      case FIRST_PERSON_LEFT_HAND -> {
+        matrices.translate(0.6, 0.25, 0.3);
+        matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_X.rotationDegrees(10));
+        matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_Y.rotationDegrees(-80));
+        matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_Z.rotationDegrees(-10));
+        matrices.scale(0.6f, 0.6f, 0.6f);
+      }
+      case FIRST_PERSON_RIGHT_HAND -> {
+        matrices.translate(0.4, 0.25, 0.3);
+        matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_X.rotationDegrees(10));
+        matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_Y.rotationDegrees(80));
+        matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_Z.rotationDegrees(10));
+        matrices.scale(0.6f, 0.6f, 0.6f);
       }
       default -> {
         matrices.translate(0.5, 0.2, 0.5);
