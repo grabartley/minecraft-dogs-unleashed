@@ -1,0 +1,28 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.dog_bed",
+				"texture_width": 64,
+				"texture_height": 64,
+				"visible_bounds_width": 2,
+				"visible_bounds_height": 1.5,
+				"visible_bounds_offset": [0, 0.25, 0]
+			},
+			"bones": [
+				{
+					"name": "bb_main",
+					"pivot": [0, 0, 0],
+					"cubes": [
+						{"origin": [-4, -0.3, -3], "size": [8, 2, 6], "inflate": -0.5, "uv": [0, 0]},
+						{"origin": [-4, -0.2, -3], "size": [8, 1, 6], "inflate": -0.2, "uv": [0, 8]},
+						{"origin": [-4.3, -0.2, -3.1], "size": [1, 3, 6], "inflate": -0.2, "uv": [18, 15]},
+						{"origin": [3.3, -0.2, -3.1], "size": [1, 3, 6], "inflate": -0.2, "uv": [18, 24]},
+						{"origin": [-3, -0.2, -3.3], "size": [1, 3, 8], "inflate": -0.2, "pivot": [-3, -0.2, -2.3], "rotation": [0, 90, 0], "uv": [0, 15]}
+					]
+				}
+			]
+		}
+	]
+}

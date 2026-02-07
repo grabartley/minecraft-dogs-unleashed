@@ -1,0 +1,281 @@
+package com.grahambartley.gametest;
+
+import com.grahambartley.ModBlocks;
+import com.grahambartley.ModEntities;
+import com.grahambartley.entity.HuskyEntity;
+import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.test.GameTest;
+import net.minecraft.test.TestContext;
+import net.minecraft.util.math.BlockPos;
+
+public final class DogSleepBehaviorGameTest implements FabricGameTest {
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
+  public void commandedToSleepSetsCorrectFlags(final TestContext context) {
+    final BlockPos bedPos = new BlockPos(0, 1, 0);
+    final BlockPos dogPos = new BlockPos(5, 1, 0);
+    final ServerWorld world = context.getWorld();
+
+    world.setBlockState(bedPos, ModBlocks.DOG_BED.getDefaultState());
+
+    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
+    husky.refreshPositionAndAngles(dogPos, 0.0f, 0.0f);
+    husky.setTamed(true, true);
+    world.spawnEntity(husky);
+
+    context.runAtTick(
+        10,
+        () -> {
+          context.assertTrue(!husky.isCommandedToSleep(), "Dog should not be commanded initially");
+          context.assertTrue(!husky.isSleepingInBed(), "Dog should not be sleeping initially");
+
+          husky.commandToSleep(bedPos);
+
+          context.assertTrue(
+              husky.isCommandedToSleep(), "commandToSleep should set COMMANDED_TO_SLEEP");
+          context.assertTrue(husky.hasAssignedBed(), "commandToSleep should set assigned bed");
+          context.assertTrue(
+              husky.getAssignedBedPos().get().equals(bedPos),
+              "Assigned bed should match given position");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
+  public void startSleepingInBedSetsSleepingFlag(final TestContext context) {
+    final BlockPos bedPos = new BlockPos(0, 1, 0);
+    final ServerWorld world = context.getWorld();
+
+    world.setBlockState(bedPos, ModBlocks.DOG_BED.getDefaultState());
+
+    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
+    husky.refreshPositionAndAngles(bedPos, 0.0f, 0.0f);
+    husky.setTamed(true, true);
+    world.spawnEntity(husky);
+
+    context.runAtTick(
+        10,
+        () -> {
+          context.assertTrue(!husky.isSleepingInBed(), "Dog should not be sleeping initially");
+
+          husky.setAssignedBedPos(bedPos);
+          husky.startSleepingInBed(bedPos);
+
+          context.assertTrue(
+              husky.isSleepingInBed(), "startSleepingInBed should set SLEEPING_IN_BED");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
+  public void wakeUpClearsAllSleepFlags(final TestContext context) {
+    final BlockPos bedPos = new BlockPos(0, 1, 0);
+    final ServerWorld world = context.getWorld();
+
+    world.setBlockState(bedPos, ModBlocks.DOG_BED.getDefaultState());
+
+    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
+    husky.refreshPositionAndAngles(bedPos, 0.0f, 0.0f);
+    husky.setTamed(true, true);
+    world.spawnEntity(husky);
+
+    context.runAtTick(
+        10,
+        () -> {
+          husky.setAssignedBedPos(bedPos);
+          husky.startSleepingInBed(bedPos);
+          context.assertTrue(husky.isSleepingInBed(), "Dog should be sleeping");
+
+          husky.wakeUp();
+
+          context.assertTrue(!husky.isSleepingInBed(), "wakeUp should clear SLEEPING_IN_BED");
+          context.assertTrue(!husky.isCommandedToSleep(), "wakeUp should clear COMMANDED_TO_SLEEP");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
+  public void sleepingDogStaysSleepingAcrossMultipleTicks(final TestContext context) {
+    final BlockPos relBedPos = new BlockPos(0, 1, 0);
+    final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
+    final ServerWorld world = context.getWorld();
+
+    context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
+
+    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
+    husky.refreshPositionAndAngles(
+        absBedPos.getX(), absBedPos.getY(), absBedPos.getZ(), 0.0f, 0.0f);
+    husky.setTamed(true, true);
+    world.spawnEntity(husky);
+
+    context.runAtTick(
+        10,
+        () -> {
+          husky.setAssignedBedPos(absBedPos);
+          husky.commandToSleep(absBedPos);
+          husky.startSleepingInBed(absBedPos);
+          context.assertTrue(husky.isSleepingInBed(), "Dog should be sleeping at tick 10");
+          context.assertTrue(
+              husky.isCommandedToSleep(), "COMMANDED_TO_SLEEP should be true at tick 10");
+        });
+
+    context.runAtTick(
+        50,
+        () -> {
+          context.assertTrue(
+              husky.isCommandedToSleep(), "COMMANDED_TO_SLEEP should STILL be true at tick 50");
+          context.assertTrue(husky.isSleepingInBed(), "Dog should STILL be sleeping at tick 50");
+        });
+
+    context.runAtTick(
+        100,
+        () -> {
+          context.assertTrue(husky.isSleepingInBed(), "Dog should STILL be sleeping at tick 100");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
+  public void commandedSleepDogStaysInPositionAcrossMultipleTicks(final TestContext context) {
+    final BlockPos relBedPos = new BlockPos(0, 1, 0);
+    final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
+    final ServerWorld world = context.getWorld();
+
+    context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
+
+    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
+    husky.refreshPositionAndAngles(
+        absBedPos.getX(), absBedPos.getY(), absBedPos.getZ(), 0.0f, 0.0f);
+    husky.setTamed(true, true);
+    world.spawnEntity(husky);
+
+    context.runAtTick(
+        10,
+        () -> {
+          husky.setAssignedBedPos(absBedPos);
+          husky.commandToSleep(absBedPos);
+          husky.startSleepingInBed(absBedPos);
+        });
+
+    context.runAtTick(
+        100,
+        () -> {
+          final double distanceFromBed =
+              husky
+                  .getPos()
+                  .squaredDistanceTo(
+                      absBedPos.getX() + 0.5, absBedPos.getY() + 0.1, absBedPos.getZ() + 0.5);
+          context.assertTrue(
+              distanceFromBed < 1.0,
+              "Sleeping dog should stay near bed position, distance=" + Math.sqrt(distanceFromBed));
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
+  public void damageClearsSleepState(final TestContext context) {
+    final BlockPos relBedPos = new BlockPos(0, 1, 0);
+    final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
+    final ServerWorld world = context.getWorld();
+
+    context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
+
+    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
+    husky.refreshPositionAndAngles(
+        absBedPos.getX(), absBedPos.getY(), absBedPos.getZ(), 0.0f, 0.0f);
+    husky.setTamed(true, true);
+    world.spawnEntity(husky);
+
+    context.runAtTick(
+        10,
+        () -> {
+          husky.setAssignedBedPos(absBedPos);
+          husky.commandToSleep(absBedPos);
+          husky.startSleepingInBed(absBedPos);
+          context.assertTrue(husky.isSleepingInBed(), "Dog should be sleeping before damage");
+        });
+
+    context.runAtTick(
+        50,
+        () -> {
+          husky.damage(world.getDamageSources().generic(), 0.5f);
+        });
+
+    context.runAtTick(
+        60,
+        () -> {
+          context.assertTrue(!husky.isSleepingInBed(), "Dog should NOT be sleeping after damage");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
+  public void commandedSleepDoesNotAutoWake(final TestContext context) {
+    final BlockPos relBedPos = new BlockPos(0, 1, 0);
+    final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
+    final ServerWorld world = context.getWorld();
+
+    context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
+
+    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
+    husky.refreshPositionAndAngles(
+        absBedPos.getX(), absBedPos.getY(), absBedPos.getZ(), 0.0f, 0.0f);
+    husky.setTamed(true, true);
+    world.spawnEntity(husky);
+
+    context.runAtTick(
+        10,
+        () -> {
+          husky.setAssignedBedPos(absBedPos);
+          husky.commandToSleep(absBedPos);
+          husky.startSleepingInBed(absBedPos);
+          context.assertTrue(husky.isSleepingInBed(), "Dog should be sleeping");
+          context.assertTrue(husky.isCommandedToSleep(), "Dog should be commanded to sleep");
+        });
+
+    context.runAtTick(
+        100,
+        () -> {
+          context.assertTrue(
+              husky.isSleepingInBed(), "Commanded sleeping dog should NOT auto-wake");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
+  public void wakeUpMethodClearsSleepStateFromCommanded(final TestContext context) {
+    final BlockPos relBedPos = new BlockPos(0, 1, 0);
+    final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
+    final ServerWorld world = context.getWorld();
+
+    context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
+
+    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
+    husky.refreshPositionAndAngles(
+        absBedPos.getX(), absBedPos.getY(), absBedPos.getZ(), 0.0f, 0.0f);
+    husky.setTamed(true, true);
+    world.spawnEntity(husky);
+
+    context.runAtTick(
+        10,
+        () -> {
+          husky.setAssignedBedPos(absBedPos);
+          husky.commandToSleep(absBedPos);
+          husky.startSleepingInBed(absBedPos);
+          context.assertTrue(husky.isSleepingInBed(), "Dog should be sleeping");
+          context.assertTrue(husky.isCommandedToSleep(), "Dog should be commanded");
+        });
+
+    context.runAtTick(
+        50,
+        () -> {
+          context.assertTrue(husky.isSleepingInBed(), "Dog should still be sleeping");
+          husky.wakeUp();
+          context.assertTrue(!husky.isSleepingInBed(), "Dog should NOT be sleeping after wakeUp");
+          context.assertTrue(
+              !husky.isCommandedToSleep(), "Dog should NOT be commanded after wakeUp");
+          context.complete();
+        });
+  }
+}

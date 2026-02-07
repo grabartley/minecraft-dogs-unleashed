@@ -35,6 +35,9 @@ loom {
 	}
 
 	runs {
+		client {
+			programArgs "--username", "DevPlayer"
+		}
 		gametest {
 			server()
 			name "Game Test"
