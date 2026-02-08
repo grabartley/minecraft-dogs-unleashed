@@ -3,6 +3,7 @@
   "pools": [
     {
       "rolls": 1,
+      "bonus_rolls": 0,
       "entries": [
         {
           "type": "minecraft:item",
@@ -22,7 +23,10 @@
       ],
       "conditions": [
         {
-          "condition": "minecraft:survives_explosion"
+          "condition": "minecraft:match_tool",
+          "predicate": {
+            "items": "#minecraft:mineable/pickaxe"
+          }
         }
       ]
     }

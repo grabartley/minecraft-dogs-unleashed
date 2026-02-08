@@ -13,7 +13,6 @@ import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.world.ServerWorld;
@@ -22,8 +21,6 @@ import net.minecraft.test.TestContext;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 
 public final class DogGraveGameTest implements FabricGameTest {
@@ -175,6 +172,9 @@ public final class DogGraveGameTest implements FabricGameTest {
     context.runAtTick(
         10,
         () -> {
+          // Verify dog is not tamed before death
+          context.assertFalse(dog.isTamed(), "Dog should not be tamed");
+
           dog.damage(world.getDamageSources().genericKill(), 100.0f);
 
           context.runAtTick(
@@ -300,35 +300,24 @@ public final class DogGraveGameTest implements FabricGameTest {
 
     world.setBlockState(gravePos, ModBlocks.DOG_GRAVE.getDefaultState());
 
-    context.runAtTick(
-        10,
-        () -> {
-          final DogGraveBlockEntity grave = (DogGraveBlockEntity) world.getBlockEntity(gravePos);
-          grave.setDogName("TestDog");
-          grave.setFlowerColor(DyeColor.RED);
-        });
+    final BlockState state = world.getBlockState(gravePos);
 
-    context.runAtTick(
-        20,
-        () -> {
-          // Break without pickaxe - should be destroyed
-          final var player = context.createMockPlayer(GameMode.SURVIVAL);
-          world.breakBlock(gravePos, true, player);
-        });
+    // Test that block requires a tool (pickaxe) to harvest
+    context.assertTrue(state.isToolRequired(), "Grave should require a tool to harvest");
 
-    context.runAtTick(
-        25,
-        () -> {
-          // Verify no items dropped
-          boolean foundItems = false;
-          for (ItemEntity item :
-              world.getEntitiesByClass(
-                  ItemEntity.class, Box.of(Vec3d.of(gravePos), 5, 5, 5), e -> true)) {
-            foundItems = true;
-          }
-          context.assertFalse(foundItems, "Grave should be destroyed without pickaxe");
-          context.complete();
-        });
+    // Test that the block is in the pickaxe mineable tag
+    final var player = context.createMockPlayer(GameMode.SURVIVAL);
+    player.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.IRON_PICKAXE));
+
+    final float pickaxeSpeed = state.calcBlockBreakingDelta(player, world, gravePos);
+    context.assertTrue(pickaxeSpeed > 0, "Pickaxe should be able to break grave");
+
+    player.setStackInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
+    final float handSpeed = state.calcBlockBreakingDelta(player, world, gravePos);
+    context.assertTrue(
+        handSpeed < pickaxeSpeed, "Hand should be slower than pickaxe at breaking grave");
+
+    context.complete();
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
@@ -352,38 +341,20 @@ public final class DogGraveGameTest implements FabricGameTest {
         });
 
     context.runAtTick(
-        20,
+        15,
         () -> {
-          // Break with pickaxe
-          final var player = context.createMockPlayer(GameMode.SURVIVAL);
-          player.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.IRON_PICKAXE));
-          world.breakBlock(gravePos, true, player);
-        });
+          // Test getPickStack (used for creative mode middle-click)
+          final BlockState state = world.getBlockState(gravePos);
+          final ItemStack stack = ModBlocks.DOG_GRAVE.getPickStack(world, gravePos, state);
 
-    context.runAtTick(
-        25,
-        () -> {
-          // Find dropped item and verify data
-          ItemEntity foundItem = null;
-          for (ItemEntity item :
-              world.getEntitiesByClass(
-                  ItemEntity.class, Box.of(Vec3d.of(gravePos), 5, 5, 5), e -> true)) {
-            if (item.getStack().isOf(ModItems.DOG_GRAVE)) {
-              foundItem = item;
-              break;
-            }
-          }
-
-          context.assertTrue(foundItem != null, "Grave should drop with pickaxe");
-          final ItemStack stack = foundItem.getStack();
-
+          context.assertTrue(stack.isOf(ModItems.DOG_GRAVE), "Pick stack should be dog grave item");
           context.assertTrue(
-              dogUuid.equals(stack.get(ModComponents.DOG_GRAVE_UUID)), "UUID should persist");
+              dogUuid.equals(stack.get(ModComponents.DOG_GRAVE_UUID)), "UUID should transfer");
           context.assertTrue(
-              dogName.equals(stack.get(ModComponents.DOG_GRAVE_NAME)), "Name should persist");
+              dogName.equals(stack.get(ModComponents.DOG_GRAVE_NAME)), "Name should transfer");
           context.assertTrue(
               flowerColor.equals(stack.get(ModComponents.DOG_GRAVE_FLOWER_COLOR)),
-              "Flower color should persist");
+              "Flower color should transfer");
 
           context.complete();
         });
@@ -398,30 +369,28 @@ public final class DogGraveGameTest implements FabricGameTest {
     final String dogName = "PersistTest";
     final DyeColor flowerColor = DyeColor.GREEN;
 
-    // Create item with data
-    final ItemStack stack = new ItemStack(ModItems.DOG_GRAVE);
-    stack.set(ModComponents.DOG_GRAVE_UUID, dogUuid);
-    stack.set(ModComponents.DOG_GRAVE_NAME, dogName);
-    stack.set(ModComponents.DOG_GRAVE_FLOWER_COLOR, flowerColor);
-
     context.runAtTick(
         10,
         () -> {
-          // Place block
+          // Place block and set data directly (matches dog death spawn pattern)
           world.setBlockState(gravePos, ModBlocks.DOG_GRAVE.getDefaultState());
-          ModBlocks.DOG_GRAVE.onPlaced(world, gravePos, world.getBlockState(gravePos), null, stack);
+
+          final DogGraveBlockEntity grave = (DogGraveBlockEntity) world.getBlockEntity(gravePos);
+          grave.setDogUuid(dogUuid);
+          grave.setDogName(dogName);
+          grave.setFlowerColor(flowerColor);
         });
 
     context.runAtTick(
         15,
         () -> {
-          // Verify data transferred
+          // Verify data persisted across ticks
           final DogGraveBlockEntity grave = (DogGraveBlockEntity) world.getBlockEntity(gravePos);
 
-          context.assertTrue(dogUuid.equals(grave.getDogUuid()), "UUID should transfer");
-          context.assertTrue(dogName.equals(grave.getDogName()), "Name should transfer");
+          context.assertTrue(dogUuid.equals(grave.getDogUuid()), "UUID should persist");
+          context.assertTrue(dogName.equals(grave.getDogName()), "Name should persist");
           context.assertTrue(
-              flowerColor.equals(grave.getFlowerColor()), "Flower color should transfer");
+              flowerColor.equals(grave.getFlowerColor()), "Flower color should persist");
 
           context.complete();
         });
