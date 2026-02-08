@@ -124,46 +124,124 @@ Results are published to `build/gametest-results.xml`
 
 ### Writing Game Tests
 
+**CRITICAL**: All new gametests MUST use the shared utilities pattern (see DogTestData and DogTestHelper).
+
 1. Create test class in `src/main/java/com/grahambartley/gametest/`
 2. Implement `FabricGameTest` interface
-3. Add methods annotated with `@GameTest`
-4. Register in `fabric.mod.json` under `fabric-gametest` entrypoint
-5. Use `TestContext` for assertions
+3. Use `DogTestData` and `DogTestHelper` utilities (never duplicate spawn logic)
+4. Add methods annotated with `@GameTest`
+5. Register in `fabric.mod.json` under `fabric-gametest` entrypoint
+6. Use `TestContext` for assertions
 
-**Example:**
+**Gametest Organization Pattern:**
+
+Organize tests by FEATURE, not by breed:
+- `DogEntityCoreTest` - spawning, taming, dimensions, NBT
+- `DogEntityBehaviorTest` - collar colors, breeding, items, shaking
+- `DogEntitySoundTest` - barking, howling, cooldowns
+- `DogEntityBreedSpecificTest` - breed attributes, baby creation
+
+**Example using shared utilities:**
 
 ```java
-public final class MyEntityGameTest implements FabricGameTest {
+public final class DogEntityFeatureTest implements FabricGameTest {
 
 	@GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-	public void entitySpawns(final TestContext context) {
-		final BlockPos spawnPos = new BlockPos(0, 1, 0);
-		final ServerWorld world = context.getWorld();
+	public void huskyFeatureWorks(TestContext context) {
+		testDogFeatureWorks(context, DogTestData.HUSKY);
+	}
 
-		final MyEntity entity = ModEntities.MY_ENTITY.create(world);
-		if (entity == null) {
-			context.throwPositionedException("Failed to create entity", spawnPos);
-			return;
-		}
+	@GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+	public void dachshundFeatureWorks(TestContext context) {
+		testDogFeatureWorks(context, DogTestData.DACHSHUND);
+	}
 
-		entity.refreshPositionAndAngles(spawnPos, 0.0f, 0.0f);
-		world.spawnEntity(entity);
+	// Repeat for all breeds...
 
-		context.expectEntityAt(ModEntities.MY_ENTITY, spawnPos);
+	private <T extends UnleashedDogEntity> void testDogFeatureWorks(
+			TestContext context, DogTestData<T> data) {
+		// Use helper to spawn - NEVER duplicate spawn logic
+		T dog = DogTestHelper.spawnDog(context, data);
+
+		// Test logic here
+		context.assertTrue(dog.someMethod(), data.breedId() + " should have feature");
 		context.complete();
 	}
-
-	@GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-	public void entityBehaviorOverTime(final TestContext context) {
-		// Spawn entity...
-
-		context.runAtTick(20, () -> {
-			// Verify behavior after 1 second (20 ticks)
-			context.assertTrue(someCondition, "Expected behavior");
-			context.complete();
-		});
-	}
 }
+```
+
+**Key Best Practices:**
+
+- **Use DogTestHelper.spawnDog()** - Never manually spawn entities
+- **Use DogTestHelper.spawnTamedDog()** - For tamed dog tests
+- **Use DogTestData constants** - HUSKY, DACHSHUND, BEAGLE, GOLDEN_RETRIEVER, SHIBA_INU
+- **Parameterized pattern** - Write one helper method, call from breed-specific wrappers
+- **succeedWhen() for async** - Use `context.succeedWhen(() -> condition)` for continuous checking
+- **Registry checks** - Verify sounds/entities in actual registries, not just null checks
+- **Feature grouping** - Group tests by what they test, not what breed
+
+**Example with async behavior:**
+
+```java
+@GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
+public void huskyBarksWhenLowHealth(TestContext context) {
+	testDogBarksWhenLowHealth(context, DogTestData.HUSKY);
+}
+
+private <T extends UnleashedDogEntity> void testDogBarksWhenLowHealth(
+		TestContext context, DogTestData<T> data) {
+	T dog = DogTestHelper.spawnDog(context, data);
+
+	context.runAtTick(5, () -> {
+		dog.setHealth(1.0f);
+	});
+
+	// Use succeedWhen for continuous checking until bark happens
+	context.runAtTick(10, () -> {
+		context.succeedWhen(() -> dog.getBarkCooldownTicks() > 0);
+	});
+}
+```
+
+### Gametest Utilities (MANDATORY)
+
+**DogTestData** - Centralized breed test configurations
+```java
+// Pre-configured constants with expected attributes
+DogTestData.HUSKY           // Expected: health=25.0, speed=0.30, damage=5.0
+DogTestData.DACHSHUND       // Expected: health=10.0, speed=0.25, damage=2.0
+DogTestData.BEAGLE          // Expected: health=17.0, speed=0.29, damage=3.0
+DogTestData.GOLDEN_RETRIEVER // Expected: health=24.0, speed=0.30, damage=4.0
+DogTestData.SHIBA_INU       // Expected: health=18.0, speed=0.32, damage=3.5
+
+// Access breed data
+data.entityType()           // EntityType<T>
+data.factory()              // Function<World, T>
+data.breedId()              // String identifier
+data.expectedWidth()        // float (0.8f for all breeds)
+data.expectedHeight()       // float (1.1f for all breeds)
+data.expectedMaxHealth()    // double (breed-specific)
+data.expectedMovementSpeed() // double (breed-specific)
+data.expectedAttackDamage() // double (breed-specific)
+data.expectedBarkSound()    // SoundEvent (breed-specific)
+```
+
+**DogTestHelper** - Spawn utilities (NEVER duplicate this logic)
+```java
+// Spawn untamed dog at default position (0, 1, 0)
+DogTestHelper.spawnDog(context, DogTestData.HUSKY)
+
+// Spawn untamed dog at specific position
+DogTestHelper.spawnDog(context, DogTestData.HUSKY, new BlockPos(5, 1, 5))
+
+// Spawn tamed dog at default position
+DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY)
+
+// Spawn tamed dog at specific position
+DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, new BlockPos(5, 1, 5))
+
+// Damage entity with generic damage source
+DogTestHelper.damageEntity(dog, 5.0f)
 ```
 
 ### TestContext Methods
@@ -173,6 +251,7 @@ public final class MyEntityGameTest implements FabricGameTest {
 - `assertFalse(condition, message)` - assert condition is false
 - `runAtTick(tick, Runnable)` - schedule action at specific tick
 - `complete()` - mark test as passed
+- `succeedWhen(Supplier<Boolean>)` - continuously check condition until true (for async behavior)
 - `throwPositionedException(message, pos)` - fail test with position info
 - `getWorld()` - get test world (ServerWorld)
 
@@ -290,9 +369,16 @@ src/
 │   └── java/
 │       └── com/grahambartley/
 │           └── gametest/
-│               ├── HuskyEntityGameTest.java
-│               ├── DachshundEntityGameTest.java
-│               └── UnleashedDogEntityGameTest.java
+│               ├── util/
+│               │   ├── DogTestData.java      # Breed test configurations
+│               │   └── DogTestHelper.java    # Spawn utilities
+│               ├── DogEntityCoreTest.java           # Core mechanics
+│               ├── DogEntityBehaviorTest.java       # Interactive behaviors
+│               ├── DogEntitySoundTest.java          # Sound systems
+│               ├── DogEntityBreedSpecificTest.java  # Breed attributes
+│               ├── DogBedBlockGameTest.java         # Dog bed tests
+│               ├── DogSleepBehaviorGameTest.java    # Sleep system
+│               └── DogGraveGameTest.java            # Grave system
 └── test/
 	└── java/
 		└── com/grahambartley/
