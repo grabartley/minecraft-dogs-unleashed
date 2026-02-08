@@ -49,6 +49,7 @@ public class DogGraveBlockEntityRenderer extends GeoBlockRenderer<DogGraveBlockE
         buffer,
         isReRender,
         partialTick,
+        packedLight,
         packedOverlay,
         colour);
   }
