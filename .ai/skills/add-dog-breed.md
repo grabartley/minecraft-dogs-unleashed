@@ -321,6 +321,8 @@ Add the game test entrypoint:
 
 ## Testing Requirements
 
+For comprehensive testing documentation, see `.ai/skills/run-tests.md`.
+
 ### Unit Tests
 
 Update the following parameterized tests to include the new breed:
@@ -458,6 +460,8 @@ private static final TestData<{BreedName}Entity> {BREED_NAME_UPPER}_DATA =
 # Run game tests headless (CI/CD style)
 ./gradlew runGametestServer
 ```
+
+For detailed testing guidance, test writing examples, and troubleshooting, see `.ai/skills/run-tests.md`.
 
 ## Naming Conventions
 
