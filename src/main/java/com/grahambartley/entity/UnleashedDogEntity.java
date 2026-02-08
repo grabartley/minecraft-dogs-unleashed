@@ -566,25 +566,37 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   @Override
   public void onDeath(DamageSource damageSource) {
     super.onDeath(damageSource);
-    if (this.getWorld() instanceof ServerWorld serverWorld && this.isTamed()) {
-      final PetManager petManager = PetManager.get(serverWorld.getServer());
-      petManager.markPetDeceased(this.getUuid());
 
-      this.getAssignedBedPos()
-          .ifPresent(
-              bedPos -> {
-                if (serverWorld.getBlockEntity(bedPos) instanceof DogBedBlockEntity bedEntity) {
-                  bedEntity.clearAssignedDog(serverWorld);
-                }
-              });
-
-      spawnGrave(serverWorld);
+    // CRITICAL: Only spawn graves for tamed dogs
+    if (!(this.getWorld() instanceof ServerWorld serverWorld)) {
+      return;
     }
+
+    if (!this.isTamed()) {
+      return;
+    }
+
+    final PetManager petManager = PetManager.get(serverWorld.getServer());
+    petManager.markPetDeceased(this.getUuid());
+
+    // Get bed position before clearing it (needed to avoid spawning grave on bed)
+    final BlockPos bedPosToAvoid = this.getAssignedBedPos().orElse(null);
+
+    this.getAssignedBedPos()
+        .ifPresent(
+            bedPos -> {
+              if (serverWorld.getBlockEntity(bedPos) instanceof DogBedBlockEntity bedEntity) {
+                bedEntity.clearAssignedDog(serverWorld);
+              }
+            });
+
+    spawnGrave(serverWorld, bedPosToAvoid);
   }
 
-  private void spawnGrave(ServerWorld world) {
+  private void spawnGrave(ServerWorld world, BlockPos bedPosToAvoid) {
     final BlockPos deathPos = this.getBlockPos();
-    final BlockPos gravePos = findValidGravePosition(world, deathPos);
+
+    final BlockPos gravePos = findValidGravePosition(world, deathPos, bedPosToAvoid);
 
     if (gravePos != null) {
       final Direction facing =
@@ -605,7 +617,9 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     }
   }
 
-  private BlockPos findValidGravePosition(ServerWorld world, BlockPos center) {
+  private BlockPos findValidGravePosition(
+      ServerWorld world, BlockPos center, BlockPos bedPosToAvoid) {
+    // First pass: look for air blocks (preferred)
     for (int radius = 0; radius <= 3; radius++) {
       for (int dx = -radius; dx <= radius; dx++) {
         for (int dz = -radius; dz <= radius; dz++) {
@@ -615,6 +629,37 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
 
           for (int dy = -2; dy <= 2; dy++) {
             final BlockPos testPos = center.add(dx, dy, dz);
+
+            // Skip bed position if provided
+            if (bedPosToAvoid != null && testPos.equals(bedPosToAvoid)) {
+              continue;
+            }
+
+            // Prefer positions that are currently air
+            if (world.getBlockState(testPos).isAir() && isValidGravePosition(world, testPos)) {
+              return testPos;
+            }
+          }
+        }
+      }
+    }
+
+    // Second pass: accept replaceable blocks if no air found
+    for (int radius = 0; radius <= 3; radius++) {
+      for (int dx = -radius; dx <= radius; dx++) {
+        for (int dz = -radius; dz <= radius; dz++) {
+          if (Math.abs(dx) != radius && Math.abs(dz) != radius) {
+            continue;
+          }
+
+          for (int dy = -2; dy <= 2; dy++) {
+            final BlockPos testPos = center.add(dx, dy, dz);
+
+            // Skip bed position if provided
+            if (bedPosToAvoid != null && testPos.equals(bedPosToAvoid)) {
+              continue;
+            }
+
             if (isValidGravePosition(world, testPos)) {
               return testPos;
             }
@@ -622,6 +667,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
         }
       }
     }
+
     return null;
   }
 
@@ -635,9 +681,8 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     final boolean canReplace = stateAtPos.isReplaceable() || stateAtPos.isAir();
     final boolean hasAirAbove = stateAbove.isAir() || stateAbove.isReplaceable();
     final boolean notInFluid = !stateAtPos.isOf(Blocks.WATER) && !stateAtPos.isOf(Blocks.LAVA);
-    final boolean notDogBed = !stateAtPos.isOf(ModBlocks.DOG_BED);
 
-    return hasValidGround && canReplace && hasAirAbove && notInFluid && notDogBed;
+    return hasValidGround && canReplace && hasAirAbove && notInFluid;
   }
 
   @Override

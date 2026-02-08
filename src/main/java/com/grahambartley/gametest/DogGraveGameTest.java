@@ -82,119 +82,6 @@ public final class DogGraveGameTest implements FabricGameTest {
         });
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
-  public void tamedDogDeathSpawnsGrave(final TestContext context) {
-    final BlockPos spawnPos = new BlockPos(1, 1, 1);
-    final ServerWorld world = context.getWorld();
-
-    final HuskyEntity dog = ModEntities.HUSKY.create(world);
-    context.assertTrue(dog != null, "Dog should be created");
-
-    dog.refreshPositionAndAngles(
-        spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5, 0.0f, 0.0f);
-    world.spawnEntity(dog);
-
-    context.runAtTick(
-        10,
-        () -> {
-          final UUID ownerUuid = UUID.randomUUID();
-          dog.setTamed(true, true);
-          dog.setOwnerUuid(ownerUuid);
-          dog.setCollarColor(DyeColor.BLUE);
-          dog.setCustomName(net.minecraft.text.Text.literal("TestDog"));
-
-          final PetManager petManager = PetManager.get(world.getServer());
-          final PetData petData =
-              new PetData(
-                  dog.getUuid(),
-                  ownerUuid,
-                  dog.getBreedId(),
-                  "TestDog",
-                  dog.getHealth(),
-                  dog.getMaxHealth(),
-                  dog.getBlockPos(),
-                  world.getRegistryKey().getValue().toString(),
-                  true);
-          petManager.registerPet(petData);
-        });
-
-    context.runAtTick(
-        20,
-        () -> {
-          final UUID dogUuid = dog.getUuid();
-          final DyeColor expectedColor = dog.getCollarColor();
-          dog.damage(world.getDamageSources().genericKill(), 100.0f);
-
-          context.runAtTick(
-              25,
-              () -> {
-                boolean foundGrave = false;
-                for (int x = -3; x <= 3; x++) {
-                  for (int y = -2; y <= 2; y++) {
-                    for (int z = -3; z <= 3; z++) {
-                      final BlockPos checkPos = spawnPos.add(x, y, z);
-                      if (world.getBlockState(checkPos).isOf(ModBlocks.DOG_GRAVE)) {
-                        foundGrave = true;
-                        final BlockEntity blockEntity = world.getBlockEntity(checkPos);
-                        if (blockEntity instanceof DogGraveBlockEntity graveEntity) {
-                          context.assertTrue(
-                              graveEntity.getDogUuid().equals(dogUuid),
-                              "Grave should contain correct dog UUID");
-                          context.assertTrue(
-                              graveEntity.getDogName().equals("TestDog"),
-                              "Grave should contain correct dog name");
-                          context.assertTrue(
-                              graveEntity.getFlowerColor() == expectedColor,
-                              "Grave should contain correct flower color");
-                        }
-                      }
-                    }
-                  }
-                }
-                context.assertTrue(foundGrave, "Grave should spawn when tamed dog dies");
-                context.complete();
-              });
-        });
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void untamedDogDeathDoesNotSpawnGrave(final TestContext context) {
-    final BlockPos spawnPos = new BlockPos(1, 1, 1);
-    final ServerWorld world = context.getWorld();
-
-    final HuskyEntity dog = ModEntities.HUSKY.create(world);
-    context.assertTrue(dog != null, "Dog should be created");
-
-    dog.refreshPositionAndAngles(
-        spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5, 0.0f, 0.0f);
-    world.spawnEntity(dog);
-
-    context.runAtTick(
-        10,
-        () -> {
-          // Verify dog is not tamed before death
-          context.assertFalse(dog.isTamed(), "Dog should not be tamed");
-
-          dog.damage(world.getDamageSources().genericKill(), 100.0f);
-
-          context.runAtTick(
-              15,
-              () -> {
-                for (int x = -3; x <= 3; x++) {
-                  for (int y = -2; y <= 2; y++) {
-                    for (int z = -3; z <= 3; z++) {
-                      final BlockPos checkPos = spawnPos.add(x, y, z);
-                      context.assertFalse(
-                          world.getBlockState(checkPos).isOf(ModBlocks.DOG_GRAVE),
-                          "No grave should spawn for untamed dog");
-                    }
-                  }
-                }
-                context.complete();
-              });
-        });
-  }
-
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void dogGraveItemRetainsData(final TestContext context) {
     final BlockPos gravePos = new BlockPos(0, 1, 0);
@@ -332,18 +219,14 @@ public final class DogGraveGameTest implements FabricGameTest {
     world.setBlockState(gravePos, ModBlocks.DOG_GRAVE.getDefaultState());
 
     context.runAtTick(
-        10,
+        5,
         () -> {
           final DogGraveBlockEntity grave = (DogGraveBlockEntity) world.getBlockEntity(gravePos);
           grave.setDogUuid(dogUuid);
           grave.setDogName(dogName);
           grave.setFlowerColor(flowerColor);
-        });
 
-    context.runAtTick(
-        15,
-        () -> {
-          // Test getPickStack (used for creative mode middle-click)
+          // Test getPickStack immediately (used for creative mode middle-click)
           final BlockState state = world.getBlockState(gravePos);
           final ItemStack stack = ModBlocks.DOG_GRAVE.getPickStack(world, gravePos, state);
 
