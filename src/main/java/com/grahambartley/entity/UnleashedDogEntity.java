@@ -635,8 +635,9 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     final boolean canReplace = stateAtPos.isReplaceable() || stateAtPos.isAir();
     final boolean hasAirAbove = stateAbove.isAir() || stateAbove.isReplaceable();
     final boolean notInFluid = !stateAtPos.isOf(Blocks.WATER) && !stateAtPos.isOf(Blocks.LAVA);
+    final boolean notDogBed = !stateAtPos.isOf(ModBlocks.DOG_BED);
 
-    return hasValidGround && canReplace && hasAirAbove && notInFluid;
+    return hasValidGround && canReplace && hasAirAbove && notInFluid && notDogBed;
   }
 
   @Override

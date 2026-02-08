@@ -14,6 +14,8 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.PickaxeItem;
+import net.minecraft.stat.Stats;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
@@ -27,6 +29,7 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
+import org.jetbrains.annotations.Nullable;
 
 public class DogGraveBlock extends HorizontalFacingBlock implements BlockEntityProvider {
 
@@ -95,7 +98,6 @@ public class DogGraveBlock extends HorizontalFacingBlock implements BlockEntityP
       World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
     final BlockEntity blockEntity = world.getBlockEntity(pos);
     if (blockEntity instanceof DogGraveBlockEntity graveBlockEntity) {
-      // Transfer dog UUID
       if (itemStack.contains(ModComponents.DOG_GRAVE_UUID)) {
         final UUID dogUuid = itemStack.get(ModComponents.DOG_GRAVE_UUID);
         if (dogUuid != null) {
@@ -103,7 +105,6 @@ public class DogGraveBlock extends HorizontalFacingBlock implements BlockEntityP
         }
       }
 
-      // Transfer dog name
       if (itemStack.contains(ModComponents.DOG_GRAVE_NAME)) {
         final String dogName = itemStack.get(ModComponents.DOG_GRAVE_NAME);
         if (dogName != null) {
@@ -111,7 +112,6 @@ public class DogGraveBlock extends HorizontalFacingBlock implements BlockEntityP
         }
       }
 
-      // Transfer flower color
       if (itemStack.contains(ModComponents.DOG_GRAVE_FLOWER_COLOR)) {
         final DyeColor flowerColor = itemStack.get(ModComponents.DOG_GRAVE_FLOWER_COLOR);
         if (flowerColor != null) {
@@ -119,9 +119,10 @@ public class DogGraveBlock extends HorizontalFacingBlock implements BlockEntityP
         }
       }
 
-      // Sync to clients
+      graveBlockEntity.markDirty();
+
       if (!world.isClient) {
-        world.updateListeners(pos, state, state, 3);
+        world.updateListeners(pos, state, state, Block.NOTIFY_ALL);
       }
     }
 
@@ -144,15 +145,31 @@ public class DogGraveBlock extends HorizontalFacingBlock implements BlockEntityP
   }
 
   @Override
+  public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+    if (!world.isClient && !player.isCreative()) {
+      BlockEntity blockEntity = world.getBlockEntity(pos);
+      if (blockEntity instanceof DogGraveBlockEntity graveBlockEntity) {
+        final ItemStack tool = player.getMainHandStack();
+        if (tool.getItem() instanceof PickaxeItem) {
+          final ItemStack stack = new ItemStack(this);
+          addGraveDataToStack(stack, graveBlockEntity);
+          dropStack(world, pos, stack);
+        }
+      }
+    }
+    return super.onBreak(world, pos, state, player);
+  }
+
+  @Override
   public void afterBreak(
       World world,
       PlayerEntity player,
       BlockPos pos,
       BlockState state,
-      BlockEntity blockEntity,
+      @Nullable BlockEntity blockEntity,
       ItemStack tool) {
-    super.afterBreak(world, player, pos, state, blockEntity, tool);
-    // Item dropping is handled by loot table
+    player.incrementStat(Stats.MINED.getOrCreateStat(this));
+    player.addExhaustion(0.005F);
   }
 
   private void addGraveDataToStack(ItemStack stack, DogGraveBlockEntity graveBlockEntity) {
