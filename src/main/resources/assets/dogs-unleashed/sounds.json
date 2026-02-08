@@ -2,12 +2,7 @@
   "entity.beagle.bark": {
     "sounds": [
       "dogs-unleashed:entity/beagle/bark1",
-      "dogs-unleashed:entity/beagle/bark2",
-      "dogs-unleashed:entity/beagle/bark3",
-      "dogs-unleashed:entity/beagle/bark4",
-      "dogs-unleashed:entity/beagle/bark5",
-      "dogs-unleashed:entity/beagle/bark6",
-      "dogs-unleashed:entity/beagle/bark7"
+      "dogs-unleashed:entity/beagle/bark2"
     ]
   },
   "entity.dachshund.bark": {
