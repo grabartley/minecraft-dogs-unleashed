@@ -32,6 +32,7 @@
       "com.grahambartley.gametest.GoldenRetrieverEntityGameTest",
       "com.grahambartley.gametest.ShibaInuEntityGameTest",
       "com.grahambartley.gametest.UnleashedDogEntityGameTest",
+      "com.grahambartley.gametest.DogBarkingGameTest",
       "com.grahambartley.gametest.DogBedBlockGameTest",
       "com.grahambartley.gametest.DogSleepBehaviorGameTest"
     ]

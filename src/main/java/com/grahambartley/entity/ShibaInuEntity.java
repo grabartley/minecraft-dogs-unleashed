@@ -2,11 +2,13 @@ package com.grahambartley.entity;
 
 import static com.grahambartley.ModEntities.SHIBA_INU;
 
+import com.grahambartley.ModSounds;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.world.World;
 
 public class ShibaInuEntity extends UnleashedDogEntity {
@@ -35,5 +37,10 @@ public class ShibaInuEntity extends UnleashedDogEntity {
   @Override
   public String getBreedId() {
     return "shibainu";
+  }
+
+  @Override
+  protected SoundEvent getBarkSound() {
+    return ModSounds.SHIBA_INU_BARK;
   }
 }

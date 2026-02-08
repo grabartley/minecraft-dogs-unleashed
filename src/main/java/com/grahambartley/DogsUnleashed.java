@@ -12,6 +12,7 @@ public class DogsUnleashed implements ModInitializer {
 
   @Override
   public void onInitialize() {
+    ModSounds.initialize();
     ModComponents.initialize();
     ModBlocks.initialize();
     ModBlockEntities.initialize();
