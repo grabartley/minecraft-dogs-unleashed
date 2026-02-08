@@ -73,6 +73,12 @@ Then run the tests:
 ./gradlew clean build
 ```
 
+See `.ai/skills/run-tests.md` for comprehensive testing documentation, including:
+- Writing unit tests and game tests
+- Test strategy and philosophy
+- CI/CD integration details
+- Troubleshooting test failures
+
 ### 4. Manual Testing (REQUIRED)
 
 **CRITICAL**: Before pushing any change that impacts functionality, you MUST run the game client and verify the changes work correctly.
@@ -172,6 +178,17 @@ See `.ai/skills/create-pr.md` for:
 - Commit message format
 - PR description template
 - Review process
+
+### Running Tests
+
+Use the **run-tests** skill for comprehensive testing guidance.
+
+See `.ai/skills/run-tests.md` for:
+- Unit tests (JUnit 5) and game tests
+- Writing and running tests
+- Test strategy and philosophy
+- CI/CD integration
+- Troubleshooting
 
 ### Manual Testing
 

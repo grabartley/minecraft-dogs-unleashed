@@ -46,6 +46,8 @@ Before creating a PR, ensure the following steps are completed:
 ./gradlew runGametestServer
 ```
 
+See `.ai/skills/run-tests.md` for comprehensive testing documentation.
+
 ### 3. Verify Build
 
 ```bash
