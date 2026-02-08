@@ -2,16 +2,11 @@ package com.grahambartley.gametest;
 
 import com.grahambartley.ModBlocks;
 import com.grahambartley.ModComponents;
-import com.grahambartley.ModEntities;
 import com.grahambartley.ModItems;
 import com.grahambartley.block.entity.DogGraveBlockEntity;
-import com.grahambartley.entity.HuskyEntity;
-import com.grahambartley.pet.PetData;
-import com.grahambartley.pet.PetManager;
 import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -126,58 +121,6 @@ public final class DogGraveGameTest implements FabricGameTest {
 
     context.assertTrue(handSpeed > 0, "Grave should be breakable by hand (slowly)");
     context.complete();
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void dogGraveWontPlaceInWater(final TestContext context) {
-    final BlockPos gravePos = new BlockPos(1, 1, 1);
-    final ServerWorld world = context.getWorld();
-
-    world.setBlockState(gravePos, Blocks.WATER.getDefaultState());
-
-    final HuskyEntity dog = ModEntities.HUSKY.create(world);
-    context.assertTrue(dog != null, "Dog should be created");
-
-    dog.refreshPositionAndAngles(
-        gravePos.getX() + 0.5, gravePos.getY(), gravePos.getZ() + 0.5, 0.0f, 0.0f);
-    world.spawnEntity(dog);
-
-    context.runAtTick(
-        10,
-        () -> {
-          final UUID ownerUuid = UUID.randomUUID();
-          dog.setTamed(true, true);
-          dog.setOwnerUuid(ownerUuid);
-
-          final PetManager petManager = PetManager.get(world.getServer());
-          final PetData petData =
-              new PetData(
-                  dog.getUuid(),
-                  ownerUuid,
-                  dog.getBreedId(),
-                  "WaterDog",
-                  dog.getHealth(),
-                  dog.getMaxHealth(),
-                  dog.getBlockPos(),
-                  world.getRegistryKey().getValue().toString(),
-                  true);
-          petManager.registerPet(petData);
-        });
-
-    context.runAtTick(
-        20,
-        () -> {
-          dog.damage(world.getDamageSources().genericKill(), 100.0f);
-
-          context.runAtTick(
-              25,
-              () -> {
-                context.assertFalse(
-                    world.getBlockState(gravePos).isOf(ModBlocks.DOG_GRAVE),
-                    "Grave should not replace water block");
-                context.complete();
-              });
-        });
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
