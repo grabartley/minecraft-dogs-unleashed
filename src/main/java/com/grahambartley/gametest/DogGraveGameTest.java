@@ -22,10 +22,11 @@ public final class DogGraveGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void dogGraveCanBePlaced(final TestContext context) {
-    final BlockPos gravePos = new BlockPos(0, 1, 0);
+    final BlockPos relGravePos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
-    world.setBlockState(gravePos, ModBlocks.DOG_GRAVE.getDefaultState());
+    context.setBlockState(relGravePos, ModBlocks.DOG_GRAVE.getDefaultState());
+    final BlockPos gravePos = context.getAbsolutePos(relGravePos);
 
     final BlockState placedState = world.getBlockState(gravePos);
     context.assertTrue(placedState.isOf(ModBlocks.DOG_GRAVE), "Dog grave should be placed");
@@ -34,10 +35,11 @@ public final class DogGraveGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void dogGraveHasBlockEntity(final TestContext context) {
-    final BlockPos gravePos = new BlockPos(0, 1, 0);
+    final BlockPos relGravePos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
-    world.setBlockState(gravePos, ModBlocks.DOG_GRAVE.getDefaultState());
+    context.setBlockState(relGravePos, ModBlocks.DOG_GRAVE.getDefaultState());
+    final BlockPos gravePos = context.getAbsolutePos(relGravePos);
 
     final BlockEntity blockEntity = world.getBlockEntity(gravePos);
     context.assertTrue(
@@ -47,10 +49,11 @@ public final class DogGraveGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void dogGraveStoresDogData(final TestContext context) {
-    final BlockPos gravePos = new BlockPos(0, 1, 0);
+    final BlockPos relGravePos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
-    world.setBlockState(gravePos, ModBlocks.DOG_GRAVE.getDefaultState());
+    context.setBlockState(relGravePos, ModBlocks.DOG_GRAVE.getDefaultState());
+    final BlockPos gravePos = context.getAbsolutePos(relGravePos);
 
     context.runAtTick(
         5,
@@ -79,9 +82,6 @@ public final class DogGraveGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void dogGraveItemRetainsData(final TestContext context) {
-    final BlockPos gravePos = new BlockPos(0, 1, 0);
-    final ServerWorld world = context.getWorld();
-
     final UUID dogUuid = UUID.randomUUID();
     final String dogName = "Memorial";
     final DyeColor flowerColor = DyeColor.PINK;
@@ -109,10 +109,11 @@ public final class DogGraveGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void dogGraveRequiresPickaxe(final TestContext context) {
-    final BlockPos gravePos = new BlockPos(0, 1, 0);
+    final BlockPos relGravePos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
-    world.setBlockState(gravePos, ModBlocks.DOG_GRAVE.getDefaultState());
+    context.setBlockState(relGravePos, ModBlocks.DOG_GRAVE.getDefaultState());
+    final BlockPos gravePos = context.getAbsolutePos(relGravePos);
 
     final float handSpeed =
         ModBlocks.DOG_GRAVE
@@ -125,10 +126,11 @@ public final class DogGraveGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void dogGraveRequiresPickaxeToBreak(final TestContext context) {
-    final BlockPos gravePos = new BlockPos(0, 1, 0);
+    final BlockPos relGravePos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
-    world.setBlockState(gravePos, ModBlocks.DOG_GRAVE.getDefaultState());
+    context.setBlockState(relGravePos, ModBlocks.DOG_GRAVE.getDefaultState());
+    final BlockPos gravePos = context.getAbsolutePos(relGravePos);
 
     final BlockState state = world.getBlockState(gravePos);
 
@@ -152,14 +154,15 @@ public final class DogGraveGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void dogGravePickaxeDropsWithData(final TestContext context) {
-    final BlockPos gravePos = new BlockPos(0, 1, 0);
+    final BlockPos relGravePos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
     final UUID dogUuid = UUID.randomUUID();
     final String dogName = "PickaxeTest";
     final DyeColor flowerColor = DyeColor.BLUE;
 
-    world.setBlockState(gravePos, ModBlocks.DOG_GRAVE.getDefaultState());
+    context.setBlockState(relGravePos, ModBlocks.DOG_GRAVE.getDefaultState());
+    final BlockPos gravePos = context.getAbsolutePos(relGravePos);
 
     context.runAtTick(
         5,
@@ -188,7 +191,7 @@ public final class DogGraveGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void dogGravePlacementRetainsData(final TestContext context) {
-    final BlockPos gravePos = new BlockPos(0, 1, 0);
+    final BlockPos relGravePos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
     final UUID dogUuid = UUID.randomUUID();
@@ -199,7 +202,8 @@ public final class DogGraveGameTest implements FabricGameTest {
         10,
         () -> {
           // Place block and set data directly (matches dog death spawn pattern)
-          world.setBlockState(gravePos, ModBlocks.DOG_GRAVE.getDefaultState());
+          context.setBlockState(relGravePos, ModBlocks.DOG_GRAVE.getDefaultState());
+          final BlockPos gravePos = context.getAbsolutePos(relGravePos);
 
           final DogGraveBlockEntity grave = (DogGraveBlockEntity) world.getBlockEntity(gravePos);
           grave.setDogUuid(dogUuid);
@@ -210,6 +214,7 @@ public final class DogGraveGameTest implements FabricGameTest {
     context.runAtTick(
         15,
         () -> {
+          final BlockPos gravePos = context.getAbsolutePos(relGravePos);
           // Verify data persisted across ticks
           final DogGraveBlockEntity grave = (DogGraveBlockEntity) world.getBlockEntity(gravePos);
 
