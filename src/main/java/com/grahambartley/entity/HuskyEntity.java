@@ -9,16 +9,25 @@ import static com.grahambartley.ModConstants.RANDOM_HOWL_CHANCE;
 import static com.grahambartley.ModEntities.HUSKY;
 
 import com.grahambartley.ModSounds;
+import com.grahambartley.entity.variant.HuskyCoat;
+import com.grahambartley.entity.variant.HuskyEyeColor;
+import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.math.random.Random;
+import net.minecraft.world.LocalDifficulty;
+import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.PlayState;
@@ -28,6 +37,10 @@ public class HuskyEntity extends UnleashedDogEntity {
 
   private static final TrackedData<Boolean> HOWLING =
       DataTracker.registerData(HuskyEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+  private static final TrackedData<Integer> COAT_VARIANT =
+      DataTracker.registerData(HuskyEntity.class, TrackedDataHandlerRegistry.INTEGER);
+  private static final TrackedData<Integer> EYE_COLOR_VARIANT =
+      DataTracker.registerData(HuskyEntity.class, TrackedDataHandlerRegistry.INTEGER);
 
   private int howlCooldownTicks = 0;
   private int howlActiveTicks = 0;
@@ -47,11 +60,73 @@ public class HuskyEntity extends UnleashedDogEntity {
   protected void initDataTracker(DataTracker.Builder builder) {
     super.initDataTracker(builder);
     builder.add(HOWLING, false);
+    builder.add(COAT_VARIANT, HuskyCoat.BLACK_WHITE.ordinal());
+    builder.add(EYE_COLOR_VARIANT, HuskyEyeColor.HAZEL_HAZEL.ordinal());
+  }
+
+  @Override
+  public @Nullable EntityData initialize(
+      ServerWorldAccess world,
+      LocalDifficulty difficulty,
+      SpawnReason spawnReason,
+      @Nullable EntityData entityData) {
+    if (spawnReason != SpawnReason.BREEDING) {
+      this.rollAppearance(this.random);
+    }
+    return super.initialize(world, difficulty, spawnReason, entityData);
+  }
+
+  private void rollAppearance(final Random random) {
+    final int roll = random.nextInt(100);
+    final HuskyCoat coat;
+    if (roll < 40) {
+      coat = HuskyCoat.BLACK_WHITE;
+    } else if (roll < 72) {
+      coat = HuskyCoat.GREY_WHITE;
+    } else if (roll < 87) {
+      coat = HuskyCoat.RED_WHITE;
+    } else if (roll < 93) {
+      coat = HuskyCoat.SABLE;
+    } else if (roll < 97) {
+      coat = HuskyCoat.AGOUTI;
+    } else {
+      coat = HuskyCoat.WHITE;
+    }
+    this.dataTracker.set(COAT_VARIANT, coat.ordinal());
+    this.dataTracker.set(EYE_COLOR_VARIANT, HuskyEyeColor.fromRandom(random).ordinal());
+  }
+
+  public HuskyCoat getCoatVariant() {
+    return HuskyCoat.fromOrdinal(this.dataTracker.get(COAT_VARIANT));
+  }
+
+  public HuskyEyeColor getEyeColorVariant() {
+    return HuskyEyeColor.fromOrdinal(this.dataTracker.get(EYE_COLOR_VARIANT));
+  }
+
+  @Override
+  public void writeCustomDataToNbt(NbtCompound nbt) {
+    super.writeCustomDataToNbt(nbt);
+    nbt.putInt("CoatVariant", this.dataTracker.get(COAT_VARIANT));
+    nbt.putInt("EyeColorVariant", this.dataTracker.get(EYE_COLOR_VARIANT));
+  }
+
+  @Override
+  public void readCustomDataFromNbt(NbtCompound nbt) {
+    super.readCustomDataFromNbt(nbt);
+    if (nbt.contains("CoatVariant", 99)) {
+      this.dataTracker.set(COAT_VARIANT, nbt.getInt("CoatVariant"));
+    }
+    if (nbt.contains("EyeColorVariant", 99)) {
+      this.dataTracker.set(EYE_COLOR_VARIANT, nbt.getInt("EyeColorVariant"));
+    }
   }
 
   @Override
   protected UnleashedDogEntity createBaby(ServerWorld world) {
-    return new HuskyEntity(HUSKY, world);
+    final HuskyEntity baby = new HuskyEntity(HUSKY, world);
+    baby.rollAppearance(baby.getRandom());
+    return baby;
   }
 
   @Override

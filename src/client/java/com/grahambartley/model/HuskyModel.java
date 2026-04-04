@@ -15,7 +15,13 @@ public class HuskyModel extends GeoModel<HuskyEntity> {
 
   @Override
   public Identifier getTextureResource(HuskyEntity animatable) {
-    return Identifier.of(MOD_ID, "textures/entity/husky.png");
+    final String fileName =
+        "husky_"
+            + animatable.getCoatVariant().textureCoatPrefix()
+            + "_"
+            + animatable.getEyeColorVariant().textureSuffix()
+            + ".png";
+    return Identifier.of(MOD_ID, "textures/entity/" + fileName);
   }
 
   @Override

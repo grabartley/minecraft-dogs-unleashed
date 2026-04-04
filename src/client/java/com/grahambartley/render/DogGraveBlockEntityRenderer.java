@@ -5,7 +5,6 @@ import com.grahambartley.model.DogGraveModel;
 import com.grahambartley.render.layer.DogGraveFlowerLayer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -100,7 +99,6 @@ public class DogGraveBlockEntityRenderer extends GeoBlockRenderer<DogGraveBlockE
     if (!(client.crosshairTarget instanceof BlockHitResult hit)) return;
     if (!hit.getBlockPos().equals(entity.getPos())) return;
 
-    final Camera camera = client.gameRenderer.getCamera();
     final VertexConsumerProvider.Immediate immediate =
         client.getBufferBuilders().getEntityVertexConsumers();
     final TextRenderer textRenderer = client.textRenderer;
@@ -109,7 +107,6 @@ public class DogGraveBlockEntityRenderer extends GeoBlockRenderer<DogGraveBlockE
 
     matrices.push();
     matrices.translate(0.0, 1.1, 0.0);
-    // matrices.multiply(camera.getRotation());
     matrices.scale(-0.02f, -0.02f, 0.02f);
 
     final Matrix4f matrix = matrices.peek().getPositionMatrix();
