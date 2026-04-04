@@ -109,7 +109,7 @@ public class DogGraveBlockEntityRenderer extends GeoBlockRenderer<DogGraveBlockE
 
     matrices.push();
     matrices.translate(0.0, 1.1, 0.0);
-    matrices.multiply(camera.getRotation());
+    // matrices.multiply(camera.getRotation());
     matrices.scale(-0.02f, -0.02f, 0.02f);
 
     final Matrix4f matrix = matrices.peek().getPositionMatrix();
