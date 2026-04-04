@@ -799,7 +799,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
             0,
             state -> {
               final UnleashedDogEntity dog = state.getAnimatable();
-              if (dog.dataTracker.get(TAIL_WAG_TIMER) > 0) {
+              if (dog.dataTracker.get(TAIL_WAG_TIMER) > 0 && !dog.isSleepingInBed()) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("tail_wag"));
               }
               return PlayState.STOP;
