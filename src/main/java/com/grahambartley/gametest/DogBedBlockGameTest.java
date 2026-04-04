@@ -96,6 +96,7 @@ public final class DogBedBlockGameTest implements FabricGameTest {
     final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
     husky.refreshPositionAndAngles(dogPos, 0.0f, 0.0f);
     husky.setTamed(true, true);
+    husky.setAiDisabled(true); // Prevent wandering into other test structures
     world.spawnEntity(husky);
 
     context.runAtTick(
@@ -256,16 +257,26 @@ public final class DogBedBlockGameTest implements FabricGameTest {
     context.runAtTick(
         10,
         () -> {
-          final DogBedBlockEntity oldBedEntity =
-              (DogBedBlockEntity) world.getBlockEntity(oldBedPos);
+          final BlockEntity oldBedBlockEntity = world.getBlockEntity(oldBedPos);
+          context.assertTrue(
+              oldBedBlockEntity instanceof DogBedBlockEntity,
+              "Old bed block entity should be DogBedBlockEntity");
+          final DogBedBlockEntity oldBedEntity = (DogBedBlockEntity) oldBedBlockEntity;
           oldBedEntity.setAssignedDog(husky);
           husky.setAssignedBedPos(oldBedPos);
 
           context.assertTrue(oldBedEntity.hasAssignedDog(), "Old bed should have assigned dog");
 
-          final DogBedBlockEntity newBedEntity =
-              (DogBedBlockEntity) world.getBlockEntity(newBedPos);
-          final DogBedBlockEntity oldBedCheck = (DogBedBlockEntity) world.getBlockEntity(oldBedPos);
+          final BlockEntity newBedBlockEntity = world.getBlockEntity(newBedPos);
+          context.assertTrue(
+              newBedBlockEntity instanceof DogBedBlockEntity,
+              "New bed block entity should be DogBedBlockEntity");
+          final DogBedBlockEntity newBedEntity = (DogBedBlockEntity) newBedBlockEntity;
+          final BlockEntity oldBedCheckBlockEntity = world.getBlockEntity(oldBedPos);
+          context.assertTrue(
+              oldBedCheckBlockEntity instanceof DogBedBlockEntity,
+              "Old bed block entity should still be DogBedBlockEntity");
+          final DogBedBlockEntity oldBedCheck = (DogBedBlockEntity) oldBedCheckBlockEntity;
 
           husky
               .getAssignedBedPos()
@@ -305,7 +316,11 @@ public final class DogBedBlockGameTest implements FabricGameTest {
     context.runAtTick(
         10,
         () -> {
-          final DogBedBlockEntity bedEntity = (DogBedBlockEntity) world.getBlockEntity(bedPos);
+          final BlockEntity bedBlockEntity = world.getBlockEntity(bedPos);
+          context.assertTrue(
+              bedBlockEntity instanceof DogBedBlockEntity,
+              "Bed block entity should be DogBedBlockEntity");
+          final DogBedBlockEntity bedEntity = (DogBedBlockEntity) bedBlockEntity;
           bedEntity.setAssignedDog(husky);
           husky.setAssignedBedPos(bedPos);
 
@@ -321,7 +336,11 @@ public final class DogBedBlockGameTest implements FabricGameTest {
     context.runAtTick(
         30,
         () -> {
-          final DogBedBlockEntity bedEntity = (DogBedBlockEntity) world.getBlockEntity(bedPos);
+          final BlockEntity bedBlockEntityAtTick30 = world.getBlockEntity(bedPos);
+          context.assertTrue(
+              bedBlockEntityAtTick30 instanceof DogBedBlockEntity,
+              "Bed block entity should still be a DogBedBlockEntity");
+          final DogBedBlockEntity bedEntity = (DogBedBlockEntity) bedBlockEntityAtTick30;
           context.assertTrue(!bedEntity.hasAssignedDog(), "Bed should be free after dog death");
           context.complete();
         });

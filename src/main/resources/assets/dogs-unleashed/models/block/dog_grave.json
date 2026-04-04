@@ -1,0 +1,6 @@
+{
+  "parent": "block/thin_block",
+  "textures": {
+    "particle": "dogs-unleashed:block/dog_grave"
+  }
+}

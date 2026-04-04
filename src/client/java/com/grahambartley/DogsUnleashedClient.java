@@ -5,6 +5,8 @@ import com.grahambartley.render.BeagleRenderer;
 import com.grahambartley.render.DachshundRenderer;
 import com.grahambartley.render.DogBedBlockEntityRenderer;
 import com.grahambartley.render.DogBedItemRenderer;
+import com.grahambartley.render.DogGraveBlockEntityRenderer;
+import com.grahambartley.render.DogGraveItemRenderer;
 import com.grahambartley.render.GoldenRetrieverRenderer;
 import com.grahambartley.render.HuskyRenderer;
 import com.grahambartley.render.ShibaInuRenderer;
@@ -23,8 +25,11 @@ public class DogsUnleashedClient implements ClientModInitializer {
     EntityRendererRegistry.register(ModEntities.SHIBA_INU, ShibaInuRenderer::new);
 
     BlockEntityRendererFactories.register(ModBlockEntities.DOG_BED, DogBedBlockEntityRenderer::new);
+    BlockEntityRendererFactories.register(
+        ModBlockEntities.DOG_GRAVE, DogGraveBlockEntityRenderer::new);
 
     BuiltinItemRendererRegistry.INSTANCE.register(ModBlocks.DOG_BED, new DogBedItemRenderer());
+    BuiltinItemRendererRegistry.INSTANCE.register(ModBlocks.DOG_GRAVE, new DogGraveItemRenderer());
 
     ModKeyBindings.register();
     ModNetworkingClient.registerClientReceivers();

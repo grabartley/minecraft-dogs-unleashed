@@ -26,15 +26,13 @@
       "com.grahambartley.DogsUnleashedDataGenerator"
     ],
     "fabric-gametest": [
-      "com.grahambartley.gametest.HuskyEntityGameTest",
-      "com.grahambartley.gametest.DachshundEntityGameTest",
-      "com.grahambartley.gametest.BeagleEntityGameTest",
-      "com.grahambartley.gametest.GoldenRetrieverEntityGameTest",
-      "com.grahambartley.gametest.ShibaInuEntityGameTest",
-      "com.grahambartley.gametest.UnleashedDogEntityGameTest",
-      "com.grahambartley.gametest.DogBarkingGameTest",
+      "com.grahambartley.gametest.DogEntityBreedSpecificTest",
+      "com.grahambartley.gametest.DogEntityCoreTest",
+      "com.grahambartley.gametest.DogEntityBehaviorTest",
+      "com.grahambartley.gametest.DogEntitySoundTest",
       "com.grahambartley.gametest.DogBedBlockGameTest",
-      "com.grahambartley.gametest.DogSleepBehaviorGameTest"
+      "com.grahambartley.gametest.DogSleepBehaviorGameTest",
+      "com.grahambartley.gametest.DogGraveGameTest"
     ]
   },
   "mixins": [
