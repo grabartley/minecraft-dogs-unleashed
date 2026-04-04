@@ -1,17 +1,29 @@
 package com.grahambartley.screen;
 
 import com.grahambartley.DogsUnleashed;
+import com.grahambartley.ModEntities;
+import com.grahambartley.entity.HuskyEntity;
+import com.grahambartley.entity.UnleashedDogEntity;
+import com.grahambartley.entity.variant.HuskyCoat;
+import com.grahambartley.entity.variant.HuskyEyeColor;
 import com.grahambartley.network.ModNetworking;
 import com.grahambartley.network.ModNetworkingClient;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.entity.EntityType;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
+import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 
 public class PetManagerScreen extends Screen {
@@ -36,6 +48,7 @@ public class PetManagerScreen extends Screen {
   private AliveFilter currentAliveFilter = AliveFilter.ALL;
   private int scrollOffset = 0;
   private ModNetworking.PetSyncData selectedPet = null;
+  private final Map<UUID, UnleashedDogEntity> portraitEntities = new HashMap<>();
 
   public PetManagerScreen() {
     super(Text.translatable("screen.dogs-unleashed.pet_manager.title"));
@@ -135,6 +148,7 @@ public class PetManagerScreen extends Screen {
   }
 
   public void updatePetsList(List<ModNetworking.PetSyncData> pets) {
+    clearPortraitEntities();
     this.pets = new ArrayList<>(pets);
     this.scrollOffset = 0;
     if (selectedPet != null) {
@@ -144,6 +158,19 @@ public class PetManagerScreen extends Screen {
               .findFirst()
               .orElse(null);
     }
+  }
+
+  @Override
+  public void close() {
+    clearPortraitEntities();
+    super.close();
+  }
+
+  private void clearPortraitEntities() {
+    for (final UnleashedDogEntity entity : portraitEntities.values()) {
+      entity.discard();
+    }
+    portraitEntities.clear();
   }
 
   private void scroll(int direction) {
@@ -169,7 +196,8 @@ public class PetManagerScreen extends Screen {
     for (int i = 0; i < ENTRIES_PER_PAGE && i + scrollOffset < pets.size(); i++) {
       final ModNetworking.PetSyncData pet = pets.get(i + scrollOffset);
       final int entryY = listStartY + i * ENTRY_HEIGHT;
-      renderPetEntry(context, pet, centerX - ENTRY_WIDTH / 2, entryY, mouseX, mouseY);
+      renderPetEntry(
+          context, pet, centerX - ENTRY_WIDTH / 2, entryY, (float) mouseX, (float) mouseY);
     }
 
     if (pets.isEmpty()) {
@@ -183,7 +211,12 @@ public class PetManagerScreen extends Screen {
   }
 
   private void renderPetEntry(
-      DrawContext context, ModNetworking.PetSyncData pet, int x, int y, int mouseX, int mouseY) {
+      DrawContext context,
+      ModNetworking.PetSyncData pet,
+      int x,
+      int y,
+      float mouseX,
+      float mouseY) {
     final boolean isSelected = selectedPet != null && selectedPet.petId().equals(pet.petId());
     final boolean isHovered =
         mouseX >= x && mouseX < x + ENTRY_WIDTH && mouseY >= y && mouseY < y + ENTRY_HEIGHT;
@@ -201,36 +234,10 @@ public class PetManagerScreen extends Screen {
 
     context.fill(x, y, x + ENTRY_WIDTH, y + ENTRY_HEIGHT - 5, bgColor);
 
-    final Identifier textureId =
-        Identifier.of(DogsUnleashed.MOD_ID, "textures/entity/" + pet.breedType() + ".png");
     final int imgX = x + 5;
     final int imgY = y + 3;
 
-    if (pet.alive()) {
-      context.drawTexture(
-          textureId,
-          imgX,
-          imgY,
-          0,
-          0,
-          THUMBNAIL_SIZE,
-          THUMBNAIL_SIZE,
-          THUMBNAIL_SIZE,
-          THUMBNAIL_SIZE);
-    } else {
-      context.setShaderColor(0.4f, 0.4f, 0.4f, 1.0f);
-      context.drawTexture(
-          textureId,
-          imgX,
-          imgY,
-          0,
-          0,
-          THUMBNAIL_SIZE,
-          THUMBNAIL_SIZE,
-          THUMBNAIL_SIZE,
-          THUMBNAIL_SIZE);
-      context.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-    }
+    drawPetPortrait(context, pet, imgX, imgY, mouseX, mouseY);
 
     final int textX = x + THUMBNAIL_SIZE + 15;
     final int nameColor = pet.alive() ? 0xFFFFFF : 0x888888;
@@ -256,6 +263,123 @@ public class PetManagerScreen extends Screen {
           0xFF5555,
           false);
     }
+  }
+
+  private static EntityType<? extends UnleashedDogEntity> breedToEntityType(
+      final String breedType) {
+    return switch (breedType) {
+      case "husky" -> ModEntities.HUSKY;
+      case "dachshund" -> ModEntities.DACHSHUND;
+      case "beagle" -> ModEntities.BEAGLE;
+      case "goldenretriever" -> ModEntities.GOLDEN_RETRIEVER;
+      case "shibainu" -> ModEntities.SHIBA_INU;
+      default -> null;
+    };
+  }
+
+  private static void applyPetAppearance(
+      final UnleashedDogEntity dog, final ModNetworking.PetSyncData pet) {
+    dog.setBaby(pet.baby());
+    dog.setCollarColor(DyeColor.byId(Math.floorMod(pet.collarColor(), 16)));
+    if (dog instanceof HuskyEntity && pet.huskyCoatVariant() >= 0) {
+      final NbtCompound nbt = new NbtCompound();
+      nbt.putInt("CoatVariant", pet.huskyCoatVariant());
+      nbt.putInt("EyeColorVariant", pet.huskyEyeVariant());
+      dog.readCustomDataFromNbt(nbt);
+    }
+  }
+
+  private UnleashedDogEntity obtainPortraitEntity(final ModNetworking.PetSyncData pet) {
+    final MinecraftClient client = MinecraftClient.getInstance();
+    if (client.world == null) {
+      return null;
+    }
+    final EntityType<? extends UnleashedDogEntity> type = breedToEntityType(pet.breedType());
+    if (type == null) {
+      return null;
+    }
+    final UUID id = UUID.fromString(pet.petId());
+    UnleashedDogEntity entity = portraitEntities.get(id);
+    if (entity == null || entity.getType() != type) {
+      if (entity != null) {
+        entity.discard();
+      }
+      final UnleashedDogEntity created = (UnleashedDogEntity) type.create(client.world);
+      if (created == null) {
+        return null;
+      }
+      portraitEntities.put(id, created);
+      entity = created;
+    }
+    applyPetAppearance(entity, pet);
+    if (client.player != null) {
+      entity.setPosition(client.player.getX(), client.player.getY(), client.player.getZ());
+    }
+    entity.setSitting(true);
+    return entity;
+  }
+
+  private static Identifier resolveFallbackTexture(final ModNetworking.PetSyncData pet) {
+    if ("husky".equals(pet.breedType()) && pet.huskyCoatVariant() >= 0) {
+      final HuskyCoat coat = HuskyCoat.fromOrdinal(pet.huskyCoatVariant());
+      final HuskyEyeColor eyes = HuskyEyeColor.fromOrdinal(pet.huskyEyeVariant());
+      final String fileName =
+          "husky_" + coat.textureCoatPrefix() + "_" + eyes.textureSuffix() + ".png";
+      return Identifier.of(DogsUnleashed.MOD_ID, "textures/entity/" + fileName);
+    }
+    return Identifier.of(DogsUnleashed.MOD_ID, "textures/entity/" + pet.breedType() + ".png");
+  }
+
+  private void drawTexturePortrait(
+      final DrawContext context,
+      final ModNetworking.PetSyncData pet,
+      final int imgX,
+      final int imgY,
+      final boolean greyed) {
+    final Identifier textureId = resolveFallbackTexture(pet);
+    if (greyed) {
+      context.setShaderColor(0.4f, 0.4f, 0.4f, 1.0f);
+    }
+    context.drawTexture(
+        textureId,
+        imgX,
+        imgY,
+        0,
+        0,
+        THUMBNAIL_SIZE,
+        THUMBNAIL_SIZE,
+        THUMBNAIL_SIZE,
+        THUMBNAIL_SIZE);
+    if (greyed) {
+      context.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+    }
+  }
+
+  private void drawPetPortrait(
+      final DrawContext context,
+      final ModNetworking.PetSyncData pet,
+      final int imgX,
+      final int imgY,
+      final float mouseX,
+      final float mouseY) {
+    if (pet.alive()) {
+      final UnleashedDogEntity entity = obtainPortraitEntity(pet);
+      if (entity != null) {
+        InventoryScreen.drawEntity(
+            context,
+            imgX,
+            imgY,
+            imgX + THUMBNAIL_SIZE,
+            imgY + THUMBNAIL_SIZE,
+            22,
+            0.35f,
+            mouseX,
+            mouseY,
+            entity);
+        return;
+      }
+    }
+    drawTexturePortrait(context, pet, imgX, imgY, !pet.alive());
   }
 
   @Override

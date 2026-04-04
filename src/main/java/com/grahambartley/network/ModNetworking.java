@@ -112,7 +112,11 @@ public final class ModNetworking {
       int posY,
       int posZ,
       String dimension,
-      boolean alive) {
+      boolean alive,
+      boolean baby,
+      int collarColor,
+      int huskyCoatVariant,
+      int huskyEyeVariant) {
 
     public static final PacketCodec<RegistryByteBuf, PetSyncData> CODEC =
         PacketCodec.of(PetSyncData::write, PetSyncData::read);
@@ -128,7 +132,11 @@ public final class ModNetworking {
           petData.getLastKnownPosition().getY(),
           petData.getLastKnownPosition().getZ(),
           petData.getDimension(),
-          petData.isAlive());
+          petData.isAlive(),
+          petData.isBaby(),
+          petData.getCollarColorId(),
+          petData.getHuskyCoatVariant(),
+          petData.getHuskyEyeVariant());
     }
 
     private void write(RegistryByteBuf buf) {
@@ -142,6 +150,10 @@ public final class ModNetworking {
       buf.writeInt(posZ);
       buf.writeString(dimension);
       buf.writeBoolean(alive);
+      buf.writeBoolean(baby);
+      buf.writeInt(collarColor);
+      buf.writeInt(huskyCoatVariant);
+      buf.writeInt(huskyEyeVariant);
     }
 
     private static PetSyncData read(RegistryByteBuf buf) {
@@ -155,7 +167,11 @@ public final class ModNetworking {
           buf.readInt(),
           buf.readInt(),
           buf.readString(),
-          buf.readBoolean());
+          buf.readBoolean(),
+          buf.readBoolean(),
+          buf.readInt(),
+          buf.readInt(),
+          buf.readInt());
     }
   }
 
@@ -283,6 +299,7 @@ public final class ModNetworking {
                     pet.setHealth(dog.getHealth());
                     pet.setLastKnownPosition(dog.getBlockPos());
                     pet.setDimension(world.getRegistryKey().getValue().toString());
+                    pet.syncAppearanceFrom(dog);
                     petManager.updatePet(pet);
                   }
                 }

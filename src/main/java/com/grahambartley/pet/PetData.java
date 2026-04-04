@@ -1,7 +1,10 @@
 package com.grahambartley.pet;
 
+import com.grahambartley.entity.HuskyEntity;
+import com.grahambartley.entity.UnleashedDogEntity;
 import java.util.UUID;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 
 public final class PetData {
@@ -15,6 +18,10 @@ public final class PetData {
   private BlockPos lastKnownPosition;
   private String dimension;
   private boolean alive;
+  private boolean baby;
+  private int collarColor;
+  private int huskyCoatVariant;
+  private int huskyEyeVariant;
 
   public PetData(
       UUID petId,
@@ -35,6 +42,10 @@ public final class PetData {
     this.lastKnownPosition = lastKnownPosition;
     this.dimension = dimension;
     this.alive = alive;
+    this.baby = false;
+    this.collarColor = DyeColor.RED.getId();
+    this.huskyCoatVariant = -1;
+    this.huskyEyeVariant = -1;
   }
 
   public UUID getPetId() {
@@ -97,6 +108,34 @@ public final class PetData {
     this.alive = alive;
   }
 
+  public boolean isBaby() {
+    return baby;
+  }
+
+  public int getCollarColorId() {
+    return collarColor;
+  }
+
+  public int getHuskyCoatVariant() {
+    return huskyCoatVariant;
+  }
+
+  public int getHuskyEyeVariant() {
+    return huskyEyeVariant;
+  }
+
+  public void syncAppearanceFrom(final UnleashedDogEntity dog) {
+    this.baby = dog.isBaby();
+    this.collarColor = dog.getCollarColor().getId();
+    if (dog instanceof HuskyEntity husky) {
+      this.huskyCoatVariant = husky.getCoatVariant().ordinal();
+      this.huskyEyeVariant = husky.getEyeColorVariant().ordinal();
+    } else {
+      this.huskyCoatVariant = -1;
+      this.huskyEyeVariant = -1;
+    }
+  }
+
   public NbtCompound toNbt() {
     final NbtCompound nbt = new NbtCompound();
     nbt.putUuid("PetId", petId);
@@ -110,19 +149,37 @@ public final class PetData {
     nbt.putInt("PosZ", lastKnownPosition.getZ());
     nbt.putString("Dimension", dimension);
     nbt.putBoolean("Alive", alive);
+    nbt.putBoolean("PortraitBaby", baby);
+    nbt.putInt("PortraitCollar", collarColor);
+    nbt.putInt("PortraitHuskyCoat", huskyCoatVariant);
+    nbt.putInt("PortraitHuskyEye", huskyEyeVariant);
     return nbt;
   }
 
   public static PetData fromNbt(NbtCompound nbt) {
-    return new PetData(
-        nbt.getUuid("PetId"),
-        nbt.getUuid("OwnerId"),
-        nbt.getString("BreedType"),
-        nbt.getString("Name"),
-        nbt.getFloat("Health"),
-        nbt.getFloat("MaxHealth"),
-        new BlockPos(nbt.getInt("PosX"), nbt.getInt("PosY"), nbt.getInt("PosZ")),
-        nbt.getString("Dimension"),
-        nbt.getBoolean("Alive"));
+    final PetData pet =
+        new PetData(
+            nbt.getUuid("PetId"),
+            nbt.getUuid("OwnerId"),
+            nbt.getString("BreedType"),
+            nbt.getString("Name"),
+            nbt.getFloat("Health"),
+            nbt.getFloat("MaxHealth"),
+            new BlockPos(nbt.getInt("PosX"), nbt.getInt("PosY"), nbt.getInt("PosZ")),
+            nbt.getString("Dimension"),
+            nbt.getBoolean("Alive"));
+    if (nbt.contains("PortraitBaby")) {
+      pet.baby = nbt.getBoolean("PortraitBaby");
+    }
+    if (nbt.contains("PortraitCollar", 99)) {
+      pet.collarColor = nbt.getInt("PortraitCollar");
+    }
+    if (nbt.contains("PortraitHuskyCoat", 99)) {
+      pet.huskyCoatVariant = nbt.getInt("PortraitHuskyCoat");
+    }
+    if (nbt.contains("PortraitHuskyEye", 99)) {
+      pet.huskyEyeVariant = nbt.getInt("PortraitHuskyEye");
+    }
+    return pet;
   }
 }
