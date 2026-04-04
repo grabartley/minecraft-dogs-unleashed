@@ -140,6 +140,11 @@ public class HuskyEntity extends UnleashedDogEntity {
   }
 
   @Override
+  protected String getSleepInBedMovementAnimationName() {
+    return "sleep";
+  }
+
+  @Override
   protected SoundEvent getBarkSound() {
     return ModSounds.HUSKY_BARK;
   }

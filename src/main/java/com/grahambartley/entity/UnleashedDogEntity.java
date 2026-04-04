@@ -150,6 +150,10 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
 
   protected abstract SoundEvent getBarkSound();
 
+  protected String getSleepInBedMovementAnimationName() {
+    return "sit";
+  }
+
   protected void tickBreedSpecificSounds() {}
 
   public int getBarkCooldownTicks() {
@@ -775,7 +779,9 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
             0,
             state -> {
               if (state.getAnimatable().isSleepingInBed()) {
-                return state.setAndContinue(RawAnimation.begin().thenLoop("sit"));
+                return state.setAndContinue(
+                    RawAnimation.begin()
+                        .thenLoop(state.getAnimatable().getSleepInBedMovementAnimationName()));
               }
               if (state.getAnimatable().isInSittingPose()) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("sit"));
@@ -793,7 +799,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
             0,
             state -> {
               final UnleashedDogEntity dog = state.getAnimatable();
-              if (dog.dataTracker.get(TAIL_WAG_TIMER) > 0) {
+              if (dog.dataTracker.get(TAIL_WAG_TIMER) > 0 && !dog.isSleepingInBed()) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("tail_wag"));
               }
               return PlayState.STOP;
