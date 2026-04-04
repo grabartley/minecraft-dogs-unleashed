@@ -1,12 +1,19 @@
 package com.grahambartley.gametest;
 
+import static com.grahambartley.ModConstants.BARK_COOLDOWN_TICKS;
+import static com.grahambartley.ModConstants.HOWL_COOLDOWN_TICKS;
+import static com.grahambartley.ModConstants.HOWL_DURATION_TICKS;
+import static com.grahambartley.ModConstants.MINECRAFT_TICK_RATE;
+
 import com.grahambartley.ModSounds;
+import com.grahambartley.entity.HuskyEntity;
 import com.grahambartley.entity.UnleashedDogEntity;
 import com.grahambartley.gametest.util.DogTestData;
 import com.grahambartley.gametest.util.DogTestHelper;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.mob.ZombieEntity;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
@@ -41,7 +48,9 @@ public final class DogEntitySoundTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void huskyHowlSoundIsRegistered(TestContext context) {
-    context.assertTrue(ModSounds.HUSKY_HOWL != null, "Husky howl sound should be registered");
+    context.assertTrue(
+        Registries.SOUND_EVENT.containsId(Registries.SOUND_EVENT.getId(ModSounds.HUSKY_HOWL)),
+        "Husky howl sound should be in Registries.SOUND_EVENT");
     context.complete();
   }
 
@@ -145,11 +154,127 @@ public final class DogEntitySoundTest implements FabricGameTest {
     testCooldownPreventsBark(context, DogTestData.SHIBA_INU);
   }
 
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
+  public void huskySleepingPreventsBark(TestContext context) {
+    testSleepingPreventsBark(context, DogTestData.HUSKY);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
+  public void dachshundSleepingPreventsBark(TestContext context) {
+    testSleepingPreventsBark(context, DogTestData.DACHSHUND);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
+  public void beagleSleepingPreventsBark(TestContext context) {
+    testSleepingPreventsBark(context, DogTestData.BEAGLE);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
+  public void goldenRetrieverSleepingPreventsBark(TestContext context) {
+    testSleepingPreventsBark(context, DogTestData.GOLDEN_RETRIEVER);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
+  public void shibaInuSleepingPreventsBark(TestContext context) {
+    testSleepingPreventsBark(context, DogTestData.SHIBA_INU);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void barkCooldownTicksIsCorrect(TestContext context) {
+    context.assertTrue(
+        BARK_COOLDOWN_TICKS == 6 * MINECRAFT_TICK_RATE,
+        "BARK_COOLDOWN_TICKS should be 6 seconds (120 ticks)");
+    context.complete();
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void huskyStartsNotHowling(TestContext context) {
+    HuskyEntity husky = DogTestHelper.spawnDog(context, DogTestData.HUSKY);
+
+    context.assertFalse(husky.isHowling(), "Husky should not be howling immediately after spawn");
+    context.complete();
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void huskyStartsWithZeroHowlCooldown(TestContext context) {
+    HuskyEntity husky = DogTestHelper.spawnDog(context, DogTestData.HUSKY);
+
+    context.assertTrue(
+        husky.getHowlCooldownTicks() == 0, "Husky howl cooldown should be 0 at spawn");
+    context.complete();
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void huskyHowlConstantsAreCorrect(TestContext context) {
+    context.assertTrue(
+        HOWL_COOLDOWN_TICKS == 30 * MINECRAFT_TICK_RATE,
+        "HOWL_COOLDOWN_TICKS should be 30 seconds (600 ticks)");
+    context.assertTrue(
+        HOWL_DURATION_TICKS == (int) (4.5f * MINECRAFT_TICK_RATE),
+        "HOWL_DURATION_TICKS should be 4.5 seconds (90 ticks)");
+    context.complete();
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
+  public void huskySleepingPreventsHowling(TestContext context) {
+    HuskyEntity husky = DogTestHelper.spawnDog(context, DogTestData.HUSKY);
+
+    context.runAtTick(
+        5,
+        () -> {
+          husky.startSleepingInBed(new BlockPos(0, 1, 0));
+        });
+
+    context.runAtTick(
+        10,
+        () -> {
+          context.assertTrue(husky.isSleepingInBed(), "Husky should be sleeping");
+          context.assertFalse(husky.isHowling(), "Sleeping husky should not be howling");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
+  public void huskyHowlingFlagSetsAndClearsCorrectly(TestContext context) {
+    HuskyEntity husky = DogTestHelper.spawnDog(context, DogTestData.HUSKY);
+
+    context.runAtTick(
+        5,
+        () -> {
+          context.assertFalse(
+              husky.isHowling(), "isHowling should start false before any howl is triggered");
+        });
+
+    context.runAtTick(
+        10,
+        () -> {
+          context.assertTrue(
+              husky.getHowlCooldownTicks() == 0,
+              "Howl cooldown should still be 0 since howl has not triggered");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
+  public void huskyHowlCooldownIsNonNegativeAfterMultipleTicks(TestContext context) {
+    HuskyEntity husky = DogTestHelper.spawnDog(context, DogTestData.HUSKY);
+
+    context.runAtTick(
+        50,
+        () -> {
+          context.assertTrue(
+              husky.getHowlCooldownTicks() >= 0,
+              "husky howl cooldown should never go negative after ticking");
+          context.complete();
+        });
+  }
+
   private <T extends UnleashedDogEntity> void testBarkSoundIsRegistered(
       TestContext context, DogTestData<T> data) {
     DogTestHelper.spawnDog(context, data);
     context.assertTrue(
-        data.expectedBarkSound() != null, "Bark sound should be non-null for " + data.breedId());
+        Registries.SOUND_EVENT.containsId(Registries.SOUND_EVENT.getId(data.expectedBarkSound())),
+        data.breedId() + " bark sound should be in Registries.SOUND_EVENT");
     context.complete();
   }
 
@@ -251,6 +376,29 @@ public final class DogEntitySoundTest implements FabricGameTest {
                     "Cooldown should still be active, preventing another bark");
                 context.complete();
               });
+        });
+  }
+
+  private <T extends UnleashedDogEntity> void testSleepingPreventsBark(
+      TestContext context, DogTestData<T> data) {
+    T dog = DogTestHelper.spawnDog(context, data);
+
+    context.runAtTick(
+        5,
+        () -> {
+          dog.startSleepingInBed(new BlockPos(0, 1, 0));
+          // Use setHealth (not damage) so the dog stays asleep -- damage() calls wakeUp() first
+          dog.setHealth(1.0f);
+        });
+
+    context.runAtTick(
+        10,
+        () -> {
+          context.assertTrue(dog.isSleepingInBed(), data.breedId() + " should be sleeping in bed");
+          context.assertTrue(
+              dog.getBarkCooldownTicks() == 0,
+              data.breedId() + " should not bark while sleeping (cooldown should remain 0)");
+          context.complete();
         });
   }
 }

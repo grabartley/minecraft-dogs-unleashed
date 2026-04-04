@@ -65,12 +65,12 @@ public class DogGraveBlockEntityRenderer extends GeoBlockRenderer<DogGraveBlockE
       int light,
       int overlay) {
 
+    super.render(entity, tickDelta, matrices, vertexConsumers, light, overlay);
+
     final String dogName = entity.getDogName();
     if (dogName != null && !dogName.isEmpty()) {
-      renderNameTag(entity, dogName, matrices, vertexConsumers, 15728880); // Max brightness
+      renderNameTag(entity, dogName, matrices, vertexConsumers, 15728880);
     }
-
-    super.render(entity, tickDelta, matrices, vertexConsumers, light, overlay);
   }
 
   private void renderNameTag(
