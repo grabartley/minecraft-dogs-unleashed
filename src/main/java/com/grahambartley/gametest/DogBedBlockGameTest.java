@@ -96,7 +96,7 @@ public final class DogBedBlockGameTest implements FabricGameTest {
     final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
     husky.refreshPositionAndAngles(dogPos, 0.0f, 0.0f);
     husky.setTamed(true, true);
-    husky.setNoAi(true); // Prevent wandering into other test structures
+    husky.setAiDisabled(true); // Prevent wandering into other test structures
     world.spawnEntity(husky);
 
     context.runAtTick(
