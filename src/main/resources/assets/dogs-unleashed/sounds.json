@@ -35,8 +35,7 @@
   },
   "entity.husky.howl": {
     "sounds": [
-      "dogs-unleashed:entity/husky/howl1",
-      "dogs-unleashed:entity/husky/howl2"
+      "dogs-unleashed:entity/husky/howl1"
     ]
   }
 }
