@@ -23,6 +23,7 @@ import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
@@ -60,7 +61,7 @@ public class HuskyEntity extends UnleashedDogEntity {
     super.initDataTracker(builder);
     builder.add(HOWLING, false);
     builder.add(COAT_VARIANT, HuskyCoat.BLACK_WHITE.ordinal());
-    builder.add(EYE_COLOR_VARIANT, HuskyEyeColor.BROWN.ordinal());
+    builder.add(EYE_COLOR_VARIANT, HuskyEyeColor.HAZEL_HAZEL.ordinal());
   }
 
   @Override
@@ -69,9 +70,30 @@ public class HuskyEntity extends UnleashedDogEntity {
       LocalDifficulty difficulty,
       SpawnReason spawnReason,
       @Nullable EntityData entityData) {
-    this.dataTracker.set(COAT_VARIANT, HuskyCoat.fromRandom(this.random).ordinal());
-    this.dataTracker.set(EYE_COLOR_VARIANT, HuskyEyeColor.fromRandom(this.random).ordinal());
+    if (spawnReason != SpawnReason.BREEDING) {
+      this.rollAppearance(this.random);
+    }
     return super.initialize(world, difficulty, spawnReason, entityData);
+  }
+
+  private void rollAppearance(final Random random) {
+    final int roll = random.nextInt(100);
+    final HuskyCoat coat;
+    if (roll < 40) {
+      coat = HuskyCoat.BLACK_WHITE;
+    } else if (roll < 72) {
+      coat = HuskyCoat.GREY_WHITE;
+    } else if (roll < 87) {
+      coat = HuskyCoat.RED_WHITE;
+    } else if (roll < 93) {
+      coat = HuskyCoat.SABLE;
+    } else if (roll < 97) {
+      coat = HuskyCoat.AGOUTI;
+    } else {
+      coat = HuskyCoat.WHITE;
+    }
+    this.dataTracker.set(COAT_VARIANT, coat.ordinal());
+    this.dataTracker.set(EYE_COLOR_VARIANT, HuskyEyeColor.fromRandom(random).ordinal());
   }
 
   public HuskyCoat getCoatVariant() {
@@ -102,7 +124,9 @@ public class HuskyEntity extends UnleashedDogEntity {
 
   @Override
   protected UnleashedDogEntity createBaby(ServerWorld world) {
-    return new HuskyEntity(HUSKY, world);
+    final HuskyEntity baby = new HuskyEntity(HUSKY, world);
+    baby.rollAppearance(baby.getRandom());
+    return baby;
   }
 
   @Override
