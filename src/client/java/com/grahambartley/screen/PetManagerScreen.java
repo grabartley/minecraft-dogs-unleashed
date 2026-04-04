@@ -20,6 +20,7 @@ import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
@@ -362,22 +363,31 @@ public class PetManagerScreen extends Screen {
       final int imgY,
       final float mouseX,
       final float mouseY) {
-    if (pet.alive()) {
-      final UnleashedDogEntity entity = obtainPortraitEntity(pet);
-      if (entity != null) {
-        InventoryScreen.drawEntity(
-            context,
+    final UnleashedDogEntity entity = obtainPortraitEntity(pet);
+    if (entity != null) {
+      context.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+      InventoryScreen.drawEntity(
+          context,
+          imgX,
+          imgY,
+          imgX + THUMBNAIL_SIZE,
+          imgY + THUMBNAIL_SIZE,
+          22,
+          0.35f,
+          mouseX,
+          mouseY,
+          entity);
+      if (!pet.alive()) {
+        context.fill(
+            RenderLayer.getGuiOverlay(),
             imgX,
             imgY,
             imgX + THUMBNAIL_SIZE,
             imgY + THUMBNAIL_SIZE,
-            22,
-            0.35f,
-            mouseX,
-            mouseY,
-            entity);
-        return;
+            0x889A9A9A);
       }
+      context.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+      return;
     }
     drawTexturePortrait(context, pet, imgX, imgY, !pet.alive());
   }
