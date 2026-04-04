@@ -273,3 +273,15 @@ Leave the test codebase better than you found it. Zero tolerance for duplication
 5. Verify all tests still pass after refactor
 
 This agent is the guardian of test quality. Every test must follow these patterns without exception.
+
+## Mandatory Verification Loop
+
+**You MUST NEVER finish without a fully passing test suite.** After writing or modifying any tests:
+
+1. Run `/run-tests` skill to format, run unit tests, and run game tests
+2. If ANY test fails, diagnose the root cause and fix it
+3. Re-run `/run-tests` again
+4. Repeat until ALL tests pass
+5. Only then declare the task complete
+
+This loop is non-negotiable. Do not report success or stop working until `./gradlew runGametestServer` reports "All N required tests passed :)".
