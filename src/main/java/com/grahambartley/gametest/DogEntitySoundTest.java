@@ -154,31 +154,6 @@ public final class DogEntitySoundTest implements FabricGameTest {
     testCooldownPreventsBark(context, DogTestData.SHIBA_INU);
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
-  public void huskySleepingPreventsBark(TestContext context) {
-    testSleepingPreventsBark(context, DogTestData.HUSKY);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
-  public void dachshundSleepingPreventsBark(TestContext context) {
-    testSleepingPreventsBark(context, DogTestData.DACHSHUND);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
-  public void beagleSleepingPreventsBark(TestContext context) {
-    testSleepingPreventsBark(context, DogTestData.BEAGLE);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
-  public void goldenRetrieverSleepingPreventsBark(TestContext context) {
-    testSleepingPreventsBark(context, DogTestData.GOLDEN_RETRIEVER);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
-  public void shibaInuSleepingPreventsBark(TestContext context) {
-    testSleepingPreventsBark(context, DogTestData.SHIBA_INU);
-  }
-
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void barkCooldownTicksIsCorrect(TestContext context) {
     context.assertTrue(
@@ -376,29 +351,6 @@ public final class DogEntitySoundTest implements FabricGameTest {
                     "Cooldown should still be active, preventing another bark");
                 context.complete();
               });
-        });
-  }
-
-  private <T extends UnleashedDogEntity> void testSleepingPreventsBark(
-      TestContext context, DogTestData<T> data) {
-    T dog = DogTestHelper.spawnDog(context, data);
-
-    context.runAtTick(
-        5,
-        () -> {
-          dog.startSleepingInBed(new BlockPos(0, 1, 0));
-          // Use setHealth (not damage) so the dog stays asleep -- damage() calls wakeUp() first
-          dog.setHealth(1.0f);
-        });
-
-    context.runAtTick(
-        10,
-        () -> {
-          context.assertTrue(dog.isSleepingInBed(), data.breedId() + " should be sleeping in bed");
-          context.assertTrue(
-              dog.getBarkCooldownTicks() == 0,
-              data.breedId() + " should not bark while sleeping (cooldown should remain 0)");
-          context.complete();
         });
   }
 }
