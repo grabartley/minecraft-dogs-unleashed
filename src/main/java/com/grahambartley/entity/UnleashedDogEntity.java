@@ -22,6 +22,7 @@ import java.util.Optional;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityData;
+import net.minecraft.entity.EntityStatuses;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
@@ -320,12 +321,12 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     this.goalSelector.add(2, new SitGoal(this));
     this.goalSelector.add(3, new SleepInBedGoal(this));
     this.goalSelector.add(4, new AutoSleepGoal(this));
-    this.goalSelector.add(5, new TemptGoal(this, 1.0, TAMING_INGREDIENT, false));
-    this.goalSelector.add(6, new EscapeDangerGoal(this, 1.5));
-    this.goalSelector.add(7, new PounceAtTargetGoal(this, 0.4F));
-    this.goalSelector.add(8, new MeleeAttackGoal(this, 1.0, true));
-    this.goalSelector.add(9, new FollowOwnerGoal(this, 1.0, 10.0F, 2.0F));
-    this.goalSelector.add(10, new AnimalMateGoal(this, 1.0));
+    this.goalSelector.add(5, new EscapeDangerGoal(this, 1.5));
+    this.goalSelector.add(6, new PounceAtTargetGoal(this, 0.4F));
+    this.goalSelector.add(7, new MeleeAttackGoal(this, 1.0, true));
+    this.goalSelector.add(8, new AnimalMateGoal(this, 1.0));
+    this.goalSelector.add(9, new TemptGoal(this, 1.0, TAMING_INGREDIENT, false));
+    this.goalSelector.add(10, new FollowOwnerGoal(this, 1.0, 10.0F, 2.0F));
     this.goalSelector.add(11, new WanderAroundFarGoal(this, 1.0));
     this.goalSelector.add(12, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F));
     this.goalSelector.add(13, new LookAroundGoal(this));
@@ -363,13 +364,13 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
 
       if (this.isOwner(player) && !this.isTamingItem(itemStack)) {
         if (player.isSneaking()) {
-          final String dogName = this.getDogNameForMessage();
+          final String dogName = this.getTamedName();
           DogBedBlock.setPendingAssignment(player.getUuid(), this.getUuid());
           player.sendMessage(
               Text.translatable("message.dogs-unleashed.pending_bed_assignment", dogName), true);
         } else if (this.isSleepingInBed()) {
           this.wakeUp();
-          final String dogName = this.getDogNameForMessage();
+          final String dogName = this.getTamedName();
           player.sendMessage(
               Text.translatable("block.dogs-unleashed.dog_bed.wake_command", dogName), true);
         } else {
@@ -389,35 +390,10 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     } else if (this.isTamingItem(itemStack)) {
       itemStack.decrementUnlessCreative(1, player);
       if (this.random.nextInt(3) == 0) {
-        this.setOwner(player);
-        this.navigation.stop();
-        this.setTarget(null);
-        this.setSitting(true);
-        this.getWorld().sendEntityStatus(this, (byte) 7);
-
-        if (this.getWorld() instanceof ServerWorld serverWorld) {
-          final PetManager petManager = PetManager.get(serverWorld.getServer());
-          final PetData petData =
-              new PetData(
-                  this.getUuid(),
-                  player.getUuid(),
-                  this.getBreedId(),
-                  DogNames.getRandomName(),
-                  this.getHealth(),
-                  this.getMaxHealth(),
-                  this.getBlockPos(),
-                  serverWorld.getRegistryKey().getValue().toString(),
-                  true);
-          petData.syncAppearanceFrom(this);
-          petManager.registerPet(petData);
-
-          if (player instanceof ServerPlayerEntity serverPlayer) {
-            ModNetworking.sendOpenNamingScreen(
-                serverPlayer, this.getUuid(), this.getBreedId(), petData.getName());
-          }
-        }
+        this.tame(player);
       } else {
-        this.getWorld().sendEntityStatus(this, (byte) 6);
+        this.getWorld()
+            .sendEntityStatus(this, EntityStatuses.ADD_NEGATIVE_PLAYER_REACTION_PARTICLES);
       }
       return ActionResult.SUCCESS;
     }
@@ -434,7 +410,37 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     return TAMING_INGREDIENT.test(stack);
   }
 
-  private String getDogNameForMessage() {
+  private void tame(final PlayerEntity player) {
+    this.setOwner(player);
+    this.navigation.stop();
+    this.setTarget(null);
+    this.setSitting(true);
+    this.getWorld().sendEntityStatus(this, EntityStatuses.ADD_POSITIVE_PLAYER_REACTION_PARTICLES);
+
+    if (this.getWorld() instanceof ServerWorld serverWorld) {
+      final PetManager petManager = PetManager.get(serverWorld.getServer());
+      final PetData petData =
+          new PetData(
+              this.getUuid(),
+              player.getUuid(),
+              this.getBreedId(),
+              DogNames.getRandomName(),
+              this.getHealth(),
+              this.getMaxHealth(),
+              this.getBlockPos(),
+              serverWorld.getRegistryKey().getValue().toString(),
+              true);
+      petData.syncAppearanceFrom(this);
+      petManager.registerPet(petData);
+
+      if (player instanceof ServerPlayerEntity serverPlayer) {
+        ModNetworking.sendOpenNamingScreen(
+            serverPlayer, this.getUuid(), this.getBreedId(), petData.getName());
+      }
+    }
+  }
+
+  private String getTamedName() {
     if (this.getWorld() instanceof ServerWorld serverWorld) {
       final PetManager petManager = PetManager.get(serverWorld.getServer());
       final PetData petData = petManager.getPetByEntityId(this.getUuid());
@@ -478,6 +484,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
       baby.setOwnerUuid(this.getOwnerUuid());
       baby.setTamed(true, true);
     }
+    baby.tame(this.getLovingPlayer());
     return baby;
   }
 
