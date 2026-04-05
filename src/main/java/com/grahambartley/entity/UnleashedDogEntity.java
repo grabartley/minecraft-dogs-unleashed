@@ -7,6 +7,7 @@ import static com.grahambartley.ModConstants.LOW_HEALTH_THRESHOLD;
 import static com.grahambartley.ModConstants.MINECRAFT_TICK_RATE;
 import static com.grahambartley.ModConstants.RANDOM_BARK_CHANCE;
 
+import com.grahambartley.DogsUnleashed;
 import com.grahambartley.ModBlocks;
 import com.grahambartley.block.DogBedBlock;
 import com.grahambartley.block.DogGraveBlock;
@@ -18,7 +19,9 @@ import com.grahambartley.network.ModNetworking;
 import com.grahambartley.pet.PetData;
 import com.grahambartley.pet.PetManager;
 import com.grahambartley.util.DogNames;
+import java.util.Comparator;
 import java.util.Optional;
+import java.util.function.Consumer;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityData;
@@ -61,6 +64,7 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
@@ -70,6 +74,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.TimeHelper;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.intprovider.UniformIntProvider;
@@ -115,6 +120,11 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   private static final int SHAKE_DURATION_TICKS = 22;
   private static final int SHAKE_PARTICLE_START_TICK = 10;
   private static final int SHAKE_DELAY_TICKS = 20;
+  private static final int PET_RECALL_TICKET_LEVEL = 3;
+  private static final int PET_RECALL_RETRY_TICKS = 20;
+  private static final ChunkTicketType<ChunkPos> PET_RECALL_TICKET =
+      ChunkTicketType.create(
+          "dogs_unleashed_pet_recall", Comparator.comparingLong(ChunkPos::toLong), 40);
 
   private boolean wasInWater = false;
   private int ticksSinceLeftWater = 0;
@@ -597,10 +607,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     return super.damage(source, amount);
   }
 
-  /**
-   * Finds this dog in any dimension, force-loading its last known chunk so it can be retrieved even
-   * if it hasn't been visited recently. Returns null if the pet is not found.
-   */
+  /** Finds this dog in any currently loaded dimension and returns null if the pet is not loaded. */
   @Nullable
   public static UnleashedDogEntity findAndLoad(MinecraftServer server, PetData petData) {
     // Try the known dimension first (fast path)
@@ -619,6 +626,72 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
       if (entity instanceof UnleashedDogEntity dog) return dog;
     }
     return null;
+  }
+
+  public static void findAndLoadWithTicket(
+      MinecraftServer server,
+      PetData petData,
+      Consumer<UnleashedDogEntity> onLoaded,
+      Runnable onFailure) {
+    final UnleashedDogEntity loadedDog = findAndLoad(server, petData);
+    if (loadedDog != null) {
+      onLoaded.accept(loadedDog);
+      return;
+    }
+
+    final String dimStr = petData.getDimension();
+    final BlockPos lastKnownPosition = petData.getLastKnownPosition();
+    if (dimStr == null || dimStr.isEmpty() || lastKnownPosition == null) {
+      onFailure.run();
+      return;
+    }
+
+    final ServerWorld knownWorld =
+        server.getWorld(RegistryKey.of(RegistryKeys.WORLD, Identifier.of(dimStr)));
+    if (knownWorld == null) {
+      onFailure.run();
+      return;
+    }
+
+    final ChunkPos chunkPos = new ChunkPos(lastKnownPosition);
+    knownWorld
+        .getChunkManager()
+        .addTicket(PET_RECALL_TICKET, chunkPos, PET_RECALL_TICKET_LEVEL, chunkPos);
+    retryFindAndLoad(
+        server, petData, knownWorld, chunkPos, PET_RECALL_RETRY_TICKS, onLoaded, onFailure);
+  }
+
+  private static void retryFindAndLoad(
+      MinecraftServer server,
+      PetData petData,
+      ServerWorld knownWorld,
+      ChunkPos chunkPos,
+      int attemptsRemaining,
+      Consumer<UnleashedDogEntity> onLoaded,
+      Runnable onFailure) {
+    DogsUnleashed.scheduleInTicks(
+        1,
+        () -> {
+          final UnleashedDogEntity dog = findAndLoad(server, petData);
+          if (dog != null) {
+            knownWorld
+                .getChunkManager()
+                .removeTicket(PET_RECALL_TICKET, chunkPos, PET_RECALL_TICKET_LEVEL, chunkPos);
+            onLoaded.accept(dog);
+            return;
+          }
+
+          if (attemptsRemaining <= 1) {
+            knownWorld
+                .getChunkManager()
+                .removeTicket(PET_RECALL_TICKET, chunkPos, PET_RECALL_TICKET_LEVEL, chunkPos);
+            onFailure.run();
+            return;
+          }
+
+          retryFindAndLoad(
+              server, petData, knownWorld, chunkPos, attemptsRemaining - 1, onLoaded, onFailure);
+        });
   }
 
   /**
@@ -781,12 +854,6 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
               nbt.putInt("BedPosY", pos.getY());
               nbt.putInt("BedPosZ", pos.getZ());
             });
-    com.grahambartley.DogsUnleashed.log.debug(
-        "[SAVE] {} (UUID={}) - isTamed={}, ownerUuid={}",
-        this.getBreedId(),
-        this.getUuid(),
-        this.isTamed(),
-        this.getOwnerUuid());
   }
 
   @Override
@@ -812,13 +879,6 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
       this.setAssignedBedPos(
           new BlockPos(nbt.getInt("BedPosX"), nbt.getInt("BedPosY"), nbt.getInt("BedPosZ")));
     }
-    com.grahambartley.DogsUnleashed.log.debug(
-        "[LOAD] {} (UUID={}) - isTamed={}, ownerUuid={}, nbt.hasOwner={}",
-        this.getBreedId(),
-        this.getUuid(),
-        this.isTamed(),
-        this.getOwnerUuid(),
-        nbt.containsUuid("Owner"));
   }
 
   @Override

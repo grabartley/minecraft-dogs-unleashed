@@ -241,6 +241,7 @@ public final class ModNetworking {
       SummonPetPayload payload, ServerPlayNetworking.Context context) {
     final ServerPlayerEntity player = context.player();
     final ServerWorld playerWorld = player.getServerWorld();
+    final UUID playerId = player.getUuid();
 
     playerWorld
         .getServer()
@@ -250,27 +251,36 @@ public final class ModNetworking {
               final PetData petData = petManager.getPet(player.getUuid(), payload.petId());
 
               if (petData != null && petData.isAlive()) {
-                final UnleashedDogEntity dog =
-                    UnleashedDogEntity.findAndLoad(playerWorld.getServer(), petData);
-                if (dog != null) {
-                  if (dog.getWorld() != playerWorld) {
-                    dog.followOwnerToDimension(player, playerWorld);
-                  } else {
-                    dog.wakeUp();
-                    dog.setSitting(false);
-                    dog.teleport(
-                        playerWorld,
-                        player.getX(),
-                        player.getY(),
-                        player.getZ(),
-                        java.util.Set.of(),
-                        dog.getYaw(),
-                        dog.getPitch());
-                  }
-                  petData.setLastKnownPosition(player.getBlockPos());
-                  petData.setDimension(playerWorld.getRegistryKey().getValue().toString());
-                  petManager.updatePet(petData);
-                }
+                UnleashedDogEntity.findAndLoadWithTicket(
+                    playerWorld.getServer(),
+                    petData,
+                    dog -> {
+                      final ServerPlayerEntity currentPlayer =
+                          playerWorld.getServer().getPlayerManager().getPlayer(playerId);
+                      if (currentPlayer == null) return;
+
+                      final ServerWorld currentPlayerWorld = currentPlayer.getServerWorld();
+                      if (dog.getWorld() != currentPlayerWorld) {
+                        dog.followOwnerToDimension(currentPlayer, currentPlayerWorld);
+                      } else {
+                        dog.wakeUp();
+                        dog.setSitting(false);
+                        dog.teleport(
+                            currentPlayerWorld,
+                            currentPlayer.getX(),
+                            currentPlayer.getY(),
+                            currentPlayer.getZ(),
+                            java.util.Set.of(),
+                            dog.getYaw(),
+                            dog.getPitch());
+                      }
+
+                      petData.setLastKnownPosition(currentPlayer.getBlockPos());
+                      petData.setDimension(
+                          currentPlayerWorld.getRegistryKey().getValue().toString());
+                      petManager.updatePet(petData);
+                    },
+                    () -> {});
               }
             });
   }
