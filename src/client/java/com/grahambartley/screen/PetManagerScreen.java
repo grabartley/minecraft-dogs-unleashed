@@ -253,7 +253,10 @@ public class PetManagerScreen extends Screen {
       final int healthColor = pet.health() > pet.maxHealth() * 0.5 ? 0x55FF55 : 0xFF5555;
       context.drawText(this.textRenderer, healthText, textX, y + 31, healthColor, false);
 
-      final String locationText = String.format("(%d, %d, %d)", pet.posX(), pet.posY(), pet.posZ());
+      final String locationText =
+          String.format(
+              "%s  (%d, %d, %d)",
+              formatDimension(pet.dimension()), pet.posX(), pet.posY(), pet.posZ());
       context.drawText(this.textRenderer, locationText, textX, y + 44, 0x888888, false);
     } else {
       context.drawText(
@@ -264,6 +267,19 @@ public class PetManagerScreen extends Screen {
           0xFF5555,
           false);
     }
+  }
+
+  private static String formatDimension(String dimension) {
+    return switch (dimension) {
+      case "minecraft:overworld" -> "Overworld";
+      case "minecraft:the_nether" -> "Nether";
+      case "minecraft:the_end" -> "The End";
+      default -> {
+        final int colon = dimension.indexOf(':');
+        final String path = colon >= 0 ? dimension.substring(colon + 1) : dimension;
+        yield path.replace('_', ' ');
+      }
+    };
   }
 
   private static EntityType<? extends UnleashedDogEntity> breedToEntityType(

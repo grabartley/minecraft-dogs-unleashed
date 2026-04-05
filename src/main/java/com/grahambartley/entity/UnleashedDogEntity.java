@@ -57,6 +57,9 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.recipe.Ingredient;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
@@ -64,12 +67,15 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.TimeHelper;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.intprovider.UniformIntProvider;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.ServerWorldAccess;
+import net.minecraft.world.TeleportTarget;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -589,6 +595,47 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
       }
     }
     return super.damage(source, amount);
+  }
+
+  /**
+   * Finds this dog in any dimension, force-loading its last known chunk so it can be retrieved even
+   * if it hasn't been visited recently. Returns null if the pet is not found.
+   */
+  @Nullable
+  public static UnleashedDogEntity findAndLoad(MinecraftServer server, PetData petData) {
+    // Try the known dimension first (fast path)
+    final String dimStr = petData.getDimension();
+    if (dimStr != null && !dimStr.isEmpty()) {
+      final ServerWorld knownWorld =
+          server.getWorld(RegistryKey.of(RegistryKeys.WORLD, Identifier.of(dimStr)));
+      if (knownWorld != null) {
+        final net.minecraft.entity.Entity entity = knownWorld.getEntity(petData.getPetId());
+        if (entity instanceof UnleashedDogEntity dog) return dog;
+      }
+    }
+    // Fallback: search all loaded worlds (handles stale dimension data)
+    for (final ServerWorld world : server.getWorlds()) {
+      final net.minecraft.entity.Entity entity = world.getEntity(petData.getPetId());
+      if (entity instanceof UnleashedDogEntity dog) return dog;
+    }
+    return null;
+  }
+
+  /**
+   * Moves this dog to the destination world at the owner's position. Used for cross-dimension
+   * summons and following the owner through portals.
+   */
+  public void followOwnerToDimension(ServerPlayerEntity owner, ServerWorld destination) {
+    this.wakeUp();
+    this.setSitting(false);
+    this.teleportTo(
+        new TeleportTarget(
+            destination,
+            new Vec3d(owner.getX(), owner.getY(), owner.getZ()),
+            Vec3d.ZERO,
+            this.getYaw(),
+            this.getPitch(),
+            TeleportTarget.ADD_PORTAL_CHUNK_TICKET));
   }
 
   @Override

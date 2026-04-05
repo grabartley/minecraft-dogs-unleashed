@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.UUID;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.entity.Entity;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
@@ -223,8 +222,8 @@ public final class ModNetworking {
         .getServer()
         .execute(
             () -> {
-              final Entity entity = findEntityByUuid(world, payload.petId());
-              if (entity instanceof UnleashedDogEntity dog && dog.isOwner(player)) {
+              if (world.getEntity(payload.petId()) instanceof UnleashedDogEntity dog
+                  && dog.isOwner(player)) {
                 dog.setCustomName(Text.literal(payload.name()));
                 dog.setCustomNameVisible(true);
 
@@ -241,29 +240,35 @@ public final class ModNetworking {
   private static void handleSummonPet(
       SummonPetPayload payload, ServerPlayNetworking.Context context) {
     final ServerPlayerEntity player = context.player();
-    final ServerWorld world = player.getServerWorld();
+    final ServerWorld playerWorld = player.getServerWorld();
 
-    world
+    playerWorld
         .getServer()
         .execute(
             () -> {
-              final PetManager petManager = PetManager.get(world.getServer());
+              final PetManager petManager = PetManager.get(playerWorld.getServer());
               final PetData petData = petManager.getPet(player.getUuid(), payload.petId());
 
               if (petData != null && petData.isAlive()) {
-                final Entity entity = findEntityByUuid(world, payload.petId());
-                if (entity instanceof UnleashedDogEntity dog) {
-                  dog.wakeUp();
-                  dog.teleport(
-                      world,
-                      player.getX(),
-                      player.getY(),
-                      player.getZ(),
-                      java.util.Set.of(),
-                      dog.getYaw(),
-                      dog.getPitch());
-                  dog.setSitting(false);
+                final UnleashedDogEntity dog =
+                    UnleashedDogEntity.findAndLoad(playerWorld.getServer(), petData);
+                if (dog != null) {
+                  if (dog.getWorld() != playerWorld) {
+                    dog.followOwnerToDimension(player, playerWorld);
+                  } else {
+                    dog.wakeUp();
+                    dog.setSitting(false);
+                    dog.teleport(
+                        playerWorld,
+                        player.getX(),
+                        player.getY(),
+                        player.getZ(),
+                        java.util.Set.of(),
+                        dog.getYaw(),
+                        dog.getPitch());
+                  }
                   petData.setLastKnownPosition(player.getBlockPos());
+                  petData.setDimension(playerWorld.getRegistryKey().getValue().toString());
                   petManager.updatePet(petData);
                 }
               }
@@ -294,11 +299,13 @@ public final class ModNetworking {
 
               for (final PetData pet : pets) {
                 if (pet.isAlive()) {
-                  final Entity entity = findEntityByUuid(world, pet.getPetId());
-                  if (entity instanceof UnleashedDogEntity dog) {
+                  final UnleashedDogEntity dog =
+                      UnleashedDogEntity.findAndLoad(world.getServer(), pet);
+                  if (dog != null) {
                     pet.setHealth(dog.getHealth());
                     pet.setLastKnownPosition(dog.getBlockPos());
-                    pet.setDimension(world.getRegistryKey().getValue().toString());
+                    pet.setDimension(
+                        ((ServerWorld) dog.getWorld()).getRegistryKey().getValue().toString());
                     pet.syncAppearanceFrom(dog);
                     petManager.updatePet(pet);
                   }
@@ -308,10 +315,6 @@ public final class ModNetworking {
               final List<PetSyncData> syncData = pets.stream().map(PetSyncData::from).toList();
               ServerPlayNetworking.send(player, new SyncPetsPayload(syncData));
             });
-  }
-
-  private static Entity findEntityByUuid(ServerWorld world, UUID uuid) {
-    return world.getEntity(uuid);
   }
 
   public static void sendOpenNamingScreen(
