@@ -11,7 +11,6 @@ import static com.grahambartley.ModEntities.HUSKY;
 import com.grahambartley.ModSounds;
 import com.grahambartley.entity.variant.HuskyCoat;
 import com.grahambartley.entity.variant.HuskyEyeColor;
-import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
@@ -23,11 +22,7 @@ import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.LocalDifficulty;
-import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.PlayState;
@@ -65,32 +60,34 @@ public class HuskyEntity extends UnleashedDogEntity {
   }
 
   @Override
-  public @Nullable EntityData initialize(
-      ServerWorldAccess world,
-      LocalDifficulty difficulty,
-      SpawnReason spawnReason,
-      @Nullable EntityData entityData) {
-    if (spawnReason != SpawnReason.BREEDING) {
-      this.rollAppearance(this.random);
-    }
-    return super.initialize(world, difficulty, spawnReason, entityData);
-  }
-
-  private void rollAppearance(final Random random) {
-    final int roll = random.nextInt(100);
+  protected void rollAppearance(final SpawnReason spawnReason) {
+    final int roll = this.random.nextInt(100);
     final HuskyCoat coat;
-    if (roll < 40) {
-      coat = HuskyCoat.BLACK_WHITE;
-    } else if (roll < 72) {
-      coat = HuskyCoat.GREY_WHITE;
-    } else if (roll < 87) {
-      coat = HuskyCoat.RED_WHITE;
-    } else if (roll < 93) {
-      coat = HuskyCoat.SABLE;
-    } else if (roll < 97) {
-      coat = HuskyCoat.AGOUTI;
+    if (spawnReason == SpawnReason.BREEDING) {
+      if (roll < 40) {
+        coat = HuskyCoat.BLACK_WHITE;
+      } else if (roll < 72) {
+        coat = HuskyCoat.GREY_WHITE;
+      } else if (roll < 87) {
+        coat = HuskyCoat.RED_WHITE;
+      } else if (roll < 93) {
+        coat = HuskyCoat.SABLE;
+        // Agouti and white variants unique to breeding
+      } else if (roll < 97) {
+        coat = HuskyCoat.AGOUTI;
+      } else {
+        coat = HuskyCoat.WHITE;
+      }
     } else {
-      coat = HuskyCoat.WHITE;
+      if (roll < 40) {
+        coat = HuskyCoat.BLACK_WHITE;
+      } else if (roll < 72) {
+        coat = HuskyCoat.GREY_WHITE;
+      } else if (roll < 87) {
+        coat = HuskyCoat.RED_WHITE;
+      } else {
+        coat = HuskyCoat.SABLE;
+      }
     }
     this.dataTracker.set(COAT_VARIANT, coat.ordinal());
     this.dataTracker.set(EYE_COLOR_VARIANT, HuskyEyeColor.fromRandom(random).ordinal());
@@ -124,9 +121,7 @@ public class HuskyEntity extends UnleashedDogEntity {
 
   @Override
   protected UnleashedDogEntity createBaby(ServerWorld world) {
-    final HuskyEntity baby = new HuskyEntity(HUSKY, world);
-    baby.rollAppearance(baby.getRandom());
-    return baby;
+    return new HuskyEntity(HUSKY, world);
   }
 
   @Override
