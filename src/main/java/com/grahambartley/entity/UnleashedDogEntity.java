@@ -21,7 +21,9 @@ import com.grahambartley.util.DogNames;
 import java.util.Optional;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.ai.goal.AnimalMateGoal;
 import net.minecraft.entity.ai.goal.AttackWithOwnerGoal;
@@ -65,7 +67,10 @@ import net.minecraft.util.TimeHelper;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.intprovider.UniformIntProvider;
+import net.minecraft.world.LocalDifficulty;
+import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
@@ -142,6 +147,18 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     super(entityType, world);
   }
 
+  @Override
+  public @Nullable EntityData initialize(
+      ServerWorldAccess world,
+      LocalDifficulty difficulty,
+      SpawnReason spawnReason,
+      @Nullable EntityData entityData) {
+    if (spawnReason != SpawnReason.BREEDING) {
+      this.rollAppearance(spawnReason);
+    }
+    return super.initialize(world, difficulty, spawnReason, entityData);
+  }
+
   protected abstract UnleashedDogEntity createBaby(ServerWorld world);
 
   protected abstract boolean isSameSpecies(MobEntity entity);
@@ -153,6 +170,8 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   protected String getSleepInBedMovementAnimationName() {
     return "sit";
   }
+
+  protected void rollAppearance(final SpawnReason spawnReason) {}
 
   protected void tickBreedSpecificSounds() {}
 
@@ -454,6 +473,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     }
     final UnleashedDogEntity baby = this.createBaby(world);
     baby.setBaby(true);
+    baby.rollAppearance(SpawnReason.BREEDING);
     if (this.isTamed() || ((UnleashedDogEntity) entity).isTamed()) {
       baby.setOwnerUuid(this.getOwnerUuid());
       baby.setTamed(true, true);
@@ -711,7 +731,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
               nbt.putInt("BedPosY", pos.getY());
               nbt.putInt("BedPosZ", pos.getZ());
             });
-    com.grahambartley.DogsUnleashed.log.info(
+    com.grahambartley.DogsUnleashed.log.debug(
         "[SAVE] {} (UUID={}) - isTamed={}, ownerUuid={}",
         this.getBreedId(),
         this.getUuid(),
@@ -742,7 +762,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
       this.setAssignedBedPos(
           new BlockPos(nbt.getInt("BedPosX"), nbt.getInt("BedPosY"), nbt.getInt("BedPosZ")));
     }
-    com.grahambartley.DogsUnleashed.log.info(
+    com.grahambartley.DogsUnleashed.log.debug(
         "[LOAD] {} (UUID={}) - isTamed={}, ownerUuid={}, nbt.hasOwner={}",
         this.getBreedId(),
         this.getUuid(),
