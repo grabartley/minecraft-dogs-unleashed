@@ -389,6 +389,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
                   this.getBlockPos(),
                   serverWorld.getRegistryKey().getValue().toString(),
                   true);
+          petData.syncAppearanceFrom(this);
           petManager.registerPet(petData);
 
           if (player instanceof ServerPlayerEntity serverPlayer) {
@@ -581,6 +582,11 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     }
 
     final PetManager petManager = PetManager.get(serverWorld.getServer());
+    final PetData petData = petManager.getPetByEntityId(this.getUuid());
+    if (petData != null) {
+      petData.syncAppearanceFrom(this);
+      petManager.updatePet(petData);
+    }
     petManager.markPetDeceased(this.getUuid());
 
     // Get bed position before clearing it (needed to avoid spawning grave on bed)
