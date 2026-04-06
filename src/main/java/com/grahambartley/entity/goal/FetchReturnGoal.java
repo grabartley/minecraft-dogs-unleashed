@@ -15,7 +15,13 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class FetchReturnGoal extends Goal {
-
+  private static final float LOOK_YAW = 10.0f;
+  private static final float LOOK_PITCH = 10.0f;
+  private static final double RETURN_SPEED = 1.5;
+  private static final double BALL_DROP_Y_OFFSET = 0.25;
+  private static final int SAFE_DROP_RADIUS = 2;
+  private static final int SEARCH_MIN_DY = -1;
+  private static final int SEARCH_MAX_DY = 1;
   private static final double CLOSE_ENOUGH_DISTANCE = 3.0;
 
   private final UnleashedDogEntity dog;
@@ -51,8 +57,10 @@ public class FetchReturnGoal extends Goal {
       return;
     }
 
-    this.dog.getLookControl().lookAt(player, 10.0f, 10.0f);
-    this.dog.getNavigation().startMovingTo(player.getX(), player.getY(), player.getZ(), 1.5);
+    this.dog.getLookControl().lookAt(player, LOOK_YAW, LOOK_PITCH);
+    this.dog
+        .getNavigation()
+        .startMovingTo(player.getX(), player.getY(), player.getZ(), RETURN_SPEED);
 
     double distToOwner = this.dog.squaredDistanceTo(player);
     if (distToOwner <= CLOSE_ENOUGH_DISTANCE * CLOSE_ENOUGH_DISTANCE) {
@@ -83,7 +91,7 @@ public class FetchReturnGoal extends Goal {
         new ItemEntity(
             this.dog.getWorld(),
             player.getX(),
-            player.getY() + 0.25,
+            player.getY() + BALL_DROP_Y_OFFSET,
             player.getZ(),
             new ItemStack(ModItems.TENNIS_BALL));
     this.dog.getWorld().spawnEntity(itemEntity);
@@ -93,17 +101,17 @@ public class FetchReturnGoal extends Goal {
     BlockPos playerPos = player.getBlockPos();
     BlockPos dogPos = this.dog.getBlockPos();
 
-    BlockPos dropPos = findSafeDropPosNear(playerPos, 2);
+    BlockPos dropPos = findSafeDropPosNear(playerPos, SAFE_DROP_RADIUS);
     if (dropPos != null) {
       return dropPos;
     }
 
-    return findSafeDropPosNear(dogPos, 2);
+    return findSafeDropPosNear(dogPos, SAFE_DROP_RADIUS);
   }
 
   private BlockPos findSafeDropPosNear(BlockPos origin, int radius) {
     for (int currentRadius = 0; currentRadius <= radius; currentRadius++) {
-      for (int dy = 1; dy >= -1; dy--) {
+      for (int dy = SEARCH_MAX_DY; dy >= SEARCH_MIN_DY; dy--) {
         for (int dx = -currentRadius; dx <= currentRadius; dx++) {
           for (int dz = -currentRadius; dz <= currentRadius; dz++) {
             if (Math.max(Math.abs(dx), Math.abs(dz)) != currentRadius) {

@@ -2,13 +2,12 @@ package com.grahambartley.entity;
 
 import static com.grahambartley.ModEntities.SHIBA_INU;
 
+import com.grahambartley.ModNbtKeys;
 import com.grahambartley.ModSounds;
 import com.grahambartley.entity.variant.ShibaInuCoat;
 import com.grahambartley.entity.variant.UnleashedDogCoat;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -20,16 +19,12 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.world.World;
 
 public class ShibaInuEntity extends UnleashedDogEntity {
+  private static final int ROLL_BOUND = 100;
+  private static final int RED_THRESHOLD = 65;
+  private static final int BLACK_THRESHOLD = 85;
 
   private static final TrackedData<Integer> COAT_VARIANT =
       DataTracker.registerData(ShibaInuEntity.class, TrackedDataHandlerRegistry.INTEGER);
-
-  public static DefaultAttributeContainer.Builder createAttributes() {
-    return MobEntity.createMobAttributes()
-        .add(EntityAttributes.GENERIC_MAX_HEALTH, 18.0)
-        .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.32)
-        .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 3.5);
-  }
 
   public ShibaInuEntity(EntityType<? extends UnleashedDogEntity> entityType, World world) {
     super(entityType, world);
@@ -43,19 +38,19 @@ public class ShibaInuEntity extends UnleashedDogEntity {
 
   @Override
   protected void rollAppearance(final SpawnReason spawnReason) {
-    final int roll = this.random.nextInt(100);
+    final int roll = this.random.nextInt(ROLL_BOUND);
     final ShibaInuCoat coat;
     if (spawnReason == SpawnReason.BREEDING) {
-      if (roll < 65) {
+      if (roll < RED_THRESHOLD) {
         coat = ShibaInuCoat.RED;
-      } else if (roll < 85) {
+      } else if (roll < BLACK_THRESHOLD) {
         coat = ShibaInuCoat.BLACK;
         // sesame is breeding exclusive variant
       } else {
         coat = ShibaInuCoat.SESAME;
       }
     } else {
-      if (roll < 65) {
+      if (roll < RED_THRESHOLD) {
         coat = ShibaInuCoat.RED;
       } else {
         coat = ShibaInuCoat.BLACK;
@@ -67,14 +62,14 @@ public class ShibaInuEntity extends UnleashedDogEntity {
   @Override
   public void writeCustomDataToNbt(NbtCompound nbt) {
     super.writeCustomDataToNbt(nbt);
-    nbt.putInt("CoatVariant", this.dataTracker.get(COAT_VARIANT));
+    nbt.putInt(ModNbtKeys.COAT_VARIANT, this.dataTracker.get(COAT_VARIANT));
   }
 
   @Override
   public void readCustomDataFromNbt(NbtCompound nbt) {
     super.readCustomDataFromNbt(nbt);
-    if (nbt.contains("CoatVariant", NbtElement.NUMBER_TYPE)) {
-      this.dataTracker.set(COAT_VARIANT, nbt.getInt("CoatVariant"));
+    if (nbt.contains(ModNbtKeys.COAT_VARIANT, NbtElement.NUMBER_TYPE)) {
+      this.dataTracker.set(COAT_VARIANT, nbt.getInt(ModNbtKeys.COAT_VARIANT));
     }
   }
 
@@ -84,7 +79,7 @@ public class ShibaInuEntity extends UnleashedDogEntity {
   }
 
   protected String getSleepInBedMovementAnimationName() {
-    return "sleep";
+    return DogAnimationKeys.SLEEP;
   }
 
   @Override
@@ -98,8 +93,8 @@ public class ShibaInuEntity extends UnleashedDogEntity {
   }
 
   @Override
-  public String getBreedId() {
-    return "shibainu";
+  public UnleashedDogBreed getBreed() {
+    return UnleashedDogBreed.SHIBA_INU;
   }
 
   @Override

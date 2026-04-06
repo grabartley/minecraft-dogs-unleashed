@@ -249,7 +249,7 @@ public final class DogEntitySoundTest implements FabricGameTest {
     DogTestHelper.spawnDog(context, data);
     context.assertTrue(
         Registries.SOUND_EVENT.containsId(Registries.SOUND_EVENT.getId(data.expectedBarkSound())),
-        data.breedId() + " bark sound should be in Registries.SOUND_EVENT");
+        data.breed().serializedId() + " bark sound should be in Registries.SOUND_EVENT");
     context.complete();
   }
 

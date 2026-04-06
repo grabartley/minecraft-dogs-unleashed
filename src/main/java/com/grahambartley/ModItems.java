@@ -1,5 +1,6 @@
 package com.grahambartley;
 
+import com.grahambartley.entity.UnleashedDogBreed;
 import com.grahambartley.item.DogBedItem;
 import com.grahambartley.item.DogGraveItem;
 import com.grahambartley.item.TennisBallItem;
@@ -39,8 +40,8 @@ public class ModItems {
           Identifier.of(DogsUnleashed.MOD_ID, "husky_spawn_egg"),
           new SpawnEggItem(
               ModEntities.HUSKY,
-              ModConstants.HUSKY_SPAWN_EGG_PRIMARY_COLOR,
-              ModConstants.HUSKY_SPAWN_EGG_SECONDARY_COLOR,
+              UnleashedDogBreed.HUSKY.spawnEggColors().primary(),
+              UnleashedDogBreed.HUSKY.spawnEggColors().secondary(),
               new Item.Settings()));
 
   public static final Item DACHSHUND_SPAWN_EGG =
@@ -49,8 +50,8 @@ public class ModItems {
           Identifier.of(DogsUnleashed.MOD_ID, "dachshund_spawn_egg"),
           new SpawnEggItem(
               ModEntities.DACHSHUND,
-              ModConstants.DACHSHUND_SPAWN_EGG_PRIMARY_COLOR,
-              ModConstants.DACHSHUND_SPAWN_EGG_SECONDARY_COLOR,
+              UnleashedDogBreed.DACHSHUND.spawnEggColors().primary(),
+              UnleashedDogBreed.DACHSHUND.spawnEggColors().secondary(),
               new Item.Settings()));
 
   public static final Item BEAGLE_SPAWN_EGG =
@@ -59,8 +60,8 @@ public class ModItems {
           Identifier.of(DogsUnleashed.MOD_ID, "beagle_spawn_egg"),
           new SpawnEggItem(
               ModEntities.BEAGLE,
-              ModConstants.BEAGLE_SPAWN_EGG_PRIMARY_COLOR,
-              ModConstants.BEAGLE_SPAWN_EGG_SECONDARY_COLOR,
+              UnleashedDogBreed.BEAGLE.spawnEggColors().primary(),
+              UnleashedDogBreed.BEAGLE.spawnEggColors().secondary(),
               new Item.Settings()));
 
   public static final Item GOLDEN_RETRIEVER_SPAWN_EGG =
@@ -69,8 +70,8 @@ public class ModItems {
           Identifier.of(DogsUnleashed.MOD_ID, "goldenretriever_spawn_egg"),
           new SpawnEggItem(
               ModEntities.GOLDEN_RETRIEVER,
-              ModConstants.GOLDEN_RETRIEVER_SPAWN_EGG_PRIMARY_COLOR,
-              ModConstants.GOLDEN_RETRIEVER_SPAWN_EGG_SECONDARY_COLOR,
+              UnleashedDogBreed.GOLDEN_RETRIEVER.spawnEggColors().primary(),
+              UnleashedDogBreed.GOLDEN_RETRIEVER.spawnEggColors().secondary(),
               new Item.Settings()));
 
   public static final Item SHIBA_INU_SPAWN_EGG =
@@ -79,8 +80,8 @@ public class ModItems {
           Identifier.of(DogsUnleashed.MOD_ID, "shibainu_spawn_egg"),
           new SpawnEggItem(
               ModEntities.SHIBA_INU,
-              ModConstants.SHIBA_INU_SPAWN_EGG_PRIMARY_COLOR,
-              ModConstants.SHIBA_INU_SPAWN_EGG_SECONDARY_COLOR,
+              UnleashedDogBreed.SHIBA_INU.spawnEggColors().primary(),
+              UnleashedDogBreed.SHIBA_INU.spawnEggColors().secondary(),
               new Item.Settings()));
 
   public static void initialize() {

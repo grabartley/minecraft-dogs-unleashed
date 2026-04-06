@@ -1,5 +1,6 @@
 package com.grahambartley.screen;
 
+import com.grahambartley.entity.UnleashedDogBreed;
 import com.grahambartley.network.ModNetworkingClient;
 import java.util.UUID;
 import net.minecraft.client.gui.DrawContext;
@@ -14,16 +15,17 @@ public class PetNamingScreen extends Screen {
   private static final int FIELD_HEIGHT = 20;
   private static final int BUTTON_WIDTH = 120;
   private static final int BUTTON_HEIGHT = 20;
+  private static final int NAME_MAX_LENGTH = 32;
 
   private final UUID petId;
-  private final String breedType;
+  private final UnleashedDogBreed breed;
   private final String suggestedName;
   private TextFieldWidget nameField;
 
-  public PetNamingScreen(UUID petId, String breedType, String suggestedName) {
+  public PetNamingScreen(UUID petId, UnleashedDogBreed breed, String suggestedName) {
     super(Text.translatable("screen.dogs-unleashed.pet_naming.title"));
     this.petId = petId;
-    this.breedType = breedType;
+    this.breed = breed;
     this.suggestedName = suggestedName;
   }
 
@@ -40,7 +42,7 @@ public class PetNamingScreen extends Screen {
             FIELD_WIDTH,
             FIELD_HEIGHT,
             Text.translatable("screen.dogs-unleashed.pet_naming.name_field"));
-    nameField.setMaxLength(32);
+    nameField.setMaxLength(NAME_MAX_LENGTH);
     nameField.setText(suggestedName);
     nameField.setChangedListener(this::onNameChanged);
     addDrawableChild(nameField);
@@ -85,7 +87,7 @@ public class PetNamingScreen extends Screen {
   }
 
   private String getBreedDisplayName() {
-    return Text.translatable("entity.dogs-unleashed." + breedType).getString();
+    return Text.translatable(breed.translationKey()).getString();
   }
 
   @Override

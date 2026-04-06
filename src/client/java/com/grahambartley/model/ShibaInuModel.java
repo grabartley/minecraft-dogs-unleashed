@@ -15,12 +15,16 @@ public class ShibaInuModel extends GeoModel<ShibaInuEntity> {
 
   @Override
   public Identifier getTextureResource(ShibaInuEntity animatable) {
-    final String fileName = "shibainu_" + animatable.getCoatVariant().getTexturePrefix() + ".png";
+    final String fileName =
+        animatable.getBreed().serializedId()
+            + "_"
+            + animatable.getCoatVariant().getTexturePrefix()
+            + ".png";
     return Identifier.of(MOD_ID, "textures/entity/" + fileName);
   }
 
   @Override
   public Identifier getAnimationResource(ShibaInuEntity animatable) {
-    return Identifier.of(MOD_ID, "animations/shibainu.animation.json");
+    return Identifier.of(MOD_ID, animatable.getBreed().animationPath());
   }
 }

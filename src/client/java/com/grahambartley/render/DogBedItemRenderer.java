@@ -43,45 +43,24 @@ public class DogBedItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
 
     switch (mode) {
       case GUI -> {
-        matrices.translate(0.5, 0.3, 0);
-        matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_X.rotationDegrees(30));
-        matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_Y.rotationDegrees(45));
-        matrices.scale(1.2f, 1.2f, 1.2f);
+        ItemRenderTransforms.applyDisplayPose(matrices, 0.5, 0.3, 0.0, 30.0f, 45.0f, 1.2f);
       }
-      case GROUND -> {
-        matrices.translate(0.5, 0.2, 0.5);
-        matrices.scale(0.8f, 0.8f, 0.8f);
-      }
+      case GROUND -> ItemRenderTransforms.applyGroundPose(matrices, 0.5, 0.2, 0.5, 0.8f);
       case FIXED -> {
-        matrices.translate(0.5, 0.2, 0.5);
-        matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_X.rotationDegrees(30));
-        matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_Y.rotationDegrees(45));
-        matrices.scale(1.0f, 1.0f, 1.0f);
+        ItemRenderTransforms.applyDisplayPose(matrices, 0.5, 0.2, 0.5, 30.0f, 45.0f, 1.0f);
       }
       case THIRD_PERSON_LEFT_HAND, THIRD_PERSON_RIGHT_HAND -> {
-        matrices.translate(0.5, 0.35, 0.5);
-        matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_X.rotationDegrees(75));
-        matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_Y.rotationDegrees(45));
-        matrices.scale(0.8f, 0.8f, 0.8f);
+        ItemRenderTransforms.applyDisplayPose(matrices, 0.5, 0.35, 0.5, 75.0f, 45.0f, 0.8f);
       }
       case FIRST_PERSON_LEFT_HAND -> {
-        matrices.translate(0.6, 0.25, 0.3);
-        matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_X.rotationDegrees(10));
-        matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_Y.rotationDegrees(-80));
-        matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_Z.rotationDegrees(-10));
-        matrices.scale(0.6f, 0.6f, 0.6f);
+        ItemRenderTransforms.applyFirstPersonPose(
+            matrices, 0.6, 0.25, 0.3, 10.0f, -80.0f, -10.0f, 0.6f);
       }
       case FIRST_PERSON_RIGHT_HAND -> {
-        matrices.translate(0.4, 0.25, 0.3);
-        matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_X.rotationDegrees(10));
-        matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_Y.rotationDegrees(80));
-        matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_Z.rotationDegrees(10));
-        matrices.scale(0.6f, 0.6f, 0.6f);
+        ItemRenderTransforms.applyFirstPersonPose(
+            matrices, 0.4, 0.25, 0.3, 10.0f, 80.0f, 10.0f, 0.6f);
       }
-      default -> {
-        matrices.translate(0.5, 0.2, 0.5);
-        matrices.scale(0.8f, 0.8f, 0.8f);
-      }
+      default -> ItemRenderTransforms.applyGroundPose(matrices, 0.5, 0.2, 0.5, 0.8f);
     }
 
     BakedGeoModel bakedModel =

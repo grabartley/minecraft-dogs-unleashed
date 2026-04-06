@@ -9,7 +9,13 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class FetchRetrieveGoal extends Goal {
-
+  private static final double TARGET_CENTER_OFFSET = 0.5;
+  private static final double RETRIEVE_SPEED = 1.3;
+  private static final float LOOK_YAW = 10.0f;
+  private static final float LOOK_PITCH = 10.0f;
+  private static final int SEARCH_MIN_DY = -10;
+  private static final int SEARCH_MAX_DY = 2;
+  private static final int SEARCH_HORIZONTAL_RADIUS = 2;
   private static final double CLOSE_ENOUGH_DISTANCE = 2.0;
 
   private final UnleashedDogEntity dog;
@@ -71,9 +77,9 @@ public class FetchRetrieveGoal extends Goal {
       return null;
     }
     World world = this.dog.getWorld();
-    for (int dy = -10; dy <= 2; dy++) {
-      for (int dx = -2; dx <= 2; dx++) {
-        for (int dz = -2; dz <= 2; dz++) {
+    for (int dy = SEARCH_MIN_DY; dy <= SEARCH_MAX_DY; dy++) {
+      for (int dx = -SEARCH_HORIZONTAL_RADIUS; dx <= SEARCH_HORIZONTAL_RADIUS; dx++) {
+        for (int dz = -SEARCH_HORIZONTAL_RADIUS; dz <= SEARCH_HORIZONTAL_RADIUS; dz++) {
           BlockPos check = origin.add(dx, dy, dz);
           if (world.getBlockState(check).isOf(ModBlocks.TENNIS_BALL)) {
             return check;
@@ -90,10 +96,10 @@ public class FetchRetrieveGoal extends Goal {
       this.dog
           .getNavigation()
           .startMovingTo(
-              this.targetBallPos.getX() + 0.5,
+              this.targetBallPos.getX() + TARGET_CENTER_OFFSET,
               this.targetBallPos.getY(),
-              this.targetBallPos.getZ() + 0.5,
-              1.3);
+              this.targetBallPos.getZ() + TARGET_CENTER_OFFSET,
+              RETRIEVE_SPEED);
     }
   }
 
@@ -106,11 +112,11 @@ public class FetchRetrieveGoal extends Goal {
     this.dog
         .getLookControl()
         .lookAt(
-            this.targetBallPos.getX() + 0.5,
-            this.targetBallPos.getY() + 0.5,
-            this.targetBallPos.getZ() + 0.5,
-            10.0f,
-            10.0f);
+            this.targetBallPos.getX() + TARGET_CENTER_OFFSET,
+            this.targetBallPos.getY() + TARGET_CENTER_OFFSET,
+            this.targetBallPos.getZ() + TARGET_CENTER_OFFSET,
+            LOOK_YAW,
+            LOOK_PITCH);
 
     double distToBall = this.dog.getBlockPos().getSquaredDistance(this.targetBallPos);
 
@@ -124,10 +130,10 @@ public class FetchRetrieveGoal extends Goal {
       this.dog
           .getNavigation()
           .startMovingTo(
-              this.targetBallPos.getX() + 0.5,
+              this.targetBallPos.getX() + TARGET_CENTER_OFFSET,
               this.targetBallPos.getY(),
-              this.targetBallPos.getZ() + 0.5,
-              1.3);
+              this.targetBallPos.getZ() + TARGET_CENTER_OFFSET,
+              RETRIEVE_SPEED);
     }
   }
 
