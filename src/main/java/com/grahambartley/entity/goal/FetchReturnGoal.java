@@ -61,7 +61,7 @@ public class FetchReturnGoal extends Goal {
           Text.translatable("message.dogs-unleashed.play_ball_returned", dogName), true);
 
       this.dog.setCarryingBall(false);
-      this.dog.endPlayMode();
+      this.dog.setActiveBallBlockPos(null);
     }
   }
 

@@ -361,6 +361,10 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     return ACTIVE_PLAY_SESSIONS.containsKey(playerUuid);
   }
 
+  public static boolean isAnyDogInPlayMode() {
+    return !ACTIVE_PLAY_SESSIONS.isEmpty();
+  }
+
   private void startShaking() {
     if (!this.isShaking() && !this.isInSittingPose()) {
       this.dataTracker.set(SHAKE_PROGRESS, SHAKE_DURATION_TICKS);
