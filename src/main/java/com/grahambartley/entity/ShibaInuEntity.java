@@ -8,8 +8,6 @@ import com.grahambartley.entity.variant.ShibaInuCoat;
 import com.grahambartley.entity.variant.UnleashedDogCoat;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -27,13 +25,6 @@ public class ShibaInuEntity extends UnleashedDogEntity {
 
   private static final TrackedData<Integer> COAT_VARIANT =
       DataTracker.registerData(ShibaInuEntity.class, TrackedDataHandlerRegistry.INTEGER);
-
-  public static DefaultAttributeContainer.Builder createAttributes() {
-    return MobEntity.createMobAttributes()
-        .add(EntityAttributes.GENERIC_MAX_HEALTH, 18.0)
-        .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.32)
-        .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 3.5);
-  }
 
   public ShibaInuEntity(EntityType<? extends UnleashedDogEntity> entityType, World world) {
     super(entityType, world);

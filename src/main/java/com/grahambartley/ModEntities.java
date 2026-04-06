@@ -19,39 +19,19 @@ public class ModEntities {
   private static final float TENNIS_BALL_PROJECTILE_SIZE = 0.25f;
 
   public static final EntityType<HuskyEntity> HUSKY =
-      registerDog(
-          UnleashedDogBreed.HUSKY,
-          HuskyEntity::new,
-          ModConstants.HUSKY_WIDTH,
-          ModConstants.HUSKY_HEIGHT);
+      registerDog(UnleashedDogBreed.HUSKY, HuskyEntity::new);
 
   public static final EntityType<DachshundEntity> DACHSHUND =
-      registerDog(
-          UnleashedDogBreed.DACHSHUND,
-          DachshundEntity::new,
-          ModConstants.DACHSHUND_WIDTH,
-          ModConstants.DACHSHUND_HEIGHT);
+      registerDog(UnleashedDogBreed.DACHSHUND, DachshundEntity::new);
 
   public static final EntityType<BeagleEntity> BEAGLE =
-      registerDog(
-          UnleashedDogBreed.BEAGLE,
-          BeagleEntity::new,
-          ModConstants.BEAGLE_WIDTH,
-          ModConstants.BEAGLE_HEIGHT);
+      registerDog(UnleashedDogBreed.BEAGLE, BeagleEntity::new);
 
   public static final EntityType<GoldenRetrieverEntity> GOLDEN_RETRIEVER =
-      registerDog(
-          UnleashedDogBreed.GOLDEN_RETRIEVER,
-          GoldenRetrieverEntity::new,
-          ModConstants.GOLDEN_RETRIEVER_WIDTH,
-          ModConstants.GOLDEN_RETRIEVER_HEIGHT);
+      registerDog(UnleashedDogBreed.GOLDEN_RETRIEVER, GoldenRetrieverEntity::new);
 
   public static final EntityType<ShibaInuEntity> SHIBA_INU =
-      registerDog(
-          UnleashedDogBreed.SHIBA_INU,
-          ShibaInuEntity::new,
-          ModConstants.SHIBA_INU_WIDTH,
-          ModConstants.SHIBA_INU_HEIGHT);
+      registerDog(UnleashedDogBreed.SHIBA_INU, ShibaInuEntity::new);
 
   public static final EntityType<TennisBallProjectileEntity> TENNIS_BALL_PROJECTILE =
       Registry.register(
@@ -63,16 +43,13 @@ public class ModEntities {
               .build(Identifier.of(DogsUnleashed.MOD_ID, "tennis_ball_projectile").toString()));
 
   private static <T extends UnleashedDogEntity> EntityType<T> registerDog(
-      final UnleashedDogBreed breed,
-      final EntityType.EntityFactory<T> factory,
-      final float width,
-      final float height) {
+      final UnleashedDogBreed breed, final EntityType.EntityFactory<T> factory) {
     final Identifier id = Identifier.of(DogsUnleashed.MOD_ID, breed.serializedId());
     return Registry.register(
         Registries.ENTITY_TYPE,
         id,
         EntityType.Builder.create(factory, SpawnGroup.CREATURE)
-            .dimensions(width, height)
+            .dimensions(breed.dimensions().width(), breed.dimensions().height())
             .build(id.toString()));
   }
 
@@ -88,11 +65,13 @@ public class ModEntities {
   }
 
   public static void initialize() {
-    FabricDefaultAttributeRegistry.register(HUSKY, HuskyEntity.createAttributes());
-    FabricDefaultAttributeRegistry.register(DACHSHUND, DachshundEntity.createAttributes());
-    FabricDefaultAttributeRegistry.register(BEAGLE, BeagleEntity.createAttributes());
+    FabricDefaultAttributeRegistry.register(HUSKY, UnleashedDogBreed.HUSKY.createAttributes());
     FabricDefaultAttributeRegistry.register(
-        GOLDEN_RETRIEVER, GoldenRetrieverEntity.createAttributes());
-    FabricDefaultAttributeRegistry.register(SHIBA_INU, ShibaInuEntity.createAttributes());
+        DACHSHUND, UnleashedDogBreed.DACHSHUND.createAttributes());
+    FabricDefaultAttributeRegistry.register(BEAGLE, UnleashedDogBreed.BEAGLE.createAttributes());
+    FabricDefaultAttributeRegistry.register(
+        GOLDEN_RETRIEVER, UnleashedDogBreed.GOLDEN_RETRIEVER.createAttributes());
+    FabricDefaultAttributeRegistry.register(
+        SHIBA_INU, UnleashedDogBreed.SHIBA_INU.createAttributes());
   }
 }

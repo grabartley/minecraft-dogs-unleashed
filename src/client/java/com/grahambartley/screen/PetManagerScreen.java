@@ -11,7 +11,6 @@ import com.grahambartley.network.ModNetworking;
 import com.grahambartley.network.ModNetworkingClient;
 import com.grahambartley.pet.PetAliveFilter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +31,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 public class PetManagerScreen extends Screen {
 
@@ -48,18 +48,11 @@ public class PetManagerScreen extends Screen {
   private static final float GREYSCALE_COLOR = 0.4f;
   private static final float FULL_COLOR = 1.0f;
 
-  private static final List<UnleashedDogBreed> BREED_OPTIONS =
-      Arrays.asList(
-          null,
-          UnleashedDogBreed.HUSKY,
-          UnleashedDogBreed.DACHSHUND,
-          UnleashedDogBreed.BEAGLE,
-          UnleashedDogBreed.GOLDEN_RETRIEVER,
-          UnleashedDogBreed.SHIBA_INU);
+  private static final List<BreedFilterOption> BREED_OPTIONS = List.of(BreedFilterOption.values());
 
   private List<ModNetworking.PetSyncData> pets = new ArrayList<>();
   private TextFieldWidget searchField;
-  private CyclingButtonWidget<UnleashedDogBreed> breedFilterButton;
+  private CyclingButtonWidget<BreedFilterOption> breedFilterButton;
   private CyclingButtonWidget<PetAliveFilter> aliveFilterButton;
   private UnleashedDogBreed currentBreedFilter = null;
   private PetAliveFilter currentAliveFilter = PetAliveFilter.ALIVE;
@@ -91,13 +84,13 @@ public class PetManagerScreen extends Screen {
 
     breedFilterButton =
         addDrawableChild(
-            CyclingButtonWidget.<UnleashedDogBreed>builder(
+            CyclingButtonWidget.<BreedFilterOption>builder(
                     breed ->
-                        breed == null
+                        breed.isAllBreeds()
                             ? Text.translatable("screen.dogs-unleashed.pet_manager.all_breeds")
-                            : Text.translatable(breed.translationKey()))
+                            : Text.translatable(breed.breed().translationKey()))
                 .values(BREED_OPTIONS)
-                .initially(currentBreedFilter)
+                .initially(BreedFilterOption.fromBreed(currentBreedFilter))
                 .build(
                     centerX - 140,
                     65,
@@ -105,7 +98,7 @@ public class PetManagerScreen extends Screen {
                     20,
                     Text.translatable("screen.dogs-unleashed.pet_manager.breed_filter"),
                     (button, value) -> {
-                      currentBreedFilter = value;
+                      currentBreedFilter = value.breed();
                       refreshPetsList();
                     }));
 
@@ -185,7 +178,7 @@ public class PetManagerScreen extends Screen {
     currentBreedFilter = breedFilter;
     currentAliveFilter = aliveFilter;
     if (breedFilterButton != null) {
-      breedFilterButton.setValue(currentBreedFilter);
+      breedFilterButton.setValue(BreedFilterOption.fromBreed(currentBreedFilter));
     }
     if (aliveFilterButton != null) {
       aliveFilterButton.setValue(currentAliveFilter);
@@ -501,5 +494,42 @@ public class PetManagerScreen extends Screen {
   @Override
   public boolean shouldPause() {
     return false;
+  }
+
+  private enum BreedFilterOption {
+    ALL(null),
+    HUSKY(UnleashedDogBreed.HUSKY),
+    DACHSHUND(UnleashedDogBreed.DACHSHUND),
+    BEAGLE(UnleashedDogBreed.BEAGLE),
+    GOLDEN_RETRIEVER(UnleashedDogBreed.GOLDEN_RETRIEVER),
+    SHIBA_INU(UnleashedDogBreed.SHIBA_INU);
+
+    private final UnleashedDogBreed breed;
+
+    BreedFilterOption(final @Nullable UnleashedDogBreed breed) {
+      this.breed = breed;
+    }
+
+    public @Nullable UnleashedDogBreed breed() {
+      return this.breed;
+    }
+
+    public boolean isAllBreeds() {
+      return this.breed == null;
+    }
+
+    public static BreedFilterOption fromBreed(final @Nullable UnleashedDogBreed breed) {
+      if (breed == null) {
+        return ALL;
+      }
+
+      return switch (breed) {
+        case HUSKY -> HUSKY;
+        case DACHSHUND -> DACHSHUND;
+        case BEAGLE -> BEAGLE;
+        case GOLDEN_RETRIEVER -> GOLDEN_RETRIEVER;
+        case SHIBA_INU -> SHIBA_INU;
+      };
+    }
   }
 }

@@ -15,8 +15,6 @@ import com.grahambartley.entity.variant.HuskyEyeColor;
 import com.grahambartley.entity.variant.UnleashedDogCoat;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -47,13 +45,6 @@ public class HuskyEntity extends UnleashedDogEntity {
 
   private int howlCooldownTicks = 0;
   private int howlActiveTicks = 0;
-
-  public static DefaultAttributeContainer.Builder createAttributes() {
-    return MobEntity.createMobAttributes()
-        .add(EntityAttributes.GENERIC_MAX_HEALTH, 25.0)
-        .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.30)
-        .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 5.0);
-  }
 
   public HuskyEntity(EntityType<? extends UnleashedDogEntity> entityType, World world) {
     super(entityType, world);
