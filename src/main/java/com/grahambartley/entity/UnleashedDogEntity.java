@@ -365,6 +365,27 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     return !ACTIVE_PLAY_SESSIONS.isEmpty();
   }
 
+  public boolean isActivelyFetchingBall() {
+    if (!this.isInPlayMode()) {
+      return false;
+    }
+    if (this.isCarryingBall() || this.activeBallBlockPos != null) {
+      return true;
+    }
+    if (this.playPartnerPlayerUuid == null) {
+      return false;
+    }
+
+    return !this.getWorld()
+        .getEntitiesByClass(
+            TennisBallProjectileEntity.class,
+            this.getBoundingBox().expand(128, 64, 128),
+            ball ->
+                ball.getOwner() instanceof PlayerEntity player
+                    && this.playPartnerPlayerUuid.equals(player.getUuid()))
+        .isEmpty();
+  }
+
   private void startShaking() {
     if (!this.isShaking() && !this.isInSittingPose()) {
       this.dataTracker.set(SHAKE_PROGRESS, SHAKE_DURATION_TICKS);

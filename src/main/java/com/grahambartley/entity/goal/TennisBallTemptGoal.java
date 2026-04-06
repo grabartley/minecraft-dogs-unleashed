@@ -16,7 +16,11 @@ public class TennisBallTemptGoal extends TemptGoal {
 
   @Override
   public boolean canStart() {
-    if (this.dog.isInPlayMode() || UnleashedDogEntity.isAnyDogInPlayMode()) {
+    if (this.dog.isInPlayMode()) {
+      return !this.dog.isActivelyFetchingBall() && super.canStart();
+    }
+
+    if (UnleashedDogEntity.isAnyDogInPlayMode()) {
       return false;
     }
     if (!super.canStart()) {
@@ -28,7 +32,11 @@ public class TennisBallTemptGoal extends TemptGoal {
 
   @Override
   public boolean shouldContinue() {
-    if (this.dog.isInPlayMode() || UnleashedDogEntity.isAnyDogInPlayMode()) {
+    if (this.dog.isInPlayMode()) {
+      return !this.dog.isActivelyFetchingBall() && super.shouldContinue();
+    }
+
+    if (UnleashedDogEntity.isAnyDogInPlayMode()) {
       return false;
     }
 
