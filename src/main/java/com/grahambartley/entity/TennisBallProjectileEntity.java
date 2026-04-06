@@ -26,6 +26,7 @@ import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class TennisBallProjectileEntity extends ThrownEntity implements GeoEntity {
+  private static final int NOTIFY_PLAY_RANGE = 128;
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -84,7 +85,7 @@ public class TennisBallProjectileEntity extends ThrownEntity implements GeoEntit
         this.getWorld()
             .getEntitiesByClass(
                 UnleashedDogEntity.class,
-                this.getBoundingBox().expand(128),
+                this.getBoundingBox().expand(NOTIFY_PLAY_RANGE),
                 dog -> dog.isInPlayMode() && playerUuid.equals(dog.getPlayPartnerPlayerUuid()));
     for (UnleashedDogEntity dog : playingDogs) {
       dog.setActiveBallBlockPos(ballPos);
@@ -101,7 +102,7 @@ public class TennisBallProjectileEntity extends ThrownEntity implements GeoEntit
         this.getWorld()
             .getEntitiesByClass(
                 UnleashedDogEntity.class,
-                this.getBoundingBox().expand(128),
+                this.getBoundingBox().expand(NOTIFY_PLAY_RANGE),
                 dog -> dog.isInPlayMode() && playerUuid.equals(dog.getPlayPartnerPlayerUuid()));
     for (UnleashedDogEntity dog : playingDogs) {
       dog.endPlayMode();
@@ -112,7 +113,10 @@ public class TennisBallProjectileEntity extends ThrownEntity implements GeoEntit
   public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
     controllers.add(
         new AnimationController<>(
-            this, "fly", 0, state -> state.setAndContinue(RawAnimation.begin().thenLoop("fly"))));
+            this,
+            DogAnimationKeys.FLY,
+            0,
+            state -> state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.FLY))));
   }
 
   @Override

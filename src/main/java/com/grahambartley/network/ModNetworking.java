@@ -1,7 +1,9 @@
 package com.grahambartley.network;
 
 import com.grahambartley.DogsUnleashed;
+import com.grahambartley.entity.UnleashedDogBreed;
 import com.grahambartley.entity.UnleashedDogEntity;
+import com.grahambartley.pet.PetAliveFilter;
 import com.grahambartley.pet.PetData;
 import com.grahambartley.pet.PetManager;
 import com.grahambartley.pet.PetManagerPreferencesState;
@@ -69,26 +71,33 @@ public final class ModNetworking {
   }
 
   public record RequestPetsPayload(
-      String breedFilter, boolean filterAlive, boolean aliveValue, String searchQuery)
+      UnleashedDogBreed breedFilter, PetAliveFilter aliveFilter, String searchQuery)
       implements CustomPayload {
 
     public static final CustomPayload.Id<RequestPetsPayload> ID =
         new CustomPayload.Id<>(REQUEST_PETS_ID);
     public static final PacketCodec<RegistryByteBuf, RequestPetsPayload> CODEC =
-        PacketCodec.tuple(
-            PacketCodecs.STRING,
-            RequestPetsPayload::breedFilter,
-            PacketCodecs.BOOL,
-            RequestPetsPayload::filterAlive,
-            PacketCodecs.BOOL,
-            RequestPetsPayload::aliveValue,
-            PacketCodecs.STRING,
-            RequestPetsPayload::searchQuery,
-            RequestPetsPayload::new);
+        PacketCodec.of(RequestPetsPayload::write, RequestPetsPayload::read);
 
     @Override
     public CustomPayload.Id<? extends CustomPayload> getId() {
       return ID;
+    }
+
+    private void write(final RegistryByteBuf buf) {
+      buf.writeBoolean(this.breedFilter != null);
+      if (this.breedFilter != null) {
+        buf.writeString(this.breedFilter.serializedId());
+      }
+      buf.writeString(this.aliveFilter.serializedName());
+      buf.writeString(this.searchQuery);
+    }
+
+    private static RequestPetsPayload read(final RegistryByteBuf buf) {
+      final UnleashedDogBreed breedFilter =
+          buf.readBoolean() ? UnleashedDogBreed.fromSerializedId(buf.readString()) : null;
+      return new RequestPetsPayload(
+          breedFilter, PetAliveFilter.fromSerializedName(buf.readString()), buf.readString());
     }
   }
 
@@ -121,29 +130,47 @@ public final class ModNetworking {
   }
 
   public record SyncPetManagerStatePayload(
-      String breedFilter, String aliveFilter, List<PetSyncData> pets) implements CustomPayload {
+      UnleashedDogBreed breedFilter, PetAliveFilter aliveFilter, List<PetSyncData> pets)
+      implements CustomPayload {
 
     public static final CustomPayload.Id<SyncPetManagerStatePayload> ID =
         new CustomPayload.Id<>(SYNC_PET_MANAGER_STATE_ID);
     public static final PacketCodec<RegistryByteBuf, SyncPetManagerStatePayload> CODEC =
-        PacketCodec.tuple(
-            PacketCodecs.STRING,
-            SyncPetManagerStatePayload::breedFilter,
-            PacketCodecs.STRING,
-            SyncPetManagerStatePayload::aliveFilter,
-            PetSyncData.CODEC.collect(PacketCodecs.toList()),
-            SyncPetManagerStatePayload::pets,
-            SyncPetManagerStatePayload::new);
+        PacketCodec.of(SyncPetManagerStatePayload::write, SyncPetManagerStatePayload::read);
 
     @Override
     public CustomPayload.Id<? extends CustomPayload> getId() {
       return ID;
     }
+
+    private void write(final RegistryByteBuf buf) {
+      buf.writeBoolean(this.breedFilter != null);
+      if (this.breedFilter != null) {
+        buf.writeString(this.breedFilter.serializedId());
+      }
+      buf.writeString(this.aliveFilter.serializedName());
+      buf.writeInt(this.pets.size());
+      for (final PetSyncData pet : this.pets) {
+        pet.write(buf);
+      }
+    }
+
+    private static SyncPetManagerStatePayload read(final RegistryByteBuf buf) {
+      final UnleashedDogBreed breedFilter =
+          buf.readBoolean() ? UnleashedDogBreed.fromSerializedId(buf.readString()) : null;
+      final PetAliveFilter aliveFilter = PetAliveFilter.fromSerializedName(buf.readString());
+      final int petCount = buf.readInt();
+      final List<PetSyncData> pets = new java.util.ArrayList<>(petCount);
+      for (int i = 0; i < petCount; i++) {
+        pets.add(PetSyncData.read(buf));
+      }
+      return new SyncPetManagerStatePayload(breedFilter, aliveFilter, pets);
+    }
   }
 
   public record PetSyncData(
       String petId,
-      String breedType,
+      UnleashedDogBreed breed,
       String name,
       float health,
       float maxHealth,
@@ -160,10 +187,10 @@ public final class ModNetworking {
     public static final PacketCodec<RegistryByteBuf, PetSyncData> CODEC =
         PacketCodec.of(PetSyncData::write, PetSyncData::read);
 
-    public static PetSyncData from(PetData petData) {
+    public static PetSyncData from(final PetData petData) {
       return new PetSyncData(
           petData.getPetId().toString(),
-          petData.getBreedType(),
+          petData.getBreed(),
           petData.getName(),
           petData.getHealth(),
           petData.getMaxHealth(),
@@ -178,27 +205,27 @@ public final class ModNetworking {
           petData.getHuskyEyeVariant());
     }
 
-    private void write(RegistryByteBuf buf) {
-      buf.writeString(petId);
-      buf.writeString(breedType);
-      buf.writeString(name);
-      buf.writeFloat(health);
-      buf.writeFloat(maxHealth);
-      buf.writeInt(posX);
-      buf.writeInt(posY);
-      buf.writeInt(posZ);
-      buf.writeString(dimension);
-      buf.writeBoolean(alive);
-      buf.writeBoolean(baby);
-      buf.writeInt(collarColor);
-      buf.writeInt(coatVariant);
-      buf.writeInt(huskyEyeVariant);
+    private void write(final RegistryByteBuf buf) {
+      buf.writeString(this.petId);
+      buf.writeString(this.breed.serializedId());
+      buf.writeString(this.name);
+      buf.writeFloat(this.health);
+      buf.writeFloat(this.maxHealth);
+      buf.writeInt(this.posX);
+      buf.writeInt(this.posY);
+      buf.writeInt(this.posZ);
+      buf.writeString(this.dimension);
+      buf.writeBoolean(this.alive);
+      buf.writeBoolean(this.baby);
+      buf.writeInt(this.collarColor);
+      buf.writeInt(this.coatVariant);
+      buf.writeInt(this.huskyEyeVariant);
     }
 
-    private static PetSyncData read(RegistryByteBuf buf) {
+    private static PetSyncData read(final RegistryByteBuf buf) {
       return new PetSyncData(
           buf.readString(),
-          buf.readString(),
+          UnleashedDogBreed.fromSerializedId(buf.readString()),
           buf.readString(),
           buf.readFloat(),
           buf.readFloat(),
@@ -214,24 +241,30 @@ public final class ModNetworking {
     }
   }
 
-  public record OpenNamingScreenPayload(UUID petId, String breedType, String suggestedName)
+  public record OpenNamingScreenPayload(UUID petId, UnleashedDogBreed breed, String suggestedName)
       implements CustomPayload {
 
     public static final CustomPayload.Id<OpenNamingScreenPayload> ID =
         new CustomPayload.Id<>(OPEN_NAMING_SCREEN_ID);
     public static final PacketCodec<RegistryByteBuf, OpenNamingScreenPayload> CODEC =
-        PacketCodec.tuple(
-            PacketCodecs.STRING.xmap(UUID::fromString, UUID::toString),
-            OpenNamingScreenPayload::petId,
-            PacketCodecs.STRING,
-            OpenNamingScreenPayload::breedType,
-            PacketCodecs.STRING,
-            OpenNamingScreenPayload::suggestedName,
-            OpenNamingScreenPayload::new);
+        PacketCodec.of(OpenNamingScreenPayload::write, OpenNamingScreenPayload::read);
 
     @Override
     public CustomPayload.Id<? extends CustomPayload> getId() {
       return ID;
+    }
+
+    private void write(final RegistryByteBuf buf) {
+      buf.writeString(this.petId.toString());
+      buf.writeString(this.breed.serializedId());
+      buf.writeString(this.suggestedName);
+    }
+
+    private static OpenNamingScreenPayload read(final RegistryByteBuf buf) {
+      return new OpenNamingScreenPayload(
+          UUID.fromString(buf.readString()),
+          UnleashedDogBreed.fromSerializedId(buf.readString()),
+          buf.readString());
     }
   }
 
@@ -260,7 +293,7 @@ public final class ModNetworking {
   }
 
   private static void handleSetPetName(
-      SetPetNamePayload payload, ServerPlayNetworking.Context context) {
+      final SetPetNamePayload payload, final ServerPlayNetworking.Context context) {
     final ServerPlayerEntity player = context.player();
     final ServerWorld world = player.getServerWorld();
 
@@ -284,7 +317,7 @@ public final class ModNetworking {
   }
 
   private static void handleSummonPet(
-      SummonPetPayload payload, ServerPlayNetworking.Context context) {
+      final SummonPetPayload payload, final ServerPlayNetworking.Context context) {
     final ServerPlayerEntity player = context.player();
     final ServerWorld world = player.getServerWorld();
 
@@ -316,7 +349,7 @@ public final class ModNetworking {
   }
 
   private static void handleRequestPets(
-      RequestPetsPayload payload, ServerPlayNetworking.Context context) {
+      final RequestPetsPayload payload, final ServerPlayNetworking.Context context) {
     final ServerPlayerEntity player = context.player();
     final ServerWorld world = player.getServerWorld();
 
@@ -327,24 +360,22 @@ public final class ModNetworking {
               final PetManager petManager = PetManager.get(world.getServer());
               final PetManagerPreferencesState preferencesState =
                   PetManagerPreferencesState.get(world.getServer());
-              final String breedFilter =
-                  payload.breedFilter().isEmpty() ? null : payload.breedFilter();
-              final Boolean aliveFilter = payload.filterAlive() ? payload.aliveValue() : null;
               preferencesState.setPreferences(
-                  player.getUuid(),
-                  payload.breedFilter(),
-                  aliveFilterToPreferenceValue(aliveFilter));
+                  player.getUuid(), payload.breedFilter(), payload.aliveFilter());
 
               final List<PetData> pets =
                   petManager.getPetsByOwnerFiltered(
-                      player.getUuid(), breedFilter, aliveFilter, payload.searchQuery());
+                      player.getUuid(),
+                      payload.breedFilter(),
+                      payload.aliveFilter(),
+                      payload.searchQuery());
               final List<PetSyncData> syncData = syncPetData(world, petManager, pets);
               ServerPlayNetworking.send(player, new SyncPetsPayload(syncData));
             });
   }
 
   private static void handleRequestPetManagerState(
-      RequestPetManagerStatePayload payload, ServerPlayNetworking.Context context) {
+      final RequestPetManagerStatePayload payload, final ServerPlayNetworking.Context context) {
     final ServerPlayerEntity player = context.player();
     final ServerWorld world = player.getServerWorld();
 
@@ -356,33 +387,20 @@ public final class ModNetworking {
                   PetManagerPreferencesState.get(world.getServer());
               final PetManagerPreferencesState.PetManagerPreferences preferences =
                   preferencesState.getPreferences(player.getUuid());
-              final String breedFilter = preferences.breedFilter();
-              final Boolean aliveFilter = preferenceValueToAliveFilter(preferences.aliveFilter());
               final List<PetData> pets =
                   PetManager.get(world.getServer())
-                      .getPetsByOwnerFiltered(player.getUuid(), breedFilter, aliveFilter, "");
+                      .getPetsByOwnerFiltered(
+                          player.getUuid(),
+                          preferences.breedFilter(),
+                          preferences.aliveFilter(),
+                          "");
               final List<PetSyncData> syncData =
                   syncPetData(world, PetManager.get(world.getServer()), pets);
               ServerPlayNetworking.send(
                   player,
                   new SyncPetManagerStatePayload(
-                      breedFilter, aliveFilterToPreferenceValue(aliveFilter), syncData));
+                      preferences.breedFilter(), preferences.aliveFilter(), syncData));
             });
-  }
-
-  private static String aliveFilterToPreferenceValue(final Boolean aliveFilter) {
-    if (aliveFilter == null) {
-      return "ALL";
-    }
-    return aliveFilter ? "ALIVE" : "DECEASED";
-  }
-
-  private static Boolean preferenceValueToAliveFilter(final String aliveFilter) {
-    return switch (aliveFilter) {
-      case "ALIVE" -> true;
-      case "DECEASED" -> false;
-      default -> null;
-    };
   }
 
   private static List<PetSyncData> syncPetData(
@@ -402,12 +420,15 @@ public final class ModNetworking {
     return pets.stream().map(PetSyncData::from).toList();
   }
 
-  private static Entity findEntityByUuid(ServerWorld world, UUID uuid) {
+  private static Entity findEntityByUuid(final ServerWorld world, final UUID uuid) {
     return world.getEntity(uuid);
   }
 
   public static void sendOpenNamingScreen(
-      ServerPlayerEntity player, UUID petId, String breedType, String suggestedName) {
-    ServerPlayNetworking.send(player, new OpenNamingScreenPayload(petId, breedType, suggestedName));
+      final ServerPlayerEntity player,
+      final UUID petId,
+      final UnleashedDogBreed breed,
+      final String suggestedName) {
+    ServerPlayNetworking.send(player, new OpenNamingScreenPayload(petId, breed, suggestedName));
   }
 }

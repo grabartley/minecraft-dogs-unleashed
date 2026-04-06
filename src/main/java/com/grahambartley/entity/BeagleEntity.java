@@ -36,8 +36,8 @@ public class BeagleEntity extends UnleashedDogEntity {
   }
 
   @Override
-  public String getBreedId() {
-    return "beagle";
+  public UnleashedDogBreed getBreed() {
+    return UnleashedDogBreed.BEAGLE;
   }
 
   @Override

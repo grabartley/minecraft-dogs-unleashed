@@ -8,6 +8,11 @@ import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.player.PlayerEntity;
 
 public class FetchChaseGoal extends Goal {
+  private static final int SEARCH_XZ_RANGE = 128;
+  private static final int SEARCH_Y_RANGE = 64;
+  private static final float LOOK_YAW = 10.0f;
+  private static final float LOOK_PITCH = 10.0f;
+  private static final double CHASE_SPEED = 1.5;
 
   private final UnleashedDogEntity dog;
   private TennisBallProjectileEntity targetBall;
@@ -52,7 +57,7 @@ public class FetchChaseGoal extends Goal {
             .getWorld()
             .getEntitiesByClass(
                 TennisBallProjectileEntity.class,
-                this.dog.getBoundingBox().expand(128, 64, 128),
+                this.dog.getBoundingBox().expand(SEARCH_XZ_RANGE, SEARCH_Y_RANGE, SEARCH_XZ_RANGE),
                 ball ->
                     ball.getOwner() instanceof PlayerEntity p && playerUuid.equals(p.getUuid()));
     if (balls.isEmpty()) {
@@ -67,10 +72,11 @@ public class FetchChaseGoal extends Goal {
     if (this.targetBall == null || this.targetBall.isRemoved()) {
       return;
     }
-    this.dog.getLookControl().lookAt(this.targetBall, 10.0f, 10.0f);
+    this.dog.getLookControl().lookAt(this.targetBall, LOOK_YAW, LOOK_PITCH);
     this.dog
         .getNavigation()
-        .startMovingTo(this.targetBall.getX(), this.targetBall.getY(), this.targetBall.getZ(), 1.5);
+        .startMovingTo(
+            this.targetBall.getX(), this.targetBall.getY(), this.targetBall.getZ(), CHASE_SPEED);
   }
 
   @Override

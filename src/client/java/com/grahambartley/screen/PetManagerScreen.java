@@ -2,12 +2,16 @@ package com.grahambartley.screen;
 
 import com.grahambartley.DogsUnleashed;
 import com.grahambartley.ModEntities;
+import com.grahambartley.ModNbtKeys;
 import com.grahambartley.entity.HuskyEntity;
+import com.grahambartley.entity.UnleashedDogBreed;
 import com.grahambartley.entity.UnleashedDogEntity;
 import com.grahambartley.entity.variant.HuskyEyeColor;
 import com.grahambartley.network.ModNetworking;
 import com.grahambartley.network.ModNetworkingClient;
+import com.grahambartley.pet.PetAliveFilter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,33 +26,43 @@ import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
+import net.minecraft.world.World;
 
 public class PetManagerScreen extends Screen {
-
-  private enum AliveFilter {
-    ALL,
-    ALIVE,
-    DECEASED
-  }
 
   private static final int ENTRY_HEIGHT = 60;
   private static final int ENTRY_WIDTH = 280;
   private static final int ENTRIES_PER_PAGE = 4;
   private static final int THUMBNAIL_SIZE = 48;
   private static final long SEARCH_DEBOUNCE_MS = 250L;
+  private static final int SEARCH_MAX_LENGTH = 32;
+  private static final int COLLAR_COLOR_COUNT = DyeColor.values().length;
+  private static final float LOW_HEALTH_COLOR_THRESHOLD = 0.5f;
+  private static final int PORTRAIT_SHADOW_SIZE = 22;
+  private static final float PORTRAIT_SCALE = 0.35f;
+  private static final float GREYSCALE_COLOR = 0.4f;
+  private static final float FULL_COLOR = 1.0f;
 
-  private static final List<String> BREED_OPTIONS =
-      List.of("", "husky", "dachshund", "beagle", "goldenretriever", "shibainu");
+  private static final List<UnleashedDogBreed> BREED_OPTIONS =
+      Arrays.asList(
+          null,
+          UnleashedDogBreed.HUSKY,
+          UnleashedDogBreed.DACHSHUND,
+          UnleashedDogBreed.BEAGLE,
+          UnleashedDogBreed.GOLDEN_RETRIEVER,
+          UnleashedDogBreed.SHIBA_INU);
 
   private List<ModNetworking.PetSyncData> pets = new ArrayList<>();
   private TextFieldWidget searchField;
-  private CyclingButtonWidget<String> breedFilterButton;
-  private CyclingButtonWidget<AliveFilter> aliveFilterButton;
-  private String currentBreedFilter = "";
-  private AliveFilter currentAliveFilter = AliveFilter.ALIVE;
+  private CyclingButtonWidget<UnleashedDogBreed> breedFilterButton;
+  private CyclingButtonWidget<PetAliveFilter> aliveFilterButton;
+  private UnleashedDogBreed currentBreedFilter = null;
+  private PetAliveFilter currentAliveFilter = PetAliveFilter.ALIVE;
   private int scrollOffset = 0;
   private ModNetworking.PetSyncData selectedPet = null;
   private final Map<UUID, UnleashedDogEntity> portraitEntities = new HashMap<>();
@@ -71,17 +85,17 @@ public class PetManagerScreen extends Screen {
             245,
             20,
             Text.translatable("screen.dogs-unleashed.pet_manager.search"));
-    searchField.setMaxLength(32);
+    searchField.setMaxLength(SEARCH_MAX_LENGTH);
     searchField.setChangedListener(this::onSearchChanged);
     addDrawableChild(searchField);
 
     breedFilterButton =
         addDrawableChild(
-            CyclingButtonWidget.<String>builder(
+            CyclingButtonWidget.<UnleashedDogBreed>builder(
                     breed ->
-                        breed.isEmpty()
+                        breed == null
                             ? Text.translatable("screen.dogs-unleashed.pet_manager.all_breeds")
-                            : Text.translatable("entity.dogs-unleashed." + breed))
+                            : Text.translatable(breed.translationKey()))
                 .values(BREED_OPTIONS)
                 .initially(currentBreedFilter)
                 .build(
@@ -97,7 +111,7 @@ public class PetManagerScreen extends Screen {
 
     aliveFilterButton =
         addDrawableChild(
-            CyclingButtonWidget.<AliveFilter>builder(
+            CyclingButtonWidget.<PetAliveFilter>builder(
                     filter ->
                         switch (filter) {
                           case ALL ->
@@ -107,7 +121,7 @@ public class PetManagerScreen extends Screen {
                           case DECEASED ->
                               Text.translatable("screen.dogs-unleashed.pet_manager.deceased_only");
                         })
-                .values(AliveFilter.values())
+                .values(PetAliveFilter.values())
                 .initially(currentAliveFilter)
                 .build(
                     centerX + 5,
@@ -144,7 +158,7 @@ public class PetManagerScreen extends Screen {
     ModNetworkingClient.sendRequestPetManagerState();
   }
 
-  private void onSearchChanged(String query) {
+  private void onSearchChanged(final String query) {
     nextSearchRefreshTime = System.currentTimeMillis() + SEARCH_DEBOUNCE_MS;
   }
 
@@ -162,15 +176,14 @@ public class PetManagerScreen extends Screen {
 
   private void refreshPetsList() {
     final String searchQuery = searchField != null ? searchField.getText() : "";
-    final boolean filterAlive = currentAliveFilter != AliveFilter.ALL;
-    final boolean aliveValue = currentAliveFilter == AliveFilter.ALIVE;
     lastRequestedSearchQuery = searchQuery;
-    ModNetworkingClient.sendRequestPets(currentBreedFilter, filterAlive, aliveValue, searchQuery);
+    ModNetworkingClient.sendRequestPets(currentBreedFilter, currentAliveFilter, searchQuery);
   }
 
-  public void applySavedFilters(String breedFilter, String aliveFilter) {
+  public void applySavedFilters(
+      final UnleashedDogBreed breedFilter, final PetAliveFilter aliveFilter) {
     currentBreedFilter = breedFilter;
-    currentAliveFilter = parseAliveFilter(aliveFilter);
+    currentAliveFilter = aliveFilter;
     if (breedFilterButton != null) {
       breedFilterButton.setValue(currentBreedFilter);
     }
@@ -179,24 +192,22 @@ public class PetManagerScreen extends Screen {
     }
   }
 
-  private static AliveFilter parseAliveFilter(final String aliveFilter) {
-    try {
-      return AliveFilter.valueOf(aliveFilter);
-    } catch (IllegalArgumentException exception) {
-      return AliveFilter.ALIVE;
-    }
-  }
-
   private static String formatDimensionName(final String dimensionId) {
-    return switch (dimensionId) {
-      case "minecraft:overworld" -> "Overworld";
-      case "minecraft:the_nether" -> "Nether";
-      case "minecraft:the_end" -> "The End";
-      default -> dimensionId;
-    };
+    final RegistryKey<World> worldKey =
+        RegistryKey.of(RegistryKeys.WORLD, Identifier.of(dimensionId));
+    if (worldKey == World.OVERWORLD) {
+      return "Overworld";
+    }
+    if (worldKey == World.NETHER) {
+      return "Nether";
+    }
+    if (worldKey == World.END) {
+      return "The End";
+    }
+    return dimensionId;
   }
 
-  public void updatePetsList(List<ModNetworking.PetSyncData> pets) {
+  public void updatePetsList(final List<ModNetworking.PetSyncData> pets) {
     clearPortraitEntities();
     this.pets = new ArrayList<>(pets);
     this.scrollOffset = 0;
@@ -227,19 +238,20 @@ public class PetManagerScreen extends Screen {
     portraitEntities.clear();
   }
 
-  private void scroll(int direction) {
+  private void scroll(final int direction) {
     final int maxOffset = Math.max(0, pets.size() - ENTRIES_PER_PAGE);
     scrollOffset = Math.max(0, Math.min(maxOffset, scrollOffset + direction));
   }
 
-  private void onSummon(ButtonWidget button) {
+  private void onSummon(final ButtonWidget button) {
     if (selectedPet != null && selectedPet.alive()) {
       ModNetworkingClient.sendSummonPet(UUID.fromString(selectedPet.petId()));
     }
   }
 
   @Override
-  public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+  public void render(
+      final DrawContext context, final int mouseX, final int mouseY, final float delta) {
     super.render(context, mouseX, mouseY, delta);
 
     final int centerX = this.width / 2;
@@ -265,17 +277,17 @@ public class PetManagerScreen extends Screen {
   }
 
   private void renderPetEntry(
-      DrawContext context,
-      ModNetworking.PetSyncData pet,
-      int x,
-      int y,
-      float mouseX,
-      float mouseY) {
+      final DrawContext context,
+      final ModNetworking.PetSyncData pet,
+      final int x,
+      final int y,
+      final float mouseX,
+      final float mouseY) {
     final boolean isSelected = selectedPet != null && selectedPet.petId().equals(pet.petId());
     final boolean isHovered =
         mouseX >= x && mouseX < x + ENTRY_WIDTH && mouseY >= y && mouseY < y + ENTRY_HEIGHT;
 
-    int bgColor;
+    final int bgColor;
     if (!pet.alive()) {
       bgColor = isSelected ? 0x80404040 : 0x60303030;
     } else if (isSelected) {
@@ -297,13 +309,13 @@ public class PetManagerScreen extends Screen {
     final int nameColor = pet.alive() ? 0xFFFFFF : 0x888888;
     context.drawText(this.textRenderer, pet.name(), textX, y + 5, nameColor, true);
 
-    final String breedName =
-        Text.translatable("entity.dogs-unleashed." + pet.breedType()).getString();
+    final String breedName = Text.translatable(pet.breed().translationKey()).getString();
     context.drawText(this.textRenderer, breedName, textX, y + 18, 0xAAAAAA, false);
 
     if (pet.alive()) {
       final String healthText = String.format("%.1f / %.1f ❤", pet.health(), pet.maxHealth());
-      final int healthColor = pet.health() > pet.maxHealth() * 0.5 ? 0x55FF55 : 0xFF5555;
+      final int healthColor =
+          pet.health() > pet.maxHealth() * LOW_HEALTH_COLOR_THRESHOLD ? 0x55FF55 : 0xFF5555;
       context.drawText(this.textRenderer, healthText, textX, y + 31, healthColor, false);
 
       final String locationText =
@@ -323,27 +335,20 @@ public class PetManagerScreen extends Screen {
   }
 
   private static EntityType<? extends UnleashedDogEntity> breedToEntityType(
-      final String breedType) {
-    return switch (breedType) {
-      case "husky" -> ModEntities.HUSKY;
-      case "dachshund" -> ModEntities.DACHSHUND;
-      case "beagle" -> ModEntities.BEAGLE;
-      case "goldenretriever" -> ModEntities.GOLDEN_RETRIEVER;
-      case "shibainu" -> ModEntities.SHIBA_INU;
-      default -> null;
-    };
+      final UnleashedDogBreed breed) {
+    return breed == null ? null : ModEntities.getDogEntityType(breed);
   }
 
   private static void applyPetAppearance(
       final UnleashedDogEntity dog, final ModNetworking.PetSyncData pet) {
     dog.setBaby(pet.baby());
-    dog.setCollarColor(DyeColor.byId(Math.floorMod(pet.collarColor(), 16)));
+    dog.setCollarColor(DyeColor.byId(Math.floorMod(pet.collarColor(), COLLAR_COLOR_COUNT)));
     final NbtCompound nbt = new NbtCompound();
     if (pet.coatVariant() >= 0) {
-      nbt.putInt("CoatVariant", pet.coatVariant());
+      nbt.putInt(ModNbtKeys.COAT_VARIANT, pet.coatVariant());
     }
     if (dog instanceof HuskyEntity) {
-      nbt.putInt("EyeColorVariant", pet.huskyEyeVariant());
+      nbt.putInt(ModNbtKeys.EYE_COLOR_VARIANT, pet.huskyEyeVariant());
     }
     dog.readCustomDataFromNbt(nbt);
   }
@@ -353,7 +358,7 @@ public class PetManagerScreen extends Screen {
     if (client.world == null) {
       return null;
     }
-    final EntityType<? extends UnleashedDogEntity> type = breedToEntityType(pet.breedType());
+    final EntityType<? extends UnleashedDogEntity> type = breedToEntityType(pet.breed());
     if (type == null) {
       return null;
     }
@@ -381,23 +386,23 @@ public class PetManagerScreen extends Screen {
   private static Identifier resolveFallbackTexture(
       final UnleashedDogEntity entity, final ModNetworking.PetSyncData pet) {
     if (pet.coatVariant() >= 0) {
-      String fileName;
-      final String petBreedType = pet.breedType();
-      if ("husky".equals(petBreedType)) {
+      final String fileName;
+      if (pet.breed() == UnleashedDogBreed.HUSKY) {
         final HuskyEyeColor eyes = HuskyEyeColor.fromOrdinal(pet.huskyEyeVariant());
         fileName =
-            petBreedType
+            pet.breed().serializedId()
                 + "_"
                 + entity.getCoatVariant().getTexturePrefix()
                 + "_"
                 + eyes.textureSuffix()
                 + ".png";
       } else {
-        fileName = petBreedType + "_" + entity.getCoatVariant().getTexturePrefix() + ".png";
+        fileName =
+            pet.breed().serializedId() + "_" + entity.getCoatVariant().getTexturePrefix() + ".png";
       }
       return Identifier.of(DogsUnleashed.MOD_ID, "textures/entity/" + fileName);
     }
-    return Identifier.of(DogsUnleashed.MOD_ID, "textures/entity/" + pet.breedType() + ".png");
+    return Identifier.of(DogsUnleashed.MOD_ID, pet.breed().defaultTexturePath());
   }
 
   private void drawTexturePortrait(
@@ -409,7 +414,7 @@ public class PetManagerScreen extends Screen {
       final boolean greyed) {
     final Identifier textureId = resolveFallbackTexture(entity, pet);
     if (greyed) {
-      context.setShaderColor(0.4f, 0.4f, 0.4f, 1.0f);
+      context.setShaderColor(GREYSCALE_COLOR, GREYSCALE_COLOR, GREYSCALE_COLOR, FULL_COLOR);
     }
     context.drawTexture(
         textureId,
@@ -422,7 +427,7 @@ public class PetManagerScreen extends Screen {
         THUMBNAIL_SIZE,
         THUMBNAIL_SIZE);
     if (greyed) {
-      context.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+      context.setShaderColor(FULL_COLOR, FULL_COLOR, FULL_COLOR, FULL_COLOR);
     }
   }
 
@@ -435,15 +440,15 @@ public class PetManagerScreen extends Screen {
       final float mouseY) {
     final UnleashedDogEntity entity = obtainPortraitEntity(pet);
     if (entity != null) {
-      context.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+      context.setShaderColor(FULL_COLOR, FULL_COLOR, FULL_COLOR, FULL_COLOR);
       InventoryScreen.drawEntity(
           context,
           imgX,
           imgY,
           imgX + THUMBNAIL_SIZE,
           imgY + THUMBNAIL_SIZE,
-          22,
-          0.35f,
+          PORTRAIT_SHADOW_SIZE,
+          PORTRAIT_SCALE,
           mouseX,
           mouseY,
           entity);
@@ -456,14 +461,14 @@ public class PetManagerScreen extends Screen {
             imgY + THUMBNAIL_SIZE,
             0x889A9A9A);
       }
-      context.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+      context.setShaderColor(FULL_COLOR, FULL_COLOR, FULL_COLOR, FULL_COLOR);
       return;
     }
     drawTexturePortrait(context, entity, pet, imgX, imgY, !pet.alive());
   }
 
   @Override
-  public boolean mouseClicked(double mouseX, double mouseY, int button) {
+  public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
     if (button == 0) {
       final int centerX = this.width / 2;
       final int listStartY = 95;
@@ -485,7 +490,10 @@ public class PetManagerScreen extends Screen {
 
   @Override
   public boolean mouseScrolled(
-      double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+      final double mouseX,
+      final double mouseY,
+      final double horizontalAmount,
+      final double verticalAmount) {
     scroll(verticalAmount > 0 ? -1 : 1);
     return true;
   }

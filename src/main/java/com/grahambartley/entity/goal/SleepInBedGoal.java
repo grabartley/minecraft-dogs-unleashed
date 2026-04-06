@@ -9,7 +9,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class SleepInBedGoal extends Goal {
-
+  private static final double BED_POSITION_OFFSET = 0.5;
+  private static final double MOVE_SPEED = 1.0;
   private static final double CLOSE_ENOUGH_DISTANCE = 2.0;
 
   private final UnleashedDogEntity dog;
@@ -67,10 +68,10 @@ public class SleepInBedGoal extends Goal {
       this.dog
           .getNavigation()
           .startMovingTo(
-              this.targetBedPos.getX() + 0.5,
+              this.targetBedPos.getX() + BED_POSITION_OFFSET,
               this.targetBedPos.getY(),
-              this.targetBedPos.getZ() + 0.5,
-              1.0);
+              this.targetBedPos.getZ() + BED_POSITION_OFFSET,
+              MOVE_SPEED);
     }
   }
 
@@ -99,10 +100,10 @@ public class SleepInBedGoal extends Goal {
       this.dog
           .getNavigation()
           .startMovingTo(
-              this.targetBedPos.getX() + 0.5,
+              this.targetBedPos.getX() + BED_POSITION_OFFSET,
               this.targetBedPos.getY(),
-              this.targetBedPos.getZ() + 0.5,
-              1.0);
+              this.targetBedPos.getZ() + BED_POSITION_OFFSET,
+              MOVE_SPEED);
     }
   }
 

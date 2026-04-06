@@ -9,6 +9,7 @@ import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
 
 public class DogCarryBallLayer<T extends UnleashedDogEntity> extends BlockAndItemGeoLayer<T> {
+  private static final String HEAD_BONE_NAME = "head";
 
   public DogCarryBallLayer(GeoRenderer<T> renderer) {
     super(renderer);
@@ -20,7 +21,7 @@ public class DogCarryBallLayer<T extends UnleashedDogEntity> extends BlockAndIte
       return null;
     }
 
-    return "head".equals(bone.getName()) ? new ItemStack(ModItems.TENNIS_BALL) : null;
+    return HEAD_BONE_NAME.equals(bone.getName()) ? new ItemStack(ModItems.TENNIS_BALL) : null;
   }
 
   @Override
@@ -40,26 +41,14 @@ public class DogCarryBallLayer<T extends UnleashedDogEntity> extends BlockAndIte
   }
 
   private static double getVerticalOffset(UnleashedDogEntity dog) {
-    return switch (dog.getBreedId()) {
-      case "goldenretriever", "husky" -> 0.08;
-      case "dachshund" -> -0.02;
-      default -> 0.03;
-    };
+    return dog.getBreed().carryBallVerticalOffset();
   }
 
   private static double getForwardOffset(UnleashedDogEntity dog) {
-    return switch (dog.getBreedId()) {
-      case "goldenretriever", "husky" -> -0.52;
-      case "dachshund" -> -0.34;
-      default -> -0.42;
-    };
+    return dog.getBreed().carryBallForwardOffset();
   }
 
   private static float getBallScale(UnleashedDogEntity dog) {
-    return switch (dog.getBreedId()) {
-      case "goldenretriever", "husky" -> 0.55f;
-      case "dachshund" -> 0.42f;
-      default -> 0.48f;
-    };
+    return dog.getBreed().carryBallScale();
   }
 }

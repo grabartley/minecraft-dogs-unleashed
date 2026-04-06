@@ -202,7 +202,7 @@ public class DogBedBlock extends HorizontalFacingBlock implements BlockEntityPro
         return petData.getName();
       }
     }
-    return Text.translatable("entity.dogs-unleashed." + dog.getBreedId()).getString();
+    return Text.translatable(dog.getBreed().translationKey()).getString();
   }
 
   @Override

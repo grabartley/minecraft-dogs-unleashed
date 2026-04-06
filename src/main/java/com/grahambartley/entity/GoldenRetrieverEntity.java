@@ -35,8 +35,8 @@ public class GoldenRetrieverEntity extends UnleashedDogEntity {
   }
 
   @Override
-  public String getBreedId() {
-    return "goldenretriever";
+  public UnleashedDogBreed getBreed() {
+    return UnleashedDogBreed.GOLDEN_RETRIEVER;
   }
 
   @Override

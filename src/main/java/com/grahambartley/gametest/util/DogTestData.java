@@ -7,6 +7,7 @@ import com.grahambartley.entity.DachshundEntity;
 import com.grahambartley.entity.GoldenRetrieverEntity;
 import com.grahambartley.entity.HuskyEntity;
 import com.grahambartley.entity.ShibaInuEntity;
+import com.grahambartley.entity.UnleashedDogBreed;
 import com.grahambartley.entity.UnleashedDogEntity;
 import java.util.List;
 import java.util.function.Function;
@@ -17,7 +18,7 @@ import net.minecraft.world.World;
 public record DogTestData<T extends UnleashedDogEntity>(
     EntityType<T> entityType,
     Function<World, T> factory,
-    String breedId,
+    UnleashedDogBreed breed,
     float expectedWidth,
     float expectedHeight,
     double expectedMaxHealth,
@@ -29,7 +30,7 @@ public record DogTestData<T extends UnleashedDogEntity>(
       new DogTestData<>(
           ModEntities.HUSKY,
           world -> new HuskyEntity(ModEntities.HUSKY, world),
-          "husky",
+          UnleashedDogBreed.HUSKY,
           0.8f,
           1.1f,
           25.0,
@@ -41,7 +42,7 @@ public record DogTestData<T extends UnleashedDogEntity>(
       new DogTestData<>(
           ModEntities.DACHSHUND,
           world -> new DachshundEntity(ModEntities.DACHSHUND, world),
-          "dachshund",
+          UnleashedDogBreed.DACHSHUND,
           0.8f,
           1.1f,
           10.0,
@@ -53,7 +54,7 @@ public record DogTestData<T extends UnleashedDogEntity>(
       new DogTestData<>(
           ModEntities.BEAGLE,
           world -> new BeagleEntity(ModEntities.BEAGLE, world),
-          "beagle",
+          UnleashedDogBreed.BEAGLE,
           0.8f,
           1.1f,
           17.0,
@@ -65,7 +66,7 @@ public record DogTestData<T extends UnleashedDogEntity>(
       new DogTestData<>(
           ModEntities.GOLDEN_RETRIEVER,
           world -> new GoldenRetrieverEntity(ModEntities.GOLDEN_RETRIEVER, world),
-          "golden_retriever",
+          UnleashedDogBreed.GOLDEN_RETRIEVER,
           0.8f,
           1.1f,
           24.0,
@@ -77,7 +78,7 @@ public record DogTestData<T extends UnleashedDogEntity>(
       new DogTestData<>(
           ModEntities.SHIBA_INU,
           world -> new ShibaInuEntity(ModEntities.SHIBA_INU, world),
-          "shiba_inu",
+          UnleashedDogBreed.SHIBA_INU,
           0.8f,
           1.1f,
           18.0,

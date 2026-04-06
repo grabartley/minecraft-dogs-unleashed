@@ -9,6 +9,7 @@ import static com.grahambartley.ModConstants.RANDOM_BARK_CHANCE;
 
 import com.grahambartley.ModBlocks;
 import com.grahambartley.ModItems;
+import com.grahambartley.ModNbtKeys;
 import com.grahambartley.block.DogBedBlock;
 import com.grahambartley.block.DogGraveBlock;
 import com.grahambartley.block.entity.DogBedBlockEntity;
@@ -92,6 +93,36 @@ import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 public abstract class UnleashedDogEntity extends TameableEntity implements GeoEntity, Angerable {
+
+  public static final int DEFAULT_COLLAR_COLOR_ID = DyeColor.RED.getId();
+  public static final int UNSET_VARIANT = -1;
+
+  private static final double POSITION_CENTER_OFFSET = 0.5;
+  private static final double SLEEP_POSITION_Y_OFFSET = 0.1;
+  private static final int FETCH_DETECTION_XZ_RANGE = 128;
+  private static final int FETCH_DETECTION_Y_RANGE = 64;
+  private static final int SHAKE_PARTICLE_COUNT = 20;
+  private static final double SHAKE_PARTICLE_HORIZONTAL_OFFSET_RANGE = 0.5;
+  private static final double SHAKE_PARTICLE_VERTICAL_OFFSET_RANGE = 0.5;
+  private static final double SHAKE_PARTICLE_HORIZONTAL_VELOCITY_RANGE = 0.3;
+  private static final double SHAKE_PARTICLE_VERTICAL_VELOCITY_RANGE = 0.1;
+  private static final double SHAKE_PARTICLE_SPEED = 0.1;
+  private static final double ESCAPE_DANGER_SPEED = 1.5;
+  private static final float POUNCE_STRENGTH = 0.4F;
+  private static final double DEFAULT_GOAL_SPEED = 1.0;
+  private static final float FOLLOW_OWNER_MAX_DISTANCE = 10.0F;
+  private static final float FOLLOW_OWNER_MIN_DISTANCE = 2.0F;
+  private static final float LOOK_AT_PLAYER_RANGE = 8.0F;
+  private static final int PLAYER_ANGER_TARGET_CHANCE = 10;
+  private static final int TAME_SUCCESS_CHANCE = 3;
+  private static final float BREEDING_ITEM_HEAL_AMOUNT = 2.0F;
+  private static final int RANDOM_TAIL_WAG_CHANCE = 200;
+  private static final double MOVEMENT_THRESHOLD = 0.001;
+  private static final double NEARBY_PLAYER_RANGE = 10.0D;
+  private static final int GRAVE_SEARCH_RADIUS = 3;
+  private static final int GRAVE_SEARCH_MIN_Y = -2;
+  private static final int GRAVE_SEARCH_MAX_Y = 2;
+  private static final int HORIZONTAL_DIRECTION_COUNT = 4;
 
   private static final TrackedData<Integer> ANGER_TIME =
       DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.INTEGER);
@@ -182,12 +213,16 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
 
   protected abstract boolean isSameSpecies(MobEntity entity);
 
-  public abstract String getBreedId();
+  public abstract UnleashedDogBreed getBreed();
+
+  public final String getBreedId() {
+    return this.getBreed().serializedId();
+  }
 
   protected abstract SoundEvent getBarkSound();
 
   protected String getSleepInBedMovementAnimationName() {
-    return "sit";
+    return DogAnimationKeys.SIT;
   }
 
   protected void rollAppearance(final SpawnReason spawnReason) {}
@@ -226,7 +261,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   protected void initDataTracker(DataTracker.Builder builder) {
     super.initDataTracker(builder);
     builder.add(ANGER_TIME, 0);
-    builder.add(COLLAR_COLOR, DyeColor.RED.getId());
+    builder.add(COLLAR_COLOR, DEFAULT_COLLAR_COLOR_ID);
     builder.add(TAIL_WAG_TIMER, 0);
     builder.add(SHAKE_PROGRESS, 0);
     builder.add(HEAD_TILTING, false);
@@ -284,7 +319,11 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     this.setAssignedBedPos(bedPos);
     this.setSitting(false);
     this.dataTracker.set(COMMANDED_TO_SLEEP, true);
-    this.navigation.startMovingTo(bedPos.getX() + 0.5, bedPos.getY(), bedPos.getZ() + 0.5, 1.0);
+    this.navigation.startMovingTo(
+        bedPos.getX() + POSITION_CENTER_OFFSET,
+        bedPos.getY(),
+        bedPos.getZ() + POSITION_CENTER_OFFSET,
+        DEFAULT_GOAL_SPEED);
   }
 
   public boolean isCommandedToSleep() {
@@ -294,9 +333,9 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   public void startSleepingInBed(BlockPos bedPos) {
     this.dataTracker.set(SLEEPING_IN_BED, true);
     this.refreshPositionAndAngles(
-        bedPos.getX() + 0.5,
-        bedPos.getY() + 0.1,
-        bedPos.getZ() + 0.5,
+        bedPos.getX() + POSITION_CENTER_OFFSET,
+        bedPos.getY() + SLEEP_POSITION_Y_OFFSET,
+        bedPos.getZ() + POSITION_CENTER_OFFSET,
         this.getYaw(),
         this.getPitch());
     this.setVelocity(0, 0, 0);
@@ -379,7 +418,9 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     return !this.getWorld()
         .getEntitiesByClass(
             TennisBallProjectileEntity.class,
-            this.getBoundingBox().expand(128, 64, 128),
+            this.getBoundingBox()
+                .expand(
+                    FETCH_DETECTION_XZ_RANGE, FETCH_DETECTION_Y_RANGE, FETCH_DETECTION_XZ_RANGE),
             ball ->
                 ball.getOwner() instanceof PlayerEntity player
                     && this.playPartnerPlayerUuid.equals(player.getUuid()))
@@ -394,20 +435,26 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
 
   public void spawnShakeParticles() {
     if (this.getWorld() instanceof ServerWorld serverWorld) {
-      for (int i = 0; i < 20; i++) {
-        final double offsetX = (this.random.nextDouble() - 0.5) * 0.5;
-        final double offsetY = this.random.nextDouble() * 0.5;
-        final double offsetZ = (this.random.nextDouble() - 0.5) * 0.5;
+      for (int i = 0; i < SHAKE_PARTICLE_COUNT; i++) {
+        final double offsetX =
+            (this.random.nextDouble() - POSITION_CENTER_OFFSET)
+                * SHAKE_PARTICLE_HORIZONTAL_OFFSET_RANGE;
+        final double offsetY = this.random.nextDouble() * SHAKE_PARTICLE_VERTICAL_OFFSET_RANGE;
+        final double offsetZ =
+            (this.random.nextDouble() - POSITION_CENTER_OFFSET)
+                * SHAKE_PARTICLE_HORIZONTAL_OFFSET_RANGE;
         serverWorld.spawnParticles(
             ParticleTypes.SPLASH,
             this.getX() + offsetX,
-            this.getY() + offsetY + 0.5,
+            this.getY() + offsetY + POSITION_CENTER_OFFSET,
             this.getZ() + offsetZ,
             1,
-            (this.random.nextDouble() - 0.5) * 0.3,
-            this.random.nextDouble() * 0.1,
-            (this.random.nextDouble() - 0.5) * 0.3,
-            0.1);
+            (this.random.nextDouble() - POSITION_CENTER_OFFSET)
+                * SHAKE_PARTICLE_HORIZONTAL_VELOCITY_RANGE,
+            this.random.nextDouble() * SHAKE_PARTICLE_VERTICAL_VELOCITY_RANGE,
+            (this.random.nextDouble() - POSITION_CENTER_OFFSET)
+                * SHAKE_PARTICLE_HORIZONTAL_VELOCITY_RANGE,
+            SHAKE_PARTICLE_SPEED);
       }
     }
   }
@@ -421,25 +468,38 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     this.goalSelector.add(3, new FetchRetrieveGoal(this));
     this.goalSelector.add(3, new FetchReturnGoal(this));
     this.goalSelector.add(4, new AutoSleepGoal(this));
-    this.goalSelector.add(5, new EscapeDangerGoal(this, 1.5));
-    this.goalSelector.add(6, new PounceAtTargetGoal(this, 0.4F));
-    this.goalSelector.add(7, new MeleeAttackGoal(this, 1.0, true));
-    this.goalSelector.add(8, new AnimalMateGoal(this, 1.0));
-    this.goalSelector.add(9, new TemptGoal(this, 1.0, TAMING_INGREDIENT, false));
+    this.goalSelector.add(5, new EscapeDangerGoal(this, ESCAPE_DANGER_SPEED));
+    this.goalSelector.add(6, new PounceAtTargetGoal(this, POUNCE_STRENGTH));
+    this.goalSelector.add(7, new MeleeAttackGoal(this, DEFAULT_GOAL_SPEED, true));
+    this.goalSelector.add(8, new AnimalMateGoal(this, DEFAULT_GOAL_SPEED));
+    this.goalSelector.add(9, new TemptGoal(this, DEFAULT_GOAL_SPEED, TAMING_INGREDIENT, false));
     this.goalSelector.add(
         9,
         new TennisBallTemptGoal(
-            this, 1.0, net.minecraft.recipe.Ingredient.ofItems(ModItems.TENNIS_BALL), false));
-    this.goalSelector.add(10, new FollowOwnerGoal(this, 1.0, 10.0F, 2.0F));
-    this.goalSelector.add(11, new WanderAroundFarGoal(this, 1.0));
-    this.goalSelector.add(12, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F));
+            this,
+            DEFAULT_GOAL_SPEED,
+            net.minecraft.recipe.Ingredient.ofItems(ModItems.TENNIS_BALL),
+            false));
+    this.goalSelector.add(
+        10,
+        new FollowOwnerGoal(
+            this, DEFAULT_GOAL_SPEED, FOLLOW_OWNER_MAX_DISTANCE, FOLLOW_OWNER_MIN_DISTANCE));
+    this.goalSelector.add(11, new WanderAroundFarGoal(this, DEFAULT_GOAL_SPEED));
+    this.goalSelector.add(12, new LookAtEntityGoal(this, PlayerEntity.class, LOOK_AT_PLAYER_RANGE));
     this.goalSelector.add(13, new LookAroundGoal(this));
 
     this.targetSelector.add(1, new TrackOwnerAttackerGoal(this));
     this.targetSelector.add(2, new AttackWithOwnerGoal(this));
     this.targetSelector.add(3, new RevengeGoal(this));
     this.targetSelector.add(
-        4, new ActiveTargetGoal<>(this, PlayerEntity.class, 10, true, false, this::shouldAngerAt));
+        4,
+        new ActiveTargetGoal<>(
+            this,
+            PlayerEntity.class,
+            PLAYER_ANGER_TARGET_CHANCE,
+            true,
+            false,
+            this::shouldAngerAt));
     this.targetSelector.add(5, new UniversalAngerGoal<>(this, true));
   }
 
@@ -471,7 +531,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     if (this.isTamed()) {
       if (this.isBreedingItem(itemStack) && this.getHealth() < this.getMaxHealth()) {
         itemStack.decrementUnlessCreative(1, player);
-        this.heal(2.0F);
+        this.heal(BREEDING_ITEM_HEAL_AMOUNT);
         return ActionResult.SUCCESS;
       }
 
@@ -509,7 +569,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
       }
     } else if (this.isTamingItem(itemStack)) {
       itemStack.decrementUnlessCreative(1, player);
-      if (this.random.nextInt(3) == 0) {
+      if (this.random.nextInt(TAME_SUCCESS_CHANCE) == 0) {
         this.tame(player);
       } else {
         this.getWorld()
@@ -543,7 +603,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
           new PetData(
               this.getUuid(),
               player.getUuid(),
-              this.getBreedId(),
+              this.getBreed(),
               DogNames.getRandomName(),
               this.getHealth(),
               this.getMaxHealth(),
@@ -555,7 +615,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
 
       if (player instanceof ServerPlayerEntity serverPlayer) {
         ModNetworking.sendOpenNamingScreen(
-            serverPlayer, this.getUuid(), this.getBreedId(), petData.getName());
+            serverPlayer, this.getUuid(), this.getBreed(), petData.getName());
       }
     }
   }
@@ -568,7 +628,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
         return petData.getName();
       }
     }
-    return Text.translatable("entity.dogs-unleashed." + this.getBreedId()).getString();
+    return Text.translatable(this.getBreed().translationKey()).getString();
   }
 
   @Override
@@ -639,7 +699,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
         this.dataTracker.set(TAIL_WAG_TIMER, TAIL_WAG_DURATION_TICKS);
       } else if (currentTimer > 0) {
         this.dataTracker.set(TAIL_WAG_TIMER, currentTimer - 1);
-      } else if (this.isTamed() && this.random.nextInt(200) == 0) {
+      } else if (this.isTamed() && this.random.nextInt(RANDOM_TAIL_WAG_CHANCE) == 0) {
         this.dataTracker.set(TAIL_WAG_TIMER, TAIL_WAG_DURATION_TICKS);
       }
     } else if (currentTimer > 0) {
@@ -648,14 +708,15 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   }
 
   protected boolean isMoving(final AnimationState<UnleashedDogEntity> animationState) {
-    return animationState.getAnimatable().getVelocity().horizontalLengthSquared() > 0.001;
+    return animationState.getAnimatable().getVelocity().horizontalLengthSquared()
+        > MOVEMENT_THRESHOLD;
   }
 
   @Override
   public void tick() {
     super.tick();
     if (!this.getWorld().isClient) {
-      final PlayerEntity nearbyPlayer = this.getWorld().getClosestPlayer(this, 10.0D);
+      final PlayerEntity nearbyPlayer = this.getWorld().getClosestPlayer(this, NEARBY_PLAYER_RANGE);
 
       this.updateHeadTilt(nearbyPlayer);
       this.updateTailWag(nearbyPlayer);
@@ -754,7 +815,9 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
 
     if (gravePos != null) {
       final Direction facing =
-          Direction.Type.HORIZONTAL.stream().toList().get(world.getRandom().nextInt(4));
+          Direction.Type.HORIZONTAL.stream()
+              .toList()
+              .get(world.getRandom().nextInt(HORIZONTAL_DIRECTION_COUNT));
       world.setBlockState(
           gravePos, ModBlocks.DOG_GRAVE.getDefaultState().with(DogGraveBlock.FACING, facing));
 
@@ -774,14 +837,14 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   private BlockPos findValidGravePosition(
       ServerWorld world, BlockPos center, BlockPos bedPosToAvoid) {
     // First pass: look for air blocks (preferred)
-    for (int radius = 0; radius <= 3; radius++) {
+    for (int radius = 0; radius <= GRAVE_SEARCH_RADIUS; radius++) {
       for (int dx = -radius; dx <= radius; dx++) {
         for (int dz = -radius; dz <= radius; dz++) {
           if (Math.abs(dx) != radius && Math.abs(dz) != radius) {
             continue;
           }
 
-          for (int dy = -2; dy <= 2; dy++) {
+          for (int dy = GRAVE_SEARCH_MIN_Y; dy <= GRAVE_SEARCH_MAX_Y; dy++) {
             final BlockPos testPos = center.add(dx, dy, dz);
 
             // Skip bed position if provided
@@ -799,14 +862,14 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     }
 
     // Second pass: accept replaceable blocks if no air found
-    for (int radius = 0; radius <= 3; radius++) {
+    for (int radius = 0; radius <= GRAVE_SEARCH_RADIUS; radius++) {
       for (int dx = -radius; dx <= radius; dx++) {
         for (int dz = -radius; dz <= radius; dz++) {
           if (Math.abs(dx) != radius && Math.abs(dz) != radius) {
             continue;
           }
 
-          for (int dy = -2; dy <= 2; dy++) {
+          for (int dy = GRAVE_SEARCH_MIN_Y; dy <= GRAVE_SEARCH_MAX_Y; dy++) {
             final BlockPos testPos = center.add(dx, dy, dz);
 
             // Skip bed position if provided
@@ -843,19 +906,19 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   public void writeCustomDataToNbt(NbtCompound nbt) {
     super.writeCustomDataToNbt(nbt);
     this.writeAngerToNbt(nbt);
-    nbt.putInt("CollarColor", this.getCollarColor().getId());
-    nbt.putInt("ShakeProgress", this.getShakeProgress());
-    nbt.putBoolean("WasInWater", this.wasInWater);
-    nbt.putInt("TicksSinceLeftWater", this.ticksSinceLeftWater);
-    nbt.putBoolean("SleepingInBed", this.isSleepingInBed());
+    nbt.putInt(ModNbtKeys.COLLAR_COLOR, this.getCollarColor().getId());
+    nbt.putInt(ModNbtKeys.SHAKE_PROGRESS, this.getShakeProgress());
+    nbt.putBoolean(ModNbtKeys.WAS_IN_WATER, this.wasInWater);
+    nbt.putInt(ModNbtKeys.TICKS_SINCE_LEFT_WATER, this.ticksSinceLeftWater);
+    nbt.putBoolean(ModNbtKeys.SLEEPING_IN_BED, this.isSleepingInBed());
     this.getAssignedBedPos()
         .ifPresent(
             pos -> {
-              nbt.putInt("BedPosX", pos.getX());
-              nbt.putInt("BedPosY", pos.getY());
-              nbt.putInt("BedPosZ", pos.getZ());
+              nbt.putInt(ModNbtKeys.BED_POS_X, pos.getX());
+              nbt.putInt(ModNbtKeys.BED_POS_Y, pos.getY());
+              nbt.putInt(ModNbtKeys.BED_POS_Z, pos.getZ());
             });
-    nbt.putBoolean("CarryingBall", this.isCarryingBall());
+    nbt.putBoolean(ModNbtKeys.CARRYING_BALL, this.isCarryingBall());
     com.grahambartley.DogsUnleashed.log.debug(
         "[SAVE] {} (UUID={}) - isTamed={}, ownerUuid={}",
         this.getBreedId(),
@@ -868,27 +931,32 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   public void readCustomDataFromNbt(NbtCompound nbt) {
     super.readCustomDataFromNbt(nbt);
     this.readAngerFromNbt(this.getWorld(), nbt);
-    if (nbt.contains("CollarColor", NbtElement.NUMBER_TYPE)) {
-      this.setCollarColor(DyeColor.byId(nbt.getInt("CollarColor")));
+    if (nbt.contains(ModNbtKeys.COLLAR_COLOR, NbtElement.NUMBER_TYPE)) {
+      this.setCollarColor(DyeColor.byId(nbt.getInt(ModNbtKeys.COLLAR_COLOR)));
     }
-    if (nbt.contains("ShakeProgress", NbtElement.NUMBER_TYPE)) {
-      this.dataTracker.set(SHAKE_PROGRESS, nbt.getInt("ShakeProgress"));
+    if (nbt.contains(ModNbtKeys.SHAKE_PROGRESS, NbtElement.NUMBER_TYPE)) {
+      this.dataTracker.set(SHAKE_PROGRESS, nbt.getInt(ModNbtKeys.SHAKE_PROGRESS));
     }
-    if (nbt.contains("WasInWater")) {
-      this.wasInWater = nbt.getBoolean("WasInWater");
+    if (nbt.contains(ModNbtKeys.WAS_IN_WATER)) {
+      this.wasInWater = nbt.getBoolean(ModNbtKeys.WAS_IN_WATER);
     }
-    if (nbt.contains("TicksSinceLeftWater", NbtElement.NUMBER_TYPE)) {
-      this.ticksSinceLeftWater = nbt.getInt("TicksSinceLeftWater");
+    if (nbt.contains(ModNbtKeys.TICKS_SINCE_LEFT_WATER, NbtElement.NUMBER_TYPE)) {
+      this.ticksSinceLeftWater = nbt.getInt(ModNbtKeys.TICKS_SINCE_LEFT_WATER);
     }
-    if (nbt.contains("SleepingInBed")) {
-      this.dataTracker.set(SLEEPING_IN_BED, nbt.getBoolean("SleepingInBed"));
+    if (nbt.contains(ModNbtKeys.SLEEPING_IN_BED)) {
+      this.dataTracker.set(SLEEPING_IN_BED, nbt.getBoolean(ModNbtKeys.SLEEPING_IN_BED));
     }
-    if (nbt.contains("BedPosX") && nbt.contains("BedPosY") && nbt.contains("BedPosZ")) {
+    if (nbt.contains(ModNbtKeys.BED_POS_X)
+        && nbt.contains(ModNbtKeys.BED_POS_Y)
+        && nbt.contains(ModNbtKeys.BED_POS_Z)) {
       this.setAssignedBedPos(
-          new BlockPos(nbt.getInt("BedPosX"), nbt.getInt("BedPosY"), nbt.getInt("BedPosZ")));
+          new BlockPos(
+              nbt.getInt(ModNbtKeys.BED_POS_X),
+              nbt.getInt(ModNbtKeys.BED_POS_Y),
+              nbt.getInt(ModNbtKeys.BED_POS_Z)));
     }
-    if (nbt.contains("CarryingBall")) {
-      this.setCarryingBall(nbt.getBoolean("CarryingBall"));
+    if (nbt.contains(ModNbtKeys.CARRYING_BALL)) {
+      this.setCarryingBall(nbt.getBoolean(ModNbtKeys.CARRYING_BALL));
     }
     com.grahambartley.DogsUnleashed.log.debug(
         "[LOAD] {} (UUID={}) - isTamed={}, ownerUuid={}, nbt.hasOwner={}",

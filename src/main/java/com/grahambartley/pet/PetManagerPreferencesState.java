@@ -1,6 +1,8 @@
 package com.grahambartley.pet;
 
 import com.grahambartley.DogsUnleashed;
+import com.grahambartley.ModNbtKeys;
+import com.grahambartley.entity.UnleashedDogBreed;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -17,13 +19,10 @@ public final class PetManagerPreferencesState extends PersistentState {
 
   private static final String DATA_NAME = DogsUnleashed.MOD_ID + "_pet_manager_preferences";
 
-  public record PetManagerPreferences(String breedFilter, String aliveFilter) {
-
-    public static final String DEFAULT_BREED_FILTER = "";
-    public static final String DEFAULT_ALIVE_FILTER = "ALIVE";
+  public record PetManagerPreferences(UnleashedDogBreed breedFilter, PetAliveFilter aliveFilter) {
 
     public static PetManagerPreferences defaults() {
-      return new PetManagerPreferences(DEFAULT_BREED_FILTER, DEFAULT_ALIVE_FILTER);
+      return new PetManagerPreferences(null, PetAliveFilter.ALIVE);
     }
   }
 
@@ -45,13 +44,10 @@ public final class PetManagerPreferencesState extends PersistentState {
   }
 
   public void setPreferences(
-      final UUID playerId, final String breedFilter, final String aliveFilter) {
+      final UUID playerId, final UnleashedDogBreed breedFilter, final PetAliveFilter aliveFilter) {
     final PetManagerPreferences preferences =
         new PetManagerPreferences(
-            breedFilter == null ? PetManagerPreferences.DEFAULT_BREED_FILTER : breedFilter,
-            aliveFilter == null || aliveFilter.isEmpty()
-                ? PetManagerPreferences.DEFAULT_ALIVE_FILTER
-                : aliveFilter);
+            breedFilter, aliveFilter == null ? PetAliveFilter.ALIVE : aliveFilter);
     preferencesByPlayer.put(playerId, preferences);
     markDirty();
   }
@@ -61,25 +57,32 @@ public final class PetManagerPreferencesState extends PersistentState {
     final NbtList preferencesList = new NbtList();
     for (final Map.Entry<UUID, PetManagerPreferences> entry : preferencesByPlayer.entrySet()) {
       final NbtCompound preferenceNbt = new NbtCompound();
-      preferenceNbt.putUuid("PlayerId", entry.getKey());
-      preferenceNbt.putString("BreedFilter", entry.getValue().breedFilter());
-      preferenceNbt.putString("AliveFilter", entry.getValue().aliveFilter());
+      preferenceNbt.putUuid(ModNbtKeys.OWNER_ID, entry.getKey());
+      if (entry.getValue().breedFilter() != null) {
+        preferenceNbt.putString(
+            ModNbtKeys.BREED_FILTER, entry.getValue().breedFilter().serializedId());
+      }
+      preferenceNbt.putString(
+          ModNbtKeys.ALIVE_FILTER, entry.getValue().aliveFilter().serializedName());
       preferencesList.add(preferenceNbt);
     }
-    nbt.put("PreferencesByPlayer", preferencesList);
+    nbt.put(ModNbtKeys.PREFERENCES_BY_PLAYER, preferencesList);
     return nbt;
   }
 
   public static PetManagerPreferencesState fromNbt(
       NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
     final PetManagerPreferencesState state = new PetManagerPreferencesState();
-    final NbtList preferencesList = nbt.getList("PreferencesByPlayer", NbtElement.COMPOUND_TYPE);
+    final NbtList preferencesList =
+        nbt.getList(ModNbtKeys.PREFERENCES_BY_PLAYER, NbtElement.COMPOUND_TYPE);
     for (int i = 0; i < preferencesList.size(); i++) {
       final NbtCompound preferenceNbt = preferencesList.getCompound(i);
       state.preferencesByPlayer.put(
-          preferenceNbt.getUuid("PlayerId"),
+          preferenceNbt.getUuid(ModNbtKeys.OWNER_ID),
           new PetManagerPreferences(
-              preferenceNbt.getString("BreedFilter"), preferenceNbt.getString("AliveFilter")));
+              UnleashedDogBreed.fromSerializedIdOrNull(
+                  preferenceNbt.getString(ModNbtKeys.BREED_FILTER)),
+              PetAliveFilter.fromSerializedName(preferenceNbt.getString(ModNbtKeys.ALIVE_FILTER))));
     }
     return state;
   }
