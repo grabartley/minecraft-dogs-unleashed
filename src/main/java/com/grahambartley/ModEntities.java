@@ -5,6 +5,7 @@ import com.grahambartley.entity.DachshundEntity;
 import com.grahambartley.entity.GoldenRetrieverEntity;
 import com.grahambartley.entity.HuskyEntity;
 import com.grahambartley.entity.ShibaInuEntity;
+import com.grahambartley.entity.TennisBallProjectileEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
@@ -53,6 +54,15 @@ public class ModEntities {
           EntityType.Builder.create(ShibaInuEntity::new, SpawnGroup.CREATURE)
               .dimensions(ModConstants.SHIBA_INU_WIDTH, ModConstants.SHIBA_INU_HEIGHT)
               .build(Identifier.of(DogsUnleashed.MOD_ID, "shibainu").toString()));
+
+  public static final EntityType<TennisBallProjectileEntity> TENNIS_BALL_PROJECTILE =
+      Registry.register(
+          Registries.ENTITY_TYPE,
+          Identifier.of(DogsUnleashed.MOD_ID, "tennis_ball_projectile"),
+          EntityType.Builder.<TennisBallProjectileEntity>create(
+                  TennisBallProjectileEntity::new, SpawnGroup.MISC)
+              .dimensions(0.25f, 0.25f)
+              .build(Identifier.of(DogsUnleashed.MOD_ID, "tennis_ball_projectile").toString()));
 
   public static void initialize() {
     FabricDefaultAttributeRegistry.register(HUSKY, HuskyEntity.createAttributes());

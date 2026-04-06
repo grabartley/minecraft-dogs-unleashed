@@ -2,6 +2,7 @@ package com.grahambartley;
 
 import com.grahambartley.block.DogBedBlock;
 import com.grahambartley.block.DogGraveBlock;
+import com.grahambartley.block.TennisBallBlock;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.MapColor;
@@ -34,6 +35,18 @@ public class ModBlocks {
                   .requiresTool()
                   .sounds(BlockSoundGroup.STONE)
                   .nonOpaque()));
+
+  public static final Block TENNIS_BALL =
+      Registry.register(
+          Registries.BLOCK,
+          Identifier.of(DogsUnleashed.MOD_ID, "tennis_ball"),
+          new TennisBallBlock(
+              AbstractBlock.Settings.create()
+                  .strength(0.05f)
+                  .breakInstantly()
+                  .sounds(BlockSoundGroup.WOOL)
+                  .nonOpaque()
+                  .noCollision()));
 
   public static void initialize() {}
 }
