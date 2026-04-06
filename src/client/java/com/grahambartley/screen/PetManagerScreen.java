@@ -4,7 +4,6 @@ import com.grahambartley.DogsUnleashed;
 import com.grahambartley.ModEntities;
 import com.grahambartley.entity.HuskyEntity;
 import com.grahambartley.entity.UnleashedDogEntity;
-import com.grahambartley.entity.variant.HuskyCoat;
 import com.grahambartley.entity.variant.HuskyEyeColor;
 import com.grahambartley.network.ModNetworking;
 import com.grahambartley.network.ModNetworkingClient;
@@ -298,12 +297,14 @@ public class PetManagerScreen extends Screen {
       final UnleashedDogEntity dog, final ModNetworking.PetSyncData pet) {
     dog.setBaby(pet.baby());
     dog.setCollarColor(DyeColor.byId(Math.floorMod(pet.collarColor(), 16)));
-    if (dog instanceof HuskyEntity && pet.huskyCoatVariant() >= 0) {
-      final NbtCompound nbt = new NbtCompound();
-      nbt.putInt("CoatVariant", pet.huskyCoatVariant());
-      nbt.putInt("EyeColorVariant", pet.huskyEyeVariant());
-      dog.readCustomDataFromNbt(nbt);
+    final NbtCompound nbt = new NbtCompound();
+    if (pet.coatVariant() >= 0) {
+      nbt.putInt("CoatVariant", pet.coatVariant());
     }
+    if (dog instanceof HuskyEntity) {
+      nbt.putInt("EyeColorVariant", pet.huskyEyeVariant());
+    }
+    dog.readCustomDataFromNbt(nbt);
   }
 
   private UnleashedDogEntity obtainPortraitEntity(final ModNetworking.PetSyncData pet) {
@@ -336,12 +337,23 @@ public class PetManagerScreen extends Screen {
     return entity;
   }
 
-  private static Identifier resolveFallbackTexture(final ModNetworking.PetSyncData pet) {
-    if ("husky".equals(pet.breedType()) && pet.huskyCoatVariant() >= 0) {
-      final HuskyCoat coat = HuskyCoat.fromOrdinal(pet.huskyCoatVariant());
-      final HuskyEyeColor eyes = HuskyEyeColor.fromOrdinal(pet.huskyEyeVariant());
-      final String fileName =
-          "husky_" + coat.textureCoatPrefix() + "_" + eyes.textureSuffix() + ".png";
+  private static Identifier resolveFallbackTexture(
+      final UnleashedDogEntity entity, final ModNetworking.PetSyncData pet) {
+    if (pet.coatVariant() >= 0) {
+      String fileName;
+      final String petBreedType = pet.breedType();
+      if ("husky".equals(petBreedType)) {
+        final HuskyEyeColor eyes = HuskyEyeColor.fromOrdinal(pet.huskyEyeVariant());
+        fileName =
+            petBreedType
+                + "_"
+                + entity.getCoatVariant().getTexturePrefix()
+                + "_"
+                + eyes.textureSuffix()
+                + ".png";
+      } else {
+        fileName = petBreedType + "_" + entity.getCoatVariant().getTexturePrefix() + ".png";
+      }
       return Identifier.of(DogsUnleashed.MOD_ID, "textures/entity/" + fileName);
     }
     return Identifier.of(DogsUnleashed.MOD_ID, "textures/entity/" + pet.breedType() + ".png");
@@ -349,11 +361,12 @@ public class PetManagerScreen extends Screen {
 
   private void drawTexturePortrait(
       final DrawContext context,
+      final UnleashedDogEntity entity,
       final ModNetworking.PetSyncData pet,
       final int imgX,
       final int imgY,
       final boolean greyed) {
-    final Identifier textureId = resolveFallbackTexture(pet);
+    final Identifier textureId = resolveFallbackTexture(entity, pet);
     if (greyed) {
       context.setShaderColor(0.4f, 0.4f, 0.4f, 1.0f);
     }
@@ -405,7 +418,7 @@ public class PetManagerScreen extends Screen {
       context.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
       return;
     }
-    drawTexturePortrait(context, pet, imgX, imgY, !pet.alive());
+    drawTexturePortrait(context, entity, pet, imgX, imgY, !pet.alive());
   }
 
   @Override

@@ -1,6 +1,6 @@
 package com.grahambartley.entity.variant;
 
-public enum HuskyCoat {
+public enum HuskyCoat implements UnleashedDogCoat {
   BLACK_WHITE,
   GREY_WHITE,
   AGOUTI,
@@ -8,7 +8,16 @@ public enum HuskyCoat {
   SABLE,
   WHITE;
 
-  public String textureCoatPrefix() {
+  public static HuskyCoat fromOrdinal(int ordinal) {
+    final HuskyCoat[] values = values();
+    if (ordinal < 0 || ordinal >= values.length) {
+      return BLACK_WHITE;
+    }
+    return values[ordinal];
+  }
+
+  @Override
+  public String getTexturePrefix() {
     return switch (this) {
       case BLACK_WHITE -> "blackwhite";
       case GREY_WHITE -> "graywhite";
@@ -19,11 +28,8 @@ public enum HuskyCoat {
     };
   }
 
-  public static HuskyCoat fromOrdinal(int ordinal) {
-    final HuskyCoat[] values = values();
-    if (ordinal < 0 || ordinal >= values.length) {
-      return BLACK_WHITE;
-    }
-    return values[ordinal];
+  @Override
+  public int getOrdinal() {
+    return this.ordinal();
   }
 }

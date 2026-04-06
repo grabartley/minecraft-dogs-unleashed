@@ -116,7 +116,7 @@ public final class ModNetworking {
       boolean alive,
       boolean baby,
       int collarColor,
-      int huskyCoatVariant,
+      int coatVariant,
       int huskyEyeVariant) {
 
     public static final PacketCodec<RegistryByteBuf, PetSyncData> CODEC =
@@ -136,7 +136,7 @@ public final class ModNetworking {
           petData.isAlive(),
           petData.isBaby(),
           petData.getCollarColorId(),
-          petData.getHuskyCoatVariant(),
+          petData.getCoatVariant(),
           petData.getHuskyEyeVariant());
     }
 
@@ -153,7 +153,7 @@ public final class ModNetworking {
       buf.writeBoolean(alive);
       buf.writeBoolean(baby);
       buf.writeInt(collarColor);
-      buf.writeInt(huskyCoatVariant);
+      buf.writeInt(coatVariant);
       buf.writeInt(huskyEyeVariant);
     }
 

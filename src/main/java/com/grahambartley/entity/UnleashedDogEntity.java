@@ -15,6 +15,7 @@ import com.grahambartley.block.entity.DogBedBlockEntity;
 import com.grahambartley.block.entity.DogGraveBlockEntity;
 import com.grahambartley.entity.goal.AutoSleepGoal;
 import com.grahambartley.entity.goal.SleepInBedGoal;
+import com.grahambartley.entity.variant.UnleashedDogCoat;
 import com.grahambartley.network.ModNetworking;
 import com.grahambartley.pet.PetData;
 import com.grahambartley.pet.PetManager;
@@ -58,6 +59,7 @@ import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.registry.RegistryKey;
@@ -242,6 +244,10 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
 
   public void setCollarColor(final DyeColor color) {
     this.dataTracker.set(COLLAR_COLOR, color.getId());
+  }
+
+  public UnleashedDogCoat getCoatVariant() {
+    return null;
   }
 
   public int getShakeProgress() {
@@ -924,16 +930,16 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   public void readCustomDataFromNbt(NbtCompound nbt) {
     super.readCustomDataFromNbt(nbt);
     this.readAngerFromNbt(this.getWorld(), nbt);
-    if (nbt.contains("CollarColor", 99)) {
+    if (nbt.contains("CollarColor", NbtElement.NUMBER_TYPE)) {
       this.setCollarColor(DyeColor.byId(nbt.getInt("CollarColor")));
     }
-    if (nbt.contains("ShakeProgress", 99)) {
+    if (nbt.contains("ShakeProgress", NbtElement.NUMBER_TYPE)) {
       this.dataTracker.set(SHAKE_PROGRESS, nbt.getInt("ShakeProgress"));
     }
     if (nbt.contains("WasInWater")) {
       this.wasInWater = nbt.getBoolean("WasInWater");
     }
-    if (nbt.contains("TicksSinceLeftWater", 99)) {
+    if (nbt.contains("TicksSinceLeftWater", NbtElement.NUMBER_TYPE)) {
       this.ticksSinceLeftWater = nbt.getInt("TicksSinceLeftWater");
     }
     if (nbt.contains("SleepingInBed")) {

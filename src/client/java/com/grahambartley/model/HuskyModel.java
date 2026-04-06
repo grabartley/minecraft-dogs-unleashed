@@ -17,7 +17,7 @@ public class HuskyModel extends GeoModel<HuskyEntity> {
   public Identifier getTextureResource(HuskyEntity animatable) {
     final String fileName =
         "husky_"
-            + animatable.getCoatVariant().textureCoatPrefix()
+            + animatable.getCoatVariant().getTexturePrefix()
             + "_"
             + animatable.getEyeColorVariant().textureSuffix()
             + ".png";
