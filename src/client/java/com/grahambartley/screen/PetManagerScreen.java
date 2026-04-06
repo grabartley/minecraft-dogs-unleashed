@@ -38,17 +38,22 @@ public class PetManagerScreen extends Screen {
   private static final int ENTRY_WIDTH = 280;
   private static final int ENTRIES_PER_PAGE = 4;
   private static final int THUMBNAIL_SIZE = 48;
+  private static final long SEARCH_DEBOUNCE_MS = 250L;
 
   private static final List<String> BREED_OPTIONS =
       List.of("", "husky", "dachshund", "beagle", "goldenretriever", "shibainu");
 
   private List<ModNetworking.PetSyncData> pets = new ArrayList<>();
   private TextFieldWidget searchField;
+  private CyclingButtonWidget<String> breedFilterButton;
+  private CyclingButtonWidget<AliveFilter> aliveFilterButton;
   private String currentBreedFilter = "";
-  private AliveFilter currentAliveFilter = AliveFilter.ALL;
+  private AliveFilter currentAliveFilter = AliveFilter.ALIVE;
   private int scrollOffset = 0;
   private ModNetworking.PetSyncData selectedPet = null;
   private final Map<UUID, UnleashedDogEntity> portraitEntities = new HashMap<>();
+  private long nextSearchRefreshTime = -1L;
+  private String lastRequestedSearchQuery = "";
 
   public PetManagerScreen() {
     super(Text.translatable("screen.dogs-unleashed.pet_manager.title"));
@@ -63,61 +68,57 @@ public class PetManagerScreen extends Screen {
             this.textRenderer,
             centerX - 140,
             40,
-            180,
+            245,
             20,
             Text.translatable("screen.dogs-unleashed.pet_manager.search"));
     searchField.setMaxLength(32);
     searchField.setChangedListener(this::onSearchChanged);
     addDrawableChild(searchField);
 
-    addDrawableChild(
-        ButtonWidget.builder(
-                Text.translatable("screen.dogs-unleashed.pet_manager.search_button"),
-                button -> refreshPetsList())
-            .dimensions(centerX + 45, 40, 60, 20)
-            .build());
+    breedFilterButton =
+        addDrawableChild(
+            CyclingButtonWidget.<String>builder(
+                    breed ->
+                        breed.isEmpty()
+                            ? Text.translatable("screen.dogs-unleashed.pet_manager.all_breeds")
+                            : Text.translatable("entity.dogs-unleashed." + breed))
+                .values(BREED_OPTIONS)
+                .initially(currentBreedFilter)
+                .build(
+                    centerX - 140,
+                    65,
+                    120,
+                    20,
+                    Text.translatable("screen.dogs-unleashed.pet_manager.breed_filter"),
+                    (button, value) -> {
+                      currentBreedFilter = value;
+                      refreshPetsList();
+                    }));
 
-    addDrawableChild(
-        CyclingButtonWidget.<String>builder(
-                breed ->
-                    breed.isEmpty()
-                        ? Text.translatable("screen.dogs-unleashed.pet_manager.all_breeds")
-                        : Text.translatable("entity.dogs-unleashed." + breed))
-            .values(BREED_OPTIONS)
-            .initially(currentBreedFilter)
-            .build(
-                centerX - 140,
-                65,
-                120,
-                20,
-                Text.translatable("screen.dogs-unleashed.pet_manager.breed_filter"),
-                (button, value) -> {
-                  currentBreedFilter = value;
-                  refreshPetsList();
-                }));
-
-    addDrawableChild(
-        CyclingButtonWidget.<AliveFilter>builder(
-                filter ->
-                    switch (filter) {
-                      case ALL -> Text.translatable("screen.dogs-unleashed.pet_manager.all_status");
-                      case ALIVE ->
-                          Text.translatable("screen.dogs-unleashed.pet_manager.alive_only");
-                      case DECEASED ->
-                          Text.translatable("screen.dogs-unleashed.pet_manager.deceased_only");
-                    })
-            .values(AliveFilter.values())
-            .initially(currentAliveFilter)
-            .build(
-                centerX + 5,
-                65,
-                100,
-                20,
-                Text.translatable("screen.dogs-unleashed.pet_manager.status_filter"),
-                (button, value) -> {
-                  currentAliveFilter = value;
-                  refreshPetsList();
-                }));
+    aliveFilterButton =
+        addDrawableChild(
+            CyclingButtonWidget.<AliveFilter>builder(
+                    filter ->
+                        switch (filter) {
+                          case ALL ->
+                              Text.translatable("screen.dogs-unleashed.pet_manager.all_status");
+                          case ALIVE ->
+                              Text.translatable("screen.dogs-unleashed.pet_manager.alive_only");
+                          case DECEASED ->
+                              Text.translatable("screen.dogs-unleashed.pet_manager.deceased_only");
+                        })
+                .values(AliveFilter.values())
+                .initially(currentAliveFilter)
+                .build(
+                    centerX + 5,
+                    65,
+                    100,
+                    20,
+                    Text.translatable("screen.dogs-unleashed.pet_manager.status_filter"),
+                    (button, value) -> {
+                      currentAliveFilter = value;
+                      refreshPetsList();
+                    }));
 
     addDrawableChild(
         ButtonWidget.builder(
@@ -135,16 +136,64 @@ public class PetManagerScreen extends Screen {
             .dimensions(centerX + ENTRY_WIDTH / 2 + 10, this.height - 80, 20, 20)
             .build());
 
-    refreshPetsList();
+    setInitialFocus(searchField);
+    setFocused(searchField);
+    searchField.setFocused(true);
+    searchField.setEditable(true);
+
+    ModNetworkingClient.sendRequestPetManagerState();
   }
 
-  private void onSearchChanged(String query) {}
+  private void onSearchChanged(String query) {
+    nextSearchRefreshTime = System.currentTimeMillis() + SEARCH_DEBOUNCE_MS;
+  }
+
+  @Override
+  public void tick() {
+    super.tick();
+    if (nextSearchRefreshTime > 0L && System.currentTimeMillis() >= nextSearchRefreshTime) {
+      nextSearchRefreshTime = -1L;
+      final String currentSearchQuery = searchField != null ? searchField.getText() : "";
+      if (!currentSearchQuery.equals(lastRequestedSearchQuery)) {
+        refreshPetsList();
+      }
+    }
+  }
 
   private void refreshPetsList() {
     final String searchQuery = searchField != null ? searchField.getText() : "";
     final boolean filterAlive = currentAliveFilter != AliveFilter.ALL;
     final boolean aliveValue = currentAliveFilter == AliveFilter.ALIVE;
+    lastRequestedSearchQuery = searchQuery;
     ModNetworkingClient.sendRequestPets(currentBreedFilter, filterAlive, aliveValue, searchQuery);
+  }
+
+  public void applySavedFilters(String breedFilter, String aliveFilter) {
+    currentBreedFilter = breedFilter;
+    currentAliveFilter = parseAliveFilter(aliveFilter);
+    if (breedFilterButton != null) {
+      breedFilterButton.setValue(currentBreedFilter);
+    }
+    if (aliveFilterButton != null) {
+      aliveFilterButton.setValue(currentAliveFilter);
+    }
+  }
+
+  private static AliveFilter parseAliveFilter(final String aliveFilter) {
+    try {
+      return AliveFilter.valueOf(aliveFilter);
+    } catch (IllegalArgumentException exception) {
+      return AliveFilter.ALIVE;
+    }
+  }
+
+  private static String formatDimensionName(final String dimensionId) {
+    return switch (dimensionId) {
+      case "minecraft:overworld" -> "Overworld";
+      case "minecraft:the_nether" -> "Nether";
+      case "minecraft:the_end" -> "The End";
+      default -> dimensionId;
+    };
   }
 
   public void updatePetsList(List<ModNetworking.PetSyncData> pets) {
@@ -162,6 +211,11 @@ public class PetManagerScreen extends Screen {
 
   @Override
   public void close() {
+    if (searchField != null) {
+      searchField.setText("");
+    }
+    lastRequestedSearchQuery = "";
+    nextSearchRefreshTime = -1L;
     clearPortraitEntities();
     super.close();
   }
@@ -252,7 +306,10 @@ public class PetManagerScreen extends Screen {
       final int healthColor = pet.health() > pet.maxHealth() * 0.5 ? 0x55FF55 : 0xFF5555;
       context.drawText(this.textRenderer, healthText, textX, y + 31, healthColor, false);
 
-      final String locationText = String.format("(%d, %d, %d)", pet.posX(), pet.posY(), pet.posZ());
+      final String locationText =
+          String.format(
+              "%s (%d, %d, %d)",
+              formatDimensionName(pet.dimension()), pet.posX(), pet.posY(), pet.posZ());
       context.drawText(this.textRenderer, locationText, textX, y + 44, 0x888888, false);
     } else {
       context.drawText(

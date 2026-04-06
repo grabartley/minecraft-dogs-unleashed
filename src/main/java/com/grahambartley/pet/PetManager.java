@@ -81,6 +81,11 @@ public final class PetManager extends PersistentState {
 
   public List<PetData> getPetsByOwnerFiltered(
       UUID ownerId, String breedFilter, Boolean aliveFilter) {
+    return getPetsByOwnerFiltered(ownerId, breedFilter, aliveFilter, "");
+  }
+
+  public List<PetData> getPetsByOwnerFiltered(
+      UUID ownerId, String breedFilter, Boolean aliveFilter, String searchQuery) {
     List<PetData> pets = getPetsByOwner(ownerId);
     if (breedFilter != null && !breedFilter.isEmpty()) {
       pets =
@@ -90,6 +95,13 @@ public final class PetManager extends PersistentState {
     }
     if (aliveFilter != null) {
       pets = pets.stream().filter(p -> p.isAlive() == aliveFilter).collect(Collectors.toList());
+    }
+    if (searchQuery != null && !searchQuery.isEmpty()) {
+      final String normalizedQuery = searchQuery.toLowerCase();
+      pets =
+          pets.stream()
+              .filter(p -> p.getName().toLowerCase().contains(normalizedQuery))
+              .collect(Collectors.toList());
     }
     return pets;
   }
