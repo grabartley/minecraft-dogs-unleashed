@@ -14,6 +14,9 @@ public final class ModNetworkingClient {
 
     ClientPlayNetworking.registerGlobalReceiver(
         ModNetworking.SyncPetsPayload.ID, ModNetworkingClient::handleSyncPets);
+    ClientPlayNetworking.registerGlobalReceiver(
+        ModNetworking.SyncPetManagerStatePayload.ID,
+        ModNetworkingClient::handleSyncPetManagerState);
   }
 
   private static void handleOpenNamingScreen(
@@ -41,6 +44,19 @@ public final class ModNetworkingClient {
             });
   }
 
+  private static void handleSyncPetManagerState(
+      ModNetworking.SyncPetManagerStatePayload payload, ClientPlayNetworking.Context context) {
+    context
+        .client()
+        .execute(
+            () -> {
+              if (MinecraftClient.getInstance().currentScreen instanceof PetManagerScreen screen) {
+                screen.applySavedFilters(payload.breedFilter(), payload.aliveFilter());
+                screen.updatePetsList(payload.pets());
+              }
+            });
+  }
+
   public static void sendSetPetName(UUID petId, String name) {
     ClientPlayNetworking.send(new ModNetworking.SetPetNamePayload(petId, name));
   }
@@ -53,5 +69,9 @@ public final class ModNetworkingClient {
       String breedFilter, boolean filterAlive, boolean aliveValue, String searchQuery) {
     ClientPlayNetworking.send(
         new ModNetworking.RequestPetsPayload(breedFilter, filterAlive, aliveValue, searchQuery));
+  }
+
+  public static void sendRequestPetManagerState() {
+    ClientPlayNetworking.send(new ModNetworking.RequestPetManagerStatePayload());
   }
 }

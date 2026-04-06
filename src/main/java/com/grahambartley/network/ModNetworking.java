@@ -4,6 +4,7 @@ import com.grahambartley.DogsUnleashed;
 import com.grahambartley.entity.UnleashedDogEntity;
 import com.grahambartley.pet.PetData;
 import com.grahambartley.pet.PetManager;
+import com.grahambartley.pet.PetManagerPreferencesState;
 import java.util.List;
 import java.util.UUID;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -25,7 +26,11 @@ public final class ModNetworking {
   public static final Identifier SUMMON_PET_ID = Identifier.of(DogsUnleashed.MOD_ID, "summon_pet");
   public static final Identifier REQUEST_PETS_ID =
       Identifier.of(DogsUnleashed.MOD_ID, "request_pets");
+  public static final Identifier REQUEST_PET_MANAGER_STATE_ID =
+      Identifier.of(DogsUnleashed.MOD_ID, "request_pet_manager_state");
   public static final Identifier SYNC_PETS_ID = Identifier.of(DogsUnleashed.MOD_ID, "sync_pets");
+  public static final Identifier SYNC_PET_MANAGER_STATE_ID =
+      Identifier.of(DogsUnleashed.MOD_ID, "sync_pet_manager_state");
   public static final Identifier OPEN_NAMING_SCREEN_ID =
       Identifier.of(DogsUnleashed.MOD_ID, "open_naming_screen");
 
@@ -87,6 +92,19 @@ public final class ModNetworking {
     }
   }
 
+  public record RequestPetManagerStatePayload() implements CustomPayload {
+
+    public static final CustomPayload.Id<RequestPetManagerStatePayload> ID =
+        new CustomPayload.Id<>(REQUEST_PET_MANAGER_STATE_ID);
+    public static final PacketCodec<RegistryByteBuf, RequestPetManagerStatePayload> CODEC =
+        PacketCodec.unit(new RequestPetManagerStatePayload());
+
+    @Override
+    public CustomPayload.Id<? extends CustomPayload> getId() {
+      return ID;
+    }
+  }
+
   public record SyncPetsPayload(List<PetSyncData> pets) implements CustomPayload {
 
     public static final CustomPayload.Id<SyncPetsPayload> ID = new CustomPayload.Id<>(SYNC_PETS_ID);
@@ -95,6 +113,27 @@ public final class ModNetworking {
             PetSyncData.CODEC.collect(PacketCodecs.toList()),
             SyncPetsPayload::pets,
             SyncPetsPayload::new);
+
+    @Override
+    public CustomPayload.Id<? extends CustomPayload> getId() {
+      return ID;
+    }
+  }
+
+  public record SyncPetManagerStatePayload(
+      String breedFilter, String aliveFilter, List<PetSyncData> pets) implements CustomPayload {
+
+    public static final CustomPayload.Id<SyncPetManagerStatePayload> ID =
+        new CustomPayload.Id<>(SYNC_PET_MANAGER_STATE_ID);
+    public static final PacketCodec<RegistryByteBuf, SyncPetManagerStatePayload> CODEC =
+        PacketCodec.tuple(
+            PacketCodecs.STRING,
+            SyncPetManagerStatePayload::breedFilter,
+            PacketCodecs.STRING,
+            SyncPetManagerStatePayload::aliveFilter,
+            PetSyncData.CODEC.collect(PacketCodecs.toList()),
+            SyncPetManagerStatePayload::pets,
+            SyncPetManagerStatePayload::new);
 
     @Override
     public CustomPayload.Id<? extends CustomPayload> getId() {
@@ -200,7 +239,11 @@ public final class ModNetworking {
     PayloadTypeRegistry.playC2S().register(SetPetNamePayload.ID, SetPetNamePayload.CODEC);
     PayloadTypeRegistry.playC2S().register(SummonPetPayload.ID, SummonPetPayload.CODEC);
     PayloadTypeRegistry.playC2S().register(RequestPetsPayload.ID, RequestPetsPayload.CODEC);
+    PayloadTypeRegistry.playC2S()
+        .register(RequestPetManagerStatePayload.ID, RequestPetManagerStatePayload.CODEC);
     PayloadTypeRegistry.playS2C().register(SyncPetsPayload.ID, SyncPetsPayload.CODEC);
+    PayloadTypeRegistry.playS2C()
+        .register(SyncPetManagerStatePayload.ID, SyncPetManagerStatePayload.CODEC);
     PayloadTypeRegistry.playS2C()
         .register(OpenNamingScreenPayload.ID, OpenNamingScreenPayload.CODEC);
   }
@@ -212,6 +255,8 @@ public final class ModNetworking {
         SummonPetPayload.ID, ModNetworking::handleSummonPet);
     ServerPlayNetworking.registerGlobalReceiver(
         RequestPetsPayload.ID, ModNetworking::handleRequestPets);
+    ServerPlayNetworking.registerGlobalReceiver(
+        RequestPetManagerStatePayload.ID, ModNetworking::handleRequestPetManagerState);
   }
 
   private static void handleSetPetName(
@@ -280,34 +325,81 @@ public final class ModNetworking {
         .execute(
             () -> {
               final PetManager petManager = PetManager.get(world.getServer());
-              List<PetData> pets;
+              final PetManagerPreferencesState preferencesState =
+                  PetManagerPreferencesState.get(world.getServer());
+              final String breedFilter =
+                  payload.breedFilter().isEmpty() ? null : payload.breedFilter();
+              final Boolean aliveFilter = payload.filterAlive() ? payload.aliveValue() : null;
+              preferencesState.setPreferences(
+                  player.getUuid(),
+                  payload.breedFilter(),
+                  aliveFilterToPreferenceValue(aliveFilter));
 
-              if (!payload.searchQuery().isEmpty()) {
-                pets = petManager.searchPetsByName(player.getUuid(), payload.searchQuery());
-              } else {
-                final Boolean aliveFilter = payload.filterAlive() ? payload.aliveValue() : null;
-                final String breedFilter =
-                    payload.breedFilter().isEmpty() ? null : payload.breedFilter();
-                pets =
-                    petManager.getPetsByOwnerFiltered(player.getUuid(), breedFilter, aliveFilter);
-              }
-
-              for (final PetData pet : pets) {
-                if (pet.isAlive()) {
-                  final Entity entity = findEntityByUuid(world, pet.getPetId());
-                  if (entity instanceof UnleashedDogEntity dog) {
-                    pet.setHealth(dog.getHealth());
-                    pet.setLastKnownPosition(dog.getBlockPos());
-                    pet.setDimension(world.getRegistryKey().getValue().toString());
-                    pet.syncAppearanceFrom(dog);
-                    petManager.updatePet(pet);
-                  }
-                }
-              }
-
-              final List<PetSyncData> syncData = pets.stream().map(PetSyncData::from).toList();
+              final List<PetData> pets =
+                  petManager.getPetsByOwnerFiltered(
+                      player.getUuid(), breedFilter, aliveFilter, payload.searchQuery());
+              final List<PetSyncData> syncData = syncPetData(world, petManager, pets);
               ServerPlayNetworking.send(player, new SyncPetsPayload(syncData));
             });
+  }
+
+  private static void handleRequestPetManagerState(
+      RequestPetManagerStatePayload payload, ServerPlayNetworking.Context context) {
+    final ServerPlayerEntity player = context.player();
+    final ServerWorld world = player.getServerWorld();
+
+    world
+        .getServer()
+        .execute(
+            () -> {
+              final PetManagerPreferencesState preferencesState =
+                  PetManagerPreferencesState.get(world.getServer());
+              final PetManagerPreferencesState.PetManagerPreferences preferences =
+                  preferencesState.getPreferences(player.getUuid());
+              final String breedFilter = preferences.breedFilter();
+              final Boolean aliveFilter = preferenceValueToAliveFilter(preferences.aliveFilter());
+              final List<PetData> pets =
+                  PetManager.get(world.getServer())
+                      .getPetsByOwnerFiltered(player.getUuid(), breedFilter, aliveFilter, "");
+              final List<PetSyncData> syncData =
+                  syncPetData(world, PetManager.get(world.getServer()), pets);
+              ServerPlayNetworking.send(
+                  player,
+                  new SyncPetManagerStatePayload(
+                      breedFilter, aliveFilterToPreferenceValue(aliveFilter), syncData));
+            });
+  }
+
+  private static String aliveFilterToPreferenceValue(final Boolean aliveFilter) {
+    if (aliveFilter == null) {
+      return "ALL";
+    }
+    return aliveFilter ? "ALIVE" : "DECEASED";
+  }
+
+  private static Boolean preferenceValueToAliveFilter(final String aliveFilter) {
+    return switch (aliveFilter) {
+      case "ALIVE" -> true;
+      case "DECEASED" -> false;
+      default -> null;
+    };
+  }
+
+  private static List<PetSyncData> syncPetData(
+      final ServerWorld world, final PetManager petManager, final List<PetData> pets) {
+    for (final PetData pet : pets) {
+      if (pet.isAlive()) {
+        final Entity entity = findEntityByUuid(world, pet.getPetId());
+        if (entity instanceof UnleashedDogEntity dog) {
+          pet.setHealth(dog.getHealth());
+          pet.setLastKnownPosition(dog.getBlockPos());
+          pet.setDimension(world.getRegistryKey().getValue().toString());
+          pet.syncAppearanceFrom(dog);
+          petManager.updatePet(pet);
+        }
+      }
+    }
+    return pets.stream().map(PetSyncData::from).toList();
   }
 
   private static Entity findEntityByUuid(ServerWorld world, UUID uuid) {
