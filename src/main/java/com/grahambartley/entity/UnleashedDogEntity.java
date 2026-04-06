@@ -949,18 +949,6 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     controllers.add(
         new AnimationController<>(
             this,
-            "carry_ball",
-            0,
-            state -> {
-              if (state.getAnimatable().isCarryingBall()) {
-                return state.setAndContinue(RawAnimation.begin().thenLoop("carry_ball"));
-              }
-              return PlayState.STOP;
-            }));
-
-    controllers.add(
-        new AnimationController<>(
-            this,
             "head_tilt",
             5,
             state -> {

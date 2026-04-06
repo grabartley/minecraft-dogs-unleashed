@@ -3,6 +3,7 @@ package com.grahambartley.render;
 import com.grahambartley.entity.BeagleEntity;
 import com.grahambartley.model.BeagleModel;
 import com.grahambartley.render.layer.BeagleCollarLayer;
+import com.grahambartley.render.layer.DogCarryBallLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
@@ -14,6 +15,7 @@ public class BeagleRenderer extends GeoEntityRenderer<BeagleEntity> {
   public BeagleRenderer(EntityRendererFactory.Context context) {
     super(context, new BeagleModel());
     this.addRenderLayer(new BeagleCollarLayer(this));
+    this.addRenderLayer(new DogCarryBallLayer<>(this));
   }
 
   @Override
