@@ -11,6 +11,7 @@ import static com.grahambartley.ModEntities.HUSKY;
 import com.grahambartley.ModSounds;
 import com.grahambartley.entity.variant.HuskyCoat;
 import com.grahambartley.entity.variant.HuskyEyeColor;
+import com.grahambartley.entity.variant.UnleashedDogCoat;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
@@ -93,7 +94,8 @@ public class HuskyEntity extends UnleashedDogEntity {
     this.dataTracker.set(EYE_COLOR_VARIANT, HuskyEyeColor.fromRandom(random).ordinal());
   }
 
-  public HuskyCoat getCoatVariant() {
+  @Override
+  public UnleashedDogCoat getCoatVariant() {
     return HuskyCoat.fromOrdinal(this.dataTracker.get(COAT_VARIANT));
   }
 
