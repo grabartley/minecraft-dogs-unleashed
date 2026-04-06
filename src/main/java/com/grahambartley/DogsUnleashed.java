@@ -5,7 +5,6 @@ import com.grahambartley.network.ModNetworking;
 import com.grahambartley.pet.PetData;
 import com.grahambartley.pet.PetManager;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
@@ -20,8 +19,8 @@ public class DogsUnleashed implements ModInitializer {
 
   public static final Logger log = LoggerFactory.getLogger(MOD_ID);
 
-  private static final List<ScheduledTask> scheduledTasks = new ArrayList<>();
-  private static long serverTickCounter = 0L;
+  // Tasks deferred to the start of the next server tick to avoid portal-mechanics race conditions.
+  private static final List<Runnable> pendingNextTick = new ArrayList<>();
 
   @Override
   public void onInitialize() {
@@ -37,18 +36,10 @@ public class DogsUnleashed implements ModInitializer {
 
     ServerTickEvents.START_SERVER_TICK.register(
         (MinecraftServer server) -> {
-          serverTickCounter++;
-          if (!scheduledTasks.isEmpty()) {
-            final List<Runnable> readyTasks = new ArrayList<>();
-            final Iterator<ScheduledTask> iterator = scheduledTasks.iterator();
-            while (iterator.hasNext()) {
-              final ScheduledTask task = iterator.next();
-              if (task.runAtTick <= serverTickCounter) {
-                readyTasks.add(task.task);
-                iterator.remove();
-              }
-            }
-            for (final Runnable task : readyTasks) {
+          if (!pendingNextTick.isEmpty()) {
+            final List<Runnable> tasks = new ArrayList<>(pendingNextTick);
+            pendingNextTick.clear();
+            for (final Runnable task : tasks) {
               task.run();
             }
           }
@@ -59,8 +50,7 @@ public class DogsUnleashed implements ModInitializer {
           final MinecraftServer server = player.getServer();
           final java.util.UUID playerId = player.getUuid();
           final String destDim = destination.getRegistryKey().getValue().toString();
-          scheduleInTicks(
-              1,
+          pendingNextTick.add(
               () -> {
                 final PetManager petManager = PetManager.get(server);
                 final ServerWorld dest =
@@ -71,22 +61,19 @@ public class DogsUnleashed implements ModInitializer {
                 if (dest == null) return;
                 for (final PetData petData : petManager.getPetsByOwner(playerId)) {
                   if (!petData.isAlive()) continue;
-                  UnleashedDogEntity.findAndLoadWithTicket(
-                      server,
-                      petData,
-                      dog -> {
-                        if (dog.isRemoved() || dog.isInSittingPose() || dog.isSleepingInBed()) {
-                          return;
-                        }
-                        final net.minecraft.server.network.ServerPlayerEntity playerEntity =
-                            server.getPlayerManager().getPlayer(playerId);
-                        if (playerEntity == null) return;
-                        dog.followOwnerToDimension(playerEntity, dest);
-                        petData.setDimension(destDim);
-                        petData.setLastKnownPosition(playerEntity.getBlockPos());
-                        petManager.updatePet(petData);
-                      },
-                      () -> {});
+                  final UnleashedDogEntity dog = UnleashedDogEntity.findAndLoad(server, petData);
+                  if (dog != null
+                      && !dog.isRemoved()
+                      && !dog.isInSittingPose()
+                      && !dog.isSleepingInBed()) {
+                    final net.minecraft.server.network.ServerPlayerEntity playerEntity =
+                        server.getPlayerManager().getPlayer(playerId);
+                    if (playerEntity == null) continue;
+                    dog.followOwnerToDimension(playerEntity, dest);
+                    petData.setDimension(destDim);
+                    petData.setLastKnownPosition(playerEntity.getBlockPos());
+                    petManager.updatePet(petData);
+                  }
                 }
               });
         });
@@ -94,17 +81,7 @@ public class DogsUnleashed implements ModInitializer {
     log.info("Dogs Unleashed loaded successfully");
   }
 
-  public static void scheduleInTicks(int delayTicks, Runnable task) {
-    scheduledTasks.add(new ScheduledTask(serverTickCounter + Math.max(1, delayTicks), task));
-  }
-
-  private static final class ScheduledTask {
-    private final long runAtTick;
-    private final Runnable task;
-
-    private ScheduledTask(long runAtTick, Runnable task) {
-      this.runAtTick = runAtTick;
-      this.task = task;
-    }
+  public static void runNextTick(Runnable task) {
+    pendingNextTick.add(task);
   }
 }

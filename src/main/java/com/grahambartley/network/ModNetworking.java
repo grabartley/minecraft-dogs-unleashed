@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.entity.Entity;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
@@ -16,9 +17,10 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 
 public final class ModNetworking {
-
   public static final Identifier SET_PET_NAME_ID =
       Identifier.of(DogsUnleashed.MOD_ID, "set_pet_name");
   public static final Identifier SUMMON_PET_ID = Identifier.of(DogsUnleashed.MOD_ID, "summon_pet");
@@ -262,20 +264,25 @@ public final class ModNetworking {
                       final ServerWorld currentPlayerWorld = currentPlayer.getServerWorld();
                       if (dog.getWorld() != currentPlayerWorld) {
                         dog.followOwnerToDimension(currentPlayer, currentPlayerWorld);
+                        petData.setLastKnownPosition(currentPlayer.getBlockPos());
                       } else {
+                        final Vec3d summonPos =
+                            findSafeSummonPosition(
+                                currentPlayerWorld, currentPlayer.getBlockPos(), dog);
                         dog.wakeUp();
                         dog.setSitting(false);
                         dog.teleport(
                             currentPlayerWorld,
-                            currentPlayer.getX(),
-                            currentPlayer.getY(),
-                            currentPlayer.getZ(),
+                            summonPos.x,
+                            summonPos.y,
+                            summonPos.z,
                             java.util.Set.of(),
                             dog.getYaw(),
                             dog.getPitch());
+                        refreshEntityTracking(currentPlayerWorld, dog, currentPlayer);
+                        petData.setLastKnownPosition(BlockPos.ofFloored(summonPos));
                       }
 
-                      petData.setLastKnownPosition(currentPlayer.getBlockPos());
                       petData.setDimension(
                           currentPlayerWorld.getRegistryKey().getValue().toString());
                       petManager.updatePet(petData);
@@ -283,6 +290,56 @@ public final class ModNetworking {
                     () -> {});
               }
             });
+  }
+
+  private static Vec3d findSafeSummonPosition(
+      ServerWorld world, BlockPos center, UnleashedDogEntity dog) {
+    for (final BlockPos basePos : BlockPos.iterateOutwards(center, 2, 1, 2)) {
+      if (!isSafeSummonBase(world, basePos)) {
+        continue;
+      }
+
+      final Vec3d candidate = new Vec3d(basePos.getX() + 0.5, basePos.getY(), basePos.getZ() + 0.5);
+      final net.minecraft.util.math.Box box =
+          dog.getBoundingBox()
+              .offset(candidate.x - dog.getX(), candidate.y - dog.getY(), candidate.z - dog.getZ());
+      if (world.getBlockCollisions(dog, box).iterator().hasNext()) {
+        continue;
+      }
+      return candidate;
+    }
+
+    return new Vec3d(playerSafeX(center), center.getY(), playerSafeZ(center));
+  }
+
+  private static boolean isSafeSummonBase(ServerWorld world, BlockPos basePos) {
+    final var stateAtPos = world.getBlockState(basePos);
+    final var stateAbove = world.getBlockState(basePos.up());
+    final var stateBelow = world.getBlockState(basePos.down());
+
+    final boolean openAtFeet = stateAtPos.isAir() || stateAtPos.isReplaceable();
+    final boolean openAtHead = stateAbove.isAir() || stateAbove.isReplaceable();
+    final boolean stableFloor = stateBelow.isSolidBlock(world, basePos.down());
+    final boolean notInFluid =
+        !stateAtPos.getFluidState().isStill() && !stateAbove.getFluidState().isStill();
+
+    return openAtFeet && openAtHead && stableFloor && notInFluid;
+  }
+
+  private static double playerSafeX(BlockPos center) {
+    return center.getX() + 0.5;
+  }
+
+  private static double playerSafeZ(BlockPos center) {
+    return center.getZ() + 0.5;
+  }
+
+  private static void refreshEntityTracking(
+      ServerWorld world, Entity entity, ServerPlayerEntity player) {
+    final var chunkManager = world.getChunkManager();
+    chunkManager.unloadEntity(entity);
+    chunkManager.loadEntity(entity);
+    chunkManager.updatePosition(player);
   }
 
   private static void handleRequestPets(

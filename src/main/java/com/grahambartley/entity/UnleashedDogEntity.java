@@ -82,6 +82,8 @@ import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.TeleportTarget;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.world.chunk.WorldChunk;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -122,6 +124,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   private static final int SHAKE_DELAY_TICKS = 20;
   private static final int PET_RECALL_TICKET_LEVEL = 3;
   private static final int PET_RECALL_RETRY_TICKS = 20;
+  private static final int PET_TRACKING_SYNC_INTERVAL_TICKS = 20;
   private static final ChunkTicketType<ChunkPos> PET_RECALL_TICKET =
       ChunkTicketType.create(
           "dogs_unleashed_pet_recall", Comparator.comparingLong(ChunkPos::toLong), 40);
@@ -588,6 +591,10 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
         }
         this.dataTracker.set(SHAKE_PROGRESS, shakeProgress - 1);
       }
+
+      if (this.age % PET_TRACKING_SYNC_INTERVAL_TICKS == 0) {
+        this.syncPetTracking();
+      }
     }
   }
 
@@ -607,23 +614,30 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     return super.damage(source, amount);
   }
 
-  /** Finds this dog in any currently loaded dimension and returns null if the pet is not loaded. */
+  /**
+   * Finds this dog by UUID, loading its last known chunk first when needed. Returns null if the pet
+   * still cannot be found.
+   */
   @Nullable
   public static UnleashedDogEntity findAndLoad(MinecraftServer server, PetData petData) {
-    // Try the known dimension first (fast path)
-    final String dimStr = petData.getDimension();
-    if (dimStr != null && !dimStr.isEmpty()) {
-      final ServerWorld knownWorld =
-          server.getWorld(RegistryKey.of(RegistryKeys.WORLD, Identifier.of(dimStr)));
-      if (knownWorld != null) {
-        final net.minecraft.entity.Entity entity = knownWorld.getEntity(petData.getPetId());
-        if (entity instanceof UnleashedDogEntity dog) return dog;
+    final ServerWorld knownWorld = getKnownWorld(server, petData);
+    if (knownWorld != null) {
+      final UnleashedDogEntity dog = findInWorld(knownWorld, petData.getPetId());
+      if (dog != null) return dog;
+
+      final BlockPos lastKnownPosition = petData.getLastKnownPosition();
+      if (lastKnownPosition != null) {
+        final ChunkPos chunkPos = new ChunkPos(lastKnownPosition);
+        loadChunkEntities(knownWorld, chunkPos.x, chunkPos.z);
+        return findInWorld(knownWorld, petData.getPetId());
       }
     }
-    // Fallback: search all loaded worlds (handles stale dimension data)
+
+    // Fallback: search all loaded worlds in case the stored dimension is stale.
     for (final ServerWorld world : server.getWorlds()) {
-      final net.minecraft.entity.Entity entity = world.getEntity(petData.getPetId());
-      if (entity instanceof UnleashedDogEntity dog) return dog;
+      if (world == knownWorld) continue;
+      final UnleashedDogEntity dog = findInWorld(world, petData.getPetId());
+      if (dog != null) return dog;
     }
     return null;
   }
@@ -669,8 +683,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
       int attemptsRemaining,
       Consumer<UnleashedDogEntity> onLoaded,
       Runnable onFailure) {
-    DogsUnleashed.scheduleInTicks(
-        1,
+    DogsUnleashed.runNextTick(
         () -> {
           final UnleashedDogEntity dog = findAndLoad(server, petData);
           if (dog != null) {
@@ -692,6 +705,57 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
           retryFindAndLoad(
               server, petData, knownWorld, chunkPos, attemptsRemaining - 1, onLoaded, onFailure);
         });
+  }
+
+  @Nullable
+  private static ServerWorld getKnownWorld(MinecraftServer server, PetData petData) {
+    final String dimStr = petData.getDimension();
+    if (dimStr == null || dimStr.isEmpty()) {
+      return null;
+    }
+    return server.getWorld(RegistryKey.of(RegistryKeys.WORLD, Identifier.of(dimStr)));
+  }
+
+  @Nullable
+  private static UnleashedDogEntity findInWorld(ServerWorld world, java.util.UUID petId) {
+    final net.minecraft.entity.Entity entity = world.getEntity(petId);
+    return entity instanceof UnleashedDogEntity dog ? dog : null;
+  }
+
+  private static void loadChunkEntities(ServerWorld world, int chunkX, int chunkZ) {
+    if (world.getChunkManager().getChunk(chunkX, chunkZ, ChunkStatus.FULL, true)
+        instanceof WorldChunk worldChunk) {
+      worldChunk.loadEntities();
+    }
+  }
+
+  private void syncPetTracking() {
+    if (!(this.getWorld() instanceof ServerWorld serverWorld) || !this.isTamed()) {
+      return;
+    }
+
+    final PetManager petManager = PetManager.get(serverWorld.getServer());
+    final PetData petData = petManager.getPetByEntityId(this.getUuid());
+    if (petData == null || !petData.isAlive()) {
+      return;
+    }
+
+    final BlockPos currentPos = this.getBlockPos();
+    final String currentDimension = serverWorld.getRegistryKey().getValue().toString();
+    final boolean positionChanged = !currentPos.equals(petData.getLastKnownPosition());
+    final boolean dimensionChanged = !currentDimension.equals(petData.getDimension());
+    final boolean healthChanged =
+        petData.getHealth() != this.getHealth() || petData.getMaxHealth() != this.getMaxHealth();
+
+    if (!positionChanged && !dimensionChanged && !healthChanged) {
+      return;
+    }
+
+    petData.setLastKnownPosition(currentPos);
+    petData.setDimension(currentDimension);
+    petData.setHealth(this.getHealth());
+    petData.setMaxHealth(this.getMaxHealth());
+    petManager.updatePet(petData);
   }
 
   /**
