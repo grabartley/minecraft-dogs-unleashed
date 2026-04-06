@@ -10,6 +10,9 @@ import com.grahambartley.render.DogGraveItemRenderer;
 import com.grahambartley.render.GoldenRetrieverRenderer;
 import com.grahambartley.render.HuskyRenderer;
 import com.grahambartley.render.ShibaInuRenderer;
+import com.grahambartley.render.TennisBallBlockEntityRenderer;
+import com.grahambartley.render.TennisBallItemRenderer;
+import com.grahambartley.render.TennisBallProjectileRenderer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
@@ -18,6 +21,8 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 public class DogsUnleashedClient implements ClientModInitializer {
   @Override
   public void onInitializeClient() {
+    EntityRendererRegistry.register(
+        ModEntities.TENNIS_BALL_PROJECTILE, TennisBallProjectileRenderer::new);
     EntityRendererRegistry.register(ModEntities.HUSKY, HuskyRenderer::new);
     EntityRendererRegistry.register(ModEntities.DACHSHUND, DachshundRenderer::new);
     EntityRendererRegistry.register(ModEntities.BEAGLE, BeagleRenderer::new);
@@ -27,9 +32,13 @@ public class DogsUnleashedClient implements ClientModInitializer {
     BlockEntityRendererFactories.register(ModBlockEntities.DOG_BED, DogBedBlockEntityRenderer::new);
     BlockEntityRendererFactories.register(
         ModBlockEntities.DOG_GRAVE, DogGraveBlockEntityRenderer::new);
+    BlockEntityRendererFactories.register(
+        ModBlockEntities.TENNIS_BALL, TennisBallBlockEntityRenderer::new);
 
     BuiltinItemRendererRegistry.INSTANCE.register(ModBlocks.DOG_BED, new DogBedItemRenderer());
     BuiltinItemRendererRegistry.INSTANCE.register(ModBlocks.DOG_GRAVE, new DogGraveItemRenderer());
+    BuiltinItemRendererRegistry.INSTANCE.register(
+        ModItems.TENNIS_BALL, new TennisBallItemRenderer());
 
     ModKeyBindings.register();
     ModNetworkingClient.registerClientReceivers();

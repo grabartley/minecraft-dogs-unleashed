@@ -2,6 +2,7 @@ package com.grahambartley;
 
 import com.grahambartley.item.DogBedItem;
 import com.grahambartley.item.DogGraveItem;
+import com.grahambartley.item.TennisBallItem;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroups;
@@ -13,6 +14,12 @@ import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 
 public class ModItems {
+
+  public static final Item TENNIS_BALL =
+      Registry.register(
+          Registries.ITEM,
+          Identifier.of(DogsUnleashed.MOD_ID, "tennis_ball"),
+          new TennisBallItem(new Item.Settings().maxCount(16)));
 
   public static final Item DOG_BED =
       Registry.register(
@@ -77,6 +84,8 @@ public class ModItems {
               new Item.Settings()));
 
   public static void initialize() {
+    ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS)
+        .register(entries -> entries.add(TENNIS_BALL));
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL)
         .register(
             entries -> {

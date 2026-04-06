@@ -8,18 +8,26 @@ import static com.grahambartley.ModConstants.MINECRAFT_TICK_RATE;
 import static com.grahambartley.ModConstants.RANDOM_BARK_CHANCE;
 
 import com.grahambartley.ModBlocks;
+import com.grahambartley.ModItems;
 import com.grahambartley.block.DogBedBlock;
 import com.grahambartley.block.DogGraveBlock;
 import com.grahambartley.block.entity.DogBedBlockEntity;
 import com.grahambartley.block.entity.DogGraveBlockEntity;
 import com.grahambartley.entity.goal.AutoSleepGoal;
+import com.grahambartley.entity.goal.FetchChaseGoal;
+import com.grahambartley.entity.goal.FetchRetrieveGoal;
+import com.grahambartley.entity.goal.FetchReturnGoal;
 import com.grahambartley.entity.goal.SleepInBedGoal;
+import com.grahambartley.entity.goal.TennisBallTemptGoal;
 import com.grahambartley.entity.variant.UnleashedDogCoat;
 import com.grahambartley.network.ModNetworking;
 import com.grahambartley.pet.PetData;
 import com.grahambartley.pet.PetManager;
 import com.grahambartley.util.DogNames;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityData;
@@ -102,6 +110,14 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   private static final TrackedData<Optional<BlockPos>> ASSIGNED_BED_POS =
       DataTracker.registerData(
           UnleashedDogEntity.class, TrackedDataHandlerRegistry.OPTIONAL_BLOCK_POS);
+  private static final TrackedData<Boolean> CARRYING_BALL =
+      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+
+  private static final Map<UUID, UUID> ACTIVE_PLAY_SESSIONS = new HashMap<>();
+
+  private boolean inPlayMode = false;
+  private UUID playPartnerPlayerUuid = null;
+  private BlockPos activeBallBlockPos = null;
 
   private static final UniformIntProvider ANGER_TIME_RANGE = TimeHelper.betweenSeconds(20, 39);
   private java.util.UUID angryAt;
@@ -217,6 +233,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     builder.add(SLEEPING_IN_BED, false);
     builder.add(COMMANDED_TO_SLEEP, false);
     builder.add(ASSIGNED_BED_POS, Optional.empty());
+    builder.add(CARRYING_BALL, false);
   }
 
   public DyeColor getCollarColor() {
@@ -295,6 +312,80 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     return this.getAssignedBedPos().isPresent();
   }
 
+  public boolean isInPlayMode() {
+    return this.inPlayMode;
+  }
+
+  public UUID getPlayPartnerPlayerUuid() {
+    return this.playPartnerPlayerUuid;
+  }
+
+  public BlockPos getActiveBallBlockPos() {
+    return this.activeBallBlockPos;
+  }
+
+  public void setActiveBallBlockPos(BlockPos pos) {
+    this.activeBallBlockPos = pos;
+  }
+
+  public boolean isCarryingBall() {
+    return this.dataTracker.get(CARRYING_BALL);
+  }
+
+  public void setCarryingBall(boolean carrying) {
+    this.dataTracker.set(CARRYING_BALL, carrying);
+  }
+
+  public void startPlayMode(PlayerEntity player) {
+    if (ACTIVE_PLAY_SESSIONS.containsKey(player.getUuid())) {
+      return;
+    }
+    this.inPlayMode = true;
+    this.playPartnerPlayerUuid = player.getUuid();
+    this.activeBallBlockPos = null;
+    this.setSitting(false);
+    ACTIVE_PLAY_SESSIONS.put(player.getUuid(), this.getUuid());
+  }
+
+  public void endPlayMode() {
+    if (this.playPartnerPlayerUuid != null) {
+      ACTIVE_PLAY_SESSIONS.remove(this.playPartnerPlayerUuid);
+    }
+    this.inPlayMode = false;
+    this.playPartnerPlayerUuid = null;
+    this.activeBallBlockPos = null;
+    this.setCarryingBall(false);
+  }
+
+  public static boolean isAnyDogInPlayModeFor(UUID playerUuid) {
+    return ACTIVE_PLAY_SESSIONS.containsKey(playerUuid);
+  }
+
+  public static boolean isAnyDogInPlayMode() {
+    return !ACTIVE_PLAY_SESSIONS.isEmpty();
+  }
+
+  public boolean isActivelyFetchingBall() {
+    if (!this.isInPlayMode()) {
+      return false;
+    }
+    if (this.isCarryingBall() || this.activeBallBlockPos != null) {
+      return true;
+    }
+    if (this.playPartnerPlayerUuid == null) {
+      return false;
+    }
+
+    return !this.getWorld()
+        .getEntitiesByClass(
+            TennisBallProjectileEntity.class,
+            this.getBoundingBox().expand(128, 64, 128),
+            ball ->
+                ball.getOwner() instanceof PlayerEntity player
+                    && this.playPartnerPlayerUuid.equals(player.getUuid()))
+        .isEmpty();
+  }
+
   private void startShaking() {
     if (!this.isShaking() && !this.isInSittingPose()) {
       this.dataTracker.set(SHAKE_PROGRESS, SHAKE_DURATION_TICKS);
@@ -326,12 +417,19 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     this.goalSelector.add(1, new SwimGoal(this));
     this.goalSelector.add(2, new SitGoal(this));
     this.goalSelector.add(3, new SleepInBedGoal(this));
+    this.goalSelector.add(3, new FetchChaseGoal(this));
+    this.goalSelector.add(3, new FetchRetrieveGoal(this));
+    this.goalSelector.add(3, new FetchReturnGoal(this));
     this.goalSelector.add(4, new AutoSleepGoal(this));
     this.goalSelector.add(5, new EscapeDangerGoal(this, 1.5));
     this.goalSelector.add(6, new PounceAtTargetGoal(this, 0.4F));
     this.goalSelector.add(7, new MeleeAttackGoal(this, 1.0, true));
     this.goalSelector.add(8, new AnimalMateGoal(this, 1.0));
     this.goalSelector.add(9, new TemptGoal(this, 1.0, TAMING_INGREDIENT, false));
+    this.goalSelector.add(
+        9,
+        new TennisBallTemptGoal(
+            this, 1.0, net.minecraft.recipe.Ingredient.ofItems(ModItems.TENNIS_BALL), false));
     this.goalSelector.add(10, new FollowOwnerGoal(this, 1.0, 10.0F, 2.0F));
     this.goalSelector.add(11, new WanderAroundFarGoal(this, 1.0));
     this.goalSelector.add(12, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F));
@@ -352,6 +450,22 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     if (this.getWorld().isClient) {
       final boolean shouldInteract = this.isOwner(player) || !this.isTamed();
       return shouldInteract ? ActionResult.CONSUME : ActionResult.PASS;
+    }
+
+    if (this.isTamed()
+        && this.isOwner(player)
+        && player.isSneaking()
+        && itemStack.isOf(ModItems.TENNIS_BALL)) {
+      if (this.isInPlayMode()) {
+        this.endPlayMode();
+        player.sendMessage(
+            Text.translatable("message.dogs-unleashed.play_end", this.getTamedName()), true);
+      } else {
+        this.startPlayMode(player);
+        player.sendMessage(
+            Text.translatable("message.dogs-unleashed.play_start", this.getTamedName()), true);
+      }
+      return ActionResult.SUCCESS;
     }
 
     if (this.isTamed()) {
@@ -599,6 +713,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
 
   @Override
   public void onDeath(DamageSource damageSource) {
+    this.endPlayMode();
     super.onDeath(damageSource);
 
     // CRITICAL: Only spawn graves for tamed dogs
@@ -740,6 +855,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
               nbt.putInt("BedPosY", pos.getY());
               nbt.putInt("BedPosZ", pos.getZ());
             });
+    nbt.putBoolean("CarryingBall", this.isCarryingBall());
     com.grahambartley.DogsUnleashed.log.debug(
         "[SAVE] {} (UUID={}) - isTamed={}, ownerUuid={}",
         this.getBreedId(),
@@ -770,6 +886,9 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     if (nbt.contains("BedPosX") && nbt.contains("BedPosY") && nbt.contains("BedPosZ")) {
       this.setAssignedBedPos(
           new BlockPos(nbt.getInt("BedPosX"), nbt.getInt("BedPosY"), nbt.getInt("BedPosZ")));
+    }
+    if (nbt.contains("CarryingBall")) {
+      this.setCarryingBall(nbt.getBoolean("CarryingBall"));
     }
     com.grahambartley.DogsUnleashed.log.debug(
         "[LOAD] {} (UUID={}) - isTamed={}, ownerUuid={}, nbt.hasOwner={}",

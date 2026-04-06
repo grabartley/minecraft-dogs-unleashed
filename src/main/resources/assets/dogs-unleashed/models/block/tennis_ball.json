@@ -1,0 +1,6 @@
+{
+  "parent": "builtin/entity",
+  "textures": {
+    "particle": "dogs-unleashed:block/tennis_ball"
+  }
+}
