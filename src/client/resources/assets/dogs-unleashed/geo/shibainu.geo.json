@@ -27,7 +27,7 @@
 				},
 				{
 					"name": "pescoco",
-					"pivot": [0, -0.4, 0.6],
+					"pivot": [0, 3.8, 0.6],
 					"cubes": [
 						{"origin": [-5.5, -1.45, -9.25], "size": [11, 11, 11], "inflate": -4.55, "pivot": [0, 4.05, -2.55], "rotation": [-55, 0, 0], "uv": [0, 0]}
 					]
@@ -171,6 +171,20 @@
 					"pivot": [-0.6, 0, 0],
 					"cubes": [
 						{"origin": [-3.1, -1.6, -1.2], "size": [8, 10, 10], "inflate": -4, "uv": [16, 83]}
+					]
+				},
+				{
+					"name": "eyelid",
+					"pivot": [0, 8, 0],
+					"cubes": [
+						{"origin": [-3, 3.8, -7.1], "size": [5, 5, 5], "inflate": -2, "uv": [96, 83]}
+					]
+				},
+				{
+					"name": "eyelid2",
+					"pivot": [1, 8, 0],
+					"cubes": [
+						{"origin": [-2, 3.8, -7.1], "size": [5, 5, 5], "inflate": -2, "uv": [96, 83], "mirror": true}
 					]
 				}
 			]

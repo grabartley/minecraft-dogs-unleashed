@@ -15,7 +15,8 @@ public class ShibaInuModel extends GeoModel<ShibaInuEntity> {
 
   @Override
   public Identifier getTextureResource(ShibaInuEntity animatable) {
-    return Identifier.of(MOD_ID, "textures/entity/shibainu.png");
+    final String fileName = "shibainu_" + animatable.getCoatVariant().getTexturePrefix() + ".png";
+    return Identifier.of(MOD_ID, "textures/entity/" + fileName);
   }
 
   @Override
