@@ -7,6 +7,7 @@ import static com.grahambartley.ModConstants.LOW_HEALTH_THRESHOLD;
 import static com.grahambartley.ModConstants.MINECRAFT_TICK_RATE;
 import static com.grahambartley.ModConstants.RANDOM_BARK_CHANCE;
 
+import com.grahambartley.DogsUnleashed;
 import com.grahambartley.ModBlocks;
 import com.grahambartley.ModItems;
 import com.grahambartley.ModNbtKeys;
@@ -31,6 +32,7 @@ import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityStatuses;
 import net.minecraft.entity.EntityType;
@@ -115,6 +117,8 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   private static final float LOOK_AT_PLAYER_RANGE = 8.0F;
   private static final int PLAYER_ANGER_TARGET_CHANCE = 10;
   private static final int TAME_SUCCESS_CHANCE = 3;
+  private static final long DAY_LENGTH_TICKS = 24000;
+  private static final long NIGHT_START_TICK = 13000;
   private static final float BREEDING_ITEM_HEAL_AMOUNT = 2.0F;
   private static final int RANDOM_TAIL_WAG_CHANCE = 200;
   private static final double MOVEMENT_THRESHOLD = 0.001;
@@ -190,6 +194,8 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
           Items.BONE);
 
   private int barkCooldownTicks = 0;
+  private long manuallyWokenTick = -1;
+  private boolean manuallyWokenAtNight = false;
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -318,6 +324,8 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     }
     this.setAssignedBedPos(bedPos);
     this.setSitting(false);
+    this.manuallyWokenTick = -1;
+    this.manuallyWokenAtNight = false;
     this.dataTracker.set(COMMANDED_TO_SLEEP, true);
     this.navigation.startMovingTo(
         bedPos.getX() + POSITION_CENTER_OFFSET,
@@ -330,8 +338,40 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     return this.dataTracker.get(COMMANDED_TO_SLEEP);
   }
 
+  public void markManuallyWoken() {
+    this.manuallyWokenTick = this.getWorld().getTime();
+    this.manuallyWokenAtNight = true;
+  }
+
+  public boolean isAutoSleepSuppressed() {
+    if (!this.manuallyWokenAtNight) {
+      return false;
+    }
+
+    final long currentTime = this.getWorld().getTime();
+    final long elapsed = currentTime - this.manuallyWokenTick;
+    if (elapsed >= DAY_LENGTH_TICKS) {
+      this.manuallyWokenAtNight = false;
+      this.manuallyWokenTick = -1;
+      return false;
+    }
+
+    final long wakeTimeOfDay = this.manuallyWokenTick % DAY_LENGTH_TICKS;
+    if (wakeTimeOfDay >= NIGHT_START_TICK) {
+      final long currentTimeOfDay = currentTime % DAY_LENGTH_TICKS;
+      if (currentTimeOfDay < NIGHT_START_TICK) {
+        this.manuallyWokenAtNight = false;
+        this.manuallyWokenTick = -1;
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   public void startSleepingInBed(BlockPos bedPos) {
     this.dataTracker.set(SLEEPING_IN_BED, true);
+    this.dataTracker.set(COMMANDED_TO_SLEEP, false);
     this.refreshPositionAndAngles(
         bedPos.getX() + POSITION_CENTER_OFFSET,
         bedPos.getY() + SLEEP_POSITION_Y_OFFSET,
@@ -339,10 +379,12 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
         this.getYaw(),
         this.getPitch());
     this.setVelocity(0, 0, 0);
+    this.setNoGravity(true);
     this.navigation.stop();
   }
 
   public void wakeUp() {
+    this.setNoGravity(false);
     this.dataTracker.set(SLEEPING_IN_BED, false);
     this.dataTracker.set(COMMANDED_TO_SLEEP, false);
   }
@@ -549,6 +591,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
           player.sendMessage(
               Text.translatable("message.dogs-unleashed.pending_bed_assignment", dogName), true);
         } else if (this.isSleepingInBed()) {
+          this.markManuallyWoken();
           this.wakeUp();
           final String dogName = this.getTamedName();
           player.sendMessage(
@@ -772,6 +815,57 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     return super.damage(source, amount);
   }
 
+  /**
+   * Moves this dog to the destination world at the owner's position. Used for cross-dimension
+   * summons and following the owner through portals.
+   *
+   * @return the dog entity in the destination world (may be a different instance from {@code this})
+   */
+  public UnleashedDogEntity followOwnerToDimension(
+      ServerPlayerEntity owner, ServerWorld destination) {
+    this.wakeUp();
+    this.setSitting(false);
+
+    final NbtCompound nbt = this.writeNbt(new NbtCompound());
+    nbt.remove("Dimension");
+
+    final ServerWorld currentWorld = (ServerWorld) this.getWorld();
+    final UnleashedDogEntity newDog = (UnleashedDogEntity) this.getType().create(destination);
+    if (newDog == null) {
+      DogsUnleashed.log.warn(
+          "[Dog] followOwnerToDimension: failed to create entity in {}",
+          destination.getRegistryKey().getValue());
+      return this;
+    }
+
+    newDog.readNbt(nbt);
+    newDog.setPos(owner.getX(), owner.getY(), owner.getZ());
+    newDog.setYaw(this.getYaw());
+    newDog.setPitch(this.getPitch());
+
+    this.remove(RemovalReason.CHANGED_DIMENSION);
+    currentWorld
+        .getChunk(this.getBlockPos().getX() >> 4, this.getBlockPos().getZ() >> 4)
+        .setNeedsSaving(true);
+
+    final Entity existing = destination.getEntity(this.getUuid());
+    if (existing != null && existing != this) {
+      DogsUnleashed.log.warn(
+          "[Dog] followOwnerToDimension: removing stale entity {} from {} (UUID collision)",
+          existing.getUuid(),
+          destination.getRegistryKey().getValue());
+      existing.remove(RemovalReason.DISCARDED);
+    }
+
+    destination.spawnEntity(newDog);
+
+    DogsUnleashed.log.info(
+        "[Dog] followOwnerToDimension: new dog {} spawned in {}",
+        newDog.getUuid(),
+        destination.getRegistryKey().getValue());
+    return newDog;
+  }
+
   @Override
   public void onDeath(DamageSource damageSource) {
     this.endPlayMode();
@@ -919,12 +1013,6 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
               nbt.putInt(ModNbtKeys.BED_POS_Z, pos.getZ());
             });
     nbt.putBoolean(ModNbtKeys.CARRYING_BALL, this.isCarryingBall());
-    com.grahambartley.DogsUnleashed.log.debug(
-        "[SAVE] {} (UUID={}) - isTamed={}, ownerUuid={}",
-        this.getBreedId(),
-        this.getUuid(),
-        this.isTamed(),
-        this.getOwnerUuid());
   }
 
   @Override
@@ -958,13 +1046,6 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     if (nbt.contains(ModNbtKeys.CARRYING_BALL)) {
       this.setCarryingBall(nbt.getBoolean(ModNbtKeys.CARRYING_BALL));
     }
-    com.grahambartley.DogsUnleashed.log.debug(
-        "[LOAD] {} (UUID={}) - isTamed={}, ownerUuid={}, nbt.hasOwner={}",
-        this.getBreedId(),
-        this.getUuid(),
-        this.isTamed(),
-        this.getOwnerUuid(),
-        nbt.containsUuid("Owner"));
   }
 
   @Override

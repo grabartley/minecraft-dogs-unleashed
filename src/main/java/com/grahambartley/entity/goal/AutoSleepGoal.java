@@ -35,6 +35,9 @@ public class AutoSleepGoal extends Goal {
     if (this.dog.isSleepingInBed()) {
       return false;
     }
+    if (this.dog.isAutoSleepSuppressed()) {
+      return false;
+    }
     if (!this.dog.hasAssignedBed()) {
       return false;
     }
@@ -47,6 +50,9 @@ public class AutoSleepGoal extends Goal {
     this.targetBedPos = this.dog.getAssignedBedPos().get();
 
     if (!this.isValidBed(this.targetBedPos)) {
+      return false;
+    }
+    if (this.dog.isAutoSleepSuppressed()) {
       return false;
     }
 
@@ -138,7 +144,19 @@ public class AutoSleepGoal extends Goal {
       return;
     }
 
+    if (this.dog.isAutoSleepSuppressed()) {
+      this.dog.getNavigation().stop();
+      return;
+    }
+
     if (this.dog.isSleepingInBed()) {
+      this.dog.refreshPositionAndAngles(
+          this.targetBedPos.getX() + 0.5,
+          this.targetBedPos.getY() + 0.1,
+          this.targetBedPos.getZ() + 0.5,
+          this.dog.getYaw(),
+          this.dog.getPitch());
+      this.dog.setVelocity(0, 0, 0);
       return;
     }
 

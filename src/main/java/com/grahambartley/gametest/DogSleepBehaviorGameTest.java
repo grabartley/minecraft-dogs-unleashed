@@ -167,8 +167,8 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
                   .squaredDistanceTo(
                       absBedPos.getX() + 0.5, absBedPos.getY() + 0.1, absBedPos.getZ() + 0.5);
           context.assertTrue(
-              distanceFromBed < 1.0,
-              "Sleeping dog should stay near bed position, distance=" + Math.sqrt(distanceFromBed));
+              distanceFromBed < 0.01,
+              "Sleeping dog should stay on bed position, distance=" + Math.sqrt(distanceFromBed));
           context.complete();
         });
   }
