@@ -5,6 +5,7 @@ import static com.grahambartley.ModEntities.SHIBA_INU;
 import com.grahambartley.ModNbtKeys;
 import com.grahambartley.ModSounds;
 import com.grahambartley.entity.variant.ShibaInuCoat;
+import com.grahambartley.entity.variant.ShibaInuCoatRolls;
 import com.grahambartley.entity.variant.UnleashedDogCoat;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
@@ -19,10 +20,6 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.world.World;
 
 public class ShibaInuEntity extends UnleashedDogEntity {
-  private static final int ROLL_BOUND = 100;
-  private static final int RED_THRESHOLD = 65;
-  private static final int BLACK_THRESHOLD = 85;
-
   private static final TrackedData<Integer> COAT_VARIANT =
       DataTracker.registerData(ShibaInuEntity.class, TrackedDataHandlerRegistry.INTEGER);
 
@@ -38,24 +35,8 @@ public class ShibaInuEntity extends UnleashedDogEntity {
 
   @Override
   protected void rollAppearance(final SpawnReason spawnReason) {
-    final int roll = this.random.nextInt(ROLL_BOUND);
-    final ShibaInuCoat coat;
-    if (spawnReason == SpawnReason.BREEDING) {
-      if (roll < RED_THRESHOLD) {
-        coat = ShibaInuCoat.RED;
-      } else if (roll < BLACK_THRESHOLD) {
-        coat = ShibaInuCoat.BLACK;
-        // sesame is breeding exclusive variant
-      } else {
-        coat = ShibaInuCoat.SESAME;
-      }
-    } else {
-      if (roll < RED_THRESHOLD) {
-        coat = ShibaInuCoat.RED;
-      } else {
-        coat = ShibaInuCoat.BLACK;
-      }
-    }
+    final int roll = this.random.nextInt(ShibaInuCoatRolls.ROLL_BOUND);
+    final ShibaInuCoat coat = ShibaInuCoatRolls.resolveCoatFromRoll(spawnReason, roll);
     this.dataTracker.set(COAT_VARIANT, coat.ordinal());
   }
 
