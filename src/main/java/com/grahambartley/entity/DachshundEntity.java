@@ -5,6 +5,7 @@ import static com.grahambartley.ModEntities.DACHSHUND;
 import com.grahambartley.ModNbtKeys;
 import com.grahambartley.ModSounds;
 import com.grahambartley.entity.variant.DachshundCoat;
+import com.grahambartley.entity.variant.DachshundCoatRolls;
 import com.grahambartley.entity.variant.UnleashedDogCoat;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
@@ -35,43 +36,8 @@ public class DachshundEntity extends UnleashedDogEntity {
 
   @Override
   protected void rollAppearance(final SpawnReason spawnReason) {
-    final int roll = this.random.nextInt(100);
-    final DachshundCoat coat;
-    if (spawnReason == SpawnReason.BREEDING) {
-      if (roll < 36) {
-        coat = DachshundCoat.BLACK_TAN;
-      } else if (roll < 62) {
-        coat = DachshundCoat.RED;
-      } else if (roll < 74) {
-        coat = DachshundCoat.CHOCOLATE_TAN;
-      } else if (roll < 82) {
-        coat = DachshundCoat.CHOCOLATE_CREAM;
-      } else if (roll < 89) {
-        coat = DachshundCoat.BLACK_CREAM;
-      } else if (roll < 94) {
-        coat = DachshundCoat.RED_PIEBALD;
-      } else if (roll < 98) {
-        coat = DachshundCoat.BLACK_TAN_PIEBALD;
-      } else if (roll < 99) {
-        coat = DachshundCoat.BLUE_TAN;
-      } else {
-        coat = DachshundCoat.ALBINO;
-      }
-    } else {
-      if (roll < 38) {
-        coat = DachshundCoat.BLACK_TAN;
-      } else if (roll < 65) {
-        coat = DachshundCoat.RED;
-      } else if (roll < 78) {
-        coat = DachshundCoat.CHOCOLATE_TAN;
-      } else if (roll < 86) {
-        coat = DachshundCoat.CHOCOLATE_CREAM;
-      } else if (roll < 93) {
-        coat = DachshundCoat.BLACK_CREAM;
-      } else {
-        coat = DachshundCoat.RED_PIEBALD;
-      }
-    }
+    final int roll = this.random.nextInt(DachshundCoatRolls.ROLL_BOUND);
+    final DachshundCoat coat = DachshundCoatRolls.resolveCoatFromRoll(spawnReason, roll);
     this.dataTracker.set(COAT_VARIANT, coat.ordinal());
   }
 
