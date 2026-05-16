@@ -194,7 +194,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
           Items.BONE);
 
   private int barkCooldownTicks = 0;
-  private long manuallyWokenTick = -1;
+  private int manuallyWokenAge = -1;
   private boolean manuallyWokenAtNight = false;
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -324,7 +324,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     }
     this.setAssignedBedPos(bedPos);
     this.setSitting(false);
-    this.manuallyWokenTick = -1;
+    this.manuallyWokenAge = -1;
     this.manuallyWokenAtNight = false;
     this.dataTracker.set(COMMANDED_TO_SLEEP, true);
     this.navigation.startMovingTo(
@@ -339,8 +339,9 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   }
 
   public void markManuallyWoken() {
-    this.manuallyWokenTick = this.getWorld().getTime();
-    this.manuallyWokenAtNight = true;
+    this.manuallyWokenAge = this.age;
+    final long timeOfDay = this.getWorld().getTimeOfDay() % DAY_LENGTH_TICKS;
+    this.manuallyWokenAtNight = timeOfDay >= NIGHT_START_TICK;
   }
 
   public boolean isAutoSleepSuppressed() {
@@ -348,22 +349,18 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
       return false;
     }
 
-    final long currentTime = this.getWorld().getTime();
-    final long elapsed = currentTime - this.manuallyWokenTick;
+    final int elapsed = this.age - this.manuallyWokenAge;
     if (elapsed >= DAY_LENGTH_TICKS) {
       this.manuallyWokenAtNight = false;
-      this.manuallyWokenTick = -1;
+      this.manuallyWokenAge = -1;
       return false;
     }
 
-    final long wakeTimeOfDay = this.manuallyWokenTick % DAY_LENGTH_TICKS;
-    if (wakeTimeOfDay >= NIGHT_START_TICK) {
-      final long currentTimeOfDay = currentTime % DAY_LENGTH_TICKS;
-      if (currentTimeOfDay < NIGHT_START_TICK) {
-        this.manuallyWokenAtNight = false;
-        this.manuallyWokenTick = -1;
-        return false;
-      }
+    final long currentTimeOfDay = this.getWorld().getTimeOfDay() % DAY_LENGTH_TICKS;
+    if (currentTimeOfDay < NIGHT_START_TICK) {
+      this.manuallyWokenAtNight = false;
+      this.manuallyWokenAge = -1;
+      return false;
     }
 
     return true;
