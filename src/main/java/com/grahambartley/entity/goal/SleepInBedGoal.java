@@ -59,7 +59,18 @@ public class SleepInBedGoal extends Goal {
     if (!this.isValidBed(this.targetBedPos)) {
       return false;
     }
-    return this.dog.isSleepingInBed() || this.dog.isCommandedToSleep();
+
+    if (this.dog.isSleepingInBed()) {
+      final World world = this.dog.getWorld();
+      final long timeOfDay = world.getTimeOfDay() % 24000;
+      final boolean isDayTime = timeOfDay < 13000 || timeOfDay >= 23000;
+      if (isDayTime || world.isRaining() || world.isThundering()) {
+        return false;
+      }
+      return true;
+    }
+
+    return this.dog.isCommandedToSleep();
   }
 
   @Override
@@ -89,6 +100,13 @@ public class SleepInBedGoal extends Goal {
     }
 
     if (this.dog.isSleepingInBed()) {
+      this.dog.refreshPositionAndAngles(
+          this.targetBedPos.getX() + BED_POSITION_OFFSET,
+          this.targetBedPos.getY() + 0.1,
+          this.targetBedPos.getZ() + BED_POSITION_OFFSET,
+          this.dog.getYaw(),
+          this.dog.getPitch());
+      this.dog.setVelocity(0, 0, 0);
       return;
     }
 

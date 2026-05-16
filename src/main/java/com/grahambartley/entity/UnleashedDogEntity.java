@@ -117,6 +117,8 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   private static final float LOOK_AT_PLAYER_RANGE = 8.0F;
   private static final int PLAYER_ANGER_TARGET_CHANCE = 10;
   private static final int TAME_SUCCESS_CHANCE = 3;
+  private static final long DAY_LENGTH_TICKS = 24000;
+  private static final long NIGHT_START_TICK = 13000;
   private static final float BREEDING_ITEM_HEAL_AMOUNT = 2.0F;
   private static final int RANDOM_TAIL_WAG_CHANCE = 200;
   private static final double MOVEMENT_THRESHOLD = 0.001;
@@ -192,6 +194,8 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
           Items.BONE);
 
   private int barkCooldownTicks = 0;
+  private int manuallyWokenAge = -1;
+  private boolean manuallyWokenAtNight = false;
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -320,6 +324,8 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     }
     this.setAssignedBedPos(bedPos);
     this.setSitting(false);
+    this.manuallyWokenAge = -1;
+    this.manuallyWokenAtNight = false;
     this.dataTracker.set(COMMANDED_TO_SLEEP, true);
     this.navigation.startMovingTo(
         bedPos.getX() + POSITION_CENTER_OFFSET,
@@ -332,8 +338,40 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     return this.dataTracker.get(COMMANDED_TO_SLEEP);
   }
 
+  public void markManuallyWoken() {
+    this.manuallyWokenAge = this.age;
+    final long timeOfDay = this.getWorld().getTimeOfDay() % DAY_LENGTH_TICKS;
+    this.manuallyWokenAtNight = timeOfDay >= NIGHT_START_TICK;
+  }
+
+  public boolean isAutoSleepSuppressed() {
+    if (!this.manuallyWokenAtNight) {
+      return false;
+    }
+
+    final int elapsed = this.age - this.manuallyWokenAge;
+    final long currentTimeOfDay = this.getWorld().getTimeOfDay() % DAY_LENGTH_TICKS;
+
+    if (!shouldKeepAutoSleepSuppressed(elapsed, currentTimeOfDay)) {
+      this.manuallyWokenAtNight = false;
+      this.manuallyWokenAge = -1;
+      return false;
+    }
+
+    return true;
+  }
+
+  static boolean shouldKeepAutoSleepSuppressed(int elapsed, long currentTimeOfDay) {
+    if (elapsed >= DAY_LENGTH_TICKS) {
+      return false;
+    }
+
+    return currentTimeOfDay >= NIGHT_START_TICK;
+  }
+
   public void startSleepingInBed(BlockPos bedPos) {
     this.dataTracker.set(SLEEPING_IN_BED, true);
+    this.dataTracker.set(COMMANDED_TO_SLEEP, false);
     this.refreshPositionAndAngles(
         bedPos.getX() + POSITION_CENTER_OFFSET,
         bedPos.getY() + SLEEP_POSITION_Y_OFFSET,
@@ -341,10 +379,12 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
         this.getYaw(),
         this.getPitch());
     this.setVelocity(0, 0, 0);
+    this.setNoGravity(true);
     this.navigation.stop();
   }
 
   public void wakeUp() {
+    this.setNoGravity(false);
     this.dataTracker.set(SLEEPING_IN_BED, false);
     this.dataTracker.set(COMMANDED_TO_SLEEP, false);
   }
@@ -551,6 +591,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
           player.sendMessage(
               Text.translatable("message.dogs-unleashed.pending_bed_assignment", dogName), true);
         } else if (this.isSleepingInBed()) {
+          this.markManuallyWoken();
           this.wakeUp();
           final String dogName = this.getTamedName();
           player.sendMessage(

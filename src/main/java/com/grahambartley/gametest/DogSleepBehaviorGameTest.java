@@ -167,8 +167,8 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
                   .squaredDistanceTo(
                       absBedPos.getX() + 0.5, absBedPos.getY() + 0.1, absBedPos.getZ() + 0.5);
           context.assertTrue(
-              distanceFromBed < 1.0,
-              "Sleeping dog should stay near bed position, distance=" + Math.sqrt(distanceFromBed));
+              distanceFromBed < 0.01,
+              "Sleeping dog should stay on bed position, distance=" + Math.sqrt(distanceFromBed));
           context.complete();
         });
   }
@@ -211,7 +211,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
-  public void commandedSleepDoesNotAutoWake(final TestContext context) {
+  public void commandedSleepAutoWakesAtSunrise(final TestContext context) {
     final BlockPos relBedPos = new BlockPos(0, 1, 0);
     final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
     final ServerWorld world = context.getWorld();
@@ -227,18 +227,132 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
     context.runAtTick(
         10,
         () -> {
+          world.setTimeOfDay(13000);
           husky.setAssignedBedPos(absBedPos);
           husky.commandToSleep(absBedPos);
           husky.startSleepingInBed(absBedPos);
           context.assertTrue(husky.isSleepingInBed(), "Dog should be sleeping");
-          context.assertTrue(husky.isCommandedToSleep(), "Dog should be commanded to sleep");
+          context.assertTrue(!husky.isCommandedToSleep(), "Dog should clear command once sleeping");
         });
 
     context.runAtTick(
-        100,
+        50,
+        () -> {
+          world.setTimeOfDay(1000);
+        });
+
+    context.runAtTick(
+        90,
         () -> {
           context.assertTrue(
-              husky.isSleepingInBed(), "Commanded sleeping dog should NOT auto-wake");
+              !husky.isSleepingInBed(), "Commanded sleeping dog should auto-wake at sunrise");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 300)
+  public void manualNightWakeSuppressesAutoSleepUntilMorning(final TestContext context) {
+    final BlockPos relBedPos = new BlockPos(0, 1, 0);
+    final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
+    final ServerWorld world = context.getWorld();
+
+    context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
+
+    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
+    husky.refreshPositionAndAngles(
+        absBedPos.getX(), absBedPos.getY(), absBedPos.getZ(), 0.0f, 0.0f);
+    husky.setTamed(true, true);
+    world.spawnEntity(husky);
+
+    context.runAtTick(
+        10,
+        () -> {
+          world.setTimeOfDay(13000);
+          husky.setAssignedBedPos(absBedPos);
+          husky.commandToSleep(absBedPos);
+          husky.startSleepingInBed(absBedPos);
+          context.assertTrue(husky.isSleepingInBed(), "Dog should be sleeping at night");
+        });
+
+    context.runAtTick(
+        40,
+        () -> {
+          husky.markManuallyWoken();
+          husky.wakeUp();
+          context.assertTrue(!husky.isSleepingInBed(), "Dog should wake manually");
+          context.assertTrue(
+              husky.isAutoSleepSuppressed(), "Manual wake at night should suppress auto-sleep");
+        });
+
+    context.runAtTick(
+        70,
+        () -> {
+          context.assertTrue(
+              husky.isAutoSleepSuppressed(), "Suppression should hold for the remainder of night");
+          context.assertTrue(!husky.isSleepingInBed(), "Dog should stay awake during suppression");
+        });
+
+    context.runAtTick(
+        90,
+        () -> {
+          world.setTimeOfDay(1000);
+          context.assertTrue(
+              !husky.isAutoSleepSuppressed(), "Suppression should clear after sunrise");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 400)
+  public void manualNightWakeDogAutoSleepsNextNight(final TestContext context) {
+    final BlockPos relBedPos = new BlockPos(0, 1, 0);
+    final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
+    final ServerWorld world = context.getWorld();
+
+    context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
+
+    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
+    husky.refreshPositionAndAngles(
+        absBedPos.getX(), absBedPos.getY(), absBedPos.getZ(), 0.0f, 0.0f);
+    husky.setTamed(true, true);
+    world.spawnEntity(husky);
+
+    context.runAtTick(
+        10,
+        () -> {
+          world.setTimeOfDay(13000);
+          husky.setAssignedBedPos(absBedPos);
+          husky.commandToSleep(absBedPos);
+          husky.startSleepingInBed(absBedPos);
+          husky.markManuallyWoken();
+          husky.wakeUp();
+          context.assertTrue(!husky.isSleepingInBed(), "Dog should be awake after manual wake");
+        });
+
+    context.runAtTick(
+        50,
+        () -> {
+          context.assertTrue(
+              husky.isAutoSleepSuppressed(), "Suppression should still be active at night");
+        });
+
+    context.runAtTick(
+        90,
+        () -> {
+          world.setTimeOfDay(1000);
+          context.assertTrue(!husky.isAutoSleepSuppressed(), "Suppression clears at sunrise");
+        });
+
+    context.runAtTick(
+        130,
+        () -> {
+          world.setTimeOfDay(13000);
+        });
+
+    context.runAtTick(
+        200,
+        () -> {
+          context.assertTrue(
+              husky.isSleepingInBed(), "Dog should auto-sleep again on the next night");
           context.complete();
         });
   }
