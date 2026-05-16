@@ -350,20 +350,23 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     }
 
     final int elapsed = this.age - this.manuallyWokenAge;
-    if (elapsed >= DAY_LENGTH_TICKS) {
-      this.manuallyWokenAtNight = false;
-      this.manuallyWokenAge = -1;
-      return false;
-    }
-
     final long currentTimeOfDay = this.getWorld().getTimeOfDay() % DAY_LENGTH_TICKS;
-    if (currentTimeOfDay < NIGHT_START_TICK) {
+
+    if (!shouldKeepAutoSleepSuppressed(elapsed, currentTimeOfDay)) {
       this.manuallyWokenAtNight = false;
       this.manuallyWokenAge = -1;
       return false;
     }
 
     return true;
+  }
+
+  static boolean shouldKeepAutoSleepSuppressed(int elapsed, long currentTimeOfDay) {
+    if (elapsed >= DAY_LENGTH_TICKS) {
+      return false;
+    }
+
+    return currentTimeOfDay >= NIGHT_START_TICK;
   }
 
   public void startSleepingInBed(BlockPos bedPos) {
