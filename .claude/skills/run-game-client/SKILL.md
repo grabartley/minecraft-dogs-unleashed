@@ -20,6 +20,10 @@ Ensure Java 21 is active (`jenv local 21` or `sdk use java 21-amzn`), then:
 - `/summon dogs-unleashed:<entity_id>` - spawn entity directly (see `ModEntities.java` for IDs)
 - `/locate biome minecraft:<biome>` - find biomes (see `ModSpawns.java` for spawn locations)
 
+## Post-Test Protocol
+
+After running the game client for manual testing, always ask for human input before continuing with next steps.
+
 ## Hot Reload
 
 Press **F3+T** to reload textures/models without restarting.
