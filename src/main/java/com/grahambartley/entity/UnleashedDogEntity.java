@@ -32,6 +32,7 @@ import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityStatuses;
 import net.minecraft.entity.EntityType;
@@ -781,13 +782,6 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
    */
   public UnleashedDogEntity followOwnerToDimension(
       ServerPlayerEntity owner, ServerWorld destination) {
-    DogsUnleashed.log.info(
-        "[Dog] followOwnerToDimension: dog={} owner={} from={} to={}",
-        this.getUuid(),
-        owner.getUuid(),
-        this.getWorld().getRegistryKey().getValue(),
-        destination.getRegistryKey().getValue());
-
     this.wakeUp();
     this.setSitting(false);
 
@@ -809,6 +803,18 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     newDog.setPitch(this.getPitch());
 
     this.remove(RemovalReason.CHANGED_DIMENSION);
+    currentWorld
+        .getChunk(this.getBlockPos().getX() >> 4, this.getBlockPos().getZ() >> 4)
+        .setNeedsSaving(true);
+
+    final Entity existing = destination.getEntity(this.getUuid());
+    if (existing != null && existing != this) {
+      DogsUnleashed.log.warn(
+          "[Dog] followOwnerToDimension: removing stale entity {} from {} (UUID collision)",
+          existing.getUuid(),
+          destination.getRegistryKey().getValue());
+      existing.remove(RemovalReason.DISCARDED);
+    }
 
     destination.spawnEntity(newDog);
 

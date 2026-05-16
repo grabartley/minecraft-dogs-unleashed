@@ -23,22 +23,10 @@ public final class PlayerDimensionChangeListener {
           final UUID playerId = player.getUuid();
           final String originDim = origin.getRegistryKey().getValue().toString();
           final String destDim = destination.getRegistryKey().getValue().toString();
-          DogsUnleashed.log.info(
-              "[DimChange] Event fired: player={}, origin={}, dest={}",
-              playerId,
-              originDim,
-              destDim);
-
           DogsUnleashed.runNextTick(
               () -> {
-                DogsUnleashed.log.info(
-                    "[DimChange] Deferred task running for player={} in dim={}",
-                    playerId,
-                    player.getServerWorld().getRegistryKey().getValue());
-
                 final PetManager petManager = PetManager.get(server);
                 final java.util.List<PetData> pets = petManager.getPetsByOwner(playerId);
-                DogsUnleashed.log.info("[DimChange] Found {} pets for player", pets.size());
 
                 final ServerWorld dest =
                     server.getWorld(RegistryKey.of(RegistryKeys.WORLD, Identifier.of(destDim)));
@@ -48,15 +36,8 @@ public final class PlayerDimensionChangeListener {
                 }
                 for (final PetData petData : pets) {
                   if (!petData.isAlive()) {
-                    DogsUnleashed.log.info(
-                        "[DimChange] Skipping deceased pet {}", petData.getPetId());
                     continue;
                   }
-                  DogsUnleashed.log.info(
-                      "[DimChange] Looking for pet {} dim={} pos={}",
-                      petData.getPetId(),
-                      petData.getDimension(),
-                      petData.getLastKnownPosition());
 
                   final UnleashedDogEntity dog = PetLocationService.findDog(server, petData);
                   if (dog == null) {
@@ -69,13 +50,9 @@ public final class PlayerDimensionChangeListener {
                     continue;
                   }
                   if (dog.isInSittingPose()) {
-                    DogsUnleashed.log.info(
-                        "[DimChange] Dog {} is sitting, skipping", petData.getPetId());
                     continue;
                   }
                   if (dog.isSleepingInBed()) {
-                    DogsUnleashed.log.info(
-                        "[DimChange] Dog {} is sleeping, skipping", petData.getPetId());
                     continue;
                   }
 
@@ -85,13 +62,6 @@ public final class PlayerDimensionChangeListener {
                     DogsUnleashed.log.warn("[DimChange] Player {} not found on server", playerId);
                     continue;
                   }
-
-                  DogsUnleashed.log.info(
-                      "[DimChange] Teleporting dog {} from {} to {} at player pos {}",
-                      petData.getPetId(),
-                      dog.getWorld().getRegistryKey().getValue(),
-                      dest.getRegistryKey().getValue(),
-                      playerEntity.getBlockPos());
 
                   final UnleashedDogEntity teleported =
                       dog.followOwnerToDimension(playerEntity, dest);

@@ -32,49 +32,30 @@ public final class PetLocationService {
     final String dimStr = petData.getDimension();
     final BlockPos lastPos = petData.getLastKnownPosition();
     final String petId = petData.getPetId().toString();
-    DogsUnleashed.log.info(
-        "[PetLocationService] findDog: pet={}, dim={}, pos={}", petId, dimStr, lastPos);
-
     final ServerWorld knownWorld = getKnownWorld(server, petData);
     if (knownWorld != null) {
       final UnleashedDogEntity dog = findInWorld(knownWorld, petData.getPetId());
       if (dog != null) {
-        DogsUnleashed.log.info(
-            "[PetLocationService] findDog: found {} in known world {}",
-            petId,
-            knownWorld.getRegistryKey().getValue());
         return dog;
       }
 
       if (lastPos != null) {
-        DogsUnleashed.log.info(
-            "[PetLocationService] findDog: loading chunk at {} in {}",
-            lastPos,
-            knownWorld.getRegistryKey().getValue());
         final ChunkPos chunkPos = new ChunkPos(lastPos);
         loadChunkEntities(knownWorld, chunkPos.x, chunkPos.z);
         final UnleashedDogEntity loaded = findInWorld(knownWorld, petData.getPetId());
         if (loaded != null) {
-          DogsUnleashed.log.info("[PetLocationService] findDog: found {} after chunk load", petId);
           return loaded;
         }
       }
     }
 
-    DogsUnleashed.log.info(
-        "[PetLocationService] findDog: falling back to scanning all worlds for {}", petId);
     for (final ServerWorld world : server.getWorlds()) {
       if (world == knownWorld) continue;
       final UnleashedDogEntity dog = findInWorld(world, petData.getPetId());
       if (dog != null) {
-        DogsUnleashed.log.info(
-            "[PetLocationService] findDog: found {} in fallback world {}",
-            petId,
-            world.getRegistryKey().getValue());
         return dog;
       }
     }
-    DogsUnleashed.log.info("[PetLocationService] findDog: {} not found anywhere", petId);
     return null;
   }
 
