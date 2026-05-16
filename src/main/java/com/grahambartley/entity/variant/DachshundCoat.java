@@ -14,7 +14,7 @@ public enum DachshundCoat implements UnleashedDogCoat {
   public static DachshundCoat fromOrdinal(int ordinal) {
     final DachshundCoat[] values = values();
     if (ordinal < 0 || ordinal >= values.length) {
-      return RED;
+      return BLACK_TAN;
     }
     return values[ordinal];
   }
