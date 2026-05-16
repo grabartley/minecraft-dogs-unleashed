@@ -15,7 +15,12 @@ public class DachshundModel extends GeoModel<DachshundEntity> {
 
   @Override
   public Identifier getTextureResource(DachshundEntity animatable) {
-    return Identifier.of(MOD_ID, "textures/entity/dachshund.png");
+    final String fileName =
+        animatable.getBreed().serializedId()
+            + "_"
+            + animatable.getCoatVariant().getTexturePrefix()
+            + ".png";
+    return Identifier.of(MOD_ID, "textures/entity/" + fileName);
   }
 
   @Override
