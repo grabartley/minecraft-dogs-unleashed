@@ -11,6 +11,7 @@ import static com.grahambartley.ModEntities.HUSKY;
 import com.grahambartley.ModNbtKeys;
 import com.grahambartley.ModSounds;
 import com.grahambartley.entity.variant.HuskyCoat;
+import com.grahambartley.entity.variant.HuskyCoatRolls;
 import com.grahambartley.entity.variant.HuskyEyeColor;
 import com.grahambartley.entity.variant.UnleashedDogCoat;
 import net.minecraft.entity.EntityType;
@@ -29,13 +30,6 @@ import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 
 public class HuskyEntity extends UnleashedDogEntity {
-  private static final int ROLL_BOUND = 100;
-  private static final int NATURAL_BLACK_WHITE_THRESHOLD = 40;
-  private static final int NATURAL_GREY_WHITE_THRESHOLD = 72;
-  private static final int NATURAL_RED_WHITE_THRESHOLD = 87;
-  private static final int BREEDING_SABLE_THRESHOLD = 93;
-  private static final int BREEDING_AGOUTI_THRESHOLD = 97;
-
   private static final TrackedData<Boolean> HOWLING =
       DataTracker.registerData(HuskyEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
   private static final TrackedData<Integer> COAT_VARIANT =
@@ -60,34 +54,8 @@ public class HuskyEntity extends UnleashedDogEntity {
 
   @Override
   protected void rollAppearance(final SpawnReason spawnReason) {
-    final int roll = this.random.nextInt(ROLL_BOUND);
-    final HuskyCoat coat;
-    if (spawnReason == SpawnReason.BREEDING) {
-      if (roll < NATURAL_BLACK_WHITE_THRESHOLD) {
-        coat = HuskyCoat.BLACK_WHITE;
-      } else if (roll < NATURAL_GREY_WHITE_THRESHOLD) {
-        coat = HuskyCoat.GREY_WHITE;
-      } else if (roll < NATURAL_RED_WHITE_THRESHOLD) {
-        coat = HuskyCoat.RED_WHITE;
-      } else if (roll < BREEDING_SABLE_THRESHOLD) {
-        coat = HuskyCoat.SABLE;
-        // Agouti and white variants unique to breeding
-      } else if (roll < BREEDING_AGOUTI_THRESHOLD) {
-        coat = HuskyCoat.AGOUTI;
-      } else {
-        coat = HuskyCoat.WHITE;
-      }
-    } else {
-      if (roll < NATURAL_BLACK_WHITE_THRESHOLD) {
-        coat = HuskyCoat.BLACK_WHITE;
-      } else if (roll < NATURAL_GREY_WHITE_THRESHOLD) {
-        coat = HuskyCoat.GREY_WHITE;
-      } else if (roll < NATURAL_RED_WHITE_THRESHOLD) {
-        coat = HuskyCoat.RED_WHITE;
-      } else {
-        coat = HuskyCoat.SABLE;
-      }
-    }
+    final int roll = this.random.nextInt(HuskyCoatRolls.ROLL_BOUND);
+    final HuskyCoat coat = HuskyCoatRolls.resolveCoatFromRoll(spawnReason, roll);
     this.dataTracker.set(COAT_VARIANT, coat.ordinal());
     this.dataTracker.set(EYE_COLOR_VARIANT, HuskyEyeColor.fromRandom(random).ordinal());
   }
