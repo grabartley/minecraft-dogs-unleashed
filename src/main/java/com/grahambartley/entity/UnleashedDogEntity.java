@@ -7,6 +7,7 @@ import static com.grahambartley.ModConstants.LOW_HEALTH_THRESHOLD;
 import static com.grahambartley.ModConstants.MINECRAFT_TICK_RATE;
 import static com.grahambartley.ModConstants.RANDOM_BARK_CHANCE;
 
+import com.grahambartley.DogsUnleashed;
 import com.grahambartley.ModBlocks;
 import com.grahambartley.ModItems;
 import com.grahambartley.ModNbtKeys;
@@ -779,6 +780,12 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
    * summons and following the owner through portals.
    */
   public void followOwnerToDimension(ServerPlayerEntity owner, ServerWorld destination) {
+    DogsUnleashed.log.info(
+        "[Dog] followOwnerToDimension: dog={} owner={} from={} to={}",
+        this.getUuid(),
+        owner.getUuid(),
+        this.getWorld().getRegistryKey().getValue(),
+        destination.getRegistryKey().getValue());
     this.wakeUp();
     this.setSitting(false);
     this.teleportTo(
@@ -789,6 +796,9 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
             this.getYaw(),
             this.getPitch(),
             TeleportTarget.ADD_PORTAL_CHUNK_TICKET));
+    DogsUnleashed.log.info(
+        "[Dog] followOwnerToDimension: teleport complete, dog now in {}",
+        this.getWorld().getRegistryKey().getValue());
   }
 
   @Override
