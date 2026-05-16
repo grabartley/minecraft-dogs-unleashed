@@ -93,15 +93,17 @@ public final class PlayerDimensionChangeListener {
                       dest.getRegistryKey().getValue(),
                       playerEntity.getBlockPos());
 
-                  dog.followOwnerToDimension(playerEntity, dest);
-                  petData.setDimension(destDim);
-                  petData.setLastKnownPosition(playerEntity.getBlockPos());
+                  final UnleashedDogEntity teleported =
+                      dog.followOwnerToDimension(playerEntity, dest);
+                  petData.setDimension(
+                      teleported.getWorld().getRegistryKey().getValue().toString());
+                  petData.setLastKnownPosition(teleported.getBlockPos());
                   petManager.updatePet(petData);
 
                   DogsUnleashed.log.info(
                       "[DimChange] Dog {} successfully teleported to {}",
                       petData.getPetId(),
-                      destDim);
+                      teleported.getWorld().getRegistryKey().getValue());
                 }
               });
         });

@@ -32,6 +32,7 @@ import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityStatuses;
 import net.minecraft.entity.EntityType;
@@ -778,8 +779,12 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   /**
    * Moves this dog to the destination world at the owner's position. Used for cross-dimension
    * summons and following the owner through portals.
+   *
+   * @return the dog entity in the destination world (may be a different instance from {@code this}
+   *     due to Minecraft's dimension-change entity creation)
    */
-  public void followOwnerToDimension(ServerPlayerEntity owner, ServerWorld destination) {
+  public UnleashedDogEntity followOwnerToDimension(
+      ServerPlayerEntity owner, ServerWorld destination) {
     DogsUnleashed.log.info(
         "[Dog] followOwnerToDimension: dog={} owner={} from={} to={}",
         this.getUuid(),
@@ -788,17 +793,25 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
         destination.getRegistryKey().getValue());
     this.wakeUp();
     this.setSitting(false);
-    this.teleportTo(
-        new TeleportTarget(
-            destination,
-            new Vec3d(owner.getX(), owner.getY(), owner.getZ()),
-            Vec3d.ZERO,
-            this.getYaw(),
-            this.getPitch(),
-            TeleportTarget.ADD_PORTAL_CHUNK_TICKET));
-    DogsUnleashed.log.info(
-        "[Dog] followOwnerToDimension: teleport complete, dog now in {}",
-        this.getWorld().getRegistryKey().getValue());
+    final Entity result =
+        this.teleportTo(
+            new TeleportTarget(
+                destination,
+                new Vec3d(owner.getX(), owner.getY(), owner.getZ()),
+                Vec3d.ZERO,
+                this.getYaw(),
+                this.getPitch(),
+                TeleportTarget.ADD_PORTAL_CHUNK_TICKET));
+    if (result instanceof UnleashedDogEntity dog) {
+      DogsUnleashed.log.info(
+          "[Dog] followOwnerToDimension: teleport result in {}",
+          dog.getWorld().getRegistryKey().getValue());
+      return dog;
+    }
+    DogsUnleashed.log.warn(
+        "[Dog] followOwnerToDimension: teleport returned unexpected type {}",
+        result != null ? result.getClass().getSimpleName() : "null");
+    return this;
   }
 
   @Override

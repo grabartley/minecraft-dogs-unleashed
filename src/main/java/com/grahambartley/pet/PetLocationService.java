@@ -138,8 +138,9 @@ public final class PetLocationService {
     final ServerWorld playerWorld = player.getServerWorld();
 
     if (dog.getWorld() != playerWorld) {
-      dog.followOwnerToDimension(player, playerWorld);
-      petData.setLastKnownPosition(player.getBlockPos());
+      final UnleashedDogEntity teleported = dog.followOwnerToDimension(player, playerWorld);
+      petData.setDimension(teleported.getWorld().getRegistryKey().getValue().toString());
+      petData.setLastKnownPosition(teleported.getBlockPos());
     } else {
       final Vec3d summonPos = findSafeSummonPosition(playerWorld, player.getBlockPos(), dog);
       dog.wakeUp();
