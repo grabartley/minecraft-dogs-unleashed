@@ -1,7 +1,7 @@
 ---
-name: Run Game Client
-description: Runs the Minecraft game client locally with the mod for manual testing.
+description: Runs the Minecraft game client locally with the mod for manual testing. Use when asked to launch, run, or start the game client for testing.
 ---
+
 # Run Game Client
 
 Runs the Minecraft client with the Dogs Unleashed mod for manual testing.
@@ -23,5 +23,3 @@ Ensure Java 21 is active (`jenv local 21` or `sdk use java 21-amzn`), then:
 ## Hot Reload
 
 Press **F3+T** to reload textures/models without restarting.
-
-See `.ai/skills/run-game-client.md` for full documentation.
