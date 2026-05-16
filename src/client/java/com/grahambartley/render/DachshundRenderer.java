@@ -3,6 +3,7 @@ package com.grahambartley.render;
 import com.grahambartley.entity.DachshundEntity;
 import com.grahambartley.model.DachshundModel;
 import com.grahambartley.render.layer.DachshundCollarLayer;
+import com.grahambartley.render.layer.DogCarryBallLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
@@ -16,6 +17,7 @@ public class DachshundRenderer extends GeoEntityRenderer<DachshundEntity> {
   public DachshundRenderer(EntityRendererFactory.Context context) {
     super(context, new DachshundModel());
     this.addRenderLayer(new DachshundCollarLayer(this));
+    this.addRenderLayer(new DogCarryBallLayer<>(this));
   }
 
   @Override

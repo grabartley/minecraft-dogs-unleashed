@@ -1,12 +1,13 @@
 package com.grahambartley.pet;
 
 import com.grahambartley.DogsUnleashed;
+import com.grahambartley.ModNbtKeys;
+import com.grahambartley.entity.UnleashedDogBreed;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
@@ -80,16 +81,23 @@ public final class PetManager extends PersistentState {
   }
 
   public List<PetData> getPetsByOwnerFiltered(
-      UUID ownerId, String breedFilter, Boolean aliveFilter) {
+      UUID ownerId, UnleashedDogBreed breedFilter, PetAliveFilter aliveFilter) {
+    return getPetsByOwnerFiltered(ownerId, breedFilter, aliveFilter, "");
+  }
+
+  public List<PetData> getPetsByOwnerFiltered(
+      UUID ownerId, UnleashedDogBreed breedFilter, PetAliveFilter aliveFilter, String searchQuery) {
     List<PetData> pets = getPetsByOwner(ownerId);
-    if (breedFilter != null && !breedFilter.isEmpty()) {
-      pets =
-          pets.stream()
-              .filter(p -> p.getBreedType().equals(breedFilter))
-              .collect(Collectors.toList());
+    if (breedFilter != null) {
+      pets = pets.stream().filter(p -> p.getBreed() == breedFilter).toList();
     }
-    if (aliveFilter != null) {
-      pets = pets.stream().filter(p -> p.isAlive() == aliveFilter).collect(Collectors.toList());
+    if (aliveFilter != null && aliveFilter != PetAliveFilter.ALL) {
+      pets = pets.stream().filter(p -> aliveFilter.appliesTo(p.isAlive())).toList();
+    }
+    if (searchQuery != null && !searchQuery.isEmpty()) {
+      final String normalizedQuery = searchQuery.toLowerCase();
+      pets =
+          pets.stream().filter(p -> p.getName().toLowerCase().contains(normalizedQuery)).toList();
     }
     return pets;
   }
@@ -98,7 +106,7 @@ public final class PetManager extends PersistentState {
     final String query = nameQuery.toLowerCase();
     return getPetsByOwner(ownerId).stream()
         .filter(p -> p.getName().toLowerCase().contains(query))
-        .collect(Collectors.toList());
+        .toList();
   }
 
   public void markPetDeceased(UUID petId) {
@@ -119,25 +127,25 @@ public final class PetManager extends PersistentState {
     final NbtList ownersList = new NbtList();
     for (final Map.Entry<UUID, List<PetData>> entry : petsByOwner.entrySet()) {
       final NbtCompound ownerNbt = new NbtCompound();
-      ownerNbt.putUuid("OwnerId", entry.getKey());
+      ownerNbt.putUuid(ModNbtKeys.OWNER_ID, entry.getKey());
       final NbtList petsList = new NbtList();
       for (final PetData pet : entry.getValue()) {
         petsList.add(pet.toNbt());
       }
-      ownerNbt.put("Pets", petsList);
+      ownerNbt.put(ModNbtKeys.PETS, petsList);
       ownersList.add(ownerNbt);
     }
-    nbt.put("PetsByOwner", ownersList);
+    nbt.put(ModNbtKeys.PETS_BY_OWNER, ownersList);
     return nbt;
   }
 
   public static PetManager fromNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
     final PetManager manager = new PetManager();
-    final NbtList ownersList = nbt.getList("PetsByOwner", NbtElement.COMPOUND_TYPE);
+    final NbtList ownersList = nbt.getList(ModNbtKeys.PETS_BY_OWNER, NbtElement.COMPOUND_TYPE);
     for (int i = 0; i < ownersList.size(); i++) {
       final NbtCompound ownerNbt = ownersList.getCompound(i);
-      final UUID ownerId = ownerNbt.getUuid("OwnerId");
-      final NbtList petsList = ownerNbt.getList("Pets", NbtElement.COMPOUND_TYPE);
+      final UUID ownerId = ownerNbt.getUuid(ModNbtKeys.OWNER_ID);
+      final NbtList petsList = ownerNbt.getList(ModNbtKeys.PETS, NbtElement.COMPOUND_TYPE);
       final List<PetData> pets = new ArrayList<>();
       for (int j = 0; j < petsList.size(); j++) {
         pets.add(PetData.fromNbt(petsList.getCompound(j)));

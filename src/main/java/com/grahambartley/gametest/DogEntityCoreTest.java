@@ -1,5 +1,6 @@
 package com.grahambartley.gametest;
 
+import com.grahambartley.ModNbtKeys;
 import com.grahambartley.entity.UnleashedDogEntity;
 import com.grahambartley.gametest.util.DogTestData;
 import com.grahambartley.gametest.util.DogTestHelper;
@@ -253,9 +254,11 @@ public final class DogEntityCoreTest implements FabricGameTest {
     NbtCompound nbt = new NbtCompound();
     dog.writeCustomDataToNbt(nbt);
 
-    context.assertTrue(nbt.contains("CollarColor"), "NBT should contain CollarColor data");
     context.assertTrue(
-        nbt.getInt("CollarColor") == DyeColor.LIME.getId(), "NBT should store LIME color ID");
+        nbt.contains(ModNbtKeys.COLLAR_COLOR), "NBT should contain CollarColor data");
+    context.assertTrue(
+        nbt.getInt(ModNbtKeys.COLLAR_COLOR) == DyeColor.LIME.getId(),
+        "NBT should store LIME color ID");
 
     T newDog = data.factory().apply(world);
     newDog.readCustomDataFromNbt(nbt);

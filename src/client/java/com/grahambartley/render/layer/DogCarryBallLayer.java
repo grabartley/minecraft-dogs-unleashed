@@ -1,0 +1,54 @@
+package com.grahambartley.render.layer;
+
+import com.grahambartley.ModItems;
+import com.grahambartley.entity.UnleashedDogEntity;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.item.ItemStack;
+import software.bernie.geckolib.cache.object.GeoBone;
+import software.bernie.geckolib.renderer.GeoRenderer;
+import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
+
+public class DogCarryBallLayer<T extends UnleashedDogEntity> extends BlockAndItemGeoLayer<T> {
+  private static final String HEAD_BONE_NAME = "head";
+
+  public DogCarryBallLayer(GeoRenderer<T> renderer) {
+    super(renderer);
+  }
+
+  @Override
+  protected ItemStack getStackForBone(GeoBone bone, T animatable) {
+    if (animatable.isInvisible() || !animatable.isCarryingBall()) {
+      return null;
+    }
+
+    return HEAD_BONE_NAME.equals(bone.getName()) ? new ItemStack(ModItems.TENNIS_BALL) : null;
+  }
+
+  @Override
+  protected void renderStackForBone(
+      MatrixStack poseStack,
+      GeoBone bone,
+      ItemStack stack,
+      T animatable,
+      net.minecraft.client.render.VertexConsumerProvider bufferSource,
+      float partialTick,
+      int packedLight,
+      int packedOverlay) {
+    poseStack.translate(0.0, getVerticalOffset(animatable), getForwardOffset(animatable));
+    poseStack.scale(getBallScale(animatable), getBallScale(animatable), getBallScale(animatable));
+    super.renderStackForBone(
+        poseStack, bone, stack, animatable, bufferSource, partialTick, packedLight, packedOverlay);
+  }
+
+  private static double getVerticalOffset(UnleashedDogEntity dog) {
+    return dog.getBreed().carryBallVerticalOffset();
+  }
+
+  private static double getForwardOffset(UnleashedDogEntity dog) {
+    return dog.getBreed().carryBallForwardOffset();
+  }
+
+  private static float getBallScale(UnleashedDogEntity dog) {
+    return dog.getBreed().carryBallScale();
+  }
+}

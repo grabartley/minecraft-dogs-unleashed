@@ -8,13 +8,13 @@ import static com.grahambartley.ModConstants.HOWL_VOLUME;
 import static com.grahambartley.ModConstants.RANDOM_HOWL_CHANCE;
 import static com.grahambartley.ModEntities.HUSKY;
 
+import com.grahambartley.ModNbtKeys;
 import com.grahambartley.ModSounds;
 import com.grahambartley.entity.variant.HuskyCoat;
 import com.grahambartley.entity.variant.HuskyEyeColor;
+import com.grahambartley.entity.variant.UnleashedDogCoat;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -29,6 +29,12 @@ import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 
 public class HuskyEntity extends UnleashedDogEntity {
+  private static final int ROLL_BOUND = 100;
+  private static final int NATURAL_BLACK_WHITE_THRESHOLD = 40;
+  private static final int NATURAL_GREY_WHITE_THRESHOLD = 72;
+  private static final int NATURAL_RED_WHITE_THRESHOLD = 87;
+  private static final int BREEDING_SABLE_THRESHOLD = 93;
+  private static final int BREEDING_AGOUTI_THRESHOLD = 97;
 
   private static final TrackedData<Boolean> HOWLING =
       DataTracker.registerData(HuskyEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
@@ -39,13 +45,6 @@ public class HuskyEntity extends UnleashedDogEntity {
 
   private int howlCooldownTicks = 0;
   private int howlActiveTicks = 0;
-
-  public static DefaultAttributeContainer.Builder createAttributes() {
-    return MobEntity.createMobAttributes()
-        .add(EntityAttributes.GENERIC_MAX_HEALTH, 25.0)
-        .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.30)
-        .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 5.0);
-  }
 
   public HuskyEntity(EntityType<? extends UnleashedDogEntity> entityType, World world) {
     super(entityType, world);
@@ -61,29 +60,29 @@ public class HuskyEntity extends UnleashedDogEntity {
 
   @Override
   protected void rollAppearance(final SpawnReason spawnReason) {
-    final int roll = this.random.nextInt(100);
+    final int roll = this.random.nextInt(ROLL_BOUND);
     final HuskyCoat coat;
     if (spawnReason == SpawnReason.BREEDING) {
-      if (roll < 40) {
+      if (roll < NATURAL_BLACK_WHITE_THRESHOLD) {
         coat = HuskyCoat.BLACK_WHITE;
-      } else if (roll < 72) {
+      } else if (roll < NATURAL_GREY_WHITE_THRESHOLD) {
         coat = HuskyCoat.GREY_WHITE;
-      } else if (roll < 87) {
+      } else if (roll < NATURAL_RED_WHITE_THRESHOLD) {
         coat = HuskyCoat.RED_WHITE;
-      } else if (roll < 93) {
+      } else if (roll < BREEDING_SABLE_THRESHOLD) {
         coat = HuskyCoat.SABLE;
         // Agouti and white variants unique to breeding
-      } else if (roll < 97) {
+      } else if (roll < BREEDING_AGOUTI_THRESHOLD) {
         coat = HuskyCoat.AGOUTI;
       } else {
         coat = HuskyCoat.WHITE;
       }
     } else {
-      if (roll < 40) {
+      if (roll < NATURAL_BLACK_WHITE_THRESHOLD) {
         coat = HuskyCoat.BLACK_WHITE;
-      } else if (roll < 72) {
+      } else if (roll < NATURAL_GREY_WHITE_THRESHOLD) {
         coat = HuskyCoat.GREY_WHITE;
-      } else if (roll < 87) {
+      } else if (roll < NATURAL_RED_WHITE_THRESHOLD) {
         coat = HuskyCoat.RED_WHITE;
       } else {
         coat = HuskyCoat.SABLE;
@@ -93,7 +92,8 @@ public class HuskyEntity extends UnleashedDogEntity {
     this.dataTracker.set(EYE_COLOR_VARIANT, HuskyEyeColor.fromRandom(random).ordinal());
   }
 
-  public HuskyCoat getCoatVariant() {
+  @Override
+  public UnleashedDogCoat getCoatVariant() {
     return HuskyCoat.fromOrdinal(this.dataTracker.get(COAT_VARIANT));
   }
 
@@ -104,18 +104,18 @@ public class HuskyEntity extends UnleashedDogEntity {
   @Override
   public void writeCustomDataToNbt(NbtCompound nbt) {
     super.writeCustomDataToNbt(nbt);
-    nbt.putInt("CoatVariant", this.dataTracker.get(COAT_VARIANT));
-    nbt.putInt("EyeColorVariant", this.dataTracker.get(EYE_COLOR_VARIANT));
+    nbt.putInt(ModNbtKeys.COAT_VARIANT, this.dataTracker.get(COAT_VARIANT));
+    nbt.putInt(ModNbtKeys.EYE_COLOR_VARIANT, this.dataTracker.get(EYE_COLOR_VARIANT));
   }
 
   @Override
   public void readCustomDataFromNbt(NbtCompound nbt) {
     super.readCustomDataFromNbt(nbt);
-    if (nbt.contains("CoatVariant", 99)) {
-      this.dataTracker.set(COAT_VARIANT, nbt.getInt("CoatVariant"));
+    if (nbt.contains(ModNbtKeys.COAT_VARIANT, net.minecraft.nbt.NbtElement.NUMBER_TYPE)) {
+      this.dataTracker.set(COAT_VARIANT, nbt.getInt(ModNbtKeys.COAT_VARIANT));
     }
-    if (nbt.contains("EyeColorVariant", 99)) {
-      this.dataTracker.set(EYE_COLOR_VARIANT, nbt.getInt("EyeColorVariant"));
+    if (nbt.contains(ModNbtKeys.EYE_COLOR_VARIANT, net.minecraft.nbt.NbtElement.NUMBER_TYPE)) {
+      this.dataTracker.set(EYE_COLOR_VARIANT, nbt.getInt(ModNbtKeys.EYE_COLOR_VARIANT));
     }
   }
 
@@ -130,13 +130,13 @@ public class HuskyEntity extends UnleashedDogEntity {
   }
 
   @Override
-  public String getBreedId() {
-    return "husky";
+  public UnleashedDogBreed getBreed() {
+    return UnleashedDogBreed.HUSKY;
   }
 
   @Override
   protected String getSleepInBedMovementAnimationName() {
-    return "sleep";
+    return DogAnimationKeys.SLEEP;
   }
 
   @Override
@@ -198,9 +198,10 @@ public class HuskyEntity extends UnleashedDogEntity {
             state -> {
               if (this.isHowling()) {
                 if (this.isInSittingPose()) {
-                  return state.setAndContinue(RawAnimation.begin().thenLoop("howl_sit"));
+                  return state.setAndContinue(
+                      RawAnimation.begin().thenLoop(DogAnimationKeys.HOWL_SIT));
                 }
-                return state.setAndContinue(RawAnimation.begin().thenLoop("howl"));
+                return state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.HOWL));
               }
               return PlayState.STOP;
             }));

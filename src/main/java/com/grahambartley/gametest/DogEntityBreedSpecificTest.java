@@ -43,15 +43,15 @@ public final class DogEntityBreedSpecificTest implements FabricGameTest {
 
     context.assertTrue(
         dog.getAttributeValue(EntityAttributes.GENERIC_MAX_HEALTH) == data.expectedMaxHealth(),
-        data.breedId() + " max health should be " + data.expectedMaxHealth());
+        data.breed().serializedId() + " max health should be " + data.expectedMaxHealth());
     context.assertTrue(
         dog.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED)
             == data.expectedMovementSpeed(),
-        data.breedId() + " movement speed should be " + data.expectedMovementSpeed());
+        data.breed().serializedId() + " movement speed should be " + data.expectedMovementSpeed());
     context.assertTrue(
         dog.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE)
             == data.expectedAttackDamage(),
-        data.breedId() + " attack damage should be " + data.expectedAttackDamage());
+        data.breed().serializedId() + " attack damage should be " + data.expectedAttackDamage());
 
     context.complete();
   }
@@ -94,7 +94,7 @@ public final class DogEntityBreedSpecificTest implements FabricGameTest {
           T baby = (T) parent1.createChild(world, parent2);
 
           context.assertTrue(
-              baby != null, "Baby should be created from two " + data.breedId() + "s");
+              baby != null, "Baby should be created from two " + data.breed().serializedId() + "s");
           context.assertTrue(
               baby.getType() == data.entityType(), "Baby should be same type as parents");
           context.assertTrue(baby.isBaby(), "Created entity should be a baby");

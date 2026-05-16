@@ -4,8 +4,6 @@ import static com.grahambartley.ModEntities.BEAGLE;
 
 import com.grahambartley.ModSounds;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -13,14 +11,6 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.world.World;
 
 public class BeagleEntity extends UnleashedDogEntity {
-
-  public static DefaultAttributeContainer.Builder createAttributes() {
-    return MobEntity.createMobAttributes()
-        .add(EntityAttributes.GENERIC_MAX_HEALTH, 17.0)
-        .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.29)
-        .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 3.0);
-  }
-
   public BeagleEntity(EntityType<? extends TameableEntity> entityType, World world) {
     super(entityType, world);
   }
@@ -36,8 +26,8 @@ public class BeagleEntity extends UnleashedDogEntity {
   }
 
   @Override
-  public String getBreedId() {
-    return "beagle";
+  public UnleashedDogBreed getBreed() {
+    return UnleashedDogBreed.BEAGLE;
   }
 
   @Override

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " L ",
+    "WSW",
+    " L "
+  ],
+  "key": {
+    "L": { "item": "minecraft:lime_dye" },
+    "W": { "item": "minecraft:white_dye" },
+    "S": { "item": "minecraft:slime_ball" }
+  },
+  "result": {
+    "id": "dogs-unleashed:tennis_ball",
+    "count": 2
+  }
+}

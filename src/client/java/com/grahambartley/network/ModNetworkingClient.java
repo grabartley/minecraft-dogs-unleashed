@@ -1,5 +1,7 @@
 package com.grahambartley.network;
 
+import com.grahambartley.entity.UnleashedDogBreed;
+import com.grahambartley.pet.PetAliveFilter;
 import com.grahambartley.screen.PetManagerScreen;
 import com.grahambartley.screen.PetNamingScreen;
 import java.util.UUID;
@@ -14,6 +16,9 @@ public final class ModNetworkingClient {
 
     ClientPlayNetworking.registerGlobalReceiver(
         ModNetworking.SyncPetsPayload.ID, ModNetworkingClient::handleSyncPets);
+    ClientPlayNetworking.registerGlobalReceiver(
+        ModNetworking.SyncPetManagerStatePayload.ID,
+        ModNetworkingClient::handleSyncPetManagerState);
   }
 
   private static void handleOpenNamingScreen(
@@ -25,7 +30,7 @@ public final class ModNetworkingClient {
               MinecraftClient.getInstance()
                   .setScreen(
                       new PetNamingScreen(
-                          payload.petId(), payload.breedType(), payload.suggestedName()));
+                          payload.petId(), payload.breed(), payload.suggestedName()));
             });
   }
 
@@ -41,6 +46,19 @@ public final class ModNetworkingClient {
             });
   }
 
+  private static void handleSyncPetManagerState(
+      ModNetworking.SyncPetManagerStatePayload payload, ClientPlayNetworking.Context context) {
+    context
+        .client()
+        .execute(
+            () -> {
+              if (MinecraftClient.getInstance().currentScreen instanceof PetManagerScreen screen) {
+                screen.applySavedFilters(payload.breedFilter(), payload.aliveFilter());
+                screen.updatePetsList(payload.pets());
+              }
+            });
+  }
+
   public static void sendSetPetName(UUID petId, String name) {
     ClientPlayNetworking.send(new ModNetworking.SetPetNamePayload(petId, name));
   }
@@ -50,8 +68,12 @@ public final class ModNetworkingClient {
   }
 
   public static void sendRequestPets(
-      String breedFilter, boolean filterAlive, boolean aliveValue, String searchQuery) {
+      UnleashedDogBreed breedFilter, PetAliveFilter aliveFilter, String searchQuery) {
     ClientPlayNetworking.send(
-        new ModNetworking.RequestPetsPayload(breedFilter, filterAlive, aliveValue, searchQuery));
+        new ModNetworking.RequestPetsPayload(breedFilter, aliveFilter, searchQuery));
+  }
+
+  public static void sendRequestPetManagerState() {
+    ClientPlayNetworking.send(new ModNetworking.RequestPetManagerStatePayload());
   }
 }
