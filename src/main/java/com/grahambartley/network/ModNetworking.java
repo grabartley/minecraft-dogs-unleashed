@@ -5,24 +5,24 @@ import com.grahambartley.entity.UnleashedDogBreed;
 import com.grahambartley.entity.UnleashedDogEntity;
 import com.grahambartley.pet.PetAliveFilter;
 import com.grahambartley.pet.PetData;
+import com.grahambartley.pet.PetLocationService;
 import com.grahambartley.pet.PetManager;
 import com.grahambartley.pet.PetManagerPreferencesState;
 import java.util.List;
 import java.util.UUID;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.entity.Entity;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public final class ModNetworking {
-
   public static final Identifier SET_PET_NAME_ID =
       Identifier.of(DogsUnleashed.MOD_ID, "set_pet_name");
   public static final Identifier SUMMON_PET_ID = Identifier.of(DogsUnleashed.MOD_ID, "summon_pet");
@@ -301,8 +301,8 @@ public final class ModNetworking {
         .getServer()
         .execute(
             () -> {
-              final Entity entity = findEntityByUuid(world, payload.petId());
-              if (entity instanceof UnleashedDogEntity dog && dog.isOwner(player)) {
+              if (world.getEntity(payload.petId()) instanceof UnleashedDogEntity dog
+                  && dog.isOwner(player)) {
                 dog.setCustomName(Text.literal(payload.name()));
                 dog.setCustomNameVisible(true);
 
@@ -319,31 +319,16 @@ public final class ModNetworking {
   private static void handleSummonPet(
       final SummonPetPayload payload, final ServerPlayNetworking.Context context) {
     final ServerPlayerEntity player = context.player();
-    final ServerWorld world = player.getServerWorld();
+    final ServerWorld playerWorld = player.getServerWorld();
 
-    world
+    playerWorld
         .getServer()
         .execute(
             () -> {
-              final PetManager petManager = PetManager.get(world.getServer());
-              final PetData petData = petManager.getPet(player.getUuid(), payload.petId());
-
+              final PetData petData =
+                  PetManager.get(playerWorld.getServer()).getPet(player.getUuid(), payload.petId());
               if (petData != null && petData.isAlive()) {
-                final Entity entity = findEntityByUuid(world, payload.petId());
-                if (entity instanceof UnleashedDogEntity dog) {
-                  dog.wakeUp();
-                  dog.teleport(
-                      world,
-                      player.getX(),
-                      player.getY(),
-                      player.getZ(),
-                      java.util.Set.of(),
-                      dog.getYaw(),
-                      dog.getPitch());
-                  dog.setSitting(false);
-                  petData.setLastKnownPosition(player.getBlockPos());
-                  petManager.updatePet(petData);
-                }
+                PetLocationService.loadAndSummon(playerWorld.getServer(), petData, player);
               }
             });
   }
@@ -369,7 +354,7 @@ public final class ModNetworking {
                       payload.breedFilter(),
                       payload.aliveFilter(),
                       payload.searchQuery());
-              final List<PetSyncData> syncData = syncPetData(world, petManager, pets);
+              final List<PetSyncData> syncData = syncPetData(world.getServer(), petManager, pets);
               ServerPlayNetworking.send(player, new SyncPetsPayload(syncData));
             });
   }
@@ -395,7 +380,7 @@ public final class ModNetworking {
                           preferences.aliveFilter(),
                           "");
               final List<PetSyncData> syncData =
-                  syncPetData(world, PetManager.get(world.getServer()), pets);
+                  syncPetData(world.getServer(), PetManager.get(world.getServer()), pets);
               ServerPlayNetworking.send(
                   player,
                   new SyncPetManagerStatePayload(
@@ -404,24 +389,20 @@ public final class ModNetworking {
   }
 
   private static List<PetSyncData> syncPetData(
-      final ServerWorld world, final PetManager petManager, final List<PetData> pets) {
+      final MinecraftServer server, final PetManager petManager, final List<PetData> pets) {
     for (final PetData pet : pets) {
       if (pet.isAlive()) {
-        final Entity entity = findEntityByUuid(world, pet.getPetId());
-        if (entity instanceof UnleashedDogEntity dog) {
+        final UnleashedDogEntity dog = PetLocationService.findDog(server, pet);
+        if (dog != null) {
           pet.setHealth(dog.getHealth());
           pet.setLastKnownPosition(dog.getBlockPos());
-          pet.setDimension(world.getRegistryKey().getValue().toString());
+          pet.setDimension(((ServerWorld) dog.getWorld()).getRegistryKey().getValue().toString());
           pet.syncAppearanceFrom(dog);
           petManager.updatePet(pet);
         }
       }
     }
     return pets.stream().map(PetSyncData::from).toList();
-  }
-
-  private static Entity findEntityByUuid(final ServerWorld world, final UUID uuid) {
-    return world.getEntity(uuid);
   }
 
   public static void sendOpenNamingScreen(

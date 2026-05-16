@@ -1,10 +1,8 @@
 ---
-description: Add a new feature to the Dogs Unleashed Minecraft mod following project conventions
+description: Add a new feature to the Dogs Unleashed Minecraft mod following project conventions. Use when asked to implement, add, or create a new feature.
 ---
 
 # Add Feature
-
-Follow the guidelines in `.ai/skills/add-feature.md` to add a new feature.
 
 ## Critical Rules
 
@@ -17,7 +15,7 @@ git checkout -b feat/your-feature-name
 
 2. **Always manually test before pushing** - Use the run-game-client skill to verify changes work correctly and wait for developer approval
 
-3. **Always use create-pr skill** when creating pull requests
+3. **Always use pr skill** when creating pull requests
 
 ## Java 21 Required
 
@@ -36,12 +34,10 @@ Use your preferred version manager before running gradle commands:
 6. **Manual test: Run game client and get developer blessing**
 7. Commit using **Conventional Commits**: `git commit -m "feat: description"`
 8. Push: `git push -u origin feat/name`
-9. Create PR using create-pr skill
+9. Create PR using pr skill
 
 ## Related Skills
 
 - **add-dog-breed** - Use this for adding new dog breeds
-- **create-pr** - Use this for all pull requests
+- **pr** - Use this for all pull requests
 - **run-game-client** - Use this for manual testing before pushing
-
-See `.ai/skills/add-feature.md` for full details.

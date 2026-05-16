@@ -1,6 +1,5 @@
 ---
-name: Run Tests
-description: Run and write tests for the Dogs Unleashed mod (unit tests, game tests, manual testing)
+description: Run and write tests for the Dogs Unleashed mod (unit tests, game tests, manual testing). Use when asked to test, run tests, write tests, or verify changes.
 ---
 
 # Run Tests
@@ -68,10 +67,3 @@ Before pushing changes:
 2. `./gradlew test` - Run unit tests
 3. `./gradlew runGametestServer` - Run game tests
 4. `./gradlew runClient` - Manual test if functionality changed
-
-See `.ai/skills/run-tests.md` for comprehensive testing documentation including:
-- Writing unit tests and game tests
-- Test strategy and philosophy
-- TestContext API reference
-- CI/CD integration
-- Troubleshooting

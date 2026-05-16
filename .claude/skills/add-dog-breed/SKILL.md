@@ -1,10 +1,8 @@
 ---
-description: Add a new dog breed to the Dogs Unleashed Minecraft mod with all required files and tests
+description: Add a new dog breed to the Dogs Unleashed Minecraft mod with all required files and tests. Use when asked to add or create a new dog breed.
 ---
 
 # Add Dog Breed
-
-Follow the guidelines in `.ai/skills/add-dog-breed.md` to add a new dog breed.
 
 ## Prerequisites
 
@@ -31,5 +29,3 @@ Ensure you have these files ready:
 13. **Game Tests**: `src/main/java/com/grahambartley/gametest/{BreedName}EntityGameTest.java`
 14. **Common Tests**: Update `UnleashedDogEntityGameTest.java`
 15. **Unit Tests**: Update `DogModelTest.java` and `DogRendererTest.java`
-
-See `.ai/skills/add-dog-breed.md` for full details and code templates.
