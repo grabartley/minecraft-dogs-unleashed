@@ -7,6 +7,7 @@ import static com.grahambartley.ModConstants.LOW_HEALTH_THRESHOLD;
 import static com.grahambartley.ModConstants.MINECRAFT_TICK_RATE;
 import static com.grahambartley.ModConstants.RANDOM_BARK_CHANCE;
 
+import com.grahambartley.DogsUnleashed;
 import com.grahambartley.ModBlocks;
 import com.grahambartley.ModItems;
 import com.grahambartley.ModNbtKeys;
@@ -31,6 +32,7 @@ import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityStatuses;
 import net.minecraft.entity.EntityType;
@@ -772,6 +774,57 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     return super.damage(source, amount);
   }
 
+  /**
+   * Moves this dog to the destination world at the owner's position. Used for cross-dimension
+   * summons and following the owner through portals.
+   *
+   * @return the dog entity in the destination world (may be a different instance from {@code this})
+   */
+  public UnleashedDogEntity followOwnerToDimension(
+      ServerPlayerEntity owner, ServerWorld destination) {
+    this.wakeUp();
+    this.setSitting(false);
+
+    final NbtCompound nbt = this.writeNbt(new NbtCompound());
+    nbt.remove("Dimension");
+
+    final ServerWorld currentWorld = (ServerWorld) this.getWorld();
+    final UnleashedDogEntity newDog = (UnleashedDogEntity) this.getType().create(destination);
+    if (newDog == null) {
+      DogsUnleashed.log.warn(
+          "[Dog] followOwnerToDimension: failed to create entity in {}",
+          destination.getRegistryKey().getValue());
+      return this;
+    }
+
+    newDog.readNbt(nbt);
+    newDog.setPos(owner.getX(), owner.getY(), owner.getZ());
+    newDog.setYaw(this.getYaw());
+    newDog.setPitch(this.getPitch());
+
+    this.remove(RemovalReason.CHANGED_DIMENSION);
+    currentWorld
+        .getChunk(this.getBlockPos().getX() >> 4, this.getBlockPos().getZ() >> 4)
+        .setNeedsSaving(true);
+
+    final Entity existing = destination.getEntity(this.getUuid());
+    if (existing != null && existing != this) {
+      DogsUnleashed.log.warn(
+          "[Dog] followOwnerToDimension: removing stale entity {} from {} (UUID collision)",
+          existing.getUuid(),
+          destination.getRegistryKey().getValue());
+      existing.remove(RemovalReason.DISCARDED);
+    }
+
+    destination.spawnEntity(newDog);
+
+    DogsUnleashed.log.info(
+        "[Dog] followOwnerToDimension: new dog {} spawned in {}",
+        newDog.getUuid(),
+        destination.getRegistryKey().getValue());
+    return newDog;
+  }
+
   @Override
   public void onDeath(DamageSource damageSource) {
     this.endPlayMode();
@@ -919,12 +972,6 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
               nbt.putInt(ModNbtKeys.BED_POS_Z, pos.getZ());
             });
     nbt.putBoolean(ModNbtKeys.CARRYING_BALL, this.isCarryingBall());
-    com.grahambartley.DogsUnleashed.log.debug(
-        "[SAVE] {} (UUID={}) - isTamed={}, ownerUuid={}",
-        this.getBreedId(),
-        this.getUuid(),
-        this.isTamed(),
-        this.getOwnerUuid());
   }
 
   @Override
@@ -958,13 +1005,6 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     if (nbt.contains(ModNbtKeys.CARRYING_BALL)) {
       this.setCarryingBall(nbt.getBoolean(ModNbtKeys.CARRYING_BALL));
     }
-    com.grahambartley.DogsUnleashed.log.debug(
-        "[LOAD] {} (UUID={}) - isTamed={}, ownerUuid={}, nbt.hasOwner={}",
-        this.getBreedId(),
-        this.getUuid(),
-        this.isTamed(),
-        this.getOwnerUuid(),
-        nbt.containsUuid("Owner"));
   }
 
   @Override
