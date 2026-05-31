@@ -1,4 +1,5 @@
 ---
+name: run-game-client
 description: Runs the Minecraft game client locally with the mod for manual testing. Use when asked to launch, run, or start the game client for testing.
 ---
 

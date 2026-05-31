@@ -1,8 +1,15 @@
 ---
+name: add-dog-breed
 description: Add a new dog breed to the Dogs Unleashed Minecraft mod with all required files and tests. Use when asked to add or create a new dog breed.
 ---
 
 # Add Dog Breed
+
+## Workflow Requirement
+
+1. Run the `build` skill first with the linked GitHub issue.
+2. Let `build` handle `worktree` setup, implementation flow, testing, issue status updates, and `pr` handoff.
+3. Use this skill as a breed-specific implementation checklist inside that build flow.
 
 ## Prerequisites
 
