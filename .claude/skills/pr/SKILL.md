@@ -1,34 +1,48 @@
 ---
 name: pr
-description: Create a PR for the dogs-unleashed repo using a git worktree branched from latest main
+description: Create a PR for the minecraft-dogs-unleashed repo using a git worktree branched from latest main. Use for final commit, push, and PR flow.
 ---
+
+# PR
+
+Use this skill for final validation, commit, push, and PR creation.
+This skill is used directly by humans and also as a handoff step from the build skill.
 
 ## Workflow
 
-1. `git fetch origin main` — get latest main
-2. `git worktree add -b <branch-name> ../minecraft-dogs-unleashed-<branch-name> origin/main`
-- Branch name: short kebab-case describing the change (e.g. `add-beagle-breed`)
-3. `cd ../minecraft-dogs-unleashed-<branch-name>` — make all changes in the worktree
-4. Stage: `git add <files>`
-5. Format: `./gradlew spotlessApply`
-6. Test: `./gradlew test`
-7. Build: `./gradlew clean build`
-8. Commit: `git commit -m "<type>: <short lowercase descriptive present tense message>"`
+1. Run the `worktree` skill first to create and enter a fresh worktree.
+2. Stage: `git add <files>`
+3. Format: `./gradlew spotlessApply`
+4. Test: `./gradlew test`
+5. Build: `./gradlew clean build`
+6. Commit: `git commit -m "<type>: <short lowercase descriptive present tense message>"`
 - Types: feat, fix, refactor, test, docs, chore
-9. Push: `git push origin <branch-name>`
-10. Create PR: `gh pr create --repo grabartley/minecraft-dogs-unleashed --base main --head <branch-name> --title "<title>" --body "<body>"`
+7. Push: `git push origin <branch-name>`
+8. Create PR: `gh pr create --repo grabartley/minecraft-dogs-unleashed --base main --head <branch-name> --title "<title>" --body "<body>"`
 	- Title: `<type>: <description>` (same style as commit message)
 	- Body: one-liner summary, then "**What's included:**" with bullet points
-11. After merge, clean up: `cd ../minecraft-dogs-unleashed && git worktree remove ../minecraft-dogs-unleashed-<branch-name>`
+	- Always include a closing reference like `Closes #<issue-number>` so the PR Development section is linked to the issue being worked on
+9. After merge, clean up: `git worktree remove ./.claude/worktrees/dogs-unleashed-<branch-name>`
 
 ## Conventions
 
 - Always branch from latest `main`, never from other branches
-- Use a fresh worktree per PR — don't reuse worktrees across branches
-- Worktree path: `../minecraft-dogs-unleashed-<branch-name>` (sibling directory)
+- Use a fresh worktree per PR, don't reuse worktrees across branches
+- Worktree path: `./.claude/worktrees/dogs-unleashed-<branch-name>`
 - Branch names: kebab-case (e.g. `fix-mob-collision`, `add-beagle-breed`)
 - Commit messages: `<type>: <lowercase description>`, no period at end
 - Types: feat, fix, refactor, test, docs, chore
 - PR descriptions: bullet points under "What's included:" header
+- Always link the PR Development section to the active issue via `Closes #<issue-number>` in the PR body
 - Pre-commit must complete successfully: format, test, build
+- Run `./gradlew spotlessApply` before staging so CI `spotlessCheck` stays green
 - No emoji in commit messages or PR titles
+
+## Related Skills
+
+- `worktree`, used first for fresh branch and isolated directory setup
+
+## Build Skill Integration
+
+- If invoked after build work, confirm the linked issue is in `QA testing` before final handoff.
+- Do not move issue to `Done`, that is reserved for human QA completion.
