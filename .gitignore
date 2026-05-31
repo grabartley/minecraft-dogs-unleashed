@@ -31,8 +31,6 @@ replay_pid*
 .gradle/
 run/
 build/
-!.claude/skills/build/
-!.claude/skills/build/SKILL.md
 AGENTS.md
 CLAUDE.md
 TODO.md
