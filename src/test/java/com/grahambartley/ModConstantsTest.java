@@ -43,4 +43,10 @@ class ModConstantsTest {
       assertTrue(spawnSettings.biomes().length > 0, "Every breed should have at least one biome");
     }
   }
+
+  @Test
+  @DisplayName("Random bark chance should keep idle barking infrequent")
+  void testRandomBarkChance() {
+    assertEquals(2400, ModConstants.RANDOM_BARK_CHANCE);
+  }
 }

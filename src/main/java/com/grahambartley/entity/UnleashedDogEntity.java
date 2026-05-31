@@ -703,7 +703,10 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     final UnleashedDogEntity baby = this.createBaby(world);
     baby.setBaby(true);
     baby.rollAppearance(SpawnReason.BREEDING);
-    baby.tame(this.getLovingPlayer());
+    final PlayerEntity lovingPlayer = this.getLovingPlayer();
+    if (lovingPlayer != null) {
+      baby.tame(lovingPlayer);
+    }
     return baby;
   }
 

@@ -9,7 +9,18 @@
     "sounds": [
       "dogs-unleashed:entity/dachshund/bark1",
       "dogs-unleashed:entity/dachshund/bark2",
-      "dogs-unleashed:entity/dachshund/bark3"
+      "dogs-unleashed:entity/dachshund/bark3",
+      "dogs-unleashed:entity/dachshund/bark4",
+      "dogs-unleashed:entity/dachshund/bark5",
+      "dogs-unleashed:entity/dachshund/bark6",
+      "dogs-unleashed:entity/dachshund/bark7",
+      "dogs-unleashed:entity/dachshund/bark8",
+      "dogs-unleashed:entity/dachshund/bark9",
+      "dogs-unleashed:entity/dachshund/bark10",
+      "dogs-unleashed:entity/dachshund/bark11",
+      "dogs-unleashed:entity/dachshund/bark12",
+      "dogs-unleashed:entity/dachshund/bark13",
+      "dogs-unleashed:entity/dachshund/bark14"
     ]
   },
   "entity.goldenretriever.bark": {
