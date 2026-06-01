@@ -41,9 +41,7 @@
   },
   "entity.shibainu.bark": {
     "sounds": [
-      "dogs-unleashed:entity/shibainu/bark1",
-      "dogs-unleashed:entity/shibainu/bark2",
-      "dogs-unleashed:entity/shibainu/bark3"
+      "dogs-unleashed:entity/shibainu/bark1"
     ]
   },
   "entity.husky.howl": {
