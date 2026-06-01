@@ -4,13 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -24,19 +24,15 @@ class ModSoundsTest {
   @Test
   @DisplayName("Husky bark event should be absent from sounds.json")
   void huskyBarkEventIsAbsent() throws IOException {
-    String soundsJson = Files.readString(SOUNDS_JSON);
-    assertFalse(soundsJson.contains("\"entity.husky.bark\""));
+    JsonObject root = readSoundsJson();
+    assertFalse(root.has("entity.husky.bark"));
   }
 
   @Test
   @DisplayName("Husky howl event should reference howl1 only")
   void huskyHowlEventReferencesHowlOneOnly() throws IOException {
-    String soundsJson = Files.readString(SOUNDS_JSON);
-
-    List<Integer> howlIds = extractHuskyHowlIdsFromHowlEvent(soundsJson);
-
-    assertEquals(1, howlIds.size());
-    assertTrue(howlIds.contains(1), "Expected howl1 to be present in husky howl event");
+    List<String> huskyHowlSoundIds = extractHuskyHowlSoundIds(readSoundsJson());
+    assertEquals(List.of("dogs-unleashed:entity/husky/howl1"), huskyHowlSoundIds);
   }
 
   @Test
@@ -50,28 +46,23 @@ class ModSoundsTest {
   @Test
   @DisplayName("Husky howl event should not include weighted entries")
   void huskyHowlEventUsesEqualChanceEntries() throws IOException {
-    String soundsJson = Files.readString(SOUNDS_JSON);
-    String huskyBlock = extractHuskyHowlEventBlock(soundsJson);
-
-    assertFalse(huskyBlock.contains("\"weight\""));
-    assertFalse(huskyBlock.contains("\"type\""));
+    JsonArray sounds =
+        readSoundsJson().getAsJsonObject("entity.husky.howl").getAsJsonArray("sounds");
+    for (int i = 0; i < sounds.size(); i++) {
+      assertTrue(sounds.get(i).isJsonPrimitive(), "Expected plain string sound entries only");
+    }
   }
 
-  private static List<Integer> extractHuskyHowlIdsFromHowlEvent(String soundsJson) {
-    String huskyBlock = extractHuskyHowlEventBlock(soundsJson);
-    Matcher matcher = Pattern.compile("entity/husky/howl(\\d+)").matcher(huskyBlock);
-    List<Integer> howlIds = new ArrayList<>();
-    while (matcher.find()) {
-      howlIds.add(Integer.parseInt(matcher.group(1)));
+  private static JsonObject readSoundsJson() throws IOException {
+    return JsonParser.parseString(Files.readString(SOUNDS_JSON)).getAsJsonObject();
+  }
+
+  private static List<String> extractHuskyHowlSoundIds(JsonObject root) {
+    JsonArray sounds = root.getAsJsonObject("entity.husky.howl").getAsJsonArray("sounds");
+    java.util.ArrayList<String> howlIds = new java.util.ArrayList<>();
+    for (int i = 0; i < sounds.size(); i++) {
+      howlIds.add(sounds.get(i).getAsString());
     }
     return howlIds;
-  }
-
-  private static String extractHuskyHowlEventBlock(String soundsJson) {
-    Matcher matcher =
-        Pattern.compile("\\\"entity\\.husky\\.howl\\\"\\s*:\\s*\\{([\\s\\S]*?)\\n\\s*}\\s*,?")
-            .matcher(soundsJson);
-    assertTrue(matcher.find(), "Could not find entity.husky.howl in sounds.json");
-    return matcher.group(1);
   }
 }
