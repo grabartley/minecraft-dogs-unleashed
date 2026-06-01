@@ -5,6 +5,7 @@ import static com.grahambartley.ModConstants.HOWL_COOLDOWN_TICKS;
 import static com.grahambartley.ModConstants.HOWL_DURATION_TICKS;
 import static com.grahambartley.ModConstants.MINECRAFT_TICK_RATE;
 
+import com.grahambartley.DogsUnleashed;
 import com.grahambartley.ModSounds;
 import com.grahambartley.entity.HuskyEntity;
 import com.grahambartley.entity.UnleashedDogEntity;
@@ -17,13 +18,17 @@ import net.minecraft.registry.Registries;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
 public final class DogEntitySoundTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void huskyBarkSoundIsRegistered(TestContext context) {
-    testBarkSoundIsRegistered(context, DogTestData.HUSKY);
+  public void huskyHasNoBarkSoundRegistered(TestContext context) {
+    context.assertFalse(
+        Registries.SOUND_EVENT.containsId(Identifier.of(DogsUnleashed.MOD_ID, "entity.husky.bark")),
+        "Husky bark sound should not be registered");
+    context.complete();
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
@@ -55,8 +60,8 @@ public final class DogEntitySoundTest implements FabricGameTest {
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
-  public void huskyBarksWhenLowHealth(TestContext context) {
-    testDogBarksWhenLowHealth(context, DogTestData.HUSKY);
+  public void huskyDoesNotBarkWhenLowHealth(TestContext context) {
+    testDogDoesNotBarkWhenLowHealth(context, DogTestData.HUSKY);
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
@@ -80,8 +85,8 @@ public final class DogEntitySoundTest implements FabricGameTest {
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
-  public void huskyBarksWhenHasTarget(TestContext context) {
-    testDogBarksWhenHasTarget(context, DogTestData.HUSKY);
+  public void huskyDoesNotBarkWhenHasTarget(TestContext context) {
+    testDogDoesNotBarkWhenHasTarget(context, DogTestData.HUSKY);
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
@@ -105,8 +110,8 @@ public final class DogEntitySoundTest implements FabricGameTest {
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
-  public void huskyBarksWhenTakingDamage(TestContext context) {
-    testDogBarksWhenTakingDamage(context, DogTestData.HUSKY);
+  public void huskyDoesNotBarkWhenTakingDamage(TestContext context) {
+    testDogDoesNotBarkWhenTakingDamage(context, DogTestData.HUSKY);
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
@@ -130,8 +135,8 @@ public final class DogEntitySoundTest implements FabricGameTest {
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
-  public void huskyCooldownPreventsBark(TestContext context) {
-    testCooldownPreventsBark(context, DogTestData.HUSKY);
+  public void huskyBarkCooldownStaysInactive(TestContext context) {
+    testBarkCooldownStaysInactive(context, DogTestData.HUSKY);
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
@@ -248,6 +253,9 @@ public final class DogEntitySoundTest implements FabricGameTest {
       TestContext context, DogTestData<T> data) {
     DogTestHelper.spawnDog(context, data);
     context.assertTrue(
+        data.expectedBarkSound() != null,
+        data.breed().serializedId() + " should define a bark sound");
+    context.assertTrue(
         Registries.SOUND_EVENT.containsId(Registries.SOUND_EVENT.getId(data.expectedBarkSound())),
         data.breed().serializedId() + " bark sound should be in Registries.SOUND_EVENT");
     context.complete();
@@ -269,6 +277,22 @@ public final class DogEntitySoundTest implements FabricGameTest {
           context.assertTrue(
               dog.getBarkCooldownTicks() > 0,
               "Low health dog should have barked (cooldown should be > 0)");
+          context.complete();
+        });
+  }
+
+  private <T extends UnleashedDogEntity> void testDogDoesNotBarkWhenLowHealth(
+      TestContext context, DogTestData<T> data) {
+    T dog = DogTestHelper.spawnDog(context, data);
+
+    context.runAtTick(5, () -> dog.setHealth(1.0f));
+
+    context.runAtTick(
+        10,
+        () -> {
+          context.assertTrue(
+              dog.getBarkCooldownTicks() == 0,
+              data.breed().serializedId() + " should not bark at low health");
           context.complete();
         });
   }
@@ -298,6 +322,27 @@ public final class DogEntitySoundTest implements FabricGameTest {
         });
   }
 
+  private <T extends UnleashedDogEntity> void testDogDoesNotBarkWhenHasTarget(
+      TestContext context, DogTestData<T> data) {
+    ServerWorld world = context.getWorld();
+    T dog = DogTestHelper.spawnDog(context, data);
+
+    ZombieEntity zombie = new ZombieEntity(EntityType.ZOMBIE, world);
+    zombie.refreshPositionAndAngles(new BlockPos(2, 1, 0), 0.0f, 0.0f);
+    world.spawnEntity(zombie);
+
+    context.runAtTick(5, () -> dog.setTarget(zombie));
+
+    context.runAtTick(
+        10,
+        () -> {
+          context.assertTrue(
+              dog.getBarkCooldownTicks() == 0,
+              data.breed().serializedId() + " should not bark with a target");
+          context.complete();
+        });
+  }
+
   private <T extends UnleashedDogEntity> void testDogBarksWhenTakingDamage(
       TestContext context, DogTestData<T> data) {
     T dog = DogTestHelper.spawnDog(context, data);
@@ -314,6 +359,22 @@ public final class DogEntitySoundTest implements FabricGameTest {
           context.assertTrue(
               dog.getBarkCooldownTicks() > 0,
               "Dog should have barked when taking damage (cooldown should be > 0)");
+          context.complete();
+        });
+  }
+
+  private <T extends UnleashedDogEntity> void testDogDoesNotBarkWhenTakingDamage(
+      TestContext context, DogTestData<T> data) {
+    T dog = DogTestHelper.spawnDog(context, data);
+
+    context.runAtTick(5, () -> DogTestHelper.damageEntity(dog, 1.0f));
+
+    context.runAtTick(
+        10,
+        () -> {
+          context.assertTrue(
+              dog.getBarkCooldownTicks() == 0,
+              data.breed().serializedId() + " should not bark when taking damage");
           context.complete();
         });
   }
@@ -351,6 +412,20 @@ public final class DogEntitySoundTest implements FabricGameTest {
                     "Cooldown should still be active, preventing another bark");
                 context.complete();
               });
+        });
+  }
+
+  private <T extends UnleashedDogEntity> void testBarkCooldownStaysInactive(
+      TestContext context, DogTestData<T> data) {
+    T dog = DogTestHelper.spawnDog(context, data);
+
+    context.runAtTick(
+        10,
+        () -> {
+          context.assertTrue(
+              dog.getBarkCooldownTicks() == 0,
+              data.breed().serializedId() + " bark cooldown should stay 0");
+          context.complete();
         });
   }
 }
