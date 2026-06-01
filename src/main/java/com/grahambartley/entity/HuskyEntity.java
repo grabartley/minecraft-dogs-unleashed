@@ -24,6 +24,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.PlayState;
@@ -108,8 +109,13 @@ public class HuskyEntity extends UnleashedDogEntity {
   }
 
   @Override
-  protected SoundEvent getBarkSound() {
-    return ModSounds.HUSKY_BARK;
+  protected @Nullable SoundEvent getBarkSound() {
+    return null;
+  }
+
+  @Override
+  protected boolean canBark() {
+    return false;
   }
 
   public boolean isHowling() {

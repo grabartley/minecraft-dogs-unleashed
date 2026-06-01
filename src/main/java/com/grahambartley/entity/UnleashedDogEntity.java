@@ -226,7 +226,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     return this.getBreed().serializedId();
   }
 
-  protected abstract SoundEvent getBarkSound();
+  protected abstract @Nullable SoundEvent getBarkSound();
 
   protected String getSleepInBedMovementAnimationName() {
     return DogAnimationKeys.SIT;
@@ -240,7 +240,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     return this.barkCooldownTicks;
   }
 
-  private boolean canBark() {
+  protected boolean canBark() {
     return !this.isDead() && !this.isSleepingInBed() && this.barkCooldownTicks <= 0;
   }
 

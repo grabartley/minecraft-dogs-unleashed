@@ -14,6 +14,7 @@ import java.util.function.Function;
 import net.minecraft.entity.EntityType;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 public record DogTestData<T extends UnleashedDogEntity>(
     EntityType<T> entityType,
@@ -24,7 +25,7 @@ public record DogTestData<T extends UnleashedDogEntity>(
     double expectedMaxHealth,
     double expectedMovementSpeed,
     double expectedAttackDamage,
-    SoundEvent expectedBarkSound) {
+    @Nullable SoundEvent expectedBarkSound) {
 
   public static final DogTestData<HuskyEntity> HUSKY =
       new DogTestData<>(
@@ -36,7 +37,7 @@ public record DogTestData<T extends UnleashedDogEntity>(
           UnleashedDogBreed.HUSKY.attributes().maxHealth(),
           UnleashedDogBreed.HUSKY.attributes().movementSpeed(),
           UnleashedDogBreed.HUSKY.attributes().attackDamage(),
-          ModSounds.HUSKY_BARK);
+          null);
 
   public static final DogTestData<DachshundEntity> DACHSHUND =
       new DogTestData<>(

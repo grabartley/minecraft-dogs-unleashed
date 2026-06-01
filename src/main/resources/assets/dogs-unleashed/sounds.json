@@ -32,11 +32,6 @@
       "dogs-unleashed:entity/goldenretriever/bark5"
     ]
   },
-  "entity.husky.bark": {
-    "sounds": [
-      "dogs-unleashed:entity/husky/howl1"
-    ]
-  },
   "entity.shibainu.bark": {
     "sounds": [
       "dogs-unleashed:entity/shibainu/bark1"
