@@ -25,6 +25,7 @@ import com.grahambartley.entity.variant.UnleashedDogCoat;
 import com.grahambartley.network.ModNetworking;
 import com.grahambartley.pet.PetData;
 import com.grahambartley.pet.PetManager;
+import com.grahambartley.util.BreedingOwnerResolver;
 import com.grahambartley.util.DogNames;
 import java.util.HashMap;
 import java.util.Map;
@@ -633,7 +634,10 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     return TAMING_INGREDIENT.test(stack);
   }
 
-  private void tame(final PlayerEntity player) {
+  private void tame(final @Nullable PlayerEntity player) {
+    if (player == null) {
+      return;
+    }
     this.setOwner(player);
     this.navigation.stop();
     this.setTarget(null);
@@ -706,6 +710,15 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     final PlayerEntity lovingPlayer = this.getLovingPlayer();
     if (lovingPlayer != null) {
       baby.tame(lovingPlayer);
+    } else {
+      final UUID inheritedOwnerUuid =
+          BreedingOwnerResolver.resolveInheritedOwnerUuid(
+              this.getOwnerUuid(),
+              entity instanceof UnleashedDogEntity otherDog ? otherDog.getOwnerUuid() : null);
+      if (inheritedOwnerUuid != null) {
+        baby.setOwnerUuid(inheritedOwnerUuid);
+        baby.setTamed(true, true);
+      }
     }
     return baby;
   }
