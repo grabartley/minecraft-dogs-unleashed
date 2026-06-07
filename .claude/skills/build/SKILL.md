@@ -11,10 +11,11 @@ description: Build or implement a feature for the Dogs Unleashed mod, optionally
 2. Run the `worktree` skill first before any issue moves, coding, or validation.
 3. Keep issue project status in sync during execution.
 4. Any new gameplay code or behavior changes must include extensive unit tests in the same PR.
-5. Run the `pr` skill as part of build after validation passes.
-6. Move issue to `QA testing` only after PR is opened and CI is running.
-7. After PR creation and `QA testing` transition, always provide a detailed manual QA checklist to the developer.
-8. Stop at `QA testing`, human performs final verification and moves to `Done`.
+5. Unit tests MUST map to a single specific class. Test class name MUST match the class under test plus a "Test" suffix (e.g. `BeagleCoatRolls.java` -> `BeagleCoatRollsTest.java`). A test that exercises `Foo` must be named `FooTest`, never `BarRelatedThingTest`.
+6. Run the `pr` skill as part of build after validation passes.
+7. Move issue to `QA testing` only after PR is opened and CI is running.
+8. After PR creation and `QA testing` transition, always provide a detailed manual QA checklist to the developer.
+9. Stop at `QA testing`, human performs final verification and moves to `Done`.
 
 ## Workflow
 
