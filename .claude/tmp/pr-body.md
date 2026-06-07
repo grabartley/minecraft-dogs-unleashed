@@ -1,9 +1,9 @@
-Fix stale fetch sessions on unloads and let players hand play mode to a different dog cleanly.
+Generalize fetch handling so registered fetch items can reuse the same dog play flow.
 
 **What's included:**
-- clean up `ACTIVE_PLAY_SESSIONS` when `UnleashedDogEntity` is removed for non-`KILLED` reasons
-- protect `endPlayMode()` so one dog's unload only removes its own `(player, dog)` session entry
-- end other nearby fetch sessions for the same owner before starting play mode on a new dog
-- add `ActivePlaySessionsTest` coverage for session cleanup and removal behavior
+- add `FetchItemType`, `FetchTypes`, and `FetchProjectileEntity` so fetch-capable items are registered in one place
+- refactor `UnleashedDogEntity`, fetch goals, and `TennisBallProjectileEntity` to use generic fetch state instead of tennis-ball-only checks
+- replace `TennisBallTemptGoal` with `FetchTemptGoal` and `DogCarryBallLayer` with `DogCarryFetchItemLayer`
+- add focused fetch-system tests covering the new registry and projectile source contracts
 
-Closes #114
+Closes #129

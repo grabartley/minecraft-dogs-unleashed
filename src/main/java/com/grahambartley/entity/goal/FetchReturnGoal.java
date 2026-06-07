@@ -1,8 +1,8 @@
 package com.grahambartley.entity.goal;
 
-import com.grahambartley.ModBlocks;
-import com.grahambartley.ModItems;
 import com.grahambartley.entity.UnleashedDogEntity;
+import com.grahambartley.entity.fetch.FetchItemType;
+import com.grahambartley.entity.fetch.FetchTypes;
 import java.util.EnumSet;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
@@ -33,7 +33,7 @@ public class FetchReturnGoal extends Goal {
 
   @Override
   public boolean canStart() {
-    if (!this.dog.isCarryingBall()) {
+    if (!this.dog.isCarryingFetchItem()) {
       return false;
     }
     Entity owner = this.dog.getOwner();
@@ -42,7 +42,7 @@ public class FetchReturnGoal extends Goal {
 
   @Override
   public boolean shouldContinue() {
-    if (!this.dog.isCarryingBall()) {
+    if (!this.dog.isCarryingFetchItem()) {
       return false;
     }
     Entity owner = this.dog.getOwner();
@@ -64,14 +64,14 @@ public class FetchReturnGoal extends Goal {
 
     double distToOwner = this.dog.squaredDistanceTo(player);
     if (distToOwner <= CLOSE_ENOUGH_DISTANCE * CLOSE_ENOUGH_DISTANCE) {
-      placeReturnedBall(player);
+      this.placeReturnedFetchItem(player);
 
       final String dogName = this.dog.getDisplayName().getString();
       player.sendMessage(
           Text.translatable("message.dogs-unleashed.play_ball_returned", dogName), true);
 
-      this.dog.setCarryingBall(false);
-      this.dog.setActiveBallBlockPos(null);
+      this.dog.setCarryingFetchItem(false);
+      this.dog.setActiveFetchBlockPos(null);
     }
   }
 
@@ -80,10 +80,11 @@ public class FetchReturnGoal extends Goal {
     this.dog.getNavigation().stop();
   }
 
-  private void placeReturnedBall(PlayerEntity player) {
+  private void placeReturnedFetchItem(PlayerEntity player) {
+    FetchItemType fetchItemType = this.getActiveFetchType();
     BlockPos dropPos = findSafeDropPos(player);
     if (dropPos != null) {
-      this.dog.getWorld().setBlockState(dropPos, ModBlocks.TENNIS_BALL.getDefaultState());
+      this.dog.getWorld().setBlockState(dropPos, fetchItemType.landedBlock().getDefaultState());
       return;
     }
 
@@ -93,8 +94,26 @@ public class FetchReturnGoal extends Goal {
             player.getX(),
             player.getY() + BALL_DROP_Y_OFFSET,
             player.getZ(),
-            new ItemStack(ModItems.TENNIS_BALL));
+            new ItemStack(fetchItemType.item()));
     this.dog.getWorld().spawnEntity(itemEntity);
+  }
+
+  private FetchItemType getActiveFetchType() {
+    FetchItemType fetchItemType = this.dog.getActiveFetchType();
+    if (fetchItemType != null) {
+      return fetchItemType;
+    }
+
+    BlockPos activeFetchBlockPos = this.dog.getActiveFetchBlockPos();
+    if (activeFetchBlockPos != null) {
+      FetchItemType resolvedType =
+          FetchTypes.forBlock(this.dog.getWorld().getBlockState(activeFetchBlockPos).getBlock());
+      if (resolvedType != null) {
+        return resolvedType;
+      }
+    }
+
+    return FetchTypes.TENNIS_BALL;
   }
 
   private BlockPos findSafeDropPos(PlayerEntity player) {

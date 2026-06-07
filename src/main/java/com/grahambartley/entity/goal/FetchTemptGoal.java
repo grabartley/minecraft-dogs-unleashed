@@ -4,11 +4,11 @@ import com.grahambartley.entity.UnleashedDogEntity;
 import net.minecraft.entity.ai.goal.TemptGoal;
 import net.minecraft.recipe.Ingredient;
 
-public class TennisBallTemptGoal extends TemptGoal {
+public class FetchTemptGoal extends TemptGoal {
 
   private final UnleashedDogEntity dog;
 
-  public TennisBallTemptGoal(
+  public FetchTemptGoal(
       UnleashedDogEntity dog, double speed, Ingredient ingredient, boolean canBeScared) {
     super(dog, speed, ingredient, canBeScared);
     this.dog = dog;
@@ -17,7 +17,7 @@ public class TennisBallTemptGoal extends TemptGoal {
   @Override
   public boolean canStart() {
     if (this.dog.isInPlayMode()) {
-      return !this.dog.isActivelyFetchingBall() && super.canStart();
+      return !this.dog.isActivelyFetching() && super.canStart();
     }
 
     if (UnleashedDogEntity.isAnyDogInPlayMode()) {
@@ -33,7 +33,7 @@ public class TennisBallTemptGoal extends TemptGoal {
   @Override
   public boolean shouldContinue() {
     if (this.dog.isInPlayMode()) {
-      return !this.dog.isActivelyFetchingBall() && super.shouldContinue();
+      return !this.dog.isActivelyFetching() && super.shouldContinue();
     }
 
     if (UnleashedDogEntity.isAnyDogInPlayMode()) {

@@ -2,7 +2,7 @@ package com.grahambartley.render;
 
 import com.grahambartley.entity.GoldenRetrieverEntity;
 import com.grahambartley.model.GoldenRetrieverModel;
-import com.grahambartley.render.layer.DogCarryBallLayer;
+import com.grahambartley.render.layer.DogCarryFetchItemLayer;
 import com.grahambartley.render.layer.GoldenRetrieverCollarLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -16,7 +16,7 @@ public class GoldenRetrieverRenderer extends GeoEntityRenderer<GoldenRetrieverEn
   public GoldenRetrieverRenderer(EntityRendererFactory.Context context) {
     super(context, new GoldenRetrieverModel());
     this.addRenderLayer(new GoldenRetrieverCollarLayer(this));
-    this.addRenderLayer(new DogCarryBallLayer<>(this));
+    this.addRenderLayer(new DogCarryFetchItemLayer<>(this));
   }
 
   @Override

@@ -1,17 +1,14 @@
 package com.grahambartley.entity;
 
-import com.grahambartley.ModBlocks;
 import com.grahambartley.ModEntities;
-import com.grahambartley.ModItems;
-import java.util.List;
-import java.util.UUID;
+import com.grahambartley.entity.fetch.FetchItemType;
+import com.grahambartley.entity.fetch.FetchProjectileEntity;
+import com.grahambartley.entity.fetch.FetchTypes;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.thrown.ThrownEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.hit.BlockHitResult;
@@ -25,9 +22,8 @@ import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class TennisBallProjectileEntity extends ThrownEntity implements GeoEntity {
-  private static final int NOTIFY_PLAY_RANGE = 128;
-
+public class TennisBallProjectileEntity extends ThrownEntity
+    implements GeoEntity, FetchProjectileEntity {
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
   public TennisBallProjectileEntity(
@@ -51,10 +47,11 @@ public class TennisBallProjectileEntity extends ThrownEntity implements GeoEntit
 
     BlockPos landPos = blockHitResult.getBlockPos().offset(blockHitResult.getSide());
     BlockState stateAtPos = this.getWorld().getBlockState(landPos);
+    FetchItemType fetchItemType = this.getFetchItemType();
 
     if (stateAtPos.isAir() || stateAtPos.isReplaceable()) {
-      this.getWorld().setBlockState(landPos, ModBlocks.TENNIS_BALL.getDefaultState());
-      notifyPlayingDog(landPos);
+      this.getWorld().setBlockState(landPos, fetchItemType.landedBlock().getDefaultState());
+      FetchProjectileEntity.notifyPlayingDogsOfLandedFetchItem(this, landPos);
     } else {
       ItemEntity itemEntity =
           new ItemEntity(
@@ -62,9 +59,9 @@ public class TennisBallProjectileEntity extends ThrownEntity implements GeoEntit
               this.getX(),
               this.getY(),
               this.getZ(),
-              new ItemStack(ModItems.TENNIS_BALL));
+              new ItemStack(fetchItemType.item()));
       this.getWorld().spawnEntity(itemEntity);
-      notifyPlayEndForPlayingDog();
+      FetchProjectileEntity.notifyPlayingDogsToEndPlayMode(this);
     }
 
     this.discard();
@@ -75,38 +72,9 @@ public class TennisBallProjectileEntity extends ThrownEntity implements GeoEntit
     // No damage to entities
   }
 
-  private void notifyPlayingDog(BlockPos ballPos) {
-    Entity owner = this.getOwner();
-    if (!(owner instanceof PlayerEntity player)) {
-      return;
-    }
-    UUID playerUuid = player.getUuid();
-    List<UnleashedDogEntity> playingDogs =
-        this.getWorld()
-            .getEntitiesByClass(
-                UnleashedDogEntity.class,
-                this.getBoundingBox().expand(NOTIFY_PLAY_RANGE),
-                dog -> dog.isInPlayMode() && playerUuid.equals(dog.getPlayPartnerPlayerUuid()));
-    for (UnleashedDogEntity dog : playingDogs) {
-      dog.setActiveBallBlockPos(ballPos);
-    }
-  }
-
-  private void notifyPlayEndForPlayingDog() {
-    Entity owner = this.getOwner();
-    if (!(owner instanceof PlayerEntity player)) {
-      return;
-    }
-    UUID playerUuid = player.getUuid();
-    List<UnleashedDogEntity> playingDogs =
-        this.getWorld()
-            .getEntitiesByClass(
-                UnleashedDogEntity.class,
-                this.getBoundingBox().expand(NOTIFY_PLAY_RANGE),
-                dog -> dog.isInPlayMode() && playerUuid.equals(dog.getPlayPartnerPlayerUuid()));
-    for (UnleashedDogEntity dog : playingDogs) {
-      dog.endPlayMode();
-    }
+  @Override
+  public FetchItemType getFetchItemType() {
+    return FetchTypes.TENNIS_BALL;
   }
 
   @Override
