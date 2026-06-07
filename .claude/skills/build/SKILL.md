@@ -15,7 +15,8 @@ description: Build or implement a feature for the Dogs Unleashed mod, optionally
 6. Run the `pr` skill as part of build after validation passes.
 7. Move issue to `QA testing` only after PR is opened and CI is running.
 8. After PR creation and `QA testing` transition, always provide a detailed manual QA checklist to the developer.
-9. Stop at `QA testing`, human performs final verification and moves to `Done`.
+9. If PR code changes after the PR is opened, check whether the PR description still matches the current branch state, and update it if needed so it reflects the final state only.
+10. Stop at `QA testing`, human performs final verification and moves to `Done`.
 
 ## Workflow
 
@@ -24,10 +25,7 @@ description: Build or implement a feature for the Dogs Unleashed mod, optionally
 3. If an issue number or URL is provided, read it first with gh:
 - `gh issue view <number> --repo grabartley/minecraft-dogs-unleashed`
 - Extract acceptance criteria, constraints, and references.
-4. If no issue is provided, create one before coding:
-- Create a scoped issue with context, task list, and acceptance criteria.
-- Add it to the Dogs Unleashed project board.
-- Use this issue as the tracking artifact for all subsequent status moves.
+4. If no issue is provided, run the `create-issue` skill to create one before coding. Use the created issue as the tracking artifact for all subsequent status moves.
 5. Move the issue to `In progress`.
 6. Implement the feature.
 7. Run relevant automated tests and a local validation pass for changed behavior.
@@ -51,22 +49,20 @@ description: Build or implement a feature for the Dogs Unleashed mod, optionally
 - After PR creation and QA handoff: set to `QA testing`
 - Do not move to `Done` inside this skill
 
-## Issue Creation Template (when issue not provided)
+## Project Metadata
 
-Title format:
-- `[Build] <short capability or feature name>`
-
-Body minimum:
-- Context: why this change is needed
-- Scope: exact implementation boundaries
-- Tasks: checklist of concrete coding and validation steps
-- Acceptance Criteria: testable outcomes
-- Out of Scope: explicit exclusions
-
-After creating the issue, add it to the project board and start tracking status transitions immediately.
+- Project number: `1` (`Minecraft Dogs Unleashed`)
+- Project id: `PVT_kwHOAQYbq84BOF-N`
+- Status field id: `PVTSSF_lAHOAQYbq84BOF-Nzg85WjI`
+- `Backlog` option id: `f75ad846`
+- `Ready` option id: `61e4505c`
+- `In progress` option id: `47fc9ee4`
+- `QA Testing` option id: `df73e18b`
+- `Done` option id: `98236657`
 
 ## Related Skills
 
 - `worktree`, required first step for isolated branch setup
+- `create-issue`, used when build work starts without an existing GitHub issue
 - `pr`, required for commit, push, and PR creation during build flow
 - `run-game-client`, use for manual gameplay validation before QA handoff
