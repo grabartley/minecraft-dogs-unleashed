@@ -15,11 +15,16 @@ public class BeagleModel extends GeoModel<BeagleEntity> {
 
   @Override
   public Identifier getTextureResource(BeagleEntity animatable) {
-    return Identifier.of(MOD_ID, "textures/entity/beagle.png");
+    final String fileName =
+        animatable.getBreed().serializedId()
+            + "_"
+            + animatable.getCoatVariant().getTexturePrefix()
+            + ".png";
+    return Identifier.of(MOD_ID, "textures/entity/" + fileName);
   }
 
   @Override
   public Identifier getAnimationResource(BeagleEntity animatable) {
-    return Identifier.of(MOD_ID, "animations/beagle.animation.json");
+    return Identifier.of(MOD_ID, animatable.getBreed().animationPath());
   }
 }
