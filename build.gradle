@@ -1,3 +1,5 @@
+import java.nio.charset.StandardCharsets
+
 plugins {
 	id 'fabric-loom' version "${loom_version}"
 	id 'maven-publish'
@@ -122,8 +124,46 @@ jacocoTestReport {
 	}
 }
 
+tasks.register("verifyMainSourceSideSafety") {
+	group = "verification"
+	description = "Fails if src/main/java references client-only classes"
+	def mainJavaFiles = fileTree("src/main/java") {
+		include "**/*.java"
+	}
+	inputs.files(mainJavaFiles)
+
+	doLast {
+		def disallowedPatterns = [
+			"net.minecraft.client.",
+			"com.grahambartley.render.",
+			"com.grahambartley.model.",
+			"com.grahambartley.screen.",
+			"com.grahambartley.mixin.client.",
+			"com.grahambartley.DogsUnleashedClient",
+			"com.grahambartley.DogsUnleashedDataGenerator",
+			"com.grahambartley.ModKeyBindings",
+			"com.grahambartley.network.ModNetworkingClient"
+		]
+		def violations = []
+
+		inputs.files.files.each { file ->
+			def text = file.getText(StandardCharsets.UTF_8.name())
+			disallowedPatterns.each { pattern ->
+				if (text.contains(pattern)) {
+					violations << "${file}: contains '${pattern}'"
+				}
+			}
+		}
+
+		if (!violations.isEmpty()) {
+			throw new GradleException("Main source set side-safety violations found:\n" + violations.join("\n"))
+		}
+	}
+}
+
 check {
 	dependsOn spotlessCheck
+	dependsOn verifyMainSourceSideSafety
 }
 
 jar {
