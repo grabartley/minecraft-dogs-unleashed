@@ -430,9 +430,8 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   }
 
   public void endPlayMode() {
-    if (this.playPartnerPlayerUuid != null) {
-      ACTIVE_PLAY_SESSIONS.remove(this.playPartnerPlayerUuid);
-    }
+    ActivePlaySessions.clear(
+        ACTIVE_PLAY_SESSIONS, this.inPlayMode, this.playPartnerPlayerUuid, this.getUuid());
     this.inPlayMode = false;
     this.playPartnerPlayerUuid = null;
     this.activeBallBlockPos = null;
@@ -564,6 +563,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
         player.sendMessage(
             Text.translatable("message.dogs-unleashed.play_end", this.getTamedName()), true);
       } else {
+        endOtherNearbyPlayModes(player);
         this.startPlayMode(player);
         player.sendMessage(
             Text.translatable("message.dogs-unleashed.play_start", this.getTamedName()), true);
@@ -880,6 +880,32 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
         newDog.getUuid(),
         destination.getRegistryKey().getValue());
     return newDog;
+  }
+
+  @Override
+  public void remove(RemovalReason reason) {
+    if (ActivePlaySessions.shouldEndOnRemoval(reason)) {
+      this.endPlayMode();
+    }
+    super.remove(reason);
+  }
+
+  private void endOtherNearbyPlayModes(PlayerEntity player) {
+    for (UnleashedDogEntity dog :
+        this.getWorld()
+            .getEntitiesByClass(
+                UnleashedDogEntity.class,
+                this.getBoundingBox()
+                    .expand(
+                        FETCH_DETECTION_XZ_RANGE,
+                        FETCH_DETECTION_Y_RANGE,
+                        FETCH_DETECTION_XZ_RANGE),
+                candidate ->
+                    candidate != this
+                        && candidate.isInPlayMode()
+                        && player.getUuid().equals(candidate.getPlayPartnerPlayerUuid()))) {
+      dog.endPlayMode();
+    }
   }
 
   @Override
