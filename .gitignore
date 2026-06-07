@@ -30,7 +30,7 @@ replay_pid*
 .vscode/
 .gradle/
 run/
-build/
+/build/
 AGENTS.md
 CLAUDE.md
 TODO.md

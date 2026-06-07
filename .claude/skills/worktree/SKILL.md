@@ -12,16 +12,8 @@ Use this skill first when starting implementation work.
 1. `git fetch origin main`.
 2. Pick a short kebab-case branch name, for example `add-beagle-bed-animation`.
 3. Create worktree: `git worktree add -b <branch-name> ./.claude/worktrees/dogs-unleashed-<branch-name> origin/main`.
-4. Create the worktree run directory if needed: `mkdir -p ./.claude/worktrees/dogs-unleashed-<branch-name>/run`.
-5. Copy run config required for manual verification:
-- `cp -a run/saves ./.claude/worktrees/dogs-unleashed-<branch-name>/run/`
-- `cp -a run/world ./.claude/worktrees/dogs-unleashed-<branch-name>/run/`
-- `cp -a run/options.txt ./.claude/worktrees/dogs-unleashed-<branch-name>/run/`
-- `cp -a run/server.properties ./.claude/worktrees/dogs-unleashed-<branch-name>/run/`
-- `cp -a run/eula.txt ./.claude/worktrees/dogs-unleashed-<branch-name>/run/`
-- `cp -a run/config ./.claude/worktrees/dogs-unleashed-<branch-name>/run/`
-- `cp -a run/usercache.json ./.claude/worktrees/dogs-unleashed-<branch-name>/run/`
-6. Perform all coding, validation, commit, and PR steps from inside `./.claude/worktrees/dogs-unleashed-<branch-name>`.
+4. Copy the dev `run/` directory into the worktree (required for Fabric dev env client/server launch): `cp -a run/ ./.claude/worktrees/dogs-unleashed-<branch-name>/run/`.
+5. Perform all coding, validation, commit, and PR steps from inside `./.claude/worktrees/dogs-unleashed-<branch-name>`.
 
 ## Conventions
 
