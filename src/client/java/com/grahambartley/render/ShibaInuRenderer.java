@@ -2,7 +2,7 @@ package com.grahambartley.render;
 
 import com.grahambartley.entity.ShibaInuEntity;
 import com.grahambartley.model.ShibaInuModel;
-import com.grahambartley.render.layer.DogCarryBallLayer;
+import com.grahambartley.render.layer.DogCarryFetchItemLayer;
 import com.grahambartley.render.layer.ShibaInuCollarLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -16,7 +16,7 @@ public class ShibaInuRenderer extends GeoEntityRenderer<ShibaInuEntity> {
   public ShibaInuRenderer(EntityRendererFactory.Context context) {
     super(context, new ShibaInuModel());
     this.addRenderLayer(new ShibaInuCollarLayer(this));
-    this.addRenderLayer(new DogCarryBallLayer<>(this));
+    this.addRenderLayer(new DogCarryFetchItemLayer<>(this));
   }
 
   @Override

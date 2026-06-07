@@ -1,11 +1,13 @@
 package com.grahambartley.entity.goal;
 
-import com.grahambartley.entity.TennisBallProjectileEntity;
 import com.grahambartley.entity.UnleashedDogEntity;
+import com.grahambartley.entity.fetch.FetchProjectileEntity;
 import java.util.EnumSet;
 import java.util.List;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
 
 public class FetchChaseGoal extends Goal {
   private static final int SEARCH_XZ_RANGE = 128;
@@ -15,7 +17,7 @@ public class FetchChaseGoal extends Goal {
   private static final double CHASE_SPEED = 1.5;
 
   private final UnleashedDogEntity dog;
-  private TennisBallProjectileEntity targetBall;
+  private Entity targetFetchProjectile;
 
   public FetchChaseGoal(UnleashedDogEntity dog) {
     this.dog = dog;
@@ -27,7 +29,7 @@ public class FetchChaseGoal extends Goal {
     if (!this.dog.isInPlayMode() || this.dog.isInSittingPose()) {
       return false;
     }
-    if (this.dog.getActiveBallBlockPos() != null) {
+    if (this.dog.getActiveFetchBlockPos() != null) {
       return false;
     }
     return this.findTargetBall();
@@ -38,13 +40,10 @@ public class FetchChaseGoal extends Goal {
     if (!this.dog.isInPlayMode() || this.dog.isInSittingPose()) {
       return false;
     }
-    if (this.dog.getActiveBallBlockPos() != null) {
+    if (this.dog.getActiveFetchBlockPos() != null) {
       return false;
     }
-    if (this.targetBall == null || this.targetBall.isRemoved()) {
-      return false;
-    }
-    return true;
+    return this.targetFetchProjectile != null && !this.targetFetchProjectile.isRemoved();
   }
 
   private boolean findTargetBall() {
@@ -52,36 +51,42 @@ public class FetchChaseGoal extends Goal {
       return false;
     }
     java.util.UUID playerUuid = this.dog.getPlayPartnerPlayerUuid();
-    List<TennisBallProjectileEntity> balls =
+    List<Entity> fetchProjectiles =
         this.dog
             .getWorld()
             .getEntitiesByClass(
-                TennisBallProjectileEntity.class,
+                Entity.class,
                 this.dog.getBoundingBox().expand(SEARCH_XZ_RANGE, SEARCH_Y_RANGE, SEARCH_XZ_RANGE),
-                ball ->
-                    ball.getOwner() instanceof PlayerEntity p && playerUuid.equals(p.getUuid()));
-    if (balls.isEmpty()) {
+                entity ->
+                    entity instanceof FetchProjectileEntity
+                        && entity instanceof ProjectileEntity projectile
+                        && projectile.getOwner() instanceof PlayerEntity player
+                        && playerUuid.equals(player.getUuid()));
+    if (fetchProjectiles.isEmpty()) {
       return false;
     }
-    this.targetBall = balls.get(0);
+    this.targetFetchProjectile = fetchProjectiles.get(0);
     return true;
   }
 
   @Override
   public void tick() {
-    if (this.targetBall == null || this.targetBall.isRemoved()) {
+    if (this.targetFetchProjectile == null || this.targetFetchProjectile.isRemoved()) {
       return;
     }
-    this.dog.getLookControl().lookAt(this.targetBall, LOOK_YAW, LOOK_PITCH);
+    this.dog.getLookControl().lookAt(this.targetFetchProjectile, LOOK_YAW, LOOK_PITCH);
     this.dog
         .getNavigation()
         .startMovingTo(
-            this.targetBall.getX(), this.targetBall.getY(), this.targetBall.getZ(), CHASE_SPEED);
+            this.targetFetchProjectile.getX(),
+            this.targetFetchProjectile.getY(),
+            this.targetFetchProjectile.getZ(),
+            CHASE_SPEED);
   }
 
   @Override
   public void stop() {
-    this.targetBall = null;
+    this.targetFetchProjectile = null;
     this.dog.getNavigation().stop();
   }
 }

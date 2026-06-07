@@ -9,18 +9,20 @@ import static com.grahambartley.ModConstants.RANDOM_BARK_CHANCE;
 
 import com.grahambartley.DogsUnleashed;
 import com.grahambartley.ModBlocks;
-import com.grahambartley.ModItems;
 import com.grahambartley.ModNbtKeys;
 import com.grahambartley.block.DogBedBlock;
 import com.grahambartley.block.DogGraveBlock;
 import com.grahambartley.block.entity.DogBedBlockEntity;
 import com.grahambartley.block.entity.DogGraveBlockEntity;
+import com.grahambartley.entity.fetch.FetchItemType;
+import com.grahambartley.entity.fetch.FetchProjectileEntity;
+import com.grahambartley.entity.fetch.FetchTypes;
 import com.grahambartley.entity.goal.AutoSleepGoal;
 import com.grahambartley.entity.goal.FetchChaseGoal;
 import com.grahambartley.entity.goal.FetchRetrieveGoal;
 import com.grahambartley.entity.goal.FetchReturnGoal;
+import com.grahambartley.entity.goal.FetchTemptGoal;
 import com.grahambartley.entity.goal.SleepInBedGoal;
-import com.grahambartley.entity.goal.TennisBallTemptGoal;
 import com.grahambartley.entity.variant.UnleashedDogCoat;
 import com.grahambartley.network.ModNetworking;
 import com.grahambartley.pet.PetData;
@@ -64,6 +66,7 @@ import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -146,14 +149,15 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   private static final TrackedData<Optional<BlockPos>> ASSIGNED_BED_POS =
       DataTracker.registerData(
           UnleashedDogEntity.class, TrackedDataHandlerRegistry.OPTIONAL_BLOCK_POS);
-  private static final TrackedData<Boolean> CARRYING_BALL =
+  private static final TrackedData<Boolean> IS_CARRYING_FETCH_ITEM =
       DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 
   private static final Map<UUID, UUID> ACTIVE_PLAY_SESSIONS = new HashMap<>();
 
   private boolean inPlayMode = false;
   private UUID playPartnerPlayerUuid = null;
-  private BlockPos activeBallBlockPos = null;
+  private BlockPos activeFetchBlockPos = null;
+  private FetchItemType activeFetchType = null;
 
   private static final UniformIntProvider ANGER_TIME_RANGE = TimeHelper.betweenSeconds(20, 39);
   private java.util.UUID angryAt;
@@ -275,7 +279,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     builder.add(SLEEPING_IN_BED, false);
     builder.add(COMMANDED_TO_SLEEP, false);
     builder.add(ASSIGNED_BED_POS, Optional.empty());
-    builder.add(CARRYING_BALL, false);
+    builder.add(IS_CARRYING_FETCH_ITEM, false);
   }
 
   public DyeColor getCollarColor() {
@@ -402,29 +406,38 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     return this.playPartnerPlayerUuid;
   }
 
-  public BlockPos getActiveBallBlockPos() {
-    return this.activeBallBlockPos;
+  public BlockPos getActiveFetchBlockPos() {
+    return this.activeFetchBlockPos;
   }
 
-  public void setActiveBallBlockPos(BlockPos pos) {
-    this.activeBallBlockPos = pos;
+  public void setActiveFetchBlockPos(BlockPos pos) {
+    this.activeFetchBlockPos = pos;
   }
 
-  public boolean isCarryingBall() {
-    return this.dataTracker.get(CARRYING_BALL);
+  public @Nullable FetchItemType getActiveFetchType() {
+    return this.activeFetchType;
   }
 
-  public void setCarryingBall(boolean carrying) {
-    this.dataTracker.set(CARRYING_BALL, carrying);
+  public void setActiveFetchType(@Nullable FetchItemType activeFetchType) {
+    this.activeFetchType = activeFetchType;
   }
 
-  public void startPlayMode(PlayerEntity player) {
+  public boolean isCarryingFetchItem() {
+    return this.dataTracker.get(IS_CARRYING_FETCH_ITEM);
+  }
+
+  public void setCarryingFetchItem(boolean carrying) {
+    this.dataTracker.set(IS_CARRYING_FETCH_ITEM, carrying);
+  }
+
+  public void startPlayMode(PlayerEntity player, FetchItemType fetchItemType) {
     if (ACTIVE_PLAY_SESSIONS.containsKey(player.getUuid())) {
       return;
     }
     this.inPlayMode = true;
     this.playPartnerPlayerUuid = player.getUuid();
-    this.activeBallBlockPos = null;
+    this.activeFetchBlockPos = null;
+    this.activeFetchType = fetchItemType;
     this.setSitting(false);
     ACTIVE_PLAY_SESSIONS.put(player.getUuid(), this.getUuid());
   }
@@ -434,8 +447,9 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
         ACTIVE_PLAY_SESSIONS, this.inPlayMode, this.playPartnerPlayerUuid, this.getUuid());
     this.inPlayMode = false;
     this.playPartnerPlayerUuid = null;
-    this.activeBallBlockPos = null;
-    this.setCarryingBall(false);
+    this.activeFetchBlockPos = null;
+    this.activeFetchType = null;
+    this.setCarryingFetchItem(false);
   }
 
   public static boolean isAnyDogInPlayModeFor(UUID playerUuid) {
@@ -446,11 +460,11 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     return !ACTIVE_PLAY_SESSIONS.isEmpty();
   }
 
-  public boolean isActivelyFetchingBall() {
+  public boolean isActivelyFetching() {
     if (!this.isInPlayMode()) {
       return false;
     }
-    if (this.isCarryingBall() || this.activeBallBlockPos != null) {
+    if (this.isCarryingFetchItem() || this.activeFetchBlockPos != null) {
       return true;
     }
     if (this.playPartnerPlayerUuid == null) {
@@ -459,12 +473,14 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
 
     return !this.getWorld()
         .getEntitiesByClass(
-            TennisBallProjectileEntity.class,
+            Entity.class,
             this.getBoundingBox()
                 .expand(
                     FETCH_DETECTION_XZ_RANGE, FETCH_DETECTION_Y_RANGE, FETCH_DETECTION_XZ_RANGE),
-            ball ->
-                ball.getOwner() instanceof PlayerEntity player
+            entity ->
+                entity instanceof FetchProjectileEntity
+                    && entity instanceof ProjectileEntity projectile
+                    && projectile.getOwner() instanceof PlayerEntity player
                     && this.playPartnerPlayerUuid.equals(player.getUuid()))
         .isEmpty();
   }
@@ -516,12 +532,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     this.goalSelector.add(8, new AnimalMateGoal(this, DEFAULT_GOAL_SPEED));
     this.goalSelector.add(9, new TemptGoal(this, DEFAULT_GOAL_SPEED, TAMING_INGREDIENT, false));
     this.goalSelector.add(
-        9,
-        new TennisBallTemptGoal(
-            this,
-            DEFAULT_GOAL_SPEED,
-            net.minecraft.recipe.Ingredient.ofItems(ModItems.TENNIS_BALL),
-            false));
+        9, new FetchTemptGoal(this, DEFAULT_GOAL_SPEED, FetchTypes.asIngredient(), false));
     this.goalSelector.add(
         10,
         new FollowOwnerGoal(
@@ -554,17 +565,15 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
       return shouldInteract ? ActionResult.CONSUME : ActionResult.PASS;
     }
 
-    if (this.isTamed()
-        && this.isOwner(player)
-        && player.isSneaking()
-        && itemStack.isOf(ModItems.TENNIS_BALL)) {
+    FetchItemType fetchItemType = FetchTypes.forItem(itemStack.getItem());
+    if (this.isTamed() && this.isOwner(player) && player.isSneaking() && fetchItemType != null) {
       if (this.isInPlayMode()) {
         this.endPlayMode();
         player.sendMessage(
             Text.translatable("message.dogs-unleashed.play_end", this.getTamedName()), true);
       } else {
         endOtherNearbyPlayModes(player);
-        this.startPlayMode(player);
+        this.startPlayMode(player, fetchItemType);
         player.sendMessage(
             Text.translatable("message.dogs-unleashed.play_start", this.getTamedName()), true);
       }
@@ -1054,7 +1063,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
               nbt.putInt(ModNbtKeys.BED_POS_Y, pos.getY());
               nbt.putInt(ModNbtKeys.BED_POS_Z, pos.getZ());
             });
-    nbt.putBoolean(ModNbtKeys.CARRYING_BALL, this.isCarryingBall());
+    nbt.putBoolean(ModNbtKeys.CARRYING_BALL, this.isCarryingFetchItem());
   }
 
   @Override
@@ -1086,7 +1095,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
               nbt.getInt(ModNbtKeys.BED_POS_Z)));
     }
     if (nbt.contains(ModNbtKeys.CARRYING_BALL)) {
-      this.setCarryingBall(nbt.getBoolean(ModNbtKeys.CARRYING_BALL));
+      this.setCarryingFetchItem(nbt.getBoolean(ModNbtKeys.CARRYING_BALL));
     }
   }
 

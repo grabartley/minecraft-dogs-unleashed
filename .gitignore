@@ -35,5 +35,6 @@ AGENTS.md
 CLAUDE.md
 TODO.md
 .DS_Store
+.claude/tmp/
 .claude/worktrees/
 .codex/

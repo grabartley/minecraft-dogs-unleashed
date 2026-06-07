@@ -1,27 +1,32 @@
 package com.grahambartley.render.layer;
 
-import com.grahambartley.ModItems;
 import com.grahambartley.entity.UnleashedDogEntity;
+import com.grahambartley.entity.fetch.FetchTypes;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
 
-public class DogCarryBallLayer<T extends UnleashedDogEntity> extends BlockAndItemGeoLayer<T> {
+public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockAndItemGeoLayer<T> {
   private static final String HEAD_BONE_NAME = "head";
 
-  public DogCarryBallLayer(GeoRenderer<T> renderer) {
+  public DogCarryFetchItemLayer(GeoRenderer<T> renderer) {
     super(renderer);
   }
 
   @Override
   protected ItemStack getStackForBone(GeoBone bone, T animatable) {
-    if (animatable.isInvisible() || !animatable.isCarryingBall()) {
+    if (animatable.isInvisible() || !animatable.isCarryingFetchItem()) {
+      return null;
+    }
+    if (!HEAD_BONE_NAME.equals(bone.getName())) {
       return null;
     }
 
-    return HEAD_BONE_NAME.equals(bone.getName()) ? new ItemStack(ModItems.TENNIS_BALL) : null;
+    var fetchItemType = animatable.getActiveFetchType();
+    return new ItemStack(
+        fetchItemType != null ? fetchItemType.item() : FetchTypes.TENNIS_BALL.item());
   }
 
   @Override

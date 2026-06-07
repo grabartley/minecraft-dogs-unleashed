@@ -1,9 +1,9 @@
 package com.grahambartley.entity.goal;
 
-import com.grahambartley.ModBlocks;
 import com.grahambartley.entity.UnleashedDogEntity;
+import com.grahambartley.entity.fetch.FetchItemType;
+import com.grahambartley.entity.fetch.FetchTypes;
 import java.util.EnumSet;
-import net.minecraft.block.BlockState;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -19,7 +19,7 @@ public class FetchRetrieveGoal extends Goal {
   private static final double CLOSE_ENOUGH_DISTANCE = 2.0;
 
   private final UnleashedDogEntity dog;
-  private BlockPos targetBallPos;
+  private BlockPos targetFetchItemPos;
 
   public FetchRetrieveGoal(UnleashedDogEntity dog) {
     this.dog = dog;
@@ -31,15 +31,15 @@ public class FetchRetrieveGoal extends Goal {
     if (!this.dog.isInPlayMode() || this.dog.isInSittingPose()) {
       return false;
     }
-    if (this.dog.isCarryingBall()) {
+    if (this.dog.isCarryingFetchItem()) {
       return false;
     }
-    BlockPos ballPos = this.dog.getActiveBallBlockPos();
-    if (ballPos == null) {
+    BlockPos fetchItemPos = this.dog.getActiveFetchBlockPos();
+    if (fetchItemPos == null) {
       return false;
     }
-    this.targetBallPos = ballPos;
-    return this.isTennisBallAt(this.targetBallPos);
+    this.targetFetchItemPos = fetchItemPos;
+    return this.getFetchItemTypeAt(this.targetFetchItemPos) != null;
   }
 
   @Override
@@ -47,32 +47,30 @@ public class FetchRetrieveGoal extends Goal {
     if (!this.dog.isInPlayMode() || this.dog.isInSittingPose()) {
       return false;
     }
-    if (this.dog.isCarryingBall()) {
+    if (this.dog.isCarryingFetchItem()) {
       return false;
     }
-    if (this.targetBallPos == null) {
+    if (this.targetFetchItemPos == null) {
       return false;
     }
-    if (!this.isTennisBallAt(this.targetBallPos)) {
-      BlockPos updatedPos = this.findNearbyBall();
+    if (this.getFetchItemTypeAt(this.targetFetchItemPos) == null) {
+      BlockPos updatedPos = this.findNearbyFetchItem();
       if (updatedPos == null) {
         this.dog.endPlayMode();
         return false;
       }
-      this.targetBallPos = updatedPos;
-      this.dog.setActiveBallBlockPos(updatedPos);
+      this.targetFetchItemPos = updatedPos;
+      this.dog.setActiveFetchBlockPos(updatedPos);
     }
     return true;
   }
 
-  private boolean isTennisBallAt(BlockPos pos) {
-    World world = this.dog.getWorld();
-    BlockState state = world.getBlockState(pos);
-    return state.isOf(ModBlocks.TENNIS_BALL);
+  private FetchItemType getFetchItemTypeAt(BlockPos pos) {
+    return FetchTypes.forBlock(this.dog.getWorld().getBlockState(pos).getBlock());
   }
 
-  private BlockPos findNearbyBall() {
-    BlockPos origin = this.dog.getActiveBallBlockPos();
+  private BlockPos findNearbyFetchItem() {
+    BlockPos origin = this.dog.getActiveFetchBlockPos();
     if (origin == null) {
       return null;
     }
@@ -81,7 +79,7 @@ public class FetchRetrieveGoal extends Goal {
       for (int dx = -SEARCH_HORIZONTAL_RADIUS; dx <= SEARCH_HORIZONTAL_RADIUS; dx++) {
         for (int dz = -SEARCH_HORIZONTAL_RADIUS; dz <= SEARCH_HORIZONTAL_RADIUS; dz++) {
           BlockPos check = origin.add(dx, dy, dz);
-          if (world.getBlockState(check).isOf(ModBlocks.TENNIS_BALL)) {
+          if (FetchTypes.forBlock(world.getBlockState(check).getBlock()) != null) {
             return check;
           }
         }
@@ -92,54 +90,56 @@ public class FetchRetrieveGoal extends Goal {
 
   @Override
   public void start() {
-    if (this.targetBallPos != null) {
+    if (this.targetFetchItemPos != null) {
       this.dog
           .getNavigation()
           .startMovingTo(
-              this.targetBallPos.getX() + TARGET_CENTER_OFFSET,
-              this.targetBallPos.getY(),
-              this.targetBallPos.getZ() + TARGET_CENTER_OFFSET,
+              this.targetFetchItemPos.getX() + TARGET_CENTER_OFFSET,
+              this.targetFetchItemPos.getY(),
+              this.targetFetchItemPos.getZ() + TARGET_CENTER_OFFSET,
               RETRIEVE_SPEED);
     }
   }
 
   @Override
   public void tick() {
-    if (this.targetBallPos == null) {
+    if (this.targetFetchItemPos == null) {
       return;
     }
 
     this.dog
         .getLookControl()
         .lookAt(
-            this.targetBallPos.getX() + TARGET_CENTER_OFFSET,
-            this.targetBallPos.getY() + TARGET_CENTER_OFFSET,
-            this.targetBallPos.getZ() + TARGET_CENTER_OFFSET,
+            this.targetFetchItemPos.getX() + TARGET_CENTER_OFFSET,
+            this.targetFetchItemPos.getY() + TARGET_CENTER_OFFSET,
+            this.targetFetchItemPos.getZ() + TARGET_CENTER_OFFSET,
             LOOK_YAW,
             LOOK_PITCH);
 
-    double distToBall = this.dog.getBlockPos().getSquaredDistance(this.targetBallPos);
+    double distToFetchItem = this.dog.getBlockPos().getSquaredDistance(this.targetFetchItemPos);
 
-    if (distToBall <= CLOSE_ENOUGH_DISTANCE * CLOSE_ENOUGH_DISTANCE) {
-      if (this.isTennisBallAt(this.targetBallPos)) {
-        this.dog.getWorld().removeBlock(this.targetBallPos, false);
-        this.dog.setActiveBallBlockPos(null);
-        this.dog.setCarryingBall(true);
+    if (distToFetchItem <= CLOSE_ENOUGH_DISTANCE * CLOSE_ENOUGH_DISTANCE) {
+      FetchItemType fetchItemType = this.getFetchItemTypeAt(this.targetFetchItemPos);
+      if (fetchItemType != null) {
+        this.dog.getWorld().removeBlock(this.targetFetchItemPos, false);
+        this.dog.setActiveFetchBlockPos(null);
+        this.dog.setActiveFetchType(fetchItemType);
+        this.dog.setCarryingFetchItem(true);
       }
     } else {
       this.dog
           .getNavigation()
           .startMovingTo(
-              this.targetBallPos.getX() + TARGET_CENTER_OFFSET,
-              this.targetBallPos.getY(),
-              this.targetBallPos.getZ() + TARGET_CENTER_OFFSET,
+              this.targetFetchItemPos.getX() + TARGET_CENTER_OFFSET,
+              this.targetFetchItemPos.getY(),
+              this.targetFetchItemPos.getZ() + TARGET_CENTER_OFFSET,
               RETRIEVE_SPEED);
     }
   }
 
   @Override
   public void stop() {
-    this.targetBallPos = null;
+    this.targetFetchItemPos = null;
     this.dog.getNavigation().stop();
   }
 }
