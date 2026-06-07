@@ -1,5 +1,8 @@
 package com.grahambartley.network;
 
+import static com.grahambartley.network.PacketLimits.REQUEST_PETS_SEARCH_QUERY_MAX_LENGTH;
+import static com.grahambartley.network.PacketLimits.SET_PET_NAME_NAME_MAX_LENGTH;
+
 import com.grahambartley.DogsUnleashed;
 import com.grahambartley.entity.UnleashedDogBreed;
 import com.grahambartley.entity.UnleashedDogEntity;
@@ -44,7 +47,7 @@ public final class ModNetworking {
         PacketCodec.tuple(
             PacketCodecs.STRING.xmap(UUID::fromString, UUID::toString),
             SetPetNamePayload::petId,
-            PacketCodecs.STRING,
+            PacketCodecs.string(SET_PET_NAME_NAME_MAX_LENGTH),
             SetPetNamePayload::name,
             SetPetNamePayload::new);
 
@@ -90,14 +93,16 @@ public final class ModNetworking {
         buf.writeString(this.breedFilter.serializedId());
       }
       buf.writeString(this.aliveFilter.serializedName());
-      buf.writeString(this.searchQuery);
+      buf.writeString(this.searchQuery, REQUEST_PETS_SEARCH_QUERY_MAX_LENGTH);
     }
 
     private static RequestPetsPayload read(final RegistryByteBuf buf) {
       final UnleashedDogBreed breedFilter =
           buf.readBoolean() ? UnleashedDogBreed.fromSerializedId(buf.readString()) : null;
       return new RequestPetsPayload(
-          breedFilter, PetAliveFilter.fromSerializedName(buf.readString()), buf.readString());
+          breedFilter,
+          PetAliveFilter.fromSerializedName(buf.readString()),
+          buf.readString(REQUEST_PETS_SEARCH_QUERY_MAX_LENGTH));
     }
   }
 
@@ -292,28 +297,52 @@ public final class ModNetworking {
         RequestPetManagerStatePayload.ID, ModNetworking::handleRequestPetManagerState);
   }
 
+  // DataTracker round-trip is the source of truth: the client sends a rename request, and the
+  // displayed name only updates when the entity DataTracker broadcast confirms it. If the server
+  // rejects the name here, it never propagates back to the client. No ACK packet is needed.
   private static void handleSetPetName(
       final SetPetNamePayload payload, final ServerPlayNetworking.Context context) {
     final ServerPlayerEntity player = context.player();
     final ServerWorld world = player.getServerWorld();
 
+    String name = payload.name().trim();
+    if (name.isBlank()) {
+      return;
+    }
+    name = stripControlChars(name);
+    if (name.length() > SET_PET_NAME_NAME_MAX_LENGTH) {
+      return;
+    }
+
+    final String finalName = name;
     world
         .getServer()
         .execute(
             () -> {
               if (world.getEntity(payload.petId()) instanceof UnleashedDogEntity dog
                   && dog.isOwner(player)) {
-                dog.setCustomName(Text.literal(payload.name()));
+                dog.setCustomName(Text.literal(finalName));
                 dog.setCustomNameVisible(true);
 
                 final PetManager petManager = PetManager.get(world.getServer());
                 final PetData petData = petManager.getPetByEntityId(payload.petId());
                 if (petData != null) {
-                  petData.setName(payload.name());
+                  petData.setName(finalName);
                   petManager.updatePet(petData);
                 }
               }
             });
+  }
+
+  static String stripControlChars(final String input) {
+    final StringBuilder sb = new StringBuilder(input.length());
+    for (int i = 0; i < input.length(); i++) {
+      final char c = input.charAt(i);
+      if (c >= 0x20 && c != 0x7f) {
+        sb.append(c);
+      }
+    }
+    return sb.toString();
   }
 
   private static void handleSummonPet(
@@ -348,12 +377,13 @@ public final class ModNetworking {
               preferencesState.setPreferences(
                   player.getUuid(), payload.breedFilter(), payload.aliveFilter());
 
+              final String clampedQuery =
+                  payload.searchQuery().length() > REQUEST_PETS_SEARCH_QUERY_MAX_LENGTH
+                      ? payload.searchQuery().substring(0, REQUEST_PETS_SEARCH_QUERY_MAX_LENGTH)
+                      : payload.searchQuery();
               final List<PetData> pets =
                   petManager.getPetsByOwnerFiltered(
-                      player.getUuid(),
-                      payload.breedFilter(),
-                      payload.aliveFilter(),
-                      payload.searchQuery());
+                      player.getUuid(), payload.breedFilter(), payload.aliveFilter(), clampedQuery);
               final List<PetSyncData> syncData = syncPetData(world.getServer(), petManager, pets);
               ServerPlayNetworking.send(player, new SyncPetsPayload(syncData));
             });
