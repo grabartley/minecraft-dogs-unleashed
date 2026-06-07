@@ -148,6 +148,6 @@ That is it. No config files to edit. No server setup required.
 
 ## Open Source
 
-Dogs Unleashed is open source under the CC0-1.0 license. Built by [Vitória Vedana](https://github.com/vladaan) and [Graham Bartley](https://grahambartley.com/).
+Dogs Unleashed is open source under the CC0-1.0 license. Built with love and treats ❤️
 
 If Dogs Unleashed made you smile on a long survival night, a star on GitHub or a coffee on Ko-fi means the world.
