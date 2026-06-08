@@ -10,6 +10,7 @@ import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 public class StickProjectileRenderer extends GeoEntityRenderer<StickProjectileEntity> {
+  private static final float PROJECTILE_RENDER_SCALE = 0.85f;
 
   public StickProjectileRenderer(EntityRendererFactory.Context context) {
     super(context, new StickProjectileModel());
@@ -28,7 +29,7 @@ public class StickProjectileRenderer extends GeoEntityRenderer<StickProjectileEn
       int packedOverlay,
       int colour) {
     if (!isReRender) {
-      poseStack.scale(0.85f, 0.85f, 0.85f);
+      poseStack.scale(PROJECTILE_RENDER_SCALE, PROJECTILE_RENDER_SCALE, PROJECTILE_RENDER_SCALE);
     }
     super.preRender(
         poseStack,

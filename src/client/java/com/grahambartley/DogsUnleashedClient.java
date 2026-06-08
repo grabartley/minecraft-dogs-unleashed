@@ -43,6 +43,7 @@ public class DogsUnleashedClient implements ClientModInitializer {
     BuiltinItemRendererRegistry.INSTANCE.register(ModBlocks.DOG_GRAVE, new DogGraveItemRenderer());
     BuiltinItemRendererRegistry.INSTANCE.register(
         ModItems.TENNIS_BALL, new TennisBallItemRenderer());
+
     ModKeyBindings.register();
     ModNetworkingClient.registerClientReceivers();
   }

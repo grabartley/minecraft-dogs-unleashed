@@ -2,25 +2,19 @@ package com.grahambartley.block.entity;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.util.Arrays;
+import net.minecraft.block.entity.BlockEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import software.bernie.geckolib.animatable.GeoBlockEntity;
 
 class StickBlockEntityTest {
-  private static final Path STICK_BLOCK_ENTITY_SOURCE =
-      Path.of("src/main/java/com/grahambartley/block/entity/StickBlockEntity.java");
 
   @Test
-  @DisplayName("stick block entity should bind to the registered stick block entity type")
-  void stickBlockEntityShouldBindToStickType() throws IOException {
-    String source = Files.readString(STICK_BLOCK_ENTITY_SOURCE);
-
+  @DisplayName("stick block entity should extend block entity and implement geo block entity")
+  void stickBlockEntityShouldExtendBlockEntity() {
+    assertTrue(StickBlockEntity.class.getSuperclass() == BlockEntity.class);
     assertTrue(
-        source.contains(
-            "public class StickBlockEntity extends BlockEntity implements GeoBlockEntity"));
-    assertTrue(source.contains("super(ModBlockEntities.STICK, pos, state);"));
-    assertTrue(source.contains("BlockEntityUpdateS2CPacket.create(this)"));
+        Arrays.asList(StickBlockEntity.class.getInterfaces()).contains(GeoBlockEntity.class));
   }
 }

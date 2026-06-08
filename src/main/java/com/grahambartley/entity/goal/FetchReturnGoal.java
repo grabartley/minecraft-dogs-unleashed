@@ -65,7 +65,7 @@ public class FetchReturnGoal extends Goal {
     double distToOwner = this.dog.squaredDistanceTo(player);
     if (distToOwner <= CLOSE_ENOUGH_DISTANCE * CLOSE_ENOUGH_DISTANCE) {
       FetchItemType fetchItemType = this.getActiveFetchType();
-      this.placeReturnedFetchItem(player);
+      this.placeReturnedFetchItem(player, fetchItemType);
 
       final String dogName = this.dog.getDisplayName().getString();
       player.sendMessage(
@@ -85,8 +85,7 @@ public class FetchReturnGoal extends Goal {
     this.dog.getNavigation().stop();
   }
 
-  private void placeReturnedFetchItem(PlayerEntity player) {
-    FetchItemType fetchItemType = this.getActiveFetchType();
+  private void placeReturnedFetchItem(PlayerEntity player, FetchItemType fetchItemType) {
     BlockPos dropPos = findSafeDropPos(player);
     if (dropPos != null) {
       this.dog.getWorld().setBlockState(dropPos, fetchItemType.landedBlock().getDefaultState());
@@ -120,6 +119,9 @@ public class FetchReturnGoal extends Goal {
 
     return FetchTypes.TENNIS_BALL;
   }
+
+  // getActiveFetchType always resolves to a non-null type (TENNIS_BALL fallback).
+  // The caller receives the same resolved instance used for both placement and message.
 
   private BlockPos findSafeDropPos(PlayerEntity player) {
     BlockPos playerPos = player.getBlockPos();

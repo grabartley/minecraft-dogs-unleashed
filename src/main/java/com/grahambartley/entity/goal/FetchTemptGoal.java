@@ -37,7 +37,6 @@ public class FetchTemptGoal extends TemptGoal {
   @Override
   public void tick() {
     if (this.isTemptSuppressed()) {
-      this.stop();
       return;
     }
     super.tick();

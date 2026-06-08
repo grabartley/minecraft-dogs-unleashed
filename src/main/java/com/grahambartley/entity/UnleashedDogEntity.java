@@ -154,6 +154,8 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
       DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
   private static final TrackedData<String> ACTIVE_FETCH_TYPE_ID =
       DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.STRING);
+  // String over Identifier because 1.21.1 lacks native Identifier TrackedDataHandler.
+  // Syncs the active fetch type id (e.g. "dogs-unleashed:stick") for client-side carry rendering.
 
   private static final String NO_ACTIVE_FETCH_TYPE = "";
 
