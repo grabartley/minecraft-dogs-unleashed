@@ -1,7 +1,6 @@
 package com.grahambartley.render.layer;
 
 import com.grahambartley.entity.UnleashedDogEntity;
-import com.grahambartley.entity.fetch.FetchTypes;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import software.bernie.geckolib.cache.object.GeoBone;
@@ -25,8 +24,7 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
     }
 
     var fetchItemType = animatable.getActiveFetchType();
-    return new ItemStack(
-        fetchItemType != null ? fetchItemType.item() : FetchTypes.TENNIS_BALL.item());
+    return fetchItemType != null ? new ItemStack(fetchItemType.item()) : null;
   }
 
   @Override

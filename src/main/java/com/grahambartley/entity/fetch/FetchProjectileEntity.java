@@ -18,6 +18,10 @@ public interface FetchProjectileEntity {
       return;
     }
 
+    if (!(projectile instanceof FetchProjectileEntity fetchProjectileEntity)) {
+      return;
+    }
+
     UUID playerUuid = player.getUuid();
     List<UnleashedDogEntity> playingDogs =
         projectile
@@ -27,6 +31,7 @@ public interface FetchProjectileEntity {
                 projectile.getBoundingBox().expand(NOTIFY_PLAY_RANGE),
                 dog -> dog.isInPlayMode() && playerUuid.equals(dog.getPlayPartnerPlayerUuid()));
     for (UnleashedDogEntity dog : playingDogs) {
+      dog.setActiveFetchType(fetchProjectileEntity.getFetchItemType());
       dog.setActiveFetchBlockPos(fetchItemPos);
     }
   }

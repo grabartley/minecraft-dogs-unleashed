@@ -1,7 +1,9 @@
 package com.grahambartley.entity.goal;
 
 import com.grahambartley.entity.UnleashedDogEntity;
+import com.grahambartley.entity.fetch.FetchItemType;
 import com.grahambartley.entity.fetch.FetchProjectileEntity;
+import com.grahambartley.entity.fetch.FetchTypes;
 import java.util.EnumSet;
 import java.util.List;
 import net.minecraft.entity.Entity;
@@ -66,7 +68,20 @@ public class FetchChaseGoal extends Goal {
       return false;
     }
     this.targetFetchProjectile = fetchProjectiles.get(0);
+    this.syncActiveFetchTypeFromTarget();
     return true;
+  }
+
+  private void syncActiveFetchTypeFromTarget() {
+    if (this.targetFetchProjectile instanceof FetchProjectileEntity fetchProjectileEntity) {
+      this.dog.setActiveFetchType(fetchProjectileEntity.getFetchItemType());
+      return;
+    }
+
+    FetchItemType fetchItemType = FetchTypes.forEntityType(this.targetFetchProjectile.getType());
+    if (fetchItemType != null) {
+      this.dog.setActiveFetchType(fetchItemType);
+    }
   }
 
   @Override

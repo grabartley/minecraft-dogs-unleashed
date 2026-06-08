@@ -2,6 +2,7 @@ package com.grahambartley;
 
 import com.grahambartley.block.entity.DogBedBlockEntity;
 import com.grahambartley.block.entity.DogGraveBlockEntity;
+import com.grahambartley.block.entity.StickBlockEntity;
 import com.grahambartley.block.entity.TennisBallBlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.registry.Registries;
@@ -28,6 +29,12 @@ public class ModBlockEntities {
           Identifier.of(DogsUnleashed.MOD_ID, "tennis_ball"),
           BlockEntityType.Builder.create(TennisBallBlockEntity::new, ModBlocks.TENNIS_BALL)
               .build());
+
+  public static final BlockEntityType<StickBlockEntity> STICK =
+      Registry.register(
+          Registries.BLOCK_ENTITY_TYPE,
+          Identifier.of(DogsUnleashed.MOD_ID, "stick"),
+          BlockEntityType.Builder.create(StickBlockEntity::new, ModBlocks.STICK).build());
 
   public static void initialize() {}
 }

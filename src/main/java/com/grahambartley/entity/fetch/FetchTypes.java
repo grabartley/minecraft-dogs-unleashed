@@ -14,6 +14,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
+import net.minecraft.item.Items;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
@@ -22,6 +23,7 @@ public final class FetchTypes {
   private static final Map<Item, FetchItemType> BY_ITEM = new HashMap<>();
   private static final Map<Block, FetchItemType> BY_BLOCK = new HashMap<>();
   private static final Map<EntityType<?>, FetchItemType> BY_ENTITY_TYPE = new HashMap<>();
+  private static final Map<Identifier, FetchItemType> BY_ID = new HashMap<>();
   private static final List<FetchItemType> ALL = new ArrayList<>();
 
   public static final FetchItemType TENNIS_BALL =
@@ -31,6 +33,14 @@ public final class FetchTypes {
           ModEntities.TENNIS_BALL_PROJECTILE,
           ModBlocks.TENNIS_BALL,
           ModBlockEntities.TENNIS_BALL);
+
+  public static final FetchItemType STICK =
+      register(
+          Identifier.of(DogsUnleashed.MOD_ID, "stick"),
+          Items.STICK,
+          ModEntities.STICK_PROJECTILE,
+          ModBlocks.STICK,
+          ModBlockEntities.STICK);
 
   private FetchTypes() {}
 
@@ -43,10 +53,15 @@ public final class FetchTypes {
     FetchItemType fetchItemType =
         new FetchItemType(id, item, projectileType, landedBlock, landedBlockEntityType);
     ALL.add(fetchItemType);
+    BY_ID.put(id, fetchItemType);
     BY_ITEM.put(item, fetchItemType);
     BY_BLOCK.put(landedBlock, fetchItemType);
     BY_ENTITY_TYPE.put(projectileType, fetchItemType);
     return fetchItemType;
+  }
+
+  public static @Nullable FetchItemType forId(Identifier id) {
+    return BY_ID.get(id);
   }
 
   public static @Nullable FetchItemType forItem(Item item) {

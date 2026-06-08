@@ -25,6 +25,18 @@ class FetchTypesTest {
   }
 
   @Test
+  @DisplayName("fetch types should register the stick in the central registry")
+  void fetchTypesShouldRegisterStick() throws IOException {
+    String source = Files.readString(FETCH_TYPES_SOURCE);
+
+    assertTrue(source.contains("public static final FetchItemType STICK"));
+    assertTrue(source.contains("Items.STICK"));
+    assertTrue(source.contains("ModEntities.STICK_PROJECTILE"));
+    assertTrue(source.contains("ModBlocks.STICK"));
+    assertTrue(source.contains("ModBlockEntities.STICK"));
+  }
+
+  @Test
   @DisplayName("fetch types should expose item, block, entity, and ingredient lookups")
   void fetchTypesShouldExposeLookupMethods() throws IOException {
     String source = Files.readString(FETCH_TYPES_SOURCE);
@@ -34,6 +46,7 @@ class FetchTypesTest {
     assertTrue(
         source.contains(
             "public static @Nullable FetchItemType forEntityType(EntityType<?> entityType)"));
+    assertTrue(source.contains("public static @Nullable FetchItemType forId(Identifier id)"));
     assertTrue(source.contains("public static Ingredient asIngredient()"));
   }
 }

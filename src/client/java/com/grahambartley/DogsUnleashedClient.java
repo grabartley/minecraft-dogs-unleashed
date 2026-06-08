@@ -10,6 +10,8 @@ import com.grahambartley.render.DogGraveItemRenderer;
 import com.grahambartley.render.GoldenRetrieverRenderer;
 import com.grahambartley.render.HuskyRenderer;
 import com.grahambartley.render.ShibaInuRenderer;
+import com.grahambartley.render.StickBlockEntityRenderer;
+import com.grahambartley.render.StickProjectileRenderer;
 import com.grahambartley.render.TennisBallBlockEntityRenderer;
 import com.grahambartley.render.TennisBallItemRenderer;
 import com.grahambartley.render.TennisBallProjectileRenderer;
@@ -23,6 +25,7 @@ public class DogsUnleashedClient implements ClientModInitializer {
   public void onInitializeClient() {
     EntityRendererRegistry.register(
         ModEntities.TENNIS_BALL_PROJECTILE, TennisBallProjectileRenderer::new);
+    EntityRendererRegistry.register(ModEntities.STICK_PROJECTILE, StickProjectileRenderer::new);
     EntityRendererRegistry.register(ModEntities.HUSKY, HuskyRenderer::new);
     EntityRendererRegistry.register(ModEntities.DACHSHUND, DachshundRenderer::new);
     EntityRendererRegistry.register(ModEntities.BEAGLE, BeagleRenderer::new);
@@ -34,6 +37,7 @@ public class DogsUnleashedClient implements ClientModInitializer {
         ModBlockEntities.DOG_GRAVE, DogGraveBlockEntityRenderer::new);
     BlockEntityRendererFactories.register(
         ModBlockEntities.TENNIS_BALL, TennisBallBlockEntityRenderer::new);
+    BlockEntityRendererFactories.register(ModBlockEntities.STICK, StickBlockEntityRenderer::new);
 
     BuiltinItemRendererRegistry.INSTANCE.register(ModBlocks.DOG_BED, new DogBedItemRenderer());
     BuiltinItemRendererRegistry.INSTANCE.register(ModBlocks.DOG_GRAVE, new DogGraveItemRenderer());
