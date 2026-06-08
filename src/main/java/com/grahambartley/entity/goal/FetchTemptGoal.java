@@ -16,32 +16,51 @@ public class FetchTemptGoal extends TemptGoal {
 
   @Override
   public boolean canStart() {
-    if (this.dog.isInPlayMode()) {
-      return !this.dog.isActivelyFetching() && super.canStart();
-    }
-
-    if (UnleashedDogEntity.isAnyDogInPlayMode()) {
+    if (this.isTemptSuppressed()) {
       return false;
     }
     if (!super.canStart()) {
       return false;
     }
-    return this.closestPlayer == null
-        || !UnleashedDogEntity.isAnyDogInPlayModeFor(this.closestPlayer.getUuid());
+    return this.canFollowClosestPlayer();
   }
 
   @Override
   public boolean shouldContinue() {
-    if (this.dog.isInPlayMode()) {
-      return !this.dog.isActivelyFetching() && super.shouldContinue();
-    }
-
-    if (UnleashedDogEntity.isAnyDogInPlayMode()) {
+    if (this.isTemptSuppressed()) {
       return false;
     }
 
-    return super.shouldContinue()
-        && (this.closestPlayer == null
-            || !UnleashedDogEntity.isAnyDogInPlayModeFor(this.closestPlayer.getUuid()));
+    return super.shouldContinue() && this.canFollowClosestPlayer();
+  }
+
+  @Override
+  public void tick() {
+    if (this.isTemptSuppressed()) {
+      this.stop();
+      return;
+    }
+    super.tick();
+  }
+
+  private boolean isTemptSuppressed() {
+    if (this.dog.isInPlayMode()) {
+      return this.dog.isActivelyFetching();
+    }
+
+    return UnleashedDogEntity.isAnyDogInPlayMode();
+  }
+
+  private boolean canFollowClosestPlayer() {
+    if (this.closestPlayer == null) {
+      return true;
+    }
+
+    if (this.dog.isInPlayMode()
+        && this.closestPlayer.getUuid().equals(this.dog.getPlayPartnerPlayerUuid())) {
+      return true;
+    }
+
+    return !UnleashedDogEntity.isAnyDogInPlayModeFor(this.closestPlayer.getUuid());
   }
 }

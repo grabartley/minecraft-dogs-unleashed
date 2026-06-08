@@ -3,6 +3,7 @@ package com.grahambartley;
 import com.grahambartley.entity.UnleashedDogBreed;
 import com.grahambartley.item.DogBedItem;
 import com.grahambartley.item.DogGraveItem;
+import com.grahambartley.item.StickThrowHandler;
 import com.grahambartley.item.TennisBallItem;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.item.Item;
@@ -87,6 +88,7 @@ public class ModItems {
   public static void initialize() {
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS)
         .register(entries -> entries.add(TENNIS_BALL));
+    StickThrowHandler.register();
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL)
         .register(
             entries -> {

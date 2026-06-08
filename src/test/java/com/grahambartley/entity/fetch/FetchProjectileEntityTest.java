@@ -20,6 +20,8 @@ class FetchProjectileEntityTest {
 
     assertTrue(source.contains("FetchItemType getFetchItemType();"));
     assertTrue(source.contains("notifyPlayingDogsOfLandedFetchItem"));
+    assertTrue(
+        source.contains("dog.setActiveFetchType(fetchProjectileEntity.getFetchItemType());"));
     assertTrue(source.contains("setActiveFetchBlockPos(fetchItemPos);"));
   }
 

@@ -81,6 +81,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.TimeHelper;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -151,13 +152,16 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
           UnleashedDogEntity.class, TrackedDataHandlerRegistry.OPTIONAL_BLOCK_POS);
   private static final TrackedData<Boolean> IS_CARRYING_FETCH_ITEM =
       DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+  private static final TrackedData<String> ACTIVE_FETCH_TYPE_ID =
+      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.STRING);
+
+  private static final String NO_ACTIVE_FETCH_TYPE = "";
 
   private static final Map<UUID, UUID> ACTIVE_PLAY_SESSIONS = new HashMap<>();
 
   private boolean inPlayMode = false;
   private UUID playPartnerPlayerUuid = null;
   private BlockPos activeFetchBlockPos = null;
-  private FetchItemType activeFetchType = null;
 
   private static final UniformIntProvider ANGER_TIME_RANGE = TimeHelper.betweenSeconds(20, 39);
   private java.util.UUID angryAt;
@@ -280,6 +284,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     builder.add(COMMANDED_TO_SLEEP, false);
     builder.add(ASSIGNED_BED_POS, Optional.empty());
     builder.add(IS_CARRYING_FETCH_ITEM, false);
+    builder.add(ACTIVE_FETCH_TYPE_ID, NO_ACTIVE_FETCH_TYPE);
   }
 
   public DyeColor getCollarColor() {
@@ -415,11 +420,17 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   }
 
   public @Nullable FetchItemType getActiveFetchType() {
-    return this.activeFetchType;
+    String activeFetchTypeId = this.dataTracker.get(ACTIVE_FETCH_TYPE_ID);
+    if (activeFetchTypeId.isEmpty()) {
+      return null;
+    }
+    return FetchTypes.forId(Identifier.of(activeFetchTypeId));
   }
 
   public void setActiveFetchType(@Nullable FetchItemType activeFetchType) {
-    this.activeFetchType = activeFetchType;
+    this.dataTracker.set(
+        ACTIVE_FETCH_TYPE_ID,
+        activeFetchType != null ? activeFetchType.id().toString() : NO_ACTIVE_FETCH_TYPE);
   }
 
   public boolean isCarryingFetchItem() {
@@ -437,7 +448,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     this.inPlayMode = true;
     this.playPartnerPlayerUuid = player.getUuid();
     this.activeFetchBlockPos = null;
-    this.activeFetchType = fetchItemType;
+    this.setActiveFetchType(fetchItemType);
     this.setSitting(false);
     ACTIVE_PLAY_SESSIONS.put(player.getUuid(), this.getUuid());
   }
@@ -448,7 +459,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     this.inPlayMode = false;
     this.playPartnerPlayerUuid = null;
     this.activeFetchBlockPos = null;
-    this.activeFetchType = null;
+    this.setActiveFetchType(null);
     this.setCarryingFetchItem(false);
   }
 

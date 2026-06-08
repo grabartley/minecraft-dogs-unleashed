@@ -18,7 +18,7 @@ public class FetchReturnGoal extends Goal {
   private static final float LOOK_YAW = 10.0f;
   private static final float LOOK_PITCH = 10.0f;
   private static final double RETURN_SPEED = 1.5;
-  private static final double BALL_DROP_Y_OFFSET = 0.25;
+  private static final double FETCH_ITEM_DROP_Y_OFFSET = 0.25;
   private static final int SAFE_DROP_RADIUS = 2;
   private static final int SEARCH_MIN_DY = -1;
   private static final int SEARCH_MAX_DY = 1;
@@ -64,11 +64,16 @@ public class FetchReturnGoal extends Goal {
 
     double distToOwner = this.dog.squaredDistanceTo(player);
     if (distToOwner <= CLOSE_ENOUGH_DISTANCE * CLOSE_ENOUGH_DISTANCE) {
+      FetchItemType fetchItemType = this.getActiveFetchType();
       this.placeReturnedFetchItem(player);
 
       final String dogName = this.dog.getDisplayName().getString();
       player.sendMessage(
-          Text.translatable("message.dogs-unleashed.play_ball_returned", dogName), true);
+          Text.translatable(
+              "message.dogs-unleashed.play_fetch_returned",
+              dogName,
+              fetchItemType.item().getName()),
+          true);
 
       this.dog.setCarryingFetchItem(false);
       this.dog.setActiveFetchBlockPos(null);
@@ -92,7 +97,7 @@ public class FetchReturnGoal extends Goal {
         new ItemEntity(
             this.dog.getWorld(),
             player.getX(),
-            player.getY() + BALL_DROP_Y_OFFSET,
+            player.getY() + FETCH_ITEM_DROP_Y_OFFSET,
             player.getZ(),
             new ItemStack(fetchItemType.item()));
     this.dog.getWorld().spawnEntity(itemEntity);
