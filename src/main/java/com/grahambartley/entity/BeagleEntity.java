@@ -76,6 +76,11 @@ public class BeagleEntity extends UnleashedDogEntity {
   }
 
   @Override
+  protected String getSleepInBedMovementAnimationName() {
+    return DogAnimationKeys.SLEEP;
+  }
+
+  @Override
   protected SoundEvent getBarkSound() {
     return ModSounds.BEAGLE_BARK;
   }
