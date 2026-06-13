@@ -11,21 +11,28 @@ description: Build or implement a feature for the Dogs Unleashed mod, optionally
 2. Run the `worktree` skill first before any issue moves, coding, or validation.
 3. Keep issue project status in sync during execution.
 4. Any new gameplay code or behavior changes must include extensive unit tests in the same PR.
-5. Unit tests MUST map to a single specific class. Test class name MUST match the class under test plus a "Test" suffix (e.g. `BeagleCoatRolls.java` -> `BeagleCoatRollsTest.java`). A test that exercises `Foo` must be named `FooTest`, never `BarRelatedThingTest`.
+5. Unit tests MUST map to a single specific class. Test class name MUST match the class under test plus a "Test"
+suffix (e.g. `BeagleCoatRolls.java` -> `BeagleCoatRollsTest.java`). A test that exercises `Foo` must be named
+`FooTest`, never `BarRelatedThingTest`.
 6. Run the `pr` skill as part of build after validation passes.
 7. Move issue to `QA testing` only after PR is opened and CI is running.
 8. After PR creation and `QA testing` transition, always provide a detailed manual QA checklist to the developer.
-9. If PR code changes after the PR is opened, check whether the PR description still matches the current branch state, and update it if needed so it reflects the final state only.
+9. If PR code changes after the PR is opened, check whether the PR description still matches the current branch state,
+and update it if needed so it reflects the final state only.
 10. Stop at `QA testing`, human performs final verification and moves to `Done`.
 
 ## Workflow
 
-1. Run the `worktree` skill to create a fresh isolated branch worktree, then perform all implementation and validation work inside that worktree.
+1. Run the `worktree` skill to create a fresh isolated branch worktree, then perform all implementation and validation
+work inside that worktree.
 2. Capture scope from the request.
 3. If an issue number or URL is provided, read it first with gh:
+
 - `gh issue view <number> --repo grabartley/minecraft-dogs-unleashed`
 - Extract acceptance criteria, constraints, and references.
-4. If no issue is provided, run the `create-issue` skill to create one before coding. Use the created issue as the tracking artifact for all subsequent status moves.
+
+4. If no issue is provided, run the `create-issue` skill to create one before coding. Use the created issue as the
+tracking artifact for all subsequent status moves.
 5. Move the issue to `In progress`.
 6. Implement the feature.
 7. Run relevant automated tests and a local validation pass for changed behavior.
@@ -34,6 +41,8 @@ description: Build or implement a feature for the Dogs Unleashed mod, optionally
 10. Wait for CI to start on the PR and report status.
 11. Move issue to `QA testing` when the PR is ready for human verification.
 12. Provide a detailed manual QA checklist that the developer can run step by step.
+13. Every code change must also update any docs it invalidates. Audit `README.md`, in-repo docs under `docs/`, and the
+	linked issue body before committing; ship doc edits in the same PR as the code change.
 
 ## Board Status Policy
 
