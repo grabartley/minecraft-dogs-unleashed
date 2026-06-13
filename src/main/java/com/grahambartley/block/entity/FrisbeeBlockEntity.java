@@ -1,8 +1,11 @@
 package com.grahambartley.block.entity;
 
 import com.grahambartley.ModBlockEntities;
+import com.grahambartley.ModComponents;
+import com.grahambartley.entity.fetch.FetchCarriedItemProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
@@ -15,7 +18,8 @@ import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class FrisbeeBlockEntity extends BlockEntity implements GeoBlockEntity {
+public class FrisbeeBlockEntity extends BlockEntity
+    implements GeoBlockEntity, FetchCarriedItemProvider {
 
   private static final String NBT_COLOR = "Color";
 
@@ -28,6 +32,16 @@ public class FrisbeeBlockEntity extends BlockEntity implements GeoBlockEntity {
 
   public DyeColor getColor() {
     return this.color;
+  }
+
+  @Override
+  public void enrichCarriedItemStack(ItemStack stack) {
+    stack.set(ModComponents.FRISBEE_COLOR, this.color);
+  }
+
+  @Override
+  public void restoreFromCarriedItemStack(ItemStack stack) {
+    this.setColor(stack.getOrDefault(ModComponents.FRISBEE_COLOR, DyeColor.WHITE));
   }
 
   public void setColor(DyeColor color) {

@@ -42,24 +42,24 @@ public class FrisbeeItemRenderer implements BuiltinItemRendererRegistry.DynamicI
 
     switch (mode) {
       case GUI -> {
-        ItemRenderTransforms.applyDisplayPose(matrices, 0.5, 0.38, 0.0, 28.0f, 45.0f, 1.2f);
+        ItemRenderTransforms.applyDisplayPose(matrices, 0.5, 0.45, 0.0, 25.0f, 45.0f, 0.4f);
       }
-      case GROUND -> ItemRenderTransforms.applyGroundPose(matrices, 0.5, 0.18, 0.5, 0.75f);
+      case GROUND -> ItemRenderTransforms.applyGroundPose(matrices, 0.5, 0.18, 0.5, 0.28f);
       case FIXED -> {
-        ItemRenderTransforms.applyDisplayPose(matrices, 0.5, 0.35, 0.5, 28.0f, 45.0f, 1.0f);
+        ItemRenderTransforms.applyDisplayPose(matrices, 0.5, 0.35, 0.5, 25.0f, 45.0f, 0.35f);
       }
       case THIRD_PERSON_LEFT_HAND, THIRD_PERSON_RIGHT_HAND -> {
-        ItemRenderTransforms.applyDisplayPose(matrices, 0.5, 0.42, 0.5, 75.0f, 45.0f, 0.8f);
+        ItemRenderTransforms.applyDisplayPose(matrices, 0.5, 0.42, 0.5, 75.0f, 45.0f, 0.45f);
       }
       case FIRST_PERSON_LEFT_HAND -> {
         ItemRenderTransforms.applyFirstPersonPose(
-            matrices, 0.6, 0.3, 0.35, 10.0f, -80.0f, -10.0f, 0.6f);
+            matrices, 0.6, 0.3, 0.35, 10.0f, -80.0f, -10.0f, 0.5f);
       }
       case FIRST_PERSON_RIGHT_HAND -> {
         ItemRenderTransforms.applyFirstPersonPose(
-            matrices, 0.4, 0.3, 0.35, 10.0f, 80.0f, 10.0f, 0.6f);
+            matrices, 0.4, 0.3, 0.35, 10.0f, 80.0f, 10.0f, 0.5f);
       }
-      default -> ItemRenderTransforms.applyGroundPose(matrices, 0.5, 0.18, 0.5, 0.75f);
+      default -> ItemRenderTransforms.applyGroundPose(matrices, 0.5, 0.18, 0.5, 0.28f);
     }
 
     BakedGeoModel bakedModel =

@@ -154,6 +154,8 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
       DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
   private static final TrackedData<String> ACTIVE_FETCH_TYPE_ID =
       DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.STRING);
+  private static final TrackedData<ItemStack> CARRIED_FETCH_ITEM_STACK =
+      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
   // String over Identifier because 1.21.1 lacks native Identifier TrackedDataHandler.
   // Syncs the active fetch type id (e.g. "dogs-unleashed:stick") for client-side carry rendering.
 
@@ -287,6 +289,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     builder.add(ASSIGNED_BED_POS, Optional.empty());
     builder.add(IS_CARRYING_FETCH_ITEM, false);
     builder.add(ACTIVE_FETCH_TYPE_ID, NO_ACTIVE_FETCH_TYPE);
+    builder.add(CARRIED_FETCH_ITEM_STACK, ItemStack.EMPTY);
   }
 
   public DyeColor getCollarColor() {
@@ -443,6 +446,14 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     this.dataTracker.set(IS_CARRYING_FETCH_ITEM, carrying);
   }
 
+  public ItemStack getCarriedFetchItemStack() {
+    return this.dataTracker.get(CARRIED_FETCH_ITEM_STACK);
+  }
+
+  public void setCarriedFetchItemStack(ItemStack stack) {
+    this.dataTracker.set(CARRIED_FETCH_ITEM_STACK, stack);
+  }
+
   public void startPlayMode(PlayerEntity player, FetchItemType fetchItemType) {
     if (ACTIVE_PLAY_SESSIONS.containsKey(player.getUuid())) {
       return;
@@ -463,6 +474,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     this.activeFetchBlockPos = null;
     this.setActiveFetchType(null);
     this.setCarryingFetchItem(false);
+    this.setCarriedFetchItemStack(ItemStack.EMPTY);
   }
 
   public static boolean isAnyDogInPlayModeFor(UUID playerUuid) {

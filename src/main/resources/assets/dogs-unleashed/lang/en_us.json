@@ -25,6 +25,7 @@
   "block.dogs-unleashed.tennis_ball": "Tennis Ball",
   "block.dogs-unleashed.stick": "Stick",
   "item.dogs-unleashed.frisbee": "Frisbee",
+  "item.dogs-unleashed.frisbee.colored": "%s Frisbee",
   "block.dogs-unleashed.frisbee": "Frisbee",
   "message.dogs-unleashed.play_start": "Playing fetch with %s!",
   "message.dogs-unleashed.play_end": "Stopped playing with %s",

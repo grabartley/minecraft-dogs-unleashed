@@ -24,7 +24,11 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
     }
 
     var fetchItemType = animatable.getActiveFetchType();
-    return fetchItemType != null ? new ItemStack(fetchItemType.item()) : null;
+    if (fetchItemType == null) {
+      return null;
+    }
+    ItemStack carried = animatable.getCarriedFetchItemStack();
+    return carried.isEmpty() ? new ItemStack(fetchItemType.item()) : carried.copy();
   }
 
   @Override
