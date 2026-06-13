@@ -5,7 +5,9 @@
 [![Build](https://github.com/grabartley/minecraft-dogs-unleashed/actions/workflows/cicd.yml/badge.svg)](https://github.com/grabartley/minecraft-dogs-unleashed/actions/workflows/cicd.yml)
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-Support_Dogs_Unleashed-009078?logo=ko-fi&logoColor=white)](https://ko-fi.com/grahambartley)
 
-Good dogs. Big adventures. Dogs Unleashed is an open-source Fabric mod that adds five new dog breeds, a fetch system, dog beds, graves, and more. Every dog is unique. Every bark has its own personality. Your wolves have been carrying the team long enough.
+Good dogs. Big adventures. Dogs Unleashed is an open-source Fabric mod that adds five new dog breeds, a fetch system,
+dog beds, graves, and more. Every dog is unique. Every bark has its own personality. Your wolves have been carrying the
+team long enough.
 
 Time to expand the pack.
 
@@ -19,7 +21,8 @@ Time to expand the pack.
 
 **Explorers** who want a Husky howling at the full moon from a frozen peak.
 
-**Survival veterans** who want a proper fetch system, dog beds their pets actually sleep in, and a grave marker when the worst happens.
+**Survival veterans** who want a proper fetch system, dog beds their pets actually sleep in, and a grave marker when the
+worst happens.
 
 **Anyone who has ever looked at a vanilla wolf and thought "this is great but what if it was a wiener dog?"**
 
@@ -31,15 +34,16 @@ Time to expand the pack.
 
 ### Five New Breeds
 
-Each breed has its own stats, spawn biomes, coat variants, and bark sounds. They are not reskins. They are fully animated with GeckoLib, each with idle, walk, sit, sleep, shake, head tilt, and tail wag animations.
+Each breed has its own stats, spawn biomes, coat variants, and bark sounds. They are not reskins. They are fully
+animated with GeckoLib, each with idle, walk, sit, sleep, shake, head tilt, and tail wag animations.
 
-| Breed | Health | Speed | Damage | Biome | Coats |
-| --- | --- | --- | --- | --- | --- |
-| **Husky** | 25 | 0.30 | 5.0 | Snowy Taiga, Snowy Plains, Ice Spikes, Frozen Peaks, Snowy Slopes, Grove | 6 coats, 4 eye color combos |
-| **Dachshund** | 10 | 0.25 | 2.0 | Plains | 9 coats, our first wiener dog |
-| **Beagle** | 17 | 0.29 | 3.0 | Flower Forest | 12 coats, the most colourful of the bunch |
-| **Golden Retriever** | 24 | 0.30 | 4.0 | Beach | The classic golden look |
-| **Shiba Inu** | 18 | 0.32 | 3.5 | Cherry Grove | 3 coats: Red, Black, Sesame |
+| Breed                | Health | Speed | Damage | Biome                                                                    | Coats                                     |
+|----------------------|--------|-------|--------|--------------------------------------------------------------------------|-------------------------------------------|
+| **Husky**            | 25     | 0.30  | 5.0    | Snowy Taiga, Snowy Plains, Ice Spikes, Frozen Peaks, Snowy Slopes, Grove | 6 coats, 4 eye color combos               |
+| **Dachshund**        | 10     | 0.25  | 2.0    | Plains, Sunflower Plains, Meadow                                         | 9 coats, our first wiener dog             |
+| **Beagle**           | 17     | 0.29  | 3.0    | Flower Forest, Forest, Birch Forest, Old Growth Birch Forest, Meadow     | 12 coats, the most colourful of the bunch |
+| **Golden Retriever** | 24     | 0.30  | 4.0    | Beach                                                                    | The classic golden look                   |
+| **Shiba Inu**        | 18     | 0.32  | 3.5    | Cherry Grove                                                             | 3 coats: Red, Black, Sesame               |
 
 Wolves were the prototype. This is the production release.
 
@@ -59,7 +63,8 @@ Full chase AI, ball-carrying animation, the works. Your dog will never look at a
 
 ### Dog Beds They Actually Use
 
-16 dye colors. Craft one, place it, and assign it to your dog by sneak-right-clicking the dog then right-clicking the bed. Your dog will:
+16 dye colors. Craft one, place it, and assign it to your dog by sneak-right-clicking the dog then right-clicking the
+bed. Your dog will:
 
 - **Auto-sleep** at night when within 32 blocks (clear weather required)
 - **Stay asleep** until you wake them with a right-click
@@ -70,7 +75,9 @@ Huskies and Shibas use a curled "sleep" pose in bed. Everyone else sits. Because
 
 ### Husky Howling (Full Moon Only)
 
-Huskies do not bark. Instead, they howl. And only on nights with a **full moon** (moon phase 0). The howl lasts 4.5 seconds with a 30-second cooldown. Stand on a frozen peak at midnight with your Husky and watch the animation trigger on its own. It is the most atmospheric thing in the mod.
+Huskies do not bark. Instead, they howl. And only on nights with a **full moon** (moon phase 0). The howl lasts 4.5
+seconds with a 30-second cooldown. Stand on a frozen peak at midnight with your Husky and watch the animation trigger on
+its own. It is the most atmospheric thing in the mod.
 
 <p align="center">
 <img src="docs/placeholder-moon-howl.gif" alt="[GIF of Husky howling at full moon]" width="720">
@@ -78,31 +85,41 @@ Huskies do not bark. Instead, they howl. And only on nights with a **full moon**
 
 ### Dog Graves
 
-When a tamed dog dies, a grave appears near the death location with the dog's name and a flower matching their collar color. Mine it with a pickaxe to preserve the grave as an item with full NBT data (dog name, UUID, collar color). Place it anywhere as a memorial.
+When a tamed dog dies, a grave appears near the death location with the dog's name and a flower matching their collar
+color. Mine it with a pickaxe to preserve the grave as an item with full NBT data (dog name, UUID, collar color). Place
+it anywhere as a memorial.
 
 The grave avoids spawning on top of their bed. Because even in death, they want to be near home.
 
 ### Collar Dyeing
 
-Right-click any of your tamed dogs with any dye to change their collar color. All 16 Minecraft dyes are supported. Coordinated squad, colour-coded pack, rainbow chaos — your call.
+Right-click any of your tamed dogs with any dye to change their collar color. All 16 Minecraft dyes are supported.
+Coordinated squad, colour-coded pack, rainbow chaos — your call.
 
 ### Taming, Breeding & Naming
 
-Tame dogs with raw or cooked meats and bones (1-in-3 chance per feed). On tame, a naming screen opens so your new friend gets a proper name immediately. Over 200 built-in name suggestions or type your own.
+Tame dogs with raw or cooked meats and bones (1-in-3 chance per feed). On tame, a naming screen opens so your new friend
+gets a proper name immediately. Over 200 built-in name suggestions or type your own.
 
-Breeding is same-breed only. Both parents must be tamed and not sitting. Puppies inherit their owner's UUID (preferring the player who clicked). Breeding roll tables include rare coat variants you will not find in the wild.
+Breeding is same-breed only. Both parents must be tamed and not sitting. Puppies inherit their owner's UUID (preferring
+the player who clicked). Breeding roll tables include rare coat variants you will not find in the wild.
 
 ### Cross-Dimension Loyalty
 
-Dimension hop and your dogs follow. Portal, teleport, whatever — dogs within 12 blocks come with you. No more leaving your pack behind because you stepped through a nether portal.
+Dimension hop and your dogs follow. Portal, teleport, whatever — dogs within 12 blocks come with you. No more leaving
+your pack behind because you stepped through a nether portal.
 
 ### Pet Manager
 
-Press the configured keybind to open the Pet Manager screen. Filter by breed, alive or deceased status, or search by name. Summon any alive dog from anywhere, even across dimensions. The system loads their chunk, finds them, and brings them to you.
+Press the configured keybind to open the Pet Manager screen. Filter by breed, alive or deceased status, or search by
+name. Summon any alive dog from anywhere, even across dimensions. The system loads their chunk, finds them, and brings
+them to you.
 
 ### Breed-Specific Barking
 
-Every breed has its own bark sound set. Dachshunds have 14 different bark sound files — the most vocal of the pack. Beagles have 2, Goldens have 5, Shibas have 1. Dogs bark when you hold food nearby, when their health drops below 30%, when they have a target, or just because (1 in 2400 chance per tick, roughly once every two minutes).
+Every breed has its own bark sound set. Dachshunds have 14 different bark sound files — the most vocal of the pack.
+Beagles have 2, Goldens have 5, Shibas have 1. Dogs bark when you hold food nearby, when their health drops below 30%,
+when they have a target, or just because (1 in 2400 chance per tick, roughly once every two minutes).
 
 ### Little Details
 
@@ -125,8 +142,8 @@ That is it. No config files to edit. No server setup required.
 
 ## Controls
 
-| Keybind | Default | What it does |
-| --- | --- | --- |
+| Keybind          | Default | What it does                                                         |
+|------------------|---------|----------------------------------------------------------------------|
 | Open Pet Manager | Unbound | Opens the Pet Manager screen (set under `Controls > Dogs Unleashed`) |
 
 ## Compatibility
@@ -140,11 +157,11 @@ That is it. No config files to edit. No server setup required.
 
 ## Dependencies
 
-| Dependency | Version | Required | Reason |
-| --- | --- | --- | --- |
-| Fabric Loader | `>=0.16.5` | Yes | Mod loader |
-| Fabric API | `>=0.107.0+1.21.1` | Yes | Fabric hooks and APIs |
-| GeckoLib | `>=4.7` | Yes | Entity and block animations |
+| Dependency    | Version            | Required | Reason                      |
+|---------------|--------------------|----------|-----------------------------|
+| Fabric Loader | `>=0.16.5`         | Yes      | Mod loader                  |
+| Fabric API    | `>=0.107.0+1.21.1` | Yes      | Fabric hooks and APIs       |
+| GeckoLib      | `>=4.7`            | Yes      | Entity and block animations |
 
 ## Open Source
 
