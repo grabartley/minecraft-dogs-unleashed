@@ -662,6 +662,61 @@
 					}
 				}
 			}
+		},
+		"sleeping": {
+			"loop": true,
+			"bones": {
+				"torso": {
+					"rotation": [0, 0, -180],
+					"position": [0, 2.2, 0]
+				},
+				"tail": {
+					"rotation": [-90, 0, 77],
+					"position": [0, -0.4, 0]
+				},
+				"bone4": {
+					"rotation": [-81, 0, -180],
+					"position": [0, -1.3, -0.6]
+				},
+				"bunda": {
+					"rotation": [0, 0, -180]
+				},
+				"head": {
+					"rotation": [-89, 0, -180],
+					"position": [0, -3.1, 1.4]
+				},
+				"mouth": {
+					"rotation": [-7, 0, 0]
+				},
+				"nose": {
+					"rotation": [0, 0, -180],
+					"position": [0, 6.9, 0]
+				},
+				"back_leg_2": {
+					"rotation": [38.7263, 5.0247, -186.2332],
+					"position": [-1.3, -1.4, 0]
+				},
+				"back_leg_3": {
+					"rotation": [37.7285, -4.9153, -173.6804],
+					"position": [-1.35, -1.3, 0]
+				},
+				"front_leg_2": {
+					"rotation": [-55, 0, 180],
+					"position": [-3.2, -1.2, 0.7]
+				},
+				"front_leg_1": {
+					"rotation": [-55, 0, -180],
+					"position": [0, -1.2, 0.7]
+				},
+				"ear1": {
+					"rotation": [0, 0, -270],
+					"position": [-6.7, 1.7, 2.6]
+				},
+				"ear2": {
+					"rotation": [0, 0, -90],
+					"position": [9.8, -1.3, 2.6]
+				}
+			}
 		}
 	},
 	"geckolib_format_version": 2
