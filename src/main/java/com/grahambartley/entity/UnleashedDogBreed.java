@@ -35,7 +35,7 @@ public enum UnleashedDogBreed {
       0.42f,
       new SpawnEggColors(0xA0673F, 0xDC8847),
       new Dimensions(0.8f, 1.1f),
-      new SpawnSettings(10, 1, 2, BiomeKeys.PLAINS),
+      new SpawnSettings(10, 1, 2, BiomeKeys.PLAINS, BiomeKeys.SUNFLOWER_PLAINS, BiomeKeys.MEADOW),
       new Attributes(10.0, 0.25, 2.0)),
   BEAGLE(
       "beagle",
@@ -44,7 +44,15 @@ public enum UnleashedDogBreed {
       0.48f,
       new SpawnEggColors(0xFFFFFF, 0x936732),
       new Dimensions(0.8f, 1.1f),
-      new SpawnSettings(10, 1, 3, BiomeKeys.FLOWER_FOREST),
+      new SpawnSettings(
+          10,
+          1,
+          3,
+          BiomeKeys.FLOWER_FOREST,
+          BiomeKeys.FOREST,
+          BiomeKeys.BIRCH_FOREST,
+          BiomeKeys.OLD_GROWTH_BIRCH_FOREST,
+          BiomeKeys.MEADOW),
       new Attributes(17.0, 0.29, 3.0)),
   GOLDEN_RETRIEVER(
       "goldenretriever",
