@@ -1,5 +1,6 @@
 package com.grahambartley.block;
 
+import com.grahambartley.ModItems;
 import com.grahambartley.block.entity.FrisbeeBlockEntity;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.block.BlockEntityProvider;
@@ -7,7 +8,10 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.FallingBlock;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.stat.Stats;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
@@ -40,6 +44,25 @@ public class FrisbeeBlock extends FallingBlock implements BlockEntityProvider {
   @Override
   public @Nullable BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
     return new FrisbeeBlockEntity(pos, state);
+  }
+
+  @Override
+  public void afterBreak(
+      World world,
+      PlayerEntity player,
+      BlockPos pos,
+      BlockState state,
+      @Nullable BlockEntity blockEntity,
+      ItemStack tool) {
+    player.incrementStat(Stats.MINED.getOrCreateStat(this));
+    player.addExhaustion(0.005f);
+    if (!world.isClient) {
+      ItemStack drop = new ItemStack(ModItems.FRISBEE);
+      if (blockEntity instanceof FrisbeeBlockEntity frisbeeBlock) {
+        drop.set(com.grahambartley.ModComponents.FRISBEE_COLOR, frisbeeBlock.getColor());
+      }
+      dropStack(world, pos, drop);
+    }
   }
 
   @Override
