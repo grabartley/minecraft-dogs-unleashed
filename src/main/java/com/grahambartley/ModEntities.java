@@ -2,6 +2,7 @@ package com.grahambartley;
 
 import com.grahambartley.entity.BeagleEntity;
 import com.grahambartley.entity.DachshundEntity;
+import com.grahambartley.entity.FrisbeeProjectileEntity;
 import com.grahambartley.entity.GoldenRetrieverEntity;
 import com.grahambartley.entity.HuskyEntity;
 import com.grahambartley.entity.ShibaInuEntity;
@@ -51,6 +52,15 @@ public class ModEntities {
                   StickProjectileEntity::new, SpawnGroup.MISC)
               .dimensions(TENNIS_BALL_PROJECTILE_SIZE, TENNIS_BALL_PROJECTILE_SIZE)
               .build(Identifier.of(DogsUnleashed.MOD_ID, "stick_projectile").toString()));
+
+  public static final EntityType<FrisbeeProjectileEntity> FRISBEE_PROJECTILE =
+      Registry.register(
+          Registries.ENTITY_TYPE,
+          Identifier.of(DogsUnleashed.MOD_ID, "frisbee_projectile"),
+          EntityType.Builder.<FrisbeeProjectileEntity>create(
+                  FrisbeeProjectileEntity::new, SpawnGroup.MISC)
+              .dimensions(TENNIS_BALL_PROJECTILE_SIZE, TENNIS_BALL_PROJECTILE_SIZE)
+              .build(Identifier.of(DogsUnleashed.MOD_ID, "frisbee_projectile").toString()));
 
   private static <T extends UnleashedDogEntity> EntityType<T> registerDog(
       final UnleashedDogBreed breed, final EntityType.EntityFactory<T> factory) {

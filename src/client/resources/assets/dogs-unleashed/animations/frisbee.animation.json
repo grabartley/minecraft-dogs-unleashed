@@ -1,0 +1,17 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"fly": {
+			"loop": true,
+			"animation_length": 1.0,
+			"bones": {
+				"frisbee": {
+					"rotation": {
+						"0.0": {"vector": [0, 0, 0]},
+						"1.0": {"vector": [0, 360, 0]}
+					}
+				}
+			}
+		}
+	}
+}

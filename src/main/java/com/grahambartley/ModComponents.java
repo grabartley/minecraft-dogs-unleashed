@@ -45,5 +45,14 @@ public class ModComponents {
               .packetCodec(DyeColor.PACKET_CODEC)
               .build());
 
+  public static final ComponentType<DyeColor> FRISBEE_COLOR =
+      Registry.register(
+          Registries.DATA_COMPONENT_TYPE,
+          Identifier.of(DogsUnleashed.MOD_ID, "frisbee_color"),
+          ComponentType.<DyeColor>builder()
+              .codec(DyeColor.CODEC)
+              .packetCodec(DyeColor.PACKET_CODEC)
+              .build());
+
   public static void initialize() {}
 }

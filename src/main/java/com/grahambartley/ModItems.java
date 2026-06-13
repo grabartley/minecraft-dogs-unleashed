@@ -3,6 +3,7 @@ package com.grahambartley;
 import com.grahambartley.entity.UnleashedDogBreed;
 import com.grahambartley.item.DogBedItem;
 import com.grahambartley.item.DogGraveItem;
+import com.grahambartley.item.FrisbeeItem;
 import com.grahambartley.item.StickThrowHandler;
 import com.grahambartley.item.TennisBallItem;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
@@ -22,6 +23,12 @@ public class ModItems {
           Registries.ITEM,
           Identifier.of(DogsUnleashed.MOD_ID, "tennis_ball"),
           new TennisBallItem(new Item.Settings().maxCount(16)));
+
+  public static final Item FRISBEE =
+      Registry.register(
+          Registries.ITEM,
+          Identifier.of(DogsUnleashed.MOD_ID, "frisbee"),
+          new FrisbeeItem(new Item.Settings().maxCount(1)));
 
   public static final Item DOG_BED =
       Registry.register(
@@ -88,6 +95,15 @@ public class ModItems {
   public static void initialize() {
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS)
         .register(entries -> entries.add(TENNIS_BALL));
+    ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS)
+        .register(
+            entries -> {
+              for (DyeColor color : DyeColor.values()) {
+                ItemStack stack = new ItemStack(FRISBEE);
+                stack.set(ModComponents.FRISBEE_COLOR, color);
+                entries.add(stack);
+              }
+            });
     StickThrowHandler.register();
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL)
         .register(

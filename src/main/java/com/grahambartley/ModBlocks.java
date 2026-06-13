@@ -2,6 +2,7 @@ package com.grahambartley;
 
 import com.grahambartley.block.DogBedBlock;
 import com.grahambartley.block.DogGraveBlock;
+import com.grahambartley.block.FrisbeeBlock;
 import com.grahambartley.block.StickBlock;
 import com.grahambartley.block.TennisBallBlock;
 import net.minecraft.block.AbstractBlock;
@@ -58,6 +59,18 @@ public class ModBlocks {
                   .strength(0.05f)
                   .breakInstantly()
                   .sounds(BlockSoundGroup.WOOD)
+                  .nonOpaque()
+                  .noCollision()));
+
+  public static final Block FRISBEE =
+      Registry.register(
+          Registries.BLOCK,
+          Identifier.of(DogsUnleashed.MOD_ID, "frisbee"),
+          new FrisbeeBlock(
+              AbstractBlock.Settings.create()
+                  .strength(0.05f)
+                  .breakInstantly()
+                  .sounds(BlockSoundGroup.WOOL)
                   .nonOpaque()
                   .noCollision()));
 

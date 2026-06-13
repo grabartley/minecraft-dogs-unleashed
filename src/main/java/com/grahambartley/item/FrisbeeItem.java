@@ -1,0 +1,34 @@
+package com.grahambartley.item;
+
+import com.grahambartley.ModComponents;
+import com.grahambartley.entity.FrisbeeProjectileEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.DyeColor;
+import net.minecraft.util.Hand;
+import net.minecraft.util.TypedActionResult;
+import net.minecraft.world.World;
+
+public class FrisbeeItem extends Item {
+
+  public FrisbeeItem(Settings settings) {
+    super(settings);
+  }
+
+  @Override
+  public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+    ItemStack itemStack = user.getStackInHand(hand);
+
+    if (!world.isClient) {
+      FrisbeeProjectileEntity frisbee = new FrisbeeProjectileEntity(world, user);
+      DyeColor color = itemStack.getOrDefault(ModComponents.FRISBEE_COLOR, DyeColor.WHITE);
+      frisbee.setFrisbeeColor(color);
+      frisbee.setVelocity(user, user.getPitch(), user.getYaw(), 0.0f, 1.5f, 1.0f);
+      world.spawnEntity(frisbee);
+      itemStack.decrementUnlessCreative(1, user);
+    }
+
+    return TypedActionResult.success(itemStack, world.isClient);
+  }
+}
