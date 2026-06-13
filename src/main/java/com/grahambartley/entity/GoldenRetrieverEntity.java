@@ -30,6 +30,11 @@ public class GoldenRetrieverEntity extends UnleashedDogEntity {
   }
 
   @Override
+  protected String getSleepInBedMovementAnimationName() {
+    return DogAnimationKeys.SLEEP;
+  }
+
+  @Override
   protected SoundEvent getBarkSound() {
     return ModSounds.GOLDEN_RETRIEVER_BARK;
   }
