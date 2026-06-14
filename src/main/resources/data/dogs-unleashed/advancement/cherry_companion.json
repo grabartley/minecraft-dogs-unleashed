@@ -2,7 +2,7 @@
   "parent": "dogs-unleashed:root",
   "display": {
     "icon": {
-      "id": "dogs-unleashed:shibainu_spawn_egg"
+      "id": "minecraft:pink_petals"
     },
     "title": {
       "translate": "advancements.dogs-unleashed.cherry_companion.title"

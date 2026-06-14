@@ -2,7 +2,7 @@
   "parent": "dogs-unleashed:best_friend",
   "display": {
     "icon": {
-      "id": "dogs-unleashed:husky_spawn_egg"
+      "id": "minecraft:goat_horn"
     },
     "title": {
       "translate": "advancements.dogs-unleashed.howl_at_the_moon.title"

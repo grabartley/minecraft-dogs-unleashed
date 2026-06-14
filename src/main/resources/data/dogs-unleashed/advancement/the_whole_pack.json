@@ -2,7 +2,7 @@
   "parent": "dogs-unleashed:best_friend",
   "display": {
     "icon": {
-      "id": "dogs-unleashed:dachshund_spawn_egg"
+      "id": "minecraft:bone_block"
     },
     "title": {
       "translate": "advancements.dogs-unleashed.the_whole_pack.title"
