@@ -5,10 +5,10 @@
       "id": "minecraft:goat_horn"
     },
     "title": {
-      "translate": "advancements.dogs-unleashed.howl_at_the_moon.title"
+      "translate": "advancements.dogs-unleashed.bark_at_the_moon.title"
     },
     "description": {
-      "translate": "advancements.dogs-unleashed.howl_at_the_moon.description"
+      "translate": "advancements.dogs-unleashed.bark_at_the_moon.description"
     },
     "frame": "goal"
   },

@@ -28,7 +28,7 @@ public final class DogAdvancementGameTest implements FabricGameTest {
           "root",
           "best_friend",
           "the_whole_pack",
-          "howl_at_the_moon",
+          "bark_at_the_moon",
           "fetch",
           "sweet_dreams",
           "forever_in_our_hearts",
@@ -106,7 +106,7 @@ public final class DogAdvancementGameTest implements FabricGameTest {
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final AdvancementEntry howlAtTheMoon = getAdvancement(context, "howl_at_the_moon");
+    final AdvancementEntry barkAtTheMoon = getAdvancement(context, "bark_at_the_moon");
     final AdvancementEntry fetch = getAdvancement(context, "fetch");
     final AdvancementEntry sweetDreams = getAdvancement(context, "sweet_dreams");
     final AdvancementEntry foreverInOurHearts = getAdvancement(context, "forever_in_our_hearts");
@@ -130,8 +130,8 @@ public final class DogAdvancementGameTest implements FabricGameTest {
     Criteria.INVENTORY_CHANGED.trigger(player, player.getInventory(), graveStack);
 
     context.assertTrue(
-        player.getAdvancementTracker().getProgress(howlAtTheMoon).isDone(),
-        "husky_howled should unlock howl_at_the_moon");
+        player.getAdvancementTracker().getProgress(barkAtTheMoon).isDone(),
+        "husky_howled should unlock bark_at_the_moon");
     context.assertTrue(
         player.getAdvancementTracker().getProgress(fetch).isDone(),
         "fetch_returned should unlock fetch");
