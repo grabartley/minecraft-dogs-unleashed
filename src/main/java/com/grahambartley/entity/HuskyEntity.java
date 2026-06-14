@@ -3,6 +3,7 @@ package com.grahambartley.entity;
 import static com.grahambartley.ModConstants.FULL_MOON_PHASE;
 import static com.grahambartley.ModConstants.HOWL_COOLDOWN_TICKS;
 import static com.grahambartley.ModConstants.HOWL_DURATION_TICKS;
+import static com.grahambartley.ModConstants.HOWL_HEARING_RANGE_SQUARED;
 import static com.grahambartley.ModConstants.HOWL_PITCH;
 import static com.grahambartley.ModConstants.RANDOM_HOWL_CHANCE;
 import static com.grahambartley.ModEntities.HUSKY;
@@ -175,7 +176,7 @@ public class HuskyEntity extends UnleashedDogEntity {
       return;
     }
 
-    if (this.squaredDistanceTo(player) > 64.0 * 64.0) {
+    if (this.squaredDistanceTo(player) > HOWL_HEARING_RANGE_SQUARED) {
       return;
     }
 

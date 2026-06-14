@@ -2,7 +2,7 @@
   "parent": "dogs-unleashed:root",
   "display": {
     "icon": {
-      "id": "dogs-unleashed:dog_bed"
+      "id": "minecraft:wolf_armor"
     },
     "title": {
       "translate": "advancements.dogs-unleashed.best_friend.title"

@@ -43,4 +43,19 @@ class ModConstantsTest {
         Arguments.of("BARK_PITCH", ModConstants.BARK_PITCH, 1.0f),
         Arguments.of("HOWL_PITCH", ModConstants.HOWL_PITCH, 1.0f));
   }
+
+  @ParameterizedTest(name = "{0} = {2}")
+  @MethodSource("doubleConstants")
+  @DisplayName("tunable double constants hold their documented values")
+  void tunableDoubleConstantsHoldDocumentedValues(
+      final String name, final double actual, final double expected) {
+    assertEquals(expected, actual, 0.0, name);
+  }
+
+  static Stream<Arguments> doubleConstants() {
+    return Stream.of(
+        Arguments.of("HOWL_HEARING_RANGE_BLOCKS", ModConstants.HOWL_HEARING_RANGE_BLOCKS, 64.0),
+        Arguments.of(
+            "HOWL_HEARING_RANGE_SQUARED", ModConstants.HOWL_HEARING_RANGE_SQUARED, 64.0 * 64.0));
+  }
 }
