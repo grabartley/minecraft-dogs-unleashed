@@ -2,7 +2,6 @@ package com.grahambartley.gametest.util;
 
 import com.grahambartley.entity.UnleashedDogEntity;
 import java.util.UUID;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.math.BlockPos;
 
@@ -19,11 +18,9 @@ public final class DogTestHelper {
   }
 
   public static <T extends UnleashedDogEntity> T spawnDog(
-      TestContext context, DogTestData<T> data, BlockPos pos) {
-    ServerWorld world = context.getWorld();
-    T dog = data.factory().apply(world);
-    dog.refreshPositionAndAngles(pos, 0.0f, 0.0f);
-    world.spawnEntity(dog);
+      TestContext context, DogTestData<T> data, BlockPos relativePos) {
+    @SuppressWarnings("unchecked")
+    T dog = (T) context.spawnEntity(data.entityType(), relativePos);
     return dog;
   }
 
@@ -33,8 +30,8 @@ public final class DogTestHelper {
   }
 
   public static <T extends UnleashedDogEntity> T spawnTamedDog(
-      TestContext context, DogTestData<T> data, BlockPos pos) {
-    T dog = spawnDog(context, data, pos);
+      TestContext context, DogTestData<T> data, BlockPos relativePos) {
+    T dog = spawnDog(context, data, relativePos);
     dog.setTamed(true, true);
     return dog;
   }

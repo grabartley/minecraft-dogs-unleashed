@@ -19,24 +19,26 @@ public final class DogBedBlockGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void dogBedCanBePlaced(final TestContext context) {
-    final BlockPos bedPos = new BlockPos(0, 1, 0);
+    final BlockPos relBedPos = new BlockPos(0, 1, 0);
+    final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
     final ServerWorld world = context.getWorld();
 
-    world.setBlockState(bedPos, ModBlocks.DOG_BED.getDefaultState());
+    context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final BlockState placedState = world.getBlockState(bedPos);
+    final BlockState placedState = world.getBlockState(absBedPos);
     context.assertTrue(placedState.isOf(ModBlocks.DOG_BED), "Dog bed should be placed");
     context.complete();
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void dogBedHasBlockEntity(final TestContext context) {
-    final BlockPos bedPos = new BlockPos(0, 1, 0);
+    final BlockPos relBedPos = new BlockPos(0, 1, 0);
+    final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
     final ServerWorld world = context.getWorld();
 
-    world.setBlockState(bedPos, ModBlocks.DOG_BED.getDefaultState());
+    context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final BlockEntity blockEntity = world.getBlockEntity(bedPos);
+    final BlockEntity blockEntity = world.getBlockEntity(absBedPos);
     context.assertTrue(
         blockEntity instanceof DogBedBlockEntity, "Dog bed should have DogBedBlockEntity");
     context.complete();
@@ -44,15 +46,16 @@ public final class DogBedBlockGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void dogBedColorCanBeSetAndRetrieved(final TestContext context) {
-    final BlockPos bedPos = new BlockPos(0, 1, 0);
+    final BlockPos relBedPos = new BlockPos(0, 1, 0);
+    final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
     final ServerWorld world = context.getWorld();
 
-    world.setBlockState(bedPos, ModBlocks.DOG_BED.getDefaultState());
+    context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
     context.runAtTick(
         5,
         () -> {
-          final BlockEntity blockEntity = world.getBlockEntity(bedPos);
+          final BlockEntity blockEntity = world.getBlockEntity(absBedPos);
           context.assertTrue(
               blockEntity instanceof DogBedBlockEntity, "Block entity should be DogBedBlockEntity");
           final DogBedBlockEntity dogBedEntity = (DogBedBlockEntity) blockEntity;
@@ -70,12 +73,13 @@ public final class DogBedBlockGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void dogBedColorCanBeChanged(final TestContext context) {
-    final BlockPos bedPos = new BlockPos(0, 1, 0);
+    final BlockPos relBedPos = new BlockPos(0, 1, 0);
+    final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
     final ServerWorld world = context.getWorld();
 
-    world.setBlockState(bedPos, ModBlocks.DOG_BED.getDefaultState());
+    context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final BlockEntity blockEntity = world.getBlockEntity(bedPos);
+    final BlockEntity blockEntity = world.getBlockEntity(absBedPos);
     context.assertTrue(
         blockEntity instanceof DogBedBlockEntity, "Block entity should be DogBedBlockEntity");
     final DogBedBlockEntity dogBedEntity = (DogBedBlockEntity) blockEntity;
@@ -87,34 +91,33 @@ public final class DogBedBlockGameTest implements FabricGameTest {
 
   @GameTest(templateName = "dogs-unleashed:dog_bed_pair", tickLimit = 100)
   public void dogCanBeAssignedToBed(final TestContext context) {
-    final BlockPos bedPos = new BlockPos(0, 1, 0);
-    final BlockPos dogPos = new BlockPos(2, 1, 0);
+    final BlockPos relBedPos = new BlockPos(0, 1, 0);
+    final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
+    final BlockPos relDogPos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
-    world.setBlockState(bedPos, ModBlocks.DOG_BED.getDefaultState());
+    context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
-    husky.refreshPositionAndAngles(dogPos, 0.0f, 0.0f);
+    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relDogPos);
     husky.setTamed(true, true);
     husky.setAiDisabled(true); // Prevent wandering into other test structures
-    world.spawnEntity(husky);
 
     context.runAtTick(
         10,
         () -> {
-          final BlockEntity blockEntity = world.getBlockEntity(bedPos);
+          final BlockEntity blockEntity = world.getBlockEntity(absBedPos);
           context.assertTrue(
               blockEntity instanceof DogBedBlockEntity, "Block entity should be DogBedBlockEntity");
           final DogBedBlockEntity dogBedEntity = (DogBedBlockEntity) blockEntity;
 
           dogBedEntity.setAssignedDog(husky);
-          husky.setAssignedBedPos(bedPos);
+          husky.setAssignedBedPos(absBedPos);
 
           context.assertTrue(dogBedEntity.hasAssignedDog(), "Bed should have assigned dog");
           context.assertTrue(husky.hasAssignedBed(), "Dog should have assigned bed");
           context.assertTrue(
               husky.getAssignedBedPos().isPresent()
-                  && husky.getAssignedBedPos().get().equals(bedPos),
+                  && husky.getAssignedBedPos().get().equals(absBedPos),
               "Dog's assigned bed position should match");
           context.complete();
         });
@@ -122,28 +125,26 @@ public final class DogBedBlockGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void dogCanBeCommandedToSleep(final TestContext context) {
-    final BlockPos bedPos = new BlockPos(0, 1, 0);
-    final BlockPos dogPos = new BlockPos(0, 1, 0);
-    final ServerWorld world = context.getWorld();
+    final BlockPos relBedPos = new BlockPos(0, 1, 0);
+    final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
+    final BlockPos relDogPos = new BlockPos(0, 1, 0);
 
-    world.setBlockState(bedPos, ModBlocks.DOG_BED.getDefaultState());
+    context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
-    husky.refreshPositionAndAngles(dogPos, 0.0f, 0.0f);
+    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relDogPos);
     husky.setTamed(true, true);
-    world.spawnEntity(husky);
 
     context.runAtTick(
         10,
         () -> {
-          husky.setAssignedBedPos(bedPos);
-          husky.startSleepingInBed(bedPos);
+          husky.setAssignedBedPos(absBedPos);
+          husky.startSleepingInBed(absBedPos);
 
           context.assertTrue(
               husky.isSleepingInBed(), "Dog should be sleeping after startSleepingInBed");
           context.assertTrue(
               husky.getAssignedBedPos().isPresent()
-                  && husky.getAssignedBedPos().get().equals(bedPos),
+                  && husky.getAssignedBedPos().get().equals(absBedPos),
               "Dog should have bed position set");
           context.complete();
         });
@@ -151,22 +152,21 @@ public final class DogBedBlockGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void dogWakesUpWhenDamaged(final TestContext context) {
-    final BlockPos bedPos = new BlockPos(0, 1, 0);
-    final BlockPos dogPos = new BlockPos(0, 1, 0);
+    final BlockPos relBedPos = new BlockPos(0, 1, 0);
+    final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
+    final BlockPos relDogPos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
-    world.setBlockState(bedPos, ModBlocks.DOG_BED.getDefaultState());
+    context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
-    husky.refreshPositionAndAngles(dogPos, 0.0f, 0.0f);
+    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relDogPos);
     husky.setTamed(true, true);
-    world.spawnEntity(husky);
 
     context.runAtTick(
         10,
         () -> {
-          husky.setAssignedBedPos(bedPos);
-          husky.startSleepingInBed(bedPos);
+          husky.setAssignedBedPos(absBedPos);
+          husky.startSleepingInBed(absBedPos);
           context.assertTrue(husky.isSleepingInBed(), "Dog should be sleeping");
         });
 
@@ -182,21 +182,19 @@ public final class DogBedBlockGameTest implements FabricGameTest {
 
   @GameTest(templateName = "dogs-unleashed:dog_bed_pair", tickLimit = 100)
   public void clearAssignedBedWorks(final TestContext context) {
-    final BlockPos bedPos = new BlockPos(0, 1, 0);
-    final BlockPos dogPos = new BlockPos(2, 1, 0);
-    final ServerWorld world = context.getWorld();
+    final BlockPos relBedPos = new BlockPos(0, 1, 0);
+    final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
+    final BlockPos relDogPos = new BlockPos(0, 1, 0);
 
-    world.setBlockState(bedPos, ModBlocks.DOG_BED.getDefaultState());
+    context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
-    husky.refreshPositionAndAngles(dogPos, 0.0f, 0.0f);
+    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relDogPos);
     husky.setTamed(true, true);
-    world.spawnEntity(husky);
 
     context.runAtTick(
         10,
         () -> {
-          husky.setAssignedBedPos(bedPos);
+          husky.setAssignedBedPos(absBedPos);
           context.assertTrue(husky.hasAssignedBed(), "Dog should have assigned bed");
 
           husky.clearAssignedBed();
@@ -241,38 +239,42 @@ public final class DogBedBlockGameTest implements FabricGameTest {
 
   @GameTest(templateName = "dogs-unleashed:dog_bed_pair", tickLimit = 100)
   public void reAssigningDogToNewBedClearsOldBed(final TestContext context) {
-    final BlockPos oldBedPos = new BlockPos(0, 1, 0);
-    final BlockPos newBedPos = new BlockPos(3, 1, 0);
-    final BlockPos dogPos = new BlockPos(1, 1, 0);
+    // Two beds live at separate relative positions. EMPTY_STRUCTURE is 1x1x1; the structure
+    // bounds are tracked by TestContext but setBlockState at an off-structure relative pos
+    // still resolves via absolute coordinates and works for assertions. Per #210, this
+    // test should eventually move to an .nbt template that covers the multi-bed footprint.
+    final BlockPos relOldBedPos = new BlockPos(0, 1, 0);
+    final BlockPos relNewBedPos = new BlockPos(3, 1, 0);
+    final BlockPos relDogPos = new BlockPos(1, 1, 0);
+    final BlockPos absOldBedPos = context.getAbsolutePos(relOldBedPos);
+    final BlockPos absNewBedPos = context.getAbsolutePos(relNewBedPos);
     final ServerWorld world = context.getWorld();
 
-    world.setBlockState(oldBedPos, ModBlocks.DOG_BED.getDefaultState());
-    world.setBlockState(newBedPos, ModBlocks.DOG_BED.getDefaultState());
+    context.setBlockState(relOldBedPos, ModBlocks.DOG_BED.getDefaultState());
+    context.setBlockState(relNewBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
-    husky.refreshPositionAndAngles(dogPos, 0.0f, 0.0f);
+    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relDogPos);
     husky.setTamed(true, true);
-    world.spawnEntity(husky);
 
     context.runAtTick(
         10,
         () -> {
-          final BlockEntity oldBedBlockEntity = world.getBlockEntity(oldBedPos);
+          final BlockEntity oldBedBlockEntity = world.getBlockEntity(absOldBedPos);
           context.assertTrue(
               oldBedBlockEntity instanceof DogBedBlockEntity,
               "Old bed block entity should be DogBedBlockEntity");
           final DogBedBlockEntity oldBedEntity = (DogBedBlockEntity) oldBedBlockEntity;
           oldBedEntity.setAssignedDog(husky);
-          husky.setAssignedBedPos(oldBedPos);
+          husky.setAssignedBedPos(absOldBedPos);
 
           context.assertTrue(oldBedEntity.hasAssignedDog(), "Old bed should have assigned dog");
 
-          final BlockEntity newBedBlockEntity = world.getBlockEntity(newBedPos);
+          final BlockEntity newBedBlockEntity = world.getBlockEntity(absNewBedPos);
           context.assertTrue(
               newBedBlockEntity instanceof DogBedBlockEntity,
               "New bed block entity should be DogBedBlockEntity");
           final DogBedBlockEntity newBedEntity = (DogBedBlockEntity) newBedBlockEntity;
-          final BlockEntity oldBedCheckBlockEntity = world.getBlockEntity(oldBedPos);
+          final BlockEntity oldBedCheckBlockEntity = world.getBlockEntity(absOldBedPos);
           context.assertTrue(
               oldBedCheckBlockEntity instanceof DogBedBlockEntity,
               "Old bed block entity should still be DogBedBlockEntity");
@@ -287,14 +289,14 @@ public final class DogBedBlockGameTest implements FabricGameTest {
                     }
                   });
           newBedEntity.setAssignedDog(husky);
-          husky.setAssignedBedPos(newBedPos);
+          husky.setAssignedBedPos(absNewBedPos);
 
           context.assertTrue(newBedEntity.hasAssignedDog(), "New bed should have assigned dog");
           context.assertTrue(
               !oldBedCheck.hasAssignedDog(), "Old bed should no longer have assigned dog");
           context.assertTrue(
               husky.getAssignedBedPos().isPresent()
-                  && husky.getAssignedBedPos().get().equals(newBedPos),
+                  && husky.getAssignedBedPos().get().equals(absNewBedPos),
               "Dog's bed pos should be new bed");
           context.complete();
         });
@@ -302,27 +304,26 @@ public final class DogBedBlockGameTest implements FabricGameTest {
 
   @GameTest(templateName = "dogs-unleashed:dog_bed_pair", tickLimit = 100)
   public void dogDeathFreesAssignedBed(final TestContext context) {
-    final BlockPos bedPos = new BlockPos(0, 1, 0);
-    final BlockPos dogPos = new BlockPos(1, 1, 0);
+    final BlockPos relBedPos = new BlockPos(0, 1, 0);
+    final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
+    final BlockPos relDogPos = new BlockPos(0, 1, 0);
     final ServerWorld world = context.getWorld();
 
-    world.setBlockState(bedPos, ModBlocks.DOG_BED.getDefaultState());
+    context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
-    husky.refreshPositionAndAngles(dogPos, 0.0f, 0.0f);
+    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relDogPos);
     husky.setTamed(true, true);
-    world.spawnEntity(husky);
 
     context.runAtTick(
         10,
         () -> {
-          final BlockEntity bedBlockEntity = world.getBlockEntity(bedPos);
+          final BlockEntity bedBlockEntity = world.getBlockEntity(absBedPos);
           context.assertTrue(
               bedBlockEntity instanceof DogBedBlockEntity,
               "Bed block entity should be DogBedBlockEntity");
           final DogBedBlockEntity bedEntity = (DogBedBlockEntity) bedBlockEntity;
           bedEntity.setAssignedDog(husky);
-          husky.setAssignedBedPos(bedPos);
+          husky.setAssignedBedPos(absBedPos);
 
           context.assertTrue(bedEntity.hasAssignedDog(), "Bed should have assigned dog");
         });
@@ -336,7 +337,7 @@ public final class DogBedBlockGameTest implements FabricGameTest {
     context.runAtTick(
         30,
         () -> {
-          final BlockEntity bedBlockEntityAtTick30 = world.getBlockEntity(bedPos);
+          final BlockEntity bedBlockEntityAtTick30 = world.getBlockEntity(absBedPos);
           context.assertTrue(
               bedBlockEntityAtTick30 instanceof DogBedBlockEntity,
               "Bed block entity should still be a DogBedBlockEntity");
