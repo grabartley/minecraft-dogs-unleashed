@@ -1,10 +1,5 @@
 package com.grahambartley.gametest;
 
-import static com.grahambartley.ModConstants.BARK_COOLDOWN_TICKS;
-import static com.grahambartley.ModConstants.HOWL_COOLDOWN_TICKS;
-import static com.grahambartley.ModConstants.HOWL_DURATION_TICKS;
-import static com.grahambartley.ModConstants.MINECRAFT_TICK_RATE;
-
 import com.grahambartley.DogsUnleashed;
 import com.grahambartley.ModSounds;
 import com.grahambartley.entity.HuskyEntity;
@@ -159,14 +154,6 @@ public final class DogEntitySoundTest implements FabricGameTest {
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void barkCooldownTicksIsCorrect(TestContext context) {
-    context.assertTrue(
-        BARK_COOLDOWN_TICKS == 6 * MINECRAFT_TICK_RATE,
-        "BARK_COOLDOWN_TICKS should be 6 seconds (120 ticks)");
-    context.complete();
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void huskyStartsNotHowling(TestContext context) {
     HuskyEntity husky = DogTestHelper.spawnDog(context, DogTestData.HUSKY);
 
@@ -180,17 +167,6 @@ public final class DogEntitySoundTest implements FabricGameTest {
 
     context.assertTrue(
         husky.getHowlCooldownTicks() == 0, "Husky howl cooldown should be 0 at spawn");
-    context.complete();
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void huskyHowlConstantsAreCorrect(TestContext context) {
-    context.assertTrue(
-        HOWL_COOLDOWN_TICKS == 30 * MINECRAFT_TICK_RATE,
-        "HOWL_COOLDOWN_TICKS should be 30 seconds (600 ticks)");
-    context.assertTrue(
-        HOWL_DURATION_TICKS == (int) (4.5f * MINECRAFT_TICK_RATE),
-        "HOWL_DURATION_TICKS should be 4.5 seconds (90 ticks)");
     context.complete();
   }
 

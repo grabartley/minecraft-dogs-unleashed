@@ -135,6 +135,54 @@ class UnleashedDogBreedTest {
     assertTrue(dimensions.height() > 0f, "height for " + breed);
   }
 
+  static Stream<Arguments> expectedDimensions() {
+    return Stream.of(
+        Arguments.of(UnleashedDogBreed.HUSKY, 0.8f, 1.1f),
+        Arguments.of(UnleashedDogBreed.DACHSHUND, 0.8f, 1.1f),
+        Arguments.of(UnleashedDogBreed.BEAGLE, 0.8f, 1.1f),
+        Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, 0.8f, 1.1f),
+        Arguments.of(UnleashedDogBreed.SHIBA_INU, 0.8f, 1.1f));
+  }
+
+  @ParameterizedTest(name = "{0} dimensions = ({1} x {2})")
+  @MethodSource("expectedDimensions")
+  @DisplayName("each breed exposes its documented width and height")
+  void breedDimensionsMatchDocumentedValues(
+      final UnleashedDogBreed breed, final float expectedWidth, final float expectedHeight) {
+    final UnleashedDogBreed.Dimensions dimensions = breed.dimensions();
+    assertEquals(
+        expectedWidth, dimensions.width(), 0.001f, breed + " width should match documented value");
+    assertEquals(
+        expectedHeight,
+        dimensions.height(),
+        0.001f,
+        breed + " height should match documented value");
+  }
+
+  static Stream<Arguments> expectedAttributes() {
+    return Stream.of(
+        Arguments.of(UnleashedDogBreed.HUSKY, 25.0, 0.30, 5.0),
+        Arguments.of(UnleashedDogBreed.DACHSHUND, 10.0, 0.25, 2.0),
+        Arguments.of(UnleashedDogBreed.BEAGLE, 17.0, 0.29, 3.0),
+        Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, 24.0, 0.30, 4.0),
+        Arguments.of(UnleashedDogBreed.SHIBA_INU, 18.0, 0.32, 3.5));
+  }
+
+  @ParameterizedTest(name = "{0} attributes = (hp={1}, speed={2}, attack={3})")
+  @MethodSource("expectedAttributes")
+  @DisplayName("each breed exposes its documented combat attributes")
+  void breedAttributesMatchDocumentedValues(
+      final UnleashedDogBreed breed,
+      final double expectedMaxHealth,
+      final double expectedMovementSpeed,
+      final double expectedAttackDamage) {
+    final UnleashedDogBreed.Attributes attributes = breed.attributes();
+    assertEquals(expectedMaxHealth, attributes.maxHealth(), 0.001, breed + " max health");
+    assertEquals(
+        expectedMovementSpeed, attributes.movementSpeed(), 0.001, breed + " movement speed");
+    assertEquals(expectedAttackDamage, attributes.attackDamage(), 0.001, breed + " attack damage");
+  }
+
   @ParameterizedTest
   @EnumSource(UnleashedDogBreed.class)
   @DisplayName("every breed declares a coherent spawn configuration")
