@@ -9,8 +9,8 @@
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-Support_Dogs_Unleashed-009078?logo=ko-fi&logoColor=white)](https://ko-fi.com/grahambartley)
 
 Good dogs. Big adventures. Dogs Unleashed is an open-source Fabric mod that adds five new dog breeds, a fetch system,
-dog beds, graves, and more. Every dog is unique. Every bark has its own personality. Your wolves have been carrying the
-team long enough.
+dog beds, graves, a full advancement tab, and more. Every dog is unique. Every bark has its own personality. Your
+wolves have been carrying the team long enough.
 
 Time to expand the pack.
 
@@ -101,6 +101,11 @@ color. Mine it with a pickaxe to preserve the grave as an item with full NBT dat
 it anywhere as a memorial.
 
 The grave avoids spawning on top of their bed. Because even in death, they want to be near home.
+
+### Advancements
+
+The Dogs Unleashed advancement tab tracks the full pack experience: taming your first dog, collecting every breed,
+hearing a Husky howl, finishing a fetch return, seeing a dog sleep in bed, preserving a grave, and taming a Shiba Inu.
 
 ### Collar Dyeing
 

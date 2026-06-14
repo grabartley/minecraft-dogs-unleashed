@@ -3,6 +3,7 @@ package com.grahambartley.entity;
 import static com.grahambartley.ModConstants.FULL_MOON_PHASE;
 import static com.grahambartley.ModConstants.HOWL_COOLDOWN_TICKS;
 import static com.grahambartley.ModConstants.HOWL_DURATION_TICKS;
+import static com.grahambartley.ModConstants.HOWL_HEARING_RANGE_SQUARED;
 import static com.grahambartley.ModConstants.HOWL_PITCH;
 import static com.grahambartley.ModConstants.RANDOM_HOWL_CHANCE;
 import static com.grahambartley.ModEntities.HUSKY;
@@ -10,10 +11,12 @@ import static com.grahambartley.ModEntities.HUSKY;
 import com.grahambartley.DogsUnleashed;
 import com.grahambartley.ModNbtKeys;
 import com.grahambartley.ModSounds;
+import com.grahambartley.advancement.HuskyHowledCriterion;
 import com.grahambartley.entity.variant.HuskyCoat;
 import com.grahambartley.entity.variant.HuskyCoatRolls;
 import com.grahambartley.entity.variant.HuskyEyeColor;
 import com.grahambartley.entity.variant.UnleashedDogCoat;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.data.DataTracker;
@@ -21,6 +24,7 @@ import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.world.World;
@@ -158,7 +162,25 @@ public class HuskyEntity extends UnleashedDogEntity {
       this.playSound(ModSounds.HUSKY_HOWL, DogsUnleashed.SERVER_CONFIG.howlVolume(), HOWL_PITCH);
       this.howlCooldownTicks = HOWL_COOLDOWN_TICKS;
       this.howlActiveTicks = HOWL_DURATION_TICKS;
+      this.triggerHowlAdvancement();
     }
+  }
+
+  private void triggerHowlAdvancement() {
+    if (!(this.getWorld() instanceof ServerWorld)) {
+      return;
+    }
+
+    final Entity owner = this.getOwner();
+    if (!(owner instanceof ServerPlayerEntity player) || !player.isAlive()) {
+      return;
+    }
+
+    if (this.squaredDistanceTo(player) > HOWL_HEARING_RANGE_SQUARED) {
+      return;
+    }
+
+    HuskyHowledCriterion.INSTANCE.trigger(player);
   }
 
   @Override

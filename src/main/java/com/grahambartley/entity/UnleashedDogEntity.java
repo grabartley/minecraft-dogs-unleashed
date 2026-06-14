@@ -9,6 +9,7 @@ import static com.grahambartley.ModConstants.RANDOM_BARK_CHANCE;
 import com.grahambartley.DogsUnleashed;
 import com.grahambartley.ModBlocks;
 import com.grahambartley.ModNbtKeys;
+import com.grahambartley.advancement.DogSleptInBedCriterion;
 import com.grahambartley.block.DogBedBlock;
 import com.grahambartley.block.DogGraveBlock;
 import com.grahambartley.block.entity.DogBedBlockEntity;
@@ -397,6 +398,10 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     this.setVelocity(0, 0, 0);
     this.setNoGravity(true);
     this.navigation.stop();
+
+    if (this.getOwner() instanceof ServerPlayerEntity player) {
+      DogSleptInBedCriterion.INSTANCE.trigger(player);
+    }
   }
 
   public void wakeUp() {

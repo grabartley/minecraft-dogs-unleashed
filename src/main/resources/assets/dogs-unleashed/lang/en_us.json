@@ -78,5 +78,22 @@
   "screen.dogs-unleashed.settings.barkvolume": "Bark Volume",
   "screen.dogs-unleashed.settings.barkvolume.tooltip": "Scales the volume of all dog bark sounds. Set to 0.0 to mute barks.",
   "screen.dogs-unleashed.settings.howlvolume": "Husky Howl Volume",
-  "screen.dogs-unleashed.settings.howlvolume.tooltip": "Scales the volume of the Husky howl sound. Set to 0.0 to mute howls."
+  "screen.dogs-unleashed.settings.howlvolume.tooltip": "Scales the volume of the Husky howl sound. Set to 0.0 to mute howls.",
+
+  "advancements.dogs-unleashed.root.title": "Dogs Unleashed",
+  "advancements.dogs-unleashed.root.description": "Expand the pack.",
+  "advancements.dogs-unleashed.best_friend.title": "Best Friend",
+  "advancements.dogs-unleashed.best_friend.description": "Tame your first new-breed dog.",
+  "advancements.dogs-unleashed.the_whole_pack.title": "The Whole Pack",
+  "advancements.dogs-unleashed.the_whole_pack.description": "Tame a Husky, Dachshund, Beagle, Golden Retriever, and Shiba Inu.",
+  "advancements.dogs-unleashed.bark_at_the_moon.title": "Bark at the Moon",
+  "advancements.dogs-unleashed.bark_at_the_moon.description": "Hear a Husky howl at the full moon.",
+  "advancements.dogs-unleashed.fetch.title": "Fetch!",
+  "advancements.dogs-unleashed.fetch.description": "Have a dog return a thrown fetch item.",
+  "advancements.dogs-unleashed.sweet_dreams.title": "Sweet Dreams",
+  "advancements.dogs-unleashed.sweet_dreams.description": "Watch your dog fall asleep in an assigned bed.",
+  "advancements.dogs-unleashed.forever_in_our_hearts.title": "Forever in Our Hearts",
+  "advancements.dogs-unleashed.forever_in_our_hearts.description": "Preserve a dog's grave as an item.",
+  "advancements.dogs-unleashed.cherry_companion.title": "Cherry Companion",
+  "advancements.dogs-unleashed.cherry_companion.description": "Tame a Shiba Inu."
 }

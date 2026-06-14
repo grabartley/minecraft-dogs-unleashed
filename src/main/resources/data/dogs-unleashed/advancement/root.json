@@ -1,0 +1,23 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:bone"
+    },
+    "title": {
+      "translate": "advancements.dogs-unleashed.root.title"
+    },
+    "description": {
+      "translate": "advancements.dogs-unleashed.root.description"
+    },
+    "background": "minecraft:textures/block/cherry_planks.png",
+    "frame": "task",
+    "show_toast": false,
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "tick": {
+      "trigger": "minecraft:tick"
+    }
+  },
+  "requirements": [["tick"]]
+}

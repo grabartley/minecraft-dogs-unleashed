@@ -1,0 +1,58 @@
+{
+  "parent": "dogs-unleashed:best_friend",
+  "display": {
+    "icon": {
+      "id": "minecraft:bone_block"
+    },
+    "title": {
+      "translate": "advancements.dogs-unleashed.the_whole_pack.title"
+    },
+    "description": {
+      "translate": "advancements.dogs-unleashed.the_whole_pack.description"
+    },
+    "frame": "goal"
+  },
+  "criteria": {
+    "tamed_husky": {
+      "trigger": "minecraft:tame_animal",
+      "conditions": {
+        "entity": {
+          "type": "dogs-unleashed:husky"
+        }
+      }
+    },
+    "tamed_dachshund": {
+      "trigger": "minecraft:tame_animal",
+      "conditions": {
+        "entity": {
+          "type": "dogs-unleashed:dachshund"
+        }
+      }
+    },
+    "tamed_beagle": {
+      "trigger": "minecraft:tame_animal",
+      "conditions": {
+        "entity": {
+          "type": "dogs-unleashed:beagle"
+        }
+      }
+    },
+    "tamed_goldenretriever": {
+      "trigger": "minecraft:tame_animal",
+      "conditions": {
+        "entity": {
+          "type": "dogs-unleashed:goldenretriever"
+        }
+      }
+    },
+    "tamed_shibainu": {
+      "trigger": "minecraft:tame_animal",
+      "conditions": {
+        "entity": {
+          "type": "dogs-unleashed:shibainu"
+        }
+      }
+    }
+  },
+  "requirements": [["tamed_husky"], ["tamed_dachshund"], ["tamed_beagle"], ["tamed_goldenretriever"], ["tamed_shibainu"]]
+}
