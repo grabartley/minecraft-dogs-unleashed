@@ -15,7 +15,6 @@ import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.mob.ZombieEntity;
 import net.minecraft.registry.Registries;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.Identifier;
@@ -197,12 +196,13 @@ public final class DogEntitySoundTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
   public void huskySleepingPreventsHowling(TestContext context) {
+    final BlockPos absBedPos = context.getAbsolutePos(new BlockPos(0, 1, 0));
     HuskyEntity husky = DogTestHelper.spawnDog(context, DogTestData.HUSKY);
 
     context.runAtTick(
         5,
         () -> {
-          husky.startSleepingInBed(new BlockPos(0, 1, 0));
+          husky.startSleepingInBed(absBedPos);
         });
 
     context.runAtTick(
@@ -299,12 +299,10 @@ public final class DogEntitySoundTest implements FabricGameTest {
 
   private <T extends UnleashedDogEntity> void testDogBarksWhenHasTarget(
       TestContext context, DogTestData<T> data) {
-    ServerWorld world = context.getWorld();
     T dog = DogTestHelper.spawnDog(context, data);
 
-    ZombieEntity zombie = new ZombieEntity(EntityType.ZOMBIE, world);
-    zombie.refreshPositionAndAngles(new BlockPos(2, 1, 0), 0.0f, 0.0f);
-    world.spawnEntity(zombie);
+    ZombieEntity zombie =
+        (ZombieEntity) context.spawnEntity(EntityType.ZOMBIE, new BlockPos(2, 1, 0));
 
     context.runAtTick(
         5,
@@ -324,12 +322,10 @@ public final class DogEntitySoundTest implements FabricGameTest {
 
   private <T extends UnleashedDogEntity> void testDogDoesNotBarkWhenHasTarget(
       TestContext context, DogTestData<T> data) {
-    ServerWorld world = context.getWorld();
     T dog = DogTestHelper.spawnDog(context, data);
 
-    ZombieEntity zombie = new ZombieEntity(EntityType.ZOMBIE, world);
-    zombie.refreshPositionAndAngles(new BlockPos(2, 1, 0), 0.0f, 0.0f);
-    world.spawnEntity(zombie);
+    ZombieEntity zombie =
+        (ZombieEntity) context.spawnEntity(EntityType.ZOMBIE, new BlockPos(2, 1, 0));
 
     context.runAtTick(5, () -> dog.setTarget(zombie));
 
@@ -381,12 +377,10 @@ public final class DogEntitySoundTest implements FabricGameTest {
 
   private <T extends UnleashedDogEntity> void testCooldownPreventsBark(
       TestContext context, DogTestData<T> data) {
-    ServerWorld world = context.getWorld();
     T dog = DogTestHelper.spawnDog(context, data);
 
-    ZombieEntity zombie = new ZombieEntity(EntityType.ZOMBIE, world);
-    zombie.refreshPositionAndAngles(new BlockPos(2, 1, 0), 0.0f, 0.0f);
-    world.spawnEntity(zombie);
+    ZombieEntity zombie =
+        (ZombieEntity) context.spawnEntity(EntityType.ZOMBIE, new BlockPos(2, 1, 0));
 
     context.runAtTick(
         5,

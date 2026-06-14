@@ -291,11 +291,8 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
 
   private <T extends UnleashedDogEntity> void testBabyDogHasCollarWhenTamed(
       TestContext context, DogTestData<T> data) {
-    ServerWorld world = context.getWorld();
-    T babyDog = data.factory().apply(world);
-    babyDog.refreshPositionAndAngles(new BlockPos(0, 1, 0), 0.0f, 0.0f);
+    T babyDog = DogTestHelper.spawnDog(context, data);
     babyDog.setBaby(true);
-    world.spawnEntity(babyDog);
 
     context.runAtTick(
         10,

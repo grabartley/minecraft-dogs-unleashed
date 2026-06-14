@@ -13,16 +13,14 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
   @GameTest(templateName = "dogs-unleashed:dog_arena", tickLimit = 200)
   public void commandedToSleepSetsCorrectFlags(final TestContext context) {
-    final BlockPos bedPos = new BlockPos(0, 1, 0);
-    final BlockPos dogPos = new BlockPos(5, 1, 0);
-    final ServerWorld world = context.getWorld();
+    final BlockPos relBedPos = new BlockPos(0, 1, 0);
+    final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
+    final BlockPos relDogPos = new BlockPos(0, 1, 0);
 
-    world.setBlockState(bedPos, ModBlocks.DOG_BED.getDefaultState());
+    context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
-    husky.refreshPositionAndAngles(dogPos, 0.0f, 0.0f);
+    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relDogPos);
     husky.setTamed(true, true);
-    world.spawnEntity(husky);
 
     context.runAtTick(
         10,
@@ -30,13 +28,13 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
           context.assertTrue(!husky.isCommandedToSleep(), "Dog should not be commanded initially");
           context.assertTrue(!husky.isSleepingInBed(), "Dog should not be sleeping initially");
 
-          husky.commandToSleep(bedPos);
+          husky.commandToSleep(absBedPos);
 
           context.assertTrue(
               husky.isCommandedToSleep(), "commandToSleep should set COMMANDED_TO_SLEEP");
           context.assertTrue(husky.hasAssignedBed(), "commandToSleep should set assigned bed");
           context.assertTrue(
-              husky.getAssignedBedPos().get().equals(bedPos),
+              husky.getAssignedBedPos().get().equals(absBedPos),
               "Assigned bed should match given position");
           context.complete();
         });
@@ -44,23 +42,21 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
   public void startSleepingInBedSetsSleepingFlag(final TestContext context) {
-    final BlockPos bedPos = new BlockPos(0, 1, 0);
-    final ServerWorld world = context.getWorld();
+    final BlockPos relBedPos = new BlockPos(0, 1, 0);
+    final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
 
-    world.setBlockState(bedPos, ModBlocks.DOG_BED.getDefaultState());
+    context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
-    husky.refreshPositionAndAngles(bedPos, 0.0f, 0.0f);
+    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relBedPos);
     husky.setTamed(true, true);
-    world.spawnEntity(husky);
 
     context.runAtTick(
         10,
         () -> {
           context.assertTrue(!husky.isSleepingInBed(), "Dog should not be sleeping initially");
 
-          husky.setAssignedBedPos(bedPos);
-          husky.startSleepingInBed(bedPos);
+          husky.setAssignedBedPos(absBedPos);
+          husky.startSleepingInBed(absBedPos);
 
           context.assertTrue(
               husky.isSleepingInBed(), "startSleepingInBed should set SLEEPING_IN_BED");
@@ -70,21 +66,19 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
   public void wakeUpClearsAllSleepFlags(final TestContext context) {
-    final BlockPos bedPos = new BlockPos(0, 1, 0);
-    final ServerWorld world = context.getWorld();
+    final BlockPos relBedPos = new BlockPos(0, 1, 0);
+    final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
 
-    world.setBlockState(bedPos, ModBlocks.DOG_BED.getDefaultState());
+    context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
-    husky.refreshPositionAndAngles(bedPos, 0.0f, 0.0f);
+    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relBedPos);
     husky.setTamed(true, true);
-    world.spawnEntity(husky);
 
     context.runAtTick(
         10,
         () -> {
-          husky.setAssignedBedPos(bedPos);
-          husky.startSleepingInBed(bedPos);
+          husky.setAssignedBedPos(absBedPos);
+          husky.startSleepingInBed(absBedPos);
           context.assertTrue(husky.isSleepingInBed(), "Dog should be sleeping");
 
           husky.wakeUp();
@@ -110,11 +104,8 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
-    husky.refreshPositionAndAngles(
-        absBedPos.getX(), absBedPos.getY(), absBedPos.getZ(), 0.0f, 0.0f);
+    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relBedPos);
     husky.setTamed(true, true);
-    world.spawnEntity(husky);
 
     context.runAtTick(
         10,
@@ -160,15 +151,11 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
   public void commandedSleepDogStaysInPositionAcrossMultipleTicks(final TestContext context) {
     final BlockPos relBedPos = new BlockPos(0, 1, 0);
     final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
-    final ServerWorld world = context.getWorld();
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
-    husky.refreshPositionAndAngles(
-        absBedPos.getX(), absBedPos.getY(), absBedPos.getZ(), 0.0f, 0.0f);
+    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relBedPos);
     husky.setTamed(true, true);
-    world.spawnEntity(husky);
 
     context.runAtTick(
         10,
@@ -200,11 +187,8 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
-    husky.refreshPositionAndAngles(
-        absBedPos.getX(), absBedPos.getY(), absBedPos.getZ(), 0.0f, 0.0f);
+    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relBedPos);
     husky.setTamed(true, true);
-    world.spawnEntity(husky);
 
     context.runAtTick(
         10,
@@ -237,11 +221,8 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
-    husky.refreshPositionAndAngles(
-        absBedPos.getX(), absBedPos.getY(), absBedPos.getZ(), 0.0f, 0.0f);
+    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relBedPos);
     husky.setTamed(true, true);
-    world.spawnEntity(husky);
 
     context.runAtTick(
         10,
@@ -277,11 +258,8 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
-    husky.refreshPositionAndAngles(
-        absBedPos.getX(), absBedPos.getY(), absBedPos.getZ(), 0.0f, 0.0f);
+    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relBedPos);
     husky.setTamed(true, true);
-    world.spawnEntity(husky);
 
     context.runAtTick(
         10,
@@ -331,11 +309,8 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
-    husky.refreshPositionAndAngles(
-        absBedPos.getX(), absBedPos.getY(), absBedPos.getZ(), 0.0f, 0.0f);
+    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relBedPos);
     husky.setTamed(true, true);
-    world.spawnEntity(husky);
 
     context.runAtTick(
         10,
@@ -394,11 +369,8 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
-    husky.refreshPositionAndAngles(
-        absBedPos.getX(), absBedPos.getY(), absBedPos.getZ(), 0.0f, 0.0f);
+    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relBedPos);
     husky.setTamed(true, true);
-    world.spawnEntity(husky);
 
     context.runAtTick(
         10,
@@ -435,15 +407,11 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
   public void commandToSleepSetsThenClearsOnArrival(final TestContext context) {
     final BlockPos relBedPos = new BlockPos(0, 1, 0);
     final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
-    final ServerWorld world = context.getWorld();
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
-    husky.refreshPositionAndAngles(
-        absBedPos.getX(), absBedPos.getY(), absBedPos.getZ(), 0.0f, 0.0f);
+    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relBedPos);
     husky.setTamed(true, true);
-    world.spawnEntity(husky);
 
     context.runAtTick(
         10,
