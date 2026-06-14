@@ -127,7 +127,7 @@ them to you.
 
 Every breed has its own bark sound set. Dachshunds have 14 different bark sound files — the most vocal of the pack.
 Beagles have 2, Goldens have 5, Shibas have 1. Dogs bark when you hold food nearby, when their health drops below 30%,
-when they have a target, or just because (1 in 2400 chance per tick, roughly once every two minutes).
+when they have a target, or just because (1 in 7200 chance per tick, roughly once every six minutes).
 
 ### Little Details
 
