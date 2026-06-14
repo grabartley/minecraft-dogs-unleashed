@@ -2,7 +2,6 @@ package com.grahambartley.entity;
 
 import static com.grahambartley.ModConstants.BARK_COOLDOWN_TICKS;
 import static com.grahambartley.ModConstants.BARK_PITCH;
-import static com.grahambartley.ModConstants.BARK_VOLUME;
 import static com.grahambartley.ModConstants.LOW_HEALTH_THRESHOLD;
 import static com.grahambartley.ModConstants.MINECRAFT_TICK_RATE;
 import static com.grahambartley.ModConstants.RANDOM_BARK_CHANCE;
@@ -273,7 +272,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
 
   private void tryBark(final PlayerEntity nearbyPlayer) {
     if (this.canBark() && this.shouldBark(nearbyPlayer)) {
-      this.playSound(this.getBarkSound(), BARK_VOLUME, BARK_PITCH);
+      this.playSound(this.getBarkSound(), DogsUnleashed.SERVER_CONFIG.barkVolume(), BARK_PITCH);
       this.barkCooldownTicks = BARK_COOLDOWN_TICKS;
     }
   }
@@ -871,7 +870,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
       this.setSitting(false);
       this.wakeUp();
       if (this.canBark()) {
-        this.playSound(this.getBarkSound(), BARK_VOLUME, BARK_PITCH);
+        this.playSound(this.getBarkSound(), DogsUnleashed.SERVER_CONFIG.barkVolume(), BARK_PITCH);
         this.barkCooldownTicks = BARK_COOLDOWN_TICKS;
       }
     }
@@ -988,7 +987,9 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
               }
             });
 
-    spawnGrave(serverWorld, bedPosToAvoid);
+    if (DogsUnleashed.SERVER_CONFIG.gravesEnabled()) {
+      spawnGrave(serverWorld, bedPosToAvoid);
+    }
   }
 
   private void spawnGrave(ServerWorld world, BlockPos bedPosToAvoid) {

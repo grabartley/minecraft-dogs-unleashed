@@ -4,10 +4,10 @@ import static com.grahambartley.ModConstants.FULL_MOON_PHASE;
 import static com.grahambartley.ModConstants.HOWL_COOLDOWN_TICKS;
 import static com.grahambartley.ModConstants.HOWL_DURATION_TICKS;
 import static com.grahambartley.ModConstants.HOWL_PITCH;
-import static com.grahambartley.ModConstants.HOWL_VOLUME;
 import static com.grahambartley.ModConstants.RANDOM_HOWL_CHANCE;
 import static com.grahambartley.ModEntities.HUSKY;
 
+import com.grahambartley.DogsUnleashed;
 import com.grahambartley.ModNbtKeys;
 import com.grahambartley.ModSounds;
 import com.grahambartley.entity.variant.HuskyCoat;
@@ -155,7 +155,7 @@ public class HuskyEntity extends UnleashedDogEntity {
     boolean willHowl = this.canHowl() && this.random.nextInt(RANDOM_HOWL_CHANCE) == 0;
     if (willHowl) {
       this.setHowling(true);
-      this.playSound(ModSounds.HUSKY_HOWL, HOWL_VOLUME, HOWL_PITCH);
+      this.playSound(ModSounds.HUSKY_HOWL, DogsUnleashed.SERVER_CONFIG.howlVolume(), HOWL_PITCH);
       this.howlCooldownTicks = HOWL_COOLDOWN_TICKS;
       this.howlActiveTicks = HOWL_DURATION_TICKS;
     }
