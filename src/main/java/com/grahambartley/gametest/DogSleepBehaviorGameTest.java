@@ -267,7 +267,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
     context.runAtTick(
         10,
         () -> {
-          world.setTimeOfDay(13000);
+          pinNight(world);
           husky.setAssignedBedPos(absBedPos);
           husky.commandToSleep(absBedPos);
           husky.startSleepingInBed(absBedPos);
@@ -277,6 +277,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
     context.runAtTick(
         40,
         () -> {
+          pinNight(world);
           husky.markManuallyWoken();
           husky.wakeUp();
           context.assertTrue(!husky.isSleepingInBed(), "Dog should wake manually");
@@ -287,6 +288,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
     context.runAtTick(
         70,
         () -> {
+          pinNight(world);
           context.assertTrue(
               husky.isAutoSleepSuppressed(), "Suppression should hold for the remainder of night");
           context.assertTrue(!husky.isSleepingInBed(), "Dog should stay awake during suppression");
@@ -295,7 +297,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
     context.runAtTick(
         90,
         () -> {
-          world.setTimeOfDay(1000);
+          pinDay(world);
           context.assertTrue(
               !husky.isAutoSleepSuppressed(), "Suppression should clear after sunrise");
           context.complete();
@@ -319,7 +321,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
     context.runAtTick(
         10,
         () -> {
-          world.setTimeOfDay(13000);
+          pinNight(world);
           husky.setAssignedBedPos(absBedPos);
           husky.commandToSleep(absBedPos);
           husky.startSleepingInBed(absBedPos);
@@ -331,6 +333,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
     context.runAtTick(
         50,
         () -> {
+          pinNight(world);
           context.assertTrue(
               husky.isAutoSleepSuppressed(), "Suppression should still be active at night");
         });
@@ -338,19 +341,20 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
     context.runAtTick(
         90,
         () -> {
-          world.setTimeOfDay(1000);
+          pinDay(world);
           context.assertTrue(!husky.isAutoSleepSuppressed(), "Suppression clears at sunrise");
         });
 
     context.runAtTick(
         130,
         () -> {
-          world.setTimeOfDay(13000);
+          pinNight(world);
         });
 
     context.runAtTick(
         200,
         () -> {
+          pinNight(world);
           context.assertTrue(
               husky.isSleepingInBed(), "Dog should auto-sleep again on the next night");
           context.complete();
@@ -391,5 +395,15 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
               !husky.isCommandedToSleep(), "Dog should NOT be commanded after wakeUp");
           context.complete();
         });
+  }
+
+  /** Pins world time deep into the night band so auto-sleep/auto-wake logic sees a stable night. */
+  private static void pinNight(final ServerWorld world) {
+    world.setTimeOfDay(15000);
+  }
+
+  /** Pins world time deep into the day band so suppression and auto-sleep see a stable day. */
+  private static void pinDay(final ServerWorld world) {
+    world.setTimeOfDay(1000);
   }
 }
