@@ -15,9 +15,9 @@ public enum UnleashedDogBreed {
       "husky",
       "snout",
       new FetchCarryProfiles(
-          new CarryProfile(0.0, 0.0, 0.41f),
+          new CarryProfile(0.0, 0.0, 0.54f),
           new CarryProfile(0.0, 0.0, 0.40f),
-          new CarryProfile(0.0, 0.0, 0.50f)),
+          new CarryProfile(0.0, -0.06, 0.66f)),
       new SpawnEggColors(0xFFFFFF, 0x808080),
       new Dimensions(0.8f, 1.1f),
       new SpawnSettings(
@@ -37,7 +37,7 @@ public enum UnleashedDogBreed {
       new FetchCarryProfiles(
           new CarryProfile(0.0, 0.0, 0.31f),
           new CarryProfile(0.0, 0.0, 0.32f),
-          new CarryProfile(0.0, 0.0, 0.40f)),
+          new CarryProfile(0.0, 0.05, 0.40f)),
       new SpawnEggColors(0xA0673F, 0xDC8847),
       new Dimensions(0.8f, 1.1f),
       new SpawnSettings(10, 1, 2, BiomeKeys.PLAINS, BiomeKeys.SUNFLOWER_PLAINS, BiomeKeys.MEADOW),
@@ -48,7 +48,7 @@ public enum UnleashedDogBreed {
       new FetchCarryProfiles(
           new CarryProfile(0.0, 0.0, 0.36f),
           new CarryProfile(0.0, 0.0, 0.38f),
-          new CarryProfile(0.0, 0.0, 0.45f)),
+          new CarryProfile(0.0, -0.05, 0.45f)),
       new SpawnEggColors(0xFFFFFF, 0x936732),
       new Dimensions(0.8f, 1.1f),
       new SpawnSettings(
@@ -67,7 +67,7 @@ public enum UnleashedDogBreed {
       new FetchCarryProfiles(
           new CarryProfile(0.0, 0.0, 0.41f),
           new CarryProfile(0.0, 0.0, 0.40f),
-          new CarryProfile(0.0, 0.0, 0.50f)),
+          new CarryProfile(0.0, -0.06, 0.50f)),
       new SpawnEggColors(0xDAA06D, 0xF5DEB3),
       new Dimensions(0.8f, 1.1f),
       new SpawnSettings(10, 1, 3, BiomeKeys.BEACH),
@@ -78,7 +78,7 @@ public enum UnleashedDogBreed {
       new FetchCarryProfiles(
           new CarryProfile(0.0, 0.0, 0.36f),
           new CarryProfile(0.0, 0.0, 0.38f),
-          new CarryProfile(0.0, 0.0, 0.45f)),
+          new CarryProfile(0.0, -0.05, 0.45f)),
       new SpawnEggColors(0xCE8346, 0xF5DEB3),
       new Dimensions(0.8f, 1.1f),
       new SpawnSettings(10, 1, 2, BiomeKeys.CHERRY_GROVE),
