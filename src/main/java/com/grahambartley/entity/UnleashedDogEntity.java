@@ -72,6 +72,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -154,6 +155,8 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
       DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
   private static final TrackedData<String> ACTIVE_FETCH_TYPE_ID =
       DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.STRING);
+  private static final TrackedData<ItemStack> CARRIED_FETCH_ITEM_STACK =
+      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
   // String over Identifier because 1.21.1 lacks native Identifier TrackedDataHandler.
   // Syncs the active fetch type id (e.g. "dogs-unleashed:stick") for client-side carry rendering.
 
@@ -287,6 +290,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     builder.add(ASSIGNED_BED_POS, Optional.empty());
     builder.add(IS_CARRYING_FETCH_ITEM, false);
     builder.add(ACTIVE_FETCH_TYPE_ID, NO_ACTIVE_FETCH_TYPE);
+    builder.add(CARRIED_FETCH_ITEM_STACK, ItemStack.EMPTY);
   }
 
   public DyeColor getCollarColor() {
@@ -441,6 +445,17 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
 
   public void setCarryingFetchItem(boolean carrying) {
     this.dataTracker.set(IS_CARRYING_FETCH_ITEM, carrying);
+    if (!carrying) {
+      this.dataTracker.set(CARRIED_FETCH_ITEM_STACK, ItemStack.EMPTY);
+    }
+  }
+
+  public ItemStack getCarriedFetchItemStack() {
+    return this.dataTracker.get(CARRIED_FETCH_ITEM_STACK);
+  }
+
+  public void setCarriedFetchItemStack(ItemStack stack) {
+    this.dataTracker.set(CARRIED_FETCH_ITEM_STACK, stack);
   }
 
   public void startPlayMode(PlayerEntity player, FetchItemType fetchItemType) {
@@ -1077,6 +1092,17 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
               nbt.putInt(ModNbtKeys.BED_POS_Z, pos.getZ());
             });
     nbt.putBoolean(ModNbtKeys.CARRYING_BALL, this.isCarryingFetchItem());
+    String activeFetchTypeId = this.dataTracker.get(ACTIVE_FETCH_TYPE_ID);
+    if (!activeFetchTypeId.isEmpty()) {
+      nbt.putString(ModNbtKeys.ACTIVE_FETCH_TYPE_ID, activeFetchTypeId);
+    }
+    ItemStack carried = this.getCarriedFetchItemStack();
+    if (!carried.isEmpty()) {
+      ItemStack.CODEC
+          .encodeStart(this.getWorld().getRegistryManager().getOps(NbtOps.INSTANCE), carried)
+          .result()
+          .ifPresent(tag -> nbt.put(ModNbtKeys.CARRIED_FETCH_ITEM_STACK, tag));
+    }
   }
 
   @Override
@@ -1109,6 +1135,17 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     }
     if (nbt.contains(ModNbtKeys.CARRYING_BALL)) {
       this.setCarryingFetchItem(nbt.getBoolean(ModNbtKeys.CARRYING_BALL));
+    }
+    if (nbt.contains(ModNbtKeys.ACTIVE_FETCH_TYPE_ID, NbtElement.STRING_TYPE)) {
+      this.dataTracker.set(ACTIVE_FETCH_TYPE_ID, nbt.getString(ModNbtKeys.ACTIVE_FETCH_TYPE_ID));
+    }
+    if (nbt.contains(ModNbtKeys.CARRIED_FETCH_ITEM_STACK)) {
+      ItemStack.CODEC
+          .parse(
+              this.getWorld().getRegistryManager().getOps(NbtOps.INSTANCE),
+              nbt.get(ModNbtKeys.CARRIED_FETCH_ITEM_STACK))
+          .result()
+          .ifPresent(this::setCarriedFetchItemStack);
     }
   }
 

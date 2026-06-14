@@ -7,6 +7,9 @@ import com.grahambartley.render.DogBedBlockEntityRenderer;
 import com.grahambartley.render.DogBedItemRenderer;
 import com.grahambartley.render.DogGraveBlockEntityRenderer;
 import com.grahambartley.render.DogGraveItemRenderer;
+import com.grahambartley.render.FrisbeeBlockEntityRenderer;
+import com.grahambartley.render.FrisbeeItemRenderer;
+import com.grahambartley.render.FrisbeeProjectileRenderer;
 import com.grahambartley.render.GoldenRetrieverRenderer;
 import com.grahambartley.render.HuskyRenderer;
 import com.grahambartley.render.ShibaInuRenderer;
@@ -26,6 +29,7 @@ public class DogsUnleashedClient implements ClientModInitializer {
     EntityRendererRegistry.register(
         ModEntities.TENNIS_BALL_PROJECTILE, TennisBallProjectileRenderer::new);
     EntityRendererRegistry.register(ModEntities.STICK_PROJECTILE, StickProjectileRenderer::new);
+    EntityRendererRegistry.register(ModEntities.FRISBEE_PROJECTILE, FrisbeeProjectileRenderer::new);
     EntityRendererRegistry.register(ModEntities.HUSKY, HuskyRenderer::new);
     EntityRendererRegistry.register(ModEntities.DACHSHUND, DachshundRenderer::new);
     EntityRendererRegistry.register(ModEntities.BEAGLE, BeagleRenderer::new);
@@ -38,11 +42,14 @@ public class DogsUnleashedClient implements ClientModInitializer {
     BlockEntityRendererFactories.register(
         ModBlockEntities.TENNIS_BALL, TennisBallBlockEntityRenderer::new);
     BlockEntityRendererFactories.register(ModBlockEntities.STICK, StickBlockEntityRenderer::new);
+    BlockEntityRendererFactories.register(
+        ModBlockEntities.FRISBEE, FrisbeeBlockEntityRenderer::new);
 
     BuiltinItemRendererRegistry.INSTANCE.register(ModBlocks.DOG_BED, new DogBedItemRenderer());
     BuiltinItemRendererRegistry.INSTANCE.register(ModBlocks.DOG_GRAVE, new DogGraveItemRenderer());
     BuiltinItemRendererRegistry.INSTANCE.register(
         ModItems.TENNIS_BALL, new TennisBallItemRenderer());
+    BuiltinItemRendererRegistry.INSTANCE.register(ModItems.FRISBEE, new FrisbeeItemRenderer());
 
     ModKeyBindings.register();
     ModNetworkingClient.registerClientReceivers();

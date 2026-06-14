@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "frisbee",
+  "pattern": [
+    " H ",
+    "HDH",
+    " H "
+  ],
+  "key": {
+    "H": { "item": "minecraft:honeycomb" },
+    "D": { "item": "minecraft:red_dye" }
+  },
+  "result": {
+    "id": "dogs-unleashed:frisbee",
+    "components": {
+      "dogs-unleashed:frisbee_color": "red"
+    }
+  }
+}

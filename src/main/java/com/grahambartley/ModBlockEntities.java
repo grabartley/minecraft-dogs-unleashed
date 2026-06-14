@@ -2,6 +2,7 @@ package com.grahambartley;
 
 import com.grahambartley.block.entity.DogBedBlockEntity;
 import com.grahambartley.block.entity.DogGraveBlockEntity;
+import com.grahambartley.block.entity.FrisbeeBlockEntity;
 import com.grahambartley.block.entity.StickBlockEntity;
 import com.grahambartley.block.entity.TennisBallBlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -35,6 +36,12 @@ public class ModBlockEntities {
           Registries.BLOCK_ENTITY_TYPE,
           Identifier.of(DogsUnleashed.MOD_ID, "stick"),
           BlockEntityType.Builder.create(StickBlockEntity::new, ModBlocks.STICK).build());
+
+  public static final BlockEntityType<FrisbeeBlockEntity> FRISBEE =
+      Registry.register(
+          Registries.BLOCK_ENTITY_TYPE,
+          Identifier.of(DogsUnleashed.MOD_ID, "frisbee"),
+          BlockEntityType.Builder.create(FrisbeeBlockEntity::new, ModBlocks.FRISBEE).build());
 
   public static void initialize() {}
 }

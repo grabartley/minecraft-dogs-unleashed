@@ -1,9 +1,11 @@
 package com.grahambartley.entity.goal;
 
 import com.grahambartley.entity.UnleashedDogEntity;
+import com.grahambartley.entity.fetch.FetchCarriedItemProvider;
 import com.grahambartley.entity.fetch.FetchItemType;
 import com.grahambartley.entity.fetch.FetchTypes;
 import java.util.EnumSet;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.ai.goal.Goal;
@@ -89,16 +91,25 @@ public class FetchReturnGoal extends Goal {
     BlockPos dropPos = findSafeDropPos(player);
     if (dropPos != null) {
       this.dog.getWorld().setBlockState(dropPos, fetchItemType.landedBlock().getDefaultState());
+      ItemStack carried = this.dog.getCarriedFetchItemStack();
+      if (!carried.isEmpty()) {
+        BlockEntity be = this.dog.getWorld().getBlockEntity(dropPos);
+        if (be instanceof FetchCarriedItemProvider provider) {
+          provider.restoreFromCarriedItemStack(carried);
+        }
+      }
       return;
     }
 
+    ItemStack carried = this.dog.getCarriedFetchItemStack();
+    ItemStack dropStack = carried.isEmpty() ? new ItemStack(fetchItemType.item()) : carried.copy();
     ItemEntity itemEntity =
         new ItemEntity(
             this.dog.getWorld(),
             player.getX(),
             player.getY() + FETCH_ITEM_DROP_Y_OFFSET,
             player.getZ(),
-            new ItemStack(fetchItemType.item()));
+            dropStack);
     this.dog.getWorld().spawnEntity(itemEntity);
   }
 
