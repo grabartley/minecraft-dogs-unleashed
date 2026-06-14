@@ -34,6 +34,8 @@ public final class ModNbtKeys {
   public static final String BED_POS_Y = "BedPosY";
   public static final String BED_POS_Z = "BedPosZ";
   public static final String CARRYING_BALL = "CarryingBall";
+  public static final String ACTIVE_FETCH_TYPE_ID = "ActiveFetchTypeId";
+  public static final String CARRIED_FETCH_ITEM_STACK = "CarriedFetchItemStack";
 
   private ModNbtKeys() {}
 }

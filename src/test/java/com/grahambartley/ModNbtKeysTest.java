@@ -32,5 +32,7 @@ class ModNbtKeysTest {
     assertEquals("BedPosY", ModNbtKeys.BED_POS_Y);
     assertEquals("BedPosZ", ModNbtKeys.BED_POS_Z);
     assertEquals("CarryingBall", ModNbtKeys.CARRYING_BALL);
+    assertEquals("ActiveFetchTypeId", ModNbtKeys.ACTIVE_FETCH_TYPE_ID);
+    assertEquals("CarriedFetchItemStack", ModNbtKeys.CARRIED_FETCH_ITEM_STACK);
   }
 }
