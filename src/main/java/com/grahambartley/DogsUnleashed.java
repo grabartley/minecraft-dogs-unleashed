@@ -1,11 +1,17 @@
 package com.grahambartley;
 
+import com.grahambartley.command.DogsUnleashedCommand;
+import com.grahambartley.config.DogsUnleashedConfig;
 import com.grahambartley.listener.PlayerDimensionChangeListener;
 import com.grahambartley.network.ModNetworking;
+import com.grahambartley.server.ServerConfigService;
 import java.util.ArrayList;
 import java.util.List;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +20,8 @@ public class DogsUnleashed implements ModInitializer {
   public static final String MOD_ID = "dogs-unleashed";
 
   public static final Logger log = LoggerFactory.getLogger(MOD_ID);
+
+  public static volatile DogsUnleashedConfig SERVER_CONFIG = DogsUnleashedConfig.defaults();
 
   // Tasks deferred to the start of the next server tick to avoid portal-mechanics race conditions.
   private static final List<Runnable> pendingNextTick = new ArrayList<>();
@@ -31,6 +39,14 @@ public class DogsUnleashed implements ModInitializer {
     ModNetworking.registerServerReceivers();
 
     PlayerDimensionChangeListener.initialize();
+
+    ServerLifecycleEvents.SERVER_STARTING.register(ServerConfigService::loadFromWorld);
+
+    ServerPlayConnectionEvents.JOIN.register(
+        (handler, sender, server) -> ServerConfigService.sendTo(handler.getPlayer()));
+
+    CommandRegistrationCallback.EVENT.register(
+        (dispatcher, registryAccess, environment) -> DogsUnleashedCommand.register(dispatcher));
 
     ServerTickEvents.START_SERVER_TICK.register(
         (MinecraftServer server) -> {

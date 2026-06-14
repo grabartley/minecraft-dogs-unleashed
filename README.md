@@ -53,13 +53,21 @@ Wolves were the prototype. This is the production release.
 
 ### Fetch (Yes, Actual Fetch)
 
-Hold a tennis ball, sneak-right-click your dog, and enter play mode. Throw the ball and watch your dog:
+Sneak-right-click your dog with a fetch item to enter play mode, then throw it and watch your dog:
 
 1. **Chase** the projectile as it arcs through the air
-2. **Retrieve** the ball from where it lands
+2. **Retrieve** the item from where it lands
 3. **Return** it to you and drop it at your feet
 
-Full chase AI, ball-carrying animation, the works. Your dog will never look at a stick the same way again.
+Full chase AI, carry animation, the works. Three fetch items are supported:
+
+| Item            | How to get                                        | Glide         | Notes                                        |
+|-----------------|---------------------------------------------------|---------------|----------------------------------------------|
+| **Tennis Ball** | Craft with slimeball + lime/white dye             | Standard      | Stackable (16)                               |
+| **Stick**       | Vanilla sticks                                    | Standard      | No crafting needed                           |
+| **Frisbee**     | Craft with 4× honeycomb + matching dye (16 colors)| Long and flat | Dyeable, name reflects color ("Red Frisbee") |
+
+The frisbee glides roughly three times further than the tennis ball before landing, making it the best fetch item for open terrain.
 
 ### Dog Beds They Actually Use
 
@@ -145,6 +153,40 @@ That is it. No config files to edit. No server setup required.
 | Keybind          | Default | What it does                                                         |
 |------------------|---------|----------------------------------------------------------------------|
 | Open Pet Manager | Unbound | Opens the Pet Manager screen (set under `Controls > Dogs Unleashed`) |
+
+## Settings
+
+Open the settings screen via the cog button in the top-right of the Pet Manager, or via Mod Menu (if installed). All settings are server-authoritative and editable in singleplayer or by operators on a multiplayer server. Operators can also edit via `/dogsunleashed config`.
+
+| Setting | Default | Range | Effect |
+|---|---|---|---|
+| Spawn Dogs in the Wild | On | On / Off | Natural biome spawning. Requires world restart to take effect. |
+| Dog Graves on Death | On | On / Off | Whether tamed dogs leave a grave block. Off drops loot normally. |
+| Auto-Sleep at Night | On | On / Off | Whether dogs auto-sleep in their assigned bed at night. |
+| Auto-Sleep Range (blocks) | 32 | 4 to 128 | How far a dog can be from its bed and still return at night. |
+| Bark Volume | 1.0 | 0.0 to 2.0 | Multiplier on bark sound volume (0.0 mutes). |
+| Husky Howl Volume | 1.5 | 0.0 to 2.0 | Multiplier on Husky howl sound volume (0.0 mutes). |
+
+The config file lives at `<world-save>/dogs-unleashed/server-config.json` and can be hand-edited while the server is offline.
+
+### Command
+
+```
+/dogsunleashed status
+/dogsunleashed config spawn <true|false>
+/dogsunleashed config graves <true|false>
+/dogsunleashed config autosleep <true|false>
+/dogsunleashed config autosleeprange <4..128>
+/dogsunleashed config barkvolume <0.0..2.0>
+/dogsunleashed config howlvolume <0.0..2.0>
+/dogsunleashed config reset
+```
+
+All subcommands require operator permission level 2.
+
+### Mod Menu (optional)
+
+If [Mod Menu](https://modrinth.com/mod/modmenu) is installed, Dogs Unleashed appears in the Mods list with the same settings screen. Mod Menu is not bundled and not required.
 
 ## Compatibility
 

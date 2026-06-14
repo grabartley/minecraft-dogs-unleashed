@@ -19,6 +19,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
@@ -142,6 +143,18 @@ public class PetManagerScreen extends Screen {
         ButtonWidget.builder(Text.literal("▼"), button -> scroll(1))
             .dimensions(centerX + ENTRY_WIDTH / 2 + 10, this.height - 80, 20, 20)
             .build());
+
+    final ButtonWidget settingsButton =
+        ButtonWidget.builder(
+                Text.literal("⚙"),
+                button ->
+                    MinecraftClient.getInstance()
+                        .setScreen(new DogsUnleashedConfigScreen(PetManagerScreen.this)))
+            .dimensions(this.width - 24, 4, 20, 20)
+            .build();
+    settingsButton.setTooltip(
+        Tooltip.of(Text.translatable("screen.dogs-unleashed.pet_manager.settings_tooltip")));
+    addDrawableChild(settingsButton);
 
     setInitialFocus(searchField);
     setFocused(searchField);

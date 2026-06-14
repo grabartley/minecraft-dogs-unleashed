@@ -42,6 +42,14 @@ public final class FetchTypes {
           ModBlocks.STICK,
           ModBlockEntities.STICK);
 
+  public static final FetchItemType FRISBEE =
+      register(
+          Identifier.of(DogsUnleashed.MOD_ID, "frisbee"),
+          ModItems.FRISBEE,
+          ModEntities.FRISBEE_PROJECTILE,
+          ModBlocks.FRISBEE,
+          ModBlockEntities.FRISBEE);
+
   private FetchTypes() {}
 
   private static FetchItemType register(

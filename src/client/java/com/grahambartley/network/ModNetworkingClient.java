@@ -1,6 +1,8 @@
 package com.grahambartley.network;
 
+import com.grahambartley.DogsUnleashed;
 import com.grahambartley.entity.UnleashedDogBreed;
+import com.grahambartley.network.ServerConfigPayloads.SyncServerConfigS2CPayload;
 import com.grahambartley.pet.PetAliveFilter;
 import com.grahambartley.screen.PetManagerScreen;
 import com.grahambartley.screen.PetNamingScreen;
@@ -19,6 +21,13 @@ public final class ModNetworkingClient {
     ClientPlayNetworking.registerGlobalReceiver(
         ModNetworking.SyncPetManagerStatePayload.ID,
         ModNetworkingClient::handleSyncPetManagerState);
+    ClientPlayNetworking.registerGlobalReceiver(
+        SyncServerConfigS2CPayload.ID, ModNetworkingClient::handleSyncServerConfig);
+  }
+
+  private static void handleSyncServerConfig(
+      SyncServerConfigS2CPayload payload, ClientPlayNetworking.Context context) {
+    context.client().execute(() -> DogsUnleashed.SERVER_CONFIG = payload.config());
   }
 
   private static void handleOpenNamingScreen(

@@ -14,8 +14,12 @@ public class ModSpawns {
   public static void initialize() {
     for (final UnleashedDogBreed breed : UnleashedDogBreed.values()) {
       final UnleashedDogBreed.SpawnSettings spawnSettings = breed.spawnSettings();
+      // BiomeModifications predicate is evaluated at world load, so
+      // SERVER_CONFIG.enableNaturalSpawning
+      // captures the flag value at the moment biomes are frozen. Changes apply on next world load.
       BiomeModifications.addSpawn(
-          BiomeSelectors.includeByKey(spawnSettings.biomes()),
+          BiomeSelectors.includeByKey(spawnSettings.biomes())
+              .and(ctx -> DogsUnleashed.SERVER_CONFIG.enableNaturalSpawning()),
           SpawnGroup.CREATURE,
           ModEntities.getDogEntityType(breed),
           spawnSettings.weight(),

@@ -6,11 +6,14 @@ import static com.grahambartley.network.PacketLimits.SET_PET_NAME_NAME_MAX_LENGT
 import com.grahambartley.DogsUnleashed;
 import com.grahambartley.entity.UnleashedDogBreed;
 import com.grahambartley.entity.UnleashedDogEntity;
+import com.grahambartley.network.ServerConfigPayloads.EditServerConfigC2SPayload;
+import com.grahambartley.network.ServerConfigPayloads.SyncServerConfigS2CPayload;
 import com.grahambartley.pet.PetAliveFilter;
 import com.grahambartley.pet.PetData;
 import com.grahambartley.pet.PetLocationService;
 import com.grahambartley.pet.PetManager;
 import com.grahambartley.pet.PetManagerPreferencesState;
+import com.grahambartley.server.ServerConfigService;
 import java.util.List;
 import java.util.UUID;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -284,6 +287,10 @@ public final class ModNetworking {
         .register(SyncPetManagerStatePayload.ID, SyncPetManagerStatePayload.CODEC);
     PayloadTypeRegistry.playS2C()
         .register(OpenNamingScreenPayload.ID, OpenNamingScreenPayload.CODEC);
+    PayloadTypeRegistry.playS2C()
+        .register(SyncServerConfigS2CPayload.ID, SyncServerConfigS2CPayload.CODEC);
+    PayloadTypeRegistry.playC2S()
+        .register(EditServerConfigC2SPayload.ID, EditServerConfigC2SPayload.CODEC);
   }
 
   public static void registerServerReceivers() {
@@ -295,6 +302,23 @@ public final class ModNetworking {
         RequestPetsPayload.ID, ModNetworking::handleRequestPets);
     ServerPlayNetworking.registerGlobalReceiver(
         RequestPetManagerStatePayload.ID, ModNetworking::handleRequestPetManagerState);
+    ServerPlayNetworking.registerGlobalReceiver(
+        EditServerConfigC2SPayload.ID, ModNetworking::handleEditServerConfig);
+  }
+
+  private static void handleEditServerConfig(
+      final EditServerConfigC2SPayload payload, final ServerPlayNetworking.Context context) {
+    final ServerPlayerEntity player = context.player();
+    player
+        .getServer()
+        .execute(
+            () -> {
+              if (!player.hasPermissionLevel(ServerConfigService.OP_PERMISSION_LEVEL)) {
+                ServerConfigService.sendTo(player);
+                return;
+              }
+              ServerConfigService.update(player.getServer(), payload.config());
+            });
   }
 
   // DataTracker round-trip is the source of truth: the client sends a rename request, and the

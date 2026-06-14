@@ -1,10 +1,13 @@
 package com.grahambartley.entity.goal;
 
 import com.grahambartley.entity.UnleashedDogEntity;
+import com.grahambartley.entity.fetch.FetchCarriedItemProvider;
 import com.grahambartley.entity.fetch.FetchItemType;
 import com.grahambartley.entity.fetch.FetchTypes;
 import java.util.EnumSet;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.ai.goal.Goal;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -121,9 +124,11 @@ public class FetchRetrieveGoal extends Goal {
     if (distToFetchItem <= CLOSE_ENOUGH_DISTANCE * CLOSE_ENOUGH_DISTANCE) {
       FetchItemType fetchItemType = this.getFetchItemTypeAt(this.targetFetchItemPos);
       if (fetchItemType != null) {
+        ItemStack carriedStack = this.buildCarriedStack(fetchItemType, this.targetFetchItemPos);
         this.dog.getWorld().removeBlock(this.targetFetchItemPos, false);
         this.dog.setActiveFetchBlockPos(null);
         this.dog.setActiveFetchType(fetchItemType);
+        this.dog.setCarriedFetchItemStack(carriedStack);
         this.dog.setCarryingFetchItem(true);
       }
     } else {
@@ -135,6 +140,15 @@ public class FetchRetrieveGoal extends Goal {
               this.targetFetchItemPos.getZ() + TARGET_CENTER_OFFSET,
               RETRIEVE_SPEED);
     }
+  }
+
+  private ItemStack buildCarriedStack(FetchItemType fetchItemType, BlockPos pos) {
+    ItemStack stack = new ItemStack(fetchItemType.item());
+    BlockEntity be = this.dog.getWorld().getBlockEntity(pos);
+    if (be instanceof FetchCarriedItemProvider provider) {
+      provider.enrichCarriedItemStack(stack);
+    }
+    return stack;
   }
 
   @Override

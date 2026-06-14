@@ -76,6 +76,11 @@ public class DachshundEntity extends UnleashedDogEntity {
   }
 
   @Override
+  protected String getSleepInBedMovementAnimationName() {
+    return DogAnimationKeys.SLEEP;
+  }
+
+  @Override
   protected SoundEvent getBarkSound() {
     return ModSounds.DACHSHUND_BARK;
   }
