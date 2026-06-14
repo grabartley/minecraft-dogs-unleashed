@@ -1,6 +1,7 @@
 package com.grahambartley.gametest.util;
 
 import com.grahambartley.entity.UnleashedDogEntity;
+import java.util.UUID;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.math.BlockPos;
@@ -34,6 +35,14 @@ public final class DogTestHelper {
   public static <T extends UnleashedDogEntity> T spawnTamedDog(
       TestContext context, DogTestData<T> data, BlockPos pos) {
     T dog = spawnDog(context, data, pos);
+    dog.setTamed(true, true);
+    return dog;
+  }
+
+  public static <T extends UnleashedDogEntity> T spawnTamedDog(
+      TestContext context, DogTestData<T> data, BlockPos pos, UUID ownerUuid) {
+    T dog = spawnDog(context, data, pos);
+    dog.setOwnerUuid(ownerUuid);
     dog.setTamed(true, true);
     return dog;
   }
