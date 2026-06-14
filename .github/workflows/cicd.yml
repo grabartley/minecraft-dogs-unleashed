@@ -77,15 +77,6 @@ jobs:
           detailed_summary: true
           include_passed: true
 
-      - name: Publish gametest report
-        uses: mikepenz/action-junit-report@v4
-        if: success() || failure()
-        with:
-          report_paths: build/gametest-results.xml
-          check_name: Gametests
-          detailed_summary: true
-          include_passed: true
-
       - name: Upload gametest run dir on failure
         if: failure()
         uses: actions/upload-artifact@v4
