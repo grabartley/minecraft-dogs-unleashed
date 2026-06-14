@@ -1,5 +1,6 @@
 package com.grahambartley.entity;
 
+import com.grahambartley.entity.fetch.FetchItemType;
 import java.util.Locale;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -12,9 +13,10 @@ import org.jetbrains.annotations.Nullable;
 public enum UnleashedDogBreed {
   HUSKY(
       "husky",
-      0.08,
-      -0.52,
-      0.55f,
+      new FetchCarryProfiles(
+          new CarryProfile(0.08, -0.52, 0.55f),
+          new CarryProfile(0.08, -0.52, 0.50f),
+          new CarryProfile(0.08, -0.52, 2.00f)),
       new SpawnEggColors(0xFFFFFF, 0x808080),
       new Dimensions(0.8f, 1.1f),
       new SpawnSettings(
@@ -30,18 +32,20 @@ public enum UnleashedDogBreed {
       new Attributes(25.0, 0.30, 5.0)),
   DACHSHUND(
       "dachshund",
-      -0.02,
-      -0.34,
-      0.42f,
+      new FetchCarryProfiles(
+          new CarryProfile(-0.02, -0.34, 0.42f),
+          new CarryProfile(-0.02, -0.34, 0.40f),
+          new CarryProfile(-0.02, -0.34, 1.60f)),
       new SpawnEggColors(0xA0673F, 0xDC8847),
       new Dimensions(0.8f, 1.1f),
       new SpawnSettings(10, 1, 2, BiomeKeys.PLAINS, BiomeKeys.SUNFLOWER_PLAINS, BiomeKeys.MEADOW),
       new Attributes(10.0, 0.25, 2.0)),
   BEAGLE(
       "beagle",
-      0.03,
-      -0.42,
-      0.48f,
+      new FetchCarryProfiles(
+          new CarryProfile(0.03, -0.42, 0.48f),
+          new CarryProfile(0.03, -0.42, 0.45f),
+          new CarryProfile(0.03, -0.42, 1.70f)),
       new SpawnEggColors(0xFFFFFF, 0x936732),
       new Dimensions(0.8f, 1.1f),
       new SpawnSettings(
@@ -56,27 +60,27 @@ public enum UnleashedDogBreed {
       new Attributes(17.0, 0.29, 3.0)),
   GOLDEN_RETRIEVER(
       "goldenretriever",
-      0.08,
-      -0.52,
-      0.55f,
+      new FetchCarryProfiles(
+          new CarryProfile(0.08, -0.52, 0.55f),
+          new CarryProfile(0.08, -0.52, 0.50f),
+          new CarryProfile(0.08, -0.52, 1.90f)),
       new SpawnEggColors(0xDAA06D, 0xF5DEB3),
       new Dimensions(0.8f, 1.1f),
       new SpawnSettings(10, 1, 3, BiomeKeys.BEACH),
       new Attributes(24.0, 0.30, 4.0)),
   SHIBA_INU(
       "shibainu",
-      0.03,
-      -0.42,
-      0.48f,
+      new FetchCarryProfiles(
+          new CarryProfile(0.03, -0.42, 0.48f),
+          new CarryProfile(0.03, -0.42, 0.45f),
+          new CarryProfile(0.03, -0.42, 1.70f)),
       new SpawnEggColors(0xCE8346, 0xF5DEB3),
       new Dimensions(0.8f, 1.1f),
       new SpawnSettings(10, 1, 2, BiomeKeys.CHERRY_GROVE),
       new Attributes(18.0, 0.32, 3.5));
 
   private final String serializedId;
-  private final double carryBallVerticalOffset;
-  private final double carryBallForwardOffset;
-  private final float carryBallScale;
+  private final FetchCarryProfiles fetchCarryProfiles;
   private final SpawnEggColors spawnEggColors;
   private final Dimensions dimensions;
   private final SpawnSettings spawnSettings;
@@ -84,17 +88,13 @@ public enum UnleashedDogBreed {
 
   UnleashedDogBreed(
       final String serializedId,
-      final double carryBallVerticalOffset,
-      final double carryBallForwardOffset,
-      final float carryBallScale,
+      final FetchCarryProfiles fetchCarryProfiles,
       final SpawnEggColors spawnEggColors,
       final Dimensions dimensions,
       final SpawnSettings spawnSettings,
       final Attributes attributes) {
     this.serializedId = serializedId;
-    this.carryBallVerticalOffset = carryBallVerticalOffset;
-    this.carryBallForwardOffset = carryBallForwardOffset;
-    this.carryBallScale = carryBallScale;
+    this.fetchCarryProfiles = fetchCarryProfiles;
     this.spawnEggColors = spawnEggColors;
     this.dimensions = dimensions;
     this.spawnSettings = spawnSettings;
@@ -117,16 +117,12 @@ public enum UnleashedDogBreed {
     return "textures/entity/" + this.serializedId + ".png";
   }
 
-  public double carryBallVerticalOffset() {
-    return this.carryBallVerticalOffset;
+  public FetchCarryProfiles fetchCarryProfiles() {
+    return this.fetchCarryProfiles;
   }
 
-  public double carryBallForwardOffset() {
-    return this.carryBallForwardOffset;
-  }
-
-  public float carryBallScale() {
-    return this.carryBallScale;
+  public CarryProfile carryProfileFor(final FetchItemType fetchType) {
+    return this.fetchCarryProfiles.forFetchItem(fetchType);
   }
 
   public SpawnEggColors spawnEggColors() {
