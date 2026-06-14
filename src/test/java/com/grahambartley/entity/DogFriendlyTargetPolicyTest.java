@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.ZombieEntity;
+import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import org.junit.jupiter.api.DisplayName;
@@ -14,11 +15,12 @@ import org.junit.jupiter.api.Test;
 class DogFriendlyTargetPolicyTest {
 
   @Test
-  @DisplayName("Friendly target list contains other dogs and villagers")
-  void friendlyTargetListContainsDogsAndVillagers() {
-    assertEquals(2, DogFriendlyTargetPolicy.FRIENDLY_TARGET_TYPES.length);
+  @DisplayName("Friendly target list contains other dogs, villagers, and iron golems")
+  void friendlyTargetListContainsDogsVillagersAndIronGolems() {
+    assertEquals(3, DogFriendlyTargetPolicy.FRIENDLY_TARGET_TYPES.length);
     assertTrue(containsType(UnleashedDogEntity.class));
     assertTrue(containsType(VillagerEntity.class));
+    assertTrue(containsType(IronGolemEntity.class));
   }
 
   @Test
@@ -36,6 +38,12 @@ class DogFriendlyTargetPolicyTest {
   @DisplayName("Villagers are treated as friendly")
   void villagersAreFriendly() {
     assertTrue(DogFriendlyTargetPolicy.isFriendlyClass(VillagerEntity.class));
+  }
+
+  @Test
+  @DisplayName("Iron golems are treated as friendly")
+  void ironGolemsAreFriendly() {
+    assertTrue(DogFriendlyTargetPolicy.isFriendlyClass(IronGolemEntity.class));
   }
 
   @Test
