@@ -2,6 +2,8 @@
 <img src="docs/banner.png" alt="DogsUnleashed" width="800">
 </p>
 
+<a href="https://modrinth.com/mod/dogs-unleashed"><img src="https://img.shields.io/modrinth/dt/dogs-unleashed?logo=modrinth&label=Modrinth%20downloads&color=00AF5C" alt="Modrinth downloads"></a>
+<a href="https://github.com/grabartley/minecraft-dogs-unleashed/stargazers"><img src="https://img.shields.io/github/stars/grabartley/minecraft-dogs-unleashed?logo=github&label=Stars&color=4078c0" alt="GitHub stars"></a>
 [![Build](https://github.com/grabartley/minecraft-dogs-unleashed/actions/workflows/cicd.yml/badge.svg)](https://github.com/grabartley/minecraft-dogs-unleashed/actions/workflows/cicd.yml)
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-Support_Dogs_Unleashed-009078?logo=ko-fi&logoColor=white)](https://ko-fi.com/grahambartley)
 
@@ -207,6 +209,6 @@ If [Mod Menu](https://modrinth.com/mod/modmenu) is installed, Dogs Unleashed app
 
 ## Open Source
 
-Dogs Unleashed is open source under the CC0-1.0 license. Built with love and treats ❤️
+Dogs Unleashed is open source under the MIT license. Built with love and treats ❤️
 
 If Dogs Unleashed made you smile on a long survival night, a star on GitHub or a coffee on Ko-fi means the world.
