@@ -1,0 +1,23 @@
+{
+  "display": {
+    "icon": {
+      "id": "dogs-unleashed:husky_spawn_egg"
+    },
+    "title": {
+      "translate": "advancements.dogs-unleashed.root.title"
+    },
+    "description": {
+      "translate": "advancements.dogs-unleashed.root.description"
+    },
+    "background": "dogs-unleashed:textures/block/dog_bed.png",
+    "frame": "task",
+    "show_toast": false,
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "tick": {
+      "trigger": "minecraft:tick"
+    }
+  },
+  "requirements": [["tick"]]
+}

@@ -1,0 +1,26 @@
+{
+  "parent": "dogs-unleashed:root",
+  "display": {
+    "icon": {
+      "id": "dogs-unleashed:shibainu_spawn_egg"
+    },
+    "title": {
+      "translate": "advancements.dogs-unleashed.cherry_companion.title"
+    },
+    "description": {
+      "translate": "advancements.dogs-unleashed.cherry_companion.description"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "tamed_shibainu": {
+      "trigger": "minecraft:tame_animal",
+      "conditions": {
+        "entity": {
+          "type": "dogs-unleashed:shibainu"
+        }
+      }
+    }
+  },
+  "requirements": [["tamed_shibainu"]]
+}

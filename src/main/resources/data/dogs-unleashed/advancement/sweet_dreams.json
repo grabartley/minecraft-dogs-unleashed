@@ -1,0 +1,21 @@
+{
+  "parent": "dogs-unleashed:best_friend",
+  "display": {
+    "icon": {
+      "id": "dogs-unleashed:dog_bed"
+    },
+    "title": {
+      "translate": "advancements.dogs-unleashed.sweet_dreams.title"
+    },
+    "description": {
+      "translate": "advancements.dogs-unleashed.sweet_dreams.description"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "dog_slept_in_bed": {
+      "trigger": "dogs-unleashed:dog_slept_in_bed"
+    }
+  },
+  "requirements": [["dog_slept_in_bed"]]
+}

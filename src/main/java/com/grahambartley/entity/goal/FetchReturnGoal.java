@@ -1,5 +1,6 @@
 package com.grahambartley.entity.goal;
 
+import com.grahambartley.advancement.FetchReturnedCriterion;
 import com.grahambartley.entity.UnleashedDogEntity;
 import com.grahambartley.entity.fetch.FetchCarriedItemProvider;
 import com.grahambartley.entity.fetch.FetchItemType;
@@ -12,6 +13,7 @@ import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.tag.FluidTags;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -76,6 +78,10 @@ public class FetchReturnGoal extends Goal {
               dogName,
               fetchItemType.item().getName()),
           true);
+
+      if (player instanceof ServerPlayerEntity serverPlayer) {
+        FetchReturnedCriterion.INSTANCE.trigger(serverPlayer);
+      }
 
       this.dog.setCarryingFetchItem(false);
       this.dog.setActiveFetchBlockPos(null);

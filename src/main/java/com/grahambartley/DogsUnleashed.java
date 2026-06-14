@@ -1,5 +1,8 @@
 package com.grahambartley;
 
+import com.grahambartley.advancement.DogSleptInBedCriterion;
+import com.grahambartley.advancement.FetchReturnedCriterion;
+import com.grahambartley.advancement.HuskyHowledCriterion;
 import com.grahambartley.command.DogsUnleashedCommand;
 import com.grahambartley.config.DogsUnleashedConfig;
 import com.grahambartley.listener.PlayerDimensionChangeListener;
@@ -28,6 +31,10 @@ public class DogsUnleashed implements ModInitializer {
 
   @Override
   public void onInitialize() {
+    HuskyHowledCriterion.register();
+    FetchReturnedCriterion.register();
+    DogSleptInBedCriterion.register();
+
     ModSounds.initialize();
     ModComponents.initialize();
     ModBlocks.initialize();

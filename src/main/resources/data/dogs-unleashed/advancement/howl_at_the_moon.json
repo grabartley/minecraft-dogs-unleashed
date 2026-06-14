@@ -1,0 +1,21 @@
+{
+  "parent": "dogs-unleashed:best_friend",
+  "display": {
+    "icon": {
+      "id": "dogs-unleashed:husky_spawn_egg"
+    },
+    "title": {
+      "translate": "advancements.dogs-unleashed.howl_at_the_moon.title"
+    },
+    "description": {
+      "translate": "advancements.dogs-unleashed.howl_at_the_moon.description"
+    },
+    "frame": "goal"
+  },
+  "criteria": {
+    "heard_husky_howl": {
+      "trigger": "dogs-unleashed:husky_howled"
+    }
+  },
+  "requirements": [["heard_husky_howl"]]
+}

@@ -1,0 +1,21 @@
+{
+  "parent": "dogs-unleashed:best_friend",
+  "display": {
+    "icon": {
+      "id": "dogs-unleashed:tennis_ball"
+    },
+    "title": {
+      "translate": "advancements.dogs-unleashed.fetch.title"
+    },
+    "description": {
+      "translate": "advancements.dogs-unleashed.fetch.description"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "returned_fetch_item": {
+      "trigger": "dogs-unleashed:fetch_returned"
+    }
+  },
+  "requirements": [["returned_fetch_item"]]
+}

@@ -1,0 +1,28 @@
+{
+  "parent": "dogs-unleashed:best_friend",
+  "display": {
+    "icon": {
+      "id": "dogs-unleashed:dog_grave"
+    },
+    "title": {
+      "translate": "advancements.dogs-unleashed.forever_in_our_hearts.title"
+    },
+    "description": {
+      "translate": "advancements.dogs-unleashed.forever_in_our_hearts.description"
+    },
+    "frame": "challenge"
+  },
+  "criteria": {
+    "picked_up_preserved_grave": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "dogs-unleashed:dog_grave"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [["picked_up_preserved_grave"]]
+}
