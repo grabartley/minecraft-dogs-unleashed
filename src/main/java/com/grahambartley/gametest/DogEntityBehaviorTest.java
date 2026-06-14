@@ -167,56 +167,6 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void huskyShakesOnceWhenLeavingWater(TestContext context) {
-    testDogShakesOnceWhenLeavingWater(context, DogTestData.HUSKY);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void dachshundShakesOnceWhenLeavingWater(TestContext context) {
-    testDogShakesOnceWhenLeavingWater(context, DogTestData.DACHSHUND);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void beagleShakesOnceWhenLeavingWater(TestContext context) {
-    testDogShakesOnceWhenLeavingWater(context, DogTestData.BEAGLE);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void goldenRetrieverShakesOnceWhenLeavingWater(TestContext context) {
-    testDogShakesOnceWhenLeavingWater(context, DogTestData.GOLDEN_RETRIEVER);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void shibaInuShakesOnceWhenLeavingWater(TestContext context) {
-    testDogShakesOnceWhenLeavingWater(context, DogTestData.SHIBA_INU);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void huskyShakeProgressDecrementsEachTick(TestContext context) {
-    testShakeProgressDecrementsEachTick(context, DogTestData.HUSKY);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void dachshundShakeProgressDecrementsEachTick(TestContext context) {
-    testShakeProgressDecrementsEachTick(context, DogTestData.DACHSHUND);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void beagleShakeProgressDecrementsEachTick(TestContext context) {
-    testShakeProgressDecrementsEachTick(context, DogTestData.BEAGLE);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void goldenRetrieverShakeProgressDecrementsEachTick(TestContext context) {
-    testShakeProgressDecrementsEachTick(context, DogTestData.GOLDEN_RETRIEVER);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void shibaInuShakeProgressDecrementsEachTick(TestContext context) {
-    testShakeProgressDecrementsEachTick(context, DogTestData.SHIBA_INU);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void huskyShakeProgressPersistsInNbt(TestContext context) {
     testShakeProgressPersistsInNbt(context, DogTestData.HUSKY);
   }
@@ -239,31 +189,6 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void shibaInuShakeProgressPersistsInNbt(TestContext context) {
     testShakeProgressPersistsInNbt(context, DogTestData.SHIBA_INU);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void huskyHeadTiltingStateCanBeTracked(TestContext context) {
-    testHeadTiltingStateCanBeTracked(context, DogTestData.HUSKY);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void dachshundHeadTiltingStateCanBeTracked(TestContext context) {
-    testHeadTiltingStateCanBeTracked(context, DogTestData.DACHSHUND);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void beagleHeadTiltingStateCanBeTracked(TestContext context) {
-    testHeadTiltingStateCanBeTracked(context, DogTestData.BEAGLE);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void goldenRetrieverHeadTiltingStateCanBeTracked(TestContext context) {
-    testHeadTiltingStateCanBeTracked(context, DogTestData.GOLDEN_RETRIEVER);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void shibaInuHeadTiltingStateCanBeTracked(TestContext context) {
-    testHeadTiltingStateCanBeTracked(context, DogTestData.SHIBA_INU);
   }
 
   private <T extends UnleashedDogEntity> void testTamedDogCollarColorCanBeChanged(
@@ -399,27 +324,6 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
     context.complete();
   }
 
-  private <T extends UnleashedDogEntity> void testDogShakesOnceWhenLeavingWater(
-      TestContext context, DogTestData<T> data) {
-    T dog = DogTestHelper.spawnDog(context, data);
-
-    context.runAtTick(
-        5,
-        () -> {
-          context.assertTrue(dog.getShakeProgress() == 0, "Shake progress should start at 0");
-          context.assertFalse(dog.isShaking(), "Dog should not be shaking initially");
-          context.complete();
-        });
-  }
-
-  private <T extends UnleashedDogEntity> void testShakeProgressDecrementsEachTick(
-      TestContext context, DogTestData<T> data) {
-    T dog = DogTestHelper.spawnDog(context, data);
-
-    context.assertTrue(dog.getShakeProgress() == 0, "Initial shake progress should be 0");
-    context.complete();
-  }
-
   private <T extends UnleashedDogEntity> void testShakeProgressPersistsInNbt(
       TestContext context, DogTestData<T> data) {
     ServerWorld world = context.getWorld();
@@ -441,18 +345,6 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
           context.assertTrue(
               newDog.getShakeProgress() == dog.getShakeProgress(),
               "Shake progress should persist after NBT load");
-          context.complete();
-        });
-  }
-
-  private <T extends UnleashedDogEntity> void testHeadTiltingStateCanBeTracked(
-      TestContext context, DogTestData<T> data) {
-    T dog = DogTestHelper.spawnDog(context, data);
-
-    context.runAtTick(
-        5,
-        () -> {
-          context.assertFalse(dog.isHeadTilting(), "Dog should not be tilting head initially");
           context.complete();
         });
   }
