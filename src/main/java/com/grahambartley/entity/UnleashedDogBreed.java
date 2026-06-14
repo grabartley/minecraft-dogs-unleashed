@@ -14,9 +14,9 @@ public enum UnleashedDogBreed {
   HUSKY(
       "husky",
       new FetchCarryProfiles(
-          new CarryProfile(0.08, -0.52, 0.55f),
-          new CarryProfile(0.08, -0.52, 0.50f),
-          new CarryProfile(0.08, -0.52, 2.00f)),
+          new CarryProfile(0.179, -0.245, 0.41f),
+          new CarryProfile(0.179, -0.245, 0.40f),
+          new CarryProfile(0.179, -0.245, 0.50f)),
       new SpawnEggColors(0xFFFFFF, 0x808080),
       new Dimensions(0.8f, 1.1f),
       new SpawnSettings(
@@ -33,9 +33,9 @@ public enum UnleashedDogBreed {
   DACHSHUND(
       "dachshund",
       new FetchCarryProfiles(
-          new CarryProfile(-0.02, -0.34, 0.42f),
-          new CarryProfile(-0.02, -0.34, 0.40f),
-          new CarryProfile(-0.02, -0.34, 1.60f)),
+          new CarryProfile(0.056, -0.13, 0.31f),
+          new CarryProfile(0.056, -0.13, 0.32f),
+          new CarryProfile(0.056, -0.13, 0.40f)),
       new SpawnEggColors(0xA0673F, 0xDC8847),
       new Dimensions(0.8f, 1.1f),
       new SpawnSettings(10, 1, 2, BiomeKeys.PLAINS, BiomeKeys.SUNFLOWER_PLAINS, BiomeKeys.MEADOW),
@@ -43,9 +43,9 @@ public enum UnleashedDogBreed {
   BEAGLE(
       "beagle",
       new FetchCarryProfiles(
-          new CarryProfile(0.03, -0.42, 0.48f),
-          new CarryProfile(0.03, -0.42, 0.45f),
-          new CarryProfile(0.03, -0.42, 1.70f)),
+          new CarryProfile(0.116, -0.18, 0.36f),
+          new CarryProfile(0.116, -0.18, 0.38f),
+          new CarryProfile(0.116, -0.18, 0.45f)),
       new SpawnEggColors(0xFFFFFF, 0x936732),
       new Dimensions(0.8f, 1.1f),
       new SpawnSettings(
@@ -61,9 +61,9 @@ public enum UnleashedDogBreed {
   GOLDEN_RETRIEVER(
       "goldenretriever",
       new FetchCarryProfiles(
-          new CarryProfile(0.08, -0.52, 0.55f),
-          new CarryProfile(0.08, -0.52, 0.50f),
-          new CarryProfile(0.08, -0.52, 1.90f)),
+          new CarryProfile(0.179, -0.245, 0.41f),
+          new CarryProfile(0.179, -0.245, 0.40f),
+          new CarryProfile(0.179, -0.245, 0.50f)),
       new SpawnEggColors(0xDAA06D, 0xF5DEB3),
       new Dimensions(0.8f, 1.1f),
       new SpawnSettings(10, 1, 3, BiomeKeys.BEACH),
@@ -71,9 +71,9 @@ public enum UnleashedDogBreed {
   SHIBA_INU(
       "shibainu",
       new FetchCarryProfiles(
-          new CarryProfile(0.03, -0.42, 0.48f),
-          new CarryProfile(0.03, -0.42, 0.45f),
-          new CarryProfile(0.03, -0.42, 1.70f)),
+          new CarryProfile(0.116, -0.18, 0.36f),
+          new CarryProfile(0.116, -0.18, 0.38f),
+          new CarryProfile(0.116, -0.18, 0.45f)),
       new SpawnEggColors(0xCE8346, 0xF5DEB3),
       new Dimensions(0.8f, 1.1f),
       new SpawnSettings(10, 1, 2, BiomeKeys.CHERRY_GROVE),
