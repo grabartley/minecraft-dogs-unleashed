@@ -63,6 +63,9 @@ jobs:
       - name: Run tests with coverage
         run: ./gradlew check --configuration-cache --build-cache
 
+      - name: Run gametests
+        run: ./gradlew runGametest --no-daemon --stacktrace
+
       - name: Dedicated server smoke boot
         run: timeout 120s ./gradlew runServer --no-daemon --stacktrace --args="nogui" || test $? -eq 124
 
@@ -73,6 +76,22 @@ jobs:
           report_paths: "**/build/test-results/test/TEST-*.xml"
           detailed_summary: true
           include_passed: true
+
+      - name: Publish gametest report
+        uses: mikepenz/action-junit-report@v4
+        if: success() || failure()
+        with:
+          report_paths: build/gametest-results.xml
+          check_name: Gametests
+          detailed_summary: true
+          include_passed: true
+
+      - name: Upload gametest run dir on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gametest-run-${{ github.sha }}
+          path: build/gametest/
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
