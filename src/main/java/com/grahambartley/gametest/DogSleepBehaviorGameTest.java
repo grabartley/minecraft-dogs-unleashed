@@ -95,7 +95,14 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
         });
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
+  /**
+   * Verifies that once a dog starts sleeping in its bed, the {@code SLEEPING_IN_BED} flag survives
+   * across multiple ticks. Note that {@code startSleepingInBed} intentionally clears {@code
+   * COMMANDED_TO_SLEEP} (the command is satisfied as soon as the dog reaches the bed), so this test
+   * asserts that transition immediately and then tracks only the persistent sleeping flag. World
+   * time is pinned to night to keep the auto-wake-at-sunrise behavior out of scope.
+   */
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void sleepingDogStaysSleepingAcrossMultipleTicks(final TestContext context) {
     final BlockPos relBedPos = new BlockPos(0, 1, 0);
     final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
@@ -112,26 +119,29 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
     context.runAtTick(
         10,
         () -> {
+          // Pin world time to night so the auto-wake-at-sunrise behavior does not fire mid-test.
+          world.setTimeOfDay(13000);
           husky.setAssignedBedPos(absBedPos);
           husky.commandToSleep(absBedPos);
           husky.startSleepingInBed(absBedPos);
           context.assertTrue(husky.isSleepingInBed(), "Dog should be sleeping at tick 10");
           context.assertTrue(
-              husky.isCommandedToSleep(), "COMMANDED_TO_SLEEP should be true at tick 10");
+              !husky.isCommandedToSleep(),
+              "COMMANDED_TO_SLEEP should be cleared once sleeping starts");
         });
 
     context.runAtTick(
-        50,
+        15,
         () -> {
-          context.assertTrue(
-              husky.isCommandedToSleep(), "COMMANDED_TO_SLEEP should STILL be true at tick 50");
-          context.assertTrue(husky.isSleepingInBed(), "Dog should STILL be sleeping at tick 50");
+          world.setTimeOfDay(13000);
+          context.assertTrue(husky.isSleepingInBed(), "Dog should STILL be sleeping at tick 15");
         });
 
     context.runAtTick(
-        100,
+        25,
         () -> {
-          context.assertTrue(husky.isSleepingInBed(), "Dog should STILL be sleeping at tick 100");
+          world.setTimeOfDay(13000);
+          context.assertTrue(husky.isSleepingInBed(), "Dog should STILL be sleeping at tick 25");
           context.complete();
         });
   }
@@ -357,8 +367,59 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
         });
   }
 
+  /**
+   * Verifies that after a commanded sleep cycle ({@code commandToSleep} then {@code
+   * startSleepingInBed}), the dog is asleep with the command already cleared (the satisfied-command
+   * contract), and that {@code wakeUp} subsequently clears the sleeping flag and keeps the command
+   * cleared.
+   */
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
-  public void wakeUpMethodClearsSleepStateFromCommanded(final TestContext context) {
+  public void wakeUpFromBedClearsSleepingFlag(final TestContext context) {
+    final BlockPos relBedPos = new BlockPos(0, 1, 0);
+    final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
+    final ServerWorld world = context.getWorld();
+
+    context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
+
+    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
+    husky.refreshPositionAndAngles(
+        absBedPos.getX(), absBedPos.getY(), absBedPos.getZ(), 0.0f, 0.0f);
+    husky.setTamed(true, true);
+    world.spawnEntity(husky);
+
+    context.runAtTick(
+        10,
+        () -> {
+          // Pin world time to night so the auto-wake-at-sunrise behavior does not fire mid-test.
+          world.setTimeOfDay(13000);
+          husky.setAssignedBedPos(absBedPos);
+          husky.commandToSleep(absBedPos);
+          husky.startSleepingInBed(absBedPos);
+          context.assertTrue(husky.isSleepingInBed(), "Dog should be sleeping");
+          context.assertTrue(
+              !husky.isCommandedToSleep(),
+              "COMMANDED_TO_SLEEP should be cleared once sleeping starts");
+        });
+
+    context.runAtTick(
+        50,
+        () -> {
+          world.setTimeOfDay(13000);
+          context.assertTrue(husky.isSleepingInBed(), "Dog should still be sleeping");
+          husky.wakeUp();
+          context.assertTrue(!husky.isSleepingInBed(), "Dog should NOT be sleeping after wakeUp");
+          context.assertTrue(
+              !husky.isCommandedToSleep(), "Dog should NOT be commanded after wakeUp");
+          context.complete();
+        });
+  }
+
+  /**
+   * Documents the {@code COMMANDED_TO_SLEEP} transition contract: {@code commandToSleep} sets it,
+   * and {@code startSleepingInBed} clears it the moment the dog reaches the bed.
+   */
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+  public void commandToSleepSetsThenClearsOnArrival(final TestContext context) {
     final BlockPos relBedPos = new BlockPos(0, 1, 0);
     final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
     final ServerWorld world = context.getWorld();
@@ -376,19 +437,18 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
         () -> {
           husky.setAssignedBedPos(absBedPos);
           husky.commandToSleep(absBedPos);
-          husky.startSleepingInBed(absBedPos);
-          context.assertTrue(husky.isSleepingInBed(), "Dog should be sleeping");
-          context.assertTrue(husky.isCommandedToSleep(), "Dog should be commanded");
-        });
-
-    context.runAtTick(
-        50,
-        () -> {
-          context.assertTrue(husky.isSleepingInBed(), "Dog should still be sleeping");
-          husky.wakeUp();
-          context.assertTrue(!husky.isSleepingInBed(), "Dog should NOT be sleeping after wakeUp");
           context.assertTrue(
-              !husky.isCommandedToSleep(), "Dog should NOT be commanded after wakeUp");
+              husky.isCommandedToSleep(), "commandToSleep should set COMMANDED_TO_SLEEP");
+          context.assertTrue(
+              !husky.isSleepingInBed(),
+              "Dog should not yet be sleeping immediately after commandToSleep");
+
+          husky.startSleepingInBed(absBedPos);
+          context.assertTrue(
+              husky.isSleepingInBed(), "startSleepingInBed should set SLEEPING_IN_BED");
+          context.assertTrue(
+              !husky.isCommandedToSleep(),
+              "startSleepingInBed should clear COMMANDED_TO_SLEEP on arrival");
           context.complete();
         });
   }
