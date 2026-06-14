@@ -35,6 +35,15 @@ class UnleashedDogBreedTest {
 
   @ParameterizedTest
   @EnumSource(UnleashedDogBreed.class)
+  @DisplayName("every breed declares a non-empty mouth-anchor bone name")
+  void everyBreedDeclaresMouthAnchorBoneName(UnleashedDogBreed breed) {
+    String anchor = breed.mouthAnchorBoneName();
+    assertNotNull(anchor, "mouth anchor for " + breed);
+    assertTrue(!anchor.isEmpty(), "mouth anchor for " + breed + " must be non-empty");
+  }
+
+  @ParameterizedTest
+  @EnumSource(UnleashedDogBreed.class)
   @DisplayName("every breed declares a non-null carry profile for tennis ball, stick, and frisbee")
   void everyBreedDeclaresProfilesForEveryFetchItem(UnleashedDogBreed breed) {
     FetchCarryProfiles profiles = breed.fetchCarryProfiles();

@@ -28,7 +28,6 @@ import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
 
 public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockAndItemGeoLayer<T> {
-  private static final String HEAD_BONE_NAME = "head";
   private static final int FULL_BRIGHT_COLOR = 0xFFFFFFFF;
   private static final float NO_PARTIAL_TICK = 1.0f;
 
@@ -56,7 +55,7 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
     if (animatable.isInvisible() || !animatable.isCarryingFetchItem()) {
       return null;
     }
-    if (!HEAD_BONE_NAME.equals(bone.getName())) {
+    if (!animatable.getBreed().mouthAnchorBoneName().equals(bone.getName())) {
       return null;
     }
 
