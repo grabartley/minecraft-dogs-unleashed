@@ -11,7 +11,7 @@ import net.minecraft.util.math.BlockPos;
 
 public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
+  @GameTest(templateName = "dogs-unleashed:dog_arena", tickLimit = 200)
   public void commandedToSleepSetsCorrectFlags(final TestContext context) {
     final BlockPos bedPos = new BlockPos(0, 1, 0);
     final BlockPos dogPos = new BlockPos(5, 1, 0);
