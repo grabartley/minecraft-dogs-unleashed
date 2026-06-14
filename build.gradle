@@ -24,6 +24,10 @@ repositories {
 		name = 'GeckoLib'
 		url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
 	}
+	maven {
+		name = 'Terraformers'
+		url 'https://maven.terraformersmc.com/'
+	}
 }
 
 loom {
@@ -69,6 +73,10 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	modImplementation "software.bernie.geckolib:geckolib-fabric-1.21.1:4.7"
+
+	// Mod Menu is optional at runtime; never bundled. Dev-only dep so devs can launch with it.
+	modCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
+	modLocalRuntime "com.terraformersmc:modmenu:${project.modmenu_version}"
 
 	testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -141,6 +149,7 @@ tasks.register("verifyMainSourceSideSafety") {
 			"com.grahambartley.mixin.client.",
 			"com.grahambartley.DogsUnleashedClient",
 			"com.grahambartley.DogsUnleashedDataGenerator",
+			"com.grahambartley.DogsUnleashedModMenu",
 			"com.grahambartley.ModKeyBindings",
 			"com.grahambartley.network.ModNetworkingClient"
 		]

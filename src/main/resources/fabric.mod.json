@@ -22,6 +22,9 @@
     "client": [
       "com.grahambartley.DogsUnleashedClient"
     ],
+    "modmenu": [
+      "com.grahambartley.DogsUnleashedModMenu"
+    ],
     "fabric-datagen": [
       "com.grahambartley.DogsUnleashedDataGenerator"
     ],

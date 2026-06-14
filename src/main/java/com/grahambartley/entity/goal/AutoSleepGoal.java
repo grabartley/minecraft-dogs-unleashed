@@ -1,5 +1,6 @@
 package com.grahambartley.entity.goal;
 
+import com.grahambartley.DogsUnleashed;
 import com.grahambartley.ModBlocks;
 import com.grahambartley.entity.UnleashedDogEntity;
 import java.util.EnumSet;
@@ -10,7 +11,6 @@ import net.minecraft.world.World;
 
 public class AutoSleepGoal extends Goal {
 
-  private static final double BED_RANGE = 32.0;
   private static final double CLOSE_ENOUGH_DISTANCE = 2.0;
 
   private final UnleashedDogEntity dog;
@@ -23,6 +23,9 @@ public class AutoSleepGoal extends Goal {
 
   @Override
   public boolean canStart() {
+    if (!DogsUnleashed.SERVER_CONFIG.autoSleepEnabled()) {
+      return false;
+    }
     if (!this.dog.isTamed()) {
       return false;
     }
@@ -89,7 +92,8 @@ public class AutoSleepGoal extends Goal {
 
   private boolean isWithinRange(BlockPos bedPos) {
     final double distance = this.dog.getBlockPos().getSquaredDistance(bedPos);
-    return distance <= BED_RANGE * BED_RANGE;
+    final double range = DogsUnleashed.SERVER_CONFIG.autoSleepRangeBlocks();
+    return distance <= range * range;
   }
 
   @Override
