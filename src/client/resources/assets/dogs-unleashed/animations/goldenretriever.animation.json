@@ -583,7 +583,7 @@
 				}
 			}
 		},
-		"sleeping": {
+		"sleep": {
 			"loop": true,
 			"bones": {
 				"Torso": {
