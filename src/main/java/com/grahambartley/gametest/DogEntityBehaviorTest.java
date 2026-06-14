@@ -3,6 +3,7 @@ package com.grahambartley.gametest;
 import com.grahambartley.entity.UnleashedDogEntity;
 import com.grahambartley.gametest.util.DogTestData;
 import com.grahambartley.gametest.util.DogTestHelper;
+import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -356,21 +357,26 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
   private <T extends UnleashedDogEntity> void testBredBabyInheritsParentTamedStatus(
       TestContext context, DogTestData<T> data) {
     ServerWorld world = context.getWorld();
-    T parent = DogTestHelper.spawnTamedDog(context, data, new BlockPos(0, 1, 0));
+    UUID ownerUuid = UUID.randomUUID();
+    T parent = DogTestHelper.spawnTamedDog(context, data, new BlockPos(0, 1, 0), ownerUuid);
     parent.setCollarColor(DyeColor.YELLOW);
 
     context.runAtTick(
         10,
         () -> {
-          T otherParent = DogTestHelper.spawnTamedDog(context, data, new BlockPos(1, 1, 0));
+          T otherParent =
+              DogTestHelper.spawnTamedDog(context, data, new BlockPos(1, 1, 0), ownerUuid);
           UnleashedDogEntity baby = (UnleashedDogEntity) parent.createChild(world, otherParent);
 
           context.runAtTick(
               20,
               () -> {
                 context.assertTrue(baby != null, "Baby should be created from breeding");
-                context.assertTrue(baby.isTamed(), "Baby should inherit tamed status");
+                context.assertTrue(
+                    baby.isTamed(), "Baby should inherit tamed status from parents with owner");
                 context.assertTrue(baby.isBaby(), "Created entity should be a baby");
+                context.assertTrue(
+                    ownerUuid.equals(baby.getOwnerUuid()), "Baby should inherit owner UUID");
                 context.complete();
               });
         });
