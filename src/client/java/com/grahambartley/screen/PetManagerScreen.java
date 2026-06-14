@@ -1,18 +1,17 @@
 package com.grahambartley.screen;
 
-import com.grahambartley.DogsUnleashed;
 import com.grahambartley.ModEntities;
 import com.grahambartley.ModNbtKeys;
 import com.grahambartley.entity.HuskyEntity;
 import com.grahambartley.entity.UnleashedDogBreed;
 import com.grahambartley.entity.UnleashedDogEntity;
-import com.grahambartley.entity.variant.HuskyEyeColor;
 import com.grahambartley.network.ModNetworking;
 import com.grahambartley.network.ModNetworkingClient;
 import com.grahambartley.pet.PetAliveFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.client.MinecraftClient;
@@ -46,7 +45,6 @@ public class PetManagerScreen extends Screen {
   private static final float LOW_HEALTH_COLOR_THRESHOLD = 0.5f;
   private static final int PORTRAIT_SHADOW_SIZE = 22;
   private static final float PORTRAIT_SCALE = 0.35f;
-  private static final float GREYSCALE_COLOR = 0.4f;
   private static final float FULL_COLOR = 1.0f;
 
   private static final List<BreedFilterOption> BREED_OPTIONS = List.of(BreedFilterOption.values());
@@ -402,52 +400,54 @@ public class PetManagerScreen extends Screen {
     return entity;
   }
 
-  private static Identifier resolveFallbackTexture(
-      final UnleashedDogEntity entity, final ModNetworking.PetSyncData pet) {
-    if (pet.coatVariant() >= 0) {
-      final String fileName;
-      if (pet.breed() == UnleashedDogBreed.HUSKY) {
-        final HuskyEyeColor eyes = HuskyEyeColor.fromOrdinal(pet.huskyEyeVariant());
-        fileName =
-            pet.breed().serializedId()
-                + "_"
-                + entity.getCoatVariant().getTexturePrefix()
-                + "_"
-                + eyes.textureSuffix()
-                + ".png";
-      } else {
-        fileName =
-            pet.breed().serializedId() + "_" + entity.getCoatVariant().getTexturePrefix() + ".png";
-      }
-      return Identifier.of(DogsUnleashed.MOD_ID, "textures/entity/" + fileName);
-    }
-    return Identifier.of(DogsUnleashed.MOD_ID, pet.breed().defaultTexturePath());
-  }
-
-  private void drawTexturePortrait(
+  private void drawMissingPortraitPlaceholder(
       final DrawContext context,
-      final UnleashedDogEntity entity,
       final ModNetworking.PetSyncData pet,
       final int imgX,
-      final int imgY,
-      final boolean greyed) {
-    final Identifier textureId = resolveFallbackTexture(entity, pet);
-    if (greyed) {
-      context.setShaderColor(GREYSCALE_COLOR, GREYSCALE_COLOR, GREYSCALE_COLOR, FULL_COLOR);
+      final int imgY) {
+    final UnleashedDogBreed.SpawnEggColors breedColors = pet.breed().spawnEggColors();
+    final int backgroundColor = toOpaqueColor(breedColors.secondary());
+    final int borderColor = toOpaqueColor(breedColors.primary());
+    final int textColor = placeholderTextColor(backgroundColor);
+    final String label = placeholderBreedLabel(pet.breed());
+
+    context.fill(imgX, imgY, imgX + THUMBNAIL_SIZE, imgY + THUMBNAIL_SIZE, backgroundColor);
+    context.drawBorder(imgX, imgY, THUMBNAIL_SIZE, THUMBNAIL_SIZE, borderColor);
+    context.drawCenteredTextWithShadow(
+        this.textRenderer,
+        label,
+        imgX + THUMBNAIL_SIZE / 2,
+        imgY + (THUMBNAIL_SIZE - this.textRenderer.fontHeight) / 2,
+        textColor);
+    if (!pet.alive()) {
+      context.fill(
+          RenderLayer.getGuiOverlay(),
+          imgX,
+          imgY,
+          imgX + THUMBNAIL_SIZE,
+          imgY + THUMBNAIL_SIZE,
+          0x889A9A9A);
     }
-    context.drawTexture(
-        textureId,
-        imgX,
-        imgY,
-        0,
-        0,
-        THUMBNAIL_SIZE,
-        THUMBNAIL_SIZE,
-        THUMBNAIL_SIZE,
-        THUMBNAIL_SIZE);
-    if (greyed) {
-      context.setShaderColor(FULL_COLOR, FULL_COLOR, FULL_COLOR, FULL_COLOR);
+  }
+
+  private static String placeholderBreedLabel(final UnleashedDogBreed breed) {
+    final String compactId = breed.serializedId().replace("_", "");
+    if (compactId.isEmpty()) {
+      return "?";
     }
+    return compactId.substring(0, Math.min(3, compactId.length())).toUpperCase(Locale.ROOT);
+  }
+
+  private static int toOpaqueColor(final int rgbColor) {
+    return 0xFF000000 | rgbColor;
+  }
+
+  private static int placeholderTextColor(final int backgroundColor) {
+    final int red = (backgroundColor >> 16) & 0xFF;
+    final int green = (backgroundColor >> 8) & 0xFF;
+    final int blue = backgroundColor & 0xFF;
+    final int brightness = (red * 299 + green * 587 + blue * 114) / 1000;
+    return brightness >= 140 ? 0xFF202020 : 0xFFF5F5F5;
   }
 
   private void drawPetPortrait(
@@ -483,7 +483,7 @@ public class PetManagerScreen extends Screen {
       context.setShaderColor(FULL_COLOR, FULL_COLOR, FULL_COLOR, FULL_COLOR);
       return;
     }
-    drawTexturePortrait(context, entity, pet, imgX, imgY, !pet.alive());
+    drawMissingPortraitPlaceholder(context, pet, imgX, imgY);
   }
 
   @Override

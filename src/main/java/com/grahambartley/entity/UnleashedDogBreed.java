@@ -121,10 +121,6 @@ public enum UnleashedDogBreed {
     return "animations/" + this.serializedId + ".animation.json";
   }
 
-  public String defaultTexturePath() {
-    return "textures/entity/" + this.serializedId + ".png";
-  }
-
   public String mouthAnchorBoneName() {
     return this.mouthAnchorBoneName;
   }

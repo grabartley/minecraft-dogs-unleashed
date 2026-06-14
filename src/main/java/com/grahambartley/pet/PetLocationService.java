@@ -29,9 +29,7 @@ public final class PetLocationService {
 
   @Nullable
   public static UnleashedDogEntity findDog(MinecraftServer server, PetData petData) {
-    final String dimStr = petData.getDimension();
     final BlockPos lastPos = petData.getLastKnownPosition();
-    final String petId = petData.getPetId().toString();
     final ServerWorld knownWorld = getKnownWorld(server, petData);
     if (knownWorld != null) {
       final UnleashedDogEntity dog = findInWorld(knownWorld, petData.getPetId());
