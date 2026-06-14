@@ -11,6 +11,7 @@ import com.grahambartley.pet.PetAliveFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.client.MinecraftClient;
@@ -404,22 +405,49 @@ public class PetManagerScreen extends Screen {
       final ModNetworking.PetSyncData pet,
       final int imgX,
       final int imgY) {
-    final int backgroundColor = pet.alive() ? 0xFF2B2B2B : 0xFF474747;
-    final int borderColor = pet.alive() ? 0xFF5A5A5A : 0xFF707070;
-    final int textColor = pet.alive() ? 0xFFE6E6E6 : 0xFFB8B8B8;
-    final String initial =
-        pet.breed().serializedId().isEmpty()
-            ? "?"
-            : String.valueOf(Character.toUpperCase(pet.breed().serializedId().charAt(0)));
+    final UnleashedDogBreed.SpawnEggColors breedColors = pet.breed().spawnEggColors();
+    final int backgroundColor = toOpaqueColor(breedColors.secondary());
+    final int borderColor = toOpaqueColor(breedColors.primary());
+    final int textColor = placeholderTextColor(backgroundColor);
+    final String label = placeholderBreedLabel(pet.breed());
 
     context.fill(imgX, imgY, imgX + THUMBNAIL_SIZE, imgY + THUMBNAIL_SIZE, backgroundColor);
     context.drawBorder(imgX, imgY, THUMBNAIL_SIZE, THUMBNAIL_SIZE, borderColor);
     context.drawCenteredTextWithShadow(
         this.textRenderer,
-        initial,
+        label,
         imgX + THUMBNAIL_SIZE / 2,
         imgY + (THUMBNAIL_SIZE - this.textRenderer.fontHeight) / 2,
         textColor);
+    if (!pet.alive()) {
+      context.fill(
+          RenderLayer.getGuiOverlay(),
+          imgX,
+          imgY,
+          imgX + THUMBNAIL_SIZE,
+          imgY + THUMBNAIL_SIZE,
+          0x889A9A9A);
+    }
+  }
+
+  private static String placeholderBreedLabel(final UnleashedDogBreed breed) {
+    final String compactId = breed.serializedId().replace("_", "");
+    if (compactId.isEmpty()) {
+      return "?";
+    }
+    return compactId.substring(0, Math.min(3, compactId.length())).toUpperCase(Locale.ROOT);
+  }
+
+  private static int toOpaqueColor(final int rgbColor) {
+    return 0xFF000000 | rgbColor;
+  }
+
+  private static int placeholderTextColor(final int backgroundColor) {
+    final int red = (backgroundColor >> 16) & 0xFF;
+    final int green = (backgroundColor >> 8) & 0xFF;
+    final int blue = backgroundColor & 0xFF;
+    final int brightness = (red * 299 + green * 587 + blue * 114) / 1000;
+    return brightness >= 140 ? 0xFF202020 : 0xFFF5F5F5;
   }
 
   private void drawPetPortrait(
