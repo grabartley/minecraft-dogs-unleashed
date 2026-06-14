@@ -23,4 +23,13 @@ final class ActivePlaySessions {
   static boolean shouldEndOnRemoval(RemovalReason reason) {
     return reason != RemovalReason.KILLED;
   }
+
+  static @Nullable UUID takeover(
+      Map<UUID, UUID> activePlaySessions, UUID playerUuid, UUID newDogUuid) {
+    UUID previous = activePlaySessions.put(playerUuid, newDogUuid);
+    if (previous == null || previous.equals(newDogUuid)) {
+      return null;
+    }
+    return previous;
+  }
 }
