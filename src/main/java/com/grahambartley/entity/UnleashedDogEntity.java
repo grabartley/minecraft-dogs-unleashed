@@ -39,6 +39,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityStatuses;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.ai.goal.AnimalMateGoal;
@@ -571,7 +572,8 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
 
     this.targetSelector.add(1, new TrackOwnerAttackerGoal(this));
     this.targetSelector.add(2, new AttackWithOwnerGoal(this));
-    this.targetSelector.add(3, new RevengeGoal(this));
+    this.targetSelector.add(
+        3, new RevengeGoal(this, DogFriendlyTargetPolicy.FRIENDLY_TARGET_TYPES));
     this.targetSelector.add(
         4,
         new ActiveTargetGoal<>(
@@ -582,6 +584,14 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
             false,
             this::shouldAngerAt));
     this.targetSelector.add(5, new UniversalAngerGoal<>(this, true));
+  }
+
+  @Override
+  public boolean canAttackWithOwner(LivingEntity target, LivingEntity owner) {
+    if (DogFriendlyTargetPolicy.isFriendlyTarget(target)) {
+      return false;
+    }
+    return super.canAttackWithOwner(target, owner);
   }
 
   @Override
