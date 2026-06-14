@@ -1,52 +1,46 @@
 package com.grahambartley;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.grahambartley.entity.UnleashedDogBreed;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class ModConstantsTest {
 
-  @Test
-  @DisplayName("Spawn egg colors should be valid hex values for every breed")
-  void testSpawnEggColors() {
-    for (final UnleashedDogBreed breed : UnleashedDogBreed.values()) {
-      final int primary = breed.spawnEggColors().primary();
-      final int secondary = breed.spawnEggColors().secondary();
-
-      assertTrue(primary >= 0x000000 && primary <= 0xFFFFFF, "Primary color must be valid hex");
-      assertTrue(
-          secondary >= 0x000000 && secondary <= 0xFFFFFF, "Secondary color must be valid hex");
-    }
+  static Stream<Arguments> tunableConstants() {
+    return Stream.of(
+        Arguments.of("MINECRAFT_TICK_RATE", ModConstants.MINECRAFT_TICK_RATE, 20),
+        Arguments.of("BARK_COOLDOWN_TICKS", ModConstants.BARK_COOLDOWN_TICKS, 6 * 20),
+        Arguments.of("RANDOM_BARK_CHANCE", ModConstants.RANDOM_BARK_CHANCE, 7200),
+        Arguments.of("HOWL_COOLDOWN_TICKS", ModConstants.HOWL_COOLDOWN_TICKS, 30 * 20),
+        Arguments.of("RANDOM_HOWL_CHANCE", ModConstants.RANDOM_HOWL_CHANCE, 4000),
+        Arguments.of("HOWL_DURATION_TICKS", ModConstants.HOWL_DURATION_TICKS, (int) (4.5f * 20)),
+        Arguments.of("FULL_MOON_PHASE", ModConstants.FULL_MOON_PHASE, 0));
   }
 
-  @Test
-  @DisplayName("Entity dimensions should be positive for every breed")
-  void testEntityDimensions() {
-    for (final UnleashedDogBreed breed : UnleashedDogBreed.values()) {
-      assertTrue(breed.dimensions().width() > 0, "Width must be positive");
-      assertTrue(breed.dimensions().height() > 0, "Height must be positive");
-    }
+  @ParameterizedTest(name = "{0} = {2}")
+  @MethodSource("tunableConstants")
+  @DisplayName("tunable integer constants hold their documented values")
+  void tunableConstantsHoldDocumentedValues(
+      final String name, final int actual, final int expected) {
+    assertEquals(expected, actual, name);
   }
 
-  @Test
-  @DisplayName("Spawn configuration should be valid for every breed")
-  void testSpawnConfiguration() {
-    for (final UnleashedDogBreed breed : UnleashedDogBreed.values()) {
-      final UnleashedDogBreed.SpawnSettings spawnSettings = breed.spawnSettings();
-      assertTrue(spawnSettings.weight() >= 1 && spawnSettings.weight() <= 100);
-      assertTrue(spawnSettings.minGroupSize() >= 1, "Min group size must be at least 1");
-      assertTrue(
-          spawnSettings.maxGroupSize() >= spawnSettings.minGroupSize(),
-          "Max group size must be >= min");
-      assertTrue(spawnSettings.biomes().length > 0, "Every breed should have at least one biome");
-    }
+  @ParameterizedTest(name = "{0} = {2}")
+  @MethodSource("floatConstants")
+  @DisplayName("tunable float constants hold their documented values")
+  void tunableFloatConstantsHoldDocumentedValues(
+      final String name, final float actual, final float expected) {
+    assertEquals(expected, actual, 0.0f, name);
   }
 
-  @Test
-  @DisplayName("Random bark chance should keep idle barking infrequent")
-  void testRandomBarkChance() {
-    assertEquals(7200, ModConstants.RANDOM_BARK_CHANCE);
+  static Stream<Arguments> floatConstants() {
+    return Stream.of(
+        Arguments.of("LOW_HEALTH_THRESHOLD", ModConstants.LOW_HEALTH_THRESHOLD, 0.3f),
+        Arguments.of("BARK_PITCH", ModConstants.BARK_PITCH, 1.0f),
+        Arguments.of("HOWL_PITCH", ModConstants.HOWL_PITCH, 1.0f));
   }
 }

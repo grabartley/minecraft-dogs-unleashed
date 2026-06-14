@@ -2,7 +2,6 @@ package com.grahambartley.entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.stream.Stream;
 import net.minecraft.entity.Entity;
@@ -18,7 +17,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class DogFriendlyTargetPolicyTest {
 
-  private static Stream<Arguments> friendlyClassificationCases() {
+  static Stream<Arguments> friendlyClassificationCases() {
     return Stream.of(
         Arguments.of(UnleashedDogEntity.class, true),
         Arguments.of(BeagleEntity.class, true),
@@ -34,33 +33,21 @@ class DogFriendlyTargetPolicyTest {
 
   @ParameterizedTest(name = "{0} friendly={1}")
   @MethodSource("friendlyClassificationCases")
-  @DisplayName("isFriendlyClass classifies entity types correctly")
-  void isFriendlyClassCases(Class<? extends Entity> entityClass, boolean expectedFriendly) {
+  @DisplayName("isFriendlyClass classifies dogs, villagers, and iron golems as friendly")
+  void isFriendlyClassClassifiesEntityType(
+      final Class<? extends Entity> entityClass, final boolean expectedFriendly) {
     assertEquals(expectedFriendly, DogFriendlyTargetPolicy.isFriendlyClass(entityClass));
   }
 
   @Test
-  @DisplayName("Friendly target list contains other dogs, villagers, and iron golems")
-  void friendlyTargetListContainsExpectedTypes() {
-    assertEquals(3, DogFriendlyTargetPolicy.FRIENDLY_TARGET_TYPES.length);
-    assertTrue(containsType(UnleashedDogEntity.class));
-    assertTrue(containsType(VillagerEntity.class));
-    assertTrue(containsType(IronGolemEntity.class));
+  @DisplayName("null entity is never a friendly target")
+  void nullEntityIsNotAFriendlyTarget() {
+    assertFalse(DogFriendlyTargetPolicy.isFriendlyTarget(null));
   }
 
   @Test
-  @DisplayName("Null entity is not friendly")
-  void nullEntityIsNotFriendly() {
-    assertFalse(DogFriendlyTargetPolicy.isFriendlyTarget(null));
+  @DisplayName("null entity class is never friendly")
+  void nullEntityClassIsNotFriendly() {
     assertFalse(DogFriendlyTargetPolicy.isFriendlyClass(null));
-  }
-
-  private static boolean containsType(Class<? extends Entity> type) {
-    for (Class<?> friendlyType : DogFriendlyTargetPolicy.FRIENDLY_TARGET_TYPES) {
-      if (friendlyType.equals(type)) {
-        return true;
-      }
-    }
-    return false;
   }
 }

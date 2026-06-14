@@ -9,66 +9,78 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Stream;
 import net.minecraft.entity.Entity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class ActivePlaySessionsTest {
 
   @Test
   @DisplayName("clear removes the active dog's own session")
-  void clearRemovesMatchingActiveSession() {
+  void clearRemovesActiveDogSession() {
     final UUID playerUuid = UUID.randomUUID();
     final UUID dogUuid = UUID.randomUUID();
-    final Map<UUID, UUID> activePlaySessions = new HashMap<>();
-    activePlaySessions.put(playerUuid, dogUuid);
+    final Map<UUID, UUID> sessions = new HashMap<>();
+    sessions.put(playerUuid, dogUuid);
 
-    ActivePlaySessions.clear(activePlaySessions, true, playerUuid, dogUuid);
+    ActivePlaySessions.clear(sessions, true, playerUuid, dogUuid);
 
-    assertFalse(activePlaySessions.containsKey(playerUuid));
+    assertFalse(sessions.containsKey(playerUuid));
   }
 
   @Test
-  @DisplayName("clear ignores dogs that are not in play mode")
+  @DisplayName("clear ignores dogs that are not currently in play mode")
   void clearIgnoresInactiveDogs() {
     final UUID playerUuid = UUID.randomUUID();
     final UUID dogUuid = UUID.randomUUID();
-    final Map<UUID, UUID> activePlaySessions = new HashMap<>();
-    activePlaySessions.put(playerUuid, dogUuid);
+    final Map<UUID, UUID> sessions = new HashMap<>();
+    sessions.put(playerUuid, dogUuid);
 
-    ActivePlaySessions.clear(activePlaySessions, false, playerUuid, dogUuid);
+    ActivePlaySessions.clear(sessions, false, playerUuid, dogUuid);
 
-    assertTrue(activePlaySessions.containsKey(playerUuid));
+    assertTrue(sessions.containsKey(playerUuid));
+    assertEquals(dogUuid, sessions.get(playerUuid));
   }
 
   @Test
   @DisplayName("clear preserves another dog's active session")
-  void clearPreservesDifferentDogSession() {
+  void clearPreservesAnotherDogsSession() {
     final UUID playerUuid = UUID.randomUUID();
     final UUID activeDogUuid = UUID.randomUUID();
     final UUID unloadedDogUuid = UUID.randomUUID();
-    final Map<UUID, UUID> activePlaySessions = new HashMap<>();
-    activePlaySessions.put(playerUuid, activeDogUuid);
+    final Map<UUID, UUID> sessions = new HashMap<>();
+    sessions.put(playerUuid, activeDogUuid);
 
-    ActivePlaySessions.clear(activePlaySessions, true, playerUuid, unloadedDogUuid);
+    ActivePlaySessions.clear(sessions, true, playerUuid, unloadedDogUuid);
 
-    assertTrue(activePlaySessions.containsKey(playerUuid));
-    assertEquals(activeDogUuid, activePlaySessions.get(playerUuid));
+    assertEquals(activeDogUuid, sessions.get(playerUuid));
   }
 
-  @Test
-  @DisplayName("play mode should end for non-killed removals")
-  void shouldEndOnNonKilledRemoval() {
-    assertTrue(ActivePlaySessions.shouldEndOnRemoval(Entity.RemovalReason.UNLOADED_TO_CHUNK));
-    assertTrue(ActivePlaySessions.shouldEndOnRemoval(Entity.RemovalReason.UNLOADED_WITH_PLAYER));
-    assertTrue(ActivePlaySessions.shouldEndOnRemoval(Entity.RemovalReason.CHANGED_DIMENSION));
-    assertTrue(ActivePlaySessions.shouldEndOnRemoval(Entity.RemovalReason.DISCARDED));
+  static Stream<Arguments> nonKillingRemovals() {
+    return Stream.of(
+        Arguments.of(Entity.RemovalReason.UNLOADED_TO_CHUNK),
+        Arguments.of(Entity.RemovalReason.UNLOADED_WITH_PLAYER),
+        Arguments.of(Entity.RemovalReason.CHANGED_DIMENSION),
+        Arguments.of(Entity.RemovalReason.DISCARDED));
   }
 
-  @Test
-  @DisplayName("play mode cleanup should be skipped for killed removals")
-  void shouldNotEndOnKilledRemoval() {
-    assertFalse(ActivePlaySessions.shouldEndOnRemoval(Entity.RemovalReason.KILLED));
+  @ParameterizedTest(name = "{0} ends the play session")
+  @MethodSource("nonKillingRemovals")
+  @DisplayName("non-killing removals end the active play session")
+  void nonKillingRemovalsEndPlaySession(final Entity.RemovalReason reason) {
+    assertTrue(ActivePlaySessions.shouldEndOnRemoval(reason));
+  }
+
+  @ParameterizedTest(name = "{0} keeps the play session alive")
+  @EnumSource(value = Entity.RemovalReason.class, names = "KILLED")
+  @DisplayName("killing removals leave the play session intact so it survives a respawn")
+  void killingRemovalsKeepPlaySessionAlive(final Entity.RemovalReason reason) {
+    assertFalse(ActivePlaySessions.shouldEndOnRemoval(reason));
   }
 
   @Test
@@ -76,12 +88,12 @@ class ActivePlaySessionsTest {
   void takeoverFromEmptyMapInstallsNewDog() {
     final UUID playerUuid = UUID.randomUUID();
     final UUID newDogUuid = UUID.randomUUID();
-    final Map<UUID, UUID> activePlaySessions = new HashMap<>();
+    final Map<UUID, UUID> sessions = new HashMap<>();
 
-    UUID prior = ActivePlaySessions.takeover(activePlaySessions, playerUuid, newDogUuid);
+    final UUID prior = ActivePlaySessions.takeover(sessions, playerUuid, newDogUuid);
 
     assertNull(prior);
-    assertEquals(newDogUuid, activePlaySessions.get(playerUuid));
+    assertEquals(newDogUuid, sessions.get(playerUuid));
   }
 
   @Test
@@ -90,26 +102,26 @@ class ActivePlaySessionsTest {
     final UUID playerUuid = UUID.randomUUID();
     final UUID priorDogUuid = UUID.randomUUID();
     final UUID newDogUuid = UUID.randomUUID();
-    final Map<UUID, UUID> activePlaySessions = new HashMap<>();
-    activePlaySessions.put(playerUuid, priorDogUuid);
+    final Map<UUID, UUID> sessions = new HashMap<>();
+    sessions.put(playerUuid, priorDogUuid);
 
-    UUID returnedPrior = ActivePlaySessions.takeover(activePlaySessions, playerUuid, newDogUuid);
+    final UUID returnedPrior = ActivePlaySessions.takeover(sessions, playerUuid, newDogUuid);
 
     assertSame(priorDogUuid, returnedPrior);
-    assertEquals(newDogUuid, activePlaySessions.get(playerUuid));
+    assertEquals(newDogUuid, sessions.get(playerUuid));
   }
 
   @Test
   @DisplayName("takeover by the same dog is idempotent and reports no prior to clean up")
-  void takeoverBySameDogReturnsNull() {
+  void takeoverBySameDogIsIdempotent() {
     final UUID playerUuid = UUID.randomUUID();
     final UUID dogUuid = UUID.randomUUID();
-    final Map<UUID, UUID> activePlaySessions = new HashMap<>();
-    activePlaySessions.put(playerUuid, dogUuid);
+    final Map<UUID, UUID> sessions = new HashMap<>();
+    sessions.put(playerUuid, dogUuid);
 
-    UUID prior = ActivePlaySessions.takeover(activePlaySessions, playerUuid, dogUuid);
+    final UUID prior = ActivePlaySessions.takeover(sessions, playerUuid, dogUuid);
 
     assertNull(prior);
-    assertEquals(dogUuid, activePlaySessions.get(playerUuid));
+    assertEquals(dogUuid, sessions.get(playerUuid));
   }
 }
