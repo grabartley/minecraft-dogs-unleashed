@@ -1,79 +1,44 @@
 package com.grahambartley.network;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class ModNetworkingTest {
 
-  @Test
-  @DisplayName("stripControlChars should keep normal text unchanged")
-  void keepsNormalText() {
-    assertEquals("hello", ModNetworking.stripControlChars("hello"));
-    assertEquals("Hello World 123", ModNetworking.stripControlChars("Hello World 123"));
-    assertEquals("abcDEF", ModNetworking.stripControlChars("abcDEF"));
+  static Stream<Arguments> stripControlCharsCases() {
+    final String printableAscii =
+        " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+    return Stream.of(
+        Arguments.of("normal lowercase", "hello", "hello"),
+        Arguments.of("mixed-case sentence", "Hello World 123", "Hello World 123"),
+        Arguments.of("camelCase", "abcDEF", "abcDEF"),
+        Arguments.of("null byte in middle", "a\0b", "ab"),
+        Arguments.of("null byte at end", "hello\0", "hello"),
+        Arguments.of("null byte at start", "\0hello", "hello"),
+        Arguments.of("newline in middle", "a\nb", "ab"),
+        Arguments.of("tab in middle", "a\tb", "ab"),
+        Arguments.of("carriage return in middle", "a\rb", "ab"),
+        Arguments.of("low control around text", "hello", "hello"),
+        Arguments.of("DEL in middle", "ab", "ab"),
+        Arguments.of("DEL at end", "hello", "hello"),
+        Arguments.of("empty string", "", ""),
+        Arguments.of("only control characters", "\0\n\r\t", ""),
+        Arguments.of("mixed control and printable", "a\0b\0c\tX\nY\rZ123", "abcXYZ123"),
+        Arguments.of("printable ASCII preserved", printableAscii, printableAscii),
+        Arguments.of("accented Latin preserved", "éàüñ", "éàüñ"),
+        Arguments.of("CJK preserved", "中国", "中国"));
   }
 
-  @Test
-  @DisplayName("stripControlChars should remove null bytes")
-  void removesNullBytes() {
-    assertEquals("ab", ModNetworking.stripControlChars("a\0b"));
-    assertEquals("hello", ModNetworking.stripControlChars("hello\0"));
-    assertEquals("hello", ModNetworking.stripControlChars("\0hello"));
-  }
-
-  @Test
-  @DisplayName("stripControlChars should remove control characters below 0x20")
-  void removesLowControlChars() {
-    assertEquals("ab", ModNetworking.stripControlChars("a\nb"));
-    assertEquals("ab", ModNetworking.stripControlChars("a\tb"));
-    assertEquals("ab", ModNetworking.stripControlChars("a\rb"));
-    assertEquals("hello", ModNetworking.stripControlChars("\u0001hello\u0002"));
-  }
-
-  @Test
-  @DisplayName("stripControlChars should remove DEL character (0x7f)")
-  void removesDelCharacter() {
-    assertEquals("ab", ModNetworking.stripControlChars("a\u007fb"));
-    assertEquals("hello", ModNetworking.stripControlChars("hello\u007f"));
-  }
-
-  @Test
-  @DisplayName("stripControlChars should handle empty string")
-  void handlesEmptyString() {
-    assertEquals("", ModNetworking.stripControlChars(""));
-  }
-
-  @Test
-  @DisplayName("stripControlChars should return empty string when all chars are control chars")
-  void handlesAllControlChars() {
-    assertEquals("", ModNetworking.stripControlChars("\0\n\r\t\u0001\u007f"));
-  }
-
-  @ParameterizedTest
-  @DisplayName("stripControlChars should preserve printable ASCII characters")
-  @CsvSource({
-    " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~",
-    " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
-  })
-  void preservesPrintableAscii(final String input) {
-    assertEquals(input, ModNetworking.stripControlChars(input));
-  }
-
-  @Test
-  @DisplayName("stripControlChars should preserve printable non-ASCII characters")
-  void preservesNonAscii() {
-    assertEquals(
-        "\u00e9\u00e0\u00fc\u00f1", ModNetworking.stripControlChars("\u00e9\u00e0\u00fc\u00f1"));
-    assertEquals("\u4e2d\u56fd", ModNetworking.stripControlChars("\u4e2d\u56fd"));
-  }
-
-  @Test
-  @DisplayName("stripControlChars should strip mixed control and normal chars")
-  void stripsMixedContent() {
-    assertEquals("abcXYZ123", ModNetworking.stripControlChars("a\0b\0c\tX\nY\rZ\u0001123\u007f"));
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("stripControlCharsCases")
+  @DisplayName("stripControlChars removes control bytes and keeps printable characters")
+  void stripControlCharsRemovesControlBytes(
+      final String label, final String input, final String expected) {
+    assertEquals(expected, ModNetworking.stripControlChars(input));
   }
 }

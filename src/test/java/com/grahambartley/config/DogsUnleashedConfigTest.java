@@ -21,8 +21,27 @@ class DogsUnleashedConfigTest {
   @TempDir Path tempDir;
 
   @Test
-  @DisplayName("defaults() returns expected default values")
-  void defaultsReturnsExpectedValues() {
+  @DisplayName("AUTO_SLEEP_RANGE_MIN is below AUTO_SLEEP_RANGE_MAX")
+  void autoSleepRangeMinIsBelowMax() {
+    assertTrue(DogsUnleashedConfig.AUTO_SLEEP_RANGE_MIN < DogsUnleashedConfig.AUTO_SLEEP_RANGE_MAX);
+  }
+
+  @Test
+  @DisplayName("AUTO_SLEEP_RANGE_MIN is at least 1 block")
+  void autoSleepRangeMinIsAtLeastOne() {
+    assertTrue(DogsUnleashedConfig.AUTO_SLEEP_RANGE_MIN >= 1);
+  }
+
+  @Test
+  @DisplayName("VOLUME_MIN is non-negative and below VOLUME_MAX")
+  void volumeMinIsNonNegativeAndBelowMax() {
+    assertTrue(DogsUnleashedConfig.VOLUME_MIN >= 0.0f);
+    assertTrue(DogsUnleashedConfig.VOLUME_MIN < DogsUnleashedConfig.VOLUME_MAX);
+  }
+
+  @Test
+  @DisplayName("defaults() returns the documented default values")
+  void defaultsReturnsDocumentedValues() {
     final DogsUnleashedConfig defaults = DogsUnleashedConfig.defaults();
     assertTrue(defaults.enableNaturalSpawning());
     assertTrue(defaults.gravesEnabled());
@@ -33,51 +52,50 @@ class DogsUnleashedConfigTest {
   }
 
   @Test
-  @DisplayName("load() with missing file returns defaults")
+  @DisplayName("load() falls back to defaults when the file is missing")
   void loadMissingFileReturnsDefaults() {
-    final Path missing = tempDir.resolve("missing.json");
-    final DogsUnleashedConfig loaded = DogsUnleashedConfig.load(missing);
-    assertEquals(DogsUnleashedConfig.defaults(), loaded);
+    assertEquals(
+        DogsUnleashedConfig.defaults(), DogsUnleashedConfig.load(tempDir.resolve("missing.json")));
   }
 
   @Test
-  @DisplayName("load() with null path returns defaults")
+  @DisplayName("load() falls back to defaults when path is null")
   void loadNullPathReturnsDefaults() {
     assertEquals(DogsUnleashedConfig.defaults(), DogsUnleashedConfig.load(null));
   }
 
   @Test
-  @DisplayName("save() then load() round-trips all fields")
-  void saveLoadRoundTrip() throws IOException {
+  @DisplayName("save() then load() round-trips every field")
+  void saveAndLoadRoundTripsEveryField() throws IOException {
     final Path path = tempDir.resolve("config.json");
     final DogsUnleashedConfig original =
         new DogsUnleashedConfig(false, false, false, 64, 0.5f, 0.25f);
     assertTrue(DogsUnleashedConfig.save(path, original));
     assertTrue(Files.exists(path));
-    final DogsUnleashedConfig loaded = DogsUnleashedConfig.load(path);
-    assertEquals(original, loaded);
+    assertEquals(original, DogsUnleashedConfig.load(path));
   }
 
   @Test
-  @DisplayName("load() with malformed JSON returns defaults and backs up the broken file")
+  @DisplayName("load() with malformed JSON returns defaults and renames the broken file")
   void loadMalformedJsonReturnsDefaultsAndBacksUp() throws IOException {
     final Path path = tempDir.resolve("malformed.json");
     Files.writeString(path, "this is not valid json {{{", StandardCharsets.UTF_8);
-    final DogsUnleashedConfig loaded = DogsUnleashedConfig.load(path);
-    assertEquals(DogsUnleashedConfig.defaults(), loaded);
-    assertFalse(Files.exists(path), "Original malformed file should have been renamed");
+
+    assertEquals(DogsUnleashedConfig.defaults(), DogsUnleashedConfig.load(path));
+    assertFalse(Files.exists(path), "broken file should have been renamed away");
     final boolean backupExists =
         Files.list(tempDir)
             .anyMatch(p -> p.getFileName().toString().startsWith("malformed.broken."));
-    assertTrue(backupExists, "A .broken.<timestamp>.json backup should exist");
+    assertTrue(backupExists, "a .broken.<timestamp>.json backup should be present");
   }
 
   @Test
-  @DisplayName("load() with missing JSON keys fills in defaults for absent fields")
+  @DisplayName("load() fills missing keys with defaults while honoring present keys")
   void loadMissingKeysFillsInDefaults() throws IOException {
     final Path path = tempDir.resolve("partial.json");
     Files.writeString(
         path, "{\"barkVolume\": 0.5, \"gravesEnabled\": false}", StandardCharsets.UTF_8);
+
     final DogsUnleashedConfig loaded = DogsUnleashedConfig.load(path);
     assertEquals(0.5f, loaded.barkVolume());
     assertFalse(loaded.gravesEnabled());
@@ -100,9 +118,10 @@ class DogsUnleashedConfigTest {
         Arguments.of(-50, DogsUnleashedConfig.AUTO_SLEEP_RANGE_MIN));
   }
 
-  @ParameterizedTest
+  @ParameterizedTest(name = "{0} clamps to {1}")
   @MethodSource("autoSleepRangeClampCases")
-  @DisplayName("constructor clamps autoSleepRangeBlocks to [4, 128]")
+  @DisplayName(
+      "constructor clamps autoSleepRangeBlocks to [AUTO_SLEEP_RANGE_MIN, AUTO_SLEEP_RANGE_MAX]")
   void constructorClampsAutoSleepRange(final int input, final int expected) {
     final DogsUnleashedConfig config = new DogsUnleashedConfig(true, true, true, input, 1.0f, 1.5f);
     assertEquals(expected, config.autoSleepRangeBlocks());
@@ -119,9 +138,9 @@ class DogsUnleashedConfigTest {
         Arguments.of(100.0f, DogsUnleashedConfig.VOLUME_MAX));
   }
 
-  @ParameterizedTest
+  @ParameterizedTest(name = "{0} clamps to {1}")
   @MethodSource("volumeClampCases")
-  @DisplayName("constructor clamps barkVolume and howlVolume to [0.0, 2.0]")
+  @DisplayName("constructor clamps barkVolume and howlVolume to [VOLUME_MIN, VOLUME_MAX]")
   void constructorClampsVolumes(final float input, final float expected) {
     final DogsUnleashedConfig config = new DogsUnleashedConfig(true, true, true, 32, input, input);
     assertEquals(expected, config.barkVolume());
@@ -129,13 +148,14 @@ class DogsUnleashedConfigTest {
   }
 
   @Test
-  @DisplayName("load() clamps out-of-range values from JSON")
+  @DisplayName("load() clamps out-of-range JSON values to their allowed bounds")
   void loadClampsOutOfRange() throws IOException {
     final Path path = tempDir.resolve("oor.json");
     Files.writeString(
         path,
         "{\"autoSleepRangeBlocks\": 999, \"barkVolume\": -5.0, \"howlVolume\": 10.0}",
         StandardCharsets.UTF_8);
+
     final DogsUnleashedConfig loaded = DogsUnleashedConfig.load(path);
     assertEquals(DogsUnleashedConfig.AUTO_SLEEP_RANGE_MAX, loaded.autoSleepRangeBlocks());
     assertEquals(DogsUnleashedConfig.VOLUME_MIN, loaded.barkVolume());
@@ -143,8 +163,8 @@ class DogsUnleashedConfigTest {
   }
 
   @Test
-  @DisplayName("withXxx() returns updated config without mutating original")
-  void witherReturnsUpdatedConfig() {
+  @DisplayName("withXxx() returns updated config without mutating the original instance")
+  void witherReturnsUpdatedConfigWithoutMutatingOriginal() {
     final DogsUnleashedConfig original = DogsUnleashedConfig.defaults();
     final DogsUnleashedConfig updated =
         original
@@ -154,6 +174,7 @@ class DogsUnleashedConfigTest {
             .withAutoSleepRangeBlocks(64)
             .withBarkVolume(0.25f)
             .withHowlVolume(0.75f);
+
     assertEquals(DogsUnleashedConfig.defaults(), original);
     assertFalse(updated.enableNaturalSpawning());
     assertFalse(updated.gravesEnabled());
