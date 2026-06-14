@@ -82,7 +82,7 @@ bed. Your dog will:
 - **Refuse to auto-sleep again** if you wake them before morning (respect)
 - **Unassign** with a sneak-right-click of the bed if your dog gets too big for it
 
-Huskies and Shibas use a curled "sleep" pose in bed. Everyone else sits. Because of course they do.
+Every breed uses its curled "sleep" pose in bed. Tiny loaf, giant loaf, same nap energy.
 
 ### Husky Howling (Full Moon Only)
 
@@ -117,8 +117,8 @@ the player who clicked). Breeding roll tables include rare coat variants you wil
 
 ### Cross-Dimension Loyalty
 
-Dimension hop and your dogs follow. Portal, teleport, whatever — dogs within 12 blocks come with you. No more leaving
-your pack behind because you stepped through a nether portal.
+Dimension hop and your dogs follow. Portal, end portal, weird command magic, whatever: every alive tamed dog comes with
+you, unless they are sitting or sleeping in bed. Regular in-dimension teleports still only scoop up nearby dogs.
 
 ### Pet Manager
 
