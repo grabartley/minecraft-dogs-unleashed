@@ -1,12 +1,10 @@
 package com.grahambartley.screen;
 
-import com.grahambartley.DogsUnleashed;
 import com.grahambartley.ModEntities;
 import com.grahambartley.ModNbtKeys;
 import com.grahambartley.entity.HuskyEntity;
 import com.grahambartley.entity.UnleashedDogBreed;
 import com.grahambartley.entity.UnleashedDogEntity;
-import com.grahambartley.entity.variant.HuskyEyeColor;
 import com.grahambartley.network.ModNetworking;
 import com.grahambartley.network.ModNetworkingClient;
 import com.grahambartley.pet.PetAliveFilter;
@@ -46,7 +44,6 @@ public class PetManagerScreen extends Screen {
   private static final float LOW_HEALTH_COLOR_THRESHOLD = 0.5f;
   private static final int PORTRAIT_SHADOW_SIZE = 22;
   private static final float PORTRAIT_SCALE = 0.35f;
-  private static final float GREYSCALE_COLOR = 0.4f;
   private static final float FULL_COLOR = 1.0f;
 
   private static final List<BreedFilterOption> BREED_OPTIONS = List.of(BreedFilterOption.values());
@@ -402,52 +399,27 @@ public class PetManagerScreen extends Screen {
     return entity;
   }
 
-  private static Identifier resolveFallbackTexture(
-      final UnleashedDogEntity entity, final ModNetworking.PetSyncData pet) {
-    if (pet.coatVariant() >= 0) {
-      final String fileName;
-      if (pet.breed() == UnleashedDogBreed.HUSKY) {
-        final HuskyEyeColor eyes = HuskyEyeColor.fromOrdinal(pet.huskyEyeVariant());
-        fileName =
-            pet.breed().serializedId()
-                + "_"
-                + entity.getCoatVariant().getTexturePrefix()
-                + "_"
-                + eyes.textureSuffix()
-                + ".png";
-      } else {
-        fileName =
-            pet.breed().serializedId() + "_" + entity.getCoatVariant().getTexturePrefix() + ".png";
-      }
-      return Identifier.of(DogsUnleashed.MOD_ID, "textures/entity/" + fileName);
-    }
-    return Identifier.of(DogsUnleashed.MOD_ID, pet.breed().defaultTexturePath());
-  }
-
-  private void drawTexturePortrait(
+  private void drawMissingPortraitPlaceholder(
       final DrawContext context,
-      final UnleashedDogEntity entity,
       final ModNetworking.PetSyncData pet,
       final int imgX,
-      final int imgY,
-      final boolean greyed) {
-    final Identifier textureId = resolveFallbackTexture(entity, pet);
-    if (greyed) {
-      context.setShaderColor(GREYSCALE_COLOR, GREYSCALE_COLOR, GREYSCALE_COLOR, FULL_COLOR);
-    }
-    context.drawTexture(
-        textureId,
-        imgX,
-        imgY,
-        0,
-        0,
-        THUMBNAIL_SIZE,
-        THUMBNAIL_SIZE,
-        THUMBNAIL_SIZE,
-        THUMBNAIL_SIZE);
-    if (greyed) {
-      context.setShaderColor(FULL_COLOR, FULL_COLOR, FULL_COLOR, FULL_COLOR);
-    }
+      final int imgY) {
+    final int backgroundColor = pet.alive() ? 0xFF2B2B2B : 0xFF474747;
+    final int borderColor = pet.alive() ? 0xFF5A5A5A : 0xFF707070;
+    final int textColor = pet.alive() ? 0xFFE6E6E6 : 0xFFB8B8B8;
+    final String initial =
+        pet.breed().serializedId().isEmpty()
+            ? "?"
+            : String.valueOf(Character.toUpperCase(pet.breed().serializedId().charAt(0)));
+
+    context.fill(imgX, imgY, imgX + THUMBNAIL_SIZE, imgY + THUMBNAIL_SIZE, backgroundColor);
+    context.drawBorder(imgX, imgY, THUMBNAIL_SIZE, THUMBNAIL_SIZE, borderColor);
+    context.drawCenteredTextWithShadow(
+        this.textRenderer,
+        initial,
+        imgX + THUMBNAIL_SIZE / 2,
+        imgY + (THUMBNAIL_SIZE - this.textRenderer.fontHeight) / 2,
+        textColor);
   }
 
   private void drawPetPortrait(
@@ -483,7 +455,7 @@ public class PetManagerScreen extends Screen {
       context.setShaderColor(FULL_COLOR, FULL_COLOR, FULL_COLOR, FULL_COLOR);
       return;
     }
-    drawTexturePortrait(context, entity, pet, imgX, imgY, !pet.alive());
+    drawMissingPortraitPlaceholder(context, pet, imgX, imgY);
   }
 
   @Override

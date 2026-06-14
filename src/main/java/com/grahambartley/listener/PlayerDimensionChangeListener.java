@@ -7,12 +7,8 @@ import com.grahambartley.pet.PetLocationService;
 import com.grahambartley.pet.PetManager;
 import java.util.UUID;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
 
 public final class PlayerDimensionChangeListener {
 
@@ -21,19 +17,11 @@ public final class PlayerDimensionChangeListener {
         (player, origin, destination) -> {
           final MinecraftServer server = player.getServer();
           final UUID playerId = player.getUuid();
-          final String originDim = origin.getRegistryKey().getValue().toString();
-          final String destDim = destination.getRegistryKey().getValue().toString();
           DogsUnleashed.runNextTick(
               () -> {
                 final PetManager petManager = PetManager.get(server);
                 final java.util.List<PetData> pets = petManager.getPetsByOwner(playerId);
 
-                final ServerWorld dest =
-                    server.getWorld(RegistryKey.of(RegistryKeys.WORLD, Identifier.of(destDim)));
-                if (dest == null) {
-                  DogsUnleashed.log.warn("[DimChange] Destination world {} not found", destDim);
-                  return;
-                }
                 for (final PetData petData : pets) {
                   if (!petData.isAlive()) {
                     continue;
@@ -64,7 +52,7 @@ public final class PlayerDimensionChangeListener {
                   }
 
                   final UnleashedDogEntity teleported =
-                      dog.followOwnerToDimension(playerEntity, dest);
+                      dog.followOwnerToDimension(playerEntity, destination);
                   petData.setDimension(
                       teleported.getWorld().getRegistryKey().getValue().toString());
                   petData.setLastKnownPosition(teleported.getBlockPos());
