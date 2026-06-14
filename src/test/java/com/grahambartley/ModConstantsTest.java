@@ -47,6 +47,6 @@ class ModConstantsTest {
   @Test
   @DisplayName("Random bark chance should keep idle barking infrequent")
   void testRandomBarkChance() {
-    assertEquals(2400, ModConstants.RANDOM_BARK_CHANCE);
+    assertEquals(7200, ModConstants.RANDOM_BARK_CHANCE);
   }
 }
