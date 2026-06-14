@@ -25,10 +25,8 @@
     "modmenu": [
       "com.grahambartley.DogsUnleashedModMenu"
     ],
-    "fabric-datagen": [
-      "com.grahambartley.DogsUnleashedDataGenerator"
-    ],
     "fabric-gametest": [
+      "com.grahambartley.gametest.DogAdvancementGameTest",
       "com.grahambartley.gametest.DogEntityBreedSpecificTest",
       "com.grahambartley.gametest.DogEntityCoreTest",
       "com.grahambartley.gametest.DogEntityBehaviorTest",
@@ -51,8 +49,5 @@
     "java": ">=21",
     "fabric-api": ">=0.107.0+1.21.1",
     "geckolib": ">=4.7"
-  },
-  "suggests": {
-    "another-mod": "*"
   }
 }

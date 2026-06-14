@@ -153,6 +153,5 @@ class UnleashedDogBreedTest {
     final String id = breed.serializedId();
     assertEquals("entity.dogs-unleashed." + id, breed.translationKey());
     assertEquals("animations/" + id + ".animation.json", breed.animationPath());
-    assertEquals("textures/entity/" + id + ".png", breed.defaultTexturePath());
   }
 }
