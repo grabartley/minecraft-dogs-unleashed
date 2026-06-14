@@ -85,7 +85,7 @@ public final class DogBedBlockGameTest implements FabricGameTest {
     context.complete();
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+  @GameTest(templateName = "dogs-unleashed:dog_bed_pair", tickLimit = 100)
   public void dogCanBeAssignedToBed(final TestContext context) {
     final BlockPos bedPos = new BlockPos(0, 1, 0);
     final BlockPos dogPos = new BlockPos(2, 1, 0);
@@ -180,7 +180,7 @@ public final class DogBedBlockGameTest implements FabricGameTest {
         });
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+  @GameTest(templateName = "dogs-unleashed:dog_bed_pair", tickLimit = 100)
   public void clearAssignedBedWorks(final TestContext context) {
     final BlockPos bedPos = new BlockPos(0, 1, 0);
     final BlockPos dogPos = new BlockPos(2, 1, 0);
@@ -239,7 +239,7 @@ public final class DogBedBlockGameTest implements FabricGameTest {
     context.complete();
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+  @GameTest(templateName = "dogs-unleashed:dog_bed_pair", tickLimit = 100)
   public void reAssigningDogToNewBedClearsOldBed(final TestContext context) {
     final BlockPos oldBedPos = new BlockPos(0, 1, 0);
     final BlockPos newBedPos = new BlockPos(3, 1, 0);
@@ -300,7 +300,7 @@ public final class DogBedBlockGameTest implements FabricGameTest {
         });
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+  @GameTest(templateName = "dogs-unleashed:dog_bed_pair", tickLimit = 100)
   public void dogDeathFreesAssignedBed(final TestContext context) {
     final BlockPos bedPos = new BlockPos(0, 1, 0);
     final BlockPos dogPos = new BlockPos(1, 1, 0);

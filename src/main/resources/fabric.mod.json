@@ -26,6 +26,7 @@
       "com.grahambartley.DogsUnleashedModMenu"
     ],
     "fabric-gametest": [
+      "com.grahambartley.gametest.DogAdvancementGameTest",
       "com.grahambartley.gametest.DogEntityBreedSpecificTest",
       "com.grahambartley.gametest.DogEntityCoreTest",
       "com.grahambartley.gametest.DogEntityBehaviorTest",
