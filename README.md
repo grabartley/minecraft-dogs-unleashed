@@ -53,13 +53,21 @@ Wolves were the prototype. This is the production release.
 
 ### Fetch (Yes, Actual Fetch)
 
-Hold a tennis ball, sneak-right-click your dog, and enter play mode. Throw the ball and watch your dog:
+Sneak-right-click your dog with a fetch item to enter play mode, then throw it and watch your dog:
 
 1. **Chase** the projectile as it arcs through the air
-2. **Retrieve** the ball from where it lands
+2. **Retrieve** the item from where it lands
 3. **Return** it to you and drop it at your feet
 
-Full chase AI, ball-carrying animation, the works. Your dog will never look at a stick the same way again.
+Full chase AI, carry animation, the works. Three fetch items are supported:
+
+| Item            | How to get                                        | Glide         | Notes                                        |
+|-----------------|---------------------------------------------------|---------------|----------------------------------------------|
+| **Tennis Ball** | Craft with slimeball + lime/white dye             | Standard      | Stackable (16)                               |
+| **Stick**       | Vanilla sticks                                    | Standard      | No crafting needed                           |
+| **Frisbee**     | Craft with 4× honeycomb + matching dye (16 colors)| Long and flat | Dyeable, name reflects color ("Red Frisbee") |
+
+The frisbee glides roughly three times further than the tennis ball before landing, making it the best fetch item for open terrain.
 
 ### Dog Beds They Actually Use
 
