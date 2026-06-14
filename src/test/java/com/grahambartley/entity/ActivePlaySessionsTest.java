@@ -2,6 +2,8 @@ package com.grahambartley.entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
@@ -67,5 +69,47 @@ class ActivePlaySessionsTest {
   @DisplayName("play mode cleanup should be skipped for killed removals")
   void shouldNotEndOnKilledRemoval() {
     assertFalse(ActivePlaySessions.shouldEndOnRemoval(Entity.RemovalReason.KILLED));
+  }
+
+  @Test
+  @DisplayName("takeover with no prior session installs the new dog and returns null")
+  void takeoverFromEmptyMapInstallsNewDog() {
+    final UUID playerUuid = UUID.randomUUID();
+    final UUID newDogUuid = UUID.randomUUID();
+    final Map<UUID, UUID> activePlaySessions = new HashMap<>();
+
+    UUID prior = ActivePlaySessions.takeover(activePlaySessions, playerUuid, newDogUuid);
+
+    assertNull(prior);
+    assertEquals(newDogUuid, activePlaySessions.get(playerUuid));
+  }
+
+  @Test
+  @DisplayName("takeover replaces the prior dog and returns its uuid for cleanup")
+  void takeoverReplacesPriorDog() {
+    final UUID playerUuid = UUID.randomUUID();
+    final UUID priorDogUuid = UUID.randomUUID();
+    final UUID newDogUuid = UUID.randomUUID();
+    final Map<UUID, UUID> activePlaySessions = new HashMap<>();
+    activePlaySessions.put(playerUuid, priorDogUuid);
+
+    UUID returnedPrior = ActivePlaySessions.takeover(activePlaySessions, playerUuid, newDogUuid);
+
+    assertSame(priorDogUuid, returnedPrior);
+    assertEquals(newDogUuid, activePlaySessions.get(playerUuid));
+  }
+
+  @Test
+  @DisplayName("takeover by the same dog is idempotent and reports no prior to clean up")
+  void takeoverBySameDogReturnsNull() {
+    final UUID playerUuid = UUID.randomUUID();
+    final UUID dogUuid = UUID.randomUUID();
+    final Map<UUID, UUID> activePlaySessions = new HashMap<>();
+    activePlaySessions.put(playerUuid, dogUuid);
+
+    UUID prior = ActivePlaySessions.takeover(activePlaySessions, playerUuid, dogUuid);
+
+    assertNull(prior);
+    assertEquals(dogUuid, activePlaySessions.get(playerUuid));
   }
 }

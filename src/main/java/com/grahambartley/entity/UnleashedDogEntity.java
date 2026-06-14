@@ -459,15 +459,29 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   }
 
   public void startPlayMode(PlayerEntity player, FetchItemType fetchItemType) {
-    if (ACTIVE_PLAY_SESSIONS.containsKey(player.getUuid())) {
-      return;
+    UUID priorDogUuid =
+        ActivePlaySessions.takeover(ACTIVE_PLAY_SESSIONS, player.getUuid(), this.getUuid());
+    if (priorDogUuid != null) {
+      endPlayModeForDog(priorDogUuid);
     }
     this.inPlayMode = true;
     this.playPartnerPlayerUuid = player.getUuid();
     this.activeFetchBlockPos = null;
     this.setActiveFetchType(fetchItemType);
     this.setSitting(false);
-    ACTIVE_PLAY_SESSIONS.put(player.getUuid(), this.getUuid());
+  }
+
+  private void endPlayModeForDog(UUID priorDogUuid) {
+    if (!(this.getWorld() instanceof ServerWorld serverWorld)) {
+      return;
+    }
+    for (ServerWorld world : serverWorld.getServer().getWorlds()) {
+      Entity prior = world.getEntity(priorDogUuid);
+      if (prior instanceof UnleashedDogEntity priorDog) {
+        priorDog.endPlayMode();
+        return;
+      }
+    }
   }
 
   public void endPlayMode() {
