@@ -66,20 +66,28 @@ The `TestServer` disables `DO_MOB_SPAWNING`, `DO_WEATHER_CYCLE`, `DO_FIRE_TICK`,
 ```java
 @BeforeBatch(batchId = "sleep-time")
 public void freezeDaylightForSleepTests(ServerWorld world) {
-world.getGameRules().get(GameRules.DO_DAYLIGHT_CYCLE).set(false, world.getServer());
+  world.getGameRules().get(GameRules.DO_DAYLIGHT_CYCLE).set(false, world.getServer());
 }
 
 @AfterBatch(batchId = "sleep-time")
 public void restoreDaylightCycle(ServerWorld world) {
-world.getGameRules().get(GameRules.DO_DAYLIGHT_CYCLE).set(true, world.getServer());
+  world.getGameRules().get(GameRules.DO_DAYLIGHT_CYCLE).set(true, world.getServer());
 }
 ```
 
 With `DO_DAYLIGHT_CYCLE` off, `world.setTimeOfDay(13000)` actually pins time at 13000 until you change it.
 
+### Tests in the same batch run in PARALLEL and share world time
+
+Each `@GameTest` in a batch runs in its own structure region, but they all share ONE world: same gamerules, same `worldProperties.timeOfDay`. If test A pins night and test B pins day, whichever pin happened most recently wins for ALL tests, and the loser sees the wrong time on its next `world.getTimeOfDay()` read. Goal selectors evaluating mid-test then mutate state on stale assumptions. The race surfaces as ~25% flake on a test that LOOKS standalone.
+
+Symptom: a test that asserts "suppression / sleep state holds for the rest of night" passes locally in isolation, fails ~25% of the time in the full suite, and diagnostic logging shows `world.getTimeOfDay() % 24000 < 13000` mid-window even though the test pinned night.
+
+Fix: any test that pins time to a value DIFFERENT from its sibling tests goes in its own `batchId`. One time-pinning test per batch is the cheapest reliable answer. `DogSleepBehaviorGameTest` does this with `sleep-stay-asleep`, `sleep-wake-at-sunrise`, `sleep-suppress`, `sleep-resleep`, plus `sleep-flags` for the time-agnostic tests.
+
 ### (Fallback) Re-pin time immediately before each assertion
 
-If you can't or don't want a batch-wide setup, re-set time right before every read. The `pinNight` / `pinDay` helpers in `DogSleepBehaviorGameTest` do this. It's noisier than the batch approach and only works when you control every assertion site.
+If you can't or don't want a batch-wide setup, re-set time right before every read. The `pinNight` / `pinDay` helpers in `DogSleepBehaviorGameTest` do this. It's noisier than the batch approach and only works when you control every assertion site. NOTE: this fallback does NOT fix the parallel-batch race above; goal selectors evaluating between your re-pin calls still see the conflicting value.
 
 ## Rule 4: `createMockPlayer` is NOT a `ServerPlayerEntity`
 
@@ -113,8 +121,8 @@ A test that triggers one of these leaves state behind for the next test in the b
 ```java
 @BeforeBatch(batchId = "play-mode")
 public void clearSessionState(ServerWorld world) {
-UnleashedDogEntity.clearActivePlaySessions();   // helper from #176
-DogBedBlock.clearPendingAssignments();          // ditto
+  UnleashedDogEntity.clearActivePlaySessions();   // helper from #176
+  DogBedBlock.clearPendingAssignments();          // ditto
 }
 ```
 
@@ -136,11 +144,22 @@ If the test IS about AI behavior (e.g. "auto-sleep at night"), keep AI on but pi
 
 ```java
 context.runAtTick(130, () -> {
-husky.refreshPositionAndAngles(
-	absBedPos.getX() + 0.5, absBedPos.getY(), absBedPos.getZ() + 0.5, 0f, 0f);
-husky.setVelocity(0, 0, 0);
+  husky.refreshPositionAndAngles(
+      absBedPos.getX() + 0.5, absBedPos.getY(), absBedPos.getZ() + 0.5, 0f, 0f);
+  husky.setVelocity(0, 0, 0);
 });
 ```
+
+### And the dog NEEDS AN OWNER
+
+Vanilla `SitGoal.canStart` on `TameableEntity` returns true UNCONDITIONALLY for any tamed dog whose `getOwner()` returns null (after the early `!isTamed`, in-water, not-on-ground filters). `SitGoal` is registered at priority 2; `AutoSleepGoal` / `SleepInBedGoal` at 3/4. Higher number = lower priority. `PrioritizedGoal.canBeReplacedBy` returns `canStop() && other.priority < this.priority`, so SitGoal cannot be preempted by a lower-priority sleep goal. The dog "sits" forever and `isInSittingPose()` short-circuits both sleep goals' `canStart`. The dog never sleeps, never wakes, never auto-sleeps. In production every tamed dog has an owner so this never fires; in gametests we have to wire one up explicitly:
+
+```java
+final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+husky.setOwnerUuid(owner.getUuid());
+```
+
+Note: `setSitting(false)` only resets the transient `sitting` field on the Java object, it does NOT clear the DataTracker `InSittingPose` flag. Only `SitGoal.stop()` (or a direct `setInSittingPose(false)` call) does that. Fixing this with `setSitting(false)` alone is a trap; give the dog an owner so SitGoal never starts in the first place.
 
 ## Rule 7: Prefer declarative end-of-test assertions over `runAtTick(tickLimit - 1, ...)`
 
@@ -148,7 +167,7 @@ Fabric's canonical example uses:
 
 ```java
 context.addInstantFinalTask(() ->
-	context.checkBlock(new BlockPos(0, 2, 0), b -> b == Blocks.DIAMOND_BLOCK, "Expect diamond"));
+    context.checkBlock(new BlockPos(0, 2, 0), b -> b == Blocks.DIAMOND_BLOCK, "Expect diamond"));
 ```
 
 The framework runs `addInstantFinalTask` at the end of the test and completes for you. No `complete()` call, no tick math, no race with goal selectors.
@@ -166,11 +185,11 @@ For tests that depend on goal selector timing, AI navigation, or world tick orde
 
 ```java
 @GameTest(
-	templateName = "dogs-unleashed:dog_arena",
-	batchId = "sleep-time",
-	tickLimit = 200,
-	maxAttempts = 3,
-	requiredSuccesses = 1)
+    templateName = "dogs-unleashed:dog_arena",
+    batchId = "sleep-time",
+    tickLimit = 200,
+    maxAttempts = 3,
+    requiredSuccesses = 1)
 public void manualNightWakeDogAutoSleepsNextNight(TestContext context) { ... }
 ```
 
@@ -183,12 +202,12 @@ Bad:
 ```java
 @GameTest
 public void wakeUpFromBedClearsSleepingFlag(TestContext context) {
-// ... sets up sleep
-// ... asserts dog is sleeping at tick 50
-// ... wakes dog
-// ... asserts dog is not sleeping
-// ... asserts COMMANDED_TO_SLEEP is cleared
-// ... assumes the world clock is night for 50 ticks straight
+  // ... sets up sleep
+  // ... asserts dog is sleeping at tick 50
+  // ... wakes dog
+  // ... asserts dog is not sleeping
+  // ... asserts COMMANDED_TO_SLEEP is cleared
+  // ... assumes the world clock is night for 50 ticks straight
 }
 ```
 
@@ -327,16 +346,16 @@ Stable, useful, decompiled from Yarn 1.21.1. Method signatures with `(BlockPos)`
 ```java
 @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 20)
 public void collarColorPersistsAcrossWakeUpCycle(TestContext context) {
-final HuskyEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(0, 1, 0));
-husky.setAiDisabled(true);
-husky.setTamed(true, true);
-husky.setCollarColor(DyeColor.LIME);
+  final HuskyEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(0, 1, 0));
+  husky.setAiDisabled(true);
+  husky.setTamed(true, true);
+  husky.setCollarColor(DyeColor.LIME);
 
-husky.startSleepingInBed(context.getAbsolutePos(new BlockPos(0, 1, 0)));
-husky.wakeUp();
+  husky.startSleepingInBed(context.getAbsolutePos(new BlockPos(0, 1, 0)));
+  husky.wakeUp();
 
-context.assertTrue(husky.getCollarColor() == DyeColor.LIME, "Collar color must survive wake cycle");
-context.complete();
+  context.assertTrue(husky.getCollarColor() == DyeColor.LIME, "Collar color must survive wake cycle");
+  context.complete();
 }
 ```
 
@@ -344,30 +363,30 @@ context.complete();
 
 ```java
 @GameTest(
-	templateName = "dogs-unleashed:dog_arena",
-	batchId = "sleep-time",
-	tickLimit = 200)
+    templateName = "dogs-unleashed:dog_arena",
+    batchId = "sleep-time",
+    tickLimit = 200)
 public void commandedSleepDogStaysInPositionAcrossMultipleTicks(TestContext context) {
-final BlockPos relBedPos = new BlockPos(0, 1, 0);
-final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
-context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
+  final BlockPos relBedPos = new BlockPos(0, 1, 0);
+  final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
+  context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-final HuskyEntity husky = context.spawnEntity(ModEntities.HUSKY, relBedPos);
-husky.setTamed(true, true);
+  final HuskyEntity husky = context.spawnEntity(ModEntities.HUSKY, relBedPos);
+  husky.setTamed(true, true);
 
-context.runAtTick(10, () -> {
-	husky.setAssignedBedPos(absBedPos);
-	husky.commandToSleep(absBedPos);
-	husky.startSleepingInBed(absBedPos);
-});
+  context.runAtTick(10, () -> {
+    husky.setAssignedBedPos(absBedPos);
+    husky.commandToSleep(absBedPos);
+    husky.startSleepingInBed(absBedPos);
+  });
 
-context.runAtTick(100, () -> {
-	final double dxz = Math.hypot(
-		husky.getX() - (absBedPos.getX() + 0.5),
-		husky.getZ() - (absBedPos.getZ() + 0.5));
-	context.assertTrue(dxz < 0.05, "Sleeping dog should stay on bed X/Z center, dxz=" + dxz);
-	context.complete();
-});
+  context.runAtTick(100, () -> {
+    final double dxz = Math.hypot(
+        husky.getX() - (absBedPos.getX() + 0.5),
+        husky.getZ() - (absBedPos.getZ() + 0.5));
+    context.assertTrue(dxz < 0.05, "Sleeping dog should stay on bed X/Z center, dxz=" + dxz);
+    context.complete();
+  });
 }
 ```
 
@@ -375,24 +394,24 @@ context.runAtTick(100, () -> {
 
 ```java
 public final class DogSleepBehaviorGameTest implements FabricGameTest {
-@BeforeBatch(batchId = "sleep-time")
-public void freezeDaylight(ServerWorld world) {
-	world.getGameRules().get(GameRules.DO_DAYLIGHT_CYCLE).set(false, world.getServer());
-}
+  @BeforeBatch(batchId = "sleep-time")
+  public void freezeDaylight(ServerWorld world) {
+    world.getGameRules().get(GameRules.DO_DAYLIGHT_CYCLE).set(false, world.getServer());
+  }
 
-@GameTest(
-	templateName = "dogs-unleashed:dog_arena",
-	batchId = "sleep-time",
-	tickLimit = 100)
-public void commandedSleepAutoWakesAtSunrise(TestContext context) {
-	// setup ...
-	context.runAtTick(10, () -> context.setTime(13000));   // pinned by daylight freeze
-	context.runAtTick(50, () -> context.setTime(1000));    // pinned
-	context.runAtTick(55, () -> {
-	context.assertTrue(!husky.isSleepingInBed(), "Sleeping dog should wake at sunrise");
-	context.complete();
-	});
-}
+  @GameTest(
+      templateName = "dogs-unleashed:dog_arena",
+      batchId = "sleep-time",
+      tickLimit = 100)
+  public void commandedSleepAutoWakesAtSunrise(TestContext context) {
+    // setup ...
+    context.runAtTick(10, () -> context.setTime(13000));   // pinned by daylight freeze
+    context.runAtTick(50, () -> context.setTime(1000));    // pinned
+    context.runAtTick(55, () -> {
+      context.assertTrue(!husky.isSleepingInBed(), "Sleeping dog should wake at sunrise");
+      context.complete();
+    });
+  }
 }
 ```
 
@@ -401,18 +420,18 @@ public void commandedSleepAutoWakesAtSunrise(TestContext context) {
 ```java
 @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 20)
 public void tamingUnlocksBestFriend(TestContext context) {
-final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
-final HuskyEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(0, 1, 0));
+  final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+  final HuskyEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(0, 1, 0));
 
-Criteria.TAME_ANIMAL.trigger(player, husky);
+  Criteria.TAME_ANIMAL.trigger(player, husky);
 
-final AdvancementEntry bestFriend = context.getWorld().getServer()
-	.getAdvancementLoader()
-	.get(Identifier.of(DogsUnleashed.MOD_ID, "best_friend"));
-context.assertTrue(
-	player.getAdvancementTracker().getProgress(bestFriend).isDone(),
-	"Taming any new breed should unlock best_friend");
-context.complete();
+  final AdvancementEntry bestFriend = context.getWorld().getServer()
+      .getAdvancementLoader()
+      .get(Identifier.of(DogsUnleashed.MOD_ID, "best_friend"));
+  context.assertTrue(
+      player.getAdvancementTracker().getProgress(bestFriend).isDone(),
+      "Taming any new breed should unlock best_friend");
+  context.complete();
 }
 ```
 
@@ -421,16 +440,16 @@ context.complete();
 ```java
 @CustomTestProvider
 public Collection<TestFunction> spawnsCorrectlyPerBreed() {
-return DogTestData.getAllBreeds().stream()
-	.map(data -> new TestFunction(
-		"defaultBatch",
-		"dogentitycoretest.spawnscorrectly." + data.breed().serializedId(),
-		FabricGameTest.EMPTY_STRUCTURE,
-		/* tickLimit */ 20,
-		/* setupTicks */ 0L,
-		/* required */ true,
-		ctx -> testDogSpawnsCorrectly(ctx, data)))
-	.toList();
+  return DogTestData.getAllBreeds().stream()
+      .map(data -> new TestFunction(
+          "defaultBatch",
+          "dogentitycoretest.spawnscorrectly." + data.breed().serializedId(),
+          FabricGameTest.EMPTY_STRUCTURE,
+          /* tickLimit */ 20,
+          /* setupTicks */ 0L,
+          /* required */ true,
+          ctx -> testDogSpawnsCorrectly(ctx, data)))
+      .toList();
 }
 ```
 
@@ -442,8 +461,8 @@ After authoring any new gametest class, register it in `src/main/resources/fabri
 
 ```json
 "fabric-gametest": [
-"com.grahambartley.gametest.DogEntityBreedSpecificTest",
-"com.grahambartley.gametest.DogYourNewTestClass"
+  "com.grahambartley.gametest.DogEntityBreedSpecificTest",
+  "com.grahambartley.gametest.DogYourNewTestClass"
 ]
 ```
 
