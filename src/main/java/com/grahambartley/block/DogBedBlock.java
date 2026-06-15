@@ -54,6 +54,15 @@ public class DogBedBlock extends HorizontalFacingBlock implements BlockEntityPro
     return pendingBedAssignments.remove(playerUuid);
   }
 
+  /**
+   * Clears the JVM-global pending-bed-assignment map. Lives for the lifetime of the JVM; survives
+   * world reloads in singleplayer and leaks state between gametest batches. Called by test
+   * {@code @BeforeBatch} hooks and (future, #176) by {@code SERVER_STOPPED}.
+   */
+  public static void clearPendingAssignments() {
+    pendingBedAssignments.clear();
+  }
+
   public DogBedBlock(Settings settings) {
     super(settings);
     this.setDefaultState(this.stateManager.getDefaultState().with(FACING, Direction.NORTH));
