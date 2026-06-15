@@ -15,13 +15,19 @@ import net.minecraft.advancement.AdvancementEntry;
 import net.minecraft.advancement.criterion.Criteria;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.GameMode;
 
+/**
+ * Gametest coverage for the advancement set (#73).
+ *
+ * <p>Uses {@code context.createMockCreativeServerPlayerInWorld()} for tests that need a real {@code
+ * ServerPlayerEntity} (criteria triggers, advancement tracker queries). The older {@code
+ * createMockPlayer(GameMode)} returns a {@code TestContext$1} mock that is NOT a {@code
+ * ServerPlayerEntity}, so casting it crashes at runtime; see the gametest skill rule 4.
+ */
 public final class DogAdvancementGameTest implements FabricGameTest {
   private static final List<String> ADVANCEMENT_IDS =
       List.of(
@@ -46,17 +52,12 @@ public final class DogAdvancementGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void tamingUnlocksBreedAdvancements(final TestContext context) {
-    final ServerWorld world = context.getWorld();
-    final ServerPlayerEntity player =
-        (ServerPlayerEntity) context.createMockPlayer(GameMode.SURVIVAL);
+    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
 
-    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
-    husky.refreshPositionAndAngles(context.getAbsolutePos(new BlockPos(1, 1, 0)), 0.0f, 0.0f);
-    world.spawnEntity(husky);
-
-    final ShibaInuEntity shiba = new ShibaInuEntity(ModEntities.SHIBA_INU, world);
-    shiba.refreshPositionAndAngles(context.getAbsolutePos(new BlockPos(2, 1, 0)), 0.0f, 0.0f);
-    world.spawnEntity(shiba);
+    final HuskyEntity husky =
+        (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, new BlockPos(1, 1, 0));
+    final ShibaInuEntity shiba =
+        (ShibaInuEntity) context.spawnEntity(ModEntities.SHIBA_INU, new BlockPos(2, 1, 0));
 
     final AdvancementEntry bestFriend = getAdvancement(context, "best_friend");
     final AdvancementEntry cherryCompanion = getAdvancement(context, "cherry_companion");
@@ -75,8 +76,7 @@ public final class DogAdvancementGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void wholePackRequiresAllFiveBreeds(final TestContext context) {
-    final ServerPlayerEntity player =
-        (ServerPlayerEntity) context.createMockPlayer(GameMode.SURVIVAL);
+    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
     final AdvancementEntry wholePack = getAdvancement(context, "the_whole_pack");
 
     player.getAdvancementTracker().grantCriterion(wholePack, "tamed_husky");
@@ -100,9 +100,7 @@ public final class DogAdvancementGameTest implements FabricGameTest {
   public void customTriggersUnlockTheirAdvancements(final TestContext context) {
     final BlockPos relBedPos = new BlockPos(0, 1, 0);
     final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
-    final ServerWorld world = context.getWorld();
-    final ServerPlayerEntity player =
-        (ServerPlayerEntity) context.createMockPlayer(GameMode.SURVIVAL);
+    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
@@ -111,15 +109,20 @@ public final class DogAdvancementGameTest implements FabricGameTest {
     final AdvancementEntry sweetDreams = getAdvancement(context, "sweet_dreams");
     final AdvancementEntry foreverInOurHearts = getAdvancement(context, "forever_in_our_hearts");
 
-    final HuskyEntity husky = new HuskyEntity(ModEntities.HUSKY, world);
-    husky.refreshPositionAndAngles(
-        absBedPos.getX() + 1.0, absBedPos.getY(), absBedPos.getZ(), 0.0f, 0.0f);
+    // Place player and dog at the same spot so FetchReturnGoal's <3-block proximity check passes
+    // when tick() runs. The mock creative player is otherwise spawned at an arbitrary default
+    // position relative to the test structure, and the goal silently fails to fire its criterion
+    // when the dog is "too far away". See gametest skill rule 6 (control AI/position explicitly).
+    final BlockPos absDogPos = context.getAbsolutePos(new BlockPos(1, 1, 0));
+    player.refreshPositionAndAngles(absDogPos, 0.0f, 0.0f);
+
+    final HuskyEntity husky =
+        (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, new BlockPos(1, 1, 0));
     husky.setTamed(true, true);
     husky.setOwnerUuid(player.getUuid());
     husky.setCarryingFetchItem(true);
     husky.setActiveFetchType(FetchTypes.TENNIS_BALL);
     husky.setCarriedFetchItemStack(new ItemStack(ModItems.TENNIS_BALL));
-    world.spawnEntity(husky);
 
     HuskyHowledCriterion.INSTANCE.trigger(player);
     new FetchReturnGoal(husky).tick();

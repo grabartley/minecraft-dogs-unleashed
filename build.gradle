@@ -206,6 +206,7 @@ spotless {
 	}
 	format 'misc', {
 		target '**/*.gradle', '**/*.md', '**/.gitignore'
+		targetExclude '.claude/**', '**/.claude/**', 'build/**', '.gradle/**'
 		trimTrailingWhitespace()
 		indentWithTabs()
 		endWithNewline()
