@@ -2,10 +2,8 @@ package com.grahambartley.gametest;
 
 import com.grahambartley.ModBlocks;
 import com.grahambartley.ModEntities;
-import com.grahambartley.block.DogBedBlock;
 import com.grahambartley.block.entity.DogBedBlockEntity;
 import com.grahambartley.entity.HuskyEntity;
-import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -213,29 +211,9 @@ public final class DogBedBlockGameTest implements FabricGameTest {
     context.complete();
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void dogBedHasCorrectHardness(final TestContext context) {
-    final float hardness = ModBlocks.DOG_BED.getHardness();
-    context.assertTrue(hardness == 2.0f, "Dog bed should have hardness of 2.0 (same as oak wood)");
-    context.complete();
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void pendingAssignmentCanBeSetAndConsumed(final TestContext context) {
-    final UUID playerUuid = UUID.randomUUID();
-    final UUID dogUuid = UUID.randomUUID();
-
-    DogBedBlock.setPendingAssignment(playerUuid, dogUuid);
-
-    final UUID consumed = DogBedBlock.consumePendingAssignment(playerUuid);
-    context.assertTrue(
-        dogUuid.equals(consumed), "Consumed pending assignment should match dog UUID");
-
-    final UUID secondConsume = DogBedBlock.consumePendingAssignment(playerUuid);
-    context.assertTrue(
-        secondConsume == null, "Pending assignment should be null after consumption");
-    context.complete();
-  }
+  // dogBedHasCorrectHardness and pendingAssignmentCanBeSetAndConsumed live in DogBedBlockTest
+  // under src/test/java since they only read static block state and a process-global UUID map.
+  // See gametest skill rule 10.
 
   @GameTest(templateName = "dogs-unleashed:dog_bed_pair", tickLimit = 100)
   public void reAssigningDogToNewBedClearsOldBed(final TestContext context) {

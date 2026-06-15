@@ -33,6 +33,8 @@ repositories {
 loom {
 	splitEnvironmentSourceSets()
 
+	accessWidenerPath = file("src/main/resources/dogs-unleashed.accesswidener")
+
 	mods {
 		"dogs-unleashed" {
 			sourceSet sourceSets.main

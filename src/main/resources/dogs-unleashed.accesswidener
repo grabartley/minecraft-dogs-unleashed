@@ -1,0 +1,9 @@
+accessWidener v2 named
+
+# Widen RegistryEntry$Reference#setRegistryKey so SimpleRegistry can call it from outside its
+# package when Bootstrap.initialize() runs in a plain unit-test JVM. Yarn-mapped RegistryEntry
+# left this as package-private, and JUnit's classloader enforces that strictly. The production
+# runtime applies the same widening implicitly via Loom's remap pipeline, so this entry just
+# brings the unit-test classpath in line. See MinecraftBootstrapExtension.
+accessible	method	net/minecraft/registry/entry/RegistryEntry$Reference	setRegistryKey	(Lnet/minecraft/registry/RegistryKey;)V
+accessible	method	net/minecraft/entity/mob/MobEntity	isInAttackRange	(Lnet/minecraft/entity/LivingEntity;)Z

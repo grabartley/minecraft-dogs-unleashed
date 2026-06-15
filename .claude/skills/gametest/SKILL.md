@@ -228,12 +228,29 @@ Gametest spins up an integrated server and a real `ServerWorld` per batch. That'
 
 - Constant comparisons (`BARK_COOLDOWN_TICKS == 6 * 20`)
 - `instanceof` checks against base classes the compiler already enforces
-- NBT round-trips with no world interaction (`DataTracker` set → write → read → assert equal)
-- Tag membership (`state.isIn(BlockTags.AXE_MINEABLE)`)
-- Registry lookups (`Registries.SOUND_EVENT.containsId(...)`)
 - Pure utility classes (`BreedingOwnerResolver.resolveInheritedOwnerUuid(...)`)
 
 These go under `src/test/java/com/grahambartley/...`. See [`feedback_prefer_parameterized_tests`](../../../.claude/projects/-Users-gbartley-dev-minecraft-dogs-unleashed/memory/feedback_prefer_parameterized_tests.md) memory: prefer `@ParameterizedTest` over breed-loop methods.
+
+### What needs `@ExtendWith(MinecraftBootstrapExtension.class)`
+
+For tests that read mod content from the canonical vanilla registries (sound registration presence, `ModBlocks.DOG_BED` properties, `Registries.BLOCK.containsId(...)` checks) or the mod's own JVM-global static maps (`DogBedBlock.pendingBedAssignments`), use the `MinecraftBootstrapExtension` under `src/test/java/com/grahambartley/`. The extension touches just enough of Minecraft's static init to populate `Registries.SOUND_EVENT` and `Registries.BLOCK` and to trigger every `ModSounds` / `ModBlocks` static field's `Registry.register(...)` call. Apply it once per test class:
+
+```java
+@ExtendWith(MinecraftBootstrapExtension.class)
+class DogSoundRegistrationTest { ... }
+```
+
+### What still has to live in gametest
+
+The JUnit unit-test classpath does NOT have Loom's production-runtime access widening, and Yarn-mapped vanilla code emits invokevirtuals that the verifier rejects mid-bootstrap. The extension catches the `VerifyError`, but everything below the first failing class init is left in a `Could not initialize class` state. In practice this means tests still need gametest when they touch:
+
+- `Items.*` (anywhere — `Items.<clinit>` fails verification through `LightBlock` → `EntityType` → `MobEntity.isInAttackRange`)
+- `EntityType.<clinit>` (same chain), which transitively means anything that touches `ModEntities.*` field reads
+- `BlockTags.*` membership (`state.isIn(BlockTags.AXE_MINEABLE)` needs server-side tag bindings)
+- Entity construction (`new HuskyEntity(ModEntities.HUSKY, world)` triggers `MobEntity` class init, which hits the same verifier path)
+- NBT round-trips via a real entity (same construction barrier)
+- Goal selector behavior, navigation, multi-tick state, anything that needs a real `ServerWorld`
 
 ## Annotation Reference
 
