@@ -61,6 +61,13 @@ public void entitySpawns(final TestContext context) {
 }
 ```
 
+> **Before writing any gametest, invoke the `gametest` skill.** The framework
+> has many sharp edges (relative vs world coordinates, time-of-day drift,
+> `createMockPlayer` not returning a `ServerPlayerEntity`, `EMPTY_STRUCTURE`
+> having no floor) that have cost this repo multiple PRs. The `gametest`
+> skill encodes the patterns that actually work for Yarn 1.21.1 + Fabric
+> Gametest API v1 (2.0.5+) and is the authoritative reference.
+
 ## Test Workflow
 
 Before pushing changes:
