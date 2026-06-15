@@ -1,7 +1,5 @@
 package com.grahambartley.gametest;
 
-import com.grahambartley.DogsUnleashed;
-import com.grahambartley.ModSounds;
 import com.grahambartley.entity.HuskyEntity;
 import com.grahambartley.entity.UnleashedDogEntity;
 import com.grahambartley.gametest.util.DogTestData;
@@ -9,49 +7,16 @@ import com.grahambartley.gametest.util.DogTestHelper;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.mob.ZombieEntity;
-import net.minecraft.registry.Registries;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
 public final class DogEntitySoundTest implements FabricGameTest {
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void huskyHasNoBarkSoundRegistered(TestContext context) {
-    context.assertFalse(
-        Registries.SOUND_EVENT.containsId(Identifier.of(DogsUnleashed.MOD_ID, "entity.husky.bark")),
-        "Husky bark sound should not be registered");
-    context.complete();
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void dachshundBarkSoundIsRegistered(TestContext context) {
-    testBarkSoundIsRegistered(context, DogTestData.DACHSHUND);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void beagleBarkSoundIsRegistered(TestContext context) {
-    testBarkSoundIsRegistered(context, DogTestData.BEAGLE);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void goldenRetrieverBarkSoundIsRegistered(TestContext context) {
-    testBarkSoundIsRegistered(context, DogTestData.GOLDEN_RETRIEVER);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void shibaInuBarkSoundIsRegistered(TestContext context) {
-    testBarkSoundIsRegistered(context, DogTestData.SHIBA_INU);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void huskyHowlSoundIsRegistered(TestContext context) {
-    context.assertTrue(
-        Registries.SOUND_EVENT.containsId(Registries.SOUND_EVENT.getId(ModSounds.HUSKY_HOWL)),
-        "Husky howl sound should be in Registries.SOUND_EVENT");
-    context.complete();
-  }
+  // Sound-registry presence checks (huskyHasNoBarkSoundRegistered, huskyHowlSoundIsRegistered, and
+  // the four per-breed BarkSoundIsRegistered tests) live in DogSoundRegistrationTest under
+  // src/test/java since they only query Registries.SOUND_EVENT and don't need a live world. See
+  // gametest skill rule 10.
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
   public void huskyDoesNotBarkWhenLowHealth(TestContext context) {
@@ -223,18 +188,6 @@ public final class DogEntitySoundTest implements FabricGameTest {
               "husky howl cooldown should never go negative after ticking");
           context.complete();
         });
-  }
-
-  private <T extends UnleashedDogEntity> void testBarkSoundIsRegistered(
-      TestContext context, DogTestData<T> data) {
-    DogTestHelper.spawnDog(context, data);
-    context.assertTrue(
-        data.expectedBarkSound() != null,
-        data.breed().serializedId() + " should define a bark sound");
-    context.assertTrue(
-        Registries.SOUND_EVENT.containsId(Registries.SOUND_EVENT.getId(data.expectedBarkSound())),
-        data.breed().serializedId() + " bark sound should be in Registries.SOUND_EVENT");
-    context.complete();
   }
 
   private <T extends UnleashedDogEntity> void testDogBarksWhenLowHealth(
