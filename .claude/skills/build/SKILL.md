@@ -14,6 +14,11 @@ description: Build or implement a feature for the Dogs Unleashed mod, optionally
 5. Unit tests MUST map to a single specific class. Test class name MUST match the class under test plus a "Test"
 suffix (e.g. `BeagleCoatRolls.java` -> `BeagleCoatRollsTest.java`). A test that exercises `Foo` must be named
 `FooTest`, never `BarRelatedThingTest`.
+5a. If the change touches anything under `src/main/java/.../gametest/`, anything under
+`src/main/resources/data/dogs-unleashed/gametest/`, or the `fabric-gametest` entrypoints in `fabric.mod.json`,
+invoke the `gametest` skill BEFORE writing or editing code. The gametest framework has many sharp edges
+(relative vs world coords, time-of-day drift, mock players that aren't ServerPlayerEntity, void floors in
+`EMPTY_STRUCTURE`) and this rule prevents reintroducing already-fixed bugs.
 6. Run the `pr` skill as part of build after validation passes.
 7. Move issue to `QA testing` only after PR is opened and CI is running.
 8. After PR creation and `QA testing` transition, always provide a detailed manual QA checklist to the developer.
@@ -75,3 +80,8 @@ tracking artifact for all subsequent status moves.
 - `create-issue`, used when build work starts without an existing GitHub issue
 - `pr`, required for commit, push, and PR creation during build flow
 - `run-game-client`, use for manual gameplay validation before QA handoff
+- `gametest`, REQUIRED before any code under `src/main/java/.../gametest/`,
+`src/main/resources/data/dogs-unleashed/gametest/`, or `fabric-gametest`
+entrypoints in `fabric.mod.json` is added or modified. Encodes patterns
+from a full audit of the suite and prevents the entire class of bugs
+documented in PR #211, #214, #220, #221, #223.
