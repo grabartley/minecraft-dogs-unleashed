@@ -3,197 +3,89 @@ package com.grahambartley.gametest;
 import com.grahambartley.entity.UnleashedDogEntity;
 import com.grahambartley.gametest.util.DogTestData;
 import com.grahambartley.gametest.util.DogTestHelper;
+import java.util.List;
 import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.test.GameTest;
+import net.minecraft.test.CustomTestProvider;
 import net.minecraft.test.TestContext;
+import net.minecraft.test.TestFunction;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 
+/**
+ * Behavioral gametests fanned out across every breed via {@link CustomTestProvider}. Each generator
+ * produces one {@link TestFunction} per breed in {@link DogTestData#getAllBreeds()}; adding a sixth
+ * breed automatically extends every test below.
+ */
 public final class DogEntityBehaviorTest implements FabricGameTest {
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void tamedHuskyCollarColorCanBeChanged(TestContext context) {
-    testTamedDogCollarColorCanBeChanged(context, DogTestData.HUSKY);
+  @CustomTestProvider
+  public List<TestFunction> tamedCollarColorCanBeChangedPerBreed() {
+    return generatePerBreed(
+        "tamedCollarColorCanBeChanged", 100, this::testTamedDogCollarColorCanBeChanged);
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void tamedDachshundCollarColorCanBeChanged(TestContext context) {
-    testTamedDogCollarColorCanBeChanged(context, DogTestData.DACHSHUND);
+  @CustomTestProvider
+  public List<TestFunction> babyHasCollarWhenTamedPerBreed() {
+    return generatePerBreed("babyHasCollarWhenTamed", 100, this::testBabyDogHasCollarWhenTamed);
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void tamedBeagleCollarColorCanBeChanged(TestContext context) {
-    testTamedDogCollarColorCanBeChanged(context, DogTestData.BEAGLE);
+  @CustomTestProvider
+  public List<TestFunction> allDyeColorsWorkOnCollarPerBreed() {
+    return generatePerBreed("allDyeColorsWorkOnCollar", 100, this::testAllDyeColorsWorkOnCollar);
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void tamedGoldenRetrieverCollarColorCanBeChanged(TestContext context) {
-    testTamedDogCollarColorCanBeChanged(context, DogTestData.GOLDEN_RETRIEVER);
+  @CustomTestProvider
+  public List<TestFunction> bredBabyInheritsParentTamedStatusPerBreed() {
+    return generatePerBreed(
+        "bredBabyInheritsParentTamedStatus", 200, this::testBredBabyInheritsParentTamedStatus);
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void tamedShibaInuCollarColorCanBeChanged(TestContext context) {
-    testTamedDogCollarColorCanBeChanged(context, DogTestData.SHIBA_INU);
+  @CustomTestProvider
+  public List<TestFunction> boneIsTamingItemPerBreed() {
+    return generatePerBreed("boneIsTamingItem", 100, this::testBoneIsTamingItem);
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void babyHuskyHasCollarWhenTamed(TestContext context) {
-    testBabyDogHasCollarWhenTamed(context, DogTestData.HUSKY);
+  @CustomTestProvider
+  public List<TestFunction> meatItemsAreBothTamingAndBreedingPerBreed() {
+    return generatePerBreed(
+        "meatItemsAreBothTamingAndBreeding", 100, this::testMeatItemsAreBothTamingAndBreeding);
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void babyDachshundHasCollarWhenTamed(TestContext context) {
-    testBabyDogHasCollarWhenTamed(context, DogTestData.DACHSHUND);
+  @CustomTestProvider
+  public List<TestFunction> shakeProgressPersistsInNbtPerBreed() {
+    return generatePerBreed(
+        "shakeProgressPersistsInNbt", 100, this::testShakeProgressPersistsInNbt);
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void babyBeagleHasCollarWhenTamed(TestContext context) {
-    testBabyDogHasCollarWhenTamed(context, DogTestData.BEAGLE);
+  private List<TestFunction> generatePerBreed(
+      final String behavior, final int tickLimit, final PerBreedBody body) {
+    return DogTestData.getAllBreeds().stream()
+        .map(
+            data ->
+                new TestFunction(
+                    "defaultBatch",
+                    "dogentitybehaviortest." + behavior + "." + data.breed().serializedId(),
+                    FabricGameTest.EMPTY_STRUCTURE,
+                    tickLimit,
+                    0L,
+                    true,
+                    ctx -> body.run(ctx, data)))
+        .toList();
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void babyGoldenRetrieverHasCollarWhenTamed(TestContext context) {
-    testBabyDogHasCollarWhenTamed(context, DogTestData.GOLDEN_RETRIEVER);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void babyShibaInuHasCollarWhenTamed(TestContext context) {
-    testBabyDogHasCollarWhenTamed(context, DogTestData.SHIBA_INU);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void huskyAllDyeColorsWorkOnCollar(TestContext context) {
-    testAllDyeColorsWorkOnCollar(context, DogTestData.HUSKY);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void dachshundAllDyeColorsWorkOnCollar(TestContext context) {
-    testAllDyeColorsWorkOnCollar(context, DogTestData.DACHSHUND);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void beagleAllDyeColorsWorkOnCollar(TestContext context) {
-    testAllDyeColorsWorkOnCollar(context, DogTestData.BEAGLE);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void goldenRetrieverAllDyeColorsWorkOnCollar(TestContext context) {
-    testAllDyeColorsWorkOnCollar(context, DogTestData.GOLDEN_RETRIEVER);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void shibaInuAllDyeColorsWorkOnCollar(TestContext context) {
-    testAllDyeColorsWorkOnCollar(context, DogTestData.SHIBA_INU);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
-  public void huskyBredBabyInheritsParentTamedStatus(TestContext context) {
-    testBredBabyInheritsParentTamedStatus(context, DogTestData.HUSKY);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
-  public void dachshundBredBabyInheritsParentTamedStatus(TestContext context) {
-    testBredBabyInheritsParentTamedStatus(context, DogTestData.DACHSHUND);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
-  public void beagleBredBabyInheritsParentTamedStatus(TestContext context) {
-    testBredBabyInheritsParentTamedStatus(context, DogTestData.BEAGLE);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
-  public void goldenRetrieverBredBabyInheritsParentTamedStatus(TestContext context) {
-    testBredBabyInheritsParentTamedStatus(context, DogTestData.GOLDEN_RETRIEVER);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
-  public void shibaInuBredBabyInheritsParentTamedStatus(TestContext context) {
-    testBredBabyInheritsParentTamedStatus(context, DogTestData.SHIBA_INU);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void huskyBoneIsTamingItem(TestContext context) {
-    testBoneIsTamingItem(context, DogTestData.HUSKY);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void dachshundBoneIsTamingItem(TestContext context) {
-    testBoneIsTamingItem(context, DogTestData.DACHSHUND);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void beagleBoneIsTamingItem(TestContext context) {
-    testBoneIsTamingItem(context, DogTestData.BEAGLE);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void goldenRetrieverBoneIsTamingItem(TestContext context) {
-    testBoneIsTamingItem(context, DogTestData.GOLDEN_RETRIEVER);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void shibaInuBoneIsTamingItem(TestContext context) {
-    testBoneIsTamingItem(context, DogTestData.SHIBA_INU);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void huskyMeatItemsAreBothTamingAndBreeding(TestContext context) {
-    testMeatItemsAreBothTamingAndBreeding(context, DogTestData.HUSKY);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void dachshundMeatItemsAreBothTamingAndBreeding(TestContext context) {
-    testMeatItemsAreBothTamingAndBreeding(context, DogTestData.DACHSHUND);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void beagleMeatItemsAreBothTamingAndBreeding(TestContext context) {
-    testMeatItemsAreBothTamingAndBreeding(context, DogTestData.BEAGLE);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void goldenRetrieverMeatItemsAreBothTamingAndBreeding(TestContext context) {
-    testMeatItemsAreBothTamingAndBreeding(context, DogTestData.GOLDEN_RETRIEVER);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void shibaInuMeatItemsAreBothTamingAndBreeding(TestContext context) {
-    testMeatItemsAreBothTamingAndBreeding(context, DogTestData.SHIBA_INU);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void huskyShakeProgressPersistsInNbt(TestContext context) {
-    testShakeProgressPersistsInNbt(context, DogTestData.HUSKY);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void dachshundShakeProgressPersistsInNbt(TestContext context) {
-    testShakeProgressPersistsInNbt(context, DogTestData.DACHSHUND);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void beagleShakeProgressPersistsInNbt(TestContext context) {
-    testShakeProgressPersistsInNbt(context, DogTestData.BEAGLE);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void goldenRetrieverShakeProgressPersistsInNbt(TestContext context) {
-    testShakeProgressPersistsInNbt(context, DogTestData.GOLDEN_RETRIEVER);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void shibaInuShakeProgressPersistsInNbt(TestContext context) {
-    testShakeProgressPersistsInNbt(context, DogTestData.SHIBA_INU);
+  @FunctionalInterface
+  private interface PerBreedBody {
+    void run(TestContext context, DogTestData<? extends UnleashedDogEntity> data);
   }
 
   private <T extends UnleashedDogEntity> void testTamedDogCollarColorCanBeChanged(
-      TestContext context, DogTestData<T> data) {
-    T dog = DogTestHelper.spawnTamedDog(context, data);
+      final TestContext context, final DogTestData<T> data) {
+    final T dog = DogTestHelper.spawnTamedDog(context, data);
 
     context.runAtTick(
         10,
@@ -215,8 +107,8 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
   }
 
   private <T extends UnleashedDogEntity> void testBabyDogHasCollarWhenTamed(
-      TestContext context, DogTestData<T> data) {
-    T babyDog = DogTestHelper.spawnDog(context, data);
+      final TestContext context, final DogTestData<T> data) {
+    final T babyDog = DogTestHelper.spawnDog(context, data);
     babyDog.setBaby(true);
 
     context.runAtTick(
@@ -240,13 +132,13 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
   }
 
   private <T extends UnleashedDogEntity> void testAllDyeColorsWorkOnCollar(
-      TestContext context, DogTestData<T> data) {
-    T dog = DogTestHelper.spawnTamedDog(context, data);
+      final TestContext context, final DogTestData<T> data) {
+    final T dog = DogTestHelper.spawnTamedDog(context, data);
 
     context.runAtTick(
         10,
         () -> {
-          DyeColor[] testColors = {
+          final DyeColor[] testColors = {
             DyeColor.RED,
             DyeColor.BLUE,
             DyeColor.GREEN,
@@ -265,7 +157,7 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
             DyeColor.BROWN
           };
 
-          for (DyeColor color : testColors) {
+          for (final DyeColor color : testColors) {
             dog.setCollarColor(color);
             context.assertTrue(
                 dog.getCollarColor() == color,
@@ -277,18 +169,19 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
   }
 
   private <T extends UnleashedDogEntity> void testBredBabyInheritsParentTamedStatus(
-      TestContext context, DogTestData<T> data) {
-    ServerWorld world = context.getWorld();
-    UUID ownerUuid = UUID.randomUUID();
-    T parent = DogTestHelper.spawnTamedDog(context, data, new BlockPos(0, 1, 0), ownerUuid);
+      final TestContext context, final DogTestData<T> data) {
+    final ServerWorld world = context.getWorld();
+    final UUID ownerUuid = UUID.randomUUID();
+    final T parent = DogTestHelper.spawnTamedDog(context, data, new BlockPos(0, 1, 0), ownerUuid);
     parent.setCollarColor(DyeColor.YELLOW);
 
     context.runAtTick(
         10,
         () -> {
-          T otherParent =
+          final T otherParent =
               DogTestHelper.spawnTamedDog(context, data, new BlockPos(1, 1, 0), ownerUuid);
-          UnleashedDogEntity baby = (UnleashedDogEntity) parent.createChild(world, otherParent);
+          final UnleashedDogEntity baby =
+              (UnleashedDogEntity) parent.createChild(world, otherParent);
 
           context.runAtTick(
               20,
@@ -305,9 +198,9 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
   }
 
   private <T extends UnleashedDogEntity> void testBoneIsTamingItem(
-      TestContext context, DogTestData<T> data) {
-    T dog = DogTestHelper.spawnDog(context, data);
-    ItemStack bone = new ItemStack(Items.BONE);
+      final TestContext context, final DogTestData<T> data) {
+    final T dog = DogTestHelper.spawnDog(context, data);
+    final ItemStack bone = new ItemStack(Items.BONE);
 
     context.assertTrue(dog.isTamingItem(bone), "Bone should be a taming item");
     context.assertFalse(dog.isBreedingItem(bone), "Bone should not be a breeding item");
@@ -315,9 +208,9 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
   }
 
   private <T extends UnleashedDogEntity> void testMeatItemsAreBothTamingAndBreeding(
-      TestContext context, DogTestData<T> data) {
-    T dog = DogTestHelper.spawnDog(context, data);
-    ItemStack chicken = new ItemStack(Items.CHICKEN);
+      final TestContext context, final DogTestData<T> data) {
+    final T dog = DogTestHelper.spawnDog(context, data);
+    final ItemStack chicken = new ItemStack(Items.CHICKEN);
 
     context.assertTrue(dog.isTamingItem(chicken), "Chicken should be a taming item");
     context.assertTrue(dog.isBreedingItem(chicken), "Chicken should be a breeding item");
@@ -325,21 +218,21 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
   }
 
   private <T extends UnleashedDogEntity> void testShakeProgressPersistsInNbt(
-      TestContext context, DogTestData<T> data) {
-    ServerWorld world = context.getWorld();
-    T dog = DogTestHelper.spawnDog(context, data);
+      final TestContext context, final DogTestData<T> data) {
+    final ServerWorld world = context.getWorld();
+    final T dog = DogTestHelper.spawnDog(context, data);
 
     context.runAtTick(
         5,
         () -> {
-          NbtCompound nbt = new NbtCompound();
+          final NbtCompound nbt = new NbtCompound();
           dog.writeCustomDataToNbt(nbt);
 
           context.assertTrue(
               nbt.contains("ShakeProgress"), "NBT should contain ShakeProgress data");
           context.assertTrue(nbt.contains("WasInWater"), "NBT should contain WasInWater data");
 
-          T newDog = data.factory().apply(world);
+          final T newDog = data.factory().apply(world);
           newDog.readCustomDataFromNbt(nbt);
 
           context.assertTrue(

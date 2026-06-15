@@ -4,94 +4,73 @@ import com.grahambartley.ModNbtKeys;
 import com.grahambartley.entity.UnleashedDogEntity;
 import com.grahambartley.gametest.util.DogTestData;
 import com.grahambartley.gametest.util.DogTestHelper;
+import java.util.List;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.test.GameTest;
+import net.minecraft.test.CustomTestProvider;
 import net.minecraft.test.TestContext;
+import net.minecraft.test.TestFunction;
 import net.minecraft.util.DyeColor;
 
+/**
+ * Core dog-entity gametests, fanned out across every breed in {@link DogTestData#getAllBreeds()}
+ * via {@link CustomTestProvider}. Adding a sixth breed to {@code getAllBreeds()} automatically
+ * extends every test below to the new breed with no further edits required. Each generator names
+ * its child tests {@code dogentitycoretest.<behavior>.<breed-id>} so the gametest XML report keeps
+ * per-breed granularity for failure diagnosis.
+ *
+ * <p>See gametest skill rule on {@code @CustomTestProvider} (Yarn name for what Mojang and Forge
+ * docs call {@code @GameTestGenerator}).
+ */
 public final class DogEntityCoreTest implements FabricGameTest {
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 20)
-  public void huskySpawnsCorrectly(TestContext context) {
-    testDogSpawnsCorrectly(context, DogTestData.HUSKY);
+  @CustomTestProvider
+  public List<TestFunction> spawnsCorrectlyPerBreed() {
+    return generatePerBreed("spawnsCorrectly", 20, this::testDogSpawnsCorrectly);
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 20)
-  public void dachshundSpawnsCorrectly(TestContext context) {
-    testDogSpawnsCorrectly(context, DogTestData.DACHSHUND);
+  @CustomTestProvider
+  public List<TestFunction> canBeTamedPerBreed() {
+    return generatePerBreed("canBeTamed", 100, this::testDogCanBeTamed);
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 20)
-  public void beagleSpawnsCorrectly(TestContext context) {
-    testDogSpawnsCorrectly(context, DogTestData.BEAGLE);
+  @CustomTestProvider
+  public List<TestFunction> collarColorPersistsInNbtPerBreed() {
+    return generatePerBreed("collarColorPersistsInNbt", 100, this::testCollarColorPersistsInNbt);
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 20)
-  public void goldenRetrieverSpawnsCorrectly(TestContext context) {
-    testDogSpawnsCorrectly(context, DogTestData.GOLDEN_RETRIEVER);
+  private List<TestFunction> generatePerBreed(
+      final String behavior, final int tickLimit, final PerBreedBody body) {
+    return DogTestData.getAllBreeds().stream()
+        .map(
+            data ->
+                new TestFunction(
+                    "defaultBatch",
+                    "dogentitycoretest." + behavior + "." + data.breed().serializedId(),
+                    FabricGameTest.EMPTY_STRUCTURE,
+                    tickLimit,
+                    0L,
+                    true,
+                    ctx -> body.run(ctx, data)))
+        .toList();
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 20)
-  public void shibaInuSpawnsCorrectly(TestContext context) {
-    testDogSpawnsCorrectly(context, DogTestData.SHIBA_INU);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void huskyCanBeTamed(TestContext context) {
-    testDogCanBeTamed(context, DogTestData.HUSKY);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void dachshundCanBeTamed(TestContext context) {
-    testDogCanBeTamed(context, DogTestData.DACHSHUND);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void beagleCanBeTamed(TestContext context) {
-    testDogCanBeTamed(context, DogTestData.BEAGLE);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void goldenRetrieverCanBeTamed(TestContext context) {
-    testDogCanBeTamed(context, DogTestData.GOLDEN_RETRIEVER);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
-  public void shibaInuCanBeTamed(TestContext context) {
-    testDogCanBeTamed(context, DogTestData.SHIBA_INU);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void huskyCollarColorPersistsInNbt(TestContext context) {
-    testCollarColorPersistsInNbt(context, DogTestData.HUSKY);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void dachshundCollarColorPersistsInNbt(TestContext context) {
-    testCollarColorPersistsInNbt(context, DogTestData.DACHSHUND);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void beagleCollarColorPersistsInNbt(TestContext context) {
-    testCollarColorPersistsInNbt(context, DogTestData.BEAGLE);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void goldenRetrieverCollarColorPersistsInNbt(TestContext context) {
-    testCollarColorPersistsInNbt(context, DogTestData.GOLDEN_RETRIEVER);
-  }
-
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void shibaInuCollarColorPersistsInNbt(TestContext context) {
-    testCollarColorPersistsInNbt(context, DogTestData.SHIBA_INU);
+  /**
+   * Functional interface for a per-breed gametest body. Equivalent to {@code
+   * BiConsumer<TestContext, DogTestData<? extends UnleashedDogEntity>>} but expressed as a named
+   * SAM so generator call sites can pass method references like {@code this::testDogCanBeTamed}
+   * without explicit casts.
+   */
+  @FunctionalInterface
+  private interface PerBreedBody {
+    void run(TestContext context, DogTestData<? extends UnleashedDogEntity> data);
   }
 
   private <T extends UnleashedDogEntity> void testDogSpawnsCorrectly(
-      TestContext context, DogTestData<T> data) {
-    ServerWorld world = context.getWorld();
-    T dog = DogTestHelper.spawnDog(context, data);
+      final TestContext context, final DogTestData<T> data) {
+    final ServerWorld world = context.getWorld();
+    final T dog = DogTestHelper.spawnDog(context, data);
 
     context.runAtTick(
         1,
@@ -105,8 +84,8 @@ public final class DogEntityCoreTest implements FabricGameTest {
   }
 
   private <T extends UnleashedDogEntity> void testDogCanBeTamed(
-      TestContext context, DogTestData<T> data) {
-    T dog = DogTestHelper.spawnDog(context, data);
+      final TestContext context, final DogTestData<T> data) {
+    final T dog = DogTestHelper.spawnDog(context, data);
 
     context.runAtTick(
         10,
@@ -124,13 +103,13 @@ public final class DogEntityCoreTest implements FabricGameTest {
   }
 
   private <T extends UnleashedDogEntity> void testCollarColorPersistsInNbt(
-      TestContext context, DogTestData<T> data) {
-    ServerWorld world = context.getWorld();
-    T dog = DogTestHelper.spawnTamedDog(context, data);
+      final TestContext context, final DogTestData<T> data) {
+    final ServerWorld world = context.getWorld();
+    final T dog = DogTestHelper.spawnTamedDog(context, data);
 
     dog.setCollarColor(DyeColor.LIME);
 
-    NbtCompound nbt = new NbtCompound();
+    final NbtCompound nbt = new NbtCompound();
     dog.writeCustomDataToNbt(nbt);
 
     context.assertTrue(
@@ -139,7 +118,7 @@ public final class DogEntityCoreTest implements FabricGameTest {
         nbt.getInt(ModNbtKeys.COLLAR_COLOR) == DyeColor.LIME.getId(),
         "NBT should store LIME color ID");
 
-    T newDog = data.factory().apply(world);
+    final T newDog = data.factory().apply(world);
     newDog.readCustomDataFromNbt(nbt);
 
     context.assertTrue(

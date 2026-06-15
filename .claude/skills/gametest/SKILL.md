@@ -470,7 +470,11 @@ public Collection<TestFunction> spawnsCorrectlyPerBreed() {
 }
 ```
 
-The annotation is `net.minecraft.test.CustomTestProvider` in Yarn 1.21.1. Most Mojang-mapped / Forge tutorials call it `@GameTestGenerator` — same concept, different name. See issue #209.
+The annotation is `net.minecraft.test.CustomTestProvider` in Yarn 1.21.1. Most Mojang-mapped / Forge tutorials call it `@GameTestGenerator` — same concept, different name. See issue [#209](https://github.com/grabartley/minecraft-dogs-unleashed/issues/209).
+
+When several behaviors fan out across the same breed list, factor the `Stream → map → TestFunction → toList` boilerplate into one `generatePerBreed(behavior, tickLimit, body)` helper per class and have each `@CustomTestProvider` delegate to it. Use a class-private `@FunctionalInterface` (`PerBreedBody(TestContext, DogTestData<? extends UnleashedDogEntity>)`) so method references like `this::testDogCanBeTamed` bind cleanly through the wildcard capture without explicit casts.
+
+When the contract differs per breed (e.g. Husky has no bark sound so the assertion flips to "must NOT bark"), branch inside the generator body on `data.expectedBarkSound() == null` rather than `breed == HUSKY`. The null-check stays correct for any future breed that ships without a bark sound and keeps `DogTestData` as the single source of truth.
 
 ## Registration
 
