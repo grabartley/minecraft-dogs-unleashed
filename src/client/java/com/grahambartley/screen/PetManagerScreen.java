@@ -8,6 +8,7 @@ import com.grahambartley.entity.UnleashedDogEntity;
 import com.grahambartley.network.ModNetworking;
 import com.grahambartley.network.ModNetworkingClient;
 import com.grahambartley.pet.PetAliveFilter;
+import com.grahambartley.util.DimensionLabelFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,12 +26,8 @@ import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 public class PetManagerScreen extends Screen {
@@ -196,21 +193,6 @@ public class PetManagerScreen extends Screen {
     }
   }
 
-  private static String formatDimensionName(final String dimensionId) {
-    final RegistryKey<World> worldKey =
-        RegistryKey.of(RegistryKeys.WORLD, Identifier.of(dimensionId));
-    if (worldKey == World.OVERWORLD) {
-      return "Overworld";
-    }
-    if (worldKey == World.NETHER) {
-      return "Nether";
-    }
-    if (worldKey == World.END) {
-      return "The End";
-    }
-    return dimensionId;
-  }
-
   public void updatePetsList(final List<ModNetworking.PetSyncData> pets) {
     clearPortraitEntities();
     this.pets = new ArrayList<>(pets);
@@ -325,7 +307,7 @@ public class PetManagerScreen extends Screen {
       final String locationText =
           String.format(
               "%s (%d, %d, %d)",
-              formatDimensionName(pet.dimension()), pet.posX(), pet.posY(), pet.posZ());
+              DimensionLabelFormatter.format(pet.dimension()), pet.posX(), pet.posY(), pet.posZ());
       context.drawText(this.textRenderer, locationText, textX, y + 44, 0x888888, false);
     } else {
       context.drawText(
