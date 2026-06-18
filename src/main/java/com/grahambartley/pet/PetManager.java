@@ -77,7 +77,7 @@ public final class PetManager extends PersistentState {
   }
 
   public List<PetData> getPetsByOwner(UUID ownerId) {
-    return petsByOwner.getOrDefault(ownerId, new ArrayList<>());
+    return petsByOwner.getOrDefault(ownerId, List.of());
   }
 
   public List<PetData> getPetsByOwnerFiltered(
