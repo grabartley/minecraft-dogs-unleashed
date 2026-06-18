@@ -33,7 +33,8 @@
       "com.grahambartley.gametest.DogEntitySoundTest",
       "com.grahambartley.gametest.DogBedBlockGameTest",
       "com.grahambartley.gametest.DogSleepBehaviorGameTest",
-      "com.grahambartley.gametest.DogGraveGameTest"
+      "com.grahambartley.gametest.DogGraveGameTest",
+      "com.grahambartley.gametest.PetManagerFilterGameTest"
     ]
   },
   "mixins": [

@@ -77,12 +77,7 @@ public final class PetManager extends PersistentState {
   }
 
   public List<PetData> getPetsByOwner(UUID ownerId) {
-    return petsByOwner.getOrDefault(ownerId, new ArrayList<>());
-  }
-
-  public List<PetData> getPetsByOwnerFiltered(
-      UUID ownerId, UnleashedDogBreed breedFilter, PetAliveFilter aliveFilter) {
-    return getPetsByOwnerFiltered(ownerId, breedFilter, aliveFilter, "");
+    return petsByOwner.getOrDefault(ownerId, List.of());
   }
 
   public List<PetData> getPetsByOwnerFiltered(
@@ -100,13 +95,6 @@ public final class PetManager extends PersistentState {
           pets.stream().filter(p -> p.getName().toLowerCase().contains(normalizedQuery)).toList();
     }
     return pets;
-  }
-
-  public List<PetData> searchPetsByName(UUID ownerId, String nameQuery) {
-    final String query = nameQuery.toLowerCase();
-    return getPetsByOwner(ownerId).stream()
-        .filter(p -> p.getName().toLowerCase().contains(query))
-        .toList();
   }
 
   public void markPetDeceased(UUID petId) {
