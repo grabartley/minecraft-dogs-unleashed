@@ -338,19 +338,6 @@ public class PetManagerScreen extends Screen {
     }
   }
 
-  private static String formatDimension(String dimension) {
-    return switch (dimension) {
-      case "minecraft:overworld" -> "Overworld";
-      case "minecraft:the_nether" -> "Nether";
-      case "minecraft:the_end" -> "The End";
-      default -> {
-        final int colon = dimension.indexOf(':');
-        final String path = colon >= 0 ? dimension.substring(colon + 1) : dimension;
-        yield path.replace('_', ' ');
-      }
-    };
-  }
-
   private static EntityType<? extends UnleashedDogEntity> breedToEntityType(
       final UnleashedDogBreed breed) {
     return breed == null ? null : ModEntities.getDogEntityType(breed);
