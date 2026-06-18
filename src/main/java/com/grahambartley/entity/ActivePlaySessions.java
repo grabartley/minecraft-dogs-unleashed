@@ -20,6 +20,10 @@ final class ActivePlaySessions {
     activePlaySessions.remove(playerUuid, dogUuid);
   }
 
+  static void clearAll(Map<UUID, UUID> activePlaySessions) {
+    activePlaySessions.clear();
+  }
+
   static boolean shouldEndOnRemoval(RemovalReason reason) {
     return reason != RemovalReason.KILLED;
   }

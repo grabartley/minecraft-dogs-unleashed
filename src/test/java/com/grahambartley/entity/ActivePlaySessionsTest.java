@@ -61,6 +61,28 @@ class ActivePlaySessionsTest {
     assertEquals(activeDogUuid, sessions.get(playerUuid));
   }
 
+  @Test
+  @DisplayName("clearAll empties every session, e.g. on server stop")
+  void clearAllEmptiesEverySession() {
+    final Map<UUID, UUID> sessions = new HashMap<>();
+    sessions.put(UUID.randomUUID(), UUID.randomUUID());
+    sessions.put(UUID.randomUUID(), UUID.randomUUID());
+
+    ActivePlaySessions.clearAll(sessions);
+
+    assertTrue(sessions.isEmpty());
+  }
+
+  @Test
+  @DisplayName("clearAll on an already-empty map is a harmless no-op")
+  void clearAllOnEmptyMapIsNoOp() {
+    final Map<UUID, UUID> sessions = new HashMap<>();
+
+    ActivePlaySessions.clearAll(sessions);
+
+    assertTrue(sessions.isEmpty());
+  }
+
   static Stream<Arguments> nonKillingRemovals() {
     return Stream.of(
         Arguments.of(Entity.RemovalReason.UNLOADED_TO_CHUNK),

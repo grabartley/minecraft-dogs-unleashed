@@ -3,8 +3,10 @@ package com.grahambartley;
 import com.grahambartley.advancement.DogSleptInBedCriterion;
 import com.grahambartley.advancement.FetchReturnedCriterion;
 import com.grahambartley.advancement.HuskyHowledCriterion;
+import com.grahambartley.block.DogBedBlock;
 import com.grahambartley.command.DogsUnleashedCommand;
 import com.grahambartley.config.DogsUnleashedConfig;
+import com.grahambartley.entity.UnleashedDogEntity;
 import com.grahambartley.listener.PlayerDimensionChangeListener;
 import com.grahambartley.network.ModNetworking;
 import com.grahambartley.server.ServerConfigService;
@@ -48,6 +50,14 @@ public class DogsUnleashed implements ModInitializer {
     PlayerDimensionChangeListener.initialize();
 
     ServerLifecycleEvents.SERVER_STARTING.register(ServerConfigService::loadFromWorld);
+
+    // Clear JVM-global session maps on stop so a subsequent integrated server start
+    // (singleplayer world load in the same JVM) begins with empty session state. See #176.
+    ServerLifecycleEvents.SERVER_STOPPED.register(
+        (server) -> {
+          UnleashedDogEntity.clearActivePlaySessions();
+          DogBedBlock.clearPendingAssignments();
+        });
 
     ServerPlayConnectionEvents.JOIN.register(
         (handler, sender, server) -> ServerConfigService.sendTo(handler.getPlayer()));

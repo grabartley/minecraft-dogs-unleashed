@@ -510,10 +510,10 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   /**
    * Clears the JVM-global active play sessions map. The map otherwise lives for the lifetime of the
    * JVM; in singleplayer it survives world reloads and in gametest batches it leaks state between
-   * tests. Called by test {@code @BeforeBatch} hooks and (future, #176) by {@code SERVER_STOPPED}.
+   * tests. Called by test {@code @BeforeBatch} hooks and by {@code SERVER_STOPPED}.
    */
   public static void clearActivePlaySessions() {
-    ACTIVE_PLAY_SESSIONS.clear();
+    ActivePlaySessions.clearAll(ACTIVE_PLAY_SESSIONS);
   }
 
   public boolean isActivelyFetching() {
