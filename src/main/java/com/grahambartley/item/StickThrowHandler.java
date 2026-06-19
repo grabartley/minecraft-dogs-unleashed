@@ -17,7 +17,7 @@ public final class StickThrowHandler {
     UseItemCallback.EVENT.register(StickThrowHandler::use);
   }
 
-  public static TypedActionResult<ItemStack> use(PlayerEntity player, World world, Hand hand) {
+  private static TypedActionResult<ItemStack> use(PlayerEntity player, World world, Hand hand) {
     ItemStack itemStack = player.getStackInHand(hand);
     if (!itemStack.isOf(Items.STICK) || player.isSneaking()) {
       return TypedActionResult.pass(itemStack);

@@ -4,7 +4,7 @@ import com.grahambartley.ModEntities;
 import com.grahambartley.entity.StickProjectileEntity;
 import com.grahambartley.entity.UnleashedDogEntity;
 import com.grahambartley.entity.fetch.FetchTypes;
-import com.grahambartley.item.StickThrowHandler;
+import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -21,10 +21,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameMode;
 
 /**
- * Real-behavior coverage of the {@link StickThrowHandler#use} play-mode gate (#179). The handler is
- * the global {@code UseItemCallback}; before #179 every non-sneaking stick right-click launched a
+ * Real-behavior coverage of the {@code StickThrowHandler} play-mode gate (#179). The handler is the
+ * mod's only {@link UseItemCallback}; before #179 every non-sneaking stick right-click launched a
  * {@link StickProjectileEntity}. Now it only throws when the player is the play-mode partner of a
  * tamed dog ({@code UnleashedDogEntity.isAnyDogInPlayModeFor}).
+ *
+ * <p>Tests fire the real {@code UseItemCallback.EVENT} invoker rather than calling the handler
+ * method directly, so they also assert the callback stays registered: deleting the {@code
+ * register()} wiring would flip the throw case from CONSUME to PASS and fail here.
  *
  * <p>These need a live {@code ServerWorld}: {@code Items.STICK}, {@code
  * ModEntities.STICK_PROJECTILE} construction, {@code world.spawnEntity}, and the JVM-global
@@ -49,12 +53,11 @@ public final class StickThrowHandlerGameTest implements FabricGameTest {
     UnleashedDogEntity.clearActivePlaySessions();
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = 20)
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = 5)
   public void rightClickWithoutPlayModeDoesNotThrow(final TestContext context) {
     final PlayerEntity player = spawnStickHolder(context);
 
-    final TypedActionResult<ItemStack> result =
-        StickThrowHandler.use(player, context.getWorld(), Hand.MAIN_HAND);
+    final TypedActionResult<ItemStack> result = fireUse(context, player);
 
     context.assertTrue(
         result.getResult() == ActionResult.PASS,
@@ -69,14 +72,12 @@ public final class StickThrowHandlerGameTest implements FabricGameTest {
     context.complete();
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = 20)
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = 5)
   public void rightClickInPlayModeThrowsStick(final TestContext context) {
     final PlayerEntity player = spawnStickHolder(context);
-    final UnleashedDogEntity dog = context.spawnEntity(ModEntities.HUSKY, PLAYER_POS);
-    dog.startPlayMode(player, FetchTypes.STICK);
+    startPlayModeWithDog(context, player);
 
-    final TypedActionResult<ItemStack> result =
-        StickThrowHandler.use(player, context.getWorld(), Hand.MAIN_HAND);
+    final TypedActionResult<ItemStack> result = fireUse(context, player);
 
     // Server-side success carries swingHand=false (world.isClient), which maps to CONSUME, not
     // SUCCESS; SUCCESS is the client-only swing variant.
@@ -93,15 +94,13 @@ public final class StickThrowHandlerGameTest implements FabricGameTest {
     context.complete();
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = 20)
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = 5)
   public void sneakingBypassesThrowEvenInPlayMode(final TestContext context) {
     final PlayerEntity player = spawnStickHolder(context);
-    final UnleashedDogEntity dog = context.spawnEntity(ModEntities.HUSKY, PLAYER_POS);
-    dog.startPlayMode(player, FetchTypes.STICK);
+    startPlayModeWithDog(context, player);
     player.setSneaking(true);
 
-    final TypedActionResult<ItemStack> result =
-        StickThrowHandler.use(player, context.getWorld(), Hand.MAIN_HAND);
+    final TypedActionResult<ItemStack> result = fireUse(context, player);
 
     context.assertTrue(
         result.getResult() == ActionResult.PASS,
@@ -111,6 +110,36 @@ public final class StickThrowHandlerGameTest implements FabricGameTest {
         stickProjectileCount(context) == 0,
         "No stick projectile should spawn while the player is sneaking");
     context.complete();
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = 5)
+  public void nonStickItemInPlayModePassesThrough(final TestContext context) {
+    final PlayerEntity player = spawnStickHolder(context);
+    startPlayModeWithDog(context, player);
+    player.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.WOODEN_PICKAXE));
+
+    final TypedActionResult<ItemStack> result = fireUse(context, player);
+
+    context.assertTrue(
+        result.getResult() == ActionResult.PASS,
+        "A non-stick item in play mode should pass through untouched, was " + result.getResult());
+    context.assertTrue(
+        stickProjectileCount(context) == 0,
+        "No stick projectile should spawn for a non-stick item even in play mode");
+    context.complete();
+  }
+
+  /** Spawns a tamed-dog play partner for the player so {@code isAnyDogInPlayModeFor} is true. */
+  private void startPlayModeWithDog(final TestContext context, final PlayerEntity player) {
+    context.spawnEntity(ModEntities.HUSKY, PLAYER_POS).startPlayMode(player, FetchTypes.STICK);
+  }
+
+  /**
+   * Runs the real {@code UseItemCallback} chain, the same entry point production right-clicks hit.
+   */
+  private TypedActionResult<ItemStack> fireUse(
+      final TestContext context, final PlayerEntity player) {
+    return UseItemCallback.EVENT.invoker().interact(player, context.getWorld(), Hand.MAIN_HAND);
   }
 
   /**
