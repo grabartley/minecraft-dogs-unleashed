@@ -55,9 +55,6 @@ public class AutoSleepGoal extends Goal {
     if (!this.isValidBed(this.targetBedPos)) {
       return false;
     }
-    if (this.dog.isAutoSleepSuppressed()) {
-      return false;
-    }
 
     if (!this.isWithinRange(this.targetBedPos)) {
       return false;
