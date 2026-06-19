@@ -60,7 +60,7 @@ public class DogBedBlock extends HorizontalFacingBlock implements BlockEntityPro
    * {@code @BeforeBatch} hooks and by {@code SERVER_STOPPED}.
    */
   public static void clearPendingAssignments() {
-    pendingBedAssignments.clear();
+    PendingBedAssignments.clearAll(pendingBedAssignments);
   }
 
   public DogBedBlock(Settings settings) {

@@ -67,6 +67,7 @@ class ActivePlaySessionsTest {
     final Map<UUID, UUID> sessions = new HashMap<>();
     sessions.put(UUID.randomUUID(), UUID.randomUUID());
     sessions.put(UUID.randomUUID(), UUID.randomUUID());
+    assertEquals(2, sessions.size());
 
     ActivePlaySessions.clearAll(sessions);
 

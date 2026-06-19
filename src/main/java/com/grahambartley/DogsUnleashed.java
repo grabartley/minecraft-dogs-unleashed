@@ -51,13 +51,7 @@ public class DogsUnleashed implements ModInitializer {
 
     ServerLifecycleEvents.SERVER_STARTING.register(ServerConfigService::loadFromWorld);
 
-    // Clear JVM-global session maps on stop so a subsequent integrated server start
-    // (singleplayer world load in the same JVM) begins with empty session state. See #176.
-    ServerLifecycleEvents.SERVER_STOPPED.register(
-        (server) -> {
-          UnleashedDogEntity.clearActivePlaySessions();
-          DogBedBlock.clearPendingAssignments();
-        });
+    ServerLifecycleEvents.SERVER_STOPPED.register(DogsUnleashed::clearJvmGlobalSessionState);
 
     ServerPlayConnectionEvents.JOIN.register(
         (handler, sender, server) -> ServerConfigService.sendTo(handler.getPlayer()));
@@ -81,5 +75,15 @@ public class DogsUnleashed implements ModInitializer {
 
   public static void runNextTick(Runnable task) {
     pendingNextTick.add(task);
+  }
+
+  /**
+   * Clears the JVM-global session maps when the server stops so a subsequent integrated server
+   * start (a singleplayer world load in the same JVM) begins with empty session state instead of
+   * inheriting stale player/dog UUID pairs from the previous world. See #176.
+   */
+  private static void clearJvmGlobalSessionState(MinecraftServer server) {
+    UnleashedDogEntity.clearActivePlaySessions();
+    DogBedBlock.clearPendingAssignments();
   }
 }
