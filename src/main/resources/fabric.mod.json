@@ -35,7 +35,8 @@
       "com.grahambartley.gametest.DogSleepBehaviorGameTest",
       "com.grahambartley.gametest.DogGraveGameTest",
       "com.grahambartley.gametest.PetManagerFilterGameTest",
-      "com.grahambartley.gametest.FetchProjectileGameTest"
+      "com.grahambartley.gametest.FetchProjectileGameTest",
+      "com.grahambartley.gametest.StickThrowHandlerGameTest"
     ]
   },
   "mixins": [
