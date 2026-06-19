@@ -44,7 +44,6 @@ public class PetNamingScreen extends Screen {
             Text.translatable("screen.dogs-unleashed.pet_naming.name_field"));
     nameField.setMaxLength(NAME_MAX_LENGTH);
     nameField.setText(suggestedName);
-    nameField.setChangedListener(this::onNameChanged);
     addDrawableChild(nameField);
 
     addDrawableChild(
@@ -53,8 +52,6 @@ public class PetNamingScreen extends Screen {
             .dimensions(centerX - BUTTON_WIDTH / 2, centerY + 10, BUTTON_WIDTH, BUTTON_HEIGHT)
             .build());
   }
-
-  private void onNameChanged(String name) {}
 
   private void onConfirm(ButtonWidget button) {
     final String name = nameField.getText().trim();
