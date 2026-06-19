@@ -1,6 +1,7 @@
 package com.grahambartley.item;
 
 import com.grahambartley.entity.StickProjectileEntity;
+import com.grahambartley.entity.UnleashedDogEntity;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -19,6 +20,10 @@ public final class StickThrowHandler {
   private static TypedActionResult<ItemStack> use(PlayerEntity player, World world, Hand hand) {
     ItemStack itemStack = player.getStackInHand(hand);
     if (!itemStack.isOf(Items.STICK) || player.isSneaking()) {
+      return TypedActionResult.pass(itemStack);
+    }
+
+    if (!UnleashedDogEntity.isAnyDogInPlayModeFor(player.getUuid())) {
       return TypedActionResult.pass(itemStack);
     }
 
