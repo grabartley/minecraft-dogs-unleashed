@@ -4,6 +4,9 @@
 # Log file
 *.log
 
+# Server/runtime log output (gametest + dev runs)
+logs/
+
 # BlueJ files
 *.ctxt
 

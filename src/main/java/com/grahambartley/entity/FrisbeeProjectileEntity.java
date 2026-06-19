@@ -32,6 +32,7 @@ public class FrisbeeProjectileEntity extends AbstractFetchProjectileEntity {
 
   @Override
   protected void initDataTracker(DataTracker.Builder builder) {
+    super.initDataTracker(builder);
     builder.add(COLOR_ID, DyeColor.WHITE.getId());
   }
 
