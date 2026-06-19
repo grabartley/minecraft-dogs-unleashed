@@ -57,10 +57,10 @@ public class DogBedBlock extends HorizontalFacingBlock implements BlockEntityPro
   /**
    * Clears the JVM-global pending-bed-assignment map. Lives for the lifetime of the JVM; survives
    * world reloads in singleplayer and leaks state between gametest batches. Called by test
-   * {@code @BeforeBatch} hooks and (future, #176) by {@code SERVER_STOPPED}.
+   * {@code @BeforeBatch} hooks and by {@code SERVER_STOPPED}.
    */
   public static void clearPendingAssignments() {
-    pendingBedAssignments.clear();
+    PendingBedAssignments.clearAll(pendingBedAssignments);
   }
 
   public DogBedBlock(Settings settings) {

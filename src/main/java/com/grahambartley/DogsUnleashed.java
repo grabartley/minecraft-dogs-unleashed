@@ -3,8 +3,10 @@ package com.grahambartley;
 import com.grahambartley.advancement.DogSleptInBedCriterion;
 import com.grahambartley.advancement.FetchReturnedCriterion;
 import com.grahambartley.advancement.HuskyHowledCriterion;
+import com.grahambartley.block.DogBedBlock;
 import com.grahambartley.command.DogsUnleashedCommand;
 import com.grahambartley.config.DogsUnleashedConfig;
+import com.grahambartley.entity.UnleashedDogEntity;
 import com.grahambartley.listener.PlayerDimensionChangeListener;
 import com.grahambartley.network.ModNetworking;
 import com.grahambartley.server.ServerConfigService;
@@ -49,6 +51,8 @@ public class DogsUnleashed implements ModInitializer {
 
     ServerLifecycleEvents.SERVER_STARTING.register(ServerConfigService::loadFromWorld);
 
+    ServerLifecycleEvents.SERVER_STOPPED.register(DogsUnleashed::clearJvmGlobalSessionState);
+
     ServerPlayConnectionEvents.JOIN.register(
         (handler, sender, server) -> ServerConfigService.sendTo(handler.getPlayer()));
 
@@ -71,5 +75,15 @@ public class DogsUnleashed implements ModInitializer {
 
   public static void runNextTick(Runnable task) {
     pendingNextTick.add(task);
+  }
+
+  /**
+   * Clears the JVM-global session maps when the server stops so a subsequent integrated server
+   * start (a singleplayer world load in the same JVM) begins with empty session state instead of
+   * inheriting stale player/dog UUID pairs from the previous world. See #176.
+   */
+  private static void clearJvmGlobalSessionState(MinecraftServer server) {
+    UnleashedDogEntity.clearActivePlaySessions();
+    DogBedBlock.clearPendingAssignments();
   }
 }
