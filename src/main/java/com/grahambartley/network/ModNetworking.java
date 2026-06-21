@@ -27,6 +27,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 
 public final class ModNetworking {
   public static final Identifier SET_PET_NAME_ID =
@@ -448,11 +449,22 @@ public final class ModNetworking {
       if (pet.isAlive()) {
         final UnleashedDogEntity dog = PetLocationService.findDog(server, pet);
         if (dog != null) {
-          pet.setHealth(dog.getHealth());
-          pet.setLastKnownPosition(dog.getBlockPos());
-          pet.setDimension(((ServerWorld) dog.getWorld()).getRegistryKey().getValue().toString());
-          pet.syncAppearanceFrom(dog);
-          petManager.updatePet(pet);
+          final float newHealth = dog.getHealth();
+          final BlockPos newPos = dog.getBlockPos();
+          final String newDim =
+              ((ServerWorld) dog.getWorld()).getRegistryKey().getValue().toString();
+          final boolean newBaby = dog.isBaby();
+          final int newCollar = dog.getCollarColor().getId();
+          final int newCoat = PetData.coatVariantOf(dog);
+          final int newHuskyEye = PetData.huskyEyeVariantOf(dog);
+          if (pet.differsFrom(
+              newHealth, newPos, newDim, newBaby, newCollar, newCoat, newHuskyEye)) {
+            pet.setHealth(newHealth);
+            pet.setLastKnownPosition(newPos);
+            pet.setDimension(newDim);
+            pet.syncAppearanceFrom(dog);
+            petManager.updatePet(pet);
+          }
         }
       }
     }

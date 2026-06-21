@@ -7,9 +7,16 @@ import com.grahambartley.entity.UnleashedDogEntity;
 import java.util.UUID;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 
 public final class PetData {
+
+  // Mirrors UnleashedDogEntity.DEFAULT_COLLAR_COLOR_ID (DyeColor.RED), sourced directly from
+  // DyeColor so seeding a new pet record never class-loads the entity. UnleashedDogEntity is a
+  // MobEntity subclass that fails bytecode verification under the unit-test classpath, which would
+  // otherwise make PetData impossible to construct in plain JUnit tests.
+  private static final int DEFAULT_COLLAR_COLOR_ID = DyeColor.RED.getId();
 
   private final UUID petId;
   private final UUID ownerId;
@@ -45,7 +52,7 @@ public final class PetData {
     this.dimension = dimension;
     this.alive = alive;
     this.baby = false;
-    this.collarColor = UnleashedDogEntity.DEFAULT_COLLAR_COLOR_ID;
+    this.collarColor = DEFAULT_COLLAR_COLOR_ID;
     this.coatVariant = UnleashedDogEntity.UNSET_VARIANT;
     this.huskyEyeVariant = UnleashedDogEntity.UNSET_VARIANT;
   }
@@ -133,16 +140,43 @@ public final class PetData {
   public void syncAppearanceFrom(final UnleashedDogEntity dog) {
     this.baby = dog.isBaby();
     this.collarColor = dog.getCollarColor().getId();
-    if (dog.getCoatVariant() != null) {
-      this.coatVariant = dog.getCoatVariant().getOrdinal();
-    } else {
-      this.coatVariant = UnleashedDogEntity.UNSET_VARIANT;
-    }
-    if (dog instanceof HuskyEntity husky) {
-      this.huskyEyeVariant = husky.getEyeColorVariant().ordinal();
-    } else {
-      this.huskyEyeVariant = UnleashedDogEntity.UNSET_VARIANT;
-    }
+    this.coatVariant = coatVariantOf(dog);
+    this.huskyEyeVariant = huskyEyeVariantOf(dog);
+  }
+
+  public static int coatVariantOf(final UnleashedDogEntity dog) {
+    return dog.getCoatVariant() != null
+        ? dog.getCoatVariant().getOrdinal()
+        : UnleashedDogEntity.UNSET_VARIANT;
+  }
+
+  public static int huskyEyeVariantOf(final UnleashedDogEntity dog) {
+    return dog instanceof HuskyEntity husky
+        ? husky.getEyeColorVariant().ordinal()
+        : UnleashedDogEntity.UNSET_VARIANT;
+  }
+
+  /**
+   * Returns whether any field that {@code syncPetData} writes back differs from the supplied live
+   * values. Lets callers skip {@link PetManager#updatePet} (and its {@code markDirty()}) when a pet
+   * has not changed since the last sync. The arguments mirror the fields set by {@link #setHealth},
+   * {@link #setLastKnownPosition}, {@link #setDimension}, and {@link #syncAppearanceFrom}.
+   */
+  public boolean differsFrom(
+      final float health,
+      final BlockPos pos,
+      final String dimension,
+      final boolean baby,
+      final int collarColor,
+      final int coatVariant,
+      final int huskyEyeVariant) {
+    return this.health != health
+        || !this.lastKnownPosition.equals(pos)
+        || !java.util.Objects.equals(this.dimension, dimension)
+        || this.baby != baby
+        || this.collarColor != collarColor
+        || this.coatVariant != coatVariant
+        || this.huskyEyeVariant != huskyEyeVariant;
   }
 
   public NbtCompound toNbt() {
