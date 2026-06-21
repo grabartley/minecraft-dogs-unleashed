@@ -8,6 +8,7 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import java.util.List;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
@@ -97,57 +98,55 @@ public final class DogsUnleashedCommand {
 
   private static int help(final CommandContext<ServerCommandSource> ctx) {
     final ServerCommandSource source = ctx.getSource();
-    source.sendFeedback(() -> Text.literal("Dogs Unleashed commands (operators only):"), false);
-    source.sendFeedback(() -> Text.literal("- /dogsunleashed status"), false);
-    source.sendFeedback(() -> Text.literal("- /dogsunleashed config spawn <true|false>"), false);
-    source.sendFeedback(() -> Text.literal("- /dogsunleashed config graves <true|false>"), false);
-    source.sendFeedback(
-        () -> Text.literal("- /dogsunleashed config autosleep <true|false>"), false);
-    source.sendFeedback(
-        () ->
-            Text.literal(
-                "- /dogsunleashed config autosleeprange <"
-                    + DogsUnleashedConfig.AUTO_SLEEP_RANGE_MIN
-                    + ".."
-                    + DogsUnleashedConfig.AUTO_SLEEP_RANGE_MAX
-                    + ">"),
-        false);
-    source.sendFeedback(
-        () ->
-            Text.literal(
-                "- /dogsunleashed config barkvolume <"
-                    + DogsUnleashedConfig.VOLUME_MIN
-                    + ".."
-                    + DogsUnleashedConfig.VOLUME_MAX
-                    + ">"),
-        false);
-    source.sendFeedback(
-        () ->
-            Text.literal(
-                "- /dogsunleashed config howlvolume <"
-                    + DogsUnleashedConfig.VOLUME_MIN
-                    + ".."
-                    + DogsUnleashedConfig.VOLUME_MAX
-                    + ">"),
-        false);
-    source.sendFeedback(() -> Text.literal("- /dogsunleashed config reset"), false);
+    for (final Text line : helpLines()) {
+      source.sendFeedback(() -> line, false);
+    }
     return 1;
+  }
+
+  static List<Text> helpLines() {
+    return List.of(
+        Text.translatable("command.dogs-unleashed.help.header"),
+        Text.translatable("command.dogs-unleashed.help.status"),
+        Text.translatable("command.dogs-unleashed.help.spawn"),
+        Text.translatable("command.dogs-unleashed.help.graves"),
+        Text.translatable("command.dogs-unleashed.help.autosleep"),
+        Text.translatable(
+            "command.dogs-unleashed.help.autosleeprange",
+            DogsUnleashedConfig.AUTO_SLEEP_RANGE_MIN,
+            DogsUnleashedConfig.AUTO_SLEEP_RANGE_MAX),
+        Text.translatable(
+            "command.dogs-unleashed.help.barkvolume",
+            DogsUnleashedConfig.VOLUME_MIN,
+            DogsUnleashedConfig.VOLUME_MAX),
+        Text.translatable(
+            "command.dogs-unleashed.help.howlvolume",
+            DogsUnleashedConfig.VOLUME_MIN,
+            DogsUnleashedConfig.VOLUME_MAX),
+        Text.translatable("command.dogs-unleashed.help.reset"));
   }
 
   private static int status(final CommandContext<ServerCommandSource> ctx) {
     final ServerCommandSource source = ctx.getSource();
-    final DogsUnleashedConfig config = DogsUnleashed.SERVER_CONFIG;
-    source.sendFeedback(() -> Text.literal("Dogs Unleashed settings:"), false);
-    source.sendFeedback(() -> Text.literal("- spawn=" + config.enableNaturalSpawning()), false);
-    source.sendFeedback(() -> Text.literal("- graves=" + config.gravesEnabled()), false);
-    source.sendFeedback(() -> Text.literal("- autosleep=" + config.autoSleepEnabled()), false);
-    source.sendFeedback(
-        () -> Text.literal("- autosleeprange=" + config.autoSleepRangeBlocks()), false);
-    source.sendFeedback(
-        () -> Text.literal("- barkvolume=" + String.format("%.2f", config.barkVolume())), false);
-    source.sendFeedback(
-        () -> Text.literal("- howlvolume=" + String.format("%.2f", config.howlVolume())), false);
+    for (final Text line : statusLines(DogsUnleashed.SERVER_CONFIG)) {
+      source.sendFeedback(() -> line, false);
+    }
     return 1;
+  }
+
+  static List<Text> statusLines(final DogsUnleashedConfig config) {
+    return List.of(
+        Text.translatable("command.dogs-unleashed.status.header"),
+        Text.translatable("command.dogs-unleashed.status.spawn", config.enableNaturalSpawning()),
+        Text.translatable("command.dogs-unleashed.status.graves", config.gravesEnabled()),
+        Text.translatable("command.dogs-unleashed.status.autosleep", config.autoSleepEnabled()),
+        Text.translatable(
+            "command.dogs-unleashed.status.autosleeprange", config.autoSleepRangeBlocks()),
+        Text.translatable(
+            "command.dogs-unleashed.status.barkvolume", String.format("%.2f", config.barkVolume())),
+        Text.translatable(
+            "command.dogs-unleashed.status.howlvolume",
+            String.format("%.2f", config.howlVolume())));
   }
 
   private static int setSpawn(final CommandContext<ServerCommandSource> ctx, final boolean value) {
@@ -221,13 +220,15 @@ public final class DogsUnleashedCommand {
     final ServerCommandSource source = ctx.getSource();
     final boolean ok = ServerConfigService.update(source.getServer(), updated);
     if (!ok) {
-      source.sendError(Text.literal("Failed to persist Dogs Unleashed config update."));
+      source.sendError(Text.translatable("command.dogs-unleashed.update.failed"));
       return 0;
     }
-    source.sendFeedback(() -> Text.literal(label + " set to " + displayValue), true);
+    source.sendFeedback(
+        () -> Text.translatable("command.dogs-unleashed.update.success", label, displayValue),
+        true);
     if (restartNote) {
       source.sendFeedback(
-          () -> Text.literal("Note: spawn changes apply on next world load."), false);
+          () -> Text.translatable("command.dogs-unleashed.update.restart_note"), false);
     }
     return 1;
   }
