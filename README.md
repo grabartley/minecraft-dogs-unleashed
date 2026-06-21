@@ -196,6 +196,31 @@ All subcommands require operator permission level 2.
 
 If [Mod Menu](https://modrinth.com/mod/modmenu) is installed, Dogs Unleashed appears in the Mods list with the same settings screen. Mod Menu is not bundled and not required.
 
+## Languages
+
+Dogs Unleashed ships with translations for breed names, screens, commands, and chat feedback in:
+
+| Locale  | Language                  |
+|---------|---------------------------|
+| `en_us` | English (US)              |
+| `zh_cn` | Simplified Chinese (简体中文) |
+| `de_de` | German (Deutsch)          |
+| `fr_fr` | French (Français)         |
+| `pt_br` | Portuguese (Português do Brasil) |
+| `ru_ru` | Russian (Русский)         |
+| `es_es` | Spanish (Español)         |
+
+Want your language in the pack? **Translation PRs are very welcome!** Copy
+[`en_us.json`](src/main/resources/assets/dogs-unleashed/lang/en_us.json), translate the values (keep the keys and
+`%s` placeholders intact), and open a PR. Spotted a typo or an awkward phrasing in an existing translation? Please
+[open an issue](https://github.com/grabartley/minecraft-dogs-unleashed/issues/new) so we can fix it.
+
+A few things to leave untranslated in the `command.dogs-unleashed.*` strings, since operators type them
+literally: command names (`/dogsunleashed`, `status`, `config`), config option identifiers (`spawn`, `graves`,
+`autosleeprange`, `barkvolume`, ...), and literal argument tokens (`<true|false>`, range markers like `<4..128>`).
+Translate only the surrounding prose. The longest, most idiom-heavy strings are the settings tooltips, so
+phrasing-polish PRs there are especially appreciated.
+
 ## Compatibility
 
 - **Minecraft:** `1.21.1`
