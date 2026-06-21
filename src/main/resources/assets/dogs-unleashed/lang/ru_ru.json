@@ -9,6 +9,9 @@
   "item.dogs-unleashed.goldenretriever_spawn_egg": "Яйцо призыва золотистого ретривера",
   "entity.dogs-unleashed.shibainu": "Сиба-ину",
   "item.dogs-unleashed.shibainu_spawn_egg": "Яйцо призыва сиба-ину",
+  "entity.dogs-unleashed.tennis_ball_projectile": "Теннисный мяч",
+  "entity.dogs-unleashed.stick_projectile": "Палка",
+  "entity.dogs-unleashed.frisbee_projectile": "Фрисби",
 
   "block.dogs-unleashed.dog_bed": "Собачья лежанка",
   "block.dogs-unleashed.dog_bed.colored": "Собачья лежанка (%s)",

@@ -9,6 +9,9 @@
   "item.dogs-unleashed.goldenretriever_spawn_egg": "Ovo gerador de Golden Retriever",
   "entity.dogs-unleashed.shibainu": "Shiba Inu",
   "item.dogs-unleashed.shibainu_spawn_egg": "Ovo gerador de Shiba Inu",
+  "entity.dogs-unleashed.tennis_ball_projectile": "Bola de tênis",
+  "entity.dogs-unleashed.stick_projectile": "Graveto",
+  "entity.dogs-unleashed.frisbee_projectile": "Frisbee",
 
   "block.dogs-unleashed.dog_bed": "Cama de cachorro",
   "block.dogs-unleashed.dog_bed.colored": "Cama de cachorro %s",

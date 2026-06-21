@@ -9,6 +9,9 @@
   "item.dogs-unleashed.goldenretriever_spawn_egg": "金毛寻回犬刷怪蛋",
   "entity.dogs-unleashed.shibainu": "柴犬",
   "item.dogs-unleashed.shibainu_spawn_egg": "柴犬刷怪蛋",
+  "entity.dogs-unleashed.tennis_ball_projectile": "网球",
+  "entity.dogs-unleashed.stick_projectile": "棍子",
+  "entity.dogs-unleashed.frisbee_projectile": "飞盘",
 
   "block.dogs-unleashed.dog_bed": "狗床",
   "block.dogs-unleashed.dog_bed.colored": "%s狗床",
