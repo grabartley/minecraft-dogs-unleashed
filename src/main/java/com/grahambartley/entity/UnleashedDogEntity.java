@@ -103,6 +103,9 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 public abstract class UnleashedDogEntity extends TameableEntity implements GeoEntity, Angerable {
 
+  // Keep in sync with PetData.DEFAULT_COLLAR_COLOR_ID. PetData mirrors this value from DyeColor
+  // directly because referencing this constant would class-load UnleashedDogEntity, a MobEntity
+  // subclass that fails bytecode verification on the unit-test classpath.
   public static final int DEFAULT_COLLAR_COLOR_ID = DyeColor.RED.getId();
   public static final int UNSET_VARIANT = -1;
 
