@@ -9,6 +9,7 @@ import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import java.util.List;
+import java.util.Locale;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
@@ -104,6 +105,8 @@ public final class DogsUnleashedCommand {
     return 1;
   }
 
+  // Package-private only so the help/status output can be asserted as List<Text> in tests;
+  // production code calls these from help() / status() exclusively.
   static List<Text> helpLines() {
     return List.of(
         Text.translatable("command.dogs-unleashed.help.header"),
@@ -134,6 +137,8 @@ public final class DogsUnleashedCommand {
     return 1;
   }
 
+  // Package-private only so the help/status output can be asserted as List<Text> in tests;
+  // production code calls these from help() / status() exclusively.
   static List<Text> statusLines(final DogsUnleashedConfig config) {
     return List.of(
         Text.translatable("command.dogs-unleashed.status.header"),
@@ -143,10 +148,11 @@ public final class DogsUnleashedCommand {
         Text.translatable(
             "command.dogs-unleashed.status.autosleeprange", config.autoSleepRangeBlocks()),
         Text.translatable(
-            "command.dogs-unleashed.status.barkvolume", String.format("%.2f", config.barkVolume())),
+            "command.dogs-unleashed.status.barkvolume",
+            String.format(Locale.ROOT, "%.2f", config.barkVolume())),
         Text.translatable(
             "command.dogs-unleashed.status.howlvolume",
-            String.format("%.2f", config.howlVolume())));
+            String.format(Locale.ROOT, "%.2f", config.howlVolume())));
   }
 
   private static int setSpawn(final CommandContext<ServerCommandSource> ctx, final boolean value) {

@@ -215,6 +215,12 @@ Want your language in the pack? **Translation PRs are very welcome!** Copy
 `%s` placeholders intact), and open a PR. Spotted a typo or an awkward phrasing in an existing translation? Please
 [open an issue](https://github.com/grabartley/minecraft-dogs-unleashed/issues/new) so we can fix it.
 
+A few things to leave untranslated in the `command.dogs-unleashed.*` strings, since operators type them
+literally: command names (`/dogsunleashed`, `status`, `config`), config option identifiers (`spawn`, `graves`,
+`autosleeprange`, `barkvolume`, ...), and literal argument tokens (`<true|false>`, range markers like `<4..128>`).
+Translate only the surrounding prose. The longest, most idiom-heavy strings are the settings tooltips, so
+phrasing-polish PRs there are especially appreciated.
+
 ## Compatibility
 
 - **Minecraft:** `1.21.1`
