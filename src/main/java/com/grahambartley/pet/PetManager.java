@@ -6,6 +6,7 @@ import com.grahambartley.entity.UnleashedDogBreed;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.nbt.NbtCompound;
@@ -90,9 +91,11 @@ public final class PetManager extends PersistentState {
       pets = pets.stream().filter(p -> aliveFilter.appliesTo(p.isAlive())).toList();
     }
     if (searchQuery != null && !searchQuery.isEmpty()) {
-      final String normalizedQuery = searchQuery.toLowerCase();
+      final String normalizedQuery = searchQuery.toLowerCase(Locale.ROOT);
       pets =
-          pets.stream().filter(p -> p.getName().toLowerCase().contains(normalizedQuery)).toList();
+          pets.stream()
+              .filter(p -> p.getName().toLowerCase(Locale.ROOT).contains(normalizedQuery))
+              .toList();
     }
     return pets;
   }

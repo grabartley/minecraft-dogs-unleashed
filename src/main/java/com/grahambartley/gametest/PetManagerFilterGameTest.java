@@ -5,6 +5,7 @@ import com.grahambartley.pet.PetAliveFilter;
 import com.grahambartley.pet.PetData;
 import com.grahambartley.pet.PetManager;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.test.CustomTestProvider;
@@ -17,7 +18,9 @@ import org.jetbrains.annotations.Nullable;
  * Locks the contract of the 4-arg {@link PetManager#getPetsByOwnerFiltered}, the single filtering
  * entry point every production caller (currently {@code ModNetworking}) uses. Breed, alive-state,
  * and name-search filters layer together, and a {@code null} breed, {@code ALL} alive filter, or
- * empty/null search query is a no-op for that axis.
+ * empty/null search query is a no-op for that axis. A dedicated batch of cases pins the JVM default
+ * locale to Turkish to lock the name search as locale-neutral ({@code Locale.ROOT} case folding),
+ * so "I"/"i" matches do not silently drop on a Turkish-locale JVM.
  *
  * <p>This lives in the gametest suite rather than {@code src/test/java} because constructing a
  * {@link PetData} loads {@code UnleashedDogEntity} for its persisted default constants, and that
@@ -117,6 +120,70 @@ public final class PetManagerFilterGameTest implements FabricGameTest {
             0L,
             true,
             ctx -> assertUnknownOwnerEmpty(ctx, UnleashedDogBreed.HUSKY, PetAliveFilter.ALIVE)));
+  }
+
+  /** A name-search scenario asserted while the JVM default locale is forced to Turkish. */
+  private record LocaleSearchCase(String name, String searchQuery, List<String> expectedNames) {}
+
+  private static final List<LocaleSearchCase> LOCALE_SEARCH_CASES =
+      List.of(
+          // Under a Turkish default locale, "I".toLowerCase() folds to the dotless "ı", so a
+          // locale-sensitive search would lowercase the query "BIS" to "bıs" and fail to find the
+          // dotted "i" in "Biscuit". Locale.ROOT keeps both sides on the dotted "i" and matches.
+          new LocaleSearchCase("Biscuit", "BIS", List.of("Biscuit")),
+          // Same dotted/dotless trap mid-name: "ISK" must still locate "Whiskey".
+          new LocaleSearchCase("Whiskey", "ISK", List.of("Whiskey")),
+          // ASCII control: plain case-insensitive matching is unchanged under Turkish.
+          new LocaleSearchCase("Bella", "bel", List.of("Bella")));
+
+  @CustomTestProvider
+  public List<TestFunction> localeNeutralSearchCases() {
+    return LOCALE_SEARCH_CASES.stream()
+        .map(
+            testCase ->
+                new TestFunction(
+                    "defaultBatch",
+                    "petmanagerfiltergametest.localeneutralsearch."
+                        + testCase.searchQuery().toLowerCase(Locale.ROOT),
+                    FabricGameTest.EMPTY_STRUCTURE,
+                    20,
+                    0L,
+                    true,
+                    ctx -> assertLocaleNeutralCase(ctx, testCase)))
+        .toList();
+  }
+
+  private void assertLocaleNeutralCase(final TestContext context, final LocaleSearchCase testCase) {
+    final PetManager petManager = new PetManager();
+    petManager.registerPet(pet("Biscuit", UnleashedDogBreed.HUSKY, true));
+    petManager.registerPet(pet("Whiskey", UnleashedDogBreed.HUSKY, true));
+    petManager.registerPet(pet("Bella", UnleashedDogBreed.HUSKY, true));
+
+    // Force the classic locale where default-locale case folding diverges from Locale.ROOT. The
+    // set/filter/restore is synchronous so the global default is only Turkish for this single call.
+    final Locale previousDefault = Locale.getDefault();
+    final List<String> actual;
+    try {
+      Locale.setDefault(Locale.forLanguageTag("tr"));
+      actual =
+          petManager
+              .getPetsByOwnerFiltered(OWNER, null, PetAliveFilter.ALL, testCase.searchQuery())
+              .stream()
+              .map(PetData::getName)
+              .toList();
+    } finally {
+      Locale.setDefault(previousDefault);
+    }
+
+    context.assertTrue(
+        testCase.expectedNames().equals(actual),
+        "Turkish-locale search for '"
+            + testCase.searchQuery()
+            + "' expected "
+            + testCase.expectedNames()
+            + " but got "
+            + actual);
+    context.complete();
   }
 
   private void assertFilterCase(final TestContext context, final FilterCase testCase) {
