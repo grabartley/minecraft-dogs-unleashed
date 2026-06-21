@@ -4,6 +4,7 @@ import com.grahambartley.ModNbtKeys;
 import com.grahambartley.entity.HuskyEntity;
 import com.grahambartley.entity.UnleashedDogBreed;
 import com.grahambartley.entity.UnleashedDogEntity;
+import java.util.Objects;
 import java.util.UUID;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
@@ -12,8 +13,8 @@ import net.minecraft.util.math.BlockPos;
 
 public final class PetData {
 
-  // Mirrors UnleashedDogEntity.DEFAULT_COLLAR_COLOR_ID (DyeColor.RED), sourced directly from
-  // DyeColor so seeding a new pet record never class-loads the entity. UnleashedDogEntity is a
+  // Keep in sync with UnleashedDogEntity.DEFAULT_COLLAR_COLOR_ID (DyeColor.RED), sourced directly
+  // from DyeColor so seeding a new pet record never class-loads the entity. UnleashedDogEntity is a
   // MobEntity subclass that fails bytecode verification under the unit-test classpath, which would
   // otherwise make PetData impossible to construct in plain JUnit tests.
   private static final int DEFAULT_COLLAR_COLOR_ID = DyeColor.RED.getId();
@@ -170,9 +171,9 @@ public final class PetData {
       final int collarColor,
       final int coatVariant,
       final int huskyEyeVariant) {
-    return this.health != health
+    return Float.compare(this.health, health) != 0
         || !this.lastKnownPosition.equals(pos)
-        || !java.util.Objects.equals(this.dimension, dimension)
+        || !Objects.equals(this.dimension, dimension)
         || this.baby != baby
         || this.collarColor != collarColor
         || this.coatVariant != coatVariant

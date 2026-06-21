@@ -96,6 +96,15 @@ class PetDataTest {
             BASE_COAT,
             BASE_EYE),
         Arguments.of(
+            "dimension going null",
+            BASE_HEALTH,
+            BASE_POS,
+            null,
+            BASE_BABY,
+            baseCollar(),
+            BASE_COAT,
+            BASE_EYE),
+        Arguments.of(
             "baby", BASE_HEALTH, BASE_POS, BASE_DIM, !BASE_BABY, baseCollar(), BASE_COAT, BASE_EYE),
         Arguments.of(
             "collarColor",
