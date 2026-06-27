@@ -37,7 +37,8 @@
       "com.grahambartley.gametest.PetManagerFilterGameTest",
       "com.grahambartley.gametest.FetchProjectileGameTest",
       "com.grahambartley.gametest.StickThrowHandlerGameTest",
-      "com.grahambartley.gametest.DogReunionGameTest"
+      "com.grahambartley.gametest.DogReunionGameTest",
+      "com.grahambartley.gametest.PuppyBehaviorGameTest"
     ]
   },
   "mixins": [

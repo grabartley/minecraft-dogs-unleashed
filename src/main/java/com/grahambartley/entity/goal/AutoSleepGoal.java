@@ -69,7 +69,8 @@ public class AutoSleepGoal extends Goal {
     final boolean isRaining = world.isRaining();
     final boolean isThundering = world.isThundering();
 
-    return isNightTime && !isRaining && !isThundering;
+    // Puppies nap around the clock, so the night-time gate is dropped while they are babies.
+    return (isNightTime || this.dog.isBaby()) && !isRaining && !isThundering;
   }
 
   private boolean shouldWake(World world) {
@@ -78,7 +79,8 @@ public class AutoSleepGoal extends Goal {
     final boolean isRaining = world.isRaining();
     final boolean isThundering = world.isThundering();
 
-    return isDayTime || isRaining || isThundering;
+    // Daytime only wakes adults; a puppy keeps sleeping through the day until it grows up.
+    return (isDayTime && !this.dog.isBaby()) || isRaining || isThundering;
   }
 
   private boolean isValidBed(BlockPos pos) {

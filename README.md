@@ -81,6 +81,7 @@ bed. Your dog will:
 - **Stay asleep** until you wake them with a right-click
 - **Refuse to auto-sleep again** if you wake them before morning (respect)
 - **Unassign** with a sneak-right-click of the bed if your dog gets too big for it
+- **Puppies nap around the clock** — babies auto-sleep during the day too, not just at night
 
 Every breed uses its curled "sleep" pose in bed. Tiny loaf, giant loaf, same nap energy.
 
@@ -119,6 +120,18 @@ gets a proper name immediately. Over 200 built-in name suggestions or type your 
 
 Breeding is same-breed only. Both parents must be tamed and not sitting. Puppies inherit their owner's UUID (preferring
 the player who clicked). Breeding roll tables include rare coat variants you will not find in the wild.
+
+### Puppy Energy
+
+Puppies are not just smaller adults. While a dog is still a baby it:
+
+- **Won't fight** — puppies refuse combat targets, so they can't attack or get dragged into a brawl until they grow up
+- **Barks higher** — puppy barks are pitched up about +0.4 octave for maximum yip
+- **Naps any time** — auto-sleeps on its assigned bed during the day as well as at night
+- **Stays close** — wanders on a tighter radius so it doesn't toddle off
+- **Bursts hearts** on its first wake-up after being born
+
+Grow up and the adult AI returns automatically: combat re-enables, the bark drops back down, and day-napping stops.
 
 ### Cross-Dimension Loyalty
 
