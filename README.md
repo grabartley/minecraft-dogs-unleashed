@@ -142,6 +142,7 @@ when they have a target, or just because (1 in 7200 chance per tick, roughly onc
 - **Head tilting** when you hold taming food nearby. It is impossible not to smile at.
 - **Tail wagging** when you hold food or just because they love you.
 - **Shaking** after leaving water — 20 tick delay, 22 tick animation, splash particles.
+- **Reunions.** Log in near your tamed dogs and they wag and burst hearts to greet you, on a 60 second per-dog cooldown so it stays special.
 - **Floof.** So much floof.
 
 <p align="center">

@@ -119,6 +119,11 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   private static final double SHAKE_PARTICLE_HORIZONTAL_VELOCITY_RANGE = 0.3;
   private static final double SHAKE_PARTICLE_VERTICAL_VELOCITY_RANGE = 0.1;
   private static final double SHAKE_PARTICLE_SPEED = 0.1;
+  private static final int REUNION_COOLDOWN_TICKS = 60 * MINECRAFT_TICK_RATE;
+  private static final int REUNION_HEART_PARTICLE_MIN_COUNT = 4;
+  private static final int REUNION_HEART_PARTICLE_MAX_COUNT = 6;
+  private static final double REUNION_HEART_HORIZONTAL_OFFSET_RANGE = 0.6;
+  private static final double REUNION_HEART_VERTICAL_OFFSET_RANGE = 0.7;
   private static final double ESCAPE_DANGER_SPEED = 1.5;
   private static final float POUNCE_STRENGTH = 0.4F;
   private static final double DEFAULT_GOAL_SPEED = 1.0;
@@ -214,6 +219,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   private int barkCooldownTicks = 0;
   private int manuallyWokenAge = -1;
   private boolean manuallyWokenAtNight = false;
+  private int lastReunionAge = -1;
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -573,6 +579,55 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
                 * SHAKE_PARTICLE_HORIZONTAL_VELOCITY_RANGE,
             SHAKE_PARTICLE_SPEED);
       }
+    }
+  }
+
+  /**
+   * Celebrates the arrival of this dog's owner with a tail wag and a small burst of heart
+   * particles. Server-authoritative: the tail wag is driven by the synced {@code TAIL_WAG_TIMER}
+   * tracked data so it animates on every tracking client, and the hearts go out via {@code
+   * spawnParticles} which the server broadcasts to nearby players. A per-dog cooldown keyed on
+   * entity age prevents repeat bursts when an owner relogs or paces in and out of the same chunk.
+   */
+  public void celebrateOwnerArrival() {
+    if (!(this.getWorld() instanceof ServerWorld serverWorld) || !this.isAlive()) {
+      return;
+    }
+    if (this.lastReunionAge != -1 && this.age - this.lastReunionAge < REUNION_COOLDOWN_TICKS) {
+      return;
+    }
+    this.lastReunionAge = this.age;
+    this.dataTracker.set(TAIL_WAG_TIMER, TAIL_WAG_DURATION_TICKS);
+    this.spawnReunionHeartParticles(serverWorld);
+  }
+
+  public int getTailWagTimerTicks() {
+    return this.dataTracker.get(TAIL_WAG_TIMER);
+  }
+
+  private void spawnReunionHeartParticles(final ServerWorld serverWorld) {
+    final int count =
+        REUNION_HEART_PARTICLE_MIN_COUNT
+            + this.random.nextInt(
+                REUNION_HEART_PARTICLE_MAX_COUNT - REUNION_HEART_PARTICLE_MIN_COUNT + 1);
+    for (int i = 0; i < count; i++) {
+      final double offsetX =
+          (this.random.nextDouble() - POSITION_CENTER_OFFSET)
+              * REUNION_HEART_HORIZONTAL_OFFSET_RANGE;
+      final double offsetY = this.random.nextDouble() * REUNION_HEART_VERTICAL_OFFSET_RANGE;
+      final double offsetZ =
+          (this.random.nextDouble() - POSITION_CENTER_OFFSET)
+              * REUNION_HEART_HORIZONTAL_OFFSET_RANGE;
+      serverWorld.spawnParticles(
+          ParticleTypes.HEART,
+          this.getX() + offsetX,
+          this.getEyeY() + offsetY,
+          this.getZ() + offsetZ,
+          1,
+          0.0,
+          0.0,
+          0.0,
+          0.0);
     }
   }
 
@@ -1245,7 +1300,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
             0,
             state -> {
               final UnleashedDogEntity dog = state.getAnimatable();
-              if (dog.dataTracker.get(TAIL_WAG_TIMER) > 0 && !dog.isSleepingInBed()) {
+              if (dog.getTailWagTimerTicks() > 0 && !dog.isSleepingInBed()) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("tail_wag"));
               }
               return PlayState.STOP;
