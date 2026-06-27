@@ -36,6 +36,8 @@ public final class ModNbtKeys {
   public static final String CARRYING_BALL = "CarryingBall";
   public static final String ACTIVE_FETCH_TYPE_ID = "ActiveFetchTypeId";
   public static final String CARRIED_FETCH_ITEM_STACK = "CarriedFetchItemStack";
+  public static final String PENDING_BIRTH_WAKE_HEARTS = "PendingBirthWakeHearts";
+  public static final String PARENT_DOG_ID = "ParentDogId";
 
   private ModNbtKeys() {}
 }

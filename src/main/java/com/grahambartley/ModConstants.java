@@ -14,6 +14,8 @@ public class ModConstants {
       HOWL_HEARING_RANGE_BLOCKS * HOWL_HEARING_RANGE_BLOCKS;
   public static final float LOW_HEALTH_THRESHOLD = 0.3f;
   public static final float BARK_PITCH = 1.0f;
+  // Puppies bark roughly +0.4 octave higher than adults.
+  public static final float PUPPY_BARK_PITCH_MULTIPLIER = 1.4f;
   public static final float HOWL_PITCH = 1.0f;
   public static final int FULL_MOON_PHASE = 0;
 }
