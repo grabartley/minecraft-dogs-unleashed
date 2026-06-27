@@ -8,6 +8,7 @@ import com.grahambartley.command.DogsUnleashedCommand;
 import com.grahambartley.config.DogsUnleashedConfig;
 import com.grahambartley.entity.UnleashedDogEntity;
 import com.grahambartley.listener.PlayerDimensionChangeListener;
+import com.grahambartley.listener.PlayerJoinReunionListener;
 import com.grahambartley.network.ModNetworking;
 import com.grahambartley.server.ServerConfigService;
 import java.util.ArrayList;
@@ -48,6 +49,7 @@ public class DogsUnleashed implements ModInitializer {
     ModNetworking.registerServerReceivers();
 
     PlayerDimensionChangeListener.initialize();
+    PlayerJoinReunionListener.initialize();
 
     ServerLifecycleEvents.SERVER_STARTING.register(ServerConfigService::loadFromWorld);
 
