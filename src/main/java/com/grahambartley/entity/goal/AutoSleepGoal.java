@@ -13,6 +13,15 @@ public class AutoSleepGoal extends Goal {
 
   private static final double CLOSE_ENOUGH_DISTANCE = 2.0;
 
+  private static final long DAY_LENGTH_TICKS = 24000;
+  private static final long MINECRAFT_HOUR_TICKS = 1000;
+  private static final long NIGHT_START_TICK = 13000;
+  private static final long SUNRISE_TICK = 23000;
+  // Puppies turn in two hours before adults and sleep in one hour past sunrise. Their wake time
+  // lands on the 24000 day rollover, so the window is one contiguous block up to the new day.
+  private static final long PUPPY_SLEEP_START_TICK = NIGHT_START_TICK - 2 * MINECRAFT_HOUR_TICKS;
+  private static final long PUPPY_SLEEP_END_TICK = SUNRISE_TICK + MINECRAFT_HOUR_TICKS;
+
   private final UnleashedDogEntity dog;
   private BlockPos targetBedPos;
 
@@ -64,23 +73,31 @@ public class AutoSleepGoal extends Goal {
   }
 
   private boolean shouldSleep(World world) {
-    final long timeOfDay = world.getTimeOfDay() % 24000;
-    final boolean isNightTime = timeOfDay >= 13000 && timeOfDay < 23000;
-    final boolean isRaining = world.isRaining();
-    final boolean isThundering = world.isThundering();
-
-    // Puppies nap around the clock, so the night-time gate is dropped while they are babies.
-    return (isNightTime || this.dog.isBaby()) && !isRaining && !isThundering;
+    if (world.isRaining() || world.isThundering()) {
+      return false;
+    }
+    return this.isWithinSleepWindow(world.getTimeOfDay() % DAY_LENGTH_TICKS);
   }
 
   private boolean shouldWake(World world) {
-    final long timeOfDay = world.getTimeOfDay() % 24000;
-    final boolean isDayTime = timeOfDay < 13000 || timeOfDay >= 23000;
-    final boolean isRaining = world.isRaining();
-    final boolean isThundering = world.isThundering();
+    if (world.isRaining() || world.isThundering()) {
+      return true;
+    }
+    return !this.isWithinSleepWindow(world.getTimeOfDay() % DAY_LENGTH_TICKS);
+  }
 
-    // Daytime only wakes adults; a puppy keeps sleeping through the day until it grows up.
-    return (isDayTime && !this.dog.isBaby()) || isRaining || isThundering;
+  private boolean isWithinSleepWindow(final long timeOfDay) {
+    if (this.dog.isBaby()) {
+      return isWithinWindow(timeOfDay, PUPPY_SLEEP_START_TICK, PUPPY_SLEEP_END_TICK);
+    }
+    return isWithinWindow(timeOfDay, NIGHT_START_TICK, SUNRISE_TICK);
+  }
+
+  /** Half-open window {@code [start, end)} on the 24000-tick clock, handling midnight wrap. */
+  private static boolean isWithinWindow(final long timeOfDay, final long start, final long end) {
+    return start <= end
+        ? timeOfDay >= start && timeOfDay < end
+        : timeOfDay >= start || timeOfDay < end;
   }
 
   private boolean isValidBed(BlockPos pos) {

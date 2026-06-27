@@ -23,6 +23,7 @@ import com.grahambartley.entity.goal.FetchChaseGoal;
 import com.grahambartley.entity.goal.FetchRetrieveGoal;
 import com.grahambartley.entity.goal.FetchReturnGoal;
 import com.grahambartley.entity.goal.FetchTemptGoal;
+import com.grahambartley.entity.goal.FollowParentDogGoal;
 import com.grahambartley.entity.goal.PuppyAwareWanderGoal;
 import com.grahambartley.entity.goal.SleepInBedGoal;
 import com.grahambartley.entity.variant.UnleashedDogCoat;
@@ -222,6 +223,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   private boolean manuallyWokenAtNight = false;
   private int lastReunionAge = -1;
   private boolean pendingBirthWakeHearts = false;
+  private UUID parentDogUuid = null;
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -666,9 +668,10 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
         10,
         new FollowOwnerGoal(
             this, DEFAULT_GOAL_SPEED, FOLLOW_OWNER_MAX_DISTANCE, FOLLOW_OWNER_MIN_DISTANCE));
-    this.goalSelector.add(11, new PuppyAwareWanderGoal(this, DEFAULT_GOAL_SPEED));
-    this.goalSelector.add(12, new LookAtEntityGoal(this, PlayerEntity.class, LOOK_AT_PLAYER_RANGE));
-    this.goalSelector.add(13, new LookAroundGoal(this));
+    this.goalSelector.add(11, new FollowParentDogGoal(this, DEFAULT_GOAL_SPEED));
+    this.goalSelector.add(12, new PuppyAwareWanderGoal(this, DEFAULT_GOAL_SPEED));
+    this.goalSelector.add(13, new LookAtEntityGoal(this, PlayerEntity.class, LOOK_AT_PLAYER_RANGE));
+    this.goalSelector.add(14, new LookAroundGoal(this));
 
     this.targetSelector.add(1, new TrackOwnerAttackerGoal(this));
     this.targetSelector.add(2, new AttackWithOwnerGoal(this));
@@ -853,6 +856,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     }
     final UnleashedDogEntity baby = this.createBaby(world);
     baby.setBaby(true);
+    baby.setParentDogUuid(this.getUuid());
     baby.rollAppearance(SpawnReason.BREEDING);
     final PlayerEntity lovingPlayer = this.getLovingPlayer();
     if (lovingPlayer != null) {
@@ -876,6 +880,28 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     if (baby) {
       this.pendingBirthWakeHearts = true;
     }
+  }
+
+  public void setParentDogUuid(final UUID parentDogUuid) {
+    this.parentDogUuid = parentDogUuid;
+  }
+
+  public @Nullable UUID getParentDogUuid() {
+    return this.parentDogUuid;
+  }
+
+  /**
+   * Resolves the living parent dog this puppy follows, or {@code null} when there is no recorded
+   * parent or it is no longer alive and loaded in the server world.
+   */
+  public @Nullable UnleashedDogEntity getParentDog() {
+    if (this.parentDogUuid == null || !(this.getWorld() instanceof ServerWorld serverWorld)) {
+      return null;
+    }
+    return serverWorld.getEntity(this.parentDogUuid) instanceof UnleashedDogEntity parent
+            && parent.isAlive()
+        ? parent
+        : null;
   }
 
   /**
@@ -1226,6 +1252,9 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
             });
     nbt.putBoolean(ModNbtKeys.CARRYING_BALL, this.isCarryingFetchItem());
     nbt.putBoolean(ModNbtKeys.PENDING_BIRTH_WAKE_HEARTS, this.pendingBirthWakeHearts);
+    if (this.parentDogUuid != null) {
+      nbt.putUuid(ModNbtKeys.PARENT_DOG_ID, this.parentDogUuid);
+    }
     String activeFetchTypeId = this.dataTracker.get(ACTIVE_FETCH_TYPE_ID);
     if (!activeFetchTypeId.isEmpty()) {
       nbt.putString(ModNbtKeys.ACTIVE_FETCH_TYPE_ID, activeFetchTypeId);
@@ -1272,6 +1301,9 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     }
     if (nbt.contains(ModNbtKeys.PENDING_BIRTH_WAKE_HEARTS)) {
       this.pendingBirthWakeHearts = nbt.getBoolean(ModNbtKeys.PENDING_BIRTH_WAKE_HEARTS);
+    }
+    if (nbt.containsUuid(ModNbtKeys.PARENT_DOG_ID)) {
+      this.parentDogUuid = nbt.getUuid(ModNbtKeys.PARENT_DOG_ID);
     }
     if (nbt.contains(ModNbtKeys.ACTIVE_FETCH_TYPE_ID, NbtElement.STRING_TYPE)) {
       this.dataTracker.set(ACTIVE_FETCH_TYPE_ID, nbt.getString(ModNbtKeys.ACTIVE_FETCH_TYPE_ID));
