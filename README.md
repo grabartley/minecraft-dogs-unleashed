@@ -43,7 +43,7 @@ animated with GeckoLib, each with idle, walk, sit, sleep, shake, head tilt, and 
 | Breed                | Health | Speed | Damage | Biome                                                                    | Coats                                     |
 |----------------------|--------|-------|--------|--------------------------------------------------------------------------|-------------------------------------------|
 | **Husky**            | 25     | 0.30  | 5.0    | Snowy Taiga, Snowy Plains, Ice Spikes, Frozen Peaks, Snowy Slopes, Grove | 6 coats, 4 eye color combos               |
-| **Dachshund**        | 10     | 0.25  | 2.0    | Plains, Sunflower Plains, Meadow                                         | 9 coats, our first wiener dog             |
+| **Dachshund**        | 10     | 0.25  | 2.0    | Plains, Sunflower Plains, Meadow                                         | 10 coats, our first wiener dog            |
 | **Beagle**           | 17     | 0.29  | 3.0    | Flower Forest, Forest, Birch Forest, Old Growth Birch Forest, Meadow     | 12 coats, the most colourful of the bunch |
 | **Golden Retriever** | 24     | 0.30  | 4.0    | Beach                                                                    | The classic golden look                   |
 | **Shiba Inu**        | 18     | 0.32  | 3.5    | Cherry Grove                                                             | 3 coats: Red, Black, Sesame               |

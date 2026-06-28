@@ -29,7 +29,13 @@ class DachshundCoatRollsTest {
             DachshundCoatRolls.NATURAL_CHOCOLATE_CREAM_THRESHOLD, DachshundCoat.BLACK_CREAM),
         Arguments.of(
             DachshundCoatRolls.NATURAL_BLACK_CREAM_THRESHOLD - 1, DachshundCoat.BLACK_CREAM),
-        Arguments.of(DachshundCoatRolls.NATURAL_BLACK_CREAM_THRESHOLD, DachshundCoat.RED_PIEBALD),
+        Arguments.of(
+            DachshundCoatRolls.NATURAL_BLACK_CREAM_THRESHOLD, DachshundCoat.LIGHT_BLACK_CREAM),
+        Arguments.of(
+            DachshundCoatRolls.NATURAL_LIGHT_BLACK_CREAM_THRESHOLD - 1,
+            DachshundCoat.LIGHT_BLACK_CREAM),
+        Arguments.of(
+            DachshundCoatRolls.NATURAL_LIGHT_BLACK_CREAM_THRESHOLD, DachshundCoat.RED_PIEBALD),
         Arguments.of(DachshundCoatRolls.ROLL_BOUND - 1, DachshundCoat.RED_PIEBALD));
   }
 
@@ -49,7 +55,10 @@ class DachshundCoatRollsTest {
             DachshundCoatRolls.BREEDING_CHOCOLATE_TAN_THRESHOLD, DachshundCoat.CHOCOLATE_CREAM),
         Arguments.of(
             DachshundCoatRolls.BREEDING_CHOCOLATE_CREAM_THRESHOLD, DachshundCoat.BLACK_CREAM),
-        Arguments.of(DachshundCoatRolls.BREEDING_BLACK_CREAM_THRESHOLD, DachshundCoat.RED_PIEBALD),
+        Arguments.of(
+            DachshundCoatRolls.BREEDING_BLACK_CREAM_THRESHOLD, DachshundCoat.LIGHT_BLACK_CREAM),
+        Arguments.of(
+            DachshundCoatRolls.BREEDING_LIGHT_BLACK_CREAM_THRESHOLD, DachshundCoat.RED_PIEBALD),
         Arguments.of(
             DachshundCoatRolls.BREEDING_RED_PIEBALD_THRESHOLD, DachshundCoat.BLACK_TAN_PIEBALD),
         Arguments.of(

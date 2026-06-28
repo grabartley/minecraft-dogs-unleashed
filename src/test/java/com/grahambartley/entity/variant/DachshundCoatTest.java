@@ -36,7 +36,8 @@ class DachshundCoatTest {
         Arguments.of(DachshundCoat.RED_PIEBALD, "redpiebald"),
         Arguments.of(DachshundCoat.BLACK_TAN_PIEBALD, "blacktanpiebald"),
         Arguments.of(DachshundCoat.BLUE_TAN, "bluetan"),
-        Arguments.of(DachshundCoat.ALBINO, "albino"));
+        Arguments.of(DachshundCoat.ALBINO, "albino"),
+        Arguments.of(DachshundCoat.LIGHT_BLACK_CREAM, "lightblackcream"));
   }
 
   @ParameterizedTest(name = "{0} -> \"{1}\"")

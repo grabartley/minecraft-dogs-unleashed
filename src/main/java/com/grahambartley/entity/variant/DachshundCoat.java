@@ -9,7 +9,8 @@ public enum DachshundCoat implements UnleashedDogCoat {
   RED_PIEBALD,
   BLACK_TAN_PIEBALD,
   BLUE_TAN,
-  ALBINO;
+  ALBINO,
+  LIGHT_BLACK_CREAM;
 
   public static DachshundCoat fromOrdinal(int ordinal) {
     final DachshundCoat[] values = values();
@@ -31,6 +32,7 @@ public enum DachshundCoat implements UnleashedDogCoat {
       case BLACK_TAN_PIEBALD -> "blacktanpiebald";
       case BLUE_TAN -> "bluetan";
       case ALBINO -> "albino";
+      case LIGHT_BLACK_CREAM -> "lightblackcream";
     };
   }
 
