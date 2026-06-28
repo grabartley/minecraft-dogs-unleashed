@@ -7,8 +7,7 @@
 <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-yellow.svg" alt="License: MIT"></a>
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-Support_Dogs_Unleashed-009078?logo=ko-fi&logoColor=white)](https://ko-fi.com/grahambartley)
 
-<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/vmh4vTChO-0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-
+[![Watch the video](https://img.youtube.com/vi/vmh4vTChO-0/maxresdefault.jpg)](https://www.youtube.com/watch?v=vmh4vTChO-0)
 <p align="center">
 <a title="Fabric API" href="https://modrinth.com/mod/fabric-api" target="_blank">
 	<img src="https://i.imgur.com/Ol1Tcf8.png" width="180" height="60" alt="Fabric API requirement button">
