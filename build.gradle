@@ -62,6 +62,13 @@ loom {
 	}
 }
 
+sourceSets {
+	clientTest {
+		compileClasspath += sourceSets.client.compileClasspath + sourceSets.client.output + sourceSets.main.output
+		runtimeClasspath += sourceSets.client.runtimeClasspath + sourceSets.client.output + sourceSets.main.output
+	}
+}
+
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
@@ -78,6 +85,11 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testImplementation 'org.mockito:mockito-core:5.10.0'
 	testImplementation 'org.mockito:mockito-junit-jupiter:5.10.0'
+
+	clientTestImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
+	clientTestRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	clientTestImplementation 'org.mockito:mockito-core:5.10.0'
+	clientTestImplementation 'org.mockito:mockito-junit-jupiter:5.10.0'
 }
 
 processResources {
@@ -113,6 +125,18 @@ test {
 		exceptionFormat "full"
 	}
 	finalizedBy jacocoTestReport
+}
+
+tasks.register("clientTest", Test) {
+	group = "verification"
+	description = "Runs client-side unit tests."
+	useJUnitPlatform()
+	testClassesDirs = sourceSets.clientTest.output.classesDirs
+	classpath = sourceSets.clientTest.runtimeClasspath
+	testLogging {
+		events "passed", "skipped", "failed"
+		exceptionFormat "full"
+	}
 }
 
 jacoco {
@@ -169,6 +193,7 @@ tasks.register("verifyMainSourceSideSafety") {
 check {
 	dependsOn spotlessCheck
 	dependsOn verifyMainSourceSideSafety
+	dependsOn clientTest
 }
 
 jar {
