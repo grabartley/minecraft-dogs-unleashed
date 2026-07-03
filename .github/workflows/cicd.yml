@@ -73,7 +73,7 @@ jobs:
         uses: mikepenz/action-junit-report@v4
         if: success() || failure()
         with:
-          report_paths: "**/build/test-results/test/TEST-*.xml"
+          report_paths: "**/build/test-results/*/TEST-*.xml"
           detailed_summary: true
           include_passed: true
 

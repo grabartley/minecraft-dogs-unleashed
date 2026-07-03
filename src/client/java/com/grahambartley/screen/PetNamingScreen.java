@@ -2,6 +2,7 @@ package com.grahambartley.screen;
 
 import com.grahambartley.entity.UnleashedDogBreed;
 import com.grahambartley.network.ModNetworkingClient;
+import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -15,7 +16,7 @@ public class PetNamingScreen extends Screen {
   private static final int FIELD_HEIGHT = 20;
   private static final int BUTTON_WIDTH = 120;
   private static final int BUTTON_HEIGHT = 20;
-  private static final int NAME_MAX_LENGTH = 32;
+  static final int NAME_MAX_LENGTH = 32;
 
   private final UUID petId;
   private final UnleashedDogBreed breed;
@@ -54,11 +55,20 @@ public class PetNamingScreen extends Screen {
   }
 
   private void onConfirm(ButtonWidget button) {
-    final String name = nameField.getText().trim();
-    if (!name.isEmpty()) {
-      ModNetworkingClient.sendSetPetName(petId, name);
-      close();
+    resolveSubmittableName(nameField.getText())
+        .ifPresent(
+            name -> {
+              ModNetworkingClient.sendSetPetName(petId, name);
+              close();
+            });
+  }
+
+  static Optional<String> resolveSubmittableName(String rawText) {
+    if (rawText == null) {
+      return Optional.empty();
     }
+    final String trimmed = rawText.trim();
+    return trimmed.isEmpty() ? Optional.empty() : Optional.of(trimmed);
   }
 
   @Override
