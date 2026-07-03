@@ -39,7 +39,8 @@
       "com.grahambartley.gametest.StickThrowHandlerGameTest",
       "com.grahambartley.gametest.DogReunionGameTest",
       "com.grahambartley.gametest.PuppyBehaviorGameTest",
-      "com.grahambartley.gametest.PlayModeSyncGameTest"
+      "com.grahambartley.gametest.PlayModeSyncGameTest",
+      "com.grahambartley.gametest.DogsUnleashedCommandGameTest"
     ]
   },
   "mixins": [

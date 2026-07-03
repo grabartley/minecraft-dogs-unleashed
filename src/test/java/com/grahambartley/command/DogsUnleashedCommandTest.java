@@ -50,7 +50,10 @@ class DogsUnleashedCommandTest {
         Arguments.of(5, "command.dogs-unleashed.help.autosleeprange"),
         Arguments.of(6, "command.dogs-unleashed.help.barkvolume"),
         Arguments.of(7, "command.dogs-unleashed.help.howlvolume"),
-        Arguments.of(8, "command.dogs-unleashed.help.reset"));
+        Arguments.of(8, "command.dogs-unleashed.help.reset"),
+        Arguments.of(9, "command.dogs-unleashed.help.list"),
+        Arguments.of(10, "command.dogs-unleashed.help.summon"),
+        Arguments.of(11, "command.dogs-unleashed.help.find"));
   }
 
   @ParameterizedTest(name = "help line {0} -> {1}")
