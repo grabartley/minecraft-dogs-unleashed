@@ -23,7 +23,13 @@ public final class StickThrowHandler {
       return TypedActionResult.pass(itemStack);
     }
 
-    if (!UnleashedDogEntity.isAnyDogInPlayModeFor(player.getUuid())) {
+    // The server gate stays authoritative via ACTIVE_PLAY_SESSIONS; the client mirrors it through
+    // synced tracked data so dedicated-server throws still predict (arm swing, stack decrement).
+    final boolean isPlayModePartner =
+        world.isClient
+            ? UnleashedDogEntity.isAnyNearbyDogInPlayModeFor(player)
+            : UnleashedDogEntity.isAnyDogInPlayModeFor(player.getUuid());
+    if (!isPlayModePartner) {
       return TypedActionResult.pass(itemStack);
     }
 
