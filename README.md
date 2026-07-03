@@ -218,7 +218,18 @@ offline.
 /dogsunleashed config barkvolume <0.0..2.0>
 /dogsunleashed config howlvolume <0.0..2.0>
 /dogsunleashed config reset
+/dogsunleashed list <player>
+/dogsunleashed summon <player> <petId>
+/dogsunleashed find <petId>
 ```
+
+The pet management subcommands are for operators inspecting and recalling a specific player's dogs server-side:
+
+| Subcommand                         | What it does                                                                        |
+| ---------------------------------- | ----------------------------------------------------------------------------------- |
+| `list <player>`                    | Lists every pet the player owns: id, breed, name, alive/dead, dimension, last coords. |
+| `summon <player> <petId>`          | Recalls that specific pet to the target player's current location.                   |
+| `find <petId>`                     | Prints the dimension and coordinates of a pet UUID across all loaded worlds.          |
 
 All subcommands require operator permission level 2.
 
@@ -247,8 +258,9 @@ Want your language in the pack? **Translation PRs are very welcome!** Copy
 [open an issue](https://github.com/grabartley/minecraft-dogs-unleashed/issues/new) so we can fix it.
 
 A few things to leave untranslated in the `command.dogs-unleashed.*` strings, since operators type them
-literally: command names (`/dogsunleashed`, `status`, `config`), config option identifiers (`spawn`, `graves`,
-`autosleeprange`, `barkvolume`, ...), and literal argument tokens (`<true|false>`, range markers like `<4..128>`).
+literally: command names (`/dogsunleashed`, `status`, `config`, `list`, `summon`, `find`), config option identifiers
+(`spawn`, `graves`, `autosleeprange`, `barkvolume`, ...), literal argument tokens (`<true|false>`, `<player>`,
+`<petId>`, range markers like `<4..128>`), and the pet descriptor field labels (`id=`, `dim=`, `pos=`).
 Translate only the surrounding prose. The longest, most idiom-heavy strings are the settings tooltips, so
 phrasing-polish PRs there are especially appreciated.
 
