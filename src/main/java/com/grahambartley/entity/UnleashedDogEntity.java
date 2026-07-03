@@ -171,12 +171,16 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   // String over Identifier because 1.21.1 lacks native Identifier TrackedDataHandler.
   // Syncs the active fetch type id (e.g. "dogs-unleashed:stick") for client-side carry rendering.
 
+  // Synced so the client can mirror the play-mode gate: ACTIVE_PLAY_SESSIONS only exists on the
+  // logical server, so on a dedicated server the client predicts stick throws off this instead.
+  private static final TrackedData<Optional<UUID>> PLAY_PARTNER_UUID =
+      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
+
   private static final String NO_ACTIVE_FETCH_TYPE = "";
 
   private static final Map<UUID, UUID> ACTIVE_PLAY_SESSIONS = new HashMap<>();
 
   private boolean inPlayMode = false;
-  private UUID playPartnerPlayerUuid = null;
   private BlockPos activeFetchBlockPos = null;
 
   private static final UniformIntProvider ANGER_TIME_RANGE = TimeHelper.betweenSeconds(20, 39);
@@ -310,6 +314,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     builder.add(IS_CARRYING_FETCH_ITEM, false);
     builder.add(ACTIVE_FETCH_TYPE_ID, NO_ACTIVE_FETCH_TYPE);
     builder.add(CARRIED_FETCH_ITEM_STACK, ItemStack.EMPTY);
+    builder.add(PLAY_PARTNER_UUID, Optional.empty());
   }
 
   public DyeColor getCollarColor() {
@@ -444,8 +449,8 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     return this.inPlayMode;
   }
 
-  public UUID getPlayPartnerPlayerUuid() {
-    return this.playPartnerPlayerUuid;
+  public @Nullable UUID getPlayPartnerPlayerUuid() {
+    return this.dataTracker.get(PLAY_PARTNER_UUID).orElse(null);
   }
 
   public BlockPos getActiveFetchBlockPos() {
@@ -496,7 +501,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
       endPlayModeForDog(priorDogUuid);
     }
     this.inPlayMode = true;
-    this.playPartnerPlayerUuid = player.getUuid();
+    this.dataTracker.set(PLAY_PARTNER_UUID, Optional.of(player.getUuid()));
     this.activeFetchBlockPos = null;
     this.setActiveFetchType(fetchItemType);
     this.setSitting(false);
@@ -517,9 +522,9 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
 
   public void endPlayMode() {
     ActivePlaySessions.clear(
-        ACTIVE_PLAY_SESSIONS, this.inPlayMode, this.playPartnerPlayerUuid, this.getUuid());
+        ACTIVE_PLAY_SESSIONS, this.inPlayMode, this.getPlayPartnerPlayerUuid(), this.getUuid());
     this.inPlayMode = false;
-    this.playPartnerPlayerUuid = null;
+    this.dataTracker.set(PLAY_PARTNER_UUID, Optional.empty());
     this.activeFetchBlockPos = null;
     this.setActiveFetchType(null);
     this.setCarryingFetchItem(false);
@@ -527,6 +532,26 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
 
   public static boolean isAnyDogInPlayModeFor(UUID playerUuid) {
     return ACTIVE_PLAY_SESSIONS.containsKey(playerUuid);
+  }
+
+  /**
+   * Client-safe mirror of {@link #isAnyDogInPlayModeFor}. {@code ACTIVE_PLAY_SESSIONS} only lives
+   * on the logical server, so on a dedicated server the client evaluates the play-mode gate by
+   * scanning tracked dogs for a synced {@code PLAY_PARTNER_UUID} matching the player. The scan
+   * range mirrors fetch detection; dogs beyond client tracking range are invisible here, which only
+   * skips the cosmetic prediction, never the server-authoritative throw.
+   */
+  public static boolean isAnyNearbyDogInPlayModeFor(PlayerEntity player) {
+    return !player
+        .getWorld()
+        .getEntitiesByClass(
+            UnleashedDogEntity.class,
+            player
+                .getBoundingBox()
+                .expand(
+                    FETCH_DETECTION_XZ_RANGE, FETCH_DETECTION_Y_RANGE, FETCH_DETECTION_XZ_RANGE),
+            dog -> player.getUuid().equals(dog.getPlayPartnerPlayerUuid()))
+        .isEmpty();
   }
 
   public static boolean isAnyDogInPlayMode() {
@@ -549,7 +574,8 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     if (this.isCarryingFetchItem() || this.activeFetchBlockPos != null) {
       return true;
     }
-    if (this.playPartnerPlayerUuid == null) {
+    final UUID partnerUuid = this.getPlayPartnerPlayerUuid();
+    if (partnerUuid == null) {
       return false;
     }
 
@@ -563,7 +589,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
                 entity instanceof FetchProjectileEntity
                     && entity instanceof ProjectileEntity projectile
                     && projectile.getOwner() instanceof PlayerEntity player
-                    && this.playPartnerPlayerUuid.equals(player.getUuid()))
+                    && partnerUuid.equals(player.getUuid()))
         .isEmpty();
   }
 
