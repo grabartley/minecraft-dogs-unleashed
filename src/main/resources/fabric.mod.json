@@ -40,7 +40,8 @@
       "com.grahambartley.dogsunleashed.gametest.DogReunionGameTest",
       "com.grahambartley.dogsunleashed.gametest.PuppyBehaviorGameTest",
       "com.grahambartley.dogsunleashed.gametest.PlayModeSyncGameTest",
-      "com.grahambartley.dogsunleashed.gametest.DogsUnleashedCommandGameTest"
+      "com.grahambartley.dogsunleashed.gametest.DogsUnleashedCommandGameTest",
+      "com.grahambartley.dogsunleashed.gametest.DogSpawnPredicateGameTest"
     ]
   },
   "mixins": [

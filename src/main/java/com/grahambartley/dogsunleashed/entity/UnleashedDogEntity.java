@@ -8,6 +8,7 @@ import static com.grahambartley.dogsunleashed.ModConstants.PUPPY_BARK_PITCH_MULT
 import static com.grahambartley.dogsunleashed.ModConstants.RANDOM_BARK_CHANCE;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
+import com.grahambartley.dogsunleashed.ModBlockTags;
 import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.advancement.DogSleptInBedCriterion;
@@ -90,9 +91,11 @@ import net.minecraft.util.TimeHelper;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.intprovider.UniformIntProvider;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -233,6 +236,18 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
 
   public UnleashedDogEntity(EntityType<? extends TameableEntity> entityType, World world) {
     super(entityType, world);
+  }
+
+  // Mirrors WolfEntity.canSpawn: the vanilla AnimalEntity predicate only allows grass_block below,
+  // which excludes the snow surfaces most husky spawn biomes are made of.
+  public static boolean canSpawn(
+      final EntityType<? extends UnleashedDogEntity> type,
+      final WorldAccess world,
+      final SpawnReason spawnReason,
+      final BlockPos pos,
+      final Random random) {
+    return world.getBlockState(pos.down()).isIn(ModBlockTags.DOGS_SPAWNABLE_ON)
+        && isLightLevelValidForNaturalSpawn(world, pos);
   }
 
   @Override
