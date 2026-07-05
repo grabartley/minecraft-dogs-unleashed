@@ -5,9 +5,10 @@ plugins {
 	id 'maven-publish'
 	id 'com.diffplug.spotless' version '6.25.0'
 	id 'jacoco'
+	id 'com.modrinth.minotaur' version '2.9.0'
 }
 
-version = project.hasProperty('version') ? project.property('version') : project.mod_version
+version = gradle.startParameter.projectProperties.getOrDefault("version", project.mod_version)
 group = project.maven_group
 
 base {
@@ -237,5 +238,22 @@ spotless {
 		trimTrailingWhitespace()
 		indentWithTabs()
 		endWithNewline()
+	}
+}
+
+modrinth {
+	projectId = 'dogs-unleashed'
+	versionNumber = project.version.toString()
+	versionName = "Dogs Unleashed v${project.version}"
+	versionType = System.getenv('MOD_RELEASE_TYPE') ?: 'alpha'
+	uploadFile = remapJar
+	gameVersions = ['1.21.1']
+	loaders = ['fabric']
+	changelog = rootProject.file('release-notes.md').exists()
+		? rootProject.file('release-notes.md').text
+		: 'No changelog provided.'
+	dependencies {
+		required.project 'fabric-api'
+		required.project 'geckolib'
 	}
 }
