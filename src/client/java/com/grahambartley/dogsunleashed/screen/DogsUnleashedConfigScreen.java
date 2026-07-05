@@ -2,8 +2,11 @@ package com.grahambartley.dogsunleashed.screen;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
+import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.EditServerConfigC2SPayload;
 import com.grahambartley.dogsunleashed.server.ServerConfigService;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
@@ -33,6 +36,8 @@ public final class DogsUnleashedConfigScreen extends Screen {
   private final Screen parent;
 
   private boolean enableNaturalSpawning;
+  private int spawnRateMultiplierPercent;
+  private final Map<String, Integer> breedSpawnRateMultipliersPercent;
   private boolean gravesEnabled;
   private boolean autoSleepEnabled;
   private int autoSleepRangeBlocks;
@@ -44,6 +49,9 @@ public final class DogsUnleashedConfigScreen extends Screen {
     this.parent = parent;
     final DogsUnleashedConfig current = DogsUnleashed.SERVER_CONFIG;
     this.enableNaturalSpawning = current.enableNaturalSpawning();
+    this.spawnRateMultiplierPercent = current.spawnRateMultiplierPercent();
+    this.breedSpawnRateMultipliersPercent =
+        new LinkedHashMap<>(current.breedSpawnRateMultipliersPercent());
     this.gravesEnabled = current.gravesEnabled();
     this.autoSleepEnabled = current.autoSleepEnabled();
     this.autoSleepRangeBlocks = current.autoSleepRangeBlocks();
@@ -77,6 +85,31 @@ public final class DogsUnleashedConfigScreen extends Screen {
         this.gravesEnabled,
         value -> this.gravesEnabled = value);
     y += ROW_HEIGHT + SECTION_GAP;
+
+    y = addSectionHeader("screen.dogs-unleashed.settings.spawning", y);
+    addPercentSliderRow(
+        left,
+        y,
+        canEdit,
+        Text.translatable("screen.dogs-unleashed.settings.spawnrate"),
+        Text.translatable("screen.dogs-unleashed.settings.spawnrate.tooltip"),
+        this.spawnRateMultiplierPercent,
+        value -> this.spawnRateMultiplierPercent = value);
+    y += ROW_HEIGHT;
+    for (final UnleashedDogBreed breed : UnleashedDogBreed.values()) {
+      addPercentSliderRow(
+          left,
+          y,
+          canEdit,
+          Text.translatable(
+              "screen.dogs-unleashed.settings.spawnrate.breed",
+              Text.translatable(breed.translationKey())),
+          Text.translatable("screen.dogs-unleashed.settings.spawnrate.breed.tooltip"),
+          this.breedSpawnRateMultipliersPercent.get(breed.serializedId()),
+          value -> this.breedSpawnRateMultipliersPercent.put(breed.serializedId(), value));
+      y += ROW_HEIGHT;
+    }
+    y += SECTION_GAP;
 
     y = addSectionHeader("screen.dogs-unleashed.settings.sleep", y);
     addBooleanRow(
@@ -187,12 +220,38 @@ public final class DogsUnleashedConfigScreen extends Screen {
             y,
             WIDGET_WIDTH,
             WIDGET_HEIGHT,
-            labelKey,
+            Text.translatable(labelKey),
+            "",
             min,
             max,
             initial,
             sink);
     widget.setTooltip(Tooltip.of(Text.translatable(tooltipKey)));
+    widget.active = canEdit;
+    addDrawableChild(widget);
+  }
+
+  private void addPercentSliderRow(
+      final int left,
+      final int y,
+      final boolean canEdit,
+      final Text label,
+      final Text tooltip,
+      final int initial,
+      final Consumer<Integer> sink) {
+    final IntSliderWidget widget =
+        new IntSliderWidget(
+            left + (CONTENT_WIDTH - WIDGET_WIDTH) / 2,
+            y,
+            WIDGET_WIDTH,
+            WIDGET_HEIGHT,
+            label,
+            "%",
+            DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MIN,
+            DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MAX,
+            initial,
+            sink);
+    widget.setTooltip(Tooltip.of(tooltip));
     widget.active = canEdit;
     addDrawableChild(widget);
   }
@@ -231,6 +290,8 @@ public final class DogsUnleashedConfigScreen extends Screen {
     final DogsUnleashedConfig updated =
         new DogsUnleashedConfig(
             this.enableNaturalSpawning,
+            this.spawnRateMultiplierPercent,
+            this.breedSpawnRateMultipliersPercent,
             this.gravesEnabled,
             this.autoSleepEnabled,
             this.autoSleepRangeBlocks,
@@ -273,7 +334,8 @@ public final class DogsUnleashedConfigScreen extends Screen {
   }
 
   private static final class IntSliderWidget extends SliderWidget {
-    private final String labelKey;
+    private final Text label;
+    private final String valueSuffix;
     private final int min;
     private final int max;
     private final Consumer<Integer> sink;
@@ -284,13 +346,15 @@ public final class DogsUnleashedConfigScreen extends Screen {
         final int y,
         final int width,
         final int height,
-        final String labelKey,
+        final Text label,
+        final String valueSuffix,
         final int min,
         final int max,
         final int initial,
         final Consumer<Integer> sink) {
       super(x, y, width, height, Text.empty(), normalize(initial, min, max));
-      this.labelKey = labelKey;
+      this.label = label;
+      this.valueSuffix = valueSuffix;
       this.min = min;
       this.max = max;
       this.currentValue = clamp(initial, min, max);
@@ -308,7 +372,7 @@ public final class DogsUnleashedConfigScreen extends Screen {
 
     @Override
     protected void updateMessage() {
-      setMessage(Text.translatable(labelKey).append(Text.literal(": " + currentValue)));
+      setMessage(label.copy().append(Text.literal(": " + currentValue + valueSuffix)));
     }
 
     @Override
