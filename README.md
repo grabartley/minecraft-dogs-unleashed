@@ -151,10 +151,11 @@ gets a proper name immediately. Over 200 built-in name suggestions or type your 
 Breeding is same-breed only. Both parents must be tamed and not sitting. Puppies inherit their owner's UUID (preferring
 the player who clicked). Breeding roll tables include rare coat variants you will not find in the wild.
 
-### Cross-Dimension Loyalty
+### Loyalty Across Any Teleport
 
 Dimension hop and your dogs follow. Portal, end portal, weird command magic, whatever: every alive tamed dog comes with
-you, unless they are sitting or sleeping in bed. Regular in-dimension teleports still only scoop up nearby dogs.
+you, unless they are sitting or sleeping in bed. Long-distance teleports within a dimension (16 blocks or more) bring
+them along too, and they always arrive on safe ground beside you instead of inside the floor.
 
 ### Pet Manager
 

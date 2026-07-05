@@ -90,6 +90,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.TimeHelper;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.intprovider.UniformIntProvider;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.LocalDifficulty;
@@ -1067,16 +1068,12 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   }
 
   /**
-   * Moves this dog to the destination world at the owner's position. Used for cross-dimension
+   * Recreates this dog in the destination world at the given position. Used for cross-dimension
    * summons and following the owner through portals.
    *
    * @return the dog entity in the destination world (may be a different instance from {@code this})
    */
-  public UnleashedDogEntity followOwnerToDimension(
-      ServerPlayerEntity owner, ServerWorld destination) {
-    this.wakeUp();
-    this.setSitting(false);
-
+  public UnleashedDogEntity teleportToWorld(ServerWorld destination, Vec3d pos) {
     final NbtCompound nbt = this.writeNbt(new NbtCompound());
     nbt.remove("Dimension");
 
@@ -1084,13 +1081,13 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     final UnleashedDogEntity newDog = (UnleashedDogEntity) this.getType().create(destination);
     if (newDog == null) {
       DogsUnleashed.log.warn(
-          "[Dog] followOwnerToDimension: failed to create entity in {}",
+          "[Dog] teleportToWorld: failed to create entity in {}",
           destination.getRegistryKey().getValue());
       return this;
     }
 
     newDog.readNbt(nbt);
-    newDog.setPos(owner.getX(), owner.getY(), owner.getZ());
+    newDog.setPos(pos.x, pos.y, pos.z);
     newDog.setYaw(this.getYaw());
     newDog.setPitch(this.getPitch());
 
@@ -1102,7 +1099,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     final Entity existing = destination.getEntity(this.getUuid());
     if (existing != null && existing != this) {
       DogsUnleashed.log.warn(
-          "[Dog] followOwnerToDimension: removing stale entity {} from {} (UUID collision)",
+          "[Dog] teleportToWorld: removing stale entity {} from {} (UUID collision)",
           existing.getUuid(),
           destination.getRegistryKey().getValue());
       existing.remove(RemovalReason.DISCARDED);
@@ -1111,7 +1108,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     destination.spawnEntity(newDog);
 
     DogsUnleashed.log.info(
-        "[Dog] followOwnerToDimension: new dog {} spawned in {}",
+        "[Dog] teleportToWorld: new dog {} spawned in {}",
         newDog.getUuid(),
         destination.getRegistryKey().getValue());
     return newDog;

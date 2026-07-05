@@ -23,9 +23,61 @@ public final class PetLocationService {
 
   private static final int PET_RECALL_TICKET_LEVEL = 3;
   private static final int PET_RECALL_RETRY_TICKS = 20;
+  private static final double LONG_DISTANCE_TELEPORT_MIN_DISTANCE = 16.0;
+  private static final double NEARBY_DOG_DISTANCE = 12.0;
   private static final ChunkTicketType<ChunkPos> PET_RECALL_TICKET =
       ChunkTicketType.create(
           "dogs_unleashed_pet_recall", Comparator.comparingLong(ChunkPos::toLong), 40);
+
+  private PetLocationService() {}
+
+  /**
+   * A teleport of at least this distance outranges FollowOwnerGoal, whose teleport only fires while
+   * the dog's chunk is still ticking near the owner. Beyond it, pets must be brought along
+   * explicitly via {@link #bringActivePetsToOwner}.
+   */
+  public static boolean isLongDistanceTeleport(Vec3d from, Vec3d to) {
+    return from.squaredDistanceTo(to)
+        >= LONG_DISTANCE_TELEPORT_MIN_DISTANCE * LONG_DISTANCE_TELEPORT_MIN_DISTANCE;
+  }
+
+  /**
+   * Brings every alive pet that is actively following its owner (not sitting, not sleeping in a
+   * bed) to a safe position beside the owner. Call after the owner relocates in a way pets cannot
+   * follow on their own: a dimension change or a long-distance teleport within one world.
+   */
+  public static void bringActivePetsToOwner(ServerPlayerEntity player) {
+    if (player.isDisconnected() || player.isRemoved()) {
+      return;
+    }
+
+    final MinecraftServer server = player.getServer();
+    final PetManager petManager = PetManager.get(server);
+    for (final PetData petData : petManager.getPetsByOwner(player.getUuid())) {
+      if (!petData.isAlive()) {
+        continue;
+      }
+
+      final UnleashedDogEntity dog = findDog(server, petData);
+      if (dog == null) {
+        DogsUnleashed.log.warn("[PetFollow] Dog {} not found in any world", petData.getPetId());
+        continue;
+      }
+      if (dog.isRemoved() || dog.isInSittingPose() || dog.isSleepingInBed()) {
+        continue;
+      }
+      if (isBesideOwner(dog, player)) {
+        continue;
+      }
+
+      summonDog(dog, petData, player);
+    }
+  }
+
+  private static boolean isBesideOwner(UnleashedDogEntity dog, ServerPlayerEntity player) {
+    return dog.getWorld() == player.getWorld()
+        && dog.squaredDistanceTo(player) <= NEARBY_DOG_DISTANCE * NEARBY_DOG_DISTANCE;
+  }
 
   @Nullable
   public static UnleashedDogEntity findDog(MinecraftServer server, PetData petData) {
@@ -113,17 +165,14 @@ public final class PetLocationService {
 
   private static void summonDog(
       UnleashedDogEntity dog, PetData petData, ServerPlayerEntity player) {
-    final MinecraftServer server = player.getServer();
     final ServerWorld playerWorld = player.getServerWorld();
+    final Vec3d summonPos = findSafeSummonPosition(playerWorld, player.getBlockPos(), dog);
 
+    dog.wakeUp();
+    dog.setSitting(false);
     if (dog.getWorld() != playerWorld) {
-      final UnleashedDogEntity teleported = dog.followOwnerToDimension(player, playerWorld);
-      petData.setDimension(teleported.getWorld().getRegistryKey().getValue().toString());
-      petData.setLastKnownPosition(teleported.getBlockPos());
+      dog.teleportToWorld(playerWorld, summonPos);
     } else {
-      final Vec3d summonPos = findSafeSummonPosition(playerWorld, player.getBlockPos(), dog);
-      dog.wakeUp();
-      dog.setSitting(false);
       dog.teleport(
           playerWorld,
           summonPos.x,
@@ -133,11 +182,11 @@ public final class PetLocationService {
           dog.getYaw(),
           dog.getPitch());
       refreshEntityTracking(playerWorld, dog, player);
-      petData.setLastKnownPosition(BlockPos.ofFloored(summonPos));
     }
 
     petData.setDimension(playerWorld.getRegistryKey().getValue().toString());
-    PetManager.get(server).updatePet(petData);
+    petData.setLastKnownPosition(BlockPos.ofFloored(summonPos));
+    PetManager.get(player.getServer()).updatePet(petData);
   }
 
   private static Vec3d findSafeSummonPosition(
