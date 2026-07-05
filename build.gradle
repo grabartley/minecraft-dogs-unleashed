@@ -163,15 +163,15 @@ tasks.register("verifyMainSourceSideSafety") {
 	doLast {
 		def disallowedPatterns = [
 			"net.minecraft.client.",
-			"com.grahambartley.render.",
-			"com.grahambartley.model.",
-			"com.grahambartley.screen.",
-			"com.grahambartley.mixin.client.",
-			"com.grahambartley.DogsUnleashedClient",
-			"com.grahambartley.DogsUnleashedDataGenerator",
-			"com.grahambartley.DogsUnleashedModMenu",
-			"com.grahambartley.ModKeyBindings",
-			"com.grahambartley.network.ModNetworkingClient"
+			"com.grahambartley.dogsunleashed.render.",
+			"com.grahambartley.dogsunleashed.model.",
+			"com.grahambartley.dogsunleashed.screen.",
+			"com.grahambartley.dogsunleashed.mixin.client.",
+			"com.grahambartley.dogsunleashed.DogsUnleashedClient",
+			"com.grahambartley.dogsunleashed.DogsUnleashedDataGenerator",
+			"com.grahambartley.dogsunleashed.DogsUnleashedModMenu",
+			"com.grahambartley.dogsunleashed.ModKeyBindings",
+			"com.grahambartley.dogsunleashed.network.ModNetworkingClient"
 		]
 		def violations = []
 

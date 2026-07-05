@@ -230,11 +230,11 @@ Gametest spins up an integrated server and a real `ServerWorld` per batch. That'
 - `instanceof` checks against base classes the compiler already enforces
 - Pure utility classes (`BreedingOwnerResolver.resolveInheritedOwnerUuid(...)`)
 
-These go under `src/test/java/com/grahambartley/...`. See [`feedback_prefer_parameterized_tests`](../../../.claude/projects/-Users-gbartley-dev-minecraft-dogs-unleashed/memory/feedback_prefer_parameterized_tests.md) memory: prefer `@ParameterizedTest` over breed-loop methods.
+These go under `src/test/java/com/grahambartley/dogsunleashed/...`. See [`feedback_prefer_parameterized_tests`](../../../.claude/projects/-Users-gbartley-dev-minecraft-dogs-unleashed/memory/feedback_prefer_parameterized_tests.md) memory: prefer `@ParameterizedTest` over breed-loop methods.
 
 ### What needs `@ExtendWith(MinecraftBootstrapExtension.class)`
 
-For tests that read mod content from the canonical vanilla registries (sound registration presence, `ModBlocks.DOG_BED` properties, `Registries.BLOCK.containsId(...)` checks) or the mod's own JVM-global static maps (`DogBedBlock.pendingBedAssignments`), use the `MinecraftBootstrapExtension` under `src/test/java/com/grahambartley/`. The extension touches just enough of Minecraft's static init to populate `Registries.SOUND_EVENT` and `Registries.BLOCK` and to trigger every `ModSounds` / `ModBlocks` static field's `Registry.register(...)` call. Apply it once per test class:
+For tests that read mod content from the canonical vanilla registries (sound registration presence, `ModBlocks.DOG_BED` properties, `Registries.BLOCK.containsId(...)` checks) or the mod's own JVM-global static maps (`DogBedBlock.pendingBedAssignments`), use the `MinecraftBootstrapExtension` under `src/test/java/com/grahambartley/dogsunleashed/`. The extension touches just enough of Minecraft's static init to populate `Registries.SOUND_EVENT` and `Registries.BLOCK` and to trigger every `ModSounds` / `ModBlocks` static field's `Registry.register(...)` call. Apply it once per test class:
 
 ```java
 @ExtendWith(MinecraftBootstrapExtension.class)
@@ -482,8 +482,8 @@ After authoring any new gametest class, register it in `src/main/resources/fabri
 
 ```json
 "fabric-gametest": [
-  "com.grahambartley.gametest.DogEntityBreedSpecificTest",
-  "com.grahambartley.gametest.DogYourNewTestClass"
+  "com.grahambartley.dogsunleashed.gametest.DogEntityBreedSpecificTest",
+  "com.grahambartley.dogsunleashed.gametest.DogYourNewTestClass"
 ]
 ```
 
