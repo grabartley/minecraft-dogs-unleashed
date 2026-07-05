@@ -175,14 +175,7 @@ jobs:
 
       - name: Publish to Modrinth
         if: github.event_name == 'workflow_dispatch'
-        uses: Kir-Antipov/mc-publish@v3.3
-        with:
-          modrinth-id: dogs-unleashed
-          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-          files: build/libs/*.jar
-          name: Dogs Unleashed v${{ steps.semver.outputs.new_version }}
-          version: ${{ steps.semver.outputs.new_version }}
-          version-type: ${{ steps.release_meta.outputs.modrinth_type }}
-          loaders: fabric
-          game-versions: 1.21.1
-          changelog-file: release-notes.md
+        run: ./gradlew modrinth -Pversion=${{ steps.semver.outputs.new_version }}
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          MOD_RELEASE_TYPE: ${{ steps.release_meta.outputs.modrinth_type }}
