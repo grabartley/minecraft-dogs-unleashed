@@ -21,18 +21,18 @@ Ensure you have these files ready:
 
 ## Files to Create/Modify
 
-1. **Entity**: `src/main/java/com/grahambartley/entity/{BreedName}Entity.java`
-2. **Constants**: `src/main/java/com/grahambartley/ModConstants.java`
-3. **Entity Registration**: `src/main/java/com/grahambartley/ModEntities.java`
-4. **Items**: `src/main/java/com/grahambartley/ModItems.java`
-5. **Spawns**: `src/main/java/com/grahambartley/ModSpawns.java`
-6. **Model**: `src/client/java/com/grahambartley/model/{BreedName}Model.java`
-7. **Collar Layer**: `src/client/java/com/grahambartley/render/layer/{BreedName}CollarLayer.java`
-8. **Renderer**: `src/client/java/com/grahambartley/render/{BreedName}Renderer.java`
-9. **Client Init**: `src/client/java/com/grahambartley/DogsUnleashedClient.java`
+1. **Entity**: `src/main/java/com/grahambartley/dogsunleashed/entity/{BreedName}Entity.java`
+2. **Constants**: `src/main/java/com/grahambartley/dogsunleashed/ModConstants.java`
+3. **Entity Registration**: `src/main/java/com/grahambartley/dogsunleashed/ModEntities.java`
+4. **Items**: `src/main/java/com/grahambartley/dogsunleashed/ModItems.java`
+5. **Spawns**: `src/main/java/com/grahambartley/dogsunleashed/ModSpawns.java`
+6. **Model**: `src/client/java/com/grahambartley/dogsunleashed/model/{BreedName}Model.java`
+7. **Collar Layer**: `src/client/java/com/grahambartley/dogsunleashed/render/layer/{BreedName}CollarLayer.java`
+8. **Renderer**: `src/client/java/com/grahambartley/dogsunleashed/render/{BreedName}Renderer.java`
+9. **Client Init**: `src/client/java/com/grahambartley/dogsunleashed/DogsUnleashedClient.java`
 10. **Language**: `src/main/resources/assets/dogs-unleashed/lang/en_us.json`
 11. **Spawn Egg Model**: `src/main/resources/assets/dogs-unleashed/models/item/{breed_name}_spawn_egg.json`
 12. **fabric.mod.json**: Add game test entrypoint
-13. **Game Tests**: `src/main/java/com/grahambartley/gametest/{BreedName}EntityGameTest.java`
+13. **Game Tests**: `src/main/java/com/grahambartley/dogsunleashed/gametest/{BreedName}EntityGameTest.java`
 14. **Common Tests**: Update `UnleashedDogEntityGameTest.java`
 15. **Unit Tests**: Update `DogModelTest.java` and `DogRendererTest.java`

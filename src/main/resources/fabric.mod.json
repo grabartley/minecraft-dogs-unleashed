@@ -17,30 +17,30 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.grahambartley.DogsUnleashed"
+      "com.grahambartley.dogsunleashed.DogsUnleashed"
     ],
     "client": [
-      "com.grahambartley.DogsUnleashedClient"
+      "com.grahambartley.dogsunleashed.DogsUnleashedClient"
     ],
     "modmenu": [
-      "com.grahambartley.DogsUnleashedModMenu"
+      "com.grahambartley.dogsunleashed.DogsUnleashedModMenu"
     ],
     "fabric-gametest": [
-      "com.grahambartley.gametest.DogAdvancementGameTest",
-      "com.grahambartley.gametest.DogEntityBreedSpecificTest",
-      "com.grahambartley.gametest.DogEntityCoreTest",
-      "com.grahambartley.gametest.DogEntityBehaviorTest",
-      "com.grahambartley.gametest.DogEntitySoundTest",
-      "com.grahambartley.gametest.DogBedBlockGameTest",
-      "com.grahambartley.gametest.DogSleepBehaviorGameTest",
-      "com.grahambartley.gametest.DogGraveGameTest",
-      "com.grahambartley.gametest.PetManagerFilterGameTest",
-      "com.grahambartley.gametest.FetchProjectileGameTest",
-      "com.grahambartley.gametest.StickThrowHandlerGameTest",
-      "com.grahambartley.gametest.DogReunionGameTest",
-      "com.grahambartley.gametest.PuppyBehaviorGameTest",
-      "com.grahambartley.gametest.PlayModeSyncGameTest",
-      "com.grahambartley.gametest.DogsUnleashedCommandGameTest"
+      "com.grahambartley.dogsunleashed.gametest.DogAdvancementGameTest",
+      "com.grahambartley.dogsunleashed.gametest.DogEntityBreedSpecificTest",
+      "com.grahambartley.dogsunleashed.gametest.DogEntityCoreTest",
+      "com.grahambartley.dogsunleashed.gametest.DogEntityBehaviorTest",
+      "com.grahambartley.dogsunleashed.gametest.DogEntitySoundTest",
+      "com.grahambartley.dogsunleashed.gametest.DogBedBlockGameTest",
+      "com.grahambartley.dogsunleashed.gametest.DogSleepBehaviorGameTest",
+      "com.grahambartley.dogsunleashed.gametest.DogGraveGameTest",
+      "com.grahambartley.dogsunleashed.gametest.PetManagerFilterGameTest",
+      "com.grahambartley.dogsunleashed.gametest.FetchProjectileGameTest",
+      "com.grahambartley.dogsunleashed.gametest.StickThrowHandlerGameTest",
+      "com.grahambartley.dogsunleashed.gametest.DogReunionGameTest",
+      "com.grahambartley.dogsunleashed.gametest.PuppyBehaviorGameTest",
+      "com.grahambartley.dogsunleashed.gametest.PlayModeSyncGameTest",
+      "com.grahambartley.dogsunleashed.gametest.DogsUnleashedCommandGameTest"
     ]
   },
   "mixins": [
