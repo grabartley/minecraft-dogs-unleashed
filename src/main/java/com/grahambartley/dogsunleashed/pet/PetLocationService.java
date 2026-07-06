@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.pet;
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.Comparator;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
@@ -14,6 +15,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.WorldChunk;
@@ -70,7 +72,7 @@ public final class PetLocationService {
         continue;
       }
 
-      summonDog(dog, petData, player);
+      summonDog(dog, petData, player, false);
     }
   }
 
@@ -113,7 +115,7 @@ public final class PetLocationService {
       MinecraftServer server, PetData petData, ServerPlayerEntity player) {
     final UnleashedDogEntity loadedDog = findDog(server, petData);
     if (loadedDog != null) {
-      summonDog(loadedDog, petData, player);
+      summonDog(loadedDog, petData, player, true);
       return;
     }
 
@@ -148,7 +150,7 @@ public final class PetLocationService {
             knownWorld
                 .getChunkManager()
                 .removeTicket(PET_RECALL_TICKET, chunkPos, PET_RECALL_TICKET_LEVEL, chunkPos);
-            summonDog(dog, petData, player);
+            summonDog(dog, petData, player, true);
             return;
           }
 
@@ -163,16 +165,25 @@ public final class PetLocationService {
         });
   }
 
+  /**
+   * Force placement is for explicit summons (Pet Manager, commands), which must always deliver the
+   * dog: when nothing nearby is safe, the owner's own position is the destination and the owner
+   * deals with the surroundings. Automatic follows pass false so a teleport into hazardous terrain
+   * leaves the dog safely where it was.
+   */
   private static void summonDog(
-      UnleashedDogEntity dog, PetData petData, ServerPlayerEntity player) {
+      UnleashedDogEntity dog, PetData petData, ServerPlayerEntity player, boolean forcePlacement) {
     final ServerWorld playerWorld = player.getServerWorld();
-    final Vec3d summonPos = findSafeSummonPosition(playerWorld, player.getBlockPos(), dog);
+    Vec3d summonPos = findSafeSummonPosition(playerWorld, player.getBlockPos(), dog);
     if (summonPos == null) {
-      DogsUnleashed.log.warn(
-          "[PetSummon] No safe position near {} for dog {}, leaving it where it is",
-          player.getBlockPos(),
-          petData.getPetId());
-      return;
+      if (!forcePlacement) {
+        DogsUnleashed.log.warn(
+            "[PetSummon] No safe position near {} for dog {}, leaving it where it is",
+            player.getBlockPos(),
+            petData.getPetId());
+        return;
+      }
+      summonPos = player.getPos();
     }
 
     dog.wakeUp();
@@ -203,7 +214,7 @@ public final class PetLocationService {
   @Nullable
   private static Vec3d findSafeSummonPosition(
       ServerWorld world, BlockPos center, UnleashedDogEntity dog) {
-    for (final BlockPos basePos : BlockPos.iterateOutwards(center, 2, 1, 2)) {
+    for (final BlockPos basePos : BlockPos.iterateOutwards(snapToGround(world, center), 2, 1, 2)) {
       if (!isSafeSummonBase(world, basePos)) {
         continue;
       }
@@ -219,6 +230,29 @@ public final class PetLocationService {
     }
 
     return null;
+  }
+
+  /**
+   * Walks down through passable blocks so a flying or falling owner still gets pets placed on the
+   * ground beneath them. A buried owner has no passable column below, keeps the original center,
+   * and fails the safe-base checks so the summon is skipped.
+   */
+  private static BlockPos snapToGround(ServerWorld world, BlockPos center) {
+    if (!isPassable(world.getBlockState(center))) {
+      // An embedded owner (teleported into terrain) gets no descent: walking down from inside a
+      // block would tunnel through the surrounding solid into unrelated caves or gaps below.
+      return center;
+    }
+
+    final BlockPos.Mutable pos = center.mutableCopy();
+    while (pos.getY() > world.getBottomY() + 1 && isPassable(world.getBlockState(pos.down()))) {
+      pos.move(Direction.DOWN);
+    }
+    return pos.toImmutable();
+  }
+
+  private static boolean isPassable(BlockState state) {
+    return state.isAir() || state.isReplaceable();
   }
 
   private static boolean isSafeSummonBase(ServerWorld world, BlockPos basePos) {

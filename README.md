@@ -155,7 +155,10 @@ the player who clicked). Breeding roll tables include rare coat variants you wil
 
 Dimension hop and your dogs follow. Portal, end portal, weird command magic, whatever: every alive tamed dog comes with
 you, unless they are sitting or sleeping in bed. Long-distance teleports within a dimension (16 blocks or more) bring
-them along too, and they always arrive on safe ground beside you instead of inside the floor.
+them along too, and they always arrive on safe ground beside you instead of inside the floor. Flying? They land on the
+ground beneath you. If you teleport somewhere with no safe footing at all, like into solid terrain, they stay safely
+where they were. Pet Manager summons are different: an explicit summon always delivers the dog, using your exact
+position as a last resort.
 
 ### Pet Manager
 
