@@ -167,6 +167,13 @@ public final class PetLocationService {
       UnleashedDogEntity dog, PetData petData, ServerPlayerEntity player) {
     final ServerWorld playerWorld = player.getServerWorld();
     final Vec3d summonPos = findSafeSummonPosition(playerWorld, player.getBlockPos(), dog);
+    if (summonPos == null) {
+      DogsUnleashed.log.warn(
+          "[PetSummon] No safe position near {} for dog {}, leaving it where it is",
+          player.getBlockPos(),
+          petData.getPetId());
+      return;
+    }
 
     dog.wakeUp();
     dog.setSitting(false);
@@ -189,6 +196,11 @@ public final class PetLocationService {
     PetManager.get(player.getServer()).updatePet(petData);
   }
 
+  /**
+   * Returns null when nothing near the center is safe, e.g. the owner teleported into solid
+   * terrain. Summoning must be skipped in that case: any position in range would suffocate the dog.
+   */
+  @Nullable
   private static Vec3d findSafeSummonPosition(
       ServerWorld world, BlockPos center, UnleashedDogEntity dog) {
     for (final BlockPos basePos : BlockPos.iterateOutwards(center, 2, 1, 2)) {
@@ -206,7 +218,7 @@ public final class PetLocationService {
       return candidate;
     }
 
-    return new Vec3d(center.getX() + 0.5, center.getY(), center.getZ() + 0.5);
+    return null;
   }
 
   private static boolean isSafeSummonBase(ServerWorld world, BlockPos basePos) {

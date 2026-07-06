@@ -76,6 +76,35 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = TELEPORT_ARENA, tickLimit = 40)
+  public void teleportIntoSolidTerrainLeavesDogBehindAlive(TestContext context) {
+    // The owner ends up fully buried, so there is no safe spot anywhere in summon range. The dog
+    // must be left where it was instead of being placed inside blocks to suffocate.
+    for (int x = 17; x <= 23; x++) {
+      for (int y = 1; y <= 3; y++) {
+        for (int z = 0; z <= 4; z++) {
+          context.setBlockState(new BlockPos(x, y, z), Blocks.STONE.getDefaultState());
+        }
+      }
+    }
+    final ServerPlayerEntity owner = placePlayer(context, LONG_TELEPORT_START);
+    final HuskyEntity husky = spawnRegisteredDog(context, owner, DOG_START);
+    final Vec3d dogStartPos = husky.getPos();
+
+    context.runAtTick(TELEPORT_TICK, () -> teleport(context, owner, LONG_TELEPORT_DESTINATION));
+
+    context.runAtTick(
+        ASSERT_TICK,
+        () -> {
+          context.assertTrue(
+              husky.isAlive(), "Dog must survive its owner teleporting into solid terrain");
+          context.assertTrue(
+              husky.getPos().squaredDistanceTo(dogStartPos) < 0.01,
+              "Dog should stay behind when there is no safe ground beside its owner");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = TELEPORT_ARENA, tickLimit = 40)
   public void shortDistanceTeleportLeavesDogInPlace(TestContext context) {
     final ServerPlayerEntity owner = placePlayer(context, new Vec3d(8.5, 1, 2.5));
     final HuskyEntity husky = spawnRegisteredDog(context, owner, new BlockPos(1, 1, 2));
