@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.screen;
 
+import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.entity.HuskyEntity;
@@ -230,7 +231,16 @@ public class PetManagerScreen extends Screen {
   }
 
   private void onSummon(final ButtonWidget button) {
-    if (selectedPet != null && selectedPet.alive()) {
+    if (selectedPet == null) {
+      DogsUnleashed.log.info("[PetDebug] Summon clicked with no pet selected, ignoring");
+      return;
+    }
+    DogsUnleashed.log.info(
+        "[PetDebug] Summon clicked for {} ({}) clientAlive={}",
+        selectedPet.name(),
+        selectedPet.petId(),
+        selectedPet.alive());
+    if (selectedPet.alive()) {
       ModNetworkingClient.sendSummonPet(UUID.fromString(selectedPet.petId()));
     }
   }

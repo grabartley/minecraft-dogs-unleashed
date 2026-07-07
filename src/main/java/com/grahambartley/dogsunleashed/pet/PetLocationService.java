@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.pet;
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.Comparator;
+import java.util.List;
 import java.util.function.Predicate;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Dismounting;
@@ -16,6 +17,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
@@ -143,6 +145,13 @@ public final class PetLocationService {
     }
 
     final ChunkPos chunkPos = new ChunkPos(lastKnownPosition);
+    DogsUnleashed.log.info(
+        "[PetDebug] {} ({}) not loaded; ticketing chunk {} in {} around lastKnownPosition {}",
+        petData.getName(),
+        petData.getPetId(),
+        chunkPos,
+        dimStr,
+        lastKnownPosition);
     knownWorld
         .getChunkManager()
         .addTicket(PET_RECALL_TICKET, chunkPos, PET_RECALL_TICKET_LEVEL, chunkPos);
@@ -174,10 +183,17 @@ public final class PetLocationService {
                 .getChunkManager()
                 .removeTicket(PET_RECALL_TICKET, chunkPos, PET_RECALL_TICKET_LEVEL, chunkPos);
             if (dog != null && !player.isDisconnected()) {
+              DogsUnleashed.log.info(
+                  "[PetDebug] {} located after {} retries at {} in {}",
+                  petData.getName(),
+                  PET_RECALL_RETRY_TICKS - attemptsRemaining + 1,
+                  dog.getBlockPos(),
+                  dog.getWorld().getRegistryKey().getValue());
               if (shouldSummon.test(dog)) {
                 summonDog(dog, petData, player, explicitSummon);
               }
             } else if (dog == null) {
+              logExhaustedLocateDiagnostics(petData, knownWorld, chunkPos);
               notifyLocateFailed(player, petData, explicitSummon);
             }
             return;
@@ -193,6 +209,33 @@ public final class PetLocationService {
               explicitSummon,
               shouldSummon);
         });
+  }
+
+  /**
+   * When a locate gives up, records whether the ticketed chunk actually loaded and which dogs are
+   * physically present around the recorded position, separating "chunk never loaded in time" from
+   * "chunk loaded but the entity is not in it" and "the record's position is stale".
+   */
+  private static void logExhaustedLocateDiagnostics(
+      PetData petData, ServerWorld knownWorld, ChunkPos chunkPos) {
+    final boolean chunkLoaded = knownWorld.isChunkLoaded(chunkPos.x, chunkPos.z);
+    final BlockPos lastPos = petData.getLastKnownPosition();
+    final List<String> nearbyDogs =
+        lastPos == null
+            ? List.of()
+            : knownWorld
+                .getEntitiesByClass(
+                    UnleashedDogEntity.class, new Box(lastPos).expand(24), candidate -> true)
+                .stream()
+                .map(d -> d.getUuid() + "@" + d.getBlockPos().toShortString())
+                .toList();
+    DogsUnleashed.log.warn(
+        "[PetDebug] Locate exhausted for {} ({}): chunk {} loaded={} dogsWithin24BlocksOfLastPos={}",
+        petData.getName(),
+        petData.getPetId(),
+        chunkPos,
+        chunkLoaded,
+        nearbyDogs);
   }
 
   private static void notifyLocateFailed(
@@ -218,6 +261,15 @@ public final class PetLocationService {
   private static void summonDog(
       UnleashedDogEntity dog, PetData petData, ServerPlayerEntity player, boolean forcePlacement) {
     final ServerWorld playerWorld = player.getServerWorld();
+    final ServerWorld dogWorld = (ServerWorld) dog.getWorld();
+    DogsUnleashed.log.info(
+        "[PetDebug] Summoning {} ({}): at {} in {} removed={} sourceChunkLoaded={}",
+        petData.getName(),
+        petData.getPetId(),
+        dog.getBlockPos(),
+        dogWorld.getRegistryKey().getValue(),
+        dog.isRemoved(),
+        dogWorld.isChunkLoaded(dog.getChunkPos().x, dog.getChunkPos().z));
     Vec3d summonPos = findSafeSummonPosition(playerWorld, player.getBlockPos(), dog);
     if (summonPos == null) {
       if (!forcePlacement) {
@@ -257,6 +309,23 @@ public final class PetLocationService {
         BlockPos.ofFloored(summonPos),
         playerWorld.getRegistryKey().getValue(),
         forcePlacement);
+
+    // Next-tick probe: separates "entity really stands at the destination" from tracking or
+    // removal problems that would make a server-side success invisible on the client.
+    DogsUnleashed.runNextTick(
+        () -> {
+          final Entity check = playerWorld.getEntity(petData.getPetId());
+          DogsUnleashed.log.info(
+              "[PetDebug] Post-summon check for {} ({}): present={} removed={} pos={} distanceToOwner={}",
+              petData.getName(),
+              petData.getPetId(),
+              check != null,
+              check != null && check.isRemoved(),
+              check != null ? check.getBlockPos() : null,
+              check != null && !player.isRemoved()
+                  ? String.format("%.1f", Math.sqrt(check.squaredDistanceTo(player)))
+                  : "n/a");
+        });
   }
 
   /**
