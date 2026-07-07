@@ -329,12 +329,13 @@ public final class PetLocationService {
           final boolean trackedByOwner =
               check != null && PlayerLookup.tracking(check).contains(player);
           DogsUnleashed.log.info(
-              "[PetDebug] Post-summon probe for {} ({}): present={} removed={} pos={} distanceToOwner={} trackedByOwnerClient={}",
+              "[PetDebug] Post-summon probe for {} ({}): present={} removed={} pos={} serverPlayerPos={} distanceToOwner={} trackedByOwnerClient={}",
               petData.getName(),
               petData.getPetId(),
               check != null,
               check != null && check.isRemoved(),
               check != null ? check.getBlockPos() : null,
+              player.getBlockPos().toShortString(),
               check != null && !player.isRemoved()
                   ? String.format("%.1f", Math.sqrt(check.squaredDistanceTo(player)))
                   : "n/a",

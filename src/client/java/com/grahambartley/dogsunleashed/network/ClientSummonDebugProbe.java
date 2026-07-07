@@ -59,26 +59,27 @@ public final class ClientSummonDebugProbe {
           "[PetDebug/Client] Probe for {} skipped: no client player or world", petName);
       return;
     }
-    final List<String> dogs =
-        client
-            .world
-            .getEntitiesByClass(
-                UnleashedDogEntity.class,
-                client.player.getBoundingBox().expand(PROBE_RADIUS),
-                dog -> true)
-            .stream()
-            .map(
-                dog ->
-                    dog.getUuid().toString().substring(0, 8)
-                        + "@"
-                        + dog.getBlockPos().toShortString())
-            .toList();
+    final List<String> nearbyDogs = new ArrayList<>();
+    final List<String> allDogs = new ArrayList<>();
+    for (final var entity : client.world.getEntities()) {
+      if (!(entity instanceof UnleashedDogEntity dog)) {
+        continue;
+      }
+      final String label =
+          dog.getUuid().toString().substring(0, 8) + "@" + dog.getBlockPos().toShortString();
+      allDogs.add(label);
+      if (dog.squaredDistanceTo(client.player) <= PROBE_RADIUS * PROBE_RADIUS) {
+        nearbyDogs.add(label);
+      }
+    }
     DogsUnleashed.log.info(
-        "[PetDebug/Client] {} ticks after summoning {}: client sees {} dogs within {} blocks: {}",
+        "[PetDebug/Client] {} ticks after summoning {}: clientPlayerPos={} dogsWithin{}Blocks={} allDogsInClientWorld({})={}",
         PROBE_DELAY_TICKS,
         petName,
-        dogs.size(),
+        client.player.getBlockPos().toShortString(),
         (int) PROBE_RADIUS,
-        dogs);
+        nearbyDogs,
+        allDogs.size(),
+        allDogs.size() > 20 ? allDogs.subList(0, 20) + "..." : allDogs);
   }
 }
