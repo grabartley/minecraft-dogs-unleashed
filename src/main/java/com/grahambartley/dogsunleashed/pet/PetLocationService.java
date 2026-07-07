@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.pet;
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.Comparator;
+import java.util.function.Predicate;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Dismounting;
 import net.minecraft.entity.Entity;
@@ -12,6 +13,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -54,26 +56,19 @@ public final class PetLocationService {
     }
 
     final MinecraftServer server = player.getServer();
-    final PetManager petManager = PetManager.get(server);
-    for (final PetData petData : petManager.getPetsByOwner(player.getUuid())) {
+    for (final PetData petData : PetManager.get(server).getPetsByOwner(player.getUuid())) {
       if (!petData.isAlive()) {
         continue;
       }
-
-      final UnleashedDogEntity dog = findDog(server, petData);
-      if (dog == null) {
-        DogsUnleashed.log.warn("[PetFollow] Dog {} not found in any world", petData.getPetId());
-        continue;
-      }
-      if (dog.isRemoved() || dog.isInSittingPose() || dog.isSleepingInBed()) {
-        continue;
-      }
-      if (isBesideOwner(dog, player)) {
-        continue;
-      }
-
-      summonDog(dog, petData, player, false);
+      locateAndSummon(server, petData, player, false, dog -> isActivelyFollowing(dog, player));
     }
+  }
+
+  private static boolean isActivelyFollowing(UnleashedDogEntity dog, ServerPlayerEntity player) {
+    return !dog.isRemoved()
+        && !dog.isInSittingPose()
+        && !dog.isSleepingInBed()
+        && !isBesideOwner(dog, player);
   }
 
   private static boolean isBesideOwner(UnleashedDogEntity dog, ServerPlayerEntity player) {
@@ -113,27 +108,53 @@ public final class PetLocationService {
 
   public static void loadAndSummon(
       MinecraftServer server, PetData petData, ServerPlayerEntity player) {
-    final UnleashedDogEntity loadedDog = findDog(server, petData);
-    if (loadedDog != null) {
-      summonDog(loadedDog, petData, player, true);
+    locateAndSummon(server, petData, player, true, dog -> !dog.isRemoved());
+  }
+
+  /**
+   * Locates the pet, chunk-loading its last known position with a ticket and retrying while the
+   * entity streams in asynchronously, then summons it if {@code shouldSummon} allows. Explicit
+   * summons force placement and report a locate failure to the player; automatic follows only log
+   * it.
+   */
+  private static void locateAndSummon(
+      MinecraftServer server,
+      PetData petData,
+      ServerPlayerEntity player,
+      boolean explicitSummon,
+      Predicate<UnleashedDogEntity> shouldSummon) {
+    final UnleashedDogEntity dog = findDog(server, petData);
+    if (dog != null) {
+      if (shouldSummon.test(dog)) {
+        summonDog(dog, petData, player, explicitSummon);
+      }
       return;
     }
 
     final String dimStr = petData.getDimension();
     final BlockPos lastKnownPosition = petData.getLastKnownPosition();
-    if (dimStr == null || dimStr.isEmpty() || lastKnownPosition == null) {
+    final ServerWorld knownWorld =
+        dimStr == null || dimStr.isEmpty()
+            ? null
+            : server.getWorld(RegistryKey.of(RegistryKeys.WORLD, Identifier.of(dimStr)));
+    if (knownWorld == null || lastKnownPosition == null) {
+      notifyLocateFailed(player, petData, explicitSummon);
       return;
     }
-
-    final ServerWorld knownWorld =
-        server.getWorld(RegistryKey.of(RegistryKeys.WORLD, Identifier.of(dimStr)));
-    if (knownWorld == null) return;
 
     final ChunkPos chunkPos = new ChunkPos(lastKnownPosition);
     knownWorld
         .getChunkManager()
         .addTicket(PET_RECALL_TICKET, chunkPos, PET_RECALL_TICKET_LEVEL, chunkPos);
-    retrySummon(server, petData, player, knownWorld, chunkPos, PET_RECALL_RETRY_TICKS);
+    retrySummon(
+        server,
+        petData,
+        player,
+        knownWorld,
+        chunkPos,
+        PET_RECALL_RETRY_TICKS,
+        explicitSummon,
+        shouldSummon);
   }
 
   private static void retrySummon(
@@ -142,27 +163,50 @@ public final class PetLocationService {
       ServerPlayerEntity player,
       ServerWorld knownWorld,
       ChunkPos chunkPos,
-      int attemptsRemaining) {
+      int attemptsRemaining,
+      boolean explicitSummon,
+      Predicate<UnleashedDogEntity> shouldSummon) {
     DogsUnleashed.runNextTick(
         () -> {
           final UnleashedDogEntity dog = findDog(server, petData);
-          if (dog != null) {
+          if (dog != null || attemptsRemaining <= 1 || player.isDisconnected()) {
             knownWorld
                 .getChunkManager()
                 .removeTicket(PET_RECALL_TICKET, chunkPos, PET_RECALL_TICKET_LEVEL, chunkPos);
-            summonDog(dog, petData, player, true);
+            if (dog != null && !player.isDisconnected()) {
+              if (shouldSummon.test(dog)) {
+                summonDog(dog, petData, player, explicitSummon);
+              }
+            } else if (dog == null) {
+              notifyLocateFailed(player, petData, explicitSummon);
+            }
             return;
           }
 
-          if (attemptsRemaining <= 1) {
-            knownWorld
-                .getChunkManager()
-                .removeTicket(PET_RECALL_TICKET, chunkPos, PET_RECALL_TICKET_LEVEL, chunkPos);
-            return;
-          }
-
-          retrySummon(server, petData, player, knownWorld, chunkPos, attemptsRemaining - 1);
+          retrySummon(
+              server,
+              petData,
+              player,
+              knownWorld,
+              chunkPos,
+              attemptsRemaining - 1,
+              explicitSummon,
+              shouldSummon);
         });
+  }
+
+  private static void notifyLocateFailed(
+      ServerPlayerEntity player, PetData petData, boolean explicitSummon) {
+    DogsUnleashed.log.warn(
+        "[PetSummon] Could not locate dog {} ({}) in {} near {}",
+        petData.getName(),
+        petData.getPetId(),
+        petData.getDimension(),
+        petData.getLastKnownPosition());
+    if (explicitSummon && !player.isDisconnected()) {
+      player.sendMessage(
+          Text.translatable("message.dogs-unleashed.summon_failed", petData.getName()), true);
+    }
   }
 
   /**
@@ -205,6 +249,14 @@ public final class PetLocationService {
     petData.setDimension(playerWorld.getRegistryKey().getValue().toString());
     petData.setLastKnownPosition(BlockPos.ofFloored(summonPos));
     PetManager.get(player.getServer()).updatePet(petData);
+
+    DogsUnleashed.log.info(
+        "[PetSummon] Brought {} ({}) to {} in {} (explicit={})",
+        petData.getName(),
+        petData.getPetId(),
+        BlockPos.ofFloored(summonPos),
+        playerWorld.getRegistryKey().getValue(),
+        forcePlacement);
   }
 
   /**

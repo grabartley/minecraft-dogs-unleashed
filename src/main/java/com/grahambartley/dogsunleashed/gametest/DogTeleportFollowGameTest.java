@@ -2,10 +2,12 @@ package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.entity.HuskyEntity;
+import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLocationService;
 import com.grahambartley.dogsunleashed.pet.PetManager;
 import java.util.Set;
+import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -201,6 +203,34 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
                   + " ground, but it was "
                   + Math.sqrt(husky.squaredDistanceTo(owner))
                   + " blocks away");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = TELEPORT_ARENA, tickLimit = 60)
+  public void summonOfUnfindablePetGivesUpWithoutSpawningAnything(TestContext context) {
+    // A pet record whose entity no longer exists anywhere: the locate retry loop must exhaust
+    // cleanly and never conjure an entity out of the stale record.
+    final ServerPlayerEntity owner = placePlayer(context, LONG_TELEPORT_START);
+    final PetData ghost =
+        new PetData(
+            UUID.randomUUID(),
+            owner.getUuid(),
+            UnleashedDogBreed.HUSKY,
+            "Ghost",
+            20.0f,
+            20.0f,
+            context.getAbsolutePos(DOG_START),
+            context.getWorld().getRegistryKey().getValue().toString(),
+            true);
+    PetManager.get(context.getWorld().getServer()).registerPet(ghost);
+
+    PetLocationService.loadAndSummon(context.getWorld().getServer(), ghost, owner);
+
+    context.runAtTick(
+        45,
+        () -> {
+          context.dontExpectEntity(ModEntities.HUSKY);
           context.complete();
         });
   }

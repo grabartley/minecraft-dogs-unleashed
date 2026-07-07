@@ -12,7 +12,6 @@
   "entity.dogs-unleashed.tennis_ball_projectile": "网球",
   "entity.dogs-unleashed.stick_projectile": "棍子",
   "entity.dogs-unleashed.frisbee_projectile": "飞盘",
-
   "block.dogs-unleashed.dog_bed": "狗床",
   "block.dogs-unleashed.dog_bed.colored": "%s狗床",
   "block.dogs-unleashed.dog_bed.assigned": "%s将在这里睡觉",
@@ -20,10 +19,8 @@
   "block.dogs-unleashed.dog_bed.sleep_command": "%s要去睡觉了",
   "block.dogs-unleashed.dog_bed.wake_command": "%s正在醒来",
   "block.dogs-unleashed.dog_bed.no_dog_nearby": "附近没有驯服的狗",
-
   "block.dogs-unleashed.dog_grave": "狗坟墓",
   "block.dogs-unleashed.dog_grave.named": "%s的坟墓",
-
   "item.dogs-unleashed.tennis_ball": "网球",
   "block.dogs-unleashed.tennis_ball": "网球",
   "block.dogs-unleashed.stick": "棍子",
@@ -34,20 +31,18 @@
   "message.dogs-unleashed.play_end": "停止了和%s玩耍",
   "message.dogs-unleashed.play_fetch_returned": "%s把%s叼回来了！",
   "message.dogs-unleashed.play_end_no_retrieve": "%s没能取回%s",
-
   "message.dogs-unleashed.pending_bed_assignment": "已选择%s！现在右键点击一张狗床来分配它",
   "message.dogs-unleashed.bed_assigned": "%s已被分配到这张床",
   "message.dogs-unleashed.no_pending_assignment": "先潜行+右键点击一只狗，然后右键点击这张床",
-
+  "message.dogs-unleashed.summon_failed": "在任何地方都找不到%s",
+  "message.dogs-unleashed.summon_deceased": "%s已经去世，无法召唤",
   "key.dogs-unleashed.open_pet_manager": "打开宠物管理器",
   "category.dogs-unleashed.general": "Dogs Unleashed",
-
   "screen.dogs-unleashed.pet_naming.title": "给你的新朋友起个名字吧！",
   "screen.dogs-unleashed.pet_naming.header": "你刚刚驯服了一只%s！",
   "screen.dogs-unleashed.pet_naming.prompt": "你想给它起什么名字？",
   "screen.dogs-unleashed.pet_naming.name_field": "宠物名称",
   "screen.dogs-unleashed.pet_naming.confirm": "欢迎回家！🐕",
-
   "screen.dogs-unleashed.pet_manager.title": "我的宠物",
   "screen.dogs-unleashed.pet_manager.search": "按名称搜索…",
   "screen.dogs-unleashed.pet_manager.search_button": "搜索",
@@ -61,7 +56,6 @@
   "screen.dogs-unleashed.pet_manager.no_pets": "未找到宠物",
   "screen.dogs-unleashed.pet_manager.deceased": "安息吧 🌈",
   "screen.dogs-unleashed.pet_manager.settings_tooltip": "设置",
-
   "screen.dogs-unleashed.settings.title": "Dogs Unleashed 设置",
   "screen.dogs-unleashed.settings.gameplay": "玩法",
   "screen.dogs-unleashed.settings.sleep": "睡眠",
@@ -82,7 +76,6 @@
   "screen.dogs-unleashed.settings.barkvolume.tooltip": "调整所有狗吠声的音量。设为 0.0 可静音吠叫。",
   "screen.dogs-unleashed.settings.howlvolume": "哈士奇嚎叫音量",
   "screen.dogs-unleashed.settings.howlvolume.tooltip": "调整哈士奇嚎叫声的音量。设为 0.0 可静音嚎叫。",
-
   "command.dogs-unleashed.help.header": "Dogs Unleashed 命令（仅限管理员）：",
   "command.dogs-unleashed.help.status": "- /dogsunleashed status",
   "command.dogs-unleashed.help.spawn": "- /dogsunleashed config spawn <true|false>",
@@ -114,7 +107,6 @@
   "command.dogs-unleashed.pet.dead": "死亡",
   "command.dogs-unleashed.summon.success": "正在将 %s 召唤到 %s。",
   "command.dogs-unleashed.summon.notfound": "%s 没有 id 为 %s 的宠物。",
-
   "advancements.dogs-unleashed.root.title": "Dogs Unleashed",
   "advancements.dogs-unleashed.root.description": "壮大你的狗群。",
   "advancements.dogs-unleashed.best_friend.title": "最好的朋友",

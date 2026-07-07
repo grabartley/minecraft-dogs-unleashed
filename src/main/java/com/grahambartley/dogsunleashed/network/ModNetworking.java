@@ -381,9 +381,25 @@ public final class ModNetworking {
             () -> {
               final PetData petData =
                   PetManager.get(playerWorld.getServer()).getPet(player.getUuid(), payload.petId());
-              if (petData != null && petData.isAlive()) {
-                PetLocationService.loadAndSummon(playerWorld.getServer(), petData, player);
+              if (petData == null) {
+                DogsUnleashed.log.warn(
+                    "[PetSummon] Summon requested for unknown pet {} by {}",
+                    payload.petId(),
+                    player.getUuid());
+                return;
               }
+              DogsUnleashed.log.info(
+                  "[PetSummon] Summon requested for {} ({}) alive={}",
+                  petData.getName(),
+                  petData.getPetId(),
+                  petData.isAlive());
+              if (!petData.isAlive()) {
+                player.sendMessage(
+                    Text.translatable("message.dogs-unleashed.summon_deceased", petData.getName()),
+                    true);
+                return;
+              }
+              PetLocationService.loadAndSummon(playerWorld.getServer(), petData, player);
             });
   }
 
