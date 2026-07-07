@@ -5,6 +5,7 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Dismounting;
 import net.minecraft.entity.Entity;
@@ -310,13 +311,25 @@ public final class PetLocationService {
         playerWorld.getRegistryKey().getValue(),
         forcePlacement);
 
-    // Next-tick probe: separates "entity really stands at the destination" from tracking or
+    // Delayed probes: separate "entity really stands at the destination" from tracking or
     // removal problems that would make a server-side success invisible on the client.
+    schedulePostSummonProbe(playerWorld, petData, player, 1);
+    schedulePostSummonProbe(playerWorld, petData, player, 20);
+  }
+
+  private static void schedulePostSummonProbe(
+      ServerWorld playerWorld, PetData petData, ServerPlayerEntity player, int ticksUntilProbe) {
     DogsUnleashed.runNextTick(
         () -> {
+          if (ticksUntilProbe > 1) {
+            schedulePostSummonProbe(playerWorld, petData, player, ticksUntilProbe - 1);
+            return;
+          }
           final Entity check = playerWorld.getEntity(petData.getPetId());
+          final boolean trackedByOwner =
+              check != null && PlayerLookup.tracking(check).contains(player);
           DogsUnleashed.log.info(
-              "[PetDebug] Post-summon check for {} ({}): present={} removed={} pos={} distanceToOwner={}",
+              "[PetDebug] Post-summon probe for {} ({}): present={} removed={} pos={} distanceToOwner={} trackedByOwnerClient={}",
               petData.getName(),
               petData.getPetId(),
               check != null,
@@ -324,7 +337,8 @@ public final class PetLocationService {
               check != null ? check.getBlockPos() : null,
               check != null && !player.isRemoved()
                   ? String.format("%.1f", Math.sqrt(check.squaredDistanceTo(player)))
-                  : "n/a");
+                  : "n/a",
+              trackedByOwner);
         });
   }
 

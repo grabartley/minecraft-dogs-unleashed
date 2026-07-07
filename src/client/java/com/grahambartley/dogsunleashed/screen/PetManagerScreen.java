@@ -6,6 +6,7 @@ import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.entity.HuskyEntity;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.network.ClientSummonDebugProbe;
 import com.grahambartley.dogsunleashed.network.ModNetworking;
 import com.grahambartley.dogsunleashed.network.ModNetworkingClient;
 import com.grahambartley.dogsunleashed.pet.PetAliveFilter;
@@ -242,6 +243,7 @@ public class PetManagerScreen extends Screen {
         selectedPet.alive());
     if (selectedPet.alive()) {
       ModNetworkingClient.sendSummonPet(UUID.fromString(selectedPet.petId()));
+      ClientSummonDebugProbe.schedule(selectedPet.name());
     }
   }
 

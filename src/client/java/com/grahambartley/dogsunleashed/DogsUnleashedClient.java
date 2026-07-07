@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed;
 
+import com.grahambartley.dogsunleashed.network.ClientSummonDebugProbe;
 import com.grahambartley.dogsunleashed.network.ModNetworkingClient;
 import com.grahambartley.dogsunleashed.render.BeagleRenderer;
 import com.grahambartley.dogsunleashed.render.DachshundRenderer;
@@ -53,5 +54,6 @@ public class DogsUnleashedClient implements ClientModInitializer {
 
     ModKeyBindings.register();
     ModNetworkingClient.registerClientReceivers();
+    ClientSummonDebugProbe.register();
   }
 }
