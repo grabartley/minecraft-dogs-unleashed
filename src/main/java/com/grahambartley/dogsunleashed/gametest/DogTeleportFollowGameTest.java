@@ -7,6 +7,7 @@ import com.grahambartley.dogsunleashed.pet.PetLocationService;
 import com.grahambartley.dogsunleashed.pet.PetManager;
 import java.util.Set;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -102,6 +103,50 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
           context.assertTrue(
               Math.abs(husky.getY() - standingY) < 0.01,
               "Dog should stand on the arena floor, but was at y=" + husky.getY());
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = TELEPORT_ARENA, tickLimit = 40)
+  public void longDistanceTeleportBringsDogOntoSnowLayeredGround(TestContext context) {
+    // Snow layers cover every block around the destination, as on any snowy-biome surface.
+    // Partial-height ground cover is valid footing and must never strand the dog.
+    coverDestinationFloor(context, Blocks.SNOW.getDefaultState());
+    final ServerPlayerEntity owner = placePlayer(context, LONG_TELEPORT_START);
+    final HuskyEntity husky = spawnRegisteredDog(context, owner, DOG_START);
+
+    context.runAtTick(TELEPORT_TICK, () -> teleport(context, owner, LONG_TELEPORT_DESTINATION));
+
+    context.runAtTick(
+        ASSERT_TICK,
+        () -> {
+          final double distance = Math.sqrt(husky.squaredDistanceTo(owner));
+          context.assertTrue(
+              distance <= 4.0,
+              "Dog should be brought onto snow-layered ground beside its owner, but was "
+                  + distance
+                  + " blocks away");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = TELEPORT_ARENA, tickLimit = 40)
+  public void longDistanceTeleportBringsDogOntoSlabGround(TestContext context) {
+    coverDestinationFloor(context, Blocks.STONE_SLAB.getDefaultState());
+    final ServerPlayerEntity owner = placePlayer(context, LONG_TELEPORT_START);
+    final HuskyEntity husky = spawnRegisteredDog(context, owner, DOG_START);
+
+    context.runAtTick(TELEPORT_TICK, () -> teleport(context, owner, LONG_TELEPORT_DESTINATION));
+
+    context.runAtTick(
+        ASSERT_TICK,
+        () -> {
+          final double distance = Math.sqrt(husky.squaredDistanceTo(owner));
+          context.assertTrue(
+              distance <= 4.0,
+              "Dog should be brought onto slab ground beside its owner, but was "
+                  + distance
+                  + " blocks away");
           context.complete();
         });
   }
@@ -222,6 +267,14 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
         for (int z = 0; z <= 4; z++) {
           context.setBlockState(new BlockPos(x, y, z), Blocks.STONE.getDefaultState());
         }
+      }
+    }
+  }
+
+  private static void coverDestinationFloor(TestContext context, BlockState state) {
+    for (int x = 17; x <= 23; x++) {
+      for (int z = 0; z <= 4; z++) {
+        context.setBlockState(new BlockPos(x, 2, z), state);
       }
     }
   }

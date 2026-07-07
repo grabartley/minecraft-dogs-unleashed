@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.Comparator;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.Dismounting;
 import net.minecraft.entity.Entity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
@@ -13,7 +14,6 @@ import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
@@ -210,23 +210,22 @@ public final class PetLocationService {
   /**
    * Returns null when nothing near the center is safe, e.g. the owner teleported into solid
    * terrain. Summoning must be skipped in that case: any position in range would suffocate the dog.
+   * Candidates are validated through vanilla's respawn placement rules, so partial-height ground
+   * cover (snow layers, slabs, paths, farmland) counts as valid footing and the dog stands at the
+   * precise height of the block's collision shape.
    */
   @Nullable
   private static Vec3d findSafeSummonPosition(
       ServerWorld world, BlockPos center, UnleashedDogEntity dog) {
     for (final BlockPos basePos : BlockPos.iterateOutwards(snapToGround(world, center), 2, 1, 2)) {
-      if (!isSafeSummonBase(world, basePos)) {
+      if (world.getFluidState(basePos).isStill()) {
         continue;
       }
 
-      final Vec3d candidate = new Vec3d(basePos.getX() + 0.5, basePos.getY(), basePos.getZ() + 0.5);
-      final Box box =
-          dog.getBoundingBox()
-              .offset(candidate.x - dog.getX(), candidate.y - dog.getY(), candidate.z - dog.getZ());
-      if (world.getBlockCollisions(dog, box).iterator().hasNext()) {
-        continue;
+      final Vec3d standPos = Dismounting.findRespawnPos(dog.getType(), world, basePos, false);
+      if (standPos != null) {
+        return standPos;
       }
-      return candidate;
     }
 
     return null;
@@ -253,20 +252,6 @@ public final class PetLocationService {
 
   private static boolean isPassable(BlockState state) {
     return state.isAir() || state.isReplaceable();
-  }
-
-  private static boolean isSafeSummonBase(ServerWorld world, BlockPos basePos) {
-    final var stateAtPos = world.getBlockState(basePos);
-    final var stateAbove = world.getBlockState(basePos.up());
-    final var stateBelow = world.getBlockState(basePos.down());
-
-    final boolean openAtFeet = stateAtPos.isAir() || stateAtPos.isReplaceable();
-    final boolean openAtHead = stateAbove.isAir() || stateAbove.isReplaceable();
-    final boolean stableFloor = stateBelow.isSolidBlock(world, basePos.down());
-    final boolean notInFluid =
-        !stateAtPos.getFluidState().isStill() && !stateAbove.getFluidState().isStill();
-
-    return openAtFeet && openAtHead && stableFloor && notInFluid;
   }
 
   private static void refreshEntityTracking(
