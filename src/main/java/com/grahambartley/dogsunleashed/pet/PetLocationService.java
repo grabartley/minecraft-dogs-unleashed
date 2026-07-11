@@ -285,19 +285,11 @@ public final class PetLocationService {
 
     dog.wakeUp();
     dog.setSitting(false);
-    if (dog.getWorld() != playerWorld) {
-      dog.teleportToWorld(playerWorld, summonPos);
-    } else {
-      dog.teleport(
-          playerWorld,
-          summonPos.x,
-          summonPos.y,
-          summonPos.z,
-          java.util.Set.of(),
-          dog.getYaw(),
-          dog.getPitch());
-      refreshEntityTracking(playerWorld, dog, player);
-    }
+    // Always relocate by recreating the entity, even within one world. In-place teleports of a
+    // dog freshly streamed in from a ticket-loaded far chunk leave its tracker entry stale:
+    // clients receive the spawn at the old position and never the move, so the dog is invisible
+    // at the destination until relog. A fresh spawn carries the correct position by construction.
+    dog.teleportToWorld(playerWorld, summonPos);
 
     petData.setDimension(playerWorld.getRegistryKey().getValue().toString());
     petData.setLastKnownPosition(BlockPos.ofFloored(summonPos));
@@ -388,11 +380,6 @@ public final class PetLocationService {
 
   private static boolean isPassable(BlockState state) {
     return state.isAir() || state.isReplaceable();
-  }
-
-  private static void refreshEntityTracking(
-      ServerWorld world, Entity entity, ServerPlayerEntity player) {
-    world.getChunkManager().updatePosition(player);
   }
 
   @Nullable

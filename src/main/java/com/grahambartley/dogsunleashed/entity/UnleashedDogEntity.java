@@ -1068,8 +1068,10 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   }
 
   /**
-   * Recreates this dog in the destination world at the given position. Used for cross-dimension
-   * summons and following the owner through portals.
+   * Recreates this dog in the destination world at the given position, which may be the current
+   * world. Recreation, rather than an in-place teleport, guarantees clients receive a fresh spawn
+   * at the correct position: in-place long-range teleports of entities streamed in from
+   * ticket-loaded chunks leave stale tracker state behind, making the dog invisible until relog.
    *
    * @return the dog entity in the destination world (may be a different instance from {@code this})
    */

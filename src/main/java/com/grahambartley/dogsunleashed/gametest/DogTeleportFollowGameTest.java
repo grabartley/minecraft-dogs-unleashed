@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.gametest;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.entity.HuskyEntity;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLocationService;
 import com.grahambartley.dogsunleashed.pet.PetManager;
@@ -42,10 +43,13 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
 
     context.runAtTick(TELEPORT_TICK, () -> teleport(context, owner, LONG_TELEPORT_DESTINATION));
 
+    final UUID dogId = husky.getUuid();
     context.runAtTick(
         ASSERT_TICK,
         () -> {
-          final double distance = Math.sqrt(husky.squaredDistanceTo(owner));
+          final UnleashedDogEntity dog = summonedDog(context, dogId);
+          context.assertTrue(dog != null, "Summoned dog must exist in the world");
+          final double distance = Math.sqrt(dog.squaredDistanceTo(owner));
           context.assertTrue(
               distance <= 4.0,
               "Active dog should be beside its owner after a long-distance teleport, but was "
@@ -65,18 +69,17 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
 
     context.runAtTick(TELEPORT_TICK, () -> teleport(context, owner, LONG_TELEPORT_DESTINATION));
 
+    final UUID dogId = husky.getUuid();
     context.runAtTick(
         ASSERT_TICK,
         () -> {
+          final UnleashedDogEntity dog = summonedDog(context, dogId);
+          context.assertTrue(dog != null, "Summoned dog must exist in the world");
           context.assertTrue(
-              husky.squaredDistanceTo(owner) <= 16.0,
+              dog.squaredDistanceTo(owner) <= 16.0,
               "Dog should have been brought to the owner before the placement check");
           context.assertFalse(
-              context
-                  .getWorld()
-                  .getBlockCollisions(husky, husky.getBoundingBox())
-                  .iterator()
-                  .hasNext(),
+              context.getWorld().getBlockCollisions(dog, dog.getBoundingBox()).iterator().hasNext(),
               "Brought dog must not intersect any solid block");
           context.complete();
         });
@@ -91,11 +94,14 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
 
     context.runAtTick(TELEPORT_TICK, () -> teleport(context, owner, new Vec3d(20.5, 4, 2.5)));
 
+    final UUID dogId = husky.getUuid();
     context.runAtTick(
         ASSERT_TICK,
         () -> {
+          final UnleashedDogEntity dog = summonedDog(context, dogId);
+          context.assertTrue(dog != null, "Summoned dog must exist in the world");
           final double horizontalDistance =
-              Math.hypot(husky.getX() - owner.getX(), husky.getZ() - owner.getZ());
+              Math.hypot(dog.getX() - owner.getX(), dog.getZ() - owner.getZ());
           context.assertTrue(
               horizontalDistance <= 4.0,
               "Dog should be beneath its airborne owner, but was "
@@ -103,8 +109,8 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
                   + " blocks away horizontally");
           final double standingY = context.getAbsolutePos(new BlockPos(0, 2, 0)).getY();
           context.assertTrue(
-              Math.abs(husky.getY() - standingY) < 0.01,
-              "Dog should stand on the arena floor, but was at y=" + husky.getY());
+              Math.abs(dog.getY() - standingY) < 0.01,
+              "Dog should stand on the arena floor, but was at y=" + dog.getY());
           context.complete();
         });
   }
@@ -119,10 +125,13 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
 
     context.runAtTick(TELEPORT_TICK, () -> teleport(context, owner, LONG_TELEPORT_DESTINATION));
 
+    final UUID dogId = husky.getUuid();
     context.runAtTick(
         ASSERT_TICK,
         () -> {
-          final double distance = Math.sqrt(husky.squaredDistanceTo(owner));
+          final UnleashedDogEntity dog = summonedDog(context, dogId);
+          context.assertTrue(dog != null, "Summoned dog must exist in the world");
+          final double distance = Math.sqrt(dog.squaredDistanceTo(owner));
           context.assertTrue(
               distance <= 4.0,
               "Dog should be brought onto snow-layered ground beside its owner, but was "
@@ -140,10 +149,13 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
 
     context.runAtTick(TELEPORT_TICK, () -> teleport(context, owner, LONG_TELEPORT_DESTINATION));
 
+    final UUID dogId = husky.getUuid();
     context.runAtTick(
         ASSERT_TICK,
         () -> {
-          final double distance = Math.sqrt(husky.squaredDistanceTo(owner));
+          final UnleashedDogEntity dog = summonedDog(context, dogId);
+          context.assertTrue(dog != null, "Summoned dog must exist in the world");
+          final double distance = Math.sqrt(dog.squaredDistanceTo(owner));
           context.assertTrue(
               distance <= 4.0,
               "Dog should be brought onto slab ground beside its owner, but was "
@@ -192,16 +204,19 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
           PetLocationService.loadAndSummon(context.getWorld().getServer(), petData, owner);
         });
 
+    final UUID dogId = husky.getUuid();
     context.runAtTick(
         ASSERT_TICK,
         () -> {
+          final UnleashedDogEntity dog = summonedDog(context, dogId);
+          context.assertTrue(dog != null, "Summoned dog must exist in the world");
           context.assertTrue(
-              husky.isAlive(), "Summoned dog must still be alive beside its buried owner");
+              dog.isAlive(), "Summoned dog must still be alive beside its buried owner");
           context.assertTrue(
-              husky.squaredDistanceTo(owner) <= 1.0,
+              dog.squaredDistanceTo(owner) <= 1.0,
               "Explicit summon must deliver the dog to the owner's position even with no safe"
                   + " ground, but it was "
-                  + Math.sqrt(husky.squaredDistanceTo(owner))
+                  + Math.sqrt(dog.squaredDistanceTo(owner))
                   + " blocks away");
           context.complete();
         });
@@ -289,6 +304,10 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
               "Sleeping dog should stay behind when its owner teleports away");
           context.complete();
         });
+  }
+
+  private static UnleashedDogEntity summonedDog(TestContext context, UUID dogId) {
+    return context.getWorld().getEntity(dogId) instanceof UnleashedDogEntity dog ? dog : null;
   }
 
   private static void fillDestinationWithStone(TestContext context) {
