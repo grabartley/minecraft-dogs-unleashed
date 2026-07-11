@@ -388,11 +388,6 @@ public final class ModNetworking {
                     player.getUuid());
                 return;
               }
-              DogsUnleashed.log.info(
-                  "[PetSummon] Summon requested for {} ({}) alive={}",
-                  petData.getName(),
-                  petData.getPetId(),
-                  petData.isAlive());
               if (!petData.isAlive()) {
                 player.sendMessage(
                     Text.translatable("message.dogs-unleashed.summon_deceased", petData.getName()),
