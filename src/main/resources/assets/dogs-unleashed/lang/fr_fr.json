@@ -12,6 +12,7 @@
   "entity.dogs-unleashed.tennis_ball_projectile": "Balle de tennis",
   "entity.dogs-unleashed.stick_projectile": "Bâton",
   "entity.dogs-unleashed.frisbee_projectile": "Frisbee",
+
   "block.dogs-unleashed.dog_bed": "Panier pour chien",
   "block.dogs-unleashed.dog_bed.colored": "Panier pour chien %s",
   "block.dogs-unleashed.dog_bed.assigned": "%s dormira ici",
@@ -19,8 +20,10 @@
   "block.dogs-unleashed.dog_bed.sleep_command": "%s va dormir",
   "block.dogs-unleashed.dog_bed.wake_command": "%s se réveille",
   "block.dogs-unleashed.dog_bed.no_dog_nearby": "Aucun chien apprivoisé à proximité",
+
   "block.dogs-unleashed.dog_grave": "Tombe de chien",
   "block.dogs-unleashed.dog_grave.named": "Tombe de %s",
+
   "item.dogs-unleashed.tennis_ball": "Balle de tennis",
   "block.dogs-unleashed.tennis_ball": "Balle de tennis",
   "block.dogs-unleashed.stick": "Bâton",
@@ -31,18 +34,22 @@
   "message.dogs-unleashed.play_end": "Vous avez arrêté de jouer avec %s",
   "message.dogs-unleashed.play_fetch_returned": "%s a rapporté le %s !",
   "message.dogs-unleashed.play_end_no_retrieve": "%s n'a pas pu rapporter le %s",
+
   "message.dogs-unleashed.pending_bed_assignment": "%s sélectionné ! Faites maintenant un clic droit sur un panier pour l'assigner",
   "message.dogs-unleashed.bed_assigned": "%s a été assigné à ce panier",
   "message.dogs-unleashed.no_pending_assignment": "Accroupissez-vous + clic droit sur un chien d'abord, puis clic droit sur ce panier",
   "message.dogs-unleashed.summon_failed": "Impossible de trouver %s",
   "message.dogs-unleashed.summon_deceased": "%s est décédé et ne peut pas être appelé",
+
   "key.dogs-unleashed.open_pet_manager": "Ouvrir le gestionnaire d'animaux",
   "category.dogs-unleashed.general": "Dogs Unleashed",
+
   "screen.dogs-unleashed.pet_naming.title": "Nommez votre nouvel ami !",
   "screen.dogs-unleashed.pet_naming.header": "Vous venez d'apprivoiser un %s !",
   "screen.dogs-unleashed.pet_naming.prompt": "Quel nom souhaitez-vous lui donner ?",
   "screen.dogs-unleashed.pet_naming.name_field": "Nom de l'animal",
   "screen.dogs-unleashed.pet_naming.confirm": "Bienvenue à la maison ! 🐕",
+
   "screen.dogs-unleashed.pet_manager.title": "Mes animaux",
   "screen.dogs-unleashed.pet_manager.search": "Rechercher par nom...",
   "screen.dogs-unleashed.pet_manager.search_button": "Rechercher",
@@ -56,6 +63,7 @@
   "screen.dogs-unleashed.pet_manager.no_pets": "Aucun animal trouvé",
   "screen.dogs-unleashed.pet_manager.deceased": "Repose en paix 🌈",
   "screen.dogs-unleashed.pet_manager.settings_tooltip": "Paramètres",
+
   "screen.dogs-unleashed.settings.title": "Paramètres de Dogs Unleashed",
   "screen.dogs-unleashed.settings.gameplay": "Jeu",
   "screen.dogs-unleashed.settings.sleep": "Sommeil",
@@ -76,6 +84,7 @@
   "screen.dogs-unleashed.settings.barkvolume.tooltip": "Ajuste le volume de tous les sons d'aboiement. Réglez sur 0.0 pour couper les aboiements.",
   "screen.dogs-unleashed.settings.howlvolume": "Volume du hurlement du Husky",
   "screen.dogs-unleashed.settings.howlvolume.tooltip": "Ajuste le volume du son de hurlement du Husky. Réglez sur 0.0 pour couper les hurlements.",
+
   "command.dogs-unleashed.help.header": "Commandes de Dogs Unleashed (opérateurs uniquement) :",
   "command.dogs-unleashed.help.status": "- /dogsunleashed status",
   "command.dogs-unleashed.help.spawn": "- /dogsunleashed config spawn <true|false>",
@@ -107,6 +116,7 @@
   "command.dogs-unleashed.pet.dead": "mort",
   "command.dogs-unleashed.summon.success": "Invocation de %s vers %s.",
   "command.dogs-unleashed.summon.notfound": "%s n'a aucun animal avec l'id %s.",
+
   "advancements.dogs-unleashed.root.title": "Dogs Unleashed",
   "advancements.dogs-unleashed.root.description": "Agrandissez la meute.",
   "advancements.dogs-unleashed.best_friend.title": "Meilleur ami",

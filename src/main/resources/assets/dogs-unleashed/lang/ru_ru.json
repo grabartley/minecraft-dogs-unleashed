@@ -12,6 +12,7 @@
   "entity.dogs-unleashed.tennis_ball_projectile": "Теннисный мяч",
   "entity.dogs-unleashed.stick_projectile": "Палка",
   "entity.dogs-unleashed.frisbee_projectile": "Фрисби",
+
   "block.dogs-unleashed.dog_bed": "Собачья лежанка",
   "block.dogs-unleashed.dog_bed.colored": "Собачья лежанка (%s)",
   "block.dogs-unleashed.dog_bed.assigned": "%s будет спать здесь",
@@ -19,8 +20,10 @@
   "block.dogs-unleashed.dog_bed.sleep_command": "%s идёт спать",
   "block.dogs-unleashed.dog_bed.wake_command": "%s просыпается",
   "block.dogs-unleashed.dog_bed.no_dog_nearby": "Поблизости нет приручённой собаки",
+
   "block.dogs-unleashed.dog_grave": "Собачья могила",
   "block.dogs-unleashed.dog_grave.named": "Могила %s",
+
   "item.dogs-unleashed.tennis_ball": "Теннисный мяч",
   "block.dogs-unleashed.tennis_ball": "Теннисный мяч",
   "block.dogs-unleashed.stick": "Палка",
@@ -31,18 +34,22 @@
   "message.dogs-unleashed.play_end": "Игра с %s окончена",
   "message.dogs-unleashed.play_fetch_returned": "%s принёс %s обратно!",
   "message.dogs-unleashed.play_end_no_retrieve": "%s не смог принести %s",
+
   "message.dogs-unleashed.pending_bed_assignment": "Выбрано: %s! Теперь щёлкните правой кнопкой по собачьей лежанке, чтобы назначить",
   "message.dogs-unleashed.bed_assigned": "%s назначен к этой лежанке",
   "message.dogs-unleashed.no_pending_assignment": "Сначала присядьте + ПКМ по собаке, затем ПКМ по этой лежанке",
   "message.dogs-unleashed.summon_failed": "Не удалось найти %s",
   "message.dogs-unleashed.summon_deceased": "%s больше нет с нами, призыв невозможен",
+
   "key.dogs-unleashed.open_pet_manager": "Открыть менеджер питомцев",
   "category.dogs-unleashed.general": "Dogs Unleashed",
+
   "screen.dogs-unleashed.pet_naming.title": "Назовите нового друга!",
   "screen.dogs-unleashed.pet_naming.header": "Вы только что приручили: %s!",
   "screen.dogs-unleashed.pet_naming.prompt": "Как вы хотите его назвать?",
   "screen.dogs-unleashed.pet_naming.name_field": "Имя питомца",
   "screen.dogs-unleashed.pet_naming.confirm": "Добро пожаловать домой! 🐕",
+
   "screen.dogs-unleashed.pet_manager.title": "Мои питомцы",
   "screen.dogs-unleashed.pet_manager.search": "Поиск по имени...",
   "screen.dogs-unleashed.pet_manager.search_button": "Поиск",
@@ -56,6 +63,7 @@
   "screen.dogs-unleashed.pet_manager.no_pets": "Питомцы не найдены",
   "screen.dogs-unleashed.pet_manager.deceased": "Покойся с миром 🌈",
   "screen.dogs-unleashed.pet_manager.settings_tooltip": "Настройки",
+
   "screen.dogs-unleashed.settings.title": "Настройки Dogs Unleashed",
   "screen.dogs-unleashed.settings.gameplay": "Игровой процесс",
   "screen.dogs-unleashed.settings.sleep": "Сон",
@@ -76,6 +84,7 @@
   "screen.dogs-unleashed.settings.barkvolume.tooltip": "Регулирует громкость всех звуков лая собак. Установите 0.0, чтобы отключить лай.",
   "screen.dogs-unleashed.settings.howlvolume": "Громкость воя хаски",
   "screen.dogs-unleashed.settings.howlvolume.tooltip": "Регулирует громкость звука воя хаски. Установите 0.0, чтобы отключить вой.",
+
   "command.dogs-unleashed.help.header": "Команды Dogs Unleashed (только для операторов):",
   "command.dogs-unleashed.help.status": "- /dogsunleashed status",
   "command.dogs-unleashed.help.spawn": "- /dogsunleashed config spawn <true|false>",
@@ -107,6 +116,7 @@
   "command.dogs-unleashed.pet.dead": "мёртв",
   "command.dogs-unleashed.summon.success": "Призыв %s к %s.",
   "command.dogs-unleashed.summon.notfound": "У %s нет питомца с id %s.",
+
   "advancements.dogs-unleashed.root.title": "Dogs Unleashed",
   "advancements.dogs-unleashed.root.description": "Расширьте свою стаю.",
   "advancements.dogs-unleashed.best_friend.title": "Лучший друг",
