@@ -38,6 +38,8 @@
   "message.dogs-unleashed.pending_bed_assignment": "Выбрано: %s! Теперь щёлкните правой кнопкой по собачьей лежанке, чтобы назначить",
   "message.dogs-unleashed.bed_assigned": "%s назначен к этой лежанке",
   "message.dogs-unleashed.no_pending_assignment": "Сначала присядьте + ПКМ по собаке, затем ПКМ по этой лежанке",
+  "message.dogs-unleashed.summon_failed": "Не удалось найти %s",
+  "message.dogs-unleashed.summon_deceased": "%s больше нет с нами, призыв невозможен",
 
   "key.dogs-unleashed.open_pet_manager": "Открыть менеджер питомцев",
   "category.dogs-unleashed.general": "Dogs Unleashed",

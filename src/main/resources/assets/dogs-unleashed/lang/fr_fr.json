@@ -38,6 +38,8 @@
   "message.dogs-unleashed.pending_bed_assignment": "%s sélectionné ! Faites maintenant un clic droit sur un panier pour l'assigner",
   "message.dogs-unleashed.bed_assigned": "%s a été assigné à ce panier",
   "message.dogs-unleashed.no_pending_assignment": "Accroupissez-vous + clic droit sur un chien d'abord, puis clic droit sur ce panier",
+  "message.dogs-unleashed.summon_failed": "Impossible de trouver %s",
+  "message.dogs-unleashed.summon_deceased": "%s est décédé et ne peut pas être appelé",
 
   "key.dogs-unleashed.open_pet_manager": "Ouvrir le gestionnaire d'animaux",
   "category.dogs-unleashed.general": "Dogs Unleashed",
