@@ -38,6 +38,8 @@
   "message.dogs-unleashed.pending_bed_assignment": "¡%s seleccionado! Ahora haz clic derecho en una cama para perro para asignarlo",
   "message.dogs-unleashed.bed_assigned": "%s ha sido asignado a esta cama",
   "message.dogs-unleashed.no_pending_assignment": "Agáchate + clic derecho en un perro primero, luego clic derecho en esta cama",
+  "message.dogs-unleashed.summon_failed": "No se pudo encontrar a %s por ningún lado",
+  "message.dogs-unleashed.summon_deceased": "%s ha fallecido y no puede ser invocado",
 
   "key.dogs-unleashed.open_pet_manager": "Abrir gestor de mascotas",
   "category.dogs-unleashed.general": "Dogs Unleashed",

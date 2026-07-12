@@ -38,6 +38,8 @@
   "message.dogs-unleashed.pending_bed_assignment": "%s ausgewählt! Rechtsklicke nun auf ein Hundebett, um ihn zuzuweisen",
   "message.dogs-unleashed.bed_assigned": "%s wurde diesem Bett zugewiesen",
   "message.dogs-unleashed.no_pending_assignment": "Schleiche + rechtsklicke zuerst einen Hund, dann rechtsklicke dieses Bett",
+  "message.dogs-unleashed.summon_failed": "%s konnte nirgendwo gefunden werden",
+  "message.dogs-unleashed.summon_deceased": "%s ist verstorben und kann nicht gerufen werden",
 
   "key.dogs-unleashed.open_pet_manager": "Haustier-Manager öffnen",
   "category.dogs-unleashed.general": "Dogs Unleashed",

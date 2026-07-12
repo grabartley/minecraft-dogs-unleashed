@@ -38,6 +38,8 @@
   "message.dogs-unleashed.pending_bed_assignment": "已选择%s！现在右键点击一张狗床来分配它",
   "message.dogs-unleashed.bed_assigned": "%s已被分配到这张床",
   "message.dogs-unleashed.no_pending_assignment": "先潜行+右键点击一只狗，然后右键点击这张床",
+  "message.dogs-unleashed.summon_failed": "在任何地方都找不到%s",
+  "message.dogs-unleashed.summon_deceased": "%s已经去世，无法召唤",
 
   "key.dogs-unleashed.open_pet_manager": "打开宠物管理器",
   "category.dogs-unleashed.general": "Dogs Unleashed",
