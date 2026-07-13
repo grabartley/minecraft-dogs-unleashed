@@ -63,7 +63,7 @@ class DogsUnleashedConfigTest {
     final DogsUnleashedConfig defaults = DogsUnleashedConfig.defaults();
     assertTrue(defaults.enableNaturalSpawning());
     assertEquals(100, defaults.spawnRateMultiplierPercent());
-    assertFalse(defaults.capIndependentSpawningEnabled());
+    assertTrue(defaults.capIndependentSpawningEnabled());
     assertTrue(defaults.gravesEnabled());
     assertTrue(defaults.autoSleepEnabled());
     assertEquals(32, defaults.autoSleepRangeBlocks());
@@ -101,7 +101,7 @@ class DogsUnleashedConfigTest {
     final Path path = tempDir.resolve("config.json");
     final DogsUnleashedConfig original =
         new DogsUnleashedConfig(
-            false, 250, Map.of("husky", 0, "beagle", 40), true, false, false, 64, 0.5f, 0.25f);
+            false, 250, Map.of("husky", 0, "beagle", 40), false, false, false, 64, 0.5f, 0.25f);
     assertTrue(DogsUnleashedConfig.save(path, original));
     assertTrue(Files.exists(path));
     assertEquals(original, DogsUnleashedConfig.load(path));
@@ -133,7 +133,7 @@ class DogsUnleashedConfigTest {
     assertFalse(loaded.gravesEnabled());
     assertTrue(loaded.enableNaturalSpawning());
     assertEquals(100, loaded.spawnRateMultiplierPercent());
-    assertFalse(loaded.capIndependentSpawningEnabled());
+    assertTrue(loaded.capIndependentSpawningEnabled());
     assertEquals(
         DogsUnleashedConfig.defaults().breedSpawnRateMultipliersPercent(),
         loaded.breedSpawnRateMultipliersPercent());
@@ -237,11 +237,11 @@ class DogsUnleashedConfigTest {
   }
 
   @Test
-  @DisplayName("load() honors capIndependentSpawningEnabled=true from JSON")
-  void loadHonorsCapIndependentSpawningEnabled() throws IOException {
+  @DisplayName("load() honors an opt-out capIndependentSpawningEnabled=false from JSON")
+  void loadHonorsCapIndependentSpawningOptOut() throws IOException {
     final Path path = tempDir.resolve("capspawner.json");
-    Files.writeString(path, "{\"capIndependentSpawningEnabled\": true}", StandardCharsets.UTF_8);
-    assertTrue(DogsUnleashedConfig.load(path).capIndependentSpawningEnabled());
+    Files.writeString(path, "{\"capIndependentSpawningEnabled\": false}", StandardCharsets.UTF_8);
+    assertFalse(DogsUnleashedConfig.load(path).capIndependentSpawningEnabled());
   }
 
   @Test
@@ -326,7 +326,7 @@ class DogsUnleashedConfigTest {
             .withEnableNaturalSpawning(false)
             .withSpawnRateMultiplierPercent(250)
             .withBreedSpawnRateMultiplierPercent("beagle", 0)
-            .withCapIndependentSpawningEnabled(true)
+            .withCapIndependentSpawningEnabled(false)
             .withGravesEnabled(false)
             .withAutoSleepEnabled(false)
             .withAutoSleepRangeBlocks(64)
@@ -338,7 +338,7 @@ class DogsUnleashedConfigTest {
     assertEquals(250, updated.spawnRateMultiplierPercent());
     assertEquals(0, updated.breedSpawnRateMultipliersPercent().get("beagle"));
     assertEquals(100, updated.breedSpawnRateMultipliersPercent().get("husky"));
-    assertTrue(updated.capIndependentSpawningEnabled());
+    assertFalse(updated.capIndependentSpawningEnabled());
     assertFalse(updated.gravesEnabled());
     assertFalse(updated.autoSleepEnabled());
     assertEquals(64, updated.autoSleepRangeBlocks());

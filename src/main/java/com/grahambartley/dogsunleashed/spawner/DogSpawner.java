@@ -28,11 +28,11 @@ import net.minecraft.world.spawner.SpecialSpawner;
  * gated by the shared CREATURE mob cap, which stays permanently saturated in explored terrain (and
  * on servers where other mods fill it), so dogs effectively only spawn at chunk generation. This
  * spawner ticks from {@code ServerWorld.tickSpawners} outside that cap, periodically spawning one
- * wild pack near a random player in a matching biome. It is opt-in via {@code
- * capIndependentSpawningEnabled}, re-checks the config every attempt (no restart needed), respects
- * {@code doMobSpawning} and the spawn-animals flag, validates positions with the same spawn
- * predicate as natural spawning, and enforces its own conservative cap on nearby untamed dogs. Dogs
- * it spawns are flagged for far-distance despawn via {@link
+ * wild pack near a random player in a matching biome. It is gated by {@code
+ * capIndependentSpawningEnabled} (on by default, opt-out), re-checks the config every attempt (no
+ * restart needed), respects {@code doMobSpawning} and the spawn-animals flag, validates positions
+ * with the same spawn predicate as natural spawning, and enforces its own conservative cap on
+ * nearby untamed dogs. Dogs it spawns are flagged for far-distance despawn via {@link
  * UnleashedDogEntity#canImmediatelyDespawn} so the world never fills up monotonically.
  */
 public class DogSpawner implements SpecialSpawner {

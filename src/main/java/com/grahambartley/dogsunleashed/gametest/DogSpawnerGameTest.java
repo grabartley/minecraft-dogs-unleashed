@@ -41,18 +41,24 @@ public final class DogSpawnerGameTest implements FabricGameTest {
   private static final int TOGGLE_OFF_SPAWN_CALLS = 3000;
 
   @GameTest(templateName = EMPTY_STRUCTURE, tickLimit = TICK_LIMIT)
-  public void spawnerIsInertWhenToggleOff(final TestContext context) {
-    final DogSpawner spawner = new DogSpawner();
-    final int creaturesBefore = countCreatures(context);
-    int spawnedTotal = 0;
-    for (int i = 0; i < TOGGLE_OFF_SPAWN_CALLS; i++) {
-      spawnedTotal += spawner.spawn(context.getWorld(), true, true);
+  public void spawnerIsInertWhenToggledOff(final TestContext context) {
+    final DogsUnleashedConfig original = DogsUnleashed.SERVER_CONFIG;
+    try {
+      DogsUnleashed.SERVER_CONFIG =
+          DogsUnleashedConfig.defaults().withCapIndependentSpawningEnabled(false);
+      final DogSpawner spawner = new DogSpawner();
+      final int creaturesBefore = countCreatures(context);
+      int spawnedTotal = 0;
+      for (int i = 0; i < TOGGLE_OFF_SPAWN_CALLS; i++) {
+        spawnedTotal += spawner.spawn(context.getWorld(), true, true);
+      }
+      context.assertTrue(spawnedTotal == 0, "Spawner should never spawn when opted out");
+      context.assertTrue(
+          countCreatures(context) == creaturesBefore,
+          "Spawner should not have changed the world's creature count when opted out");
+    } finally {
+      DogsUnleashed.SERVER_CONFIG = original;
     }
-    context.assertTrue(
-        spawnedTotal == 0, "Spawner should never spawn with the toggle off (default config)");
-    context.assertTrue(
-        countCreatures(context) == creaturesBefore,
-        "Spawner should not have changed the world's creature count with the toggle off");
     context.complete();
   }
 

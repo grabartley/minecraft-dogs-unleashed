@@ -43,7 +43,7 @@ public record DogsUnleashedConfig(
 
   public static final boolean DEFAULT_ENABLE_NATURAL_SPAWNING = true;
   public static final int DEFAULT_SPAWN_RATE_MULTIPLIER_PERCENT = 100;
-  public static final boolean DEFAULT_CAP_INDEPENDENT_SPAWNING_ENABLED = false;
+  public static final boolean DEFAULT_CAP_INDEPENDENT_SPAWNING_ENABLED = true;
   public static final boolean DEFAULT_GRAVES_ENABLED = true;
   public static final boolean DEFAULT_AUTO_SLEEP_ENABLED = true;
   public static final int DEFAULT_AUTO_SLEEP_RANGE_BLOCKS = 32;
