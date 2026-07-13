@@ -202,11 +202,16 @@ also edit via `/dogsunleashed config`.
 | Setting                   | Default | Range      | Effect                                                           |
 |---------------------------|---------|------------|------------------------------------------------------------------|
 | Spawn Dogs in the Wild    | On      | On / Off   | Natural biome spawning. Requires world restart to take effect.   |
+| Spawn Rate                | 100%    | 0% to 500% | Spawn rate for all breeds, relative to the mod's defaults. 0% disables natural spawning. Requires world restart. |
+| Spawn Rate (per breed)    | 100%    | 0% to 500% | Per-breed spawn rate, combined with the global rate. 0% disables that breed. Requires world restart. |
 | Dog Graves on Death       | On      | On / Off   | Whether tamed dogs leave a grave block. Off drops loot normally. |
 | Auto-Sleep at Night       | On      | On / Off   | Whether dogs auto-sleep in their assigned bed at night.          |
 | Auto-Sleep Range (blocks) | 32      | 4 to 128   | How far a dog can be from its bed and still return at night.     |
 | Bark Volume               | 1.0     | 0.0 to 2.0 | Multiplier on bark sound volume (0.0 mutes).                     |
 | Husky Howl Volume         | 1.5     | 0.0 to 2.0 | Multiplier on Husky howl sound volume (0.0 mutes).               |
+
+Spawn rates are percentages of the mod's default spawn weights, not absolute spawn chances. The actual encounter rate
+also depends on what else spawns in each biome's creature pool, which varies by modpack.
 
 The config file lives at `<world-save>/dogs-unleashed/server-config.json` and can be hand-edited while the server is
 offline.
@@ -216,6 +221,8 @@ offline.
 ```
 /dogsunleashed status
 /dogsunleashed config spawn <true|false>
+/dogsunleashed config spawnrate <0..500>
+/dogsunleashed config spawnrate <breed> <0..500>
 /dogsunleashed config graves <true|false>
 /dogsunleashed config autosleep <true|false>
 /dogsunleashed config autosleeprange <4..128>

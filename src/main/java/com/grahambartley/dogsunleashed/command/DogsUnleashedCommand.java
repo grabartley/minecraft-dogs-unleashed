@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.command;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
+import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLocationService;
@@ -11,6 +12,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import java.util.ArrayList;
@@ -49,6 +51,7 @@ public final class DogsUnleashedCommand {
                                         ctx ->
                                             setSpawn(
                                                 ctx, BoolArgumentType.getBool(ctx, "enabled")))))
+                    .then(spawnRateNode())
                     .then(
                         CommandManager.literal("graves")
                             .then(
@@ -125,6 +128,32 @@ public final class DogsUnleashedCommand {
                             .executes(DogsUnleashedCommand::findPet))));
   }
 
+  private static LiteralArgumentBuilder<ServerCommandSource> spawnRateNode() {
+    final LiteralArgumentBuilder<ServerCommandSource> node = CommandManager.literal("spawnrate");
+    for (final UnleashedDogBreed breed : UnleashedDogBreed.values()) {
+      node.then(
+          CommandManager.literal(breed.serializedId())
+              .then(
+                  CommandManager.argument(
+                          "percent",
+                          IntegerArgumentType.integer(
+                              DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MIN,
+                              DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MAX))
+                      .executes(
+                          ctx ->
+                              setBreedSpawnRate(
+                                  ctx, breed, IntegerArgumentType.getInteger(ctx, "percent")))));
+    }
+    node.then(
+        CommandManager.argument(
+                "percent",
+                IntegerArgumentType.integer(
+                    DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MIN,
+                    DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MAX))
+            .executes(ctx -> setSpawnRate(ctx, IntegerArgumentType.getInteger(ctx, "percent"))));
+    return node;
+  }
+
   static boolean isOp(final ServerCommandSource source) {
     return source.hasPermissionLevel(ServerConfigService.OP_PERMISSION_LEVEL);
   }
@@ -144,6 +173,14 @@ public final class DogsUnleashedCommand {
         Text.translatable("command.dogs-unleashed.help.header"),
         Text.translatable("command.dogs-unleashed.help.status"),
         Text.translatable("command.dogs-unleashed.help.spawn"),
+        Text.translatable(
+            "command.dogs-unleashed.help.spawnrate",
+            DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MIN,
+            DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MAX),
+        Text.translatable(
+            "command.dogs-unleashed.help.spawnratebreed",
+            DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MIN,
+            DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MAX),
         Text.translatable("command.dogs-unleashed.help.graves"),
         Text.translatable("command.dogs-unleashed.help.autosleep"),
         Text.translatable(
@@ -175,19 +212,33 @@ public final class DogsUnleashedCommand {
   // Package-private only so the help/status output can be asserted as List<Text> in tests;
   // production code calls these from help() / status() exclusively.
   static List<Text> statusLines(final DogsUnleashedConfig config) {
-    return List.of(
-        Text.translatable("command.dogs-unleashed.status.header"),
-        Text.translatable("command.dogs-unleashed.status.spawn", config.enableNaturalSpawning()),
-        Text.translatable("command.dogs-unleashed.status.graves", config.gravesEnabled()),
-        Text.translatable("command.dogs-unleashed.status.autosleep", config.autoSleepEnabled()),
+    final List<Text> lines = new ArrayList<>();
+    lines.add(Text.translatable("command.dogs-unleashed.status.header"));
+    lines.add(
+        Text.translatable("command.dogs-unleashed.status.spawn", config.enableNaturalSpawning()));
+    lines.add(
         Text.translatable(
-            "command.dogs-unleashed.status.autosleeprange", config.autoSleepRangeBlocks()),
-        Text.translatable(
-            "command.dogs-unleashed.status.barkvolume",
-            String.format(Locale.ROOT, "%.2f", config.barkVolume())),
-        Text.translatable(
-            "command.dogs-unleashed.status.howlvolume",
-            String.format(Locale.ROOT, "%.2f", config.howlVolume())));
+            "command.dogs-unleashed.status.spawnrate", config.spawnRateMultiplierPercent()));
+    for (final UnleashedDogBreed breed : UnleashedDogBreed.values()) {
+      lines.add(
+          Text.translatable(
+              "command.dogs-unleashed.status.spawnrate.breed",
+              breed.serializedId(),
+              config.breedSpawnRateMultipliersPercent().get(breed.serializedId())));
+    }
+    lines.addAll(
+        List.of(
+            Text.translatable("command.dogs-unleashed.status.graves", config.gravesEnabled()),
+            Text.translatable("command.dogs-unleashed.status.autosleep", config.autoSleepEnabled()),
+            Text.translatable(
+                "command.dogs-unleashed.status.autosleeprange", config.autoSleepRangeBlocks()),
+            Text.translatable(
+                "command.dogs-unleashed.status.barkvolume",
+                String.format(Locale.ROOT, "%.2f", config.barkVolume())),
+            Text.translatable(
+                "command.dogs-unleashed.status.howlvolume",
+                String.format(Locale.ROOT, "%.2f", config.howlVolume()))));
+    return lines;
   }
 
   private static int setSpawn(final CommandContext<ServerCommandSource> ctx, final boolean value) {
@@ -196,6 +247,28 @@ public final class DogsUnleashedCommand {
         DogsUnleashed.SERVER_CONFIG.withEnableNaturalSpawning(value),
         "spawn",
         Boolean.toString(value),
+        true);
+  }
+
+  private static int setSpawnRate(final CommandContext<ServerCommandSource> ctx, final int value) {
+    return applyUpdate(
+        ctx,
+        DogsUnleashed.SERVER_CONFIG.withSpawnRateMultiplierPercent(value),
+        "spawnrate",
+        value + "%",
+        true);
+  }
+
+  private static int setBreedSpawnRate(
+      final CommandContext<ServerCommandSource> ctx,
+      final UnleashedDogBreed breed,
+      final int value) {
+    return applyUpdate(
+        ctx,
+        DogsUnleashed.SERVER_CONFIG.withBreedSpawnRateMultiplierPercent(
+            breed.serializedId(), value),
+        "spawnrate " + breed.serializedId(),
+        value + "%",
         true);
   }
 

@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.network;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;
@@ -57,6 +58,11 @@ public final class ServerConfigPayloads {
 
   private static void writeConfig(final RegistryByteBuf buf, final DogsUnleashedConfig config) {
     buf.writeBoolean(config.enableNaturalSpawning());
+    buf.writeVarInt(config.spawnRateMultiplierPercent());
+    buf.writeMap(
+        config.breedSpawnRateMultipliersPercent(),
+        PacketByteBuf::writeString,
+        PacketByteBuf::writeVarInt);
     buf.writeBoolean(config.gravesEnabled());
     buf.writeBoolean(config.autoSleepEnabled());
     buf.writeInt(config.autoSleepRangeBlocks());
@@ -67,6 +73,8 @@ public final class ServerConfigPayloads {
   private static DogsUnleashedConfig readConfig(final RegistryByteBuf buf) {
     return new DogsUnleashedConfig(
         buf.readBoolean(),
+        buf.readVarInt(),
+        buf.readMap(PacketByteBuf::readString, PacketByteBuf::readVarInt),
         buf.readBoolean(),
         buf.readBoolean(),
         buf.readInt(),
