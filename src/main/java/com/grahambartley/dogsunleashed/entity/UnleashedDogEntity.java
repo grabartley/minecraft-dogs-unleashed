@@ -232,6 +232,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   private int lastReunionAge = -1;
   private boolean pendingBirthWakeHearts = false;
   private UUID parentDogUuid = null;
+  private boolean spawnedByDogSpawner = false;
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -261,6 +262,33 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
       this.rollAppearance(spawnReason);
     }
     return super.initialize(world, difficulty, spawnReason, entityData);
+  }
+
+  public boolean isSpawnedByDogSpawner() {
+    return this.spawnedByDogSpawner;
+  }
+
+  public void setSpawnedByDogSpawner(final boolean spawnedByDogSpawner) {
+    this.spawnedByDogSpawner = spawnedByDogSpawner;
+  }
+
+  /**
+   * Wild animals never despawn ({@code AnimalEntity} hard-codes false), which is fine for
+   * chunk-generation dogs but would let the cap-independent {@code DogSpawner} monotonically fill
+   * the world. Untamed spawner-spawned dogs are therefore despawnable like ambient mobs; taming
+   * clears the flag and restores permanent persistence.
+   */
+  @Override
+  public boolean canImmediatelyDespawn(final double distanceSquared) {
+    return this.spawnedByDogSpawner && !this.isTamed();
+  }
+
+  @Override
+  public void setTamed(final boolean tamed, final boolean updateAttributes) {
+    super.setTamed(tamed, updateAttributes);
+    if (tamed) {
+      this.spawnedByDogSpawner = false;
+    }
   }
 
   protected abstract UnleashedDogEntity createBaby(ServerWorld world);
@@ -1292,6 +1320,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
             });
     nbt.putBoolean(ModNbtKeys.CARRYING_BALL, this.isCarryingFetchItem());
     nbt.putBoolean(ModNbtKeys.PENDING_BIRTH_WAKE_HEARTS, this.pendingBirthWakeHearts);
+    nbt.putBoolean(ModNbtKeys.SPAWNED_BY_DOG_SPAWNER, this.spawnedByDogSpawner);
     if (this.parentDogUuid != null) {
       nbt.putUuid(ModNbtKeys.PARENT_DOG_ID, this.parentDogUuid);
     }
@@ -1341,6 +1370,9 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     }
     if (nbt.contains(ModNbtKeys.PENDING_BIRTH_WAKE_HEARTS)) {
       this.pendingBirthWakeHearts = nbt.getBoolean(ModNbtKeys.PENDING_BIRTH_WAKE_HEARTS);
+    }
+    if (nbt.contains(ModNbtKeys.SPAWNED_BY_DOG_SPAWNER)) {
+      this.spawnedByDogSpawner = nbt.getBoolean(ModNbtKeys.SPAWNED_BY_DOG_SPAWNER);
     }
     if (nbt.containsUuid(ModNbtKeys.PARENT_DOG_ID)) {
       this.parentDogUuid = nbt.getUuid(ModNbtKeys.PARENT_DOG_ID);

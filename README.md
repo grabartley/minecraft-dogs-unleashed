@@ -204,6 +204,7 @@ also edit via `/dogsunleashed config`.
 | Spawn Dogs in the Wild    | On      | On / Off   | Natural biome spawning. Requires world restart to take effect.   |
 | Spawn Rate                | 100%    | 0% to 500% | Spawn rate for all breeds, relative to the mod's defaults. 0% disables natural spawning. Requires world restart. |
 | Spawn Rate (per breed)    | 100%    | 0% to 500% | Per-breed spawn rate, combined with the global rate. 0% disables that breed. Requires world restart. |
+| Cap-Independent Spawner   | On      | On / Off   | Dedicated spawner that spawns wild dog packs near players even when the creature cap is full. Takes effect immediately. |
 | Dog Graves on Death       | On      | On / Off   | Whether tamed dogs leave a grave block. Off drops loot normally. |
 | Auto-Sleep at Night       | On      | On / Off   | Whether dogs auto-sleep in their assigned bed at night.          |
 | Auto-Sleep Range (blocks) | 32      | 4 to 128   | How far a dog can be from its bed and still return at night.     |
@@ -212,6 +213,13 @@ also edit via `/dogsunleashed config`.
 
 Spawn rates are percentages of the mod's default spawn weights, not absolute spawn chances. The actual encounter rate
 also depends on what else spawns in each biome's creature pool, which varies by modpack.
+
+Vanilla passive spawning is gated by a shared creature cap that stays full in explored terrain, so dogs would normally
+only spawn when new chunks generate, and never at all alongside mods like Cobblemon whose creatures keep the cap
+saturated. The Cap-Independent Spawner, on by default, periodically spawns a small wild pack near a random player in a
+matching biome, in the overworld only, honoring the spawn rate multipliers, the `doMobSpawning` gamerule, and its own
+cap of 4 untamed dogs within 64 blocks of the player. Untamed dogs it spawns despawn again when no player is near, so
+the world doesn't fill up; taming makes them permanent as usual. Disable it to limit dogs to vanilla natural spawning.
 
 The config file lives at `<world-save>/dogs-unleashed/server-config.json` and can be hand-edited while the server is
 offline.
@@ -223,6 +231,7 @@ offline.
 /dogsunleashed config spawn <true|false>
 /dogsunleashed config spawnrate <0..500>
 /dogsunleashed config spawnrate <breed> <0..500>
+/dogsunleashed config capindependentspawning <true|false>
 /dogsunleashed config graves <true|false>
 /dogsunleashed config autosleep <true|false>
 /dogsunleashed config autosleeprange <4..128>
