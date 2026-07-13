@@ -113,7 +113,7 @@ public final class DogReunionGameTest implements FabricGameTest {
         });
   }
 
-  @GameTest(templateName = ARENA, tickLimit = 20, maxAttempts = 3, requiredSuccesses = 1)
+  @GameTest(templateName = ARENA, tickLimit = 20)
   public void reunionListenerIgnoresDogOwnedByAnotherPlayer(TestContext context) {
     final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
     positionOwnerAt(context, owner, new BlockPos(1, 1, 0));
@@ -122,9 +122,13 @@ public final class DogReunionGameTest implements FabricGameTest {
         DogTestHelper.spawnTamedDog(
             context, DogTestData.HUSKY, new BlockPos(2, 1, 0), UUID.randomUUID());
     othersDog.setAiDisabled(true);
+    // Sitting suppresses the ~1/200-per-tick random idle wag a tamed dog can self-start, making
+    // the timer==0 assertion deterministic. celebrateOwnerArrival sets the timer with no sitting
+    // check, so a listener that wrongly celebrates a non-owned dog still fails this test. A
+    // maxAttempts retry guard cannot help here: the dedicated gametest server that runGametest
+    // and CI use constructs every test with TestAttemptConfig.once(), ignoring maxAttempts.
+    othersDog.setInSittingPose(true);
 
-    // maxAttempts guards the ~1/200-per-tick random idle wag a tamed dog can self-start (Rule 8);
-    // the contract under test is that the listener itself never wags a non-owned dog.
     context.runAtTick(
         3,
         () -> {
