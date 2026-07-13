@@ -46,11 +46,13 @@ public final class ServerConfigService {
     final ConfigPaths paths = new ConfigPaths(worldRoot);
     DogsUnleashed.SERVER_CONFIG = DogsUnleashedConfig.load(paths.getServerConfigPath());
     LOGGER.info(
-        "Dogs Unleashed server config loaded for {}: spawn={}, spawnrate={}%, breeds={}",
+        "Dogs Unleashed server config loaded for {}: spawn={}, spawnrate={}%, breeds={}, "
+            + "capindependentspawning={}",
         worldRoot.getFileName(),
         DogsUnleashed.SERVER_CONFIG.enableNaturalSpawning(),
         DogsUnleashed.SERVER_CONFIG.spawnRateMultiplierPercent(),
-        DogsUnleashed.SERVER_CONFIG.breedSpawnRateMultipliersPercent());
+        DogsUnleashed.SERVER_CONFIG.breedSpawnRateMultipliersPercent(),
+        DogsUnleashed.SERVER_CONFIG.capIndependentSpawningEnabled());
   }
 
   public static boolean update(final MinecraftServer server, final DogsUnleashedConfig updated) {

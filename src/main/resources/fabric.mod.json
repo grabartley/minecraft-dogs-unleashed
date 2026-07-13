@@ -43,6 +43,7 @@
       "com.grahambartley.dogsunleashed.gametest.DogsUnleashedCommandGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogSpawnPredicateGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogSpawnRegistrationGameTest",
+      "com.grahambartley.dogsunleashed.gametest.DogSpawnerGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogTeleportFollowGameTest",
       "com.grahambartley.dogsunleashed.gametest.PetLocationSyncListenerGameTest"
     ]

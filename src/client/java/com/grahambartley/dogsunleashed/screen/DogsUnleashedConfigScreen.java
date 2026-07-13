@@ -38,6 +38,7 @@ public final class DogsUnleashedConfigScreen extends Screen {
   private boolean enableNaturalSpawning;
   private int spawnRateMultiplierPercent;
   private final Map<String, Integer> breedSpawnRateMultipliersPercent;
+  private boolean capIndependentSpawningEnabled;
   private boolean gravesEnabled;
   private boolean autoSleepEnabled;
   private int autoSleepRangeBlocks;
@@ -52,6 +53,7 @@ public final class DogsUnleashedConfigScreen extends Screen {
     this.spawnRateMultiplierPercent = current.spawnRateMultiplierPercent();
     this.breedSpawnRateMultipliersPercent =
         new LinkedHashMap<>(current.breedSpawnRateMultipliersPercent());
+    this.capIndependentSpawningEnabled = current.capIndependentSpawningEnabled();
     this.gravesEnabled = current.gravesEnabled();
     this.autoSleepEnabled = current.autoSleepEnabled();
     this.autoSleepRangeBlocks = current.autoSleepRangeBlocks();
@@ -109,7 +111,15 @@ public final class DogsUnleashedConfigScreen extends Screen {
           value -> this.breedSpawnRateMultipliersPercent.put(breed.serializedId(), value));
       y += ROW_HEIGHT;
     }
-    y += SECTION_GAP;
+    addBooleanRow(
+        left,
+        y,
+        canEdit,
+        "screen.dogs-unleashed.settings.capindependentspawning",
+        "screen.dogs-unleashed.settings.capindependentspawning.tooltip",
+        this.capIndependentSpawningEnabled,
+        value -> this.capIndependentSpawningEnabled = value);
+    y += ROW_HEIGHT + SECTION_GAP;
 
     y = addSectionHeader("screen.dogs-unleashed.settings.sleep", y);
     addBooleanRow(
@@ -292,6 +302,7 @@ public final class DogsUnleashedConfigScreen extends Screen {
             this.enableNaturalSpawning,
             this.spawnRateMultiplierPercent,
             this.breedSpawnRateMultipliersPercent,
+            this.capIndependentSpawningEnabled,
             this.gravesEnabled,
             this.autoSleepEnabled,
             this.autoSleepRangeBlocks,

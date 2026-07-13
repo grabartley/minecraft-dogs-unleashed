@@ -25,7 +25,8 @@ class DogsUnleashedConfigTest {
 
   private static DogsUnleashedConfig configWithSpawnRates(
       final int globalPercent, final Map<String, Integer> breedPercents) {
-    return new DogsUnleashedConfig(true, globalPercent, breedPercents, true, true, 32, 1.0f, 1.5f);
+    return new DogsUnleashedConfig(
+        true, globalPercent, breedPercents, false, true, true, 32, 1.0f, 1.5f);
   }
 
   @Test
@@ -62,6 +63,7 @@ class DogsUnleashedConfigTest {
     final DogsUnleashedConfig defaults = DogsUnleashedConfig.defaults();
     assertTrue(defaults.enableNaturalSpawning());
     assertEquals(100, defaults.spawnRateMultiplierPercent());
+    assertFalse(defaults.capIndependentSpawningEnabled());
     assertTrue(defaults.gravesEnabled());
     assertTrue(defaults.autoSleepEnabled());
     assertEquals(32, defaults.autoSleepRangeBlocks());
@@ -99,7 +101,7 @@ class DogsUnleashedConfigTest {
     final Path path = tempDir.resolve("config.json");
     final DogsUnleashedConfig original =
         new DogsUnleashedConfig(
-            false, 250, Map.of("husky", 0, "beagle", 40), false, false, 64, 0.5f, 0.25f);
+            false, 250, Map.of("husky", 0, "beagle", 40), true, false, false, 64, 0.5f, 0.25f);
     assertTrue(DogsUnleashedConfig.save(path, original));
     assertTrue(Files.exists(path));
     assertEquals(original, DogsUnleashedConfig.load(path));
@@ -131,6 +133,7 @@ class DogsUnleashedConfigTest {
     assertFalse(loaded.gravesEnabled());
     assertTrue(loaded.enableNaturalSpawning());
     assertEquals(100, loaded.spawnRateMultiplierPercent());
+    assertFalse(loaded.capIndependentSpawningEnabled());
     assertEquals(
         DogsUnleashedConfig.defaults().breedSpawnRateMultipliersPercent(),
         loaded.breedSpawnRateMultipliersPercent());
@@ -158,7 +161,7 @@ class DogsUnleashedConfigTest {
       "constructor clamps autoSleepRangeBlocks to [AUTO_SLEEP_RANGE_MIN, AUTO_SLEEP_RANGE_MAX]")
   void constructorClampsAutoSleepRange(final int input, final int expected) {
     final DogsUnleashedConfig config =
-        new DogsUnleashedConfig(true, 100, Map.of(), true, true, input, 1.0f, 1.5f);
+        new DogsUnleashedConfig(true, 100, Map.of(), false, true, true, input, 1.0f, 1.5f);
     assertEquals(expected, config.autoSleepRangeBlocks());
   }
 
@@ -178,7 +181,7 @@ class DogsUnleashedConfigTest {
   @DisplayName("constructor clamps barkVolume and howlVolume to [VOLUME_MIN, VOLUME_MAX]")
   void constructorClampsVolumes(final float input, final float expected) {
     final DogsUnleashedConfig config =
-        new DogsUnleashedConfig(true, 100, Map.of(), true, true, 32, input, input);
+        new DogsUnleashedConfig(true, 100, Map.of(), false, true, true, 32, input, input);
     assertEquals(expected, config.barkVolume());
     assertEquals(expected, config.howlVolume());
   }
@@ -231,6 +234,14 @@ class DogsUnleashedConfigTest {
         configWithSpawnRates(100, Map.of("chihuahua", 300, "husky", 50));
     assertFalse(config.breedSpawnRateMultipliersPercent().containsKey("chihuahua"));
     assertEquals(50, config.breedSpawnRateMultipliersPercent().get("husky"));
+  }
+
+  @Test
+  @DisplayName("load() honors capIndependentSpawningEnabled=true from JSON")
+  void loadHonorsCapIndependentSpawningEnabled() throws IOException {
+    final Path path = tempDir.resolve("capspawner.json");
+    Files.writeString(path, "{\"capIndependentSpawningEnabled\": true}", StandardCharsets.UTF_8);
+    assertTrue(DogsUnleashedConfig.load(path).capIndependentSpawningEnabled());
   }
 
   @Test
@@ -315,6 +326,7 @@ class DogsUnleashedConfigTest {
             .withEnableNaturalSpawning(false)
             .withSpawnRateMultiplierPercent(250)
             .withBreedSpawnRateMultiplierPercent("beagle", 0)
+            .withCapIndependentSpawningEnabled(true)
             .withGravesEnabled(false)
             .withAutoSleepEnabled(false)
             .withAutoSleepRangeBlocks(64)
@@ -326,6 +338,7 @@ class DogsUnleashedConfigTest {
     assertEquals(250, updated.spawnRateMultiplierPercent());
     assertEquals(0, updated.breedSpawnRateMultipliersPercent().get("beagle"));
     assertEquals(100, updated.breedSpawnRateMultipliersPercent().get("husky"));
+    assertTrue(updated.capIndependentSpawningEnabled());
     assertFalse(updated.gravesEnabled());
     assertFalse(updated.autoSleepEnabled());
     assertEquals(64, updated.autoSleepRangeBlocks());

@@ -24,6 +24,7 @@ public record DogsUnleashedConfig(
     boolean enableNaturalSpawning,
     int spawnRateMultiplierPercent,
     Map<String, Integer> breedSpawnRateMultipliersPercent,
+    boolean capIndependentSpawningEnabled,
     boolean gravesEnabled,
     boolean autoSleepEnabled,
     int autoSleepRangeBlocks,
@@ -42,6 +43,7 @@ public record DogsUnleashedConfig(
 
   public static final boolean DEFAULT_ENABLE_NATURAL_SPAWNING = true;
   public static final int DEFAULT_SPAWN_RATE_MULTIPLIER_PERCENT = 100;
+  public static final boolean DEFAULT_CAP_INDEPENDENT_SPAWNING_ENABLED = false;
   public static final boolean DEFAULT_GRAVES_ENABLED = true;
   public static final boolean DEFAULT_AUTO_SLEEP_ENABLED = true;
   public static final int DEFAULT_AUTO_SLEEP_RANGE_BLOCKS = 32;
@@ -51,6 +53,7 @@ public record DogsUnleashedConfig(
   static final String KEY_ENABLE_NATURAL_SPAWNING = "enableNaturalSpawning";
   static final String KEY_SPAWN_RATE_MULTIPLIER_PERCENT = "spawnRateMultiplierPercent";
   static final String KEY_BREED_SPAWN_RATE_MULTIPLIERS_PERCENT = "breedSpawnRateMultipliersPercent";
+  static final String KEY_CAP_INDEPENDENT_SPAWNING_ENABLED = "capIndependentSpawningEnabled";
   static final String KEY_GRAVES_ENABLED = "gravesEnabled";
   static final String KEY_AUTO_SLEEP_ENABLED = "autoSleepEnabled";
   static final String KEY_AUTO_SLEEP_RANGE_BLOCKS = "autoSleepRangeBlocks";
@@ -72,6 +75,7 @@ public record DogsUnleashedConfig(
         DEFAULT_ENABLE_NATURAL_SPAWNING,
         DEFAULT_SPAWN_RATE_MULTIPLIER_PERCENT,
         Map.of(),
+        DEFAULT_CAP_INDEPENDENT_SPAWNING_ENABLED,
         DEFAULT_GRAVES_ENABLED,
         DEFAULT_AUTO_SLEEP_ENABLED,
         DEFAULT_AUTO_SLEEP_RANGE_BLOCKS,
@@ -101,6 +105,7 @@ public record DogsUnleashedConfig(
         value,
         spawnRateMultiplierPercent,
         breedSpawnRateMultipliersPercent,
+        capIndependentSpawningEnabled,
         gravesEnabled,
         autoSleepEnabled,
         autoSleepRangeBlocks,
@@ -113,6 +118,7 @@ public record DogsUnleashedConfig(
         enableNaturalSpawning,
         value,
         breedSpawnRateMultipliersPercent,
+        capIndependentSpawningEnabled,
         gravesEnabled,
         autoSleepEnabled,
         autoSleepRangeBlocks,
@@ -128,6 +134,20 @@ public record DogsUnleashedConfig(
         enableNaturalSpawning,
         spawnRateMultiplierPercent,
         updated,
+        capIndependentSpawningEnabled,
+        gravesEnabled,
+        autoSleepEnabled,
+        autoSleepRangeBlocks,
+        barkVolume,
+        howlVolume);
+  }
+
+  public DogsUnleashedConfig withCapIndependentSpawningEnabled(boolean value) {
+    return new DogsUnleashedConfig(
+        enableNaturalSpawning,
+        spawnRateMultiplierPercent,
+        breedSpawnRateMultipliersPercent,
+        value,
         gravesEnabled,
         autoSleepEnabled,
         autoSleepRangeBlocks,
@@ -140,6 +160,7 @@ public record DogsUnleashedConfig(
         enableNaturalSpawning,
         spawnRateMultiplierPercent,
         breedSpawnRateMultipliersPercent,
+        capIndependentSpawningEnabled,
         value,
         autoSleepEnabled,
         autoSleepRangeBlocks,
@@ -152,6 +173,7 @@ public record DogsUnleashedConfig(
         enableNaturalSpawning,
         spawnRateMultiplierPercent,
         breedSpawnRateMultipliersPercent,
+        capIndependentSpawningEnabled,
         gravesEnabled,
         value,
         autoSleepRangeBlocks,
@@ -164,6 +186,7 @@ public record DogsUnleashedConfig(
         enableNaturalSpawning,
         spawnRateMultiplierPercent,
         breedSpawnRateMultipliersPercent,
+        capIndependentSpawningEnabled,
         gravesEnabled,
         autoSleepEnabled,
         value,
@@ -176,6 +199,7 @@ public record DogsUnleashedConfig(
         enableNaturalSpawning,
         spawnRateMultiplierPercent,
         breedSpawnRateMultipliersPercent,
+        capIndependentSpawningEnabled,
         gravesEnabled,
         autoSleepEnabled,
         autoSleepRangeBlocks,
@@ -188,6 +212,7 @@ public record DogsUnleashedConfig(
         enableNaturalSpawning,
         spawnRateMultiplierPercent,
         breedSpawnRateMultipliersPercent,
+        capIndependentSpawningEnabled,
         gravesEnabled,
         autoSleepEnabled,
         autoSleepRangeBlocks,
@@ -247,6 +272,10 @@ public record DogsUnleashedConfig(
         root.has(KEY_ENABLE_NATURAL_SPAWNING)
             ? root.get(KEY_ENABLE_NATURAL_SPAWNING).getAsBoolean()
             : defaults.enableNaturalSpawning;
+    final boolean capIndependentSpawningEnabled =
+        root.has(KEY_CAP_INDEPENDENT_SPAWNING_ENABLED)
+            ? root.get(KEY_CAP_INDEPENDENT_SPAWNING_ENABLED).getAsBoolean()
+            : defaults.capIndependentSpawningEnabled;
     final boolean gravesEnabled =
         root.has(KEY_GRAVES_ENABLED)
             ? root.get(KEY_GRAVES_ENABLED).getAsBoolean()
@@ -294,6 +323,7 @@ public record DogsUnleashedConfig(
         enableNaturalSpawning,
         rawSpawnRate,
         rawBreedRates,
+        capIndependentSpawningEnabled,
         gravesEnabled,
         autoSleepEnabled,
         rawRange,
@@ -311,6 +341,7 @@ public record DogsUnleashedConfig(
       breedRates.addProperty(entry.getKey(), entry.getValue());
     }
     root.add(KEY_BREED_SPAWN_RATE_MULTIPLIERS_PERCENT, breedRates);
+    root.addProperty(KEY_CAP_INDEPENDENT_SPAWNING_ENABLED, config.capIndependentSpawningEnabled);
     root.addProperty(KEY_GRAVES_ENABLED, config.gravesEnabled);
     root.addProperty(KEY_AUTO_SLEEP_ENABLED, config.autoSleepEnabled);
     root.addProperty(KEY_AUTO_SLEEP_RANGE_BLOCKS, config.autoSleepRangeBlocks);
