@@ -88,6 +88,26 @@ animated with GeckoLib, each with idle, walk, sit, sleep, shake, head tilt, and 
 <img src="https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/main/docs/allshibas.png" alt="Shiba Inu coat variants" width="800">
 </p>
 
+### The Command Wheel
+
+Vanilla wolves have one move: sit. Our dogs take real commands. Right-click any of your tamed dogs to open a radial
+command wheel with eight options:
+
+| Command       | What your dog does                                                                                     |
+|---------------|--------------------------------------------------------------------------------------------------------|
+| **Follow**    | The default. Follows you around and teleports to you when left behind.                                  |
+| **Heel**      | Sticks close, within a few blocks, instead of the usual loose follow.                                   |
+| **Stay**      | Holds an area around the spot where you gave the command, without sitting. Still uses a nearby bed at night. |
+| **Sit**       | The classic. Sits until told otherwise.                                                                 |
+| **Hunt**      | Follows you and actively attacks hostile mobs and unnamed wild animals nearby. Name-tagged animals, tamed pets, villagers, golems, and other dogs are always safe. |
+| **Guard**     | Holds an area like Stay and attacks hostile mobs that come near it.                                     |
+| **Free Roam** | Wanders freely without following, but still comes along when you change dimension so it is never lost.  |
+| **Go to Bed** | Sends the dog to its assigned bed to sleep. Greyed out until a bed is assigned.                         |
+
+Hover a sector to see its name, click to command. The active command is highlighted, the world keeps running behind the
+wheel, and number keys 1-8 work as shortcuts. Your dog barks and wags to acknowledge, and commands persist across
+saves, restarts, and dimension changes.
+
 ### Fetch (Yes, Actual Fetch)
 
 Sneak-right-click your dog with a fetch item to enter play mode, then throw it and watch your dog:
@@ -113,7 +133,7 @@ open terrain.
 bed. Your dog will:
 
 - **Auto-sleep** at night when within 32 blocks (clear weather required)
-- **Stay asleep** until you wake them with a right-click
+- **Stay asleep** until you wake them with a right-click of the bed or a new command from the wheel
 - **Refuse to auto-sleep again** if you wake them before morning (respect)
 - **Unassign** with a sneak-right-click of the bed if your dog gets too big for it
 
@@ -154,7 +174,7 @@ the player who clicked). Breeding roll tables include rare coat variants you wil
 ### Loyalty Across Any Teleport
 
 Dimension hop and your dogs follow. Portal, end portal, weird command magic, whatever: every alive tamed dog comes with
-you, unless they are sitting or sleeping in bed. Long-distance teleports within a dimension (16 blocks or more) bring
+you, unless it is sitting, sleeping in bed, or holding a Stay or Guard command. Long-distance teleports within a dimension (16 blocks or more) bring
 them along too, and they always arrive on safe ground beside you instead of inside the floor. Flying? They land on the
 ground beneath you. If you teleport somewhere with no safe footing at all, like into solid terrain, they stay safely
 where they were. Pet Manager summons are different: an explicit summon always delivers the dog, using your exact

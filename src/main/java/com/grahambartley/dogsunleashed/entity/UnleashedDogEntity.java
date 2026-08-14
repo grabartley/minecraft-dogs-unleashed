@@ -20,12 +20,16 @@ import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchProjectileEntity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
 import com.grahambartley.dogsunleashed.entity.goal.AutoSleepGoal;
+import com.grahambartley.dogsunleashed.entity.goal.CommandFollowOwnerGoal;
 import com.grahambartley.dogsunleashed.entity.goal.FetchChaseGoal;
 import com.grahambartley.dogsunleashed.entity.goal.FetchRetrieveGoal;
 import com.grahambartley.dogsunleashed.entity.goal.FetchReturnGoal;
 import com.grahambartley.dogsunleashed.entity.goal.FetchTemptGoal;
 import com.grahambartley.dogsunleashed.entity.goal.FollowParentDogGoal;
+import com.grahambartley.dogsunleashed.entity.goal.GuardTargetGoal;
+import com.grahambartley.dogsunleashed.entity.goal.HuntTargetGoal;
 import com.grahambartley.dogsunleashed.entity.goal.PuppyAwareWanderGoal;
+import com.grahambartley.dogsunleashed.entity.goal.ReturnToAnchorGoal;
 import com.grahambartley.dogsunleashed.entity.goal.SleepInBedGoal;
 import com.grahambartley.dogsunleashed.entity.variant.UnleashedDogCoat;
 import com.grahambartley.dogsunleashed.network.ModNetworking;
@@ -33,6 +37,7 @@ import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetManager;
 import com.grahambartley.dogsunleashed.util.BreedingOwnerResolver;
 import com.grahambartley.dogsunleashed.util.DogNames;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -49,7 +54,6 @@ import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.ai.goal.AnimalMateGoal;
 import net.minecraft.entity.ai.goal.AttackWithOwnerGoal;
 import net.minecraft.entity.ai.goal.EscapeDangerGoal;
-import net.minecraft.entity.ai.goal.FollowOwnerGoal;
 import net.minecraft.entity.ai.goal.LookAroundGoal;
 import net.minecraft.entity.ai.goal.LookAtEntityGoal;
 import net.minecraft.entity.ai.goal.MeleeAttackGoal;
@@ -135,6 +139,8 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   private static final double DEFAULT_GOAL_SPEED = 1.0;
   private static final float FOLLOW_OWNER_MAX_DISTANCE = 10.0F;
   private static final float FOLLOW_OWNER_MIN_DISTANCE = 2.0F;
+  private static final float HEEL_MAX_DISTANCE = 4.0F;
+  private static final float HEEL_MIN_DISTANCE = 1.5F;
   private static final float LOOK_AT_PLAYER_RANGE = 8.0F;
   private static final int PLAYER_ANGER_TARGET_CHANCE = 10;
   private static final int TAME_SUCCESS_CHANCE = 3;
@@ -180,12 +186,17 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   private static final TrackedData<Optional<UUID>> PLAY_PARTNER_UUID =
       DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
 
+  // Int over enum because 1.21.1 has no enum TrackedDataHandler; DogCommand.fromId round-trips it.
+  private static final TrackedData<Integer> COMMAND =
+      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.INTEGER);
+
   private static final String NO_ACTIVE_FETCH_TYPE = "";
 
   private static final Map<UUID, UUID> ACTIVE_PLAY_SESSIONS = new HashMap<>();
 
   private boolean inPlayMode = false;
   private BlockPos activeFetchBlockPos = null;
+  private BlockPos commandAnchorPos = null;
 
   private static final UniformIntProvider ANGER_TIME_RANGE = TimeHelper.betweenSeconds(20, 39);
   private java.util.UUID angryAt;
@@ -359,6 +370,57 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     builder.add(ACTIVE_FETCH_TYPE_ID, NO_ACTIVE_FETCH_TYPE);
     builder.add(CARRIED_FETCH_ITEM_STACK, ItemStack.EMPTY);
     builder.add(PLAY_PARTNER_UUID, Optional.empty());
+    builder.add(COMMAND, DogCommand.FOLLOW.id());
+  }
+
+  public DogCommand getCommand() {
+    return DogCommand.fromId(this.dataTracker.get(COMMAND));
+  }
+
+  public @Nullable BlockPos getCommandAnchorPos() {
+    return this.commandAnchorPos;
+  }
+
+  /**
+   * Single entry point for switching command modes: keeps the sitting pose, the Stay/Guard anchor,
+   * and any in-progress sleep consistent with the new command.
+   */
+  public void applyCommand(final DogCommand command) {
+    if (!this.isTamed()) {
+      return;
+    }
+    if (this.isSleepingInBed() || this.isCommandedToSleep()) {
+      this.markManuallyWoken();
+      this.wakeUp();
+    }
+    this.dataTracker.set(COMMAND, command.id());
+    this.commandAnchorPos = command.isAnchored() ? this.getBlockPos() : null;
+    this.setSitting(command == DogCommand.SIT);
+    this.jumping = false;
+    this.navigation.stop();
+    this.setTarget(null);
+  }
+
+  /** Bark-and-wag feedback for a command issued in person, separate from silent state changes. */
+  public void acknowledgeCommand() {
+    this.dataTracker.set(TAIL_WAG_TIMER, TAIL_WAG_DURATION_TICKS);
+    if (this.canBark()) {
+      this.playSound(
+          this.getBarkSound(), DogsUnleashed.SERVER_CONFIG.barkVolume(), this.getBarkPitch());
+      this.barkCooldownTicks = BARK_COOLDOWN_TICKS;
+    }
+  }
+
+  /**
+   * For code paths that force a sitting dog to stand (damage, play mode, bed-block sleep): the
+   * command must stop being Sit or the pose and command would disagree, but a full {@link
+   * #applyCommand} would also clear the attack target these paths may have just set.
+   */
+  private void demoteSitToFollow() {
+    if (this.getCommand() == DogCommand.SIT) {
+      this.dataTracker.set(COMMAND, DogCommand.FOLLOW.id());
+    }
+    this.setSitting(false);
   }
 
   public DyeColor getCollarColor() {
@@ -407,7 +469,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
       return;
     }
     this.setAssignedBedPos(bedPos);
-    this.setSitting(false);
+    this.demoteSitToFollow();
     this.manuallyWokenAge = -1;
     this.manuallyWokenAtNight = false;
     this.dataTracker.set(COMMANDED_TO_SLEEP, true);
@@ -548,7 +610,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     this.dataTracker.set(PLAY_PARTNER_UUID, Optional.of(player.getUuid()));
     this.activeFetchBlockPos = null;
     this.setActiveFetchType(fetchItemType);
-    this.setSitting(false);
+    this.demoteSitToFollow();
   }
 
   private void endPlayModeForDog(UUID priorDogUuid) {
@@ -734,10 +796,24 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     this.goalSelector.add(9, new TemptGoal(this, DEFAULT_GOAL_SPEED, TAMING_INGREDIENT, false));
     this.goalSelector.add(
         9, new FetchTemptGoal(this, DEFAULT_GOAL_SPEED, FetchTypes.asIngredient(), false));
+    // The three goals below share a priority; their command gates keep them mutually exclusive.
+    this.goalSelector.add(10, new ReturnToAnchorGoal(this));
     this.goalSelector.add(
         10,
-        new FollowOwnerGoal(
-            this, DEFAULT_GOAL_SPEED, FOLLOW_OWNER_MAX_DISTANCE, FOLLOW_OWNER_MIN_DISTANCE));
+        new CommandFollowOwnerGoal(
+            this,
+            DEFAULT_GOAL_SPEED,
+            FOLLOW_OWNER_MAX_DISTANCE,
+            FOLLOW_OWNER_MIN_DISTANCE,
+            EnumSet.of(DogCommand.FOLLOW, DogCommand.HUNT)));
+    this.goalSelector.add(
+        10,
+        new CommandFollowOwnerGoal(
+            this,
+            DEFAULT_GOAL_SPEED,
+            HEEL_MAX_DISTANCE,
+            HEEL_MIN_DISTANCE,
+            EnumSet.of(DogCommand.HEEL)));
     this.goalSelector.add(11, new FollowParentDogGoal(this, DEFAULT_GOAL_SPEED));
     this.goalSelector.add(12, new PuppyAwareWanderGoal(this, DEFAULT_GOAL_SPEED));
     this.goalSelector.add(13, new LookAtEntityGoal(this, PlayerEntity.class, LOOK_AT_PLAYER_RANGE));
@@ -757,6 +833,8 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
             false,
             this::shouldAngerAt));
     this.targetSelector.add(5, new UniversalAngerGoal<>(this, true));
+    this.targetSelector.add(6, new HuntTargetGoal(this));
+    this.targetSelector.add(6, new GuardTargetGoal(this));
   }
 
   @Override
@@ -811,19 +889,11 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
           DogBedBlock.setPendingAssignment(player.getUuid(), this.getUuid());
           player.sendMessage(
               Text.translatable("message.dogs-unleashed.pending_bed_assignment", dogName), true);
-        } else if (this.isSleepingInBed()) {
-          this.markManuallyWoken();
-          this.wakeUp();
-          final String dogName = this.getTamedName();
-          player.sendMessage(
-              Text.translatable("block.dogs-unleashed.dog_bed.wake_command", dogName), true);
-        } else {
-          this.setSitting(!this.isSitting());
+          return ActionResult.SUCCESS;
         }
-        this.jumping = false;
-        this.navigation.stop();
-        this.setTarget(null);
-        this.dataTracker.set(TAIL_WAG_TIMER, 0);
+        if (player instanceof ServerPlayerEntity serverPlayer) {
+          ModNetworking.sendOpenCommandWheel(serverPlayer, this);
+        }
         return ActionResult.SUCCESS;
       }
 
@@ -859,9 +929,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
       return;
     }
     this.setOwner(player);
-    this.navigation.stop();
-    this.setTarget(null);
-    this.setSitting(true);
+    this.applyCommand(DogCommand.SIT);
     this.getWorld().sendEntityStatus(this, EntityStatuses.ADD_POSITIVE_PLAYER_REACTION_PARTICLES);
 
     if (this.getWorld() instanceof ServerWorld serverWorld) {
@@ -887,7 +955,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     }
   }
 
-  private String getTamedName() {
+  public String getTamedName() {
     if (this.getWorld() instanceof ServerWorld serverWorld) {
       final PetManager petManager = PetManager.get(serverWorld.getServer());
       final PetData petData = petManager.getPetByEntityId(this.getUuid());
@@ -1085,7 +1153,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
       return false;
     }
     if (!this.getWorld().isClient) {
-      this.setSitting(false);
+      this.demoteSitToFollow();
       this.wakeUp();
       if (this.canBark()) {
         this.playSound(this.getBarkSound(), DogsUnleashed.SERVER_CONFIG.barkVolume(), BARK_PITCH);
@@ -1319,6 +1387,12 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
               nbt.putInt(ModNbtKeys.BED_POS_Z, pos.getZ());
             });
     nbt.putBoolean(ModNbtKeys.CARRYING_BALL, this.isCarryingFetchItem());
+    nbt.putInt(ModNbtKeys.COMMAND_MODE, this.getCommand().id());
+    if (this.commandAnchorPos != null) {
+      nbt.putInt(ModNbtKeys.COMMAND_ANCHOR_X, this.commandAnchorPos.getX());
+      nbt.putInt(ModNbtKeys.COMMAND_ANCHOR_Y, this.commandAnchorPos.getY());
+      nbt.putInt(ModNbtKeys.COMMAND_ANCHOR_Z, this.commandAnchorPos.getZ());
+    }
     nbt.putBoolean(ModNbtKeys.PENDING_BIRTH_WAKE_HEARTS, this.pendingBirthWakeHearts);
     nbt.putBoolean(ModNbtKeys.SPAWNED_BY_DOG_SPAWNER, this.spawnedByDogSpawner);
     if (this.parentDogUuid != null) {
@@ -1367,6 +1441,22 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     }
     if (nbt.contains(ModNbtKeys.CARRYING_BALL)) {
       this.setCarryingFetchItem(nbt.getBoolean(ModNbtKeys.CARRYING_BALL));
+    }
+    if (nbt.contains(ModNbtKeys.COMMAND_MODE, NbtElement.NUMBER_TYPE)) {
+      this.dataTracker.set(COMMAND, DogCommand.fromId(nbt.getInt(ModNbtKeys.COMMAND_MODE)).id());
+    } else {
+      // Pre-command saves: sitting dogs stay seated, everything else keeps today's follow default.
+      this.dataTracker.set(
+          COMMAND, this.isSitting() ? DogCommand.SIT.id() : DogCommand.FOLLOW.id());
+    }
+    if (nbt.contains(ModNbtKeys.COMMAND_ANCHOR_X, NbtElement.NUMBER_TYPE)
+        && nbt.contains(ModNbtKeys.COMMAND_ANCHOR_Y, NbtElement.NUMBER_TYPE)
+        && nbt.contains(ModNbtKeys.COMMAND_ANCHOR_Z, NbtElement.NUMBER_TYPE)) {
+      this.commandAnchorPos =
+          new BlockPos(
+              nbt.getInt(ModNbtKeys.COMMAND_ANCHOR_X),
+              nbt.getInt(ModNbtKeys.COMMAND_ANCHOR_Y),
+              nbt.getInt(ModNbtKeys.COMMAND_ANCHOR_Z));
     }
     if (nbt.contains(ModNbtKeys.PENDING_BIRTH_WAKE_HEARTS)) {
       this.pendingBirthWakeHearts = nbt.getBoolean(ModNbtKeys.PENDING_BIRTH_WAKE_HEARTS);

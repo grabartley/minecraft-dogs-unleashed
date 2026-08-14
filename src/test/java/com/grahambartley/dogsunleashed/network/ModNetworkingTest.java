@@ -2,13 +2,59 @@ package com.grahambartley.dogsunleashed.network;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.grahambartley.dogsunleashed.entity.DogWheelAction;
+import io.netty.buffer.Unpooled;
+import java.util.UUID;
 import java.util.stream.Stream;
+import net.minecraft.network.RegistryByteBuf;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 class ModNetworkingTest {
+
+  // Both wheel payload codecs only use primitive and string buf operations, so no registry lookup
+  // is needed and null is safe here.
+  private static RegistryByteBuf newBuf() {
+    return new RegistryByteBuf(Unpooled.buffer(), null);
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @EnumSource(DogWheelAction.class)
+  @DisplayName("SelectWheelActionPayload codec round-trips every wheel action")
+  void selectWheelActionPayloadCodecRoundTrips(final DogWheelAction action) {
+    final ModNetworking.SelectWheelActionPayload payload =
+        new ModNetworking.SelectWheelActionPayload(UUID.randomUUID(), action.id());
+    final RegistryByteBuf buf = newBuf();
+    ModNetworking.SelectWheelActionPayload.CODEC.encode(buf, payload);
+    assertEquals(payload, ModNetworking.SelectWheelActionPayload.CODEC.decode(buf));
+  }
+
+  static Stream<Arguments> openCommandWheelPayloads() {
+    return Stream.of(
+        Arguments.of("typical", 42, 0, true, "Rex"),
+        Arguments.of("no bed", 1, 3, false, "Good Boy"),
+        Arguments.of("unicode name", 7, 6, true, "小白"));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("openCommandWheelPayloads")
+  @DisplayName("OpenCommandWheelPayload codec round-trips its fields")
+  void openCommandWheelPayloadCodecRoundTrips(
+      final String label,
+      final int entityId,
+      final int commandId,
+      final boolean hasBed,
+      final String dogName) {
+    final ModNetworking.OpenCommandWheelPayload payload =
+        new ModNetworking.OpenCommandWheelPayload(
+            entityId, UUID.randomUUID(), commandId, hasBed, dogName);
+    final RegistryByteBuf buf = newBuf();
+    ModNetworking.OpenCommandWheelPayload.CODEC.encode(buf, payload);
+    assertEquals(payload, ModNetworking.OpenCommandWheelPayload.CODEC.decode(buf));
+  }
 
   static Stream<Arguments> stripControlCharsCases() {
     final String printableAscii =
