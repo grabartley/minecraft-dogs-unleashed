@@ -32,6 +32,8 @@ public final class DogsUnleashedConfigScreen extends Screen {
   private static final int DONE_CANCEL_GAP = 6;
   private static final int TITLE_Y = 16;
   private static final int BANNER_Y = 30;
+  private static final int BANNER_COLOR = 0xFFAA00;
+  private static final int HINT_COLOR = 0xBBBBBB;
 
   private final Screen parent;
 
@@ -48,7 +50,12 @@ public final class DogsUnleashedConfigScreen extends Screen {
   public DogsUnleashedConfigScreen(@Nullable Screen parent) {
     super(Text.translatable("screen.dogs-unleashed.settings.title"));
     this.parent = parent;
-    final DogsUnleashedConfig current = DogsUnleashed.SERVER_CONFIG;
+    // SERVER_CONFIG keeps the last joined server's values after disconnect, so outside a world we
+    // show defaults rather than another server's settings.
+    final DogsUnleashedConfig current =
+        resolveAccess() == EditAccess.NO_WORLD
+            ? DogsUnleashedConfig.defaults()
+            : DogsUnleashed.SERVER_CONFIG;
     this.enableNaturalSpawning = current.enableNaturalSpawning();
     this.spawnRateMultiplierPercent = current.spawnRateMultiplierPercent();
     this.breedSpawnRateMultipliersPercent =
@@ -63,7 +70,7 @@ public final class DogsUnleashedConfigScreen extends Screen {
 
   @Override
   protected void init() {
-    final boolean canEdit = clientHasOperatorPermission();
+    final boolean canEdit = resolveAccess() == EditAccess.EDITABLE;
 
     final int left = (this.width - CONTENT_WIDTH) / 2;
     int y = BANNER_Y + (canEdit ? 24 : 36);
@@ -293,7 +300,7 @@ public final class DogsUnleashedConfigScreen extends Screen {
   }
 
   private void saveAndClose() {
-    if (!clientHasOperatorPermission()) {
+    if (resolveAccess() != EditAccess.EDITABLE) {
       close();
       return;
     }
@@ -323,25 +330,62 @@ public final class DogsUnleashedConfigScreen extends Screen {
     super.render(context, mouseX, mouseY, delta);
     context.drawCenteredTextWithShadow(
         this.textRenderer, this.title, this.width / 2, TITLE_Y, 0xFFFFFF);
-    if (!clientHasOperatorPermission()) {
+    final EditAccess access = resolveAccess();
+    if (access != EditAccess.EDITABLE) {
       context.drawCenteredTextWithShadow(
           this.textRenderer,
-          Text.translatable("screen.dogs-unleashed.settings.readonly_banner"),
+          Text.translatable(access.bannerKey()),
           this.width / 2,
           BANNER_Y,
-          0xFFAA00);
+          BANNER_COLOR);
       context.drawCenteredTextWithShadow(
           this.textRenderer,
-          Text.translatable("screen.dogs-unleashed.settings.readonly_hint"),
+          Text.translatable(access.hintKey()),
           this.width / 2,
           BANNER_Y + 12,
-          0xBBBBBB);
+          HINT_COLOR);
     }
   }
 
-  private static boolean clientHasOperatorPermission() {
+  private static EditAccess resolveAccess() {
     final ClientPlayerEntity player = MinecraftClient.getInstance().player;
-    return player != null && player.hasPermissionLevel(ServerConfigService.OP_PERMISSION_LEVEL);
+    return EditAccess.resolve(
+        player != null,
+        player != null && player.hasPermissionLevel(ServerConfigService.OP_PERMISSION_LEVEL));
+  }
+
+  /** Whether this client may edit the server config, and why not when it may not. */
+  public enum EditAccess {
+    EDITABLE("", ""),
+    READ_ONLY(
+        "screen.dogs-unleashed.settings.readonly_banner",
+        "screen.dogs-unleashed.settings.readonly_hint"),
+    NO_WORLD(
+        "screen.dogs-unleashed.settings.noworld_banner",
+        "screen.dogs-unleashed.settings.noworld_hint");
+
+    private final String bannerKey;
+    private final String hintKey;
+
+    EditAccess(final String bannerKey, final String hintKey) {
+      this.bannerKey = bannerKey;
+      this.hintKey = hintKey;
+    }
+
+    public static EditAccess resolve(final boolean inWorld, final boolean hasOperatorPermission) {
+      if (!inWorld) {
+        return NO_WORLD;
+      }
+      return hasOperatorPermission ? EDITABLE : READ_ONLY;
+    }
+
+    public String bannerKey() {
+      return bannerKey;
+    }
+
+    public String hintKey() {
+      return hintKey;
+    }
   }
 
   private static final class IntSliderWidget extends SliderWidget {

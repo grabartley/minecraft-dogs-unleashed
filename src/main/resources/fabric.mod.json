@@ -3,14 +3,15 @@
   "id": "dogs-unleashed",
   "version": "${version}",
   "name": "Dogs Unleashed",
-  "description": "Adds new dog breeds and dog-related items to enhance the player's experience with their canine companions.",
+  "description": "Adds new dog breeds and dog-related items to enhance the player's experience with their canine companions. Breeds spawn naturally across biomes with their own coats, sounds, and personalities. Dogs sleep in dog beds, fetch thrown sticks, follow you between dimensions, and leave a grave behind when they die. Operators can tune spawning, graves, auto-sleep, and bark volume in-game from the settings screen or the /dogsunleashed command.",
   "authors": [
     "Vitória Vedana",
     "Graham Bartley"
   ],
   "contact": {
-    "homepage": "https://grahambartley.com/",
-    "sources": "https://github.com/grabartley/minecraft-dogs-unleashed"
+    "homepage": "https://modrinth.com/mod/dogs-unleashed",
+    "sources": "https://github.com/grabartley/minecraft-dogs-unleashed",
+    "issues": "https://github.com/grabartley/minecraft-dogs-unleashed/issues"
   },
   "license": "MIT",
   "icon": "assets/dogs-unleashed/icon.png",
@@ -56,6 +57,15 @@
     }
   ],
   "accessWidener": "dogs-unleashed.accesswidener",
+  "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.modrinth": "https://modrinth.com/mod/dogs-unleashed",
+        "modmenu.kofi": "https://ko-fi.com/grahambartley",
+        "modmenu.github_releases": "https://github.com/grabartley/minecraft-dogs-unleashed/releases"
+      }
+    }
+  },
   "depends": {
     "fabricloader": ">=0.16.5",
     "minecraft": "~1.21.1",

@@ -258,6 +258,15 @@ All subcommands require operator permission level 2.
 If [Mod Menu](https://modrinth.com/mod/modmenu) is installed, Dogs Unleashed appears in the Mods list with the same
 settings screen. Mod Menu is not bundled and not required.
 
+The mod tile links out to Modrinth, the GitHub source and issue tracker, the releases page, and Ko-fi. The **Configure**
+button opens the settings screen described above:
+
+| Where you open it from       | What you see                                                                 |
+|------------------------------|------------------------------------------------------------------------------|
+| Title screen (no world)      | Default values, read-only, with a prompt to join a world first                |
+| In a world, operator         | The world's live values, fully editable                                       |
+| In a world, non-operator     | The world's live values, read-only                                            |
+
 ## Languages
 
 Dogs Unleashed ships with translations for breed names, screens, commands, and chat feedback in:

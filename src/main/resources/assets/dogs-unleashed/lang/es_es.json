@@ -73,6 +73,8 @@
   "screen.dogs-unleashed.settings.cancel": "Cancelar",
   "screen.dogs-unleashed.settings.readonly_banner": "Solo lectura (se requiere permiso de operador)",
   "screen.dogs-unleashed.settings.readonly_hint": "Los operadores pueden editar desde esta pantalla o con /dogsunleashed",
+  "screen.dogs-unleashed.settings.noworld_banner": "Sin conexión a un mundo",
+  "screen.dogs-unleashed.settings.noworld_hint": "Entra en un mundo de un jugador o en un servidor para ver y editar estos ajustes",
   "screen.dogs-unleashed.settings.spawn": "Generar perros en la naturaleza",
   "screen.dogs-unleashed.settings.spawn.tooltip": "Cuando está activado, las razas de perros aparecen de forma natural en sus biomas. Desactívalo para usar solo huevos generadores y cría. Requiere reiniciar el mundo para que surta efecto.",
   "screen.dogs-unleashed.settings.graves": "Tumbas de perro al morir",

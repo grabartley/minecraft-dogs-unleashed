@@ -73,6 +73,8 @@
   "screen.dogs-unleashed.settings.cancel": "Annuler",
   "screen.dogs-unleashed.settings.readonly_banner": "Lecture seule (permission d'opérateur requise)",
   "screen.dogs-unleashed.settings.readonly_hint": "Les opérateurs peuvent modifier via cet écran ou /dogsunleashed",
+  "screen.dogs-unleashed.settings.noworld_banner": "Aucun monde connecté",
+  "screen.dogs-unleashed.settings.noworld_hint": "Rejoignez un monde solo ou un serveur pour voir et modifier ces paramètres",
   "screen.dogs-unleashed.settings.spawn": "Faire apparaître des chiens dans la nature",
   "screen.dogs-unleashed.settings.spawn.tooltip": "Lorsque activé, les races de chiens apparaissent naturellement dans leurs biomes. Désactivez pour n'utiliser que les œufs d'apparition et la reproduction. Nécessite un redémarrage du monde pour prendre effet.",
   "screen.dogs-unleashed.settings.graves": "Tombes de chien à la mort",
