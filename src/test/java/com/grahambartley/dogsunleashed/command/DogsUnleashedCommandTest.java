@@ -48,15 +48,16 @@ class DogsUnleashedCommandTest {
         Arguments.of(2, "command.dogs-unleashed.help.spawn"),
         Arguments.of(3, "command.dogs-unleashed.help.spawnrate"),
         Arguments.of(4, "command.dogs-unleashed.help.spawnratebreed"),
-        Arguments.of(5, "command.dogs-unleashed.help.graves"),
-        Arguments.of(6, "command.dogs-unleashed.help.autosleep"),
-        Arguments.of(7, "command.dogs-unleashed.help.autosleeprange"),
-        Arguments.of(8, "command.dogs-unleashed.help.barkvolume"),
-        Arguments.of(9, "command.dogs-unleashed.help.howlvolume"),
-        Arguments.of(10, "command.dogs-unleashed.help.reset"),
-        Arguments.of(11, "command.dogs-unleashed.help.list"),
-        Arguments.of(12, "command.dogs-unleashed.help.summon"),
-        Arguments.of(13, "command.dogs-unleashed.help.find"));
+        Arguments.of(5, "command.dogs-unleashed.help.capindependentspawning"),
+        Arguments.of(6, "command.dogs-unleashed.help.graves"),
+        Arguments.of(7, "command.dogs-unleashed.help.autosleep"),
+        Arguments.of(8, "command.dogs-unleashed.help.autosleeprange"),
+        Arguments.of(9, "command.dogs-unleashed.help.barkvolume"),
+        Arguments.of(10, "command.dogs-unleashed.help.howlvolume"),
+        Arguments.of(11, "command.dogs-unleashed.help.reset"),
+        Arguments.of(12, "command.dogs-unleashed.help.list"),
+        Arguments.of(13, "command.dogs-unleashed.help.summon"),
+        Arguments.of(14, "command.dogs-unleashed.help.find"));
   }
 
   @ParameterizedTest(name = "help line {0} -> {1}")
@@ -78,11 +79,12 @@ class DogsUnleashedCommandTest {
         Arguments.of(5, "command.dogs-unleashed.status.spawnrate.breed"),
         Arguments.of(6, "command.dogs-unleashed.status.spawnrate.breed"),
         Arguments.of(7, "command.dogs-unleashed.status.spawnrate.breed"),
-        Arguments.of(8, "command.dogs-unleashed.status.graves"),
-        Arguments.of(9, "command.dogs-unleashed.status.autosleep"),
-        Arguments.of(10, "command.dogs-unleashed.status.autosleeprange"),
-        Arguments.of(11, "command.dogs-unleashed.status.barkvolume"),
-        Arguments.of(12, "command.dogs-unleashed.status.howlvolume"));
+        Arguments.of(8, "command.dogs-unleashed.status.capindependentspawning"),
+        Arguments.of(9, "command.dogs-unleashed.status.graves"),
+        Arguments.of(10, "command.dogs-unleashed.status.autosleep"),
+        Arguments.of(11, "command.dogs-unleashed.status.autosleeprange"),
+        Arguments.of(12, "command.dogs-unleashed.status.barkvolume"),
+        Arguments.of(13, "command.dogs-unleashed.status.howlvolume"));
   }
 
   @ParameterizedTest(name = "status line {0} -> {1}")
@@ -98,17 +100,18 @@ class DogsUnleashedCommandTest {
   @DisplayName("status value lines carry the live config values as translation arguments")
   void statusLinesCarryConfigValuesAsArguments() {
     final DogsUnleashedConfig config =
-        new DogsUnleashedConfig(true, 150, Map.of("beagle", 75), false, true, 32, 0.5f, 1.5f);
+        new DogsUnleashedConfig(true, 150, Map.of("beagle", 75), true, false, true, 32, 0.5f, 1.5f);
 
     final List<Text> lines = DogsUnleashedCommand.statusLines(config);
 
     assertEquals(true, translationArgs(lines.get(1))[0]);
     assertEquals(150, translationArgs(lines.get(2))[0]);
-    assertEquals(false, translationArgs(lines.get(8))[0]);
-    assertEquals(true, translationArgs(lines.get(9))[0]);
-    assertEquals(32, translationArgs(lines.get(10))[0]);
-    assertEquals("0.50", translationArgs(lines.get(11))[0]);
-    assertEquals("1.50", translationArgs(lines.get(12))[0]);
+    assertEquals(true, translationArgs(lines.get(8))[0]);
+    assertEquals(false, translationArgs(lines.get(9))[0]);
+    assertEquals(true, translationArgs(lines.get(10))[0]);
+    assertEquals(32, translationArgs(lines.get(11))[0]);
+    assertEquals("0.50", translationArgs(lines.get(12))[0]);
+    assertEquals("1.50", translationArgs(lines.get(13))[0]);
   }
 
   static Stream<Arguments> breedStatusLineCases() {
@@ -126,7 +129,7 @@ class DogsUnleashedCommandTest {
   void statusLinesCarryBreedSpawnRates(
       final int index, final String breedId, final int expectedPercent) {
     final DogsUnleashedConfig config =
-        new DogsUnleashedConfig(true, 150, Map.of("beagle", 75), false, true, 32, 0.5f, 1.5f);
+        new DogsUnleashedConfig(true, 150, Map.of("beagle", 75), true, false, true, 32, 0.5f, 1.5f);
 
     final List<Text> lines = DogsUnleashedCommand.statusLines(config);
 

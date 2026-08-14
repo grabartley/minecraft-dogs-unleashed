@@ -63,6 +63,7 @@ public final class ServerConfigPayloads {
         config.breedSpawnRateMultipliersPercent(),
         PacketByteBuf::writeString,
         PacketByteBuf::writeVarInt);
+    buf.writeBoolean(config.capIndependentSpawningEnabled());
     buf.writeBoolean(config.gravesEnabled());
     buf.writeBoolean(config.autoSleepEnabled());
     buf.writeInt(config.autoSleepRangeBlocks());
@@ -75,6 +76,7 @@ public final class ServerConfigPayloads {
         buf.readBoolean(),
         buf.readVarInt(),
         buf.readMap(PacketByteBuf::readString, PacketByteBuf::readVarInt),
+        buf.readBoolean(),
         buf.readBoolean(),
         buf.readBoolean(),
         buf.readInt(),

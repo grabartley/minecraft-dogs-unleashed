@@ -3,16 +3,23 @@ package com.grahambartley.dogsunleashed;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.mixin.ServerWorldSpawnersAccessor;
+import com.grahambartley.dogsunleashed.spawner.DogSpawner;
+import java.util.ArrayList;
+import java.util.List;
 import net.fabricmc.fabric.api.biome.v1.BiomeModification;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.fabricmc.fabric.api.biome.v1.ModificationPhase;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.SpawnLocationTypes;
 import net.minecraft.entity.SpawnRestriction;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.Heightmap;
+import net.minecraft.world.World;
 import net.minecraft.world.biome.SpawnSettings;
+import net.minecraft.world.spawner.SpecialSpawner;
 
 public class ModSpawns {
 
@@ -56,5 +63,19 @@ public class ModSpawns {
           Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
           UnleashedDogEntity::canSpawn);
     }
+
+    // The DogSpawner is always registered and gates itself on capIndependentSpawningEnabled each
+    // attempt, so toggling it via command or screen takes effect without a restart.
+    ServerWorldEvents.LOAD.register(
+        (server, world) -> {
+          if (!World.OVERWORLD.equals(world.getRegistryKey())) {
+            return;
+          }
+          final ServerWorldSpawnersAccessor accessor = (ServerWorldSpawnersAccessor) world;
+          final List<SpecialSpawner> spawners =
+              new ArrayList<>(accessor.dogsUnleashed$getSpawners());
+          spawners.add(new DogSpawner());
+          accessor.dogsUnleashed$setSpawners(List.copyOf(spawners));
+        });
   }
 }

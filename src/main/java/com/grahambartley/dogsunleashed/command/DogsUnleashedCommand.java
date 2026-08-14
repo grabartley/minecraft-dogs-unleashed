@@ -53,6 +53,14 @@ public final class DogsUnleashedCommand {
                                                 ctx, BoolArgumentType.getBool(ctx, "enabled")))))
                     .then(spawnRateNode())
                     .then(
+                        CommandManager.literal("capindependentspawning")
+                            .then(
+                                CommandManager.argument("enabled", BoolArgumentType.bool())
+                                    .executes(
+                                        ctx ->
+                                            setCapIndependentSpawning(
+                                                ctx, BoolArgumentType.getBool(ctx, "enabled")))))
+                    .then(
                         CommandManager.literal("graves")
                             .then(
                                 CommandManager.argument("enabled", BoolArgumentType.bool())
@@ -181,6 +189,7 @@ public final class DogsUnleashedCommand {
             "command.dogs-unleashed.help.spawnratebreed",
             DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MIN,
             DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MAX),
+        Text.translatable("command.dogs-unleashed.help.capindependentspawning"),
         Text.translatable("command.dogs-unleashed.help.graves"),
         Text.translatable("command.dogs-unleashed.help.autosleep"),
         Text.translatable(
@@ -228,6 +237,9 @@ public final class DogsUnleashedCommand {
     }
     lines.addAll(
         List.of(
+            Text.translatable(
+                "command.dogs-unleashed.status.capindependentspawning",
+                config.capIndependentSpawningEnabled()),
             Text.translatable("command.dogs-unleashed.status.graves", config.gravesEnabled()),
             Text.translatable("command.dogs-unleashed.status.autosleep", config.autoSleepEnabled()),
             Text.translatable(
@@ -270,6 +282,16 @@ public final class DogsUnleashedCommand {
         "spawnrate " + breed.serializedId(),
         value + "%",
         true);
+  }
+
+  private static int setCapIndependentSpawning(
+      final CommandContext<ServerCommandSource> ctx, final boolean value) {
+    return applyUpdate(
+        ctx,
+        DogsUnleashed.SERVER_CONFIG.withCapIndependentSpawningEnabled(value),
+        "capindependentspawning",
+        Boolean.toString(value),
+        false);
   }
 
   private static int setGraves(final CommandContext<ServerCommandSource> ctx, final boolean value) {
