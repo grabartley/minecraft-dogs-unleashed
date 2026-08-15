@@ -185,13 +185,88 @@ class UnleashedDogBreedTest {
 
   @ParameterizedTest
   @EnumSource(UnleashedDogBreed.class)
-  @DisplayName("every breed declares a coherent spawn configuration")
-  void everyBreedSpawnConfigurationIsCoherent(final UnleashedDogBreed breed) {
+  @DisplayName("the natural-spawning predicate mirrors the presence of spawn settings")
+  void naturalSpawningPredicateMirrorsSpawnSettingsPresence(final UnleashedDogBreed breed) {
+    assertEquals(
+        breed.spawnSettings() != null,
+        breed.isNaturallySpawning(),
+        "isNaturallySpawning must match spawnSettings presence for " + breed);
+  }
+
+  @ParameterizedTest
+  @EnumSource(UnleashedDogBreed.class)
+  @DisplayName("every naturally spawning breed declares a coherent spawn configuration")
+  void everyNaturallySpawningBreedSpawnConfigurationIsCoherent(final UnleashedDogBreed breed) {
     final UnleashedDogBreed.SpawnSettings spawn = breed.spawnSettings();
+    if (spawn == null) {
+      return;
+    }
     assertTrue(spawn.weight() >= 1 && spawn.weight() <= 100, "weight for " + breed);
     assertTrue(spawn.minGroupSize() >= 1, "minGroupSize for " + breed);
     assertTrue(spawn.maxGroupSize() >= spawn.minGroupSize(), "maxGroupSize >= minGroupSize");
     assertTrue(spawn.biomes().length > 0, "every breed must have at least one biome");
+  }
+
+  static Stream<Arguments> expectedVoices() {
+    return Stream.of(
+        Arguments.of(UnleashedDogBreed.HUSKY, true, false),
+        Arguments.of(UnleashedDogBreed.DACHSHUND, false, true),
+        Arguments.of(UnleashedDogBreed.BEAGLE, false, true),
+        Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, false, true),
+        Arguments.of(UnleashedDogBreed.SHIBA_INU, false, true));
+  }
+
+  @ParameterizedTest(name = "{0} howls={1} barks={2}")
+  @MethodSource("expectedVoices")
+  @DisplayName("each breed exposes its documented voice behavior")
+  void breedVoiceMatchesDocumentedValues(
+      final UnleashedDogBreed breed, final boolean expectedHowls, final boolean expectedBarks) {
+    assertEquals(expectedHowls, breed.howls(), breed + " howls");
+    assertEquals(expectedBarks, breed.hasBarkSound(), breed + " has a bark sound");
+  }
+
+  @ParameterizedTest
+  @EnumSource(UnleashedDogBreed.class)
+  @DisplayName("only the husky carries eye color variants")
+  void onlyHuskyCarriesEyeColorVariants(final UnleashedDogBreed breed) {
+    assertEquals(breed == UnleashedDogBreed.HUSKY, breed.hasEyeColorVariants());
+  }
+
+  static Stream<Arguments> expectedRenderTransforms() {
+    return Stream.of(
+        Arguments.of(UnleashedDogBreed.HUSKY, 1.3f, 0.5f, 0.0f),
+        Arguments.of(UnleashedDogBreed.DACHSHUND, 1.3f, 0.75f, 180.0f),
+        Arguments.of(UnleashedDogBreed.BEAGLE, 1.5f, 0.75f, 0.0f),
+        Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, 1.7f, 0.85f, 0.0f),
+        Arguments.of(UnleashedDogBreed.SHIBA_INU, 1.5f, 0.75f, 0.0f));
+  }
+
+  @ParameterizedTest(name = "{0} render transforms = (adult={1}, baby={2}, yaw={3})")
+  @MethodSource("expectedRenderTransforms")
+  @DisplayName("each breed exposes its documented render transforms")
+  void breedRenderTransformsMatchDocumentedValues(
+      final UnleashedDogBreed breed,
+      final float expectedAdultScale,
+      final float expectedBabyScale,
+      final float expectedBodyYawOffsetDegrees) {
+    final UnleashedDogBreed.RenderTransforms transforms = breed.renderTransforms();
+    assertEquals(expectedAdultScale, transforms.adultScale(), 0.001f, breed + " adult scale");
+    assertEquals(expectedBabyScale, transforms.babyScale(), 0.001f, breed + " baby scale");
+    assertEquals(
+        expectedBodyYawOffsetDegrees,
+        transforms.bodyYawOffsetDegrees(),
+        0.001f,
+        breed + " body yaw offset");
+  }
+
+  @ParameterizedTest
+  @EnumSource(UnleashedDogBreed.class)
+  @DisplayName("every breed renders babies smaller than adults")
+  void everyBreedRendersBabiesSmallerThanAdults(final UnleashedDogBreed breed) {
+    final UnleashedDogBreed.RenderTransforms transforms = breed.renderTransforms();
+    assertTrue(
+        transforms.babyScale() < transforms.adultScale(),
+        "baby scale must be below adult scale for " + breed);
   }
 
   @ParameterizedTest

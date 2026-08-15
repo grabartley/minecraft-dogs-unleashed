@@ -5,8 +5,7 @@ import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.advancement.HuskyHowledCriterion;
-import com.grahambartley.dogsunleashed.entity.HuskyEntity;
-import com.grahambartley.dogsunleashed.entity.ShibaInuEntity;
+import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
 import com.grahambartley.dogsunleashed.entity.goal.FetchReturnGoal;
 import java.util.List;
@@ -54,10 +53,9 @@ public final class DogAdvancementGameTest implements FabricGameTest {
   public void tamingUnlocksBreedAdvancements(final TestContext context) {
     final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
 
-    final HuskyEntity husky =
-        (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, new BlockPos(1, 1, 0));
-    final ShibaInuEntity shiba =
-        (ShibaInuEntity) context.spawnEntity(ModEntities.SHIBA_INU, new BlockPos(2, 1, 0));
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(1, 1, 0));
+    final UnleashedDogEntity shiba =
+        context.spawnEntity(ModEntities.SHIBA_INU, new BlockPos(2, 1, 0));
 
     final AdvancementEntry bestFriend = getAdvancement(context, "best_friend");
     final AdvancementEntry cherryCompanion = getAdvancement(context, "cherry_companion");
@@ -116,8 +114,7 @@ public final class DogAdvancementGameTest implements FabricGameTest {
     final BlockPos absDogPos = context.getAbsolutePos(new BlockPos(1, 1, 0));
     player.refreshPositionAndAngles(absDogPos, 0.0f, 0.0f);
 
-    final HuskyEntity husky =
-        (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, new BlockPos(1, 1, 0));
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(1, 1, 0));
     husky.setTamed(true, true);
     husky.setOwnerUuid(player.getUuid());
     husky.setCarryingFetchItem(true);

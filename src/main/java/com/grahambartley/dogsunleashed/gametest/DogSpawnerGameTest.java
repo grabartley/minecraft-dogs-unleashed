@@ -328,9 +328,7 @@ public final class DogSpawnerGameTest implements FabricGameTest {
   }
 
   private void testDespawnFlagNbtRoundTrip(
-      final TestContext context,
-      final DogTestData<? extends UnleashedDogEntity> data,
-      final boolean flag) {
+      final TestContext context, final DogTestData data, final boolean flag) {
     final UnleashedDogEntity original =
         DogTestHelper.spawnDog(context, data, new BlockPos(2, 2, 2));
     original.setAiDisabled(true);
@@ -375,8 +373,7 @@ public final class DogSpawnerGameTest implements FabricGameTest {
         .toList();
   }
 
-  private void testDespawnEligibilityLifecycle(
-      final TestContext context, final DogTestData<? extends UnleashedDogEntity> data) {
+  private void testDespawnEligibilityLifecycle(final TestContext context, final DogTestData data) {
     final UnleashedDogEntity dog = DogTestHelper.spawnDog(context, data, REL_ARENA_CENTER);
     dog.setAiDisabled(true);
     final String breedId = data.breed().serializedId();
@@ -419,8 +416,7 @@ public final class DogSpawnerGameTest implements FabricGameTest {
         .toList();
   }
 
-  private void testChunkGenerationPersistence(
-      final TestContext context, final DogTestData<? extends UnleashedDogEntity> data) {
+  private void testChunkGenerationPersistence(final TestContext context, final DogTestData data) {
     final UnleashedDogEntity dog = DogTestHelper.spawnDog(context, data, REL_ARENA_CENTER);
     dog.setAiDisabled(true);
     final String breedId = data.breed().serializedId();

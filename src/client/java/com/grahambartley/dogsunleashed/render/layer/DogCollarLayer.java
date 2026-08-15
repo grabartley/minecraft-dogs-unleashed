@@ -1,5 +1,7 @@
 package com.grahambartley.dogsunleashed.render.layer;
 
+import static com.grahambartley.dogsunleashed.DogsUnleashed.MOD_ID;
+
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
@@ -12,18 +14,20 @@ import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 
-public abstract class CollarLayer<T extends UnleashedDogEntity> extends GeoRenderLayer<T> {
+public class DogCollarLayer extends GeoRenderLayer<UnleashedDogEntity> {
 
-  public CollarLayer(final GeoRenderer<T> entityRendererIn) {
+  public DogCollarLayer(final GeoRenderer<UnleashedDogEntity> entityRendererIn) {
     super(entityRendererIn);
   }
 
-  protected abstract Identifier getCollarTexture();
+  protected Identifier getCollarTexture(final UnleashedDogEntity animatable) {
+    return Identifier.of(MOD_ID, "textures/entity/" + animatable.getBreedId() + "_collar.png");
+  }
 
   @Override
   public void render(
       final MatrixStack poseStack,
-      final T animatable,
+      final UnleashedDogEntity animatable,
       final BakedGeoModel bakedModel,
       final RenderLayer renderType,
       final VertexConsumerProvider bufferSource,
@@ -39,7 +43,8 @@ public abstract class CollarLayer<T extends UnleashedDogEntity> extends GeoRende
     final DyeColor collarColor = animatable.getCollarColor();
     final int color = collarColor.getEntityColor();
 
-    final RenderLayer collarRenderType = RenderLayer.getEntityCutoutNoCull(this.getCollarTexture());
+    final RenderLayer collarRenderType =
+        RenderLayer.getEntityCutoutNoCull(this.getCollarTexture(animatable));
     this.getRenderer()
         .reRender(
             bakedModel,

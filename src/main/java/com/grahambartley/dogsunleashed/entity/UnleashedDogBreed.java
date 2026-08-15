@@ -1,11 +1,14 @@
 package com.grahambartley.dogsunleashed.entity;
 
+import com.grahambartley.dogsunleashed.ModSounds;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
 import java.util.Locale;
+import java.util.function.Supplier;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
 import org.jetbrains.annotations.Nullable;
@@ -30,7 +33,10 @@ public enum UnleashedDogBreed {
           BiomeKeys.FROZEN_PEAKS,
           BiomeKeys.SNOWY_SLOPES,
           BiomeKeys.GROVE),
-      new Attributes(25.0, 0.30, 5.0)),
+      new Attributes(25.0, 0.30, 5.0),
+      new Voice(true, null),
+      true,
+      new RenderTransforms(1.3f, 0.5f, 0.0f)),
   DACHSHUND(
       "dachshund",
       "mouth",
@@ -41,7 +47,10 @@ public enum UnleashedDogBreed {
       new SpawnEggColors(0xA0673F, 0xDC8847),
       new Dimensions(0.8f, 1.1f),
       new SpawnSettings(10, 1, 2, BiomeKeys.PLAINS, BiomeKeys.SUNFLOWER_PLAINS, BiomeKeys.MEADOW),
-      new Attributes(10.0, 0.25, 2.0)),
+      new Attributes(10.0, 0.25, 2.0),
+      new Voice(false, () -> ModSounds.DACHSHUND_BARK),
+      false,
+      new RenderTransforms(1.3f, 0.75f, 180.0f)),
   BEAGLE(
       "beagle",
       "snout",
@@ -60,7 +69,10 @@ public enum UnleashedDogBreed {
           BiomeKeys.BIRCH_FOREST,
           BiomeKeys.OLD_GROWTH_BIRCH_FOREST,
           BiomeKeys.MEADOW),
-      new Attributes(17.0, 0.29, 3.0)),
+      new Attributes(17.0, 0.29, 3.0),
+      new Voice(false, () -> ModSounds.BEAGLE_BARK),
+      false,
+      new RenderTransforms(1.5f, 0.75f, 0.0f)),
   GOLDEN_RETRIEVER(
       "goldenretriever",
       "snout",
@@ -71,7 +83,10 @@ public enum UnleashedDogBreed {
       new SpawnEggColors(0xDAA06D, 0xF5DEB3),
       new Dimensions(0.8f, 1.1f),
       new SpawnSettings(10, 1, 3, BiomeKeys.BEACH),
-      new Attributes(24.0, 0.30, 4.0)),
+      new Attributes(24.0, 0.30, 4.0),
+      new Voice(false, () -> ModSounds.GOLDEN_RETRIEVER_BARK),
+      false,
+      new RenderTransforms(1.7f, 0.85f, 0.0f)),
   SHIBA_INU(
       "shibainu",
       "snout",
@@ -82,15 +97,21 @@ public enum UnleashedDogBreed {
       new SpawnEggColors(0xCE8346, 0xF5DEB3),
       new Dimensions(0.8f, 1.1f),
       new SpawnSettings(10, 1, 2, BiomeKeys.CHERRY_GROVE),
-      new Attributes(18.0, 0.32, 3.5));
+      new Attributes(18.0, 0.32, 3.5),
+      new Voice(false, () -> ModSounds.SHIBA_INU_BARK),
+      false,
+      new RenderTransforms(1.5f, 0.75f, 0.0f));
 
   private final String serializedId;
   private final String mouthAnchorBoneName;
   private final FetchCarryProfiles fetchCarryProfiles;
   private final SpawnEggColors spawnEggColors;
   private final Dimensions dimensions;
-  private final SpawnSettings spawnSettings;
+  private final @Nullable SpawnSettings spawnSettings;
   private final Attributes attributes;
+  private final Voice voice;
+  private final boolean hasEyeColorVariants;
+  private final RenderTransforms renderTransforms;
 
   UnleashedDogBreed(
       final String serializedId,
@@ -98,8 +119,11 @@ public enum UnleashedDogBreed {
       final FetchCarryProfiles fetchCarryProfiles,
       final SpawnEggColors spawnEggColors,
       final Dimensions dimensions,
-      final SpawnSettings spawnSettings,
-      final Attributes attributes) {
+      final @Nullable SpawnSettings spawnSettings,
+      final Attributes attributes,
+      final Voice voice,
+      final boolean hasEyeColorVariants,
+      final RenderTransforms renderTransforms) {
     this.serializedId = serializedId;
     this.mouthAnchorBoneName = mouthAnchorBoneName;
     this.fetchCarryProfiles = fetchCarryProfiles;
@@ -107,6 +131,9 @@ public enum UnleashedDogBreed {
     this.dimensions = dimensions;
     this.spawnSettings = spawnSettings;
     this.attributes = attributes;
+    this.voice = voice;
+    this.hasEyeColorVariants = hasEyeColorVariants;
+    this.renderTransforms = renderTransforms;
   }
 
   public String serializedId() {
@@ -141,12 +168,37 @@ public enum UnleashedDogBreed {
     return this.dimensions;
   }
 
-  public SpawnSettings spawnSettings() {
+  public boolean isNaturallySpawning() {
+    return this.spawnSettings != null;
+  }
+
+  public @Nullable SpawnSettings spawnSettings() {
     return this.spawnSettings;
   }
 
   public Attributes attributes() {
     return this.attributes;
+  }
+
+  public boolean howls() {
+    return this.voice.howls();
+  }
+
+  public boolean hasBarkSound() {
+    return this.voice.barkSound() != null;
+  }
+
+  public @Nullable SoundEvent barkSound() {
+    final Supplier<SoundEvent> barkSound = this.voice.barkSound();
+    return barkSound == null ? null : barkSound.get();
+  }
+
+  public boolean hasEyeColorVariants() {
+    return this.hasEyeColorVariants;
+  }
+
+  public RenderTransforms renderTransforms() {
+    return this.renderTransforms;
   }
 
   public DefaultAttributeContainer.Builder createAttributes() {
@@ -184,4 +236,8 @@ public enum UnleashedDogBreed {
       int weight, int minGroupSize, int maxGroupSize, RegistryKey<Biome>... biomes) {}
 
   public record Attributes(double maxHealth, double movementSpeed, double attackDamage) {}
+
+  public record Voice(boolean howls, @Nullable Supplier<SoundEvent> barkSound) {}
+
+  public record RenderTransforms(float adultScale, float babyScale, float bodyYawOffsetDegrees) {}
 }

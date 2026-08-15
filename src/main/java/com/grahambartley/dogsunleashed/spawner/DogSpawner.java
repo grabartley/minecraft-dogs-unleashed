@@ -145,6 +145,9 @@ public class DogSpawner implements SpecialSpawner {
       final RegistryEntry<Biome> biome, final DogsUnleashedConfig config) {
     final List<UnleashedDogBreed> matching = new ArrayList<>();
     for (final UnleashedDogBreed breed : UnleashedDogBreed.values()) {
+      if (!breed.isNaturallySpawning()) {
+        continue;
+      }
       final UnleashedDogBreed.SpawnSettings settings = breed.spawnSettings();
       if (config.effectiveSpawnWeight(settings.weight(), breed.serializedId()) == 0) {
         continue;

@@ -147,6 +147,9 @@ public final class DogsUnleashedCommand {
   private static LiteralArgumentBuilder<ServerCommandSource> spawnRateNode() {
     final LiteralArgumentBuilder<ServerCommandSource> node = CommandManager.literal("spawnrate");
     for (final UnleashedDogBreed breed : UnleashedDogBreed.values()) {
+      if (!breed.isNaturallySpawning()) {
+        continue;
+      }
       node.then(
           CommandManager.literal(breed.serializedId())
               .then(
@@ -238,6 +241,9 @@ public final class DogsUnleashedCommand {
         Text.translatable(
             "command.dogs-unleashed.status.spawnrate", config.spawnRateMultiplierPercent()));
     for (final UnleashedDogBreed breed : UnleashedDogBreed.values()) {
+      if (!breed.isNaturallySpawning()) {
+        continue;
+      }
       lines.add(
           Text.translatable(
               "command.dogs-unleashed.status.spawnrate.breed",

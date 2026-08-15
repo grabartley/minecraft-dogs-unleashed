@@ -1,6 +1,5 @@
 package com.grahambartley.dogsunleashed.gametest;
 
-import com.grahambartley.dogsunleashed.entity.HuskyEntity;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
@@ -101,12 +100,12 @@ public final class DogEntitySoundTest implements FabricGameTest {
 
   @FunctionalInterface
   private interface PerBreedBody {
-    void run(TestContext context, DogTestData<? extends UnleashedDogEntity> data);
+    void run(TestContext context, DogTestData data);
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void huskyStartsNotHowling(TestContext context) {
-    final HuskyEntity husky = DogTestHelper.spawnDog(context, DogTestData.HUSKY);
+    final UnleashedDogEntity husky = DogTestHelper.spawnDog(context, DogTestData.HUSKY);
 
     context.assertFalse(husky.isHowling(), "Husky should not be howling immediately after spawn");
     context.complete();
@@ -114,7 +113,7 @@ public final class DogEntitySoundTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void huskyStartsWithZeroHowlCooldown(TestContext context) {
-    final HuskyEntity husky = DogTestHelper.spawnDog(context, DogTestData.HUSKY);
+    final UnleashedDogEntity husky = DogTestHelper.spawnDog(context, DogTestData.HUSKY);
 
     context.assertTrue(
         husky.getHowlCooldownTicks() == 0, "Husky howl cooldown should be 0 at spawn");
@@ -124,7 +123,7 @@ public final class DogEntitySoundTest implements FabricGameTest {
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
   public void huskySleepingPreventsHowling(TestContext context) {
     final BlockPos absBedPos = context.getAbsolutePos(new BlockPos(0, 1, 0));
-    final HuskyEntity husky = DogTestHelper.spawnDog(context, DogTestData.HUSKY);
+    final UnleashedDogEntity husky = DogTestHelper.spawnDog(context, DogTestData.HUSKY);
 
     context.runAtTick(5, () -> husky.startSleepingInBed(absBedPos));
 
@@ -139,7 +138,7 @@ public final class DogEntitySoundTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
   public void huskyHowlingFlagSetsAndClearsCorrectly(TestContext context) {
-    final HuskyEntity husky = DogTestHelper.spawnDog(context, DogTestData.HUSKY);
+    final UnleashedDogEntity husky = DogTestHelper.spawnDog(context, DogTestData.HUSKY);
 
     context.runAtTick(
         5,
@@ -159,7 +158,7 @@ public final class DogEntitySoundTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 200)
   public void huskyHowlCooldownIsNonNegativeAfterMultipleTicks(TestContext context) {
-    final HuskyEntity husky = DogTestHelper.spawnDog(context, DogTestData.HUSKY);
+    final UnleashedDogEntity husky = DogTestHelper.spawnDog(context, DogTestData.HUSKY);
 
     context.runAtTick(
         50,
@@ -171,9 +170,8 @@ public final class DogEntitySoundTest implements FabricGameTest {
         });
   }
 
-  private <T extends UnleashedDogEntity> void testDogBarksWhenLowHealth(
-      final TestContext context, final DogTestData<T> data) {
-    final T dog = DogTestHelper.spawnDog(context, data);
+  private void testDogBarksWhenLowHealth(final TestContext context, final DogTestData data) {
+    final UnleashedDogEntity dog = DogTestHelper.spawnDog(context, data);
 
     context.runAtTick(5, () -> dog.setHealth(1.0f));
 
@@ -187,9 +185,8 @@ public final class DogEntitySoundTest implements FabricGameTest {
         });
   }
 
-  private <T extends UnleashedDogEntity> void testDogDoesNotBarkWhenLowHealth(
-      final TestContext context, final DogTestData<T> data) {
-    final T dog = DogTestHelper.spawnDog(context, data);
+  private void testDogDoesNotBarkWhenLowHealth(final TestContext context, final DogTestData data) {
+    final UnleashedDogEntity dog = DogTestHelper.spawnDog(context, data);
 
     context.runAtTick(5, () -> dog.setHealth(1.0f));
 
@@ -203,9 +200,8 @@ public final class DogEntitySoundTest implements FabricGameTest {
         });
   }
 
-  private <T extends UnleashedDogEntity> void testDogBarksWhenHasTarget(
-      final TestContext context, final DogTestData<T> data) {
-    final T dog = DogTestHelper.spawnDog(context, data);
+  private void testDogBarksWhenHasTarget(final TestContext context, final DogTestData data) {
+    final UnleashedDogEntity dog = DogTestHelper.spawnDog(context, data);
 
     final ZombieEntity zombie =
         (ZombieEntity) context.spawnEntity(EntityType.ZOMBIE, new BlockPos(2, 1, 0));
@@ -222,9 +218,8 @@ public final class DogEntitySoundTest implements FabricGameTest {
         });
   }
 
-  private <T extends UnleashedDogEntity> void testDogDoesNotBarkWhenHasTarget(
-      final TestContext context, final DogTestData<T> data) {
-    final T dog = DogTestHelper.spawnDog(context, data);
+  private void testDogDoesNotBarkWhenHasTarget(final TestContext context, final DogTestData data) {
+    final UnleashedDogEntity dog = DogTestHelper.spawnDog(context, data);
 
     final ZombieEntity zombie =
         (ZombieEntity) context.spawnEntity(EntityType.ZOMBIE, new BlockPos(2, 1, 0));
@@ -241,9 +236,8 @@ public final class DogEntitySoundTest implements FabricGameTest {
         });
   }
 
-  private <T extends UnleashedDogEntity> void testDogBarksWhenTakingDamage(
-      final TestContext context, final DogTestData<T> data) {
-    final T dog = DogTestHelper.spawnDog(context, data);
+  private void testDogBarksWhenTakingDamage(final TestContext context, final DogTestData data) {
+    final UnleashedDogEntity dog = DogTestHelper.spawnDog(context, data);
 
     context.runAtTick(5, () -> DogTestHelper.damageEntity(dog, 1.0f));
 
@@ -257,9 +251,9 @@ public final class DogEntitySoundTest implements FabricGameTest {
         });
   }
 
-  private <T extends UnleashedDogEntity> void testDogDoesNotBarkWhenTakingDamage(
-      final TestContext context, final DogTestData<T> data) {
-    final T dog = DogTestHelper.spawnDog(context, data);
+  private void testDogDoesNotBarkWhenTakingDamage(
+      final TestContext context, final DogTestData data) {
+    final UnleashedDogEntity dog = DogTestHelper.spawnDog(context, data);
 
     context.runAtTick(5, () -> DogTestHelper.damageEntity(dog, 1.0f));
 
@@ -273,9 +267,8 @@ public final class DogEntitySoundTest implements FabricGameTest {
         });
   }
 
-  private <T extends UnleashedDogEntity> void testCooldownPreventsBark(
-      final TestContext context, final DogTestData<T> data) {
-    final T dog = DogTestHelper.spawnDog(context, data);
+  private void testCooldownPreventsBark(final TestContext context, final DogTestData data) {
+    final UnleashedDogEntity dog = DogTestHelper.spawnDog(context, data);
 
     final ZombieEntity zombie =
         (ZombieEntity) context.spawnEntity(EntityType.ZOMBIE, new BlockPos(2, 1, 0));
@@ -303,9 +296,8 @@ public final class DogEntitySoundTest implements FabricGameTest {
         });
   }
 
-  private <T extends UnleashedDogEntity> void testBarkCooldownStaysInactive(
-      final TestContext context, final DogTestData<T> data) {
-    final T dog = DogTestHelper.spawnDog(context, data);
+  private void testBarkCooldownStaysInactive(final TestContext context, final DogTestData data) {
+    final UnleashedDogEntity dog = DogTestHelper.spawnDog(context, data);
 
     context.runAtTick(
         10,

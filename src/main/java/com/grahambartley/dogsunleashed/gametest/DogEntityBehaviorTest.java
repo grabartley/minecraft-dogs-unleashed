@@ -80,12 +80,12 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
 
   @FunctionalInterface
   private interface PerBreedBody {
-    void run(TestContext context, DogTestData<? extends UnleashedDogEntity> data);
+    void run(TestContext context, DogTestData data);
   }
 
-  private <T extends UnleashedDogEntity> void testTamedDogCollarColorCanBeChanged(
-      final TestContext context, final DogTestData<T> data) {
-    final T dog = DogTestHelper.spawnTamedDog(context, data);
+  private void testTamedDogCollarColorCanBeChanged(
+      final TestContext context, final DogTestData data) {
+    final UnleashedDogEntity dog = DogTestHelper.spawnTamedDog(context, data);
 
     context.runAtTick(
         10,
@@ -106,9 +106,8 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
         });
   }
 
-  private <T extends UnleashedDogEntity> void testBabyDogHasCollarWhenTamed(
-      final TestContext context, final DogTestData<T> data) {
-    final T babyDog = DogTestHelper.spawnDog(context, data);
+  private void testBabyDogHasCollarWhenTamed(final TestContext context, final DogTestData data) {
+    final UnleashedDogEntity babyDog = DogTestHelper.spawnDog(context, data);
     babyDog.setBaby(true);
 
     context.runAtTick(
@@ -131,9 +130,8 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
         });
   }
 
-  private <T extends UnleashedDogEntity> void testAllDyeColorsWorkOnCollar(
-      final TestContext context, final DogTestData<T> data) {
-    final T dog = DogTestHelper.spawnTamedDog(context, data);
+  private void testAllDyeColorsWorkOnCollar(final TestContext context, final DogTestData data) {
+    final UnleashedDogEntity dog = DogTestHelper.spawnTamedDog(context, data);
 
     context.runAtTick(
         10,
@@ -168,17 +166,18 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
         });
   }
 
-  private <T extends UnleashedDogEntity> void testBredBabyInheritsParentTamedStatus(
-      final TestContext context, final DogTestData<T> data) {
+  private void testBredBabyInheritsParentTamedStatus(
+      final TestContext context, final DogTestData data) {
     final ServerWorld world = context.getWorld();
     final UUID ownerUuid = UUID.randomUUID();
-    final T parent = DogTestHelper.spawnTamedDog(context, data, new BlockPos(0, 1, 0), ownerUuid);
+    final UnleashedDogEntity parent =
+        DogTestHelper.spawnTamedDog(context, data, new BlockPos(0, 1, 0), ownerUuid);
     parent.setCollarColor(DyeColor.YELLOW);
 
     context.runAtTick(
         10,
         () -> {
-          final T otherParent =
+          final UnleashedDogEntity otherParent =
               DogTestHelper.spawnTamedDog(context, data, new BlockPos(1, 1, 0), ownerUuid);
           final UnleashedDogEntity baby =
               (UnleashedDogEntity) parent.createChild(world, otherParent);
@@ -197,9 +196,8 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
         });
   }
 
-  private <T extends UnleashedDogEntity> void testBoneIsTamingItem(
-      final TestContext context, final DogTestData<T> data) {
-    final T dog = DogTestHelper.spawnDog(context, data);
+  private void testBoneIsTamingItem(final TestContext context, final DogTestData data) {
+    final UnleashedDogEntity dog = DogTestHelper.spawnDog(context, data);
     final ItemStack bone = new ItemStack(Items.BONE);
 
     context.assertTrue(dog.isTamingItem(bone), "Bone should be a taming item");
@@ -207,9 +205,9 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
     context.complete();
   }
 
-  private <T extends UnleashedDogEntity> void testMeatItemsAreBothTamingAndBreeding(
-      final TestContext context, final DogTestData<T> data) {
-    final T dog = DogTestHelper.spawnDog(context, data);
+  private void testMeatItemsAreBothTamingAndBreeding(
+      final TestContext context, final DogTestData data) {
+    final UnleashedDogEntity dog = DogTestHelper.spawnDog(context, data);
     final ItemStack chicken = new ItemStack(Items.CHICKEN);
 
     context.assertTrue(dog.isTamingItem(chicken), "Chicken should be a taming item");
@@ -217,10 +215,9 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
     context.complete();
   }
 
-  private <T extends UnleashedDogEntity> void testShakeProgressPersistsInNbt(
-      final TestContext context, final DogTestData<T> data) {
+  private void testShakeProgressPersistsInNbt(final TestContext context, final DogTestData data) {
     final ServerWorld world = context.getWorld();
-    final T dog = DogTestHelper.spawnDog(context, data);
+    final UnleashedDogEntity dog = DogTestHelper.spawnDog(context, data);
 
     context.runAtTick(
         5,
@@ -232,7 +229,7 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
               nbt.contains("ShakeProgress"), "NBT should contain ShakeProgress data");
           context.assertTrue(nbt.contains("WasInWater"), "NBT should contain WasInWater data");
 
-          final T newDog = data.factory().apply(world);
+          final UnleashedDogEntity newDog = data.factory().apply(world);
           newDog.readCustomDataFromNbt(nbt);
 
           context.assertTrue(

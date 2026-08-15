@@ -6,7 +6,6 @@ import static com.grahambartley.dogsunleashed.ModConstants.PUPPY_BARK_PITCH_MULT
 import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
-import com.grahambartley.dogsunleashed.entity.HuskyEntity;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.concurrent.atomic.AtomicBoolean;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -99,10 +98,8 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
    */
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "puppy-flags", tickLimit = 40)
   public void babyRefusesTargetUntilGrownUp(final TestContext context) {
-    final HuskyEntity dog =
-        (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, new BlockPos(0, 1, 0));
-    final HuskyEntity victim =
-        (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, new BlockPos(2, 1, 0));
+    final UnleashedDogEntity dog = context.spawnEntity(ModEntities.HUSKY, new BlockPos(0, 1, 0));
+    final UnleashedDogEntity victim = context.spawnEntity(ModEntities.HUSKY, new BlockPos(2, 1, 0));
     dog.setAiDisabled(true);
     victim.setAiDisabled(true);
 
@@ -128,8 +125,7 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
   /** A baby barks at the boosted puppy pitch; an adult barks at the base pitch. */
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = "puppy-flags", tickLimit = 20)
   public void puppyBarkPitchIsHigherThanAdult(final TestContext context) {
-    final HuskyEntity dog =
-        (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, new BlockPos(0, 1, 0));
+    final UnleashedDogEntity dog = context.spawnEntity(ModEntities.HUSKY, new BlockPos(0, 1, 0));
     dog.setAiDisabled(true);
 
     context.assertTrue(
@@ -149,8 +145,7 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
    */
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = "puppy-flags", tickLimit = 20)
   public void birthArmsHeartsAndFirstWakeConsumesThem(final TestContext context) {
-    final HuskyEntity dog =
-        (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, new BlockPos(0, 1, 0));
+    final UnleashedDogEntity dog = context.spawnEntity(ModEntities.HUSKY, new BlockPos(0, 1, 0));
     dog.setAiDisabled(true);
 
     context.assertTrue(
@@ -176,10 +171,8 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
    */
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "puppy-flags", tickLimit = 40)
   public void parentDogResolvesWhileAliveAndNullWhenGone(final TestContext context) {
-    final HuskyEntity parent =
-        (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, new BlockPos(2, 1, 0));
-    final HuskyEntity puppy =
-        (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, new BlockPos(0, 1, 0));
+    final UnleashedDogEntity parent = context.spawnEntity(ModEntities.HUSKY, new BlockPos(2, 1, 0));
+    final UnleashedDogEntity puppy = context.spawnEntity(ModEntities.HUSKY, new BlockPos(0, 1, 0));
     parent.setAiDisabled(true);
     puppy.setAiDisabled(true);
     puppy.setBaby(true);
@@ -214,13 +207,11 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
       maxAttempts = 3,
       requiredSuccesses = 1)
   public void puppyFollowsParent(final TestContext context) {
-    final HuskyEntity parent =
-        (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, new BlockPos(2, 1, 2));
+    final UnleashedDogEntity parent = context.spawnEntity(ModEntities.HUSKY, new BlockPos(2, 1, 2));
     parent.setAiDisabled(true);
     parent.setInvulnerable(true);
 
-    final HuskyEntity puppy =
-        (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, new BlockPos(5, 1, 5));
+    final UnleashedDogEntity puppy = context.spawnEntity(ModEntities.HUSKY, new BlockPos(5, 1, 5));
     puppy.setBaby(true);
     puppy.setInvulnerable(true);
     puppy.setParentDogUuid(parent.getUuid());
@@ -295,7 +286,7 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity dog = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relBedPos);
+    final UnleashedDogEntity dog = context.spawnEntity(ModEntities.HUSKY, relBedPos);
     dog.setTamed(true, true);
     if (baby) {
       dog.setBaby(true);
@@ -347,7 +338,7 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity dog = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relBedPos);
+    final UnleashedDogEntity dog = context.spawnEntity(ModEntities.HUSKY, relBedPos);
     dog.setTamed(true, true);
     if (baby) {
       dog.setBaby(true);
@@ -378,7 +369,7 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
     context.runAtTick(199, context::complete);
   }
 
-  private static void anchorOnBed(final HuskyEntity dog, final BlockPos absBedPos) {
+  private static void anchorOnBed(final UnleashedDogEntity dog, final BlockPos absBedPos) {
     dog.refreshPositionAndAngles(
         absBedPos.getX() + 0.5, absBedPos.getY(), absBedPos.getZ() + 0.5, 0.0f, 0.0f);
     dog.setVelocity(0, 0, 0);

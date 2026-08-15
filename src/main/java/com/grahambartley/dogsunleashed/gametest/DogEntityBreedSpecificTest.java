@@ -49,12 +49,11 @@ public final class DogEntityBreedSpecificTest implements FabricGameTest {
 
   @FunctionalInterface
   private interface PerBreedBody {
-    void run(TestContext context, DogTestData<? extends UnleashedDogEntity> data);
+    void run(TestContext context, DogTestData data);
   }
 
-  private <T extends UnleashedDogEntity> void testDogHasCorrectAttributes(
-      final TestContext context, final DogTestData<T> data) {
-    final T dog = DogTestHelper.spawnDog(context, data);
+  private void testDogHasCorrectAttributes(final TestContext context, final DogTestData data) {
+    final UnleashedDogEntity dog = DogTestHelper.spawnDog(context, data);
 
     context.assertTrue(
         dog.getAttributeValue(EntityAttributes.GENERIC_MAX_HEALTH) == data.expectedMaxHealth(),
@@ -71,17 +70,17 @@ public final class DogEntityBreedSpecificTest implements FabricGameTest {
     context.complete();
   }
 
-  private <T extends UnleashedDogEntity> void testDogCreatesCorrectBaby(
-      final TestContext context, final DogTestData<T> data) {
+  private void testDogCreatesCorrectBaby(final TestContext context, final DogTestData data) {
     final ServerWorld world = context.getWorld();
-    final T parent1 = DogTestHelper.spawnTamedDog(context, data, new BlockPos(0, 1, 0));
-    final T parent2 = DogTestHelper.spawnTamedDog(context, data, new BlockPos(1, 1, 0));
+    final UnleashedDogEntity parent1 =
+        DogTestHelper.spawnTamedDog(context, data, new BlockPos(0, 1, 0));
+    final UnleashedDogEntity parent2 =
+        DogTestHelper.spawnTamedDog(context, data, new BlockPos(1, 1, 0));
 
     context.runAtTick(
         10,
         () -> {
-          @SuppressWarnings("unchecked")
-          final T baby = (T) parent1.createChild(world, parent2);
+          final UnleashedDogEntity baby = (UnleashedDogEntity) parent1.createChild(world, parent2);
 
           context.assertTrue(
               baby != null, "Baby should be created from two " + data.breed().serializedId() + "s");

@@ -1,7 +1,6 @@
 package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
-import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import java.util.List;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -44,8 +43,7 @@ public final class DogSpawnRegistrationGameTest implements FabricGameTest {
         .toList();
   }
 
-  private void testBakedSpawnEntries(
-      final TestContext context, final DogTestData<? extends UnleashedDogEntity> data) {
+  private void testBakedSpawnEntries(final TestContext context, final DogTestData data) {
     final UnleashedDogBreed.SpawnSettings breedSettings = data.breed().spawnSettings();
     final Registry<Biome> biomes = context.getWorld().getRegistryManager().get(RegistryKeys.BIOME);
 

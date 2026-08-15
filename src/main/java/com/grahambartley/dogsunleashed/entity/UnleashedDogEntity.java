@@ -2,16 +2,24 @@ package com.grahambartley.dogsunleashed.entity;
 
 import static com.grahambartley.dogsunleashed.ModConstants.BARK_COOLDOWN_TICKS;
 import static com.grahambartley.dogsunleashed.ModConstants.BARK_PITCH;
+import static com.grahambartley.dogsunleashed.ModConstants.FULL_MOON_PHASE;
+import static com.grahambartley.dogsunleashed.ModConstants.HOWL_COOLDOWN_TICKS;
+import static com.grahambartley.dogsunleashed.ModConstants.HOWL_DURATION_TICKS;
+import static com.grahambartley.dogsunleashed.ModConstants.HOWL_HEARING_RANGE_SQUARED;
+import static com.grahambartley.dogsunleashed.ModConstants.HOWL_PITCH;
 import static com.grahambartley.dogsunleashed.ModConstants.LOW_HEALTH_THRESHOLD;
 import static com.grahambartley.dogsunleashed.ModConstants.MINECRAFT_TICK_RATE;
 import static com.grahambartley.dogsunleashed.ModConstants.PUPPY_BARK_PITCH_MULTIPLIER;
 import static com.grahambartley.dogsunleashed.ModConstants.RANDOM_BARK_CHANCE;
+import static com.grahambartley.dogsunleashed.ModConstants.RANDOM_HOWL_CHANCE;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModBlockTags;
 import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
+import com.grahambartley.dogsunleashed.ModSounds;
 import com.grahambartley.dogsunleashed.advancement.DogSleptInBedCriterion;
+import com.grahambartley.dogsunleashed.advancement.HuskyHowledCriterion;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
 import com.grahambartley.dogsunleashed.block.DogGraveBlock;
 import com.grahambartley.dogsunleashed.block.entity.DogBedBlockEntity;
@@ -31,6 +39,8 @@ import com.grahambartley.dogsunleashed.entity.goal.HuntTargetGoal;
 import com.grahambartley.dogsunleashed.entity.goal.PuppyAwareWanderGoal;
 import com.grahambartley.dogsunleashed.entity.goal.ReturnToAnchorGoal;
 import com.grahambartley.dogsunleashed.entity.goal.SleepInBedGoal;
+import com.grahambartley.dogsunleashed.entity.variant.DogCoats;
+import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
 import com.grahambartley.dogsunleashed.entity.variant.UnleashedDogCoat;
 import com.grahambartley.dogsunleashed.network.ModNetworking;
 import com.grahambartley.dogsunleashed.pet.PetData;
@@ -42,6 +52,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.BiFunction;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
@@ -111,7 +122,7 @@ import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public abstract class UnleashedDogEntity extends TameableEntity implements GeoEntity, Angerable {
+public class UnleashedDogEntity extends TameableEntity implements GeoEntity, Angerable {
 
   // Keep in sync with PetData.DEFAULT_COLLAR_COLOR_ID. PetData mirrors this value from DyeColor
   // directly because referencing this constant would class-load UnleashedDogEntity, a MobEntity
@@ -157,6 +168,12 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
 
   private static final TrackedData<Integer> ANGER_TIME =
       DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.INTEGER);
+  private static final TrackedData<Integer> COAT_VARIANT =
+      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.INTEGER);
+  private static final TrackedData<Integer> EYE_COLOR_VARIANT =
+      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.INTEGER);
+  private static final TrackedData<Boolean> HOWLING =
+      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
   private static final TrackedData<Integer> COLLAR_COLOR =
       DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.INTEGER);
   private static final TrackedData<Integer> TAIL_WAG_TIMER =
@@ -238,6 +255,8 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
           Items.BONE);
 
   private int barkCooldownTicks = 0;
+  private int howlCooldownTicks = 0;
+  private int howlActiveTicks = 0;
   private int manuallyWokenAge = -1;
   private boolean manuallyWokenAtNight = false;
   private int lastReunionAge = -1;
@@ -247,9 +266,12 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   private boolean spawnedByDogSpawner = false;
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+  private final UnleashedDogBreed breed;
 
-  public UnleashedDogEntity(EntityType<? extends TameableEntity> entityType, World world) {
+  public UnleashedDogEntity(
+      EntityType<? extends TameableEntity> entityType, World world, UnleashedDogBreed breed) {
     super(entityType, world);
+    this.breed = breed;
   }
 
   // Mirrors WolfEntity.canSpawn: the vanilla AnimalEntity predicate only allows grass_block below,
@@ -303,32 +325,56 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     }
   }
 
-  protected abstract UnleashedDogEntity createBaby(ServerWorld world);
+  protected boolean isSameSpecies(MobEntity entity) {
+    return entity instanceof UnleashedDogEntity otherDog && otherDog.getBreed() == this.breed;
+  }
 
-  protected abstract boolean isSameSpecies(MobEntity entity);
-
-  public abstract UnleashedDogBreed getBreed();
+  public UnleashedDogBreed getBreed() {
+    return this.breed;
+  }
 
   public final String getBreedId() {
     return this.getBreed().serializedId();
   }
 
-  protected abstract @Nullable SoundEvent getBarkSound();
-
-  protected String getSleepInBedMovementAnimationName() {
-    return DogAnimationKeys.SIT;
+  public DogTraits getTraits() {
+    return new DogTraits(
+        this.breed, this.dataTracker.get(COAT_VARIANT), this.dataTracker.get(EYE_COLOR_VARIANT));
   }
 
-  protected void rollAppearance(final SpawnReason spawnReason) {}
+  public void applyTraits(final DogTraits traits) {
+    this.dataTracker.set(COAT_VARIANT, traits.coatVariantOrdinal());
+    this.dataTracker.set(EYE_COLOR_VARIANT, traits.eyeColorVariantOrdinal());
+  }
 
-  protected void tickBreedSpecificSounds() {}
+  protected @Nullable SoundEvent getBarkSound() {
+    return this.breed.barkSound();
+  }
+
+  protected void rollAppearance(final SpawnReason spawnReason) {
+    final BiFunction<SpawnReason, Integer, UnleashedDogCoat> rollResolver =
+        DogCoats.rollResolverFor(this.breed);
+    final DogTraits current = this.getTraits();
+    final int coatVariantOrdinal =
+        rollResolver != null
+            ? rollResolver.apply(spawnReason, this.random.nextInt(DogCoats.ROLL_BOUND)).getOrdinal()
+            : current.coatVariantOrdinal();
+    final int eyeColorVariantOrdinal =
+        this.breed.hasEyeColorVariants()
+            ? HuskyEyeColor.fromRandom(this.random).ordinal()
+            : current.eyeColorVariantOrdinal();
+    this.applyTraits(new DogTraits(this.breed, coatVariantOrdinal, eyeColorVariantOrdinal));
+  }
 
   public int getBarkCooldownTicks() {
     return this.barkCooldownTicks;
   }
 
   protected boolean canBark() {
-    return !this.isDead() && !this.isSleepingInBed() && this.barkCooldownTicks <= 0;
+    return this.breed.hasBarkSound()
+        && !this.isDead()
+        && !this.isSleepingInBed()
+        && this.barkCooldownTicks <= 0;
   }
 
   private boolean shouldBark(final PlayerEntity nearbyPlayer) {
@@ -356,6 +402,70 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     }
   }
 
+  public boolean isHowling() {
+    return this.dataTracker.get(HOWLING);
+  }
+
+  private void setHowling(boolean howling) {
+    this.dataTracker.set(HOWLING, howling);
+  }
+
+  public int getHowlCooldownTicks() {
+    return this.howlCooldownTicks;
+  }
+
+  private boolean isHowlConditionMet() {
+    return !this.isDead()
+        && !this.isSleepingInBed()
+        && !this.getWorld().isDay()
+        && this.getWorld().getMoonPhase() == FULL_MOON_PHASE;
+  }
+
+  private boolean canHowl() {
+    return isHowlConditionMet() && this.howlCooldownTicks <= 0;
+  }
+
+  private void tickHowl() {
+    if (!this.breed.howls()) {
+      return;
+    }
+
+    if (this.howlCooldownTicks > 0) this.howlCooldownTicks--;
+
+    if (this.howlActiveTicks > 0) {
+      this.howlActiveTicks--;
+      if (this.howlActiveTicks == 0) {
+        this.setHowling(false);
+      }
+    }
+
+    boolean willHowl = this.canHowl() && this.random.nextInt(RANDOM_HOWL_CHANCE) == 0;
+    if (willHowl) {
+      this.setHowling(true);
+      this.playSound(ModSounds.HUSKY_HOWL, DogsUnleashed.SERVER_CONFIG.howlVolume(), HOWL_PITCH);
+      this.howlCooldownTicks = HOWL_COOLDOWN_TICKS;
+      this.howlActiveTicks = HOWL_DURATION_TICKS;
+      this.triggerHowlAdvancement();
+    }
+  }
+
+  private void triggerHowlAdvancement() {
+    if (!(this.getWorld() instanceof ServerWorld)) {
+      return;
+    }
+
+    final Entity owner = this.getOwner();
+    if (!(owner instanceof ServerPlayerEntity player) || !player.isAlive()) {
+      return;
+    }
+
+    if (this.squaredDistanceTo(player) > HOWL_HEARING_RANGE_SQUARED) {
+      return;
+    }
+
+    HuskyHowledCriterion.INSTANCE.trigger(player);
+  }
+
   @Override
   protected void initDataTracker(DataTracker.Builder builder) {
     super.initDataTracker(builder);
@@ -372,6 +482,9 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     builder.add(CARRIED_FETCH_ITEM_STACK, ItemStack.EMPTY);
     builder.add(PLAY_PARTNER_UUID, Optional.empty());
     builder.add(COMMAND, DogCommand.FOLLOW.id());
+    builder.add(COAT_VARIANT, 0);
+    builder.add(EYE_COLOR_VARIANT, 0);
+    builder.add(HOWLING, false);
   }
 
   public DogCommand getCommand() {
@@ -432,8 +545,14 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     this.dataTracker.set(COLLAR_COLOR, color.getId());
   }
 
-  public UnleashedDogCoat getCoatVariant() {
-    return null;
+  public @Nullable UnleashedDogCoat getCoatVariant() {
+    return DogCoats.coatOf(this.breed, this.dataTracker.get(COAT_VARIANT));
+  }
+
+  public @Nullable HuskyEyeColor getEyeColorVariant() {
+    return this.breed.hasEyeColorVariants()
+        ? HuskyEyeColor.fromOrdinal(this.dataTracker.get(EYE_COLOR_VARIANT))
+        : null;
   }
 
   public int getShakeProgress() {
@@ -987,7 +1106,10 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     if (!this.isSameSpecies(entity)) {
       return null;
     }
-    final UnleashedDogEntity baby = this.createBaby(world);
+    final UnleashedDogEntity baby = (UnleashedDogEntity) this.getType().create(world);
+    if (baby == null) {
+      return null;
+    }
     baby.setBaby(true);
     baby.setParentDogUuid(this.getUuid());
     baby.setSecondParentDogUuid(entity.getUuid());
@@ -1127,7 +1249,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
         this.barkCooldownTicks--;
       }
       this.tryBark(nearbyPlayer);
-      this.tickBreedSpecificSounds();
+      this.tickHowl();
 
       final boolean inWater = this.isTouchingWater();
 
@@ -1385,6 +1507,13 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   public void writeCustomDataToNbt(NbtCompound nbt) {
     super.writeCustomDataToNbt(nbt);
     this.writeAngerToNbt(nbt);
+    final DogTraits traits = this.getTraits();
+    if (DogCoats.hasCoatVariants(this.breed)) {
+      nbt.putInt(ModNbtKeys.COAT_VARIANT, traits.coatVariantOrdinal());
+    }
+    if (this.breed.hasEyeColorVariants()) {
+      nbt.putInt(ModNbtKeys.EYE_COLOR_VARIANT, traits.eyeColorVariantOrdinal());
+    }
     nbt.putInt(ModNbtKeys.COLLAR_COLOR, this.getCollarColor().getId());
     nbt.putInt(ModNbtKeys.SHAKE_PROGRESS, this.getShakeProgress());
     nbt.putBoolean(ModNbtKeys.WAS_IN_WATER, this.wasInWater);
@@ -1429,6 +1558,16 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   public void readCustomDataFromNbt(NbtCompound nbt) {
     super.readCustomDataFromNbt(nbt);
     this.readAngerFromNbt(this.getWorld(), nbt);
+    final DogTraits currentTraits = this.getTraits();
+    this.applyTraits(
+        new DogTraits(
+            this.breed,
+            nbt.contains(ModNbtKeys.COAT_VARIANT, NbtElement.NUMBER_TYPE)
+                ? nbt.getInt(ModNbtKeys.COAT_VARIANT)
+                : currentTraits.coatVariantOrdinal(),
+            nbt.contains(ModNbtKeys.EYE_COLOR_VARIANT, NbtElement.NUMBER_TYPE)
+                ? nbt.getInt(ModNbtKeys.EYE_COLOR_VARIANT)
+                : currentTraits.eyeColorVariantOrdinal()));
     if (nbt.contains(ModNbtKeys.COLLAR_COLOR, NbtElement.NUMBER_TYPE)) {
       this.setCollarColor(DyeColor.byId(nbt.getInt(ModNbtKeys.COLLAR_COLOR)));
     }
@@ -1531,9 +1670,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
             0,
             state -> {
               if (state.getAnimatable().isSleepingInBed()) {
-                return state.setAndContinue(
-                    RawAnimation.begin()
-                        .thenLoop(state.getAnimatable().getSleepInBedMovementAnimationName()));
+                return state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.SLEEP));
               }
               if (state.getAnimatable().isInSittingPose()) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("sit"));
@@ -1565,6 +1702,22 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
             state -> {
               if (state.getAnimatable().isShaking()) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("shake"));
+              }
+              return PlayState.STOP;
+            }));
+
+    controllers.add(
+        new AnimationController<>(
+            this,
+            "howl",
+            0,
+            state -> {
+              if (this.isHowling()) {
+                if (this.isInSittingPose()) {
+                  return state.setAndContinue(
+                      RawAnimation.begin().thenLoop(DogAnimationKeys.HOWL_SIT));
+                }
+                return state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.HOWL));
               }
               return PlayState.STOP;
             }));

@@ -2,7 +2,6 @@ package com.grahambartley.dogsunleashed.screen;
 
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
-import com.grahambartley.dogsunleashed.entity.HuskyEntity;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.network.ModNetworking;
@@ -114,7 +113,7 @@ public final class DogPortraitRenderer {
     if (pet.coatVariant() >= 0) {
       nbt.putInt(ModNbtKeys.COAT_VARIANT, pet.coatVariant());
     }
-    if (dog instanceof HuskyEntity) {
+    if (dog.getBreed().hasEyeColorVariants()) {
       nbt.putInt(ModNbtKeys.EYE_COLOR_VARIANT, pet.huskyEyeVariant());
     }
     dog.readCustomDataFromNbt(nbt);

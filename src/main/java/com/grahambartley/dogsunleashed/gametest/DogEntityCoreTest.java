@@ -1,7 +1,9 @@
 package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModNbtKeys;
+import com.grahambartley.dogsunleashed.entity.DogTraits;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.variant.DogCoats;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import java.util.List;
@@ -40,6 +42,17 @@ public final class DogEntityCoreTest implements FabricGameTest {
     return generatePerBreed("collarColorPersistsInNbt", 100, this::testCollarColorPersistsInNbt);
   }
 
+  @CustomTestProvider
+  public List<TestFunction> traitsPersistInNbtPerBreed() {
+    return generatePerBreed("traitsPersistInNbt", 100, this::testTraitsPersistInNbt);
+  }
+
+  @CustomTestProvider
+  public List<TestFunction> variantGettersMatchBreedCapabilitiesPerBreed() {
+    return generatePerBreed(
+        "variantGettersMatchBreedCapabilities", 20, this::testVariantGettersMatchBreedCapabilities);
+  }
+
   private List<TestFunction> generatePerBreed(
       final String behavior, final int tickLimit, final PerBreedBody body) {
     return DogTestData.getAllBreeds().stream()
@@ -58,19 +71,17 @@ public final class DogEntityCoreTest implements FabricGameTest {
 
   /**
    * Functional interface for a per-breed gametest body. Equivalent to {@code
-   * BiConsumer<TestContext, DogTestData<? extends UnleashedDogEntity>>} but expressed as a named
-   * SAM so generator call sites can pass method references like {@code this::testDogCanBeTamed}
-   * without explicit casts.
+   * BiConsumer<TestContext, DogTestData>} but expressed as a named SAM so generator call sites can
+   * pass method references like {@code this::testDogCanBeTamed} without explicit casts.
    */
   @FunctionalInterface
   private interface PerBreedBody {
-    void run(TestContext context, DogTestData<? extends UnleashedDogEntity> data);
+    void run(TestContext context, DogTestData data);
   }
 
-  private <T extends UnleashedDogEntity> void testDogSpawnsCorrectly(
-      final TestContext context, final DogTestData<T> data) {
+  private void testDogSpawnsCorrectly(final TestContext context, final DogTestData data) {
     final ServerWorld world = context.getWorld();
-    final T dog = DogTestHelper.spawnDog(context, data);
+    final UnleashedDogEntity dog = DogTestHelper.spawnDog(context, data);
 
     context.runAtTick(
         1,
@@ -83,9 +94,8 @@ public final class DogEntityCoreTest implements FabricGameTest {
         });
   }
 
-  private <T extends UnleashedDogEntity> void testDogCanBeTamed(
-      final TestContext context, final DogTestData<T> data) {
-    final T dog = DogTestHelper.spawnDog(context, data);
+  private void testDogCanBeTamed(final TestContext context, final DogTestData data) {
+    final UnleashedDogEntity dog = DogTestHelper.spawnDog(context, data);
 
     context.runAtTick(
         10,
@@ -102,10 +112,9 @@ public final class DogEntityCoreTest implements FabricGameTest {
         });
   }
 
-  private <T extends UnleashedDogEntity> void testCollarColorPersistsInNbt(
-      final TestContext context, final DogTestData<T> data) {
+  private void testCollarColorPersistsInNbt(final TestContext context, final DogTestData data) {
     final ServerWorld world = context.getWorld();
-    final T dog = DogTestHelper.spawnTamedDog(context, data);
+    final UnleashedDogEntity dog = DogTestHelper.spawnTamedDog(context, data);
 
     dog.setCollarColor(DyeColor.LIME);
 
@@ -118,11 +127,50 @@ public final class DogEntityCoreTest implements FabricGameTest {
         nbt.getInt(ModNbtKeys.COLLAR_COLOR) == DyeColor.LIME.getId(),
         "NBT should store LIME color ID");
 
-    final T newDog = data.factory().apply(world);
+    final UnleashedDogEntity newDog = data.factory().apply(world);
     newDog.readCustomDataFromNbt(nbt);
 
     context.assertTrue(
         newDog.getCollarColor() == DyeColor.LIME, "Collar color should persist after NBT load");
+    context.complete();
+  }
+
+  private void testTraitsPersistInNbt(final TestContext context, final DogTestData data) {
+    final ServerWorld world = context.getWorld();
+    final UnleashedDogEntity dog = DogTestHelper.spawnDog(context, data);
+    final DogTraits appliedTraits = new DogTraits(data.breed(), 1, 1);
+    dog.applyTraits(appliedTraits);
+
+    context.assertTrue(
+        appliedTraits.equals(dog.getTraits()), "Applied traits should read back unchanged");
+
+    final NbtCompound nbt = new NbtCompound();
+    dog.writeCustomDataToNbt(nbt);
+    final UnleashedDogEntity newDog = data.factory().apply(world);
+    newDog.readCustomDataFromNbt(nbt);
+
+    final DogTraits expectedTraits =
+        new DogTraits(
+            data.breed(),
+            DogCoats.hasCoatVariants(data.breed()) ? 1 : 0,
+            data.breed().hasEyeColorVariants() ? 1 : 0);
+    context.assertTrue(
+        expectedTraits.equals(newDog.getTraits()),
+        "Traits should persist through NBT for variants the breed supports, but were "
+            + newDog.getTraits());
+    context.complete();
+  }
+
+  private void testVariantGettersMatchBreedCapabilities(
+      final TestContext context, final DogTestData data) {
+    final UnleashedDogEntity dog = DogTestHelper.spawnDog(context, data);
+
+    context.assertTrue(
+        DogCoats.hasCoatVariants(data.breed()) == (dog.getCoatVariant() != null),
+        "Coat variant getter must resolve exactly for breeds with coat variants");
+    context.assertTrue(
+        data.breed().hasEyeColorVariants() == (dog.getEyeColorVariant() != null),
+        "Eye color getter must resolve exactly for breeds with eye color variants");
     context.complete();
   }
 }
