@@ -28,7 +28,7 @@ public class FetchChaseGoal extends Goal {
 
   @Override
   public boolean canStart() {
-    if (!this.dog.isInPlayMode() || this.dog.isInSittingPose()) {
+    if (!this.dog.isInPlayMode() || this.dog.isInSittingPose() || this.dog.isLeashed()) {
       return false;
     }
     if (this.dog.getActiveFetchBlockPos() != null) {
@@ -39,7 +39,7 @@ public class FetchChaseGoal extends Goal {
 
   @Override
   public boolean shouldContinue() {
-    if (!this.dog.isInPlayMode() || this.dog.isInSittingPose()) {
+    if (!this.dog.isInPlayMode() || this.dog.isInSittingPose() || this.dog.isLeashed()) {
       return false;
     }
     if (this.dog.getActiveFetchBlockPos() != null) {

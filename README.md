@@ -127,6 +127,17 @@ Full chase AI, carry animation, the works. Three fetch items are supported:
 The frisbee glides roughly three times further than the tennis ball before landing, making it the best fetch item for
 open terrain.
 
+### Leads That Behave
+
+Clip a vanilla lead onto your dog and the AI gets out of the way:
+
+- **No tug-of-war**: follow and heel AI pause while leashed, the lead is the walk
+- **No mid-walk naps**: a leashed dog never auto-sleeps, and one that was snoozing in bed wakes up the moment the lead
+clips on
+- **Fetch handoff**: sneak-right-click a leashed dog with a fetch item and the lead drops before play mode starts (turn
+off *Drop Leash on Play Mode* to keep the lead on instead, which pauses fetching until the lead comes off)
+- **Collar-matched rope**: the lead rope tints to your dog's collar color, so walking the whole pack stays readable
+
 ### Dog Beds They Actually Use
 
 16 dye colors. Craft one, place it, and assign it to your dog by sneak-right-clicking the dog then right-clicking the
@@ -214,6 +225,10 @@ That is it. No config files to edit. No server setup required.
 |------------------|---------|----------------------------------------------------------------------|
 | Open Pet Manager | Unbound | Opens the Pet Manager screen (set under `Controls > Dogs Unleashed`) |
 
+Leash interactions use vanilla leads with no extra keybinds: clip a lead on to walk a dog (its follow and auto-sleep AI
+pause while leashed), and sneak-right-click a leashed dog with a fetch item to drop the lead and start fetch in one
+motion (see *Drop Leash on Play Mode* under Settings).
+
 The keybind ships unbound so it never steals a key you already use. The first time you launch the game with the mod
 installed, a one-time toast reminds you to bind it, and the Pet Manager screen carries a footer link that jumps straight
 to the controls screen. The reminder is tracked in `config/dogs-unleashed/client-state.json`, so it only ever shows once
@@ -232,6 +247,7 @@ also edit via `/dogsunleashed config`.
 | Spawn Rate (per breed)    | 100%    | 0% to 500% | Per-breed spawn rate, combined with the global rate. 0% disables that breed. Requires world restart. |
 | Cap-Independent Spawner   | On      | On / Off   | Dedicated spawner that spawns wild dog packs near players even when the creature cap is full. Takes effect immediately. |
 | Dog Graves on Death       | On      | On / Off   | Whether tamed dogs leave a grave block. Off drops loot normally. |
+| Drop Leash on Play Mode   | On      | On / Off   | Whether starting fetch with a leashed dog drops the leash first. Off keeps the leash on and pauses fetching while leashed. |
 | Auto-Sleep at Night       | On      | On / Off   | Whether dogs auto-sleep in their assigned bed at night.          |
 | Auto-Sleep Range (blocks) | 32      | 4 to 128   | How far a dog can be from its bed and still return at night.     |
 | Bark Volume               | 1.0     | 0.0 to 2.0 | Multiplier on bark sound volume (0.0 mutes).                     |

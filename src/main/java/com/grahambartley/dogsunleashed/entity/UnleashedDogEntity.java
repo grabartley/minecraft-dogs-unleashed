@@ -334,7 +334,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     if (nearbyPlayer != null && this.isPlayerHoldingTamingOrBreedingItem(nearbyPlayer)) {
       return true;
     }
-    if (this.getHealth() < this.getMaxHealth() * LOW_HEALTH_THRESHOLD) {
+    if (this.getHealth() < this.getMaxHealth() * LOW_HEALTH_THRESHOLD && !this.isLeashed()) {
       return true;
     }
     if (this.getTarget() != null) {
@@ -861,6 +861,9 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
         player.sendMessage(
             Text.translatable("message.dogs-unleashed.play_end", this.getTamedName()), true);
       } else {
+        if (this.isLeashed() && DogsUnleashed.SERVER_CONFIG.dropLeashOnPlayMode()) {
+          this.detachLeash();
+        }
         endOtherNearbyPlayModes(player);
         this.startPlayMode(player, fetchItemType);
         player.sendMessage(
@@ -1094,6 +1097,10 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   public void tick() {
     super.tick();
     if (!this.getWorld().isClient) {
+      if (this.isLeashed() && (this.isSleepingInBed() || this.isCommandedToSleep())) {
+        this.wakeUp();
+      }
+
       final PlayerEntity nearbyPlayer = this.getWorld().getClosestPlayer(this, NEARBY_PLAYER_RANGE);
 
       this.updateHeadTilt(nearbyPlayer);

@@ -26,7 +26,7 @@ class DogsUnleashedConfigTest {
   private static DogsUnleashedConfig configWithSpawnRates(
       final int globalPercent, final Map<String, Integer> breedPercents) {
     return new DogsUnleashedConfig(
-        true, globalPercent, breedPercents, false, true, true, 32, 1.0f, 1.5f);
+        true, globalPercent, breedPercents, false, true, true, true, 32, 1.0f, 1.5f);
   }
 
   @Test
@@ -65,6 +65,7 @@ class DogsUnleashedConfigTest {
     assertEquals(100, defaults.spawnRateMultiplierPercent());
     assertTrue(defaults.capIndependentSpawningEnabled());
     assertTrue(defaults.gravesEnabled());
+    assertTrue(defaults.dropLeashOnPlayMode());
     assertTrue(defaults.autoSleepEnabled());
     assertEquals(32, defaults.autoSleepRangeBlocks());
     assertEquals(1.0f, defaults.barkVolume());
@@ -101,7 +102,16 @@ class DogsUnleashedConfigTest {
     final Path path = tempDir.resolve("config.json");
     final DogsUnleashedConfig original =
         new DogsUnleashedConfig(
-            false, 250, Map.of("husky", 0, "beagle", 40), false, false, false, 64, 0.5f, 0.25f);
+            false,
+            250,
+            Map.of("husky", 0, "beagle", 40),
+            false,
+            false,
+            false,
+            false,
+            64,
+            0.5f,
+            0.25f);
     assertTrue(DogsUnleashedConfig.save(path, original));
     assertTrue(Files.exists(path));
     assertEquals(original, DogsUnleashedConfig.load(path));
@@ -131,6 +141,7 @@ class DogsUnleashedConfigTest {
     final DogsUnleashedConfig loaded = DogsUnleashedConfig.load(path);
     assertEquals(0.5f, loaded.barkVolume());
     assertFalse(loaded.gravesEnabled());
+    assertTrue(loaded.dropLeashOnPlayMode());
     assertTrue(loaded.enableNaturalSpawning());
     assertEquals(100, loaded.spawnRateMultiplierPercent());
     assertTrue(loaded.capIndependentSpawningEnabled());
@@ -161,7 +172,7 @@ class DogsUnleashedConfigTest {
       "constructor clamps autoSleepRangeBlocks to [AUTO_SLEEP_RANGE_MIN, AUTO_SLEEP_RANGE_MAX]")
   void constructorClampsAutoSleepRange(final int input, final int expected) {
     final DogsUnleashedConfig config =
-        new DogsUnleashedConfig(true, 100, Map.of(), false, true, true, input, 1.0f, 1.5f);
+        new DogsUnleashedConfig(true, 100, Map.of(), false, true, true, true, input, 1.0f, 1.5f);
     assertEquals(expected, config.autoSleepRangeBlocks());
   }
 
@@ -181,7 +192,7 @@ class DogsUnleashedConfigTest {
   @DisplayName("constructor clamps barkVolume and howlVolume to [VOLUME_MIN, VOLUME_MAX]")
   void constructorClampsVolumes(final float input, final float expected) {
     final DogsUnleashedConfig config =
-        new DogsUnleashedConfig(true, 100, Map.of(), false, true, true, 32, input, input);
+        new DogsUnleashedConfig(true, 100, Map.of(), false, true, true, true, 32, input, input);
     assertEquals(expected, config.barkVolume());
     assertEquals(expected, config.howlVolume());
   }
@@ -242,6 +253,14 @@ class DogsUnleashedConfigTest {
     final Path path = tempDir.resolve("capspawner.json");
     Files.writeString(path, "{\"capIndependentSpawningEnabled\": false}", StandardCharsets.UTF_8);
     assertFalse(DogsUnleashedConfig.load(path).capIndependentSpawningEnabled());
+  }
+
+  @Test
+  @DisplayName("load() honors an opt-out dropLeashOnPlayMode=false from JSON")
+  void loadHonorsDropLeashOnPlayModeOptOut() throws IOException {
+    final Path path = tempDir.resolve("dropleash.json");
+    Files.writeString(path, "{\"dropLeashOnPlayMode\": false}", StandardCharsets.UTF_8);
+    assertFalse(DogsUnleashedConfig.load(path).dropLeashOnPlayMode());
   }
 
   @Test
@@ -328,6 +347,7 @@ class DogsUnleashedConfigTest {
             .withBreedSpawnRateMultiplierPercent("beagle", 0)
             .withCapIndependentSpawningEnabled(false)
             .withGravesEnabled(false)
+            .withDropLeashOnPlayMode(false)
             .withAutoSleepEnabled(false)
             .withAutoSleepRangeBlocks(64)
             .withBarkVolume(0.25f)
@@ -340,6 +360,7 @@ class DogsUnleashedConfigTest {
     assertEquals(100, updated.breedSpawnRateMultipliersPercent().get("husky"));
     assertFalse(updated.capIndependentSpawningEnabled());
     assertFalse(updated.gravesEnabled());
+    assertFalse(updated.dropLeashOnPlayMode());
     assertFalse(updated.autoSleepEnabled());
     assertEquals(64, updated.autoSleepRangeBlocks());
     assertEquals(0.25f, updated.barkVolume());

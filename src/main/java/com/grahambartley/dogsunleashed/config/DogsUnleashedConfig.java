@@ -26,6 +26,7 @@ public record DogsUnleashedConfig(
     Map<String, Integer> breedSpawnRateMultipliersPercent,
     boolean capIndependentSpawningEnabled,
     boolean gravesEnabled,
+    boolean dropLeashOnPlayMode,
     boolean autoSleepEnabled,
     int autoSleepRangeBlocks,
     float barkVolume,
@@ -45,6 +46,7 @@ public record DogsUnleashedConfig(
   public static final int DEFAULT_SPAWN_RATE_MULTIPLIER_PERCENT = 100;
   public static final boolean DEFAULT_CAP_INDEPENDENT_SPAWNING_ENABLED = true;
   public static final boolean DEFAULT_GRAVES_ENABLED = true;
+  public static final boolean DEFAULT_DROP_LEASH_ON_PLAY_MODE = true;
   public static final boolean DEFAULT_AUTO_SLEEP_ENABLED = true;
   public static final int DEFAULT_AUTO_SLEEP_RANGE_BLOCKS = 32;
   public static final float DEFAULT_BARK_VOLUME = 1.0f;
@@ -55,6 +57,7 @@ public record DogsUnleashedConfig(
   static final String KEY_BREED_SPAWN_RATE_MULTIPLIERS_PERCENT = "breedSpawnRateMultipliersPercent";
   static final String KEY_CAP_INDEPENDENT_SPAWNING_ENABLED = "capIndependentSpawningEnabled";
   static final String KEY_GRAVES_ENABLED = "gravesEnabled";
+  static final String KEY_DROP_LEASH_ON_PLAY_MODE = "dropLeashOnPlayMode";
   static final String KEY_AUTO_SLEEP_ENABLED = "autoSleepEnabled";
   static final String KEY_AUTO_SLEEP_RANGE_BLOCKS = "autoSleepRangeBlocks";
   static final String KEY_BARK_VOLUME = "barkVolume";
@@ -77,6 +80,7 @@ public record DogsUnleashedConfig(
         Map.of(),
         DEFAULT_CAP_INDEPENDENT_SPAWNING_ENABLED,
         DEFAULT_GRAVES_ENABLED,
+        DEFAULT_DROP_LEASH_ON_PLAY_MODE,
         DEFAULT_AUTO_SLEEP_ENABLED,
         DEFAULT_AUTO_SLEEP_RANGE_BLOCKS,
         DEFAULT_BARK_VOLUME,
@@ -107,6 +111,7 @@ public record DogsUnleashedConfig(
         breedSpawnRateMultipliersPercent,
         capIndependentSpawningEnabled,
         gravesEnabled,
+        dropLeashOnPlayMode,
         autoSleepEnabled,
         autoSleepRangeBlocks,
         barkVolume,
@@ -120,6 +125,7 @@ public record DogsUnleashedConfig(
         breedSpawnRateMultipliersPercent,
         capIndependentSpawningEnabled,
         gravesEnabled,
+        dropLeashOnPlayMode,
         autoSleepEnabled,
         autoSleepRangeBlocks,
         barkVolume,
@@ -136,6 +142,7 @@ public record DogsUnleashedConfig(
         updated,
         capIndependentSpawningEnabled,
         gravesEnabled,
+        dropLeashOnPlayMode,
         autoSleepEnabled,
         autoSleepRangeBlocks,
         barkVolume,
@@ -149,6 +156,7 @@ public record DogsUnleashedConfig(
         breedSpawnRateMultipliersPercent,
         value,
         gravesEnabled,
+        dropLeashOnPlayMode,
         autoSleepEnabled,
         autoSleepRangeBlocks,
         barkVolume,
@@ -161,6 +169,21 @@ public record DogsUnleashedConfig(
         spawnRateMultiplierPercent,
         breedSpawnRateMultipliersPercent,
         capIndependentSpawningEnabled,
+        value,
+        dropLeashOnPlayMode,
+        autoSleepEnabled,
+        autoSleepRangeBlocks,
+        barkVolume,
+        howlVolume);
+  }
+
+  public DogsUnleashedConfig withDropLeashOnPlayMode(boolean value) {
+    return new DogsUnleashedConfig(
+        enableNaturalSpawning,
+        spawnRateMultiplierPercent,
+        breedSpawnRateMultipliersPercent,
+        capIndependentSpawningEnabled,
+        gravesEnabled,
         value,
         autoSleepEnabled,
         autoSleepRangeBlocks,
@@ -175,6 +198,7 @@ public record DogsUnleashedConfig(
         breedSpawnRateMultipliersPercent,
         capIndependentSpawningEnabled,
         gravesEnabled,
+        dropLeashOnPlayMode,
         value,
         autoSleepRangeBlocks,
         barkVolume,
@@ -188,6 +212,7 @@ public record DogsUnleashedConfig(
         breedSpawnRateMultipliersPercent,
         capIndependentSpawningEnabled,
         gravesEnabled,
+        dropLeashOnPlayMode,
         autoSleepEnabled,
         value,
         barkVolume,
@@ -201,6 +226,7 @@ public record DogsUnleashedConfig(
         breedSpawnRateMultipliersPercent,
         capIndependentSpawningEnabled,
         gravesEnabled,
+        dropLeashOnPlayMode,
         autoSleepEnabled,
         autoSleepRangeBlocks,
         value,
@@ -214,6 +240,7 @@ public record DogsUnleashedConfig(
         breedSpawnRateMultipliersPercent,
         capIndependentSpawningEnabled,
         gravesEnabled,
+        dropLeashOnPlayMode,
         autoSleepEnabled,
         autoSleepRangeBlocks,
         barkVolume,
@@ -280,6 +307,10 @@ public record DogsUnleashedConfig(
         root.has(KEY_GRAVES_ENABLED)
             ? root.get(KEY_GRAVES_ENABLED).getAsBoolean()
             : defaults.gravesEnabled;
+    final boolean dropLeashOnPlayMode =
+        root.has(KEY_DROP_LEASH_ON_PLAY_MODE)
+            ? root.get(KEY_DROP_LEASH_ON_PLAY_MODE).getAsBoolean()
+            : defaults.dropLeashOnPlayMode;
     final boolean autoSleepEnabled =
         root.has(KEY_AUTO_SLEEP_ENABLED)
             ? root.get(KEY_AUTO_SLEEP_ENABLED).getAsBoolean()
@@ -325,6 +356,7 @@ public record DogsUnleashedConfig(
         rawBreedRates,
         capIndependentSpawningEnabled,
         gravesEnabled,
+        dropLeashOnPlayMode,
         autoSleepEnabled,
         rawRange,
         rawBark,
@@ -343,6 +375,7 @@ public record DogsUnleashedConfig(
     root.add(KEY_BREED_SPAWN_RATE_MULTIPLIERS_PERCENT, breedRates);
     root.addProperty(KEY_CAP_INDEPENDENT_SPAWNING_ENABLED, config.capIndependentSpawningEnabled);
     root.addProperty(KEY_GRAVES_ENABLED, config.gravesEnabled);
+    root.addProperty(KEY_DROP_LEASH_ON_PLAY_MODE, config.dropLeashOnPlayMode);
     root.addProperty(KEY_AUTO_SLEEP_ENABLED, config.autoSleepEnabled);
     root.addProperty(KEY_AUTO_SLEEP_RANGE_BLOCKS, config.autoSleepRangeBlocks);
     root.addProperty(KEY_BARK_VOLUME, config.barkVolume);

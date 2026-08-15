@@ -69,6 +69,14 @@ public final class DogsUnleashedCommand {
                                             setGraves(
                                                 ctx, BoolArgumentType.getBool(ctx, "enabled")))))
                     .then(
+                        CommandManager.literal("dropleashonplay")
+                            .then(
+                                CommandManager.argument("enabled", BoolArgumentType.bool())
+                                    .executes(
+                                        ctx ->
+                                            setDropLeashOnPlayMode(
+                                                ctx, BoolArgumentType.getBool(ctx, "enabled")))))
+                    .then(
                         CommandManager.literal("autosleep")
                             .then(
                                 CommandManager.argument("enabled", BoolArgumentType.bool())
@@ -191,6 +199,7 @@ public final class DogsUnleashedCommand {
             DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MAX),
         Text.translatable("command.dogs-unleashed.help.capindependentspawning"),
         Text.translatable("command.dogs-unleashed.help.graves"),
+        Text.translatable("command.dogs-unleashed.help.dropleashonplay"),
         Text.translatable("command.dogs-unleashed.help.autosleep"),
         Text.translatable(
             "command.dogs-unleashed.help.autosleeprange",
@@ -241,6 +250,8 @@ public final class DogsUnleashedCommand {
                 "command.dogs-unleashed.status.capindependentspawning",
                 config.capIndependentSpawningEnabled()),
             Text.translatable("command.dogs-unleashed.status.graves", config.gravesEnabled()),
+            Text.translatable(
+                "command.dogs-unleashed.status.dropleashonplay", config.dropLeashOnPlayMode()),
             Text.translatable("command.dogs-unleashed.status.autosleep", config.autoSleepEnabled()),
             Text.translatable(
                 "command.dogs-unleashed.status.autosleeprange", config.autoSleepRangeBlocks()),
@@ -299,6 +310,16 @@ public final class DogsUnleashedCommand {
         ctx,
         DogsUnleashed.SERVER_CONFIG.withGravesEnabled(value),
         "graves",
+        Boolean.toString(value),
+        false);
+  }
+
+  private static int setDropLeashOnPlayMode(
+      final CommandContext<ServerCommandSource> ctx, final boolean value) {
+    return applyUpdate(
+        ctx,
+        DogsUnleashed.SERVER_CONFIG.withDropLeashOnPlayMode(value),
+        "dropleashonplay",
         Boolean.toString(value),
         false);
   }
