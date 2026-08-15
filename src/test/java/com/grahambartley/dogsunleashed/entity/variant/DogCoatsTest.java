@@ -8,8 +8,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.stream.Stream;
+import net.minecraft.entity.SpawnReason;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,6 +51,53 @@ class DogCoatsTest {
   @DisplayName("the golden retriever has no coats to resolve")
   void goldenRetrieverHasNoCoats() {
     assertNull(DogCoats.coatOf(UnleashedDogBreed.GOLDEN_RETRIEVER, 0));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @EnumSource(UnleashedDogBreed.class)
+  @DisplayName("a roll resolver exists exactly for breeds with coat variants")
+  void rollResolverExistsExactlyForBreedsWithCoatVariants(final UnleashedDogBreed breed) {
+    assertEquals(DogCoats.hasCoatVariants(breed), DogCoats.rollResolverFor(breed) != null);
+    assertEquals(breed != UnleashedDogBreed.GOLDEN_RETRIEVER, DogCoats.hasCoatVariants(breed));
+  }
+
+  static Stream<Arguments> rollTables() {
+    return Stream.of(
+        Arguments.of(
+            UnleashedDogBreed.HUSKY,
+            (BiFunction<SpawnReason, Integer, UnleashedDogCoat>)
+                HuskyCoatRolls::resolveCoatFromRoll),
+        Arguments.of(
+            UnleashedDogBreed.DACHSHUND,
+            (BiFunction<SpawnReason, Integer, UnleashedDogCoat>)
+                DachshundCoatRolls::resolveCoatFromRoll),
+        Arguments.of(
+            UnleashedDogBreed.BEAGLE,
+            (BiFunction<SpawnReason, Integer, UnleashedDogCoat>)
+                BeagleCoatRolls::resolveCoatFromRoll),
+        Arguments.of(
+            UnleashedDogBreed.SHIBA_INU,
+            (BiFunction<SpawnReason, Integer, UnleashedDogCoat>)
+                ShibaInuCoatRolls::resolveCoatFromRoll));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("rollTables")
+  @DisplayName("each breed's roll resolver matches its roll table for every roll")
+  void rollResolverMatchesBreedRollTable(
+      final UnleashedDogBreed breed,
+      final BiFunction<SpawnReason, Integer, UnleashedDogCoat> rollTable) {
+    final BiFunction<SpawnReason, Integer, UnleashedDogCoat> resolver =
+        DogCoats.rollResolverFor(breed);
+    assertNotNull(resolver);
+    for (final SpawnReason spawnReason : List.of(SpawnReason.NATURAL, SpawnReason.BREEDING)) {
+      for (int roll = 0; roll < DogCoats.ROLL_BOUND; roll++) {
+        assertEquals(
+            rollTable.apply(spawnReason, roll),
+            resolver.apply(spawnReason, roll),
+            breed + " " + spawnReason + " roll " + roll);
+      }
+    }
   }
 
   @Test

@@ -117,6 +117,9 @@ public final class DogsUnleashedConfigScreen extends Screen {
         value -> this.spawnRateMultiplierPercent = value);
     y += ROW_HEIGHT;
     for (final UnleashedDogBreed breed : UnleashedDogBreed.values()) {
+      if (!breed.isNaturallySpawning()) {
+        continue;
+      }
       addPercentSliderRow(
           left,
           y,

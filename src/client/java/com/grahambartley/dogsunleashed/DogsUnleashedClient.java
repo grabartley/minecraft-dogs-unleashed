@@ -1,18 +1,14 @@
 package com.grahambartley.dogsunleashed;
 
 import com.grahambartley.dogsunleashed.network.ModNetworkingClient;
-import com.grahambartley.dogsunleashed.render.BeagleRenderer;
-import com.grahambartley.dogsunleashed.render.DachshundRenderer;
 import com.grahambartley.dogsunleashed.render.DogBedBlockEntityRenderer;
 import com.grahambartley.dogsunleashed.render.DogBedItemRenderer;
 import com.grahambartley.dogsunleashed.render.DogGraveBlockEntityRenderer;
 import com.grahambartley.dogsunleashed.render.DogGraveItemRenderer;
+import com.grahambartley.dogsunleashed.render.DogRenderer;
 import com.grahambartley.dogsunleashed.render.FrisbeeBlockEntityRenderer;
 import com.grahambartley.dogsunleashed.render.FrisbeeItemRenderer;
 import com.grahambartley.dogsunleashed.render.FrisbeeProjectileRenderer;
-import com.grahambartley.dogsunleashed.render.GoldenRetrieverRenderer;
-import com.grahambartley.dogsunleashed.render.HuskyRenderer;
-import com.grahambartley.dogsunleashed.render.ShibaInuRenderer;
 import com.grahambartley.dogsunleashed.render.StickBlockEntityRenderer;
 import com.grahambartley.dogsunleashed.render.StickProjectileRenderer;
 import com.grahambartley.dogsunleashed.render.TennisBallBlockEntityRenderer;
@@ -30,11 +26,11 @@ public class DogsUnleashedClient implements ClientModInitializer {
         ModEntities.TENNIS_BALL_PROJECTILE, TennisBallProjectileRenderer::new);
     EntityRendererRegistry.register(ModEntities.STICK_PROJECTILE, StickProjectileRenderer::new);
     EntityRendererRegistry.register(ModEntities.FRISBEE_PROJECTILE, FrisbeeProjectileRenderer::new);
-    EntityRendererRegistry.register(ModEntities.HUSKY, HuskyRenderer::new);
-    EntityRendererRegistry.register(ModEntities.DACHSHUND, DachshundRenderer::new);
-    EntityRendererRegistry.register(ModEntities.BEAGLE, BeagleRenderer::new);
-    EntityRendererRegistry.register(ModEntities.GOLDEN_RETRIEVER, GoldenRetrieverRenderer::new);
-    EntityRendererRegistry.register(ModEntities.SHIBA_INU, ShibaInuRenderer::new);
+    EntityRendererRegistry.register(ModEntities.HUSKY, DogRenderer::new);
+    EntityRendererRegistry.register(ModEntities.DACHSHUND, DogRenderer::new);
+    EntityRendererRegistry.register(ModEntities.BEAGLE, DogRenderer::new);
+    EntityRendererRegistry.register(ModEntities.GOLDEN_RETRIEVER, DogRenderer::new);
+    EntityRendererRegistry.register(ModEntities.SHIBA_INU, DogRenderer::new);
 
     BlockEntityRendererFactories.register(ModBlockEntities.DOG_BED, DogBedBlockEntityRenderer::new);
     BlockEntityRendererFactories.register(

@@ -1,6 +1,6 @@
 package com.grahambartley.dogsunleashed.gametest;
 
-import com.grahambartley.dogsunleashed.entity.HuskyEntity;
+import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import com.grahambartley.dogsunleashed.listener.PlayerJoinReunionListener;
@@ -28,7 +28,7 @@ public final class DogReunionGameTest implements FabricGameTest {
 
   @GameTest(templateName = ARENA, tickLimit = 20)
   public void celebrateOwnerArrivalStartsTailWag(TestContext context) {
-    final HuskyEntity dog =
+    final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(
             context, DogTestData.HUSKY, new BlockPos(1, 1, 0), UUID.randomUUID());
     dog.setAiDisabled(true);
@@ -46,7 +46,7 @@ public final class DogReunionGameTest implements FabricGameTest {
 
   @GameTest(templateName = ARENA, tickLimit = 40)
   public void celebrateOwnerArrivalRespectsCooldown(TestContext context) {
-    final HuskyEntity dog =
+    final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(
             context, DogTestData.HUSKY, new BlockPos(1, 1, 0), UUID.randomUUID());
     dog.setAiDisabled(true);
@@ -77,7 +77,7 @@ public final class DogReunionGameTest implements FabricGameTest {
     final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
     positionOwnerAt(context, owner, new BlockPos(1, 1, 0));
 
-    final HuskyEntity dog =
+    final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(
             context, DogTestData.HUSKY, new BlockPos(2, 1, 0), owner.getUuid());
     dog.setAiDisabled(true);
@@ -98,7 +98,7 @@ public final class DogReunionGameTest implements FabricGameTest {
     final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
     positionOwnerAt(context, owner, new BlockPos(1, 1, 0));
 
-    final HuskyEntity strayDog =
+    final UnleashedDogEntity strayDog =
         DogTestHelper.spawnDog(context, DogTestData.HUSKY, new BlockPos(2, 1, 0));
     strayDog.setAiDisabled(true);
 
@@ -118,7 +118,7 @@ public final class DogReunionGameTest implements FabricGameTest {
     final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
     positionOwnerAt(context, owner, new BlockPos(1, 1, 0));
 
-    final HuskyEntity othersDog =
+    final UnleashedDogEntity othersDog =
         DogTestHelper.spawnTamedDog(
             context, DogTestData.HUSKY, new BlockPos(2, 1, 0), UUID.randomUUID());
     othersDog.setAiDisabled(true);

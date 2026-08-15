@@ -32,6 +32,9 @@ public class ModSpawns {
     final BiomeModification spawnModification =
         BiomeModifications.create(Identifier.of(DogsUnleashed.MOD_ID, "dog_spawns"));
     for (final UnleashedDogBreed breed : UnleashedDogBreed.values()) {
+      if (!breed.isNaturallySpawning()) {
+        continue;
+      }
       final UnleashedDogBreed.SpawnSettings spawnSettings = breed.spawnSettings();
       spawnModification.add(
           ModificationPhase.ADDITIONS,

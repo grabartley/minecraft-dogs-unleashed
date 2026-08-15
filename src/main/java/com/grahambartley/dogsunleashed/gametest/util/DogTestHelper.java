@@ -12,33 +12,29 @@ public final class DogTestHelper {
     throw new UnsupportedOperationException("Utility class");
   }
 
-  public static <T extends UnleashedDogEntity> T spawnDog(
-      TestContext context, DogTestData<T> data) {
+  public static UnleashedDogEntity spawnDog(TestContext context, DogTestData data) {
     return spawnDog(context, data, DEFAULT_SPAWN_POS);
   }
 
-  public static <T extends UnleashedDogEntity> T spawnDog(
-      TestContext context, DogTestData<T> data, BlockPos relativePos) {
-    @SuppressWarnings("unchecked")
-    T dog = (T) context.spawnEntity(data.entityType(), relativePos);
-    return dog;
+  public static UnleashedDogEntity spawnDog(
+      TestContext context, DogTestData data, BlockPos relativePos) {
+    return context.spawnEntity(data.entityType(), relativePos);
   }
 
-  public static <T extends UnleashedDogEntity> T spawnTamedDog(
-      TestContext context, DogTestData<T> data) {
+  public static UnleashedDogEntity spawnTamedDog(TestContext context, DogTestData data) {
     return spawnTamedDog(context, data, DEFAULT_SPAWN_POS);
   }
 
-  public static <T extends UnleashedDogEntity> T spawnTamedDog(
-      TestContext context, DogTestData<T> data, BlockPos relativePos) {
-    T dog = spawnDog(context, data, relativePos);
+  public static UnleashedDogEntity spawnTamedDog(
+      TestContext context, DogTestData data, BlockPos relativePos) {
+    UnleashedDogEntity dog = spawnDog(context, data, relativePos);
     dog.setTamed(true, true);
     return dog;
   }
 
-  public static <T extends UnleashedDogEntity> T spawnTamedDog(
-      TestContext context, DogTestData<T> data, BlockPos pos, UUID ownerUuid) {
-    T dog = spawnDog(context, data, pos);
+  public static UnleashedDogEntity spawnTamedDog(
+      TestContext context, DogTestData data, BlockPos pos, UUID ownerUuid) {
+    UnleashedDogEntity dog = spawnDog(context, data, pos);
     dog.setOwnerUuid(ownerUuid);
     dog.setTamed(true, true);
     return dog;

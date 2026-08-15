@@ -25,7 +25,7 @@ Use the relative-coord APIs:
 
 ```java
 // Spawn an entity at structure-relative (0, 1, 0)
-final HuskyEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(0, 1, 0));
+final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(0, 1, 0));
 
 // Place a block at structure-relative (0, 1, 0)
 context.setBlockState(new BlockPos(0, 1, 0), ModBlocks.DOG_BED.getDefaultState());
@@ -135,7 +135,7 @@ Most sleep / damage / collar tests are testing DataTracker contracts: "set X, ob
 If the test isn't about AI behavior, kill the AI:
 
 ```java
-final HuskyEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(0, 1, 0));
+final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(0, 1, 0));
 husky.setTamed(true, true);
 husky.setAiDisabled(true);   // <-- no goals run; DataTracker mutation still works
 ```
@@ -248,7 +248,7 @@ The JUnit unit-test classpath does NOT have Loom's production-runtime access wid
 - `Items.*` (anywhere — `Items.<clinit>` fails verification through `LightBlock` → `EntityType` → `MobEntity.isInAttackRange`)
 - `EntityType.<clinit>` (same chain), which transitively means anything that touches `ModEntities.*` field reads
 - `BlockTags.*` membership (`state.isIn(BlockTags.AXE_MINEABLE)` needs server-side tag bindings)
-- Entity construction (`new HuskyEntity(ModEntities.HUSKY, world)` triggers `MobEntity` class init, which hits the same verifier path)
+- Entity construction (`ModEntities.HUSKY.create(world)` triggers `MobEntity` class init, which hits the same verifier path)
 - NBT round-trips via a real entity (same construction barrier)
 - Goal selector behavior, navigation, multi-tick state, anything that needs a real `ServerWorld`
 
@@ -363,7 +363,7 @@ Stable, useful, decompiled from Yarn 1.21.1. Method signatures with `(BlockPos)`
 ```java
 @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 20)
 public void collarColorPersistsAcrossWakeUpCycle(TestContext context) {
-  final HuskyEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(0, 1, 0));
+  final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(0, 1, 0));
   husky.setAiDisabled(true);
   husky.setTamed(true, true);
   husky.setCollarColor(DyeColor.LIME);
@@ -388,7 +388,7 @@ public void commandedSleepDogStaysInPositionAcrossMultipleTicks(TestContext cont
   final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
   context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-  final HuskyEntity husky = context.spawnEntity(ModEntities.HUSKY, relBedPos);
+  final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relBedPos);
   husky.setTamed(true, true);
 
   context.runAtTick(10, () -> {
@@ -438,7 +438,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 20)
 public void tamingUnlocksBestFriend(TestContext context) {
   final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
-  final HuskyEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(0, 1, 0));
+  final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(0, 1, 0));
 
   Criteria.TAME_ANIMAL.trigger(player, husky);
 
@@ -472,7 +472,7 @@ public Collection<TestFunction> spawnsCorrectlyPerBreed() {
 
 The annotation is `net.minecraft.test.CustomTestProvider` in Yarn 1.21.1. Most Mojang-mapped / Forge tutorials call it `@GameTestGenerator` — same concept, different name. See issue [#209](https://github.com/grabartley/minecraft-dogs-unleashed/issues/209).
 
-When several behaviors fan out across the same breed list, factor the `Stream → map → TestFunction → toList` boilerplate into one `generatePerBreed(behavior, tickLimit, body)` helper per class and have each `@CustomTestProvider` delegate to it. Use a class-private `@FunctionalInterface` (`PerBreedBody(TestContext, DogTestData<? extends UnleashedDogEntity>)`) so method references like `this::testDogCanBeTamed` bind cleanly through the wildcard capture without explicit casts.
+When several behaviors fan out across the same breed list, factor the `Stream → map → TestFunction → toList` boilerplate into one `generatePerBreed(behavior, tickLimit, body)` helper per class and have each `@CustomTestProvider` delegate to it. Use a class-private `@FunctionalInterface` (`PerBreedBody(TestContext, DogTestData)`) so generator call sites can pass method references like `this::testDogCanBeTamed` without explicit casts. `DogTestData` is non-generic and constructs from the `UnleashedDogBreed` presets; `spawnEntity(data.entityType(), ...)` and the `DogTestHelper` methods all return the single concrete `UnleashedDogEntity`.
 
 When the contract differs per breed (e.g. Husky has no bark sound so the assertion flips to "must NOT bark"), branch inside the generator body on `data.expectedBarkSound() == null` rather than `breed == HUSKY`. The null-check stays correct for any future breed that ships without a bark sound and keeps `DogTestData` as the single source of truth.
 

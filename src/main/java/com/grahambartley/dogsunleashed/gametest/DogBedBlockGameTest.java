@@ -3,7 +3,7 @@ package com.grahambartley.dogsunleashed.gametest;
 import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.block.entity.DogBedBlockEntity;
-import com.grahambartley.dogsunleashed.entity.HuskyEntity;
+import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -96,7 +96,7 @@ public final class DogBedBlockGameTest implements FabricGameTest {
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relDogPos);
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relDogPos);
     husky.setTamed(true, true);
     husky.setAiDisabled(true); // Prevent wandering into other test structures
 
@@ -129,7 +129,7 @@ public final class DogBedBlockGameTest implements FabricGameTest {
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relDogPos);
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relDogPos);
     husky.setTamed(true, true);
 
     context.runAtTick(
@@ -157,7 +157,7 @@ public final class DogBedBlockGameTest implements FabricGameTest {
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relDogPos);
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relDogPos);
     husky.setTamed(true, true);
 
     context.runAtTick(
@@ -186,7 +186,7 @@ public final class DogBedBlockGameTest implements FabricGameTest {
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relDogPos);
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relDogPos);
     husky.setTamed(true, true);
 
     context.runAtTick(
@@ -231,7 +231,7 @@ public final class DogBedBlockGameTest implements FabricGameTest {
     context.setBlockState(relOldBedPos, ModBlocks.DOG_BED.getDefaultState());
     context.setBlockState(relNewBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relDogPos);
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relDogPos);
     husky.setTamed(true, true);
 
     context.runAtTick(
@@ -289,7 +289,7 @@ public final class DogBedBlockGameTest implements FabricGameTest {
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relDogPos);
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relDogPos);
     husky.setTamed(true, true);
 
     context.runAtTick(

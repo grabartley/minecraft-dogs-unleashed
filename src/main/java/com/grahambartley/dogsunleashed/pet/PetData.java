@@ -1,9 +1,9 @@
 package com.grahambartley.dogsunleashed.pet;
 
 import com.grahambartley.dogsunleashed.ModNbtKeys;
-import com.grahambartley.dogsunleashed.entity.HuskyEntity;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
 import java.util.Objects;
 import java.util.UUID;
 import net.minecraft.nbt.NbtCompound;
@@ -181,9 +181,8 @@ public final class PetData {
   }
 
   public static int huskyEyeVariantOf(final UnleashedDogEntity dog) {
-    return dog instanceof HuskyEntity husky
-        ? husky.getEyeColorVariant().ordinal()
-        : UnleashedDogEntity.UNSET_VARIANT;
+    final HuskyEyeColor eyeColor = dog.getEyeColorVariant();
+    return eyeColor != null ? eyeColor.ordinal() : UnleashedDogEntity.UNSET_VARIANT;
   }
 
   /**

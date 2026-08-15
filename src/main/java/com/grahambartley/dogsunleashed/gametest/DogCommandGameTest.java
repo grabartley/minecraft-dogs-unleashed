@@ -2,7 +2,7 @@ package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
-import com.grahambartley.dogsunleashed.entity.HuskyEntity;
+import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -27,13 +27,14 @@ public final class DogCommandGameTest implements FabricGameTest {
   private static final int TARGET_OBSERVATION_TICK = 100;
   private static final int TARGET_TICK_LIMIT = 120;
 
-  private static HuskyEntity spawnOwnedDog(final TestContext context, final BlockPos relativePos) {
+  private static UnleashedDogEntity spawnOwnedDog(
+      final TestContext context, final BlockPos relativePos) {
     final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
     return DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, relativePos, owner.getUuid());
   }
 
   private static ServerPlayerEntity placeOwnerAt(
-      final TestContext context, final HuskyEntity dog, final BlockPos relativePos) {
+      final TestContext context, final UnleashedDogEntity dog, final BlockPos relativePos) {
     final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
     dog.setOwnerUuid(owner.getUuid());
     final BlockPos absPos = context.getAbsolutePos(relativePos);
@@ -43,7 +44,7 @@ public final class DogCommandGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = 20)
   public void applyCommandSitSetsSittingPose(final TestContext context) {
-    final HuskyEntity dog = spawnOwnedDog(context, new BlockPos(0, 1, 0));
+    final UnleashedDogEntity dog = spawnOwnedDog(context, new BlockPos(0, 1, 0));
     dog.setAiDisabled(true);
 
     dog.applyCommand(DogCommand.SIT);
@@ -55,7 +56,7 @@ public final class DogCommandGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = 20)
   public void applyCommandStayAnchorsAtCurrentPosition(final TestContext context) {
-    final HuskyEntity dog = spawnOwnedDog(context, new BlockPos(0, 1, 0));
+    final UnleashedDogEntity dog = spawnOwnedDog(context, new BlockPos(0, 1, 0));
     dog.setAiDisabled(true);
 
     dog.applyCommand(DogCommand.STAY);
@@ -70,7 +71,7 @@ public final class DogCommandGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = 20)
   public void applyCommandFollowClearsAnchorAndSitting(final TestContext context) {
-    final HuskyEntity dog = spawnOwnedDog(context, new BlockPos(0, 1, 0));
+    final UnleashedDogEntity dog = spawnOwnedDog(context, new BlockPos(0, 1, 0));
     dog.setAiDisabled(true);
 
     dog.applyCommand(DogCommand.STAY);
@@ -86,7 +87,7 @@ public final class DogCommandGameTest implements FabricGameTest {
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = 20)
   public void applyCommandWakesSleepingDog(final TestContext context) {
     final BlockPos relPos = new BlockPos(0, 1, 0);
-    final HuskyEntity dog = spawnOwnedDog(context, relPos);
+    final UnleashedDogEntity dog = spawnOwnedDog(context, relPos);
     dog.setAiDisabled(true);
     final BlockPos absPos = context.getAbsolutePos(relPos);
     dog.setAssignedBedPos(absPos);
@@ -102,7 +103,7 @@ public final class DogCommandGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = 20)
   public void damageDemotesSitToFollow(final TestContext context) {
-    final HuskyEntity dog = spawnOwnedDog(context, new BlockPos(0, 1, 0));
+    final UnleashedDogEntity dog = spawnOwnedDog(context, new BlockPos(0, 1, 0));
     dog.setAiDisabled(true);
     dog.applyCommand(DogCommand.SIT);
 
@@ -116,14 +117,14 @@ public final class DogCommandGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = 20)
   public void commandAndAnchorPersistThroughNbtRoundTrip(final TestContext context) {
-    final HuskyEntity source = spawnOwnedDog(context, new BlockPos(0, 1, 0));
+    final UnleashedDogEntity source = spawnOwnedDog(context, new BlockPos(0, 1, 0));
     source.setAiDisabled(true);
     source.applyCommand(DogCommand.GUARD);
     final BlockPos anchor = source.getCommandAnchorPos();
 
     final NbtCompound nbt = new NbtCompound();
     source.writeCustomDataToNbt(nbt);
-    final HuskyEntity restored = DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY);
+    final UnleashedDogEntity restored = DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY);
     restored.setAiDisabled(true);
     restored.readCustomDataFromNbt(nbt);
 
@@ -137,14 +138,14 @@ public final class DogCommandGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = 20)
   public void legacySittingDogWithoutCommandNbtMapsToSit(final TestContext context) {
-    final HuskyEntity source = spawnOwnedDog(context, new BlockPos(0, 1, 0));
+    final UnleashedDogEntity source = spawnOwnedDog(context, new BlockPos(0, 1, 0));
     source.setAiDisabled(true);
     source.setSitting(true);
     final NbtCompound nbt = new NbtCompound();
     source.writeCustomDataToNbt(nbt);
     nbt.remove(ModNbtKeys.COMMAND_MODE);
 
-    final HuskyEntity restored = DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY);
+    final UnleashedDogEntity restored = DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY);
     restored.setAiDisabled(true);
     restored.readCustomDataFromNbt(nbt);
 
@@ -156,13 +157,13 @@ public final class DogCommandGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = 20)
   public void legacyStandingDogWithoutCommandNbtMapsToFollow(final TestContext context) {
-    final HuskyEntity source = spawnOwnedDog(context, new BlockPos(0, 1, 0));
+    final UnleashedDogEntity source = spawnOwnedDog(context, new BlockPos(0, 1, 0));
     source.setAiDisabled(true);
     final NbtCompound nbt = new NbtCompound();
     source.writeCustomDataToNbt(nbt);
     nbt.remove(ModNbtKeys.COMMAND_MODE);
 
-    final HuskyEntity restored = DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY);
+    final UnleashedDogEntity restored = DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY);
     restored.setAiDisabled(true);
     restored.readCustomDataFromNbt(nbt);
 
@@ -174,7 +175,7 @@ public final class DogCommandGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = 20)
   public void ownerRightClickNoLongerTogglesSitting(final TestContext context) {
-    final HuskyEntity dog = DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY);
+    final UnleashedDogEntity dog = DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY);
     dog.setAiDisabled(true);
     final PlayerEntity player = context.createMockPlayer(GameMode.SURVIVAL);
     dog.setOwnerUuid(player.getUuid());
@@ -195,7 +196,7 @@ public final class DogCommandGameTest implements FabricGameTest {
       maxAttempts = 3,
       requiredSuccesses = 1)
   public void stayDogHoldsPositionWhenOwnerIsFar(final TestContext context) {
-    final HuskyEntity dog =
+    final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, new BlockPos(2, 2, 2));
     placeOwnerAt(context, dog, new BlockPos(20, 2, 2));
     dog.applyCommand(DogCommand.STAY);
@@ -220,7 +221,7 @@ public final class DogCommandGameTest implements FabricGameTest {
       maxAttempts = 3,
       requiredSuccesses = 1)
   public void heelDogClosesToWithinHeelDistance(final TestContext context) {
-    final HuskyEntity dog =
+    final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, new BlockPos(2, 2, 2));
     final ServerPlayerEntity owner = placeOwnerAt(context, dog, new BlockPos(10, 2, 2));
     dog.applyCommand(DogCommand.HEEL);
@@ -244,7 +245,7 @@ public final class DogCommandGameTest implements FabricGameTest {
       maxAttempts = 3,
       requiredSuccesses = 1)
   public void freeRoamDogDoesNotFollowOwner(final TestContext context) {
-    final HuskyEntity dog =
+    final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, new BlockPos(2, 2, 2));
     final ServerPlayerEntity owner = placeOwnerAt(context, dog, new BlockPos(20, 2, 2));
     dog.applyCommand(DogCommand.FREE_ROAM);
@@ -267,7 +268,7 @@ public final class DogCommandGameTest implements FabricGameTest {
       maxAttempts = 3,
       requiredSuccesses = 1)
   public void huntDogTargetsNearbyHostile(final TestContext context) {
-    final HuskyEntity dog =
+    final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, new BlockPos(1, 2, 1));
     placeOwnerAt(context, dog, new BlockPos(1, 2, 3));
     final HuskEntity husk = context.spawnEntity(EntityType.HUSK, new BlockPos(5, 2, 5));
@@ -298,7 +299,7 @@ public final class DogCommandGameTest implements FabricGameTest {
       maxAttempts = 3,
       requiredSuccesses = 1)
   public void huntDogTargetsUnnamedAnimal(final TestContext context) {
-    final HuskyEntity dog =
+    final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, new BlockPos(1, 2, 1));
     placeOwnerAt(context, dog, new BlockPos(1, 2, 3));
     final CowEntity cow = context.spawnEntity(EntityType.COW, new BlockPos(5, 2, 5));
@@ -324,7 +325,7 @@ public final class DogCommandGameTest implements FabricGameTest {
 
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = BATCH, tickLimit = 100)
   public void huntDogIgnoresProtectedTargets(final TestContext context) {
-    final HuskyEntity dog =
+    final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, new BlockPos(1, 2, 1));
     placeOwnerAt(context, dog, new BlockPos(1, 2, 3));
     final CowEntity namedCow = context.spawnEntity(EntityType.COW, new BlockPos(5, 2, 1));
@@ -332,7 +333,7 @@ public final class DogCommandGameTest implements FabricGameTest {
     namedCow.setCustomName(Text.literal("Bessie"));
     final VillagerEntity villager = context.spawnEntity(EntityType.VILLAGER, new BlockPos(5, 2, 5));
     villager.setAiDisabled(true);
-    final HuskyEntity otherDog =
+    final UnleashedDogEntity otherDog =
         DogTestHelper.spawnDog(context, DogTestData.HUSKY, new BlockPos(1, 2, 5));
     otherDog.setAiDisabled(true);
     dog.applyCommand(DogCommand.HUNT);
@@ -362,7 +363,7 @@ public final class DogCommandGameTest implements FabricGameTest {
       maxAttempts = 3,
       requiredSuccesses = 1)
   public void guardDogTargetsHostileNearAnchor(final TestContext context) {
-    final HuskyEntity dog =
+    final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, new BlockPos(1, 2, 1));
     placeOwnerAt(context, dog, new BlockPos(1, 2, 3));
     dog.applyCommand(DogCommand.GUARD);
@@ -388,7 +389,7 @@ public final class DogCommandGameTest implements FabricGameTest {
 
   @GameTest(templateName = "dogs-unleashed:teleport_arena", batchId = BATCH, tickLimit = 100)
   public void guardDogIgnoresHostileFarFromAnchor(final TestContext context) {
-    final HuskyEntity dog =
+    final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, new BlockPos(2, 2, 2));
     placeOwnerAt(context, dog, new BlockPos(4, 2, 2));
     dog.applyCommand(DogCommand.GUARD);

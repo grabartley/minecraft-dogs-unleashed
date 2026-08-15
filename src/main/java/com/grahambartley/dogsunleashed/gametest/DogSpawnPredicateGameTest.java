@@ -1,7 +1,6 @@
 package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModBlockTags;
-import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import java.util.List;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -103,9 +102,7 @@ public final class DogSpawnPredicateGameTest implements FabricGameTest {
   }
 
   private void testSpawnPredicate(
-      final TestContext context,
-      final DogTestData<? extends UnleashedDogEntity> data,
-      final SurfaceCase surfaceCase) {
+      final TestContext context, final DogTestData data, final SurfaceCase surfaceCase) {
     context.setBlockState(REL_SURFACE_POS, surfaceCase.surface().getDefaultState());
 
     final BlockPos absSpawnPos = context.getAbsolutePos(REL_SURFACE_POS.up());

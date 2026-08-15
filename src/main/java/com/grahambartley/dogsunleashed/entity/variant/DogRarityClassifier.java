@@ -3,7 +3,6 @@ package com.grahambartley.dogsunleashed.entity.variant;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import java.util.function.BiFunction;
 import net.minecraft.entity.SpawnReason;
-import org.jetbrains.annotations.Nullable;
 
 public final class DogRarityClassifier {
 
@@ -11,16 +10,16 @@ public final class DogRarityClassifier {
   static final int COMMON_MIN_CHANCE_PERCENT = 25;
   static final int UNCOMMON_MIN_CHANCE_PERCENT = 10;
   static final int RARE_MIN_CHANCE_PERCENT = 3;
-  private static final int ROLL_BOUND = 100;
 
   private DogRarityClassifier() {}
 
   public static boolean hasCoatVariants(final UnleashedDogBreed breed) {
-    return coatResolverFor(breed) != null;
+    return DogCoats.hasCoatVariants(breed);
   }
 
   public static int chancePercent(final UnleashedDogBreed breed, final int coatOrdinal) {
-    final BiFunction<SpawnReason, Integer, UnleashedDogCoat> resolver = coatResolverFor(breed);
+    final BiFunction<SpawnReason, Integer, UnleashedDogCoat> resolver =
+        DogCoats.rollResolverFor(breed);
     if (resolver == null || coatOrdinal < 0) {
       return GUARANTEED_CHANCE_PERCENT;
     }
@@ -51,22 +50,11 @@ public final class DogRarityClassifier {
       final SpawnReason spawnReason,
       final int coatOrdinal) {
     int matches = 0;
-    for (int roll = 0; roll < ROLL_BOUND; roll++) {
+    for (int roll = 0; roll < DogCoats.ROLL_BOUND; roll++) {
       if (resolver.apply(spawnReason, roll).getOrdinal() == coatOrdinal) {
         matches++;
       }
     }
     return matches;
-  }
-
-  private static @Nullable BiFunction<SpawnReason, Integer, UnleashedDogCoat> coatResolverFor(
-      final UnleashedDogBreed breed) {
-    return switch (breed) {
-      case HUSKY -> HuskyCoatRolls::resolveCoatFromRoll;
-      case DACHSHUND -> DachshundCoatRolls::resolveCoatFromRoll;
-      case BEAGLE -> BeagleCoatRolls::resolveCoatFromRoll;
-      case SHIBA_INU -> ShibaInuCoatRolls::resolveCoatFromRoll;
-      case GOLDEN_RETRIEVER -> null;
-    };
   }
 }

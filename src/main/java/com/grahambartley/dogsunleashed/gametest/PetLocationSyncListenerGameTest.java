@@ -1,8 +1,8 @@
 package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModEntities;
-import com.grahambartley.dogsunleashed.entity.HuskyEntity;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.listener.PetLocationSyncListener;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetManager;
@@ -27,7 +27,7 @@ public final class PetLocationSyncListenerGameTest implements FabricGameTest {
   @GameTest(templateName = "dogs-unleashed:dog_arena", tickLimit = 20)
   public void recordLocationHealsStaleRecordFromLiveEntity(TestContext context) {
     final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
-    final HuskyEntity husky = spawnTamedDog(context, owner);
+    final UnleashedDogEntity husky = spawnTamedDog(context, owner);
     final PetData petData = registerPet(context, owner, husky, true);
 
     PetLocationSyncListener.recordLocation(husky, context.getWorld());
@@ -44,7 +44,7 @@ public final class PetLocationSyncListenerGameTest implements FabricGameTest {
   @GameTest(templateName = "dogs-unleashed:dog_arena", tickLimit = 20)
   public void recordLocationIgnoresUntamedDogs(TestContext context) {
     final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
-    final HuskyEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(1, 2, 1));
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(1, 2, 1));
     husky.setAiDisabled(true);
     final PetData petData = registerPet(context, owner, husky, true);
 
@@ -59,7 +59,7 @@ public final class PetLocationSyncListenerGameTest implements FabricGameTest {
   @GameTest(templateName = "dogs-unleashed:dog_arena", tickLimit = 20)
   public void recordLocationIgnoresDeceasedRecords(TestContext context) {
     final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
-    final HuskyEntity husky = spawnTamedDog(context, owner);
+    final UnleashedDogEntity husky = spawnTamedDog(context, owner);
     final PetData petData = registerPet(context, owner, husky, false);
 
     PetLocationSyncListener.recordLocation(husky, context.getWorld());
@@ -73,7 +73,7 @@ public final class PetLocationSyncListenerGameTest implements FabricGameTest {
   @GameTest(templateName = "dogs-unleashed:dog_arena", tickLimit = 20)
   public void recordLocationBackfillsMissingRecordForTamedDog(TestContext context) {
     final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
-    final HuskyEntity husky = spawnTamedDog(context, owner);
+    final UnleashedDogEntity husky = spawnTamedDog(context, owner);
 
     PetLocationSyncListener.recordLocation(husky, context.getWorld());
 
@@ -93,7 +93,7 @@ public final class PetLocationSyncListenerGameTest implements FabricGameTest {
 
   @GameTest(templateName = "dogs-unleashed:dog_arena", tickLimit = 20)
   public void recordLocationDoesNotBackfillOwnerlessDogs(TestContext context) {
-    final HuskyEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(1, 2, 1));
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(1, 2, 1));
     husky.setAiDisabled(true);
     husky.setTamed(true, true);
 
@@ -108,7 +108,7 @@ public final class PetLocationSyncListenerGameTest implements FabricGameTest {
   @GameTest(templateName = "dogs-unleashed:dog_arena", tickLimit = 20)
   public void recordLocationDoesNotBackfillUntamedDogs(TestContext context) {
     final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
-    final HuskyEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(1, 2, 1));
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(1, 2, 1));
     husky.setAiDisabled(true);
     husky.setOwnerUuid(owner.getUuid());
 
@@ -123,7 +123,7 @@ public final class PetLocationSyncListenerGameTest implements FabricGameTest {
   @GameTest(templateName = "dogs-unleashed:dog_arena", tickLimit = 20)
   public void recordLocationKeepsTheExistingRecordName(TestContext context) {
     final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
-    final HuskyEntity husky = spawnTamedDog(context, owner);
+    final UnleashedDogEntity husky = spawnTamedDog(context, owner);
     registerPet(context, owner, husky, true);
 
     PetLocationSyncListener.recordLocation(husky, context.getWorld());
@@ -142,7 +142,7 @@ public final class PetLocationSyncListenerGameTest implements FabricGameTest {
   @GameTest(templateName = "dogs-unleashed:dog_arena", tickLimit = 20)
   public void recordLocationBackfillsParentsIntoExistingRecord(TestContext context) {
     final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
-    final HuskyEntity husky = spawnTamedDog(context, owner);
+    final UnleashedDogEntity husky = spawnTamedDog(context, owner);
     final UUID parentUuid = UUID.randomUUID();
     husky.setParentDogUuid(parentUuid);
     final PetData petData = registerPet(context, owner, husky, true);
@@ -158,8 +158,8 @@ public final class PetLocationSyncListenerGameTest implements FabricGameTest {
     context.complete();
   }
 
-  private static HuskyEntity spawnTamedDog(TestContext context, ServerPlayerEntity owner) {
-    final HuskyEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(1, 2, 1));
+  private static UnleashedDogEntity spawnTamedDog(TestContext context, ServerPlayerEntity owner) {
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(1, 2, 1));
     husky.setAiDisabled(true);
     husky.setTamed(true, true);
     husky.setOwnerUuid(owner.getUuid());
@@ -167,7 +167,7 @@ public final class PetLocationSyncListenerGameTest implements FabricGameTest {
   }
 
   private static PetData registerPet(
-      TestContext context, ServerPlayerEntity owner, HuskyEntity husky, boolean alive) {
+      TestContext context, ServerPlayerEntity owner, UnleashedDogEntity husky, boolean alive) {
     final ServerWorld world = context.getWorld();
     final PetData petData =
         new PetData(

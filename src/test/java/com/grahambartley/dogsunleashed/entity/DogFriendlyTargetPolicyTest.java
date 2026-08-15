@@ -20,11 +20,6 @@ class DogFriendlyTargetPolicyTest {
   static Stream<Arguments> friendlyClassificationCases() {
     return Stream.of(
         Arguments.of(UnleashedDogEntity.class, true),
-        Arguments.of(BeagleEntity.class, true),
-        Arguments.of(DachshundEntity.class, true),
-        Arguments.of(HuskyEntity.class, true),
-        Arguments.of(GoldenRetrieverEntity.class, true),
-        Arguments.of(ShibaInuEntity.class, true),
         Arguments.of(VillagerEntity.class, true),
         Arguments.of(IronGolemEntity.class, true),
         Arguments.of(ZombieEntity.class, false),

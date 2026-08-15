@@ -1,7 +1,6 @@
 package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModEntities;
-import com.grahambartley.dogsunleashed.entity.HuskyEntity;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetManager;
@@ -75,8 +74,8 @@ public final class PetRegistrarGameTest implements FabricGameTest {
   @GameTest(templateName = "dogs-unleashed:dog_arena", tickLimit = 20)
   public void inheritedOwnerBabyRecordCapturesBothParents(TestContext context) {
     final UUID ownerUuid = UUID.randomUUID();
-    final HuskyEntity parent = spawnTamedDog(context, ownerUuid, PARENT_POS);
-    final HuskyEntity otherParent = spawnTamedDog(context, ownerUuid, OTHER_PARENT_POS);
+    final UnleashedDogEntity parent = spawnTamedDog(context, ownerUuid, PARENT_POS);
+    final UnleashedDogEntity otherParent = spawnTamedDog(context, ownerUuid, OTHER_PARENT_POS);
 
     final UnleashedDogEntity baby =
         (UnleashedDogEntity) parent.createChild(context.getWorld(), otherParent);
@@ -95,7 +94,7 @@ public final class PetRegistrarGameTest implements FabricGameTest {
   @GameTest(templateName = "dogs-unleashed:dog_arena", tickLimit = 20)
   public void registerPetForKeepsTheExistingRecord(TestContext context) {
     final UUID ownerUuid = UUID.randomUUID();
-    final HuskyEntity husky = spawnTamedDog(context, ownerUuid, PARENT_POS);
+    final UnleashedDogEntity husky = spawnTamedDog(context, ownerUuid, PARENT_POS);
     final PetData original = PetRegistrar.registerPetFor(husky, ownerUuid);
 
     final PetData second = PetRegistrar.registerPetFor(husky, ownerUuid);
@@ -110,7 +109,7 @@ public final class PetRegistrarGameTest implements FabricGameTest {
 
   @GameTest(templateName = "dogs-unleashed:dog_arena", tickLimit = 20)
   public void registerPetForSkipsOwnerlessDogs(TestContext context) {
-    final HuskyEntity husky = context.spawnEntity(ModEntities.HUSKY, PARENT_POS);
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, PARENT_POS);
     husky.setAiDisabled(true);
     husky.setTamed(true, true);
 
@@ -131,16 +130,16 @@ public final class PetRegistrarGameTest implements FabricGameTest {
   private static UnleashedDogEntity breedWithoutLovingPlayer(
       final TestContext context, final UUID ownerUuid) {
     final ServerWorld world = context.getWorld();
-    final HuskyEntity parent = spawnTamedDog(context, ownerUuid, PARENT_POS);
+    final UnleashedDogEntity parent = spawnTamedDog(context, ownerUuid, PARENT_POS);
     parent.setCollarColor(DyeColor.LIME);
-    final HuskyEntity otherParent = spawnTamedDog(context, ownerUuid, OTHER_PARENT_POS);
+    final UnleashedDogEntity otherParent = spawnTamedDog(context, ownerUuid, OTHER_PARENT_POS);
 
     return (UnleashedDogEntity) parent.createChild(world, otherParent);
   }
 
-  private static HuskyEntity spawnTamedDog(
+  private static UnleashedDogEntity spawnTamedDog(
       final TestContext context, final UUID ownerUuid, final BlockPos relativePos) {
-    final HuskyEntity husky = context.spawnEntity(ModEntities.HUSKY, relativePos);
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relativePos);
     husky.setAiDisabled(true);
     husky.setOwnerUuid(ownerUuid);
     husky.setTamed(true, true);

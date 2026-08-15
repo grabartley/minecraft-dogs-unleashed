@@ -1,11 +1,6 @@
 package com.grahambartley.dogsunleashed;
 
-import com.grahambartley.dogsunleashed.entity.BeagleEntity;
-import com.grahambartley.dogsunleashed.entity.DachshundEntity;
 import com.grahambartley.dogsunleashed.entity.FrisbeeProjectileEntity;
-import com.grahambartley.dogsunleashed.entity.GoldenRetrieverEntity;
-import com.grahambartley.dogsunleashed.entity.HuskyEntity;
-import com.grahambartley.dogsunleashed.entity.ShibaInuEntity;
 import com.grahambartley.dogsunleashed.entity.StickProjectileEntity;
 import com.grahambartley.dogsunleashed.entity.TennisBallProjectileEntity;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
@@ -20,20 +15,18 @@ import net.minecraft.util.Identifier;
 public class ModEntities {
   private static final float TENNIS_BALL_PROJECTILE_SIZE = 0.25f;
 
-  public static final EntityType<HuskyEntity> HUSKY =
-      registerDog(UnleashedDogBreed.HUSKY, HuskyEntity::new);
+  public static final EntityType<UnleashedDogEntity> HUSKY = registerDog(UnleashedDogBreed.HUSKY);
 
-  public static final EntityType<DachshundEntity> DACHSHUND =
-      registerDog(UnleashedDogBreed.DACHSHUND, DachshundEntity::new);
+  public static final EntityType<UnleashedDogEntity> DACHSHUND =
+      registerDog(UnleashedDogBreed.DACHSHUND);
 
-  public static final EntityType<BeagleEntity> BEAGLE =
-      registerDog(UnleashedDogBreed.BEAGLE, BeagleEntity::new);
+  public static final EntityType<UnleashedDogEntity> BEAGLE = registerDog(UnleashedDogBreed.BEAGLE);
 
-  public static final EntityType<GoldenRetrieverEntity> GOLDEN_RETRIEVER =
-      registerDog(UnleashedDogBreed.GOLDEN_RETRIEVER, GoldenRetrieverEntity::new);
+  public static final EntityType<UnleashedDogEntity> GOLDEN_RETRIEVER =
+      registerDog(UnleashedDogBreed.GOLDEN_RETRIEVER);
 
-  public static final EntityType<ShibaInuEntity> SHIBA_INU =
-      registerDog(UnleashedDogBreed.SHIBA_INU, ShibaInuEntity::new);
+  public static final EntityType<UnleashedDogEntity> SHIBA_INU =
+      registerDog(UnleashedDogBreed.SHIBA_INU);
 
   public static final EntityType<TennisBallProjectileEntity> TENNIS_BALL_PROJECTILE =
       Registry.register(
@@ -62,19 +55,18 @@ public class ModEntities {
               .dimensions(TENNIS_BALL_PROJECTILE_SIZE, TENNIS_BALL_PROJECTILE_SIZE)
               .build(Identifier.of(DogsUnleashed.MOD_ID, "frisbee_projectile").toString()));
 
-  private static <T extends UnleashedDogEntity> EntityType<T> registerDog(
-      final UnleashedDogBreed breed, final EntityType.EntityFactory<T> factory) {
+  private static EntityType<UnleashedDogEntity> registerDog(final UnleashedDogBreed breed) {
     final Identifier id = Identifier.of(DogsUnleashed.MOD_ID, breed.serializedId());
     return Registry.register(
         Registries.ENTITY_TYPE,
         id,
-        EntityType.Builder.create(factory, SpawnGroup.CREATURE)
+        EntityType.Builder.<UnleashedDogEntity>create(
+                (type, world) -> new UnleashedDogEntity(type, world, breed), SpawnGroup.CREATURE)
             .dimensions(breed.dimensions().width(), breed.dimensions().height())
             .build(id.toString()));
   }
 
-  public static EntityType<? extends UnleashedDogEntity> getDogEntityType(
-      final UnleashedDogBreed breed) {
+  public static EntityType<UnleashedDogEntity> getDogEntityType(final UnleashedDogBreed breed) {
     return switch (breed) {
       case HUSKY -> HUSKY;
       case DACHSHUND -> DACHSHUND;
@@ -85,13 +77,8 @@ public class ModEntities {
   }
 
   public static void initialize() {
-    FabricDefaultAttributeRegistry.register(HUSKY, UnleashedDogBreed.HUSKY.createAttributes());
-    FabricDefaultAttributeRegistry.register(
-        DACHSHUND, UnleashedDogBreed.DACHSHUND.createAttributes());
-    FabricDefaultAttributeRegistry.register(BEAGLE, UnleashedDogBreed.BEAGLE.createAttributes());
-    FabricDefaultAttributeRegistry.register(
-        GOLDEN_RETRIEVER, UnleashedDogBreed.GOLDEN_RETRIEVER.createAttributes());
-    FabricDefaultAttributeRegistry.register(
-        SHIBA_INU, UnleashedDogBreed.SHIBA_INU.createAttributes());
+    for (final UnleashedDogBreed breed : UnleashedDogBreed.values()) {
+      FabricDefaultAttributeRegistry.register(getDogEntityType(breed), breed.createAttributes());
+    }
   }
 }

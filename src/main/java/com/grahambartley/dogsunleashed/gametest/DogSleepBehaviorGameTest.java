@@ -3,7 +3,6 @@ package com.grahambartley.dogsunleashed.gametest;
 import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
-import com.grahambartley.dogsunleashed.entity.HuskyEntity;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.concurrent.atomic.AtomicBoolean;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -99,7 +98,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relDogPos);
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relDogPos);
     husky.setTamed(true, true);
 
     context.runAtTick(
@@ -127,7 +126,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relBedPos);
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relBedPos);
     husky.setTamed(true, true);
 
     context.runAtTick(
@@ -151,7 +150,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relBedPos);
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relBedPos);
     husky.setTamed(true, true);
 
     context.runAtTick(
@@ -192,7 +191,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relBedPos);
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relBedPos);
     husky.setTamed(true, true);
     // This test asserts the SLEEPING_IN_BED DataTracker contract over a multi-tick window: once
     // set via startSleepingInBed, it stays set absent an explicit wakeUp / damage / day-time
@@ -247,7 +246,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relBedPos);
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relBedPos);
     husky.setTamed(true, true);
 
     context.runAtTick(
@@ -280,7 +279,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relBedPos);
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relBedPos);
     husky.setTamed(true, true);
 
     context.runAtTick(
@@ -325,7 +324,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relBedPos);
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relBedPos);
     husky.setTamed(true, true);
     husky.setInvulnerable(true); // see note on sister test re: in-bed fall damage triggering wakeUp
     // See note on sister test {@code manualNightWakeDogAutoSleepsNextNight}: SitGoal (priority 2)
@@ -385,7 +384,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relBedPos);
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relBedPos);
     husky.setTamed(true, true);
     // See sister tests: ownerless tamed dogs trigger SitGoal preemption. Give an owner so the goal
     // hierarchy matches production. Gametest skill rule 6.
@@ -451,7 +450,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relBedPos);
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relBedPos);
     husky.setTamed(true, true);
     husky.setInvulnerable(true); // see note on sister test re: in-bed fall damage triggering wakeUp
     // Give the dog an owner. Without an owner, vanilla {@code SitGoal.canStart} unconditionally
@@ -558,7 +557,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relBedPos);
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relBedPos);
     husky.setTamed(true, true);
     // This test exercises the SLEEPING_IN_BED / COMMANDED_TO_SLEEP DataTracker contract across the
     // commandToSleep -> startSleepingInBed -> wakeUp transitions. The state is mutated by direct
@@ -601,7 +600,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final HuskyEntity husky = (HuskyEntity) context.spawnEntity(ModEntities.HUSKY, relBedPos);
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relBedPos);
     husky.setTamed(true, true);
 
     context.runAtTick(

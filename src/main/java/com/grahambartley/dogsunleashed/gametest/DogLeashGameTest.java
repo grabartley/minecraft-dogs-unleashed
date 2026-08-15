@@ -3,7 +3,6 @@ package com.grahambartley.dogsunleashed.gametest;
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
-import com.grahambartley.dogsunleashed.entity.HuskyEntity;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
@@ -54,7 +53,7 @@ public final class DogLeashGameTest implements FabricGameTest {
     context.setBlockState(BED_POS, ModBlocks.DOG_BED.getDefaultState());
     final BlockPos absBedPos = context.getAbsolutePos(BED_POS);
     final ServerPlayerEntity owner = spawnOwnerAt(context, OWNER_POS);
-    final HuskyEntity dog =
+    final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS, owner.getUuid());
     dog.setAssignedBedPos(absBedPos);
     dog.attachLeash(owner, true);
@@ -74,7 +73,7 @@ public final class DogLeashGameTest implements FabricGameTest {
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = INTERACT_BATCH, tickLimit = 40)
   public void attachingLeashWakesDogSleepingInBed(final TestContext context) {
     final ServerPlayerEntity owner = spawnOwnerAt(context, OWNER_POS);
-    final HuskyEntity dog = DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS);
+    final UnleashedDogEntity dog = DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS);
     dog.setAiDisabled(true);
     dog.startSleepingInBed(context.getAbsolutePos(BED_POS));
     context.assertTrue(dog.isSleepingInBed(), "The dog should be asleep before the leash attaches");
@@ -93,7 +92,7 @@ public final class DogLeashGameTest implements FabricGameTest {
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = INTERACT_BATCH, tickLimit = 40)
   public void attachingLeashCancelsCommandedSleep(final TestContext context) {
     final ServerPlayerEntity owner = spawnOwnerAt(context, OWNER_POS);
-    final HuskyEntity dog = DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS);
+    final UnleashedDogEntity dog = DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS);
     dog.setAiDisabled(true);
     dog.commandToSleep(context.getAbsolutePos(BED_POS));
     context.assertTrue(
@@ -113,7 +112,7 @@ public final class DogLeashGameTest implements FabricGameTest {
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = INTERACT_BATCH, tickLimit = 20)
   public void sneakFetchInteractDropsLeashAndStartsPlayMode(final TestContext context) {
     final ServerPlayerEntity owner = spawnOwnerAt(context, OWNER_POS);
-    final HuskyEntity dog =
+    final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS, owner.getUuid());
     dog.setAiDisabled(true);
     dog.attachLeash(owner, true);
@@ -135,7 +134,7 @@ public final class DogLeashGameTest implements FabricGameTest {
     DogsUnleashed.SERVER_CONFIG = original.withDropLeashOnPlayMode(false);
     try {
       final ServerPlayerEntity owner = spawnOwnerAt(context, OWNER_POS);
-      final HuskyEntity dog =
+      final UnleashedDogEntity dog =
           DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS, owner.getUuid());
       dog.setAiDisabled(true);
       dog.attachLeash(owner, true);

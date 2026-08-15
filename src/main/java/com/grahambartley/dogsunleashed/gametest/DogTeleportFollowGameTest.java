@@ -1,7 +1,6 @@
 package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModEntities;
-import com.grahambartley.dogsunleashed.entity.HuskyEntity;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.pet.PetData;
@@ -39,7 +38,7 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
   @GameTest(templateName = TELEPORT_ARENA, tickLimit = 40)
   public void longDistanceTeleportBringsActiveDogToOwner(TestContext context) {
     final ServerPlayerEntity owner = placePlayer(context, LONG_TELEPORT_START);
-    final HuskyEntity husky = spawnRegisteredDog(context, owner, DOG_START);
+    final UnleashedDogEntity husky = spawnRegisteredDog(context, owner, DOG_START);
 
     context.runAtTick(TELEPORT_TICK, () -> teleport(context, owner, LONG_TELEPORT_DESTINATION));
 
@@ -65,7 +64,7 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
     // in the floor. The dog must be placed on a clear neighbouring position, never inside blocks.
     context.setBlockState(new BlockPos(20, 2, 2), Blocks.STONE.getDefaultState());
     final ServerPlayerEntity owner = placePlayer(context, LONG_TELEPORT_START);
-    final HuskyEntity husky = spawnRegisteredDog(context, owner, DOG_START);
+    final UnleashedDogEntity husky = spawnRegisteredDog(context, owner, DOG_START);
 
     context.runAtTick(TELEPORT_TICK, () -> teleport(context, owner, LONG_TELEPORT_DESTINATION));
 
@@ -90,7 +89,7 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
     // Mirrors an owner in creative flight: the teleport destination is mid-air, so the dog must
     // land on the ground beneath the owner rather than being skipped for lack of safe footing.
     final ServerPlayerEntity owner = placePlayer(context, LONG_TELEPORT_START);
-    final HuskyEntity husky = spawnRegisteredDog(context, owner, DOG_START);
+    final UnleashedDogEntity husky = spawnRegisteredDog(context, owner, DOG_START);
 
     context.runAtTick(TELEPORT_TICK, () -> teleport(context, owner, new Vec3d(20.5, 4, 2.5)));
 
@@ -121,7 +120,7 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
     // Partial-height ground cover is valid footing and must never strand the dog.
     coverDestinationFloor(context, Blocks.SNOW.getDefaultState());
     final ServerPlayerEntity owner = placePlayer(context, LONG_TELEPORT_START);
-    final HuskyEntity husky = spawnRegisteredDog(context, owner, DOG_START);
+    final UnleashedDogEntity husky = spawnRegisteredDog(context, owner, DOG_START);
 
     context.runAtTick(TELEPORT_TICK, () -> teleport(context, owner, LONG_TELEPORT_DESTINATION));
 
@@ -145,7 +144,7 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
   public void longDistanceTeleportBringsDogOntoSlabGround(TestContext context) {
     coverDestinationFloor(context, Blocks.STONE_SLAB.getDefaultState());
     final ServerPlayerEntity owner = placePlayer(context, LONG_TELEPORT_START);
-    final HuskyEntity husky = spawnRegisteredDog(context, owner, DOG_START);
+    final UnleashedDogEntity husky = spawnRegisteredDog(context, owner, DOG_START);
 
     context.runAtTick(TELEPORT_TICK, () -> teleport(context, owner, LONG_TELEPORT_DESTINATION));
 
@@ -171,7 +170,7 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
     // must be left where it was instead of being placed inside blocks to suffocate.
     fillDestinationWithStone(context);
     final ServerPlayerEntity owner = placePlayer(context, LONG_TELEPORT_START);
-    final HuskyEntity husky = spawnRegisteredDog(context, owner, DOG_START);
+    final UnleashedDogEntity husky = spawnRegisteredDog(context, owner, DOG_START);
     final Vec3d dogStartPos = husky.getPos();
 
     context.runAtTick(TELEPORT_TICK, () -> teleport(context, owner, LONG_TELEPORT_DESTINATION));
@@ -194,7 +193,7 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
     // fully buried there is no safe spot, so the dog arrives at the owner's own position.
     fillDestinationWithStone(context);
     final ServerPlayerEntity owner = placePlayer(context, LONG_TELEPORT_DESTINATION);
-    final HuskyEntity husky = spawnRegisteredDog(context, owner, DOG_START);
+    final UnleashedDogEntity husky = spawnRegisteredDog(context, owner, DOG_START);
 
     context.runAtTick(
         TELEPORT_TICK,
@@ -253,7 +252,7 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
   @GameTest(templateName = TELEPORT_ARENA, tickLimit = 40)
   public void shortDistanceTeleportLeavesDogInPlace(TestContext context) {
     final ServerPlayerEntity owner = placePlayer(context, new Vec3d(8.5, 2, 2.5));
-    final HuskyEntity husky = spawnRegisteredDog(context, owner, new BlockPos(1, 2, 2));
+    final UnleashedDogEntity husky = spawnRegisteredDog(context, owner, new BlockPos(1, 2, 2));
     final Vec3d dogStartPos = husky.getPos();
 
     context.runAtTick(TELEPORT_TICK, () -> teleport(context, owner, new Vec3d(14.5, 2, 2.5)));
@@ -271,7 +270,7 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
   @GameTest(templateName = TELEPORT_ARENA, tickLimit = 40)
   public void sittingDogStaysBehindOnLongDistanceTeleport(TestContext context) {
     final ServerPlayerEntity owner = placePlayer(context, LONG_TELEPORT_START);
-    final HuskyEntity husky = spawnRegisteredDog(context, owner, DOG_START);
+    final UnleashedDogEntity husky = spawnRegisteredDog(context, owner, DOG_START);
     husky.setInSittingPose(true);
     final Vec3d dogStartPos = husky.getPos();
 
@@ -290,7 +289,7 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
   @GameTest(templateName = TELEPORT_ARENA, tickLimit = 40)
   public void sleepingDogStaysBehindOnLongDistanceTeleport(TestContext context) {
     final ServerPlayerEntity owner = placePlayer(context, LONG_TELEPORT_START);
-    final HuskyEntity husky = spawnRegisteredDog(context, owner, DOG_START);
+    final UnleashedDogEntity husky = spawnRegisteredDog(context, owner, DOG_START);
     husky.startSleepingInBed(context.getAbsolutePos(DOG_START));
     final Vec3d dogStartPos = husky.getPos();
 
@@ -335,9 +334,9 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
     return player;
   }
 
-  private static HuskyEntity spawnRegisteredDog(
+  private static UnleashedDogEntity spawnRegisteredDog(
       TestContext context, ServerPlayerEntity owner, BlockPos relativePos) {
-    final HuskyEntity husky = context.spawnEntity(ModEntities.HUSKY, relativePos);
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relativePos);
     husky.setAiDisabled(true);
     husky.setTamed(true, true);
     husky.setOwnerUuid(owner.getUuid());

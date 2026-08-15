@@ -387,6 +387,9 @@ public record DogsUnleashedConfig(
       @Nullable final Map<String, Integer> raw) {
     final Map<String, Integer> normalized = new LinkedHashMap<>();
     for (final UnleashedDogBreed breed : UnleashedDogBreed.values()) {
+      if (!breed.isNaturallySpawning()) {
+        continue;
+      }
       normalized.put(breed.serializedId(), DEFAULT_SPAWN_RATE_MULTIPLIER_PERCENT);
     }
     if (raw == null) {

@@ -1,7 +1,6 @@
 package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModEntities;
-import com.grahambartley.dogsunleashed.entity.HuskyEntity;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -27,8 +26,8 @@ public final class DogLineageGameTest implements FabricGameTest {
   @GameTest(templateName = "dogs-unleashed:dog_arena", tickLimit = 20)
   public void createChildStampsBothParentUuidsOnTheBaby(TestContext context) {
     final UUID ownerUuid = UUID.randomUUID();
-    final HuskyEntity parent = spawnTamedDog(context, ownerUuid, PARENT_POS);
-    final HuskyEntity otherParent = spawnTamedDog(context, ownerUuid, OTHER_PARENT_POS);
+    final UnleashedDogEntity parent = spawnTamedDog(context, ownerUuid, PARENT_POS);
+    final UnleashedDogEntity otherParent = spawnTamedDog(context, ownerUuid, OTHER_PARENT_POS);
 
     final UnleashedDogEntity baby =
         (UnleashedDogEntity) parent.createChild(context.getWorld(), otherParent);
@@ -44,7 +43,7 @@ public final class DogLineageGameTest implements FabricGameTest {
 
   @GameTest(templateName = "dogs-unleashed:dog_arena", tickLimit = 20)
   public void bothParentUuidsSurviveEntityNbtRoundTrip(TestContext context) {
-    final HuskyEntity original = spawnTamedDog(context, UUID.randomUUID(), PARENT_POS);
+    final UnleashedDogEntity original = spawnTamedDog(context, UUID.randomUUID(), PARENT_POS);
     final UUID parentUuid = UUID.randomUUID();
     final UUID secondParentUuid = UUID.randomUUID();
     original.setParentDogUuid(parentUuid);
@@ -52,7 +51,7 @@ public final class DogLineageGameTest implements FabricGameTest {
 
     final NbtCompound nbt = new NbtCompound();
     original.writeCustomDataToNbt(nbt);
-    final HuskyEntity reloaded = spawnTamedDog(context, UUID.randomUUID(), OTHER_PARENT_POS);
+    final UnleashedDogEntity reloaded = spawnTamedDog(context, UUID.randomUUID(), OTHER_PARENT_POS);
     reloaded.readCustomDataFromNbt(nbt);
 
     context.assertTrue(
@@ -67,13 +66,13 @@ public final class DogLineageGameTest implements FabricGameTest {
 
   @GameTest(templateName = "dogs-unleashed:dog_arena", tickLimit = 20)
   public void legacyNbtWithoutSecondParentReadsAsUnknown(TestContext context) {
-    final HuskyEntity original = spawnTamedDog(context, UUID.randomUUID(), PARENT_POS);
+    final UnleashedDogEntity original = spawnTamedDog(context, UUID.randomUUID(), PARENT_POS);
     final UUID parentUuid = UUID.randomUUID();
     original.setParentDogUuid(parentUuid);
 
     final NbtCompound nbt = new NbtCompound();
     original.writeCustomDataToNbt(nbt);
-    final HuskyEntity reloaded = spawnTamedDog(context, UUID.randomUUID(), OTHER_PARENT_POS);
+    final UnleashedDogEntity reloaded = spawnTamedDog(context, UUID.randomUUID(), OTHER_PARENT_POS);
     reloaded.readCustomDataFromNbt(nbt);
 
     context.assertTrue(
@@ -86,9 +85,9 @@ public final class DogLineageGameTest implements FabricGameTest {
     context.complete();
   }
 
-  private static HuskyEntity spawnTamedDog(
+  private static UnleashedDogEntity spawnTamedDog(
       final TestContext context, final UUID ownerUuid, final BlockPos relativePos) {
-    final HuskyEntity husky = context.spawnEntity(ModEntities.HUSKY, relativePos);
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relativePos);
     husky.setAiDisabled(true);
     husky.setOwnerUuid(ownerUuid);
     husky.setTamed(true, true);
