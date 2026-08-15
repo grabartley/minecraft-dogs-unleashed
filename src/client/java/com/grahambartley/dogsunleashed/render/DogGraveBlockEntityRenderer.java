@@ -5,7 +5,6 @@ import com.grahambartley.dogsunleashed.model.DogGraveModel;
 import com.grahambartley.dogsunleashed.render.layer.DogGraveFlowerLayer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
@@ -18,6 +17,8 @@ import software.bernie.geckolib.renderer.GeoBlockRenderer;
 public class DogGraveBlockEntityRenderer extends GeoBlockRenderer<DogGraveBlockEntity> {
 
   private static final float GRAVE_SCALE = 2.0f;
+  private static final float NAME_TAG_HEIGHT = 2.2f;
+  private static final float NAME_TAG_TEXT_SCALE = 0.025f;
 
   public DogGraveBlockEntityRenderer(BlockEntityRendererFactory.Context context) {
     super(new DogGraveModel());
@@ -56,38 +57,19 @@ public class DogGraveBlockEntityRenderer extends GeoBlockRenderer<DogGraveBlockE
   }
 
   @Override
-  public void actuallyRender(
-      MatrixStack matrices,
+  public void render(
       DogGraveBlockEntity entity,
-      BakedGeoModel model,
-      RenderLayer renderType,
-      VertexConsumerProvider bufferSource,
-      VertexConsumer buffer,
-      boolean isReRender,
       float partialTick,
+      MatrixStack matrices,
+      VertexConsumerProvider bufferSource,
       int packedLight,
-      int packedOverlay,
-      int colour) {
+      int packedOverlay) {
+    super.render(entity, partialTick, matrices, bufferSource, packedLight, packedOverlay);
 
-    super.actuallyRender(
-        matrices,
-        entity,
-        model,
-        renderType,
-        bufferSource,
-        buffer,
-        isReRender,
-        partialTick,
-        packedLight,
-        packedOverlay,
-        colour);
-
-    if (!isReRender) {
-      final String dogName = entity.getDogName();
-      final int textColor = entity.getFlowerColor().getEntityColor();
-      if (dogName != null && !dogName.isEmpty()) {
-        renderNameTag(entity, dogName, textColor, matrices, packedLight);
-      }
+    final String dogName = entity.getDogName();
+    if (dogName != null && !dogName.isEmpty()) {
+      renderNameTag(
+          entity, dogName, entity.getFlowerColor().getEntityColor(), matrices, packedLight);
     }
   }
 
@@ -106,8 +88,9 @@ public class DogGraveBlockEntityRenderer extends GeoBlockRenderer<DogGraveBlockE
         (int) (client.options.getTextBackgroundOpacity(0.25f) * 255.0f) << 24;
 
     matrices.push();
-    matrices.translate(0.0, 1.1, 0.0);
-    matrices.scale(-0.02f, -0.02f, 0.02f);
+    matrices.translate(0.5, NAME_TAG_HEIGHT, 0.5);
+    matrices.multiply(client.getEntityRenderDispatcher().getRotation());
+    matrices.scale(NAME_TAG_TEXT_SCALE, -NAME_TAG_TEXT_SCALE, NAME_TAG_TEXT_SCALE);
 
     final Matrix4f matrix = matrices.peek().getPositionMatrix();
     final float xOffset = -textRenderer.getWidth(name) / 2f;
