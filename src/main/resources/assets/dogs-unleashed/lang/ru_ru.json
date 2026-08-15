@@ -91,6 +91,8 @@
   "screen.dogs-unleashed.settings.cancel": "Отмена",
   "screen.dogs-unleashed.settings.readonly_banner": "Только чтение (требуются права оператора)",
   "screen.dogs-unleashed.settings.readonly_hint": "Операторы могут редактировать через этот экран или /dogsunleashed",
+  "screen.dogs-unleashed.settings.noworld_banner": "Нет подключения к миру",
+  "screen.dogs-unleashed.settings.noworld_hint": "Войдите в одиночный мир или на сервер, чтобы просмотреть и изменить эти настройки",
   "screen.dogs-unleashed.settings.spawn": "Спавн собак в дикой природе",
   "screen.dogs-unleashed.settings.spawn.tooltip": "Если включено, породы собак появляются естественным образом в своих биомах. Отключите, чтобы использовать только яйца призыва и разведение. Требуется перезапуск мира, чтобы изменения вступили в силу.",
   "screen.dogs-unleashed.settings.graves": "Собачьи могилы при смерти",

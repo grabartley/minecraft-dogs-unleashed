@@ -91,6 +91,8 @@
   "screen.dogs-unleashed.settings.cancel": "Abbrechen",
   "screen.dogs-unleashed.settings.readonly_banner": "Schreibgeschützt (Operator-Berechtigung erforderlich)",
   "screen.dogs-unleashed.settings.readonly_hint": "Operatoren können über diesen Bildschirm oder /dogsunleashed bearbeiten",
+  "screen.dogs-unleashed.settings.noworld_banner": "Nicht mit einer Welt verbunden",
+  "screen.dogs-unleashed.settings.noworld_hint": "Betritt eine Einzelspieler-Welt oder einen Server, um diese Einstellungen zu sehen und zu bearbeiten",
   "screen.dogs-unleashed.settings.spawn": "Hunde in der Wildnis spawnen",
   "screen.dogs-unleashed.settings.spawn.tooltip": "Wenn aktiviert, spawnen Hunderassen natürlich in ihren Biomen. Deaktiviere dies, um nur Spawn-Eier und Zucht zu nutzen. Erfordert einen Weltneustart, um wirksam zu werden.",
   "screen.dogs-unleashed.settings.graves": "Hundegräber bei Tod",

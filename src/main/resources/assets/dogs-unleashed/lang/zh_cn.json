@@ -91,6 +91,8 @@
   "screen.dogs-unleashed.settings.cancel": "取消",
   "screen.dogs-unleashed.settings.readonly_banner": "只读（需要管理员权限）",
   "screen.dogs-unleashed.settings.readonly_hint": "管理员可通过此界面或 /dogsunleashed 进行编辑",
+  "screen.dogs-unleashed.settings.noworld_banner": "未连接到世界",
+  "screen.dogs-unleashed.settings.noworld_hint": "进入单人世界或服务器以查看和编辑这些设置",
   "screen.dogs-unleashed.settings.spawn": "在野外生成狗",
   "screen.dogs-unleashed.settings.spawn.tooltip": "启用后，狗的品种会在其对应的生物群系中自然生成。禁用后将仅能通过刷怪蛋和繁殖获得。需要重启世界才能生效。",
   "screen.dogs-unleashed.settings.graves": "死亡时生成狗坟墓",
