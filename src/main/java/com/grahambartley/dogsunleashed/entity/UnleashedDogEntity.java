@@ -851,8 +851,15 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     final ItemStack itemStack = player.getStackInHand(hand);
 
     if (this.getWorld().isClient) {
-      final boolean shouldInteract = this.isOwner(player) || !this.isTamed();
+      final boolean shouldInteract = this.isOwner(player) || !this.isTamed() || player.isSneaking();
       return shouldInteract ? ActionResult.CONSUME : ActionResult.PASS;
+    }
+
+    if (!this.isOwner(player) && player.isSneaking()) {
+      if (player instanceof ServerPlayerEntity serverPlayer) {
+        ModNetworking.sendOpenDogInspect(serverPlayer, this);
+      }
+      return ActionResult.SUCCESS;
     }
 
     FetchItemType fetchItemType = FetchTypes.forItem(itemStack.getItem());

@@ -6,6 +6,7 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.SyncServerConfigS2CPayload;
 import com.grahambartley.dogsunleashed.pet.PetAliveFilter;
 import com.grahambartley.dogsunleashed.screen.DogCommandWheelScreen;
+import com.grahambartley.dogsunleashed.screen.DogInspectScreen;
 import com.grahambartley.dogsunleashed.screen.PetManagerScreen;
 import com.grahambartley.dogsunleashed.screen.PetNamingScreen;
 import java.util.UUID;
@@ -29,6 +30,22 @@ public final class ModNetworkingClient {
         SyncServerConfigS2CPayload.ID, ModNetworkingClient::handleSyncServerConfig);
     ClientPlayNetworking.registerGlobalReceiver(
         ModNetworking.SyncDogConnectionsPayload.ID, ModNetworkingClient::handleSyncDogConnections);
+    ClientPlayNetworking.registerGlobalReceiver(
+        ModNetworking.OpenDogInspectPayload.ID, ModNetworkingClient::handleOpenDogInspect);
+  }
+
+  private static void handleOpenDogInspect(
+      ModNetworking.OpenDogInspectPayload payload, ClientPlayNetworking.Context context) {
+    context
+        .client()
+        .execute(
+            () -> {
+              final MinecraftClient client = MinecraftClient.getInstance();
+              if (client.currentScreen != null || client.world == null) {
+                return;
+              }
+              client.setScreen(new DogInspectScreen(payload));
+            });
   }
 
   private static void handleSyncDogConnections(

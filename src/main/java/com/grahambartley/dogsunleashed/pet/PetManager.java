@@ -97,6 +97,11 @@ public final class PetManager extends PersistentState {
     return petsById.get(petId);
   }
 
+  public List<BreedComposition.BreedShare> getBreedComposition(
+      UUID dogId, UnleashedDogBreed fallbackBreed) {
+    return BreedComposition.compute(dogId, fallbackBreed, petsById::get);
+  }
+
   /**
    * Resolves one dog's immediate family from the pet records, or {@code null} for an unknown dog.
    * Mates are co-parents of at least one shared child, siblings share at least one parent.

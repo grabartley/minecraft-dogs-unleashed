@@ -3,11 +3,15 @@ package com.grahambartley.dogsunleashed.network;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.grahambartley.dogsunleashed.entity.DogWheelAction;
+import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import io.netty.buffer.Unpooled;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 import net.minecraft.network.RegistryByteBuf;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -86,5 +90,89 @@ class ModNetworkingTest {
   void stripControlCharsRemovesControlBytes(
       final String label, final String input, final String expected) {
     assertEquals(expected, ModNetworking.stripControlChars(input));
+  }
+
+  private static ModNetworking.PetSyncData samplePet(
+      final UnleashedDogBreed breed, final String name) {
+    return new ModNetworking.PetSyncData(
+        UUID.randomUUID().toString(),
+        breed,
+        name,
+        12.5f,
+        25.0f,
+        10,
+        64,
+        -20,
+        "minecraft:overworld",
+        true,
+        false,
+        1,
+        2,
+        0);
+  }
+
+  static Stream<Arguments> openDogInspectPayloads() {
+    return Stream.of(
+        Arguments.of(
+            "wild dog",
+            samplePet(UnleashedDogBreed.HUSKY, ""),
+            false,
+            "",
+            List.of(new BreedShare(UnleashedDogBreed.HUSKY, 1.0f))),
+        Arguments.of(
+            "tamed dog with owner",
+            samplePet(UnleashedDogBreed.BEAGLE, "Rex"),
+            true,
+            "Steve",
+            List.of(
+                new BreedShare(UnleashedDogBreed.BEAGLE, 0.75f),
+                new BreedShare(UnleashedDogBreed.HUSKY, 0.25f))),
+        Arguments.of(
+            "tamed dog with unknown owner",
+            samplePet(UnleashedDogBreed.SHIBA_INU, "小白"),
+            true,
+            "",
+            List.of(new BreedShare(UnleashedDogBreed.SHIBA_INU, 1.0f))));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("openDogInspectPayloads")
+  @DisplayName("OpenDogInspectPayload codec round-trips its fields")
+  void openDogInspectPayloadCodecRoundTrips(
+      final String label,
+      final ModNetworking.PetSyncData pet,
+      final boolean tamed,
+      final String ownerName,
+      final List<BreedShare> composition) {
+    final ModNetworking.OpenDogInspectPayload payload =
+        new ModNetworking.OpenDogInspectPayload(pet, tamed, ownerName, composition);
+    final RegistryByteBuf buf = newBuf();
+    ModNetworking.OpenDogInspectPayload.CODEC.encode(buf, payload);
+    assertEquals(payload, ModNetworking.OpenDogInspectPayload.CODEC.decode(buf));
+  }
+
+  @Test
+  @DisplayName("SyncDogConnectionsPayload codec round-trips the focus composition")
+  void syncDogConnectionsPayloadCodecRoundTripsComposition() {
+    final ModNetworking.ConnectionDogSyncData self =
+        new ModNetworking.ConnectionDogSyncData(
+            samplePet(UnleashedDogBreed.HUSKY, "Luna"), UUID.randomUUID().toString(), "Alex");
+    final ModNetworking.ConnectionDogSyncData parent =
+        new ModNetworking.ConnectionDogSyncData(
+            samplePet(UnleashedDogBreed.BEAGLE, "Max"), UUID.randomUUID().toString(), "");
+    final ModNetworking.SyncDogConnectionsPayload payload =
+        new ModNetworking.SyncDogConnectionsPayload(
+            self,
+            List.of(
+                new BreedShare(UnleashedDogBreed.HUSKY, 0.5f),
+                new BreedShare(UnleashedDogBreed.BEAGLE, 0.5f)),
+            List.of(parent),
+            List.of(),
+            List.of(),
+            List.of(),
+            false);
+    final RegistryByteBuf buf = newBuf();
+    ModNetworking.SyncDogConnectionsPayload.CODEC.encode(buf, payload);
+    assertEquals(payload, ModNetworking.SyncDogConnectionsPayload.CODEC.decode(buf));
   }
 }
