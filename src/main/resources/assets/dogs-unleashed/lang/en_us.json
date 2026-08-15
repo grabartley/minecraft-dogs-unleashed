@@ -91,6 +91,8 @@
   "screen.dogs-unleashed.settings.cancel": "Cancel",
   "screen.dogs-unleashed.settings.readonly_banner": "Read-only (operator permission required)",
   "screen.dogs-unleashed.settings.readonly_hint": "Operators can edit via this screen or /dogsunleashed",
+  "screen.dogs-unleashed.settings.noworld_banner": "Not connected to a world",
+  "screen.dogs-unleashed.settings.noworld_hint": "Join a singleplayer world or server to view and edit these settings",
   "screen.dogs-unleashed.settings.spawn": "Spawn Dogs in the Wild",
   "screen.dogs-unleashed.settings.spawn.tooltip": "When enabled, dog breeds spawn naturally in their biomes. Disable to use only spawn eggs and breeding. Requires world restart to take effect.",
   "screen.dogs-unleashed.settings.graves": "Dog Graves on Death",
