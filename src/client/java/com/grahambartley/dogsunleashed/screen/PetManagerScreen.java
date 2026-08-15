@@ -19,13 +19,16 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
+import net.minecraft.client.gui.screen.option.KeybindsScreen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 import org.jetbrains.annotations.Nullable;
@@ -43,6 +46,11 @@ public class PetManagerScreen extends Screen {
   private static final int PORTRAIT_SHADOW_SIZE = 22;
   private static final float PORTRAIT_SCALE = 0.35f;
   private static final float FULL_COLOR = 1.0f;
+  private static final int BUTTON_HEIGHT = 20;
+  private static final int SUMMON_BUTTON_BOTTOM_OFFSET = 50;
+  private static final int KEYBIND_HINT_BOTTOM_OFFSET = 20;
+  private static final int KEYBIND_HINT_COLOR = 0xFFAAAAAA;
+  private static final int KEYBIND_HINT_HOVER_COLOR = 0xFFFFDD66;
 
   private static final List<BreedFilterOption> BREED_OPTIONS = List.of(BreedFilterOption.values());
 
@@ -57,6 +65,10 @@ public class PetManagerScreen extends Screen {
   private final Map<UUID, UnleashedDogEntity> portraitEntities = new HashMap<>();
   private long nextSearchRefreshTime = -1L;
   private String lastRequestedSearchQuery = "";
+  private Text keybindHintText;
+  private int keybindHintX;
+  private int keybindHintY;
+  private int keybindHintWidth;
 
   public PetManagerScreen() {
     super(Text.translatable("screen.dogs-unleashed.pet_manager.title"));
@@ -126,7 +138,7 @@ public class PetManagerScreen extends Screen {
     addDrawableChild(
         ButtonWidget.builder(
                 Text.translatable("screen.dogs-unleashed.pet_manager.summon"), this::onSummon)
-            .dimensions(centerX - 60, this.height - 50, 120, 20)
+            .dimensions(centerX - 60, summonButtonY(this.height), 120, BUTTON_HEIGHT)
             .build());
 
     addDrawableChild(
@@ -150,6 +162,11 @@ public class PetManagerScreen extends Screen {
     settingsButton.setTooltip(
         Tooltip.of(Text.translatable("screen.dogs-unleashed.pet_manager.settings_tooltip")));
     addDrawableChild(settingsButton);
+
+    keybindHintText = Text.translatable("screen.dogs-unleashed.pet_manager.keybind_hint");
+    keybindHintWidth = this.textRenderer.getWidth(keybindHintText);
+    keybindHintX = centerX - keybindHintWidth / 2;
+    keybindHintY = keybindHintY(this.height);
 
     setInitialFocus(searchField);
     setFocused(searchField);
@@ -260,6 +277,51 @@ public class PetManagerScreen extends Screen {
           listStartY + 50,
           0x888888);
     }
+
+    renderKeybindHint(context, mouseX, mouseY);
+  }
+
+  private void renderKeybindHint(final DrawContext context, final int mouseX, final int mouseY) {
+    if (keybindHintText == null) {
+      return;
+    }
+    final int color =
+        isOverKeybindHint(mouseX, mouseY) ? KEYBIND_HINT_HOVER_COLOR : KEYBIND_HINT_COLOR;
+    context.drawText(this.textRenderer, keybindHintText, keybindHintX, keybindHintY, color, false);
+    final int underlineY = keybindHintY + this.textRenderer.fontHeight;
+    context.fill(keybindHintX, underlineY, keybindHintX + keybindHintWidth, underlineY + 1, color);
+  }
+
+  private boolean isOverKeybindHint(final double mouseX, final double mouseY) {
+    return keybindHintText != null
+        && isWithinKeybindHint(
+            mouseX,
+            mouseY,
+            keybindHintX,
+            keybindHintY,
+            keybindHintWidth,
+            this.textRenderer.fontHeight);
+  }
+
+  static boolean isWithinKeybindHint(
+      final double mouseX,
+      final double mouseY,
+      final int hintX,
+      final int hintY,
+      final int hintWidth,
+      final int hintHeight) {
+    return mouseX >= hintX
+        && mouseX < hintX + hintWidth
+        && mouseY >= hintY
+        && mouseY < hintY + hintHeight;
+  }
+
+  static int summonButtonY(final int screenHeight) {
+    return screenHeight - SUMMON_BUTTON_BOTTOM_OFFSET;
+  }
+
+  static int keybindHintY(final int screenHeight) {
+    return screenHeight - KEYBIND_HINT_BOTTOM_OFFSET;
   }
 
   private void renderPetEntry(
@@ -458,6 +520,11 @@ public class PetManagerScreen extends Screen {
   @Override
   public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
     if (button == 0) {
+      if (isOverKeybindHint(mouseX, mouseY)) {
+        openKeybindsScreen();
+        return true;
+      }
+
       final int centerX = this.width / 2;
       final int listStartY = 95;
       final int listX = centerX - ENTRY_WIDTH / 2;
@@ -474,6 +541,14 @@ public class PetManagerScreen extends Screen {
       }
     }
     return super.mouseClicked(mouseX, mouseY, button);
+  }
+
+  private void openKeybindsScreen() {
+    final MinecraftClient client = MinecraftClient.getInstance();
+    client
+        .getSoundManager()
+        .play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f));
+    client.setScreen(new KeybindsScreen(this, client.options));
   }
 
   @Override

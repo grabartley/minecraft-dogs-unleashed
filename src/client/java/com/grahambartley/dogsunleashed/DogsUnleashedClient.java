@@ -53,5 +53,6 @@ public class DogsUnleashedClient implements ClientModInitializer {
 
     ModKeyBindings.register();
     ModNetworkingClient.registerClientReceivers();
+    KeybindDiscoveryNudge.register();
   }
 }
