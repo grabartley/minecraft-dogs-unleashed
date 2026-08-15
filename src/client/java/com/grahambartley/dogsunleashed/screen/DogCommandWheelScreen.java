@@ -35,7 +35,9 @@ public class DogCommandWheelScreen extends Screen {
 
   private static final float OUTER_RADIUS_FRACTION = 0.32f;
   private static final int MIN_OUTER_RADIUS = 64;
-  private static final int MAX_OUTER_RADIUS = 104;
+  // High enough that large scaled resolutions (GUI scale 1 on big windows) still get a wheel
+  // proportionate to the screen instead of a crosshair-sized ring.
+  private static final int MAX_OUTER_RADIUS = 140;
   private static final float INNER_RADIUS_FRACTION = 0.45f;
   private static final int INNER_DETECT_MARGIN = 4;
   private static final int OUTER_DETECT_MARGIN = 14;
