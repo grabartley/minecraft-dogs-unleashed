@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.listener;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetManager;
+import com.grahambartley.dogsunleashed.pet.PetRegistrar;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.world.ServerWorld;
@@ -12,6 +13,10 @@ import net.minecraft.server.world.ServerWorld;
  * loads or unloads. Pet lookups chunk-load the recorded position, so a record that goes stale (e.g.
  * the dog's chunk unloaded after it was moved) would leave the dog unfindable by summons and
  * follows until something happens to load its real chunk again.
+ *
+ * <p>Doubles as the retroactive backfill for tamed, owned dogs that have no pet record at all (dogs
+ * bred through the inherited-owner path before that branch registered one). Those dogs heal the
+ * next time their entity loads.
  */
 public final class PetLocationSyncListener {
 
@@ -28,7 +33,10 @@ public final class PetLocationSyncListener {
     }
 
     final PetManager petManager = PetManager.get(world.getServer());
-    final PetData petData = petManager.getPetByEntityId(dog.getUuid());
+    PetData petData = petManager.getPetByEntityId(dog.getUuid());
+    if (petData == null) {
+      petData = PetRegistrar.registerPetFor(dog, dog.getOwnerUuid());
+    }
     if (petData == null || !petData.isAlive()) {
       return;
     }

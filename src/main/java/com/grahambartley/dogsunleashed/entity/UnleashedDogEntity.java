@@ -35,8 +35,8 @@ import com.grahambartley.dogsunleashed.entity.variant.UnleashedDogCoat;
 import com.grahambartley.dogsunleashed.network.ModNetworking;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetManager;
+import com.grahambartley.dogsunleashed.pet.PetRegistrar;
 import com.grahambartley.dogsunleashed.util.BreedingOwnerResolver;
-import com.grahambartley.dogsunleashed.util.DogNames;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -932,26 +932,10 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     this.applyCommand(DogCommand.SIT);
     this.getWorld().sendEntityStatus(this, EntityStatuses.ADD_POSITIVE_PLAYER_REACTION_PARTICLES);
 
-    if (this.getWorld() instanceof ServerWorld serverWorld) {
-      final PetManager petManager = PetManager.get(serverWorld.getServer());
-      final PetData petData =
-          new PetData(
-              this.getUuid(),
-              player.getUuid(),
-              this.getBreed(),
-              DogNames.getRandomName(),
-              this.getHealth(),
-              this.getMaxHealth(),
-              this.getBlockPos(),
-              serverWorld.getRegistryKey().getValue().toString(),
-              true);
-      petData.syncAppearanceFrom(this);
-      petManager.registerPet(petData);
-
-      if (player instanceof ServerPlayerEntity serverPlayer) {
-        ModNetworking.sendOpenNamingScreen(
-            serverPlayer, this.getUuid(), this.getBreed(), petData.getName());
-      }
+    final PetData petData = PetRegistrar.registerPetFor(this, player.getUuid());
+    if (petData != null && player instanceof ServerPlayerEntity serverPlayer) {
+      ModNetworking.sendOpenNamingScreen(
+          serverPlayer, this.getUuid(), this.getBreed(), petData.getName());
     }
   }
 
@@ -1007,6 +991,9 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
       if (inheritedOwnerUuid != null) {
         baby.setOwnerUuid(inheritedOwnerUuid);
         baby.setTamed(true, true);
+        // The baby is still unpositioned here; AnimalEntity#breed moves and spawns it right after,
+        // and the resulting ENTITY_LOAD makes PetLocationSyncListener write the real position.
+        PetRegistrar.registerPetFor(baby, inheritedOwnerUuid);
       }
     }
     return baby;

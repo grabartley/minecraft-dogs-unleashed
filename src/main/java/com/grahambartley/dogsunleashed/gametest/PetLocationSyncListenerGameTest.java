@@ -16,7 +16,8 @@ import net.minecraft.util.math.BlockPos;
 /**
  * Enforces that pet records resync their dimension and position from the live entity on
  * load/unload, so stale records (which make dogs unfindable by summons and follows) self-heal on
- * contact with the entity.
+ * contact with the entity, and that a tamed, owned dog with no record at all gets one backfilled so
+ * dogs ghosted by the old inherited-owner breeding path heal in existing worlds.
  */
 public final class PetLocationSyncListenerGameTest implements FabricGameTest {
 
@@ -65,6 +66,75 @@ public final class PetLocationSyncListenerGameTest implements FabricGameTest {
     context.assertTrue(
         STALE_POSITION.equals(petData.getLastKnownPosition()),
         "Deceased records must keep their resting position");
+    context.complete();
+  }
+
+  @GameTest(templateName = "dogs-unleashed:dog_arena", tickLimit = 20)
+  public void recordLocationBackfillsMissingRecordForTamedDog(TestContext context) {
+    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final HuskyEntity husky = spawnTamedDog(context, owner);
+
+    PetLocationSyncListener.recordLocation(husky, context.getWorld());
+
+    final PetData petData =
+        PetManager.get(context.getWorld().getServer()).getPetByEntityId(husky.getUuid());
+    context.assertTrue(
+        petData != null, "A tamed, owned dog with no record should be backfilled on load");
+    context.assertTrue(
+        owner.getUuid().equals(petData.getOwnerId()),
+        "Backfilled record should belong to the dog's owner, but was " + petData.getOwnerId());
+    context.assertTrue(
+        husky.getBlockPos().equals(petData.getLastKnownPosition()),
+        "Backfilled record should hold the live position, but was "
+            + petData.getLastKnownPosition());
+    context.complete();
+  }
+
+  @GameTest(templateName = "dogs-unleashed:dog_arena", tickLimit = 20)
+  public void recordLocationDoesNotBackfillOwnerlessDogs(TestContext context) {
+    final HuskyEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(1, 2, 1));
+    husky.setAiDisabled(true);
+    husky.setTamed(true, true);
+
+    PetLocationSyncListener.recordLocation(husky, context.getWorld());
+
+    context.assertTrue(
+        PetManager.get(context.getWorld().getServer()).getPetByEntityId(husky.getUuid()) == null,
+        "An ownerless dog must never be registered as a pet");
+    context.complete();
+  }
+
+  @GameTest(templateName = "dogs-unleashed:dog_arena", tickLimit = 20)
+  public void recordLocationDoesNotBackfillUntamedDogs(TestContext context) {
+    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final HuskyEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(1, 2, 1));
+    husky.setAiDisabled(true);
+    husky.setOwnerUuid(owner.getUuid());
+
+    PetLocationSyncListener.recordLocation(husky, context.getWorld());
+
+    context.assertTrue(
+        PetManager.get(context.getWorld().getServer()).getPetByEntityId(husky.getUuid()) == null,
+        "An untamed dog must never be registered as a pet");
+    context.complete();
+  }
+
+  @GameTest(templateName = "dogs-unleashed:dog_arena", tickLimit = 20)
+  public void recordLocationKeepsTheExistingRecordName(TestContext context) {
+    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final HuskyEntity husky = spawnTamedDog(context, owner);
+    registerPet(context, owner, husky, true);
+
+    PetLocationSyncListener.recordLocation(husky, context.getWorld());
+
+    final PetData petData =
+        PetManager.get(context.getWorld().getServer()).getPetByEntityId(husky.getUuid());
+    context.assertTrue(
+        "Scout".equals(petData.getName()),
+        "Backfill must not overwrite an existing record, name was " + petData.getName());
+    context.assertTrue(
+        PetManager.get(context.getWorld().getServer()).getPetsByOwner(owner.getUuid()).size() == 1,
+        "Backfill must not add a second record for an already-registered dog");
     context.complete();
   }
 
