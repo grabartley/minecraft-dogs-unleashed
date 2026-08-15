@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.pet;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
+import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.Comparator;
 import java.util.function.Predicate;
@@ -66,6 +67,7 @@ public final class PetLocationService {
 
   private static boolean isActivelyFollowing(UnleashedDogEntity dog, ServerPlayerEntity player) {
     return !dog.isRemoved()
+        && dog.getCommand().followsOwnerOnRelocation()
         && !dog.isInSittingPose()
         && !dog.isSleepingInBed()
         && !isBesideOwner(dog, player);
@@ -231,7 +233,11 @@ public final class PetLocationService {
     }
 
     dog.wakeUp();
-    dog.setSitting(false);
+    if (forcePlacement) {
+      // An explicit summon overrides whatever the dog was told before: it should follow its owner
+      // out of the recall. Automatic follows only move dogs already in a following command.
+      dog.applyCommand(DogCommand.FOLLOW);
+    }
     // Always relocate by recreating the entity, even within one world. In-place teleports of a
     // dog freshly streamed in from a ticket-loaded far chunk leave its tracker entry stale:
     // clients receive the spawn at the old position and never the move, so the dog is invisible

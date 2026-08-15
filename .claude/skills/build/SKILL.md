@@ -19,9 +19,17 @@ suffix (e.g. `BeagleCoatRolls.java` -> `BeagleCoatRollsTest.java`). A test that 
 invoke the `gametest` skill BEFORE writing or editing code. The gametest framework has many sharp edges
 (relative vs world coords, time-of-day drift, mock players that aren't ServerPlayerEntity, void floors in
 `EMPTY_STRUCTURE`) and this rule prevents reintroducing already-fixed bugs.
+5b. Automated QA is a HARD REQUIREMENT before manual QA handoff for any change with a visible or
+interactive surface (screens, HUD, rendering, in-world interactions): run the `automated-qa` skill,
+verify the captured screenshots yourself, and publish the evidence to the `images` branch with the
+raw URLs embedded in the PR body. Hand off to manual QA
+only once automated QA has passed. If automated QA is genuinely infeasible for the change (e.g. it
+needs multiplayer, audio, or OS-level input), state why in the QA handoff and let manual QA cover it.
 6. Run the `pr` skill as part of build after validation passes.
 7. Move issue to `QA testing` only after PR is opened and CI is running.
 8. After PR creation and `QA testing` transition, always provide a detailed manual QA checklist to the developer.
+The checklist covers what automated QA could not; items already verified by automated QA are listed as
+pre-verified with a pointer to the committed evidence.
 9. If PR code changes after the PR is opened, check whether the PR description still matches the current branch state,
 and update it if needed so it reflects the final state only.
 10. Stop at `QA testing`, human performs final verification and moves to `Done`.
@@ -41,7 +49,10 @@ tracking artifact for all subsequent status moves.
 5. Move the issue to `In progress`.
 6. Implement the feature.
 7. Run relevant automated tests and a local validation pass for changed behavior.
-8. Run manual validation via `run-game-client` when gameplay behavior changes.
+8. Run the `automated-qa` skill for any change with a visible or interactive surface: drive the
+feature in the live client, capture and verify screenshots, and publish the evidence to the
+`images` branch for embedding in the PR body.
+Fall back to `run-game-client` for a plain manual launch only when automated QA is infeasible.
 9. Invoke the `pr` skill for final checks, commit, push, and PR creation.
 10. Wait for CI to start on the PR and report status.
 11. Move issue to `QA testing` when the PR is ready for human verification.
@@ -79,7 +90,9 @@ tracking artifact for all subsequent status moves.
 - `worktree`, required first step for isolated branch setup
 - `create-issue`, used when build work starts without an existing GitHub issue
 - `pr`, required for commit, push, and PR creation during build flow
-- `run-game-client`, use for manual gameplay validation before QA handoff
+- `automated-qa`, REQUIRED before manual QA handoff for any change with a visible or interactive
+surface: in-process QA driver, screenshot capture and verification, evidence committed to the PR
+- `run-game-client`, manual gameplay launch when a human drives or automated QA is infeasible
 - `gametest`, REQUIRED before any code under `src/main/java/.../gametest/`,
 `src/main/resources/data/dogs-unleashed/gametest/`, or `fabric-gametest`
 entrypoints in `fabric.mod.json` is added or modified. Encodes patterns

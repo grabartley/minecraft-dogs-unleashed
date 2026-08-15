@@ -28,6 +28,7 @@
     ],
     "fabric-gametest": [
       "com.grahambartley.dogsunleashed.gametest.DogAdvancementGameTest",
+      "com.grahambartley.dogsunleashed.gametest.DogCommandGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogEntityBreedSpecificTest",
       "com.grahambartley.dogsunleashed.gametest.DogEntityCoreTest",
       "com.grahambartley.dogsunleashed.gametest.DogEntityBehaviorTest",

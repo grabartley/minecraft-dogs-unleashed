@@ -39,6 +39,10 @@ public final class ModNbtKeys {
   public static final String PENDING_BIRTH_WAKE_HEARTS = "PendingBirthWakeHearts";
   public static final String PARENT_DOG_ID = "ParentDogId";
   public static final String SPAWNED_BY_DOG_SPAWNER = "SpawnedByDogSpawner";
+  public static final String COMMAND_MODE = "CommandMode";
+  public static final String COMMAND_ANCHOR_X = "CommandAnchorX";
+  public static final String COMMAND_ANCHOR_Y = "CommandAnchorY";
+  public static final String COMMAND_ANCHOR_Z = "CommandAnchorZ";
 
   private ModNbtKeys() {}
 }

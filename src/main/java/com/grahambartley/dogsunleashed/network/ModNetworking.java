@@ -4,6 +4,8 @@ import static com.grahambartley.dogsunleashed.network.PacketLimits.REQUEST_PETS_
 import static com.grahambartley.dogsunleashed.network.PacketLimits.SET_PET_NAME_NAME_MAX_LENGTH;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
+import com.grahambartley.dogsunleashed.entity.DogCommand;
+import com.grahambartley.dogsunleashed.entity.DogWheelAction;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.EditServerConfigC2SPayload;
@@ -42,6 +44,10 @@ public final class ModNetworking {
       Identifier.of(DogsUnleashed.MOD_ID, "sync_pet_manager_state");
   public static final Identifier OPEN_NAMING_SCREEN_ID =
       Identifier.of(DogsUnleashed.MOD_ID, "open_naming_screen");
+  public static final Identifier OPEN_COMMAND_WHEEL_ID =
+      Identifier.of(DogsUnleashed.MOD_ID, "open_command_wheel");
+  public static final Identifier SELECT_WHEEL_ACTION_ID =
+      Identifier.of(DogsUnleashed.MOD_ID, "select_wheel_action");
 
   public record SetPetNamePayload(UUID petId, String name) implements CustomPayload {
 
@@ -277,6 +283,56 @@ public final class ModNetworking {
     }
   }
 
+  public record OpenCommandWheelPayload(
+      int entityId, UUID dogId, int currentCommandId, boolean hasBed, String dogName)
+      implements CustomPayload {
+
+    public static final CustomPayload.Id<OpenCommandWheelPayload> ID =
+        new CustomPayload.Id<>(OPEN_COMMAND_WHEEL_ID);
+    public static final PacketCodec<RegistryByteBuf, OpenCommandWheelPayload> CODEC =
+        PacketCodec.of(OpenCommandWheelPayload::write, OpenCommandWheelPayload::read);
+
+    @Override
+    public CustomPayload.Id<? extends CustomPayload> getId() {
+      return ID;
+    }
+
+    private void write(final RegistryByteBuf buf) {
+      buf.writeVarInt(this.entityId);
+      buf.writeString(this.dogId.toString());
+      buf.writeVarInt(this.currentCommandId);
+      buf.writeBoolean(this.hasBed);
+      buf.writeString(this.dogName);
+    }
+
+    private static OpenCommandWheelPayload read(final RegistryByteBuf buf) {
+      return new OpenCommandWheelPayload(
+          buf.readVarInt(),
+          UUID.fromString(buf.readString()),
+          buf.readVarInt(),
+          buf.readBoolean(),
+          buf.readString());
+    }
+  }
+
+  public record SelectWheelActionPayload(UUID dogId, int actionId) implements CustomPayload {
+
+    public static final CustomPayload.Id<SelectWheelActionPayload> ID =
+        new CustomPayload.Id<>(SELECT_WHEEL_ACTION_ID);
+    public static final PacketCodec<RegistryByteBuf, SelectWheelActionPayload> CODEC =
+        PacketCodec.tuple(
+            PacketCodecs.STRING.xmap(UUID::fromString, UUID::toString),
+            SelectWheelActionPayload::dogId,
+            PacketCodecs.VAR_INT,
+            SelectWheelActionPayload::actionId,
+            SelectWheelActionPayload::new);
+
+    @Override
+    public CustomPayload.Id<? extends CustomPayload> getId() {
+      return ID;
+    }
+  }
+
   public static void registerPayloads() {
     PayloadTypeRegistry.playC2S().register(SetPetNamePayload.ID, SetPetNamePayload.CODEC);
     PayloadTypeRegistry.playC2S().register(SummonPetPayload.ID, SummonPetPayload.CODEC);
@@ -288,6 +344,10 @@ public final class ModNetworking {
         .register(SyncPetManagerStatePayload.ID, SyncPetManagerStatePayload.CODEC);
     PayloadTypeRegistry.playS2C()
         .register(OpenNamingScreenPayload.ID, OpenNamingScreenPayload.CODEC);
+    PayloadTypeRegistry.playS2C()
+        .register(OpenCommandWheelPayload.ID, OpenCommandWheelPayload.CODEC);
+    PayloadTypeRegistry.playC2S()
+        .register(SelectWheelActionPayload.ID, SelectWheelActionPayload.CODEC);
     PayloadTypeRegistry.playS2C()
         .register(SyncServerConfigS2CPayload.ID, SyncServerConfigS2CPayload.CODEC);
     PayloadTypeRegistry.playC2S()
@@ -305,6 +365,46 @@ public final class ModNetworking {
         RequestPetManagerStatePayload.ID, ModNetworking::handleRequestPetManagerState);
     ServerPlayNetworking.registerGlobalReceiver(
         EditServerConfigC2SPayload.ID, ModNetworking::handleEditServerConfig);
+    ServerPlayNetworking.registerGlobalReceiver(
+        SelectWheelActionPayload.ID, ModNetworking::handleSelectWheelAction);
+  }
+
+  // Same convention as handleSetPetName: no ACK packet, the COMMAND DataTracker broadcast is the
+  // source of truth for the client.
+  private static void handleSelectWheelAction(
+      final SelectWheelActionPayload payload, final ServerPlayNetworking.Context context) {
+    final ServerPlayerEntity player = context.player();
+    final ServerWorld world = player.getServerWorld();
+    final DogWheelAction action = DogWheelAction.fromId(payload.actionId());
+    if (action == null) {
+      return;
+    }
+
+    world
+        .getServer()
+        .execute(
+            () -> {
+              if (!(world.getEntity(payload.dogId()) instanceof UnleashedDogEntity dog)
+                  || !dog.isOwner(player)
+                  || !dog.isAlive()) {
+                return;
+              }
+              final String dogName = dog.getTamedName();
+              if (action == DogWheelAction.GO_TO_BED) {
+                final BlockPos bedPos = dog.getAssignedBedPos().orElse(null);
+                if (bedPos == null) {
+                  return;
+                }
+                dog.commandToSleep(bedPos);
+                player.sendMessage(
+                    Text.translatable("block.dogs-unleashed.dog_bed.sleep_command", dogName), true);
+                return;
+              }
+              final DogCommand command = action.command();
+              dog.applyCommand(command);
+              dog.acknowledgeCommand();
+              player.sendMessage(Text.translatable(command.messageKey(), dogName), true);
+            });
   }
 
   private static void handleEditServerConfig(
@@ -480,6 +580,18 @@ public final class ModNetworking {
       }
     }
     return pets.stream().map(PetSyncData::from).toList();
+  }
+
+  public static void sendOpenCommandWheel(
+      final ServerPlayerEntity player, final UnleashedDogEntity dog) {
+    ServerPlayNetworking.send(
+        player,
+        new OpenCommandWheelPayload(
+            dog.getId(),
+            dog.getUuid(),
+            dog.getCommand().id(),
+            dog.hasAssignedBed(),
+            dog.getTamedName()));
   }
 
   public static void sendOpenNamingScreen(

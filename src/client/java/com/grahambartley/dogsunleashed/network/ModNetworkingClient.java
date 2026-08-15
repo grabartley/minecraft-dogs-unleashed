@@ -1,9 +1,11 @@
 package com.grahambartley.dogsunleashed.network;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
+import com.grahambartley.dogsunleashed.entity.DogWheelAction;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.SyncServerConfigS2CPayload;
 import com.grahambartley.dogsunleashed.pet.PetAliveFilter;
+import com.grahambartley.dogsunleashed.screen.DogCommandWheelScreen;
 import com.grahambartley.dogsunleashed.screen.PetManagerScreen;
 import com.grahambartley.dogsunleashed.screen.PetNamingScreen;
 import java.util.UUID;
@@ -15,6 +17,8 @@ public final class ModNetworkingClient {
   public static void registerClientReceivers() {
     ClientPlayNetworking.registerGlobalReceiver(
         ModNetworking.OpenNamingScreenPayload.ID, ModNetworkingClient::handleOpenNamingScreen);
+    ClientPlayNetworking.registerGlobalReceiver(
+        ModNetworking.OpenCommandWheelPayload.ID, ModNetworkingClient::handleOpenCommandWheel);
 
     ClientPlayNetworking.registerGlobalReceiver(
         ModNetworking.SyncPetsPayload.ID, ModNetworkingClient::handleSyncPets);
@@ -43,6 +47,20 @@ public final class ModNetworkingClient {
             });
   }
 
+  private static void handleOpenCommandWheel(
+      ModNetworking.OpenCommandWheelPayload payload, ClientPlayNetworking.Context context) {
+    context
+        .client()
+        .execute(
+            () -> {
+              final MinecraftClient client = MinecraftClient.getInstance();
+              if (client.currentScreen != null || client.world == null) {
+                return;
+              }
+              client.setScreen(new DogCommandWheelScreen(payload));
+            });
+  }
+
   private static void handleSyncPets(
       ModNetworking.SyncPetsPayload payload, ClientPlayNetworking.Context context) {
     context
@@ -66,6 +84,10 @@ public final class ModNetworkingClient {
                 screen.updatePetsList(payload.pets());
               }
             });
+  }
+
+  public static void sendSelectWheelAction(UUID dogId, DogWheelAction action) {
+    ClientPlayNetworking.send(new ModNetworking.SelectWheelActionPayload(dogId, action.id()));
   }
 
   public static void sendSetPetName(UUID petId, String name) {
