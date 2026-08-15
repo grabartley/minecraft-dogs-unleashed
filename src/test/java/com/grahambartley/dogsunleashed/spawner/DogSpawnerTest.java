@@ -18,7 +18,7 @@ class DogSpawnerTest {
   private static final List<UnleashedDogBreed> ALL_BREEDS = List.of(UnleashedDogBreed.values());
 
   private static DogsUnleashedConfig configWithBreedRates(final Map<String, Integer> breedRates) {
-    return new DogsUnleashedConfig(true, 100, breedRates, true, true, true, 32, 1.0f, 1.5f);
+    return new DogsUnleashedConfig(true, 100, breedRates, true, true, true, true, 32, 1.0f, 1.5f);
   }
 
   @Test

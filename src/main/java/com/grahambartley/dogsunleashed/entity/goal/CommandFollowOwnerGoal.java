@@ -28,11 +28,15 @@ public class CommandFollowOwnerGoal extends FollowOwnerGoal {
 
   @Override
   public boolean canStart() {
-    return this.activeCommands.contains(this.dog.getCommand()) && super.canStart();
+    return !this.dog.isLeashed()
+        && this.activeCommands.contains(this.dog.getCommand())
+        && super.canStart();
   }
 
   @Override
   public boolean shouldContinue() {
-    return this.activeCommands.contains(this.dog.getCommand()) && super.shouldContinue();
+    return !this.dog.isLeashed()
+        && this.activeCommands.contains(this.dog.getCommand())
+        && super.shouldContinue();
   }
 }

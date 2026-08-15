@@ -65,6 +65,7 @@ public final class ServerConfigPayloads {
         PacketByteBuf::writeVarInt);
     buf.writeBoolean(config.capIndependentSpawningEnabled());
     buf.writeBoolean(config.gravesEnabled());
+    buf.writeBoolean(config.dropLeashOnPlayMode());
     buf.writeBoolean(config.autoSleepEnabled());
     buf.writeInt(config.autoSleepRangeBlocks());
     buf.writeFloat(config.barkVolume());
@@ -76,6 +77,7 @@ public final class ServerConfigPayloads {
         buf.readBoolean(),
         buf.readVarInt(),
         buf.readMap(PacketByteBuf::readString, PacketByteBuf::readVarInt),
+        buf.readBoolean(),
         buf.readBoolean(),
         buf.readBoolean(),
         buf.readBoolean(),

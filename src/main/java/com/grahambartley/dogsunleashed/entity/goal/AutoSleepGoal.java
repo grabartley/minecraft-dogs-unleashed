@@ -38,6 +38,9 @@ public class AutoSleepGoal extends Goal {
     if (!this.dog.isTamed()) {
       return false;
     }
+    if (this.dog.isLeashed()) {
+      return false;
+    }
     if (this.dog.isInSittingPose()) {
       return false;
     }
@@ -115,6 +118,9 @@ public class AutoSleepGoal extends Goal {
   @Override
   public boolean shouldContinue() {
     if (!this.dog.isTamed()) {
+      return false;
+    }
+    if (this.dog.isLeashed()) {
       return false;
     }
     if (this.dog.isInSittingPose()) {
