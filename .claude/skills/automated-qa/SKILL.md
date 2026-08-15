@@ -90,6 +90,11 @@ GitHub's `user-attachments` uploads are not available via `gh`, so the evidence 
 dedicated orphan `images` branch, stored by PR number. NEVER commit screenshots to the PR branch
 or main; binary evidence must not enter main's history.
 
+NEVER force-push or delete the `images` branch: every PR description across the repo hot-links its
+evidence from this branch by raw URL, so rewriting its history breaks images on every past PR at
+once. Always add on top with normal commits; to replace a PR's evidence, overwrite the files in its
+`pr-<number>/` directory in a new commit, which only ever affects that one PR.
+
 1. Downscale the keeper screenshots: `sips -Z 1000 run/screenshots/qa_*.png --out <staging-dir>/`
 2. Check out the `images` branch in a temporary worktree
    (`git worktree add <tmp-path> images`; if the branch does not exist yet, create it orphan with
