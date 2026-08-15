@@ -196,9 +196,11 @@ position as a last resort.
 Press the configured keybind to open the Pet Manager screen. Filter by breed, alive or deceased status, or search by
 name. Each living dog's row carries a Summon button that brings them to you from anywhere, even across dimensions: the
 system loads their chunk, finds them, and delivers them. Clicking a row opens that dog's Pet Details screen, with a
-large 3D portrait, their stats and last known location, a preview of their closest family, and the door into the full
-family tree. A footer link at the bottom of the screen opens the controls screen so you can bind the keybind without
-digging through menus.
+large 3D portrait, their breed makeup as percentages, their named coat variant and how rare it is (Common through
+Epic, with the actual roll odds), stat bars comparing their breed's max health, speed, and attack against the best in the pack, their
+current health and last known location, a preview of their closest family, and the door into the full family tree. A
+footer link at the bottom of the screen opens the controls screen so you can bind the keybind without digging through
+menus.
 
 ### Family Trees & Ancestry
 
@@ -209,6 +211,14 @@ scroll to zoom, and click any relative to expand their side of the family: grand
 the whole dynasty. Deceased ancestors stay in the tree, and you can re-focus the tree on any relative, even one owned
 by another player. Dogs bred before this feature recover what their entity still remembers (at most one parent), so
 old bloodlines show up as best they can.
+
+### Inspecting Any Dog
+
+Sneak and right-click any dog that is not yours, wild or another player's, and a floating details card pops up over
+the world: their portrait, name, owner (or Wild), breed makeup, named coat and its rarity, health, age, and breed
+stat bars. Handy
+for scouting a rare coat before you spend the meat taming it, or checking out a dog on someone else's leash. Click
+anywhere or press Escape to dismiss it.
 
 ### Breed-Specific Barking
 

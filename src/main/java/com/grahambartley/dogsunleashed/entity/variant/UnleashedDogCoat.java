@@ -4,4 +4,6 @@ public interface UnleashedDogCoat {
   public String getTexturePrefix();
 
   public int getOrdinal();
+
+  public String translationKey();
 }

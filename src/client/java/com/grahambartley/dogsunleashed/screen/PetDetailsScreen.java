@@ -1,12 +1,19 @@
 package com.grahambartley.dogsunleashed.screen;
 
+import com.grahambartley.dogsunleashed.entity.variant.DogCoats;
+import com.grahambartley.dogsunleashed.entity.variant.DogRarity;
+import com.grahambartley.dogsunleashed.entity.variant.DogRarityClassifier;
+import com.grahambartley.dogsunleashed.entity.variant.UnleashedDogCoat;
 import com.grahambartley.dogsunleashed.network.DogConnectionsListener;
 import com.grahambartley.dogsunleashed.network.ModNetworking;
 import com.grahambartley.dogsunleashed.network.ModNetworkingClient;
+import com.grahambartley.dogsunleashed.pet.BreedComposition;
+import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import com.grahambartley.dogsunleashed.screen.FamilyTreeLayout.NodePosition;
 import com.grahambartley.dogsunleashed.screen.FamilyTreeLayout.Relations;
 import com.grahambartley.dogsunleashed.util.DimensionLabelFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -28,7 +35,11 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
   static final int PORTRAIT_SIZE = 96;
   static final int PREVIEW_NODE_SIZE = 26;
   static final float PREVIEW_SCALE = 0.45f;
+  private static final int INFO_TOP = 44;
   private static final int INFO_LINE_HEIGHT = 14;
+  private static final int STATS_SECTION_GAP = 6;
+  static final int FAMILY_PREVIEW_HEIGHT = 96;
+  static final int MIN_FAMILY_PREVIEW_HEIGHT = 50;
   private static final int LABEL_COLOR = 0xFFBBBBBB;
   private static final int VALUE_COLOR = 0xFFFFFFFF;
   private static final int PANEL_COLOR = 0x40333333;
@@ -128,7 +139,7 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
 
   private void renderInfo(final DrawContext context) {
     final int x = infoColumnX(this.width);
-    int y = 44;
+    int y = INFO_TOP;
 
     y =
         drawInfoLine(
@@ -136,8 +147,31 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
             x,
             y,
             "screen.dogs-unleashed.pet_details.breed",
-            Text.translatable(pet.breed().translationKey()).getString(),
+            DogTraitFormat.formatComposition(
+                composition(), breed -> Text.translatable(breed.translationKey()).getString()),
             VALUE_COLOR);
+    final UnleashedDogCoat coat = DogCoats.coatOf(pet.breed(), pet.coatVariant());
+    if (coat != null) {
+      y =
+          drawInfoLine(
+              context,
+              x,
+              y,
+              "screen.dogs-unleashed.pet_details.coat",
+              Text.translatable(coat.translationKey()).getString(),
+              VALUE_COLOR);
+    }
+    final int rarityChance = DogRarityClassifier.chancePercent(pet.breed(), pet.coatVariant());
+    final DogRarity rarity = DogRarityClassifier.classify(rarityChance);
+    y =
+        drawInfoLine(
+            context,
+            x,
+            y,
+            "screen.dogs-unleashed.pet_details.rarity",
+            DogTraitFormat.formatRarity(
+                Text.translatable(rarity.translationKey()).getString(), rarityChance),
+            rarity.colorArgb());
     y =
         drawInfoLine(
             context,
@@ -169,24 +203,47 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
                           : "screen.dogs-unleashed.pet_details.age_adult")
                   .getString(),
               VALUE_COLOR);
-      drawInfoLine(
-          context,
-          x,
-          y,
-          "screen.dogs-unleashed.pet_details.location",
-          String.format(
-              "%s (%d, %d, %d)",
-              DimensionLabelFormatter.format(pet.dimension()), pet.posX(), pet.posY(), pet.posZ()),
-          VALUE_COLOR);
+      y =
+          drawInfoLine(
+              context,
+              x,
+              y,
+              "screen.dogs-unleashed.pet_details.location",
+              String.format(
+                  "%s (%d, %d, %d)",
+                  DimensionLabelFormatter.format(pet.dimension()),
+                  pet.posX(),
+                  pet.posY(),
+                  pet.posZ()),
+              VALUE_COLOR);
     } else {
-      drawInfoLine(
-          context,
-          x,
-          y,
-          "screen.dogs-unleashed.pet_details.status",
-          Text.translatable("screen.dogs-unleashed.pet_manager.deceased").getString(),
-          0xFFFF5555);
+      y =
+          drawInfoLine(
+              context,
+              x,
+              y,
+              "screen.dogs-unleashed.pet_details.status",
+              Text.translatable("screen.dogs-unleashed.pet_manager.deceased").getString(),
+              0xFFFF5555);
     }
+
+    y += STATS_SECTION_GAP;
+    context.drawText(
+        this.textRenderer,
+        Text.translatable("screen.dogs-unleashed.pet_details.stats"),
+        x,
+        y,
+        0xFFFFFFFF,
+        true);
+    y += INFO_LINE_HEIGHT;
+    DogStatsPanel.draw(context, this.textRenderer, pet.breed(), x, y, 90);
+  }
+
+  private List<BreedShare> composition() {
+    if (connections != null && !connections.focusComposition().isEmpty()) {
+      return connections.focusComposition();
+    }
+    return BreedComposition.pureComposition(pet.breed());
   }
 
   private String resolveOwnerName() {
@@ -217,7 +274,10 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
   }
 
   private void renderFamilyPreview(final DrawContext context, final int mouseX, final int mouseY) {
-    final int boxTop = previewBoxTop(this.height);
+    if (!shouldShowFamilyPreview(this.height, pet.alive())) {
+      return;
+    }
+    final int boxTop = previewBoxTop(this.height, pet.alive());
     final int boxLeft = 20;
     final int boxRight = this.width - 20;
     context.fill(boxLeft, boxTop, boxRight, this.height - 40, PANEL_COLOR);
@@ -311,8 +371,22 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
     return screenWidth / 2 - 20;
   }
 
-  static int previewBoxTop(final int screenHeight) {
-    return screenHeight / 2 + 20;
+  static int infoBottom(final boolean alive) {
+    final int infoLines = alive ? 7 : 5;
+    return INFO_TOP
+        + infoLines * INFO_LINE_HEIGHT
+        + STATS_SECTION_GAP
+        + INFO_LINE_HEIGHT
+        + DogStatsPanel.totalHeight();
+  }
+
+  static int previewBoxTop(final int screenHeight, final boolean alive) {
+    return Math.max(
+        screenHeight - 40 - FAMILY_PREVIEW_HEIGHT, infoBottom(alive) + STATS_SECTION_GAP);
+  }
+
+  static boolean shouldShowFamilyPreview(final int screenHeight, final boolean alive) {
+    return screenHeight - 40 - previewBoxTop(screenHeight, alive) >= MIN_FAMILY_PREVIEW_HEIGHT;
   }
 
   @Override

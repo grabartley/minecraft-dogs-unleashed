@@ -1,5 +1,7 @@
 package com.grahambartley.dogsunleashed.entity.variant;
 
+import java.util.Locale;
+
 public enum HuskyCoat implements UnleashedDogCoat {
   BLACK_WHITE,
   GREY_WHITE,
@@ -31,5 +33,10 @@ public enum HuskyCoat implements UnleashedDogCoat {
   @Override
   public int getOrdinal() {
     return this.ordinal();
+  }
+
+  @Override
+  public String translationKey() {
+    return "coat.dogs-unleashed.husky." + this.name().toLowerCase(Locale.ROOT);
   }
 }

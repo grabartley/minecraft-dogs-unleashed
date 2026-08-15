@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.network;
 
+import static com.grahambartley.dogsunleashed.network.PacketLimits.BREED_COMPOSITION_MAX_SIZE;
 import static com.grahambartley.dogsunleashed.network.PacketLimits.CONNECTIONS_LIST_MAX_SIZE;
 import static com.grahambartley.dogsunleashed.network.PacketLimits.OWNER_NAME_MAX_LENGTH;
 import static com.grahambartley.dogsunleashed.network.PacketLimits.REQUEST_PETS_SEARCH_QUERY_MAX_LENGTH;
@@ -12,6 +13,7 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.EditServerConfigC2SPayload;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.SyncServerConfigS2CPayload;
+import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import com.grahambartley.dogsunleashed.pet.DirectConnections;
 import com.grahambartley.dogsunleashed.pet.PetAliveFilter;
 import com.grahambartley.dogsunleashed.pet.PetData;
@@ -60,6 +62,8 @@ public final class ModNetworking {
       Identifier.of(DogsUnleashed.MOD_ID, "request_dog_connections");
   public static final Identifier SYNC_DOG_CONNECTIONS_ID =
       Identifier.of(DogsUnleashed.MOD_ID, "sync_dog_connections");
+  public static final Identifier OPEN_DOG_INSPECT_ID =
+      Identifier.of(DogsUnleashed.MOD_ID, "open_dog_inspect");
 
   public record SetPetNamePayload(UUID petId, String name) implements CustomPayload {
 
@@ -359,6 +363,7 @@ public final class ModNetworking {
 
   public record SyncDogConnectionsPayload(
       ConnectionDogSyncData self,
+      List<BreedShare> focusComposition,
       List<ConnectionDogSyncData> parents,
       List<ConnectionDogSyncData> mates,
       List<ConnectionDogSyncData> siblings,
@@ -378,6 +383,7 @@ public final class ModNetworking {
 
     private void write(final RegistryByteBuf buf) {
       this.self.write(buf);
+      writeBreedShareList(buf, this.focusComposition);
       writeConnectionList(buf, this.parents);
       writeConnectionList(buf, this.mates);
       writeConnectionList(buf, this.siblings);
@@ -388,6 +394,7 @@ public final class ModNetworking {
     private static SyncDogConnectionsPayload read(final RegistryByteBuf buf) {
       return new SyncDogConnectionsPayload(
           ConnectionDogSyncData.read(buf),
+          readBreedShareList(buf),
           readConnectionList(buf),
           readConnectionList(buf),
           readConnectionList(buf),
@@ -410,6 +417,56 @@ public final class ModNetworking {
         connections.add(ConnectionDogSyncData.read(buf));
       }
       return connections;
+    }
+  }
+
+  private static void writeBreedShareList(
+      final RegistryByteBuf buf, final List<BreedShare> composition) {
+    buf.writeVarInt(Math.min(composition.size(), BREED_COMPOSITION_MAX_SIZE));
+    for (final BreedShare share :
+        composition.subList(0, Math.min(composition.size(), BREED_COMPOSITION_MAX_SIZE))) {
+      buf.writeString(share.breed().serializedId());
+      buf.writeFloat(share.share());
+    }
+  }
+
+  private static List<BreedShare> readBreedShareList(final RegistryByteBuf buf) {
+    final int count = Math.min(buf.readVarInt(), BREED_COMPOSITION_MAX_SIZE);
+    final List<BreedShare> composition = new ArrayList<>(count);
+    for (int i = 0; i < count; i++) {
+      composition.add(
+          new BreedShare(UnleashedDogBreed.fromSerializedId(buf.readString()), buf.readFloat()));
+    }
+    return composition;
+  }
+
+  public record OpenDogInspectPayload(
+      PetSyncData pet, boolean tamed, String ownerName, List<BreedShare> composition)
+      implements CustomPayload {
+
+    public static final CustomPayload.Id<OpenDogInspectPayload> ID =
+        new CustomPayload.Id<>(OPEN_DOG_INSPECT_ID);
+    public static final PacketCodec<RegistryByteBuf, OpenDogInspectPayload> CODEC =
+        PacketCodec.of(OpenDogInspectPayload::write, OpenDogInspectPayload::read);
+
+    @Override
+    public CustomPayload.Id<? extends CustomPayload> getId() {
+      return ID;
+    }
+
+    private void write(final RegistryByteBuf buf) {
+      this.pet.write(buf);
+      buf.writeBoolean(this.tamed);
+      buf.writeString(this.ownerName, OWNER_NAME_MAX_LENGTH);
+      writeBreedShareList(buf, this.composition);
+    }
+
+    private static OpenDogInspectPayload read(final RegistryByteBuf buf) {
+      return new OpenDogInspectPayload(
+          PetSyncData.read(buf),
+          buf.readBoolean(),
+          buf.readString(OWNER_NAME_MAX_LENGTH),
+          readBreedShareList(buf));
     }
   }
 
@@ -450,6 +507,7 @@ public final class ModNetworking {
         .register(RequestDogConnectionsPayload.ID, RequestDogConnectionsPayload.CODEC);
     PayloadTypeRegistry.playS2C()
         .register(SyncDogConnectionsPayload.ID, SyncDogConnectionsPayload.CODEC);
+    PayloadTypeRegistry.playS2C().register(OpenDogInspectPayload.ID, OpenDogInspectPayload.CODEC);
     PayloadTypeRegistry.playS2C()
         .register(SyncServerConfigS2CPayload.ID, SyncServerConfigS2CPayload.CODEC);
     PayloadTypeRegistry.playC2S()
@@ -524,6 +582,8 @@ public final class ModNetworking {
 
     return new SyncDogConnectionsPayload(
         toConnectionSyncData(server, connections.self()),
+        petManager.getBreedComposition(
+            connections.self().getPetId(), connections.self().getBreed()),
         toConnectionSyncDataList(server, parents),
         toConnectionSyncDataList(server, mates),
         toConnectionSyncDataList(server, siblings),
@@ -794,5 +854,39 @@ public final class ModNetworking {
       final UnleashedDogBreed breed,
       final String suggestedName) {
     ServerPlayNetworking.send(player, new OpenNamingScreenPayload(petId, breed, suggestedName));
+  }
+
+  public static void sendOpenDogInspect(
+      final ServerPlayerEntity player, final UnleashedDogEntity dog) {
+    final MinecraftServer server = player.getServer();
+    if (server == null) {
+      return;
+    }
+    final UUID ownerId = dog.getOwnerUuid();
+    final String ownerName = ownerId != null ? resolveOwnerName(server, ownerId) : "";
+    final List<BreedShare> composition =
+        PetManager.get(server).getBreedComposition(dog.getUuid(), dog.getBreed());
+    ServerPlayNetworking.send(
+        player,
+        new OpenDogInspectPayload(petSyncDataOf(dog), dog.isTamed(), ownerName, composition));
+  }
+
+  private static PetSyncData petSyncDataOf(final UnleashedDogEntity dog) {
+    final BlockPos pos = dog.getBlockPos();
+    return new PetSyncData(
+        dog.getUuid().toString(),
+        dog.getBreed(),
+        dog.hasCustomName() ? dog.getCustomName().getString() : "",
+        dog.getHealth(),
+        dog.getMaxHealth(),
+        pos.getX(),
+        pos.getY(),
+        pos.getZ(),
+        dog.getWorld().getRegistryKey().getValue().toString(),
+        dog.isAlive(),
+        dog.isBaby(),
+        dog.getCollarColor().getId(),
+        PetData.coatVariantOf(dog),
+        PetData.huskyEyeVariantOf(dog));
   }
 }
