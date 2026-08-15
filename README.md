@@ -184,7 +184,8 @@ position as a last resort.
 
 Press the configured keybind to open the Pet Manager screen. Filter by breed, alive or deceased status, or search by
 name. Summon any alive dog from anywhere, even across dimensions. The system loads their chunk, finds them, and brings
-them to you.
+them to you. A footer link at the bottom of the screen opens the controls screen so you can bind the keybind without
+digging through menus.
 
 ### Breed-Specific Barking
 
@@ -212,6 +213,11 @@ That is it. No config files to edit. No server setup required.
 | Keybind          | Default | What it does                                                         |
 |------------------|---------|----------------------------------------------------------------------|
 | Open Pet Manager | Unbound | Opens the Pet Manager screen (set under `Controls > Dogs Unleashed`) |
+
+The keybind ships unbound so it never steals a key you already use. The first time you launch the game with the mod
+installed, a one-time toast reminds you to bind it, and the Pet Manager screen carries a footer link that jumps straight
+to the controls screen. The reminder is tracked in `config/dogs-unleashed/client-state.json`, so it only ever shows once
+per installation.
 
 ## Settings
 
