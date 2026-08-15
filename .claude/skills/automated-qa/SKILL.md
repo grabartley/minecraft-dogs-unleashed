@@ -86,15 +86,22 @@ All driver code is TEMPORARY and must never be committed. It exists only in the 
 
 ## Publishing Evidence to the PR
 
-GitHub's `user-attachments` uploads are not available via `gh`, so commit the evidence instead:
+GitHub's `user-attachments` uploads are not available via `gh`, so the evidence lives on the
+dedicated orphan `images` branch, stored by PR number. NEVER commit screenshots to the PR branch
+or main; binary evidence must not enter main's history.
 
-1. Downscale the keeper screenshots: `sips -Z 1000 run/screenshots/qa_*.png --out docs/qa/<feature>/`
-2. Commit `docs/qa/<feature>/*.png` on the PR branch.
+1. Downscale the keeper screenshots: `sips -Z 1000 run/screenshots/qa_*.png --out <staging-dir>/`
+2. Check out the `images` branch in a temporary worktree
+   (`git worktree add <tmp-path> images`; if the branch does not exist yet, create it orphan with
+   `git worktree add --orphan -b images <tmp-path>`), copy the screenshots into `pr-<number>/`,
+   commit with `--no-verify` (the spotless pre-commit hook needs `./gradlew`, which does not exist
+   on the codeless orphan branch), push `origin images`, then `git worktree remove` the temp path.
 3. Embed them in the PR body via raw URLs:
-   `https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/<branch>/docs/qa/<feature>/<name>.png`
+   `https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/images/pr-<number>/<name>.png`
    placed next to the paragraph each illustrates, then `gh pr edit <num> --body-file ...`.
-4. If a later run replaces the screenshots, overwrite the same file names and update the body only
-   if the prose changed; the raw URLs track the branch head.
+4. If a later run replaces the screenshots, overwrite the same file names in `pr-<number>/` and
+   push again; the raw URLs track the images branch head, so the body only needs editing when the
+   prose changes.
 
 ## Checklist Before Handoff to Manual QA
 
@@ -102,7 +109,8 @@ GitHub's `user-attachments` uploads are not available via `gh`, so commit the ev
 - [ ] Every screenshot visually verified by reading the PNG, at multiple GUI scales for rendering
 - [ ] Server-side state assertions logged and correct (e.g. command/DataTracker values after a click)
 - [ ] Temp driver + initializer hook reverted; `git status` shows only intended files
-- [ ] Evidence committed under `docs/qa/<feature>/` and embedded in the PR body
+- [ ] Evidence pushed to the `images` branch under `pr-<number>/` and embedded in the PR body;
+      nothing image-related committed to the PR branch
 
 ## Related Skills
 

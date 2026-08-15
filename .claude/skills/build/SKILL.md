@@ -21,7 +21,8 @@ invoke the `gametest` skill BEFORE writing or editing code. The gametest framewo
 `EMPTY_STRUCTURE`) and this rule prevents reintroducing already-fixed bugs.
 5b. Automated QA is a HARD REQUIREMENT before manual QA handoff for any change with a visible or
 interactive surface (screens, HUD, rendering, in-world interactions): run the `automated-qa` skill,
-verify the captured screenshots yourself, and commit the evidence to the PR. Hand off to manual QA
+verify the captured screenshots yourself, and publish the evidence to the `images` branch with the
+raw URLs embedded in the PR body. Hand off to manual QA
 only once automated QA has passed. If automated QA is genuinely infeasible for the change (e.g. it
 needs multiplayer, audio, or OS-level input), state why in the QA handoff and let manual QA cover it.
 6. Run the `pr` skill as part of build after validation passes.
@@ -49,7 +50,8 @@ tracking artifact for all subsequent status moves.
 6. Implement the feature.
 7. Run relevant automated tests and a local validation pass for changed behavior.
 8. Run the `automated-qa` skill for any change with a visible or interactive surface: drive the
-feature in the live client, capture and verify screenshots, and commit the evidence for the PR.
+feature in the live client, capture and verify screenshots, and publish the evidence to the
+`images` branch for embedding in the PR body.
 Fall back to `run-game-client` for a plain manual launch only when automated QA is infeasible.
 9. Invoke the `pr` skill for final checks, commit, push, and PR creation.
 10. Wait for CI to start on the PR and report status.
