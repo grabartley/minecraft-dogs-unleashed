@@ -17,6 +17,8 @@ public final class ModNbtKeys {
   public static final String PORTRAIT_COLLAR = "PortraitCollar";
   public static final String PORTRAIT_COAT_VARIANT = "portraitCoatVariant";
   public static final String PORTRAIT_HUSKY_EYE = "PortraitHuskyEye";
+  public static final String PARENT_A_ID = "ParentAId";
+  public static final String PARENT_B_ID = "ParentBId";
   public static final String PETS = "Pets";
   public static final String PETS_BY_OWNER = "PetsByOwner";
   public static final String PREFERENCES_BY_PLAYER = "PreferencesByPlayer";
@@ -38,6 +40,7 @@ public final class ModNbtKeys {
   public static final String CARRIED_FETCH_ITEM_STACK = "CarriedFetchItemStack";
   public static final String PENDING_BIRTH_WAKE_HEARTS = "PendingBirthWakeHearts";
   public static final String PARENT_DOG_ID = "ParentDogId";
+  public static final String SECOND_PARENT_DOG_ID = "SecondParentDogId";
   public static final String SPAWNED_BY_DOG_SPAWNER = "SpawnedByDogSpawner";
   public static final String COMMAND_MODE = "CommandMode";
   public static final String COMMAND_ANCHOR_X = "CommandAnchorX";

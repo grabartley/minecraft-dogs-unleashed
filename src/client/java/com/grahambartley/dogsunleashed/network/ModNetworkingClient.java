@@ -27,6 +27,21 @@ public final class ModNetworkingClient {
         ModNetworkingClient::handleSyncPetManagerState);
     ClientPlayNetworking.registerGlobalReceiver(
         SyncServerConfigS2CPayload.ID, ModNetworkingClient::handleSyncServerConfig);
+    ClientPlayNetworking.registerGlobalReceiver(
+        ModNetworking.SyncDogConnectionsPayload.ID, ModNetworkingClient::handleSyncDogConnections);
+  }
+
+  private static void handleSyncDogConnections(
+      ModNetworking.SyncDogConnectionsPayload payload, ClientPlayNetworking.Context context) {
+    context
+        .client()
+        .execute(
+            () -> {
+              if (MinecraftClient.getInstance().currentScreen
+                  instanceof DogConnectionsListener listener) {
+                listener.onDogConnections(payload);
+              }
+            });
   }
 
   private static void handleSyncServerConfig(
@@ -106,5 +121,9 @@ public final class ModNetworkingClient {
 
   public static void sendRequestPetManagerState() {
     ClientPlayNetworking.send(new ModNetworking.RequestPetManagerStatePayload());
+  }
+
+  public static void sendRequestDogConnections(UUID dogId) {
+    ClientPlayNetworking.send(new ModNetworking.RequestDogConnectionsPayload(dogId));
   }
 }

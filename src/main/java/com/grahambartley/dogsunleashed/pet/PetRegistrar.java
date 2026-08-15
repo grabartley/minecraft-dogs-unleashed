@@ -44,6 +44,7 @@ public final class PetRegistrar {
             serverWorld.getRegistryKey().getValue().toString(),
             true);
     petData.syncAppearanceFrom(dog);
+    petData.recordParents(dog.getParentDogUuid(), dog.getSecondParentDogUuid());
     petManager.registerPet(petData);
     return petData;
   }

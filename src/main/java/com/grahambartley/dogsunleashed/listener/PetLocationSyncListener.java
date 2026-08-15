@@ -37,7 +37,18 @@ public final class PetLocationSyncListener {
     if (petData == null) {
       petData = PetRegistrar.registerPetFor(dog, dog.getOwnerUuid());
     }
-    if (petData == null || !petData.isAlive()) {
+    if (petData == null) {
+      return;
+    }
+
+    // Records from before parentage was persisted heal here too, recovering whatever the entity
+    // still remembers (dogs bred before the second parent was captured know at most one).
+    final boolean parentsBackfilled =
+        petData.recordParents(dog.getParentDogUuid(), dog.getSecondParentDogUuid());
+    if (!petData.isAlive()) {
+      if (parentsBackfilled) {
+        petManager.updatePet(petData);
+      }
       return;
     }
 
