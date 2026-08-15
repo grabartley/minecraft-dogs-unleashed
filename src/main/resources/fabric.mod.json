@@ -47,7 +47,8 @@
       "com.grahambartley.dogsunleashed.gametest.DogSpawnRegistrationGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogSpawnerGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogTeleportFollowGameTest",
-      "com.grahambartley.dogsunleashed.gametest.PetLocationSyncListenerGameTest"
+      "com.grahambartley.dogsunleashed.gametest.PetLocationSyncListenerGameTest",
+      "com.grahambartley.dogsunleashed.gametest.PetRegistrarGameTest"
     ]
   },
   "mixins": [
