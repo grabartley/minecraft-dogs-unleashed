@@ -28,6 +28,8 @@ class ModNbtKeysTest {
         Arguments.of(
             "PORTRAIT_COAT_VARIANT", ModNbtKeys.PORTRAIT_COAT_VARIANT, "portraitCoatVariant"),
         Arguments.of("PORTRAIT_HUSKY_EYE", ModNbtKeys.PORTRAIT_HUSKY_EYE, "PortraitHuskyEye"),
+        Arguments.of("PARENT_A_ID", ModNbtKeys.PARENT_A_ID, "ParentAId"),
+        Arguments.of("PARENT_B_ID", ModNbtKeys.PARENT_B_ID, "ParentBId"),
         Arguments.of("PETS", ModNbtKeys.PETS, "Pets"),
         Arguments.of("PETS_BY_OWNER", ModNbtKeys.PETS_BY_OWNER, "PetsByOwner"),
         Arguments.of(
@@ -51,6 +53,7 @@ class ModNbtKeysTest {
         Arguments.of("COMMAND_ANCHOR_Y", ModNbtKeys.COMMAND_ANCHOR_Y, "CommandAnchorY"),
         Arguments.of("COMMAND_ANCHOR_Z", ModNbtKeys.COMMAND_ANCHOR_Z, "CommandAnchorZ"),
         Arguments.of("ACTIVE_FETCH_TYPE_ID", ModNbtKeys.ACTIVE_FETCH_TYPE_ID, "ActiveFetchTypeId"),
+        Arguments.of("SECOND_PARENT_DOG_ID", ModNbtKeys.SECOND_PARENT_DOG_ID, "SecondParentDogId"),
         Arguments.of(
             "CARRIED_FETCH_ITEM_STACK",
             ModNbtKeys.CARRIED_FETCH_ITEM_STACK,

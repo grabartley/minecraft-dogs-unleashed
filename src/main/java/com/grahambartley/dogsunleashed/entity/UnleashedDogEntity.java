@@ -243,6 +243,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
   private int lastReunionAge = -1;
   private boolean pendingBirthWakeHearts = false;
   private UUID parentDogUuid = null;
+  private UUID secondParentDogUuid = null;
   private boolean spawnedByDogSpawner = false;
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -982,6 +983,7 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     final UnleashedDogEntity baby = this.createBaby(world);
     baby.setBaby(true);
     baby.setParentDogUuid(this.getUuid());
+    baby.setSecondParentDogUuid(entity.getUuid());
     baby.rollAppearance(SpawnReason.BREEDING);
     final PlayerEntity lovingPlayer = this.getLovingPlayer();
     if (lovingPlayer != null) {
@@ -1016,6 +1018,14 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
 
   public @Nullable UUID getParentDogUuid() {
     return this.parentDogUuid;
+  }
+
+  public void setSecondParentDogUuid(final UUID secondParentDogUuid) {
+    this.secondParentDogUuid = secondParentDogUuid;
+  }
+
+  public @Nullable UUID getSecondParentDogUuid() {
+    return this.secondParentDogUuid;
   }
 
   /**
@@ -1392,6 +1402,9 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     if (this.parentDogUuid != null) {
       nbt.putUuid(ModNbtKeys.PARENT_DOG_ID, this.parentDogUuid);
     }
+    if (this.secondParentDogUuid != null) {
+      nbt.putUuid(ModNbtKeys.SECOND_PARENT_DOG_ID, this.secondParentDogUuid);
+    }
     String activeFetchTypeId = this.dataTracker.get(ACTIVE_FETCH_TYPE_ID);
     if (!activeFetchTypeId.isEmpty()) {
       nbt.putString(ModNbtKeys.ACTIVE_FETCH_TYPE_ID, activeFetchTypeId);
@@ -1460,6 +1473,9 @@ public abstract class UnleashedDogEntity extends TameableEntity implements GeoEn
     }
     if (nbt.containsUuid(ModNbtKeys.PARENT_DOG_ID)) {
       this.parentDogUuid = nbt.getUuid(ModNbtKeys.PARENT_DOG_ID);
+    }
+    if (nbt.containsUuid(ModNbtKeys.SECOND_PARENT_DOG_ID)) {
+      this.secondParentDogUuid = nbt.getUuid(ModNbtKeys.SECOND_PARENT_DOG_ID);
     }
     if (nbt.contains(ModNbtKeys.ACTIVE_FETCH_TYPE_ID, NbtElement.STRING_TYPE)) {
       this.dataTracker.set(ACTIVE_FETCH_TYPE_ID, nbt.getString(ModNbtKeys.ACTIVE_FETCH_TYPE_ID));

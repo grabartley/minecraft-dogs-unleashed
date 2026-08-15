@@ -73,6 +73,26 @@ public final class PetRegistrarGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = "dogs-unleashed:dog_arena", tickLimit = 20)
+  public void inheritedOwnerBabyRecordCapturesBothParents(TestContext context) {
+    final UUID ownerUuid = UUID.randomUUID();
+    final HuskyEntity parent = spawnTamedDog(context, ownerUuid, PARENT_POS);
+    final HuskyEntity otherParent = spawnTamedDog(context, ownerUuid, OTHER_PARENT_POS);
+
+    final UnleashedDogEntity baby =
+        (UnleashedDogEntity) parent.createChild(context.getWorld(), otherParent);
+
+    final PetData petData = petManager(context).getPetByEntityId(baby.getUuid());
+    context.assertTrue(petData != null, "Bred baby should have a pet record to carry lineage");
+    context.assertTrue(
+        parent.getUuid().equals(petData.getParentAId()),
+        "Record should capture the initiating parent, but was " + petData.getParentAId());
+    context.assertTrue(
+        otherParent.getUuid().equals(petData.getParentBId()),
+        "Record should capture the partner parent, but was " + petData.getParentBId());
+    context.complete();
+  }
+
+  @GameTest(templateName = "dogs-unleashed:dog_arena", tickLimit = 20)
   public void registerPetForKeepsTheExistingRecord(TestContext context) {
     final UUID ownerUuid = UUID.randomUUID();
     final HuskyEntity husky = spawnTamedDog(context, ownerUuid, PARENT_POS);

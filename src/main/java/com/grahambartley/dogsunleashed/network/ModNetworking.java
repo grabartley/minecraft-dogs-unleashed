@@ -1,5 +1,7 @@
 package com.grahambartley.dogsunleashed.network;
 
+import static com.grahambartley.dogsunleashed.network.PacketLimits.CONNECTIONS_LIST_MAX_SIZE;
+import static com.grahambartley.dogsunleashed.network.PacketLimits.OWNER_NAME_MAX_LENGTH;
 import static com.grahambartley.dogsunleashed.network.PacketLimits.REQUEST_PETS_SEARCH_QUERY_MAX_LENGTH;
 import static com.grahambartley.dogsunleashed.network.PacketLimits.SET_PET_NAME_NAME_MAX_LENGTH;
 
@@ -10,13 +12,19 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.EditServerConfigC2SPayload;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.SyncServerConfigS2CPayload;
+import com.grahambartley.dogsunleashed.pet.DirectConnections;
 import com.grahambartley.dogsunleashed.pet.PetAliveFilter;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLocationService;
 import com.grahambartley.dogsunleashed.pet.PetManager;
 import com.grahambartley.dogsunleashed.pet.PetManagerPreferencesState;
 import com.grahambartley.dogsunleashed.server.ServerConfigService;
+import com.mojang.authlib.GameProfile;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -48,6 +56,10 @@ public final class ModNetworking {
       Identifier.of(DogsUnleashed.MOD_ID, "open_command_wheel");
   public static final Identifier SELECT_WHEEL_ACTION_ID =
       Identifier.of(DogsUnleashed.MOD_ID, "select_wheel_action");
+  public static final Identifier REQUEST_DOG_CONNECTIONS_ID =
+      Identifier.of(DogsUnleashed.MOD_ID, "request_dog_connections");
+  public static final Identifier SYNC_DOG_CONNECTIONS_ID =
+      Identifier.of(DogsUnleashed.MOD_ID, "sync_dog_connections");
 
   public record SetPetNamePayload(UUID petId, String name) implements CustomPayload {
 
@@ -315,6 +327,92 @@ public final class ModNetworking {
     }
   }
 
+  public record RequestDogConnectionsPayload(UUID dogId) implements CustomPayload {
+
+    public static final CustomPayload.Id<RequestDogConnectionsPayload> ID =
+        new CustomPayload.Id<>(REQUEST_DOG_CONNECTIONS_ID);
+    public static final PacketCodec<RegistryByteBuf, RequestDogConnectionsPayload> CODEC =
+        PacketCodec.tuple(
+            PacketCodecs.STRING.xmap(UUID::fromString, UUID::toString),
+            RequestDogConnectionsPayload::dogId,
+            RequestDogConnectionsPayload::new);
+
+    @Override
+    public CustomPayload.Id<? extends CustomPayload> getId() {
+      return ID;
+    }
+  }
+
+  public record ConnectionDogSyncData(PetSyncData pet, String ownerId, String ownerName) {
+
+    private void write(final RegistryByteBuf buf) {
+      this.pet.write(buf);
+      buf.writeString(this.ownerId);
+      buf.writeString(this.ownerName, OWNER_NAME_MAX_LENGTH);
+    }
+
+    private static ConnectionDogSyncData read(final RegistryByteBuf buf) {
+      return new ConnectionDogSyncData(
+          PetSyncData.read(buf), buf.readString(), buf.readString(OWNER_NAME_MAX_LENGTH));
+    }
+  }
+
+  public record SyncDogConnectionsPayload(
+      ConnectionDogSyncData self,
+      List<ConnectionDogSyncData> parents,
+      List<ConnectionDogSyncData> mates,
+      List<ConnectionDogSyncData> siblings,
+      List<ConnectionDogSyncData> children,
+      boolean truncated)
+      implements CustomPayload {
+
+    public static final CustomPayload.Id<SyncDogConnectionsPayload> ID =
+        new CustomPayload.Id<>(SYNC_DOG_CONNECTIONS_ID);
+    public static final PacketCodec<RegistryByteBuf, SyncDogConnectionsPayload> CODEC =
+        PacketCodec.of(SyncDogConnectionsPayload::write, SyncDogConnectionsPayload::read);
+
+    @Override
+    public CustomPayload.Id<? extends CustomPayload> getId() {
+      return ID;
+    }
+
+    private void write(final RegistryByteBuf buf) {
+      this.self.write(buf);
+      writeConnectionList(buf, this.parents);
+      writeConnectionList(buf, this.mates);
+      writeConnectionList(buf, this.siblings);
+      writeConnectionList(buf, this.children);
+      buf.writeBoolean(this.truncated);
+    }
+
+    private static SyncDogConnectionsPayload read(final RegistryByteBuf buf) {
+      return new SyncDogConnectionsPayload(
+          ConnectionDogSyncData.read(buf),
+          readConnectionList(buf),
+          readConnectionList(buf),
+          readConnectionList(buf),
+          readConnectionList(buf),
+          buf.readBoolean());
+    }
+
+    private static void writeConnectionList(
+        final RegistryByteBuf buf, final List<ConnectionDogSyncData> connections) {
+      buf.writeVarInt(connections.size());
+      for (final ConnectionDogSyncData connection : connections) {
+        connection.write(buf);
+      }
+    }
+
+    private static List<ConnectionDogSyncData> readConnectionList(final RegistryByteBuf buf) {
+      final int count = buf.readVarInt();
+      final List<ConnectionDogSyncData> connections = new ArrayList<>(count);
+      for (int i = 0; i < count; i++) {
+        connections.add(ConnectionDogSyncData.read(buf));
+      }
+      return connections;
+    }
+  }
+
   public record SelectWheelActionPayload(UUID dogId, int actionId) implements CustomPayload {
 
     public static final CustomPayload.Id<SelectWheelActionPayload> ID =
@@ -348,6 +446,10 @@ public final class ModNetworking {
         .register(OpenCommandWheelPayload.ID, OpenCommandWheelPayload.CODEC);
     PayloadTypeRegistry.playC2S()
         .register(SelectWheelActionPayload.ID, SelectWheelActionPayload.CODEC);
+    PayloadTypeRegistry.playC2S()
+        .register(RequestDogConnectionsPayload.ID, RequestDogConnectionsPayload.CODEC);
+    PayloadTypeRegistry.playS2C()
+        .register(SyncDogConnectionsPayload.ID, SyncDogConnectionsPayload.CODEC);
     PayloadTypeRegistry.playS2C()
         .register(SyncServerConfigS2CPayload.ID, SyncServerConfigS2CPayload.CODEC);
     PayloadTypeRegistry.playC2S()
@@ -367,6 +469,98 @@ public final class ModNetworking {
         EditServerConfigC2SPayload.ID, ModNetworking::handleEditServerConfig);
     ServerPlayNetworking.registerGlobalReceiver(
         SelectWheelActionPayload.ID, ModNetworking::handleSelectWheelAction);
+    ServerPlayNetworking.registerGlobalReceiver(
+        RequestDogConnectionsPayload.ID, ModNetworking::handleRequestDogConnections);
+  }
+
+  private static void handleRequestDogConnections(
+      final RequestDogConnectionsPayload payload, final ServerPlayNetworking.Context context) {
+    final ServerPlayerEntity player = context.player();
+    final ServerWorld world = player.getServerWorld();
+
+    world
+        .getServer()
+        .execute(
+            () -> {
+              final MinecraftServer server = world.getServer();
+              final PetManager petManager = PetManager.get(server);
+              final DirectConnections connections =
+                  petManager.getDirectConnections(payload.dogId());
+              if (connections == null) {
+                return;
+              }
+              final boolean requesterOwnsDog =
+                  connections.self().getOwnerId().equals(player.getUuid());
+              if (!requesterOwnsDog
+                  && !petManager.isConnectedToOwnedPet(player.getUuid(), payload.dogId())) {
+                return;
+              }
+              ServerPlayNetworking.send(
+                  player, buildConnectionsPayload(server, petManager, connections));
+            });
+  }
+
+  private static SyncDogConnectionsPayload buildConnectionsPayload(
+      final MinecraftServer server,
+      final PetManager petManager,
+      final DirectConnections connections) {
+    final List<PetData> parents = capConnectionList(connections.parents());
+    final List<PetData> mates = capConnectionList(connections.mates());
+    final List<PetData> siblings = capConnectionList(connections.siblings());
+    final List<PetData> children = capConnectionList(connections.children());
+    final boolean truncated =
+        parents.size() < connections.parents().size()
+            || mates.size() < connections.mates().size()
+            || siblings.size() < connections.siblings().size()
+            || children.size() < connections.children().size();
+
+    final Set<PetData> allPets = new LinkedHashSet<>();
+    allPets.add(connections.self());
+    allPets.addAll(parents);
+    allPets.addAll(mates);
+    allPets.addAll(siblings);
+    allPets.addAll(children);
+    syncPetData(server, petManager, List.copyOf(allPets));
+
+    return new SyncDogConnectionsPayload(
+        toConnectionSyncData(server, connections.self()),
+        toConnectionSyncDataList(server, parents),
+        toConnectionSyncDataList(server, mates),
+        toConnectionSyncDataList(server, siblings),
+        toConnectionSyncDataList(server, children),
+        truncated);
+  }
+
+  private static List<PetData> capConnectionList(final List<PetData> pets) {
+    return pets.size() > CONNECTIONS_LIST_MAX_SIZE
+        ? pets.subList(0, CONNECTIONS_LIST_MAX_SIZE)
+        : pets;
+  }
+
+  private static List<ConnectionDogSyncData> toConnectionSyncDataList(
+      final MinecraftServer server, final List<PetData> pets) {
+    return pets.stream().map(pet -> toConnectionSyncData(server, pet)).toList();
+  }
+
+  private static ConnectionDogSyncData toConnectionSyncData(
+      final MinecraftServer server, final PetData pet) {
+    return new ConnectionDogSyncData(
+        PetSyncData.from(pet),
+        pet.getOwnerId().toString(),
+        resolveOwnerName(server, pet.getOwnerId()));
+  }
+
+  // Empty when the owner has never been seen by this server's profile cache; the client renders
+  // its own unknown-owner fallback so the server never has to localize.
+  private static String resolveOwnerName(final MinecraftServer server, final UUID ownerId) {
+    final ServerPlayerEntity onlineOwner = server.getPlayerManager().getPlayer(ownerId);
+    if (onlineOwner != null) {
+      return onlineOwner.getGameProfile().getName();
+    }
+    return Optional.ofNullable(server.getUserCache())
+        .flatMap(cache -> cache.getByUuid(ownerId))
+        .map(GameProfile::getName)
+        .orElse("");
   }
 
   // Same convention as handleSetPetName: no ACK packet, the COMMAND DataTracker broadcast is the

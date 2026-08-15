@@ -6,6 +6,7 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.listener.PetLocationSyncListener;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetManager;
+import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -135,6 +136,25 @@ public final class PetLocationSyncListenerGameTest implements FabricGameTest {
     context.assertTrue(
         PetManager.get(context.getWorld().getServer()).getPetsByOwner(owner.getUuid()).size() == 1,
         "Backfill must not add a second record for an already-registered dog");
+    context.complete();
+  }
+
+  @GameTest(templateName = "dogs-unleashed:dog_arena", tickLimit = 20)
+  public void recordLocationBackfillsParentsIntoExistingRecord(TestContext context) {
+    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final HuskyEntity husky = spawnTamedDog(context, owner);
+    final UUID parentUuid = UUID.randomUUID();
+    husky.setParentDogUuid(parentUuid);
+    final PetData petData = registerPet(context, owner, husky, true);
+    context.assertTrue(
+        petData.getParentAId() == null, "Precondition: legacy record starts without parents");
+
+    PetLocationSyncListener.recordLocation(husky, context.getWorld());
+
+    context.assertTrue(
+        parentUuid.equals(petData.getParentAId()),
+        "Legacy record should recover the entity's remembered parent, but was "
+            + petData.getParentAId());
     context.complete();
   }
 

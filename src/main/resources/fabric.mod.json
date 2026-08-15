@@ -49,7 +49,9 @@
       "com.grahambartley.dogsunleashed.gametest.DogTeleportFollowGameTest",
       "com.grahambartley.dogsunleashed.gametest.PetLocationSyncListenerGameTest",
       "com.grahambartley.dogsunleashed.gametest.PetRegistrarGameTest",
-      "com.grahambartley.dogsunleashed.gametest.DogLeashGameTest"
+      "com.grahambartley.dogsunleashed.gametest.DogLeashGameTest",
+      "com.grahambartley.dogsunleashed.gametest.DogLineageGameTest",
+      "com.grahambartley.dogsunleashed.gametest.PetManagerConnectionsGameTest"
     ]
   },
   "mixins": [

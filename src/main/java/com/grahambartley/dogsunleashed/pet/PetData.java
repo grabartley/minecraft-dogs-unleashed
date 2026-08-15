@@ -32,6 +32,8 @@ public final class PetData {
   private int collarColor;
   private int coatVariant;
   private int huskyEyeVariant;
+  private UUID parentAId;
+  private UUID parentBId;
 
   public PetData(
       UUID petId,
@@ -138,6 +140,33 @@ public final class PetData {
     return huskyEyeVariant;
   }
 
+  public UUID getParentAId() {
+    return parentAId;
+  }
+
+  public UUID getParentBId() {
+    return parentBId;
+  }
+
+  /**
+   * Records parentage with set-once semantics: each slot is written only while empty, so lineage
+   * can never be rewritten once known. The same call seeds newly registered puppies and backfills
+   * records from before parentage was persisted (where the entity remembers at most one parent).
+   * Returns whether anything changed so callers can skip persisting an unchanged record.
+   */
+  public boolean recordParents(final UUID parentAId, final UUID parentBId) {
+    boolean changed = false;
+    if (this.parentAId == null && parentAId != null) {
+      this.parentAId = parentAId;
+      changed = true;
+    }
+    if (this.parentBId == null && parentBId != null && !parentBId.equals(this.parentAId)) {
+      this.parentBId = parentBId;
+      changed = true;
+    }
+    return changed;
+  }
+
   public void syncAppearanceFrom(final UnleashedDogEntity dog) {
     this.baby = dog.isBaby();
     this.collarColor = dog.getCollarColor().getId();
@@ -197,6 +226,12 @@ public final class PetData {
     nbt.putInt(ModNbtKeys.PORTRAIT_COLLAR, collarColor);
     nbt.putInt(ModNbtKeys.PORTRAIT_COAT_VARIANT, coatVariant);
     nbt.putInt(ModNbtKeys.PORTRAIT_HUSKY_EYE, huskyEyeVariant);
+    if (parentAId != null) {
+      nbt.putUuid(ModNbtKeys.PARENT_A_ID, parentAId);
+    }
+    if (parentBId != null) {
+      nbt.putUuid(ModNbtKeys.PARENT_B_ID, parentBId);
+    }
     return nbt;
   }
 
@@ -226,6 +261,12 @@ public final class PetData {
     }
     if (nbt.contains(ModNbtKeys.PORTRAIT_HUSKY_EYE, NbtElement.NUMBER_TYPE)) {
       pet.huskyEyeVariant = nbt.getInt(ModNbtKeys.PORTRAIT_HUSKY_EYE);
+    }
+    if (nbt.containsUuid(ModNbtKeys.PARENT_A_ID)) {
+      pet.parentAId = nbt.getUuid(ModNbtKeys.PARENT_A_ID);
+    }
+    if (nbt.containsUuid(ModNbtKeys.PARENT_B_ID)) {
+      pet.parentBId = nbt.getUuid(ModNbtKeys.PARENT_B_ID);
     }
     return pet;
   }
