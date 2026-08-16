@@ -6,8 +6,6 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.entity.rig.DogEarShape;
-import com.grahambartley.dogsunleashed.entity.rig.DogProportions;
-import com.grahambartley.dogsunleashed.entity.rig.DogProportions.BoneAdjustment;
 import com.grahambartley.dogsunleashed.entity.rig.DogRig;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
 import com.grahambartley.dogsunleashed.entity.variant.UnleashedDogCoat;
@@ -21,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.util.Identifier;
 import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.model.GeoModel;
 
 public class DogModel extends GeoModel<UnleashedDogEntity> {
@@ -55,9 +52,9 @@ public class DogModel extends GeoModel<UnleashedDogEntity> {
   }
 
   /**
-   * Applies this dog's own proportions on top of whatever the animation just posed. GeckoLib resets
-   * every bone before this runs, so the adjustment is reapplied from a clean state each frame and
-   * two differently proportioned dogs render correctly side by side.
+   * Shows the ear pair this dog inherited and hides the rest. Proportions are applied by the
+   * renderer rather than here: GeckoLib caches one baked model per geo file, so every dog on the
+   * shared rig shares the same bone objects and writing offsets into them bleeds between dogs.
    */
   @Override
   public void setCustomAnimations(
@@ -67,13 +64,6 @@ public class DogModel extends GeoModel<UnleashedDogEntity> {
     if (!usesSharedRig(animatable)) {
       return;
     }
-
-    final DogProportions proportions = DogProportions.blend(compositionOf(animatable));
-    proportions
-        .bones()
-        .forEach(
-            (boneName, adjustment) -> getBone(boneName).ifPresent(bone -> apply(bone, adjustment)));
-
     final DogEarShape inherited =
         DogEarShape.inherit(compositionOf(animatable), animatable.getUuid());
     for (final String pivot : EAR_PIVOTS) {
@@ -81,15 +71,6 @@ public class DogModel extends GeoModel<UnleashedDogEntity> {
         getBone(shape.boneName(pivot)).ifPresent(bone -> bone.setHidden(shape != inherited));
       }
     }
-  }
-
-  private static void apply(final GeoBone bone, final BoneAdjustment adjustment) {
-    bone.setPosX(bone.getPosX() + adjustment.offsetX());
-    bone.setPosY(bone.getPosY() + adjustment.offsetY());
-    bone.setPosZ(bone.getPosZ() + adjustment.offsetZ());
-    bone.setScaleX(bone.getScaleX() * adjustment.scaleX());
-    bone.setScaleY(bone.getScaleY() * adjustment.scaleY());
-    bone.setScaleZ(bone.getScaleZ() * adjustment.scaleZ());
   }
 
   public static boolean usesSharedRig(final UnleashedDogEntity animatable) {
