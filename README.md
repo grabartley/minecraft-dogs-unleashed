@@ -218,10 +218,16 @@ the player who clicked). Breeding roll tables include rare coat variants you wil
 Same-breed pairs produce pure puppies, exactly as before. Mixed pairs produce true cross-breeds: each one carries a
 genome recording its breed composition (a 50/50 first cross, exact recursive splits from there), stats blended from its
 ancestry with a small mutation jitter and a rare throwback toward one ancestor, a coat rolled from its dominant breed's
-breeding table, and the bark (or Husky howl) of one parent's line. Cross-breeds render as their dominant-composition
-breed for now, show up as "Husky-Beagle Mix" style names (or "Mixed Breed" for wilder blends), get their own "Mixed"
-filter in the Pet Manager, and their real percentages appear across the details, inspect, and family tree screens.
-Cross-breeds can themselves breed with anything, recursively.
+breeding table, and the bark (or Husky howl) of one parent's line. They show up as "Husky-Beagle Mix" style names (or
+"Mixed Breed" for wilder blends), get their own "Mixed" filter in the Pet Manager, and their real percentages appear
+across the details, inspect, and family tree screens. Cross-breeds can themselves breed with anything, recursively.
+
+Golden Retriever and Beagle crosses now genuinely look mixed rather than rendering as whichever parent dominates. Both
+breeds share one skeleton, so a puppy's proportions interpolate between its ancestors, and its coat is composited at
+runtime from layered art: pigment colours blend by ancestry, pattern markings like the Beagle's saddle are inherited
+whole rather than averaged into mush, and eyes and nose are stamped last so they stay crisp. Ear shape is inherited
+whole from one ancestor, because a floppy Beagle ear and a feathered Golden ear are different shapes rather than two
+ends of a slider. The remaining three breeds keep their own rigs and coats until their art is normalised the same way.
 
 ### Loyalty Across Any Teleport
 
