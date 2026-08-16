@@ -4,8 +4,8 @@ import static com.grahambartley.dogsunleashed.DogsUnleashed.MOD_ID;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.grahambartley.dogsunleashed.entity.rig.DogEarShape;
 import com.grahambartley.dogsunleashed.render.coat.CoatPigments.Donor;
+import com.grahambartley.dogsunleashed.render.coat.VariantIslands.Island;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -70,21 +70,22 @@ public final class DogCoatTextures {
   public static @Nullable Identifier composited(
       final String layoutCoatId,
       final List<Donor> donors,
-      final DogEarShape earShape,
-      final String earDonorCoatId) {
+      final String earShapeKey,
+      final String earDonorCoatId,
+      final List<Island> inheritedEarIslands) {
     final CoatRecipe layout = recipe(layoutCoatId);
     if (layout == null) {
       return null;
     }
     final Map<String, Integer> pigments = CoatPigments.blend(layout, donors);
-    final String key = cacheKey(layoutCoatId, earShape, earDonorCoatId, pigments);
+    final String key = cacheKey(layoutCoatId, earShapeKey, earDonorCoatId, pigments);
     final Identifier cached = CACHE.get(key);
     if (cached != null) {
       return cached;
     }
 
     final NativeImage image =
-        paint(layoutCoatId, layout, pigments, earShape, earDonorCoatId, donors);
+        paint(layoutCoatId, layout, pigments, inheritedEarIslands, earDonorCoatId, donors);
     if (image == null) {
       return null;
     }
@@ -106,7 +107,7 @@ public final class DogCoatTextures {
       final String layoutCoatId,
       final CoatRecipe layout,
       final Map<String, Integer> pigments,
-      final DogEarShape earShape,
+      final List<Island> inheritedEarIslands,
       final String earDonorCoatId,
       final List<Donor> donors) {
     final NativeImage base = read(layoutCoatId, "base.png");
@@ -136,13 +137,12 @@ public final class DogCoatTextures {
       }
 
       if (!earDonorCoatId.equals(layoutCoatId)) {
-        paintInheritedEars(image, earShape, earDonorCoatId, donors);
+        paintInheritedEars(image, inheritedEarIslands, earDonorCoatId, donors);
       }
 
       stampFeatures(image, layoutCoatId);
-      final List<CoatEarIslands.Island> inherited = CoatEarIslands.of(earShape);
       if (!earDonorCoatId.equals(layoutCoatId)) {
-        stampFeaturesIn(image, earDonorCoatId, inherited);
+        stampFeaturesIn(image, earDonorCoatId, inheritedEarIslands);
       }
     } finally {
       base.close();
@@ -156,14 +156,13 @@ public final class DogCoatTextures {
    */
   private static void paintInheritedEars(
       final NativeImage image,
-      final DogEarShape earShape,
+      final List<Island> islands,
       final String earDonorCoatId,
       final List<Donor> donors) {
     final CoatRecipe donorRecipe = recipe(earDonorCoatId);
     if (donorRecipe == null) {
       return;
     }
-    final List<CoatEarIslands.Island> islands = CoatEarIslands.of(earShape);
     if (islands.isEmpty()) {
       return;
     }
@@ -201,13 +200,13 @@ public final class DogCoatTextures {
       final NativeImage mask,
       final int pigment,
       final int baseScale,
-      final @Nullable List<CoatEarIslands.Island> limitTo) {
+      final @Nullable List<Island> limitTo) {
     final int pigmentRed = (pigment >> 16) & 0xFF;
     final int pigmentGreen = (pigment >> 8) & 0xFF;
     final int pigmentBlue = pigment & 0xFF;
     for (int y = 0; y < SIZE; y++) {
       for (int x = 0; x < SIZE; x++) {
-        if (limitTo != null && !CoatEarIslands.contains(limitTo, x, y)) {
+        if (limitTo != null && !VariantIslands.contains(limitTo, x, y)) {
           continue;
         }
         if (alpha(mask.getColor(x, y)) == 0) {
@@ -234,9 +233,7 @@ public final class DogCoatTextures {
   }
 
   private static void stampFeaturesIn(
-      final NativeImage image,
-      final String coatId,
-      final @Nullable List<CoatEarIslands.Island> limitTo) {
+      final NativeImage image, final String coatId, final @Nullable List<Island> limitTo) {
     final NativeImage features = read(coatId, "features.png");
     if (features == null) {
       return;
@@ -244,7 +241,7 @@ public final class DogCoatTextures {
     try {
       for (int y = 0; y < SIZE; y++) {
         for (int x = 0; x < SIZE; x++) {
-          if (limitTo != null && !CoatEarIslands.contains(limitTo, x, y)) {
+          if (limitTo != null && !VariantIslands.contains(limitTo, x, y)) {
             continue;
           }
           final int colour = features.getColor(x, y);
@@ -260,10 +257,10 @@ public final class DogCoatTextures {
 
   private static String cacheKey(
       final String layoutCoatId,
-      final DogEarShape earShape,
+      final String earShapeKey,
       final String earDonorCoatId,
       final Map<String, Integer> pigments) {
-    final StringBuilder key = new StringBuilder(layoutCoatId).append('|').append(earShape.name());
+    final StringBuilder key = new StringBuilder(layoutCoatId).append('|').append(earShapeKey);
     key.append('|').append(earDonorCoatId);
     pigments.forEach((slot, colour) -> key.append('|').append(slot).append('=').append(colour));
     return key.toString();

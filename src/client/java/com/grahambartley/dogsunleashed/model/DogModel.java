@@ -15,6 +15,8 @@ import com.grahambartley.dogsunleashed.render.coat.CoatPigments.Donor;
 import com.grahambartley.dogsunleashed.render.coat.CoatRecipe;
 import com.grahambartley.dogsunleashed.render.coat.DogCoatIds;
 import com.grahambartley.dogsunleashed.render.coat.DogCoatTextures;
+import com.grahambartley.dogsunleashed.render.coat.VariantIslands;
+import com.grahambartley.dogsunleashed.render.coat.VariantIslands.Island;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.util.Identifier;
@@ -24,6 +26,7 @@ import software.bernie.geckolib.model.GeoModel;
 public class DogModel extends GeoModel<UnleashedDogEntity> {
 
   private static final List<String> EAR_PIVOTS = List.of("ear1", "ear2");
+  private static final int ATLAS_SIZE = 128;
 
   @Override
   public Identifier getModelResource(final UnleashedDogEntity animatable) {
@@ -85,7 +88,7 @@ public class DogModel extends GeoModel<UnleashedDogEntity> {
     return List.of(new BreedShare(animatable.getRigSourceBreed(), 1.0f));
   }
 
-  private static Identifier compositedTexture(final UnleashedDogEntity animatable) {
+  private Identifier compositedTexture(final UnleashedDogEntity animatable) {
     final String layoutCoatId = DogCoatIds.layoutOf(animatable);
     final List<BreedShare> composition = CoatPigments.normalisedShares(compositionOf(animatable));
     if (composition.isEmpty()) {
@@ -109,7 +112,18 @@ public class DogModel extends GeoModel<UnleashedDogEntity> {
     final DogEarShape earShape = DogEarShape.inherit(composition, animatable.getUuid());
     final String earDonorCoatId =
         earShape.breed() == layoutBreed ? layoutCoatId : DogCoatIds.donorFor(earShape.breed());
-    return DogCoatTextures.composited(layoutCoatId, donors, earShape, earDonorCoatId);
+    return DogCoatTextures.composited(
+        layoutCoatId, donors, earShape.name(), earDonorCoatId, earIslandsOf(earShape));
+  }
+
+  /** The inherited ears' patch of the atlas, read off the rig rather than kept in a table here. */
+  private List<Island> earIslandsOf(final DogEarShape shape) {
+    final List<Island> islands = new ArrayList<>();
+    for (final String pivot : EAR_PIVOTS) {
+      getBone(shape.boneName(pivot))
+          .ifPresent(bone -> islands.addAll(VariantIslands.of(bone, ATLAS_SIZE, ATLAS_SIZE)));
+    }
+    return islands;
   }
 
   private static String flatTextureName(final UnleashedDogEntity animatable) {
