@@ -339,6 +339,23 @@ button opens the settings screen described above:
 | In a world, operator         | The world's live values, fully editable                                       |
 | In a world, non-operator     | The world's live values, read-only                                            |
 
+### Recipe Viewers (optional)
+
+Dogs Unleashed ships plugins for both [JEI](https://modrinth.com/mod/jei) and
+[EMI](https://modrinth.com/mod/emi). Install either one (or neither, or both) and every mod item gains an info page
+next to its crafting recipe:
+
+| Info page                      | What it covers                                                                    |
+|--------------------------------|-----------------------------------------------------------------------------------|
+| Tennis Ball, Stick, Frisbee    | How to start play mode, and how far each fetch item glides                         |
+| Dog Bed                        | Assigning a dog, auto-sleep rules, and how to unassign                             |
+| Dog Grave                      | How graves appear on death and how to preserve one with a pickaxe                  |
+| Taming and breeding foods      | Which vanilla foods tame, which breed, and the 1-in-3 tame chance                  |
+| Each breed's spawn egg         | Breed flavour plus the biomes it spawns in and its health, attack and speed        |
+
+Spawn biomes and stats are read straight off the breed definitions, so the pages stay accurate when a breed is
+retuned. Neither viewer is bundled or required, and the mod loads identically with both absent.
+
 ## Languages
 
 Dogs Unleashed ships with translations for breed names, screens, commands, and chat feedback in:
@@ -381,6 +398,9 @@ phrasing-polish PRs there are especially appreciated.
 | Fabric Loader | `>=0.16.5`         | Yes      | Mod loader                  |
 | Fabric API    | `>=0.107.0+1.21.1` | Yes      | Fabric hooks and APIs       |
 | GeckoLib      | `>=4.7`            | Yes      | Entity and block animations |
+| Mod Menu      | any                | No       | Settings screen in the mods list |
+| JEI           | any                | No       | Recipe and info pages       |
+| EMI           | any                | No       | Recipe and info pages       |
 
 ## Open Source
 

@@ -1125,6 +1125,14 @@ public class UnleashedDogEntity extends TameableEntity implements GeoEntity, Ang
     return TAMING_INGREDIENT.test(stack);
   }
 
+  public static Ingredient breedingIngredient() {
+    return BREEDING_INGREDIENT;
+  }
+
+  public static Ingredient tamingIngredient() {
+    return TAMING_INGREDIENT;
+  }
+
   private void tame(final @Nullable PlayerEntity player) {
     if (player == null) {
       return;
