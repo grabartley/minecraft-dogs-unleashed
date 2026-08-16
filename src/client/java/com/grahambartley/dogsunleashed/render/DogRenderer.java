@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.render;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.rig.DogProportions;
 import com.grahambartley.dogsunleashed.model.DogModel;
 import com.grahambartley.dogsunleashed.render.layer.DogCarryFetchItemLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogCollarLayer;
@@ -41,7 +42,7 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
     if (!isReRender) {
       final UnleashedDogBreed.RenderTransforms transforms =
           animatable.getRigSourceBreed().renderTransforms();
-      final float scale = animatable.isBaby() ? transforms.babyScale() : transforms.adultScale();
+      final float scale = overallScale(animatable, transforms);
       poseStack.scale(scale, scale, scale);
       if (transforms.bodyYawOffsetDegrees() != 0.0f) {
         poseStack.multiply(
@@ -59,5 +60,15 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
         packedLight,
         packedOverlay,
         colour);
+  }
+
+  /** A cross sits between its ancestors in overall size, not at whichever one dominates. */
+  private static float overallScale(
+      final UnleashedDogEntity animatable, final UnleashedDogBreed.RenderTransforms transforms) {
+    if (DogModel.usesSharedRig(animatable)) {
+      final DogProportions proportions = DogProportions.blend(DogModel.compositionOf(animatable));
+      return animatable.isBaby() ? proportions.babyScale() : proportions.adultScale();
+    }
+    return animatable.isBaby() ? transforms.babyScale() : transforms.adultScale();
   }
 }
