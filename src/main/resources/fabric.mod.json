@@ -36,6 +36,7 @@
       "com.grahambartley.dogsunleashed.gametest.DogAdvancementGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogCommandGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogEquipmentGameTest",
+      "com.grahambartley.dogsunleashed.gametest.DogTreatGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogEntityBreedSpecificTest",
       "com.grahambartley.dogsunleashed.gametest.DogCrossBreedingGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogEntityCoreTest",

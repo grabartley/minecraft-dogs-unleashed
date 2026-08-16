@@ -24,6 +24,7 @@ class DogsUnleashedInfoEntriesTest {
           "frisbee",
           "dog_bed",
           "dog_grave",
+          "dog_treat",
           "taming_food",
           "breeding_food");
 
