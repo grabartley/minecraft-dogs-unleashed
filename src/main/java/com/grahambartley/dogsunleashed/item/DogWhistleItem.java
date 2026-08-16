@@ -19,25 +19,33 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 /**
- * Recalls the owner's pets without opening the Pet Manager. The stack remembers which pet it is
- * pointed at, and sneaking cycles that target through the pack.
+ * Bound to one dog by right-clicking it, and calls that dog back from any distance or dimension
+ * when blown. The binding lives on the stack, so a player can carry one whistle per dog.
+ *
+ * <p>Binding is handled in {@code UnleashedDogEntity.interactMob}, not here: vanilla offers a
+ * right-click to the entity before it reaches the item, and the owner branch of that method already
+ * returns SUCCESS, so an {@code useOnEntity} override would never run.
  */
 public class DogWhistleItem extends Item implements GeoItem {
 
   public static final int BLOW_COOLDOWN_TICKS = 20;
-  public static final int CYCLE_COOLDOWN_TICKS = 4;
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
   public DogWhistleItem(final Settings settings) {
     super(settings);
+  }
+
+  /** Points a whistle at a dog. Both components travel together so the tooltip needs no lookup. */
+  public static void bind(final ItemStack whistle, final UUID petId, final String dogName) {
+    whistle.set(ModComponents.WHISTLE_TARGET_PET, petId);
+    whistle.set(ModComponents.WHISTLE_TARGET_NAME, dogName);
   }
 
   @Override
@@ -54,62 +62,26 @@ public class DogWhistleItem extends Item implements GeoItem {
     }
 
     final List<PetData> pets = PetManager.get(server).getPetsByOwner(player.getUuid());
-    return player.isSneaking() ? cycleTarget(player, stack, pets) : blow(player, stack, pets);
-  }
+    final PetData bound =
+        WhistleBinding.boundPet(pets, stack.get(ModComponents.WHISTLE_TARGET_PET));
 
-  private TypedActionResult<ItemStack> blow(
-      final ServerPlayerEntity player, final ItemStack stack, final List<PetData> pets) {
-    final UUID target =
-        WhistleTargetCycle.resolveTarget(
-            pets,
-            stack.get(ModComponents.WHISTLE_TARGET_PET),
-            player.getWorld().getRegistryKey().getValue().toString(),
-            player.getBlockPos());
-
-    playWhistle(player, 1.0f, 1.0f);
+    playWhistle(player);
     player.getItemCooldownManager().set(this, BLOW_COOLDOWN_TICKS);
 
-    if (target == null) {
+    if (bound == null) {
       player.sendMessage(
-          Text.translatable("message.dogs-unleashed.whistle.no_target").formatted(Formatting.GRAY),
+          Text.translatable("message.dogs-unleashed.whistle.unbound").formatted(Formatting.GRAY),
           true);
       return TypedActionResult.success(stack, false);
     }
 
-    stack.set(ModComponents.WHISTLE_TARGET_PET, target);
-    final PetData petData = findPet(pets, target);
-    if (petData != null) {
-      PetLocationService.loadAndSummon(player.getServer(), petData, player);
-    }
+    // Keep the engraved name current, so a dog renamed since binding still reads correctly.
+    stack.set(ModComponents.WHISTLE_TARGET_NAME, bound.getName());
+    PetLocationService.loadAndSummon(server, bound, player);
     return TypedActionResult.success(stack, false);
   }
 
-  private TypedActionResult<ItemStack> cycleTarget(
-      final ServerPlayerEntity player, final ItemStack stack, final List<PetData> pets) {
-    final UUID next =
-        WhistleTargetCycle.nextTarget(pets, stack.get(ModComponents.WHISTLE_TARGET_PET));
-    player.getItemCooldownManager().set(this, CYCLE_COOLDOWN_TICKS);
-
-    if (next == null) {
-      player.sendMessage(
-          Text.translatable("message.dogs-unleashed.whistle.no_target").formatted(Formatting.GRAY),
-          true);
-      return TypedActionResult.success(stack, false);
-    }
-
-    stack.set(ModComponents.WHISTLE_TARGET_PET, next);
-    playWhistle(player, 0.4f, 1.5f);
-    final PetData petData = findPet(pets, next);
-    player.sendMessage(
-        Text.translatable(
-            "message.dogs-unleashed.whistle.target_changed",
-            petData == null ? "" : petData.getName()),
-        true);
-    return TypedActionResult.success(stack, false);
-  }
-
-  private static void playWhistle(
-      final ServerPlayerEntity player, final float volume, final float pitch) {
+  private static void playWhistle(final ServerPlayerEntity player) {
     player
         .getWorld()
         .playSound(
@@ -119,12 +91,8 @@ public class DogWhistleItem extends Item implements GeoItem {
             player.getZ(),
             ModSounds.DOG_WHISTLE_BLOW,
             SoundCategory.PLAYERS,
-            volume,
-            pitch);
-  }
-
-  private static @Nullable PetData findPet(final List<PetData> pets, final UUID petId) {
-    return pets.stream().filter(pet -> petId.equals(pet.getPetId())).findFirst().orElse(null);
+            1.0f,
+            1.0f);
   }
 
   @Override
@@ -133,8 +101,15 @@ public class DogWhistleItem extends Item implements GeoItem {
       final TooltipContext context,
       final List<Text> tooltip,
       final TooltipType type) {
+    final String boundName = stack.get(ModComponents.WHISTLE_TARGET_NAME);
+    if (boundName == null || boundName.isBlank()) {
+      tooltip.add(
+          Text.translatable("item.dogs-unleashed.dog_whistle.unbound").formatted(Formatting.GRAY));
+      return;
+    }
     tooltip.add(
-        Text.translatable("item.dogs-unleashed.dog_whistle.tooltip").formatted(Formatting.GRAY));
+        Text.translatable("item.dogs-unleashed.dog_whistle.bound", boundName)
+            .formatted(Formatting.GRAY));
   }
 
   @Override

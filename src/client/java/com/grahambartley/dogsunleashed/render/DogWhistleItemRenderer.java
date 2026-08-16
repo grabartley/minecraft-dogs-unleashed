@@ -49,13 +49,13 @@ public class DogWhistleItemRenderer implements BuiltinItemRendererRegistry.Dynam
           ItemRenderTransforms.applyGeoItemPose(
               matrices, 0.5, 0.44, 0.5, 0.0f, 200.0f, 0.0f, 0.55f);
       case THIRD_PERSON_LEFT_HAND, THIRD_PERSON_RIGHT_HAND ->
-          ItemRenderTransforms.applyGeoItemPose(matrices, 0.5, 0.5, 0.5, 70.0f, 200.0f, 0.0f, 0.5f);
+          ItemRenderTransforms.applyGeoItemPose(matrices, 0.5, 0.5, 0.5, 70.0f, 20.0f, 0.0f, 0.5f);
       case FIRST_PERSON_LEFT_HAND ->
           ItemRenderTransforms.applyGeoItemPose(
-              matrices, 0.5, 0.5, 0.5, -28.0f, 290.0f, 0.0f, HELD_SCALE);
+              matrices, 0.5, 0.5, 0.5, -28.0f, 110.0f, 0.0f, HELD_SCALE);
       case FIRST_PERSON_RIGHT_HAND ->
           ItemRenderTransforms.applyGeoItemPose(
-              matrices, 0.5, 0.5, 0.5, -28.0f, 70.0f, 0.0f, HELD_SCALE);
+              matrices, 0.5, 0.5, 0.5, -28.0f, 250.0f, 0.0f, HELD_SCALE);
       default ->
           ItemRenderTransforms.applyGeoItemPose(matrices, 0.5, 0.45, 0.5, 0.0f, 200.0f, 0.0f, 0.5f);
     }

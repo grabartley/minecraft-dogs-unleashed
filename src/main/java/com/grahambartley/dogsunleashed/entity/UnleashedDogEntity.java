@@ -46,6 +46,7 @@ import com.grahambartley.dogsunleashed.entity.goal.SleepInBedGoal;
 import com.grahambartley.dogsunleashed.entity.variant.DogCoats;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
 import com.grahambartley.dogsunleashed.entity.variant.UnleashedDogCoat;
+import com.grahambartley.dogsunleashed.item.DogWhistleItem;
 import com.grahambartley.dogsunleashed.network.ModNetworking;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetManager;
@@ -1177,6 +1178,13 @@ public class UnleashedDogEntity extends TameableEntity
     }
 
     if (this.isTamed()) {
+      if (this.isOwner(player) && !player.isSneaking() && itemStack.isOf(ModItems.DOG_WHISTLE)) {
+        DogWhistleItem.bind(itemStack, this.getUuid(), this.getTamedName());
+        player.sendMessage(
+            Text.translatable("message.dogs-unleashed.whistle.bound", this.getTamedName()), true);
+        return ActionResult.SUCCESS;
+      }
+
       if (this.isOwner(player) && !player.isSneaking() && itemStack.isOf(ModItems.DOG_TREAT)) {
         itemStack.decrementUnlessCreative(1, player);
         this.applyTreatBuff();

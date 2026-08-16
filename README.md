@@ -143,21 +143,24 @@ and refusing never consumes one.
 
 ### Dog Whistle
 
-Craft a **Dog Whistle** from a gold ingot above a piece of string above any colour of wool, then right-click it in the
-air to call a dog to you from anywhere in the world. It is the Pet Manager's Summon button without the screen: the
-whistle chunk-loads the dog's last known position, finds it, and delivers it beside you, across dimensions if it has to.
+Craft a **Dog Whistle** from a gold ingot above a piece of string above any colour of wool, then
+right-click one of your own tamed dogs with it. The whistle binds to that dog and engraves its name
+into the tooltip. From then on, right-click the whistle in the air and that dog comes to you from
+wherever it is, across any distance and any dimension, using the same chunk-loading recall the Pet
+Manager's Summon button uses.
 
-| Action                    | What happens                                                                 |
-|---------------------------|------------------------------------------------------------------------------|
-| Right-click in the air    | Blows the whistle and calls the dog it is pointed at                          |
-| Sneak + right-click       | Points the whistle at the next dog in your pack and names it above the hotbar |
-| A whistle you never aimed | Calls whichever of your dogs is nearest, and remembers that one               |
-| A dog that has since died | Quietly moves to a living dog on the next blow                                |
+| Action                          | What happens                                                     |
+|---------------------------------|------------------------------------------------------------------|
+| Right-click one of your dogs    | Binds the whistle to that dog and names it above the hotbar       |
+| Right-click a different dog     | Moves the binding to that dog instead                             |
+| Right-click in the air          | Calls the bound dog to you, wherever it is                        |
+| Hover the whistle in inventory  | Shows which dog it is bound to                                    |
+| Blow an unbound whistle         | Says so above the hotbar and does nothing else                    |
 
-Pack order is fixed rather than by distance or recency, so the same number of sneak-clicks always lands on the same dog.
-The target is stored on the whistle itself, so it survives saves and reloads, and two whistles in the same inventory can
-be pointed at two different dogs. Blowing puts the whistle on a one-second cooldown, so holding right-click cannot
-re-summon every tick.
+One whistle answers to one dog, and the binding lives on the whistle itself, so it survives saves
+and reloads and a hotbar of whistles is a hotbar of dogs. If the bound dog dies, the whistle simply
+reports that it has nothing to call until you bind it to another. Blowing puts the whistle on a
+one-second cooldown, so holding right-click cannot re-summon every tick.
 
 ### Fetch (Yes, Actual Fetch)
 

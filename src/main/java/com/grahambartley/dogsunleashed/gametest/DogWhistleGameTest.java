@@ -15,12 +15,13 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
+import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 
 /**
- * Covers the Dog Whistle end to end against a real server: blowing it recalls the target dog,
- * sneaking cycles which dog it points at, and the target survives on the stack.
+ * Covers the Dog Whistle against a real server: right-clicking a dog binds the whistle to it,
+ * blowing it recalls that dog, and the binding refuses dogs the player does not own.
  */
 public final class DogWhistleGameTest implements FabricGameTest {
 
@@ -29,11 +30,64 @@ public final class DogWhistleGameTest implements FabricGameTest {
   private static final double RECALL_DISTANCE = 4.0;
 
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-whistle", tickLimit = 40)
-  public void blowingTheWhistleBringsTheTargetDogToTheOwner(TestContext context) {
+  public void rightClickingYourDogBindsTheWhistleToIt(TestContext context) {
+    final ServerPlayerEntity owner = placeOwner(context);
+    final UnleashedDogEntity dog = spawnRegisteredDog(context, owner, FAR_CORNER, "Scout");
+    final ItemStack whistle = giveWhistle(owner);
+
+    dog.interactMob(owner, Hand.MAIN_HAND);
+
+    context.assertTrue(
+        dog.getUuid().equals(whistle.get(ModComponents.WHISTLE_TARGET_PET)),
+        "The whistle should hold the dog it was clicked on, but held "
+            + whistle.get(ModComponents.WHISTLE_TARGET_PET));
+    context.complete();
+  }
+
+  @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-whistle", tickLimit = 40)
+  public void bindingEngravesTheDogsNameForTheTooltip(TestContext context) {
+    final ServerPlayerEntity owner = placeOwner(context);
+    final UnleashedDogEntity dog = spawnRegisteredDog(context, owner, FAR_CORNER, "Scout");
+    final ItemStack whistle = giveWhistle(owner);
+
+    dog.interactMob(owner, Hand.MAIN_HAND);
+
+    context.assertTrue(
+        "Scout".equals(whistle.get(ModComponents.WHISTLE_TARGET_NAME)),
+        "The tooltip name should be the dog's, but was "
+            + whistle.get(ModComponents.WHISTLE_TARGET_NAME));
+    context.complete();
+  }
+
+  @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-whistle", tickLimit = 40)
+  public void rightClickingAnotherDogMovesTheBinding(TestContext context) {
+    final ServerPlayerEntity owner = placeOwner(context);
+    final UnleashedDogEntity first =
+        spawnRegisteredDog(context, owner, new BlockPos(3, 2, 1), "Scout");
+    final UnleashedDogEntity second =
+        spawnRegisteredDog(context, owner, new BlockPos(5, 2, 1), "Bailey");
+    final ItemStack whistle = giveWhistle(owner);
+
+    first.interactMob(owner, Hand.MAIN_HAND);
+    second.interactMob(owner, Hand.MAIN_HAND);
+
+    context.assertTrue(
+        second.getUuid().equals(whistle.get(ModComponents.WHISTLE_TARGET_PET)),
+        "Binding a second dog should replace the first");
+    context.assertTrue(
+        "Bailey".equals(whistle.get(ModComponents.WHISTLE_TARGET_NAME)),
+        "The engraved name should follow the new binding, but was "
+            + whistle.get(ModComponents.WHISTLE_TARGET_NAME));
+    context.complete();
+  }
+
+  @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-whistle", tickLimit = 40)
+  public void blowingTheWhistleBringsTheBoundDogToTheOwner(TestContext context) {
     final ServerPlayerEntity owner = placeOwner(context);
     final UnleashedDogEntity dog = spawnRegisteredDog(context, owner, FAR_CORNER, "Scout");
     final UUID dogId = dog.getUuid();
-    final ItemStack whistle = giveWhistle(owner, dogId);
+    giveWhistle(owner);
+    dog.interactMob(owner, Hand.MAIN_HAND);
 
     ModItems.DOG_WHISTLE.use(context.getWorld(), owner, Hand.MAIN_HAND);
 
@@ -42,34 +96,18 @@ public final class DogWhistleGameTest implements FabricGameTest {
     context.assertTrue(recalled != null, "The recalled dog should still exist in the world");
     context.assertTrue(
         recalled.squaredDistanceTo(owner) <= RECALL_DISTANCE * RECALL_DISTANCE,
-        "Blowing the whistle should bring the dog to its owner, but it was "
+        "Blowing the whistle should bring the bound dog to its owner, but it was "
             + Math.sqrt(recalled.squaredDistanceTo(owner))
             + " blocks away");
-    context.assertTrue(
-        dogId.equals(whistle.get(ModComponents.WHISTLE_TARGET_PET)),
-        "The whistle should still be pointed at the dog it just recalled");
-    context.complete();
-  }
-
-  @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-whistle", tickLimit = 40)
-  public void blowingAWhistleWithNoTargetRecallsTheNearestDog(TestContext context) {
-    final ServerPlayerEntity owner = placeOwner(context);
-    final UnleashedDogEntity dog = spawnRegisteredDog(context, owner, FAR_CORNER, "Scout");
-    final ItemStack whistle = giveWhistle(owner, null);
-
-    ModItems.DOG_WHISTLE.use(context.getWorld(), owner, Hand.MAIN_HAND);
-
-    context.assertTrue(
-        dog.getUuid().equals(whistle.get(ModComponents.WHISTLE_TARGET_PET)),
-        "A whistle with no stored target should adopt the dog it called");
     context.complete();
   }
 
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-whistle", tickLimit = 40)
   public void blowingTheWhistleStartsTheCooldown(TestContext context) {
     final ServerPlayerEntity owner = placeOwner(context);
-    spawnRegisteredDog(context, owner, FAR_CORNER, "Scout");
-    giveWhistle(owner, null);
+    final UnleashedDogEntity dog = spawnRegisteredDog(context, owner, FAR_CORNER, "Scout");
+    giveWhistle(owner);
+    dog.interactMob(owner, Hand.MAIN_HAND);
 
     ModItems.DOG_WHISTLE.use(context.getWorld(), owner, Hand.MAIN_HAND);
 
@@ -80,84 +118,67 @@ public final class DogWhistleGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-whistle", tickLimit = 40)
-  public void sneakingCyclesTheTargetToAnotherDog(TestContext context) {
-    final ServerPlayerEntity owner = placeOwner(context);
-    final UnleashedDogEntity first =
-        spawnRegisteredDog(context, owner, new BlockPos(3, 2, 1), "Scout");
-    final UnleashedDogEntity second =
-        spawnRegisteredDog(context, owner, new BlockPos(5, 2, 1), "Bailey");
-    final ItemStack whistle = giveWhistle(owner, first.getUuid());
-    owner.setSneaking(true);
-
-    ModItems.DOG_WHISTLE.use(context.getWorld(), owner, Hand.MAIN_HAND);
-
-    final UUID target = whistle.get(ModComponents.WHISTLE_TARGET_PET);
-    context.assertTrue(
-        second.getUuid().equals(target) || first.getUuid().equals(target),
-        "Cycling should land on one of the owner's dogs, but the target was " + target);
-    context.assertTrue(
-        !first.getUuid().equals(target),
-        "Cycling should move the target off the dog it started on");
-    context.complete();
-  }
-
-  @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-whistle", tickLimit = 40)
-  public void sneakingDoesNotRecallTheDog(TestContext context) {
+  public void anUnboundWhistleSummonsNothing(TestContext context) {
     final ServerPlayerEntity owner = placeOwner(context);
     final UnleashedDogEntity dog = spawnRegisteredDog(context, owner, FAR_CORNER, "Scout");
     final BlockPos before = dog.getBlockPos();
-    giveWhistle(owner, dog.getUuid());
-    owner.setSneaking(true);
+    giveWhistle(owner);
 
     ModItems.DOG_WHISTLE.use(context.getWorld(), owner, Hand.MAIN_HAND);
 
     context.assertTrue(
         before.equals(dog.getBlockPos()),
-        "Choosing a target should not also summon it, but the dog moved to " + dog.getBlockPos());
+        "An unbound whistle must not move a dog, but it went to " + dog.getBlockPos());
     context.complete();
   }
 
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-whistle", tickLimit = 40)
-  public void aWhistleWithNoPetsLeavesItsTargetUnset(TestContext context) {
+  public void aWhistleCannotBindToSomeoneElsesDog(TestContext context) {
     final ServerPlayerEntity owner = placeOwner(context);
-    final ItemStack whistle = giveWhistle(owner, null);
+    final ServerPlayerEntity stranger = context.createMockCreativeServerPlayerInWorld();
+    final UnleashedDogEntity dog = spawnRegisteredDog(context, stranger, FAR_CORNER, "Scout");
+    final ItemStack whistle = giveWhistle(owner);
 
-    ModItems.DOG_WHISTLE.use(context.getWorld(), owner, Hand.MAIN_HAND);
+    dog.interactMob(owner, Hand.MAIN_HAND);
 
     context.assertTrue(
         whistle.get(ModComponents.WHISTLE_TARGET_PET) == null,
-        "An owner with no dogs should leave the whistle unpointed");
+        "Another player's dog must not answer your whistle");
     context.complete();
   }
 
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-whistle", tickLimit = 40)
-  public void theTargetSurvivesAStackCopy(TestContext context) {
+  public void aBoundWhistleThatChangesHandsKeepsItsBinding(TestContext context) {
     final ServerPlayerEntity owner = placeOwner(context);
     final UnleashedDogEntity dog = spawnRegisteredDog(context, owner, FAR_CORNER, "Scout");
-    final ItemStack whistle = giveWhistle(owner, dog.getUuid());
+    final ItemStack whistle = giveWhistle(owner);
+    dog.interactMob(owner, Hand.MAIN_HAND);
 
     final ItemStack copy = whistle.copy();
 
     context.assertTrue(
-        dog.getUuid().equals(copy.get(ModComponents.WHISTLE_TARGET_PET)),
-        "The target component should travel with the stack, but the copy held "
-            + copy.get(ModComponents.WHISTLE_TARGET_PET));
+        dog.getUuid().equals(copy.get(ModComponents.WHISTLE_TARGET_PET))
+            && "Scout".equals(copy.get(ModComponents.WHISTLE_TARGET_NAME)),
+        "The binding should travel with the stack, but the copy held "
+            + copy.get(ModComponents.WHISTLE_TARGET_NAME));
     context.complete();
   }
 
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-whistle", tickLimit = 40)
-  public void aDeceasedTargetIsReplacedOnTheNextBlow(TestContext context) {
+  public void aWhistleBoundToADeceasedDogSummonsNothing(TestContext context) {
     final ServerPlayerEntity owner = placeOwner(context);
-    final UnleashedDogEntity alive = spawnRegisteredDog(context, owner, FAR_CORNER, "Scout");
-    final UUID deceasedId = UUID.randomUUID();
-    registerRecord(context, owner, deceasedId, FAR_CORNER, "Ghost", false);
-    final ItemStack whistle = giveWhistle(owner, deceasedId);
+    final UnleashedDogEntity dog = spawnRegisteredDog(context, owner, FAR_CORNER, "Scout");
+    final BlockPos before = dog.getBlockPos();
+    giveWhistle(owner);
+    dog.interactMob(owner, Hand.MAIN_HAND);
+    PetManager.get(context.getWorld().getServer()).markPetDeceased(dog.getUuid());
 
     ModItems.DOG_WHISTLE.use(context.getWorld(), owner, Hand.MAIN_HAND);
 
     context.assertTrue(
-        alive.getUuid().equals(whistle.get(ModComponents.WHISTLE_TARGET_PET)),
-        "A whistle pointed at a dog that has died should move to a living one");
+        before.equals(dog.getBlockPos()),
+        "A whistle whose dog is recorded dead must not summon, but it went to "
+            + dog.getBlockPos());
     context.complete();
   }
 
@@ -168,11 +189,8 @@ public final class DogWhistleGameTest implements FabricGameTest {
     return owner;
   }
 
-  private static ItemStack giveWhistle(ServerPlayerEntity owner, UUID target) {
+  private static ItemStack giveWhistle(ServerPlayerEntity owner) {
     final ItemStack whistle = new ItemStack(ModItems.DOG_WHISTLE);
-    if (target != null) {
-      whistle.set(ModComponents.WHISTLE_TARGET_PET, target);
-    }
     owner.setStackInHand(Hand.MAIN_HAND, whistle);
     owner.getItemCooldownManager().remove(ModItems.DOG_WHISTLE);
     return whistle;
@@ -180,26 +198,16 @@ public final class DogWhistleGameTest implements FabricGameTest {
 
   private static UnleashedDogEntity spawnRegisteredDog(
       TestContext context, ServerPlayerEntity owner, BlockPos relativePos, String name) {
+    final ServerWorld world = context.getWorld();
     final UnleashedDogEntity dog = context.spawnEntity(ModEntities.HUSKY, relativePos);
     dog.setAiDisabled(true);
     dog.setTamed(true, true);
     dog.setOwnerUuid(owner.getUuid());
-    registerRecord(context, owner, dog.getUuid(), relativePos, name, true);
-    return dog;
-  }
-
-  private static void registerRecord(
-      TestContext context,
-      ServerPlayerEntity owner,
-      UUID petId,
-      BlockPos relativePos,
-      String name,
-      boolean alive) {
-    final ServerWorld world = context.getWorld();
+    dog.setCustomName(Text.literal(name));
     PetManager.get(world.getServer())
         .registerPet(
             new PetData(
-                petId,
+                dog.getUuid(),
                 owner.getUuid(),
                 UnleashedDogBreed.HUSKY,
                 name,
@@ -207,6 +215,7 @@ public final class DogWhistleGameTest implements FabricGameTest {
                 10.0f,
                 context.getAbsolutePos(relativePos),
                 world.getRegistryKey().getValue().toString(),
-                alive));
+                true));
+    return dog;
   }
 }
