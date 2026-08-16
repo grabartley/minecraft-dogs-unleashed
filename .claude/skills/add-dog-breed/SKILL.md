@@ -17,7 +17,11 @@ There are NO per-breed Java classes. One concrete `UnleashedDogEntity` backs eve
 `DogRenderer` / `DogModel` / `DogCollarLayer` renders every breed, and breed identity is data on
 the `UnleashedDogBreed` preset enum. Adding a breed means adding a preset constant, assets, and a
 handful of switch cases; the shared entity, renderer, spawn wiring, config plumbing, and per-breed
-gametest generators pick the new breed up from there.
+gametest generators pick the new breed up from there. Cross-breeding (`CROSS_BREED` +
+`DogGenome`) is fully generic over the founding presets: a new founding breed automatically joins
+breed compositions, genome stat blending, mix names, and dominant-breed rendering with no extra
+wiring. `CROSS_BREED` itself is NOT a template for new breeds; it has null spawn settings, no
+spawn egg item, no coat table, and no assets of its own.
 
 ## Prerequisites
 
@@ -39,7 +43,8 @@ Ensure you have these assets ready (all under `src/main/resources/assets/dogs-un
    - New enum constant carrying: serialized id, mouth anchor bone name, `FetchCarryProfiles`,
      `SpawnEggColors`, `Dimensions`, `SpawnSettings` (or `null` for a non-spawnable breed; every
      `values()` consumer already filters through `isNaturallySpawning()`), `Attributes`, `Voice`
-     (howl flag plus a lazy `() -> ModSounds.X_BARK` supplier, or `null` supplier for a howler),
+     (howl flag plus a lazy `() -> ModSounds.X_BARK` supplier; a `null` supplier means no bark,
+     used by howlers and the voiceless `CROSS_BREED` preset),
      eye-color-variants flag, and `RenderTransforms` (adult scale, baby scale, body yaw offset).
    - Add the id (and any legacy aliases) to the `fromSerializedIdOrNull` switch.
 2. **Sounds**: `src/main/java/com/grahambartley/dogsunleashed/ModSounds.java` - register the bark

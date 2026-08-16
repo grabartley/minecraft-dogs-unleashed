@@ -6,10 +6,15 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
+import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
+import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 import org.junit.jupiter.api.DisplayName;
@@ -259,5 +264,42 @@ class PetDataTest {
 
     assertNull(reloaded.getParentAId(), "legacy parentA");
     assertNull(reloaded.getParentBId(), "legacy parentB");
+  }
+
+  @Test
+  @DisplayName("genome fields survive the NBT round-trip")
+  void genomeFieldsSurviveNbtRoundTrip() {
+    final List<BreedShare> composition =
+        List.of(
+            new BreedShare(UnleashedDogBreed.HUSKY, 0.575f),
+            new BreedShare(UnleashedDogBreed.BEAGLE, 0.425f));
+    final NbtCompound nbt = baselinePet().toNbt();
+    nbt.putFloat(ModNbtKeys.MOVEMENT_SPEED, 0.31f);
+    nbt.putFloat(ModNbtKeys.ATTACK_DAMAGE, 4.2f);
+    nbt.put(ModNbtKeys.COMPOSITION, DogGenome.compositionToNbt(composition));
+
+    final PetData read = PetData.fromNbt(nbt);
+
+    assertEquals(0.31f, read.getMovementSpeed(), "movement speed");
+    assertEquals(4.2f, read.getAttackDamage(), "attack damage");
+    assertEquals(composition, read.getComposition(), "composition");
+    assertEquals(
+        composition,
+        PetData.fromNbt(read.toNbt()).getComposition(),
+        "composition after a second round-trip");
+  }
+
+  @Test
+  @DisplayName("records written before genomes existed read back with defaults")
+  void legacyNbtWithoutGenomeFieldsReadsDefaults() {
+    final NbtCompound nbt = baselinePet().toNbt();
+    nbt.remove(ModNbtKeys.MOVEMENT_SPEED);
+    nbt.remove(ModNbtKeys.ATTACK_DAMAGE);
+
+    final PetData reloaded = PetData.fromNbt(nbt);
+
+    assertEquals(0.0f, reloaded.getMovementSpeed(), "legacy movement speed");
+    assertEquals(0.0f, reloaded.getAttackDamage(), "legacy attack damage");
+    assertTrue(reloaded.getComposition().isEmpty(), "legacy composition");
   }
 }

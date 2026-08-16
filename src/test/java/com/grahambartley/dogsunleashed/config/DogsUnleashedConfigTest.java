@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
@@ -74,13 +75,15 @@ class DogsUnleashedConfigTest {
 
   @ParameterizedTest(name = "{0} defaults to 100")
   @EnumSource(UnleashedDogBreed.class)
-  @DisplayName("defaults() carries an entry of 100 for every breed")
-  void defaultsCarryEveryBreedAtOneHundred(final UnleashedDogBreed breed) {
-    assertEquals(
-        DogsUnleashedConfig.DEFAULT_SPAWN_RATE_MULTIPLIER_PERCENT,
-        DogsUnleashedConfig.defaults()
-            .breedSpawnRateMultipliersPercent()
-            .get(breed.serializedId()));
+  @DisplayName("defaults() carries an entry of 100 for every naturally spawning breed")
+  void defaultsCarryEveryNaturallySpawningBreedAtOneHundred(final UnleashedDogBreed breed) {
+    final Integer multiplier =
+        DogsUnleashedConfig.defaults().breedSpawnRateMultipliersPercent().get(breed.serializedId());
+    if (breed.isNaturallySpawning()) {
+      assertEquals(DogsUnleashedConfig.DEFAULT_SPAWN_RATE_MULTIPLIER_PERCENT, multiplier);
+    } else {
+      assertNull(multiplier);
+    }
   }
 
   @Test
@@ -229,7 +232,7 @@ class DogsUnleashedConfigTest {
     final DogsUnleashedConfig config = configWithSpawnRates(100, Map.of("beagle", 200));
     assertEquals(200, config.breedSpawnRateMultipliersPercent().get("beagle"));
     for (final UnleashedDogBreed breed : UnleashedDogBreed.values()) {
-      if (breed != UnleashedDogBreed.BEAGLE) {
+      if (breed != UnleashedDogBreed.BEAGLE && breed.isNaturallySpawning()) {
         assertEquals(
             DogsUnleashedConfig.DEFAULT_SPAWN_RATE_MULTIPLIER_PERCENT,
             config.breedSpawnRateMultipliersPercent().get(breed.serializedId()),

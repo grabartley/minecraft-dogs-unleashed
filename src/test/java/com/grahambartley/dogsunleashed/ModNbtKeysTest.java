@@ -30,6 +30,16 @@ class ModNbtKeysTest {
         Arguments.of("PORTRAIT_HUSKY_EYE", ModNbtKeys.PORTRAIT_HUSKY_EYE, "PortraitHuskyEye"),
         Arguments.of("PARENT_A_ID", ModNbtKeys.PARENT_A_ID, "ParentAId"),
         Arguments.of("PARENT_B_ID", ModNbtKeys.PARENT_B_ID, "ParentBId"),
+        Arguments.of("COMPOSITION", ModNbtKeys.COMPOSITION, "Composition"),
+        Arguments.of("MOVEMENT_SPEED", ModNbtKeys.MOVEMENT_SPEED, "MovementSpeed"),
+        Arguments.of("ATTACK_DAMAGE", ModNbtKeys.ATTACK_DAMAGE, "AttackDamage"),
+        Arguments.of("GENOME", ModNbtKeys.GENOME, "Genome"),
+        Arguments.of("GENOME_COMPOSITION", ModNbtKeys.GENOME_COMPOSITION, "GenomeComposition"),
+        Arguments.of("GENOME_MAX_HEALTH", ModNbtKeys.GENOME_MAX_HEALTH, "GenomeMaxHealth"),
+        Arguments.of(
+            "GENOME_MOVEMENT_SPEED", ModNbtKeys.GENOME_MOVEMENT_SPEED, "GenomeMovementSpeed"),
+        Arguments.of("GENOME_ATTACK_DAMAGE", ModNbtKeys.GENOME_ATTACK_DAMAGE, "GenomeAttackDamage"),
+        Arguments.of("GENOME_VOICE_BREED", ModNbtKeys.GENOME_VOICE_BREED, "GenomeVoiceBreed"),
         Arguments.of("PETS", ModNbtKeys.PETS, "Pets"),
         Arguments.of("PETS_BY_OWNER", ModNbtKeys.PETS_BY_OWNER, "PetsByOwner"),
         Arguments.of(

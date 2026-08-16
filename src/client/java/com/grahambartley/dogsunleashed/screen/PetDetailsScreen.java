@@ -150,7 +150,7 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
             DogTraitFormat.formatComposition(
                 composition(), breed -> Text.translatable(breed.translationKey()).getString()),
             VALUE_COLOR);
-    final UnleashedDogCoat coat = DogCoats.coatOf(pet.breed(), pet.coatVariant());
+    final UnleashedDogCoat coat = DogCoats.coatOf(pet.displayBreed(), pet.coatVariant());
     if (coat != null) {
       y =
           drawInfoLine(
@@ -161,7 +161,8 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
               Text.translatable(coat.translationKey()).getString(),
               VALUE_COLOR);
     }
-    final int rarityChance = DogRarityClassifier.chancePercent(pet.breed(), pet.coatVariant());
+    final int rarityChance =
+        DogRarityClassifier.chancePercent(pet.displayBreed(), pet.coatVariant());
     final DogRarity rarity = DogRarityClassifier.classify(rarityChance);
     y =
         drawInfoLine(
@@ -236,12 +237,15 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
         0xFFFFFFFF,
         true);
     y += INFO_LINE_HEIGHT;
-    DogStatsPanel.draw(context, this.textRenderer, pet.breed(), x, y, 90);
+    DogStatsPanel.drawForPet(context, this.textRenderer, pet, x, y, 90);
   }
 
   private List<BreedShare> composition() {
     if (connections != null && !connections.focusComposition().isEmpty()) {
       return connections.focusComposition();
+    }
+    if (!pet.composition().isEmpty()) {
+      return pet.composition();
     }
     return BreedComposition.pureComposition(pet.breed());
   }

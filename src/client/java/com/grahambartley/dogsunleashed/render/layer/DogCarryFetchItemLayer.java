@@ -55,7 +55,7 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
     if (animatable.isInvisible() || !animatable.isCarryingFetchItem()) {
       return null;
     }
-    if (!animatable.getBreed().mouthAnchorBoneName().equals(bone.getName())) {
+    if (!animatable.getRigSourceBreed().mouthAnchorBoneName().equals(bone.getName())) {
       return null;
     }
 
@@ -81,7 +81,7 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
     if (fetchType == null) {
       return;
     }
-    CarryProfile profile = animatable.getBreed().carryProfileFor(fetchType);
+    CarryProfile profile = animatable.getRigSourceBreed().carryProfileFor(fetchType);
     poseStack.translate(0.0, profile.verticalOffset(), profile.forwardOffset());
     poseStack.scale(profile.scale(), profile.scale(), profile.scale());
 

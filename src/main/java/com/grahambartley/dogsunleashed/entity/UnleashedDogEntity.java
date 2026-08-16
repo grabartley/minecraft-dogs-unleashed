@@ -16,6 +16,7 @@ import static com.grahambartley.dogsunleashed.ModConstants.RANDOM_HOWL_CHANCE;
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModBlockTags;
 import com.grahambartley.dogsunleashed.ModBlocks;
+import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.ModSounds;
 import com.grahambartley.dogsunleashed.advancement.DogSleptInBedCriterion;
@@ -27,6 +28,8 @@ import com.grahambartley.dogsunleashed.block.entity.DogGraveBlockEntity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchProjectileEntity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
+import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
+import com.grahambartley.dogsunleashed.entity.genome.DogGenomeCombiner;
 import com.grahambartley.dogsunleashed.entity.goal.AutoSleepGoal;
 import com.grahambartley.dogsunleashed.entity.goal.CommandFollowOwnerGoal;
 import com.grahambartley.dogsunleashed.entity.goal.FetchChaseGoal;
@@ -47,8 +50,10 @@ import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetManager;
 import com.grahambartley.dogsunleashed.pet.PetRegistrar;
 import com.grahambartley.dogsunleashed.util.BreedingOwnerResolver;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -75,12 +80,12 @@ import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.goal.TemptGoal;
 import net.minecraft.entity.ai.goal.TrackOwnerAttackerGoal;
 import net.minecraft.entity.ai.goal.UniversalAngerGoal;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.Angerable;
-import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.TameableEntity;
@@ -174,6 +179,8 @@ public class UnleashedDogEntity extends TameableEntity implements GeoEntity, Ang
       DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.INTEGER);
   private static final TrackedData<Boolean> HOWLING =
       DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+  private static final TrackedData<NbtCompound> GENOME =
+      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.NBT_COMPOUND);
   private static final TrackedData<Integer> COLLAR_COLOR =
       DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.INTEGER);
   private static final TrackedData<Integer> TAIL_WAG_TIMER =
@@ -267,6 +274,10 @@ public class UnleashedDogEntity extends TameableEntity implements GeoEntity, Ang
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
   private final UnleashedDogBreed breed;
+  private @Nullable DogGenome cachedGenome;
+  private boolean genomeCacheValid;
+
+  private static final UnleashedDogBreed FALLBACK_RIG_BREED = UnleashedDogBreed.HUSKY;
 
   public UnleashedDogEntity(
       EntityType<? extends TameableEntity> entityType, World world, UnleashedDogBreed breed) {
@@ -293,6 +304,10 @@ public class UnleashedDogEntity extends TameableEntity implements GeoEntity, Ang
       SpawnReason spawnReason,
       @Nullable EntityData entityData) {
     if (spawnReason != SpawnReason.BREEDING) {
+      if (this.breed == UnleashedDogBreed.CROSS_BREED && this.getGenome() == null) {
+        this.applyGenome(this.randomFounderMix());
+        this.setHealth(this.getMaxHealth());
+      }
       this.rollAppearance(spawnReason);
     }
     return super.initialize(world, difficulty, spawnReason, entityData);
@@ -325,21 +340,75 @@ public class UnleashedDogEntity extends TameableEntity implements GeoEntity, Ang
     }
   }
 
-  protected boolean isSameSpecies(MobEntity entity) {
-    return entity instanceof UnleashedDogEntity otherDog && otherDog.getBreed() == this.breed;
-  }
-
   public UnleashedDogBreed getBreed() {
     return this.breed;
   }
 
-  public final String getBreedId() {
-    return this.getBreed().serializedId();
+  public UnleashedDogBreed getRigSourceBreed() {
+    if (this.breed != UnleashedDogBreed.CROSS_BREED) {
+      return this.breed;
+    }
+    final DogGenome genome = this.getGenome();
+    return genome != null ? genome.dominantBreed() : FALLBACK_RIG_BREED;
+  }
+
+  public UnleashedDogBreed getVoiceBreed() {
+    final DogGenome genome = this.getGenome();
+    return genome != null ? genome.voiceBreed() : this.breed;
+  }
+
+  public @Nullable DogGenome getGenome() {
+    if (!this.genomeCacheValid) {
+      final NbtCompound genomeNbt = this.dataTracker.get(GENOME);
+      this.cachedGenome = genomeNbt.isEmpty() ? null : DogGenome.fromNbt(genomeNbt);
+      this.genomeCacheValid = true;
+    }
+    return this.cachedGenome;
+  }
+
+  public void applyGenome(final DogGenome genome) {
+    this.dataTracker.set(GENOME, genome.toNbt());
+    this.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(genome.maxHealth());
+    this.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED)
+        .setBaseValue(genome.movementSpeed());
+    this.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE)
+        .setBaseValue(genome.attackDamage());
+  }
+
+  private DogGenome genomeOrPure() {
+    final DogGenome genome = this.getGenome();
+    return genome != null ? genome : DogGenome.pure(this.breed);
+  }
+
+  private DogGenome randomFounderMix() {
+    final List<UnleashedDogBreed> founders =
+        Arrays.stream(UnleashedDogBreed.values())
+            .filter(UnleashedDogBreed::isNaturallySpawning)
+            .toList();
+    final int firstIndex = this.random.nextInt(founders.size());
+    int secondIndex = this.random.nextInt(founders.size() - 1);
+    if (secondIndex >= firstIndex) {
+      secondIndex++;
+    }
+    return DogGenomeCombiner.combine(
+        DogGenome.pure(founders.get(firstIndex)),
+        DogGenome.pure(founders.get(secondIndex)),
+        this.random);
+  }
+
+  @Override
+  public void onTrackedDataSet(final TrackedData<?> data) {
+    super.onTrackedDataSet(data);
+    if (GENOME.equals(data)) {
+      this.genomeCacheValid = false;
+    }
   }
 
   public DogTraits getTraits() {
     return new DogTraits(
-        this.breed, this.dataTracker.get(COAT_VARIANT), this.dataTracker.get(EYE_COLOR_VARIANT));
+        this.getRigSourceBreed(),
+        this.dataTracker.get(COAT_VARIANT),
+        this.dataTracker.get(EYE_COLOR_VARIANT));
   }
 
   public void applyTraits(final DogTraits traits) {
@@ -348,22 +417,23 @@ public class UnleashedDogEntity extends TameableEntity implements GeoEntity, Ang
   }
 
   protected @Nullable SoundEvent getBarkSound() {
-    return this.breed.barkSound();
+    return this.getVoiceBreed().barkSound();
   }
 
   protected void rollAppearance(final SpawnReason spawnReason) {
+    final UnleashedDogBreed rigBreed = this.getRigSourceBreed();
     final BiFunction<SpawnReason, Integer, UnleashedDogCoat> rollResolver =
-        DogCoats.rollResolverFor(this.breed);
+        DogCoats.rollResolverFor(rigBreed);
     final DogTraits current = this.getTraits();
     final int coatVariantOrdinal =
         rollResolver != null
             ? rollResolver.apply(spawnReason, this.random.nextInt(DogCoats.ROLL_BOUND)).getOrdinal()
             : current.coatVariantOrdinal();
     final int eyeColorVariantOrdinal =
-        this.breed.hasEyeColorVariants()
+        rigBreed.hasEyeColorVariants()
             ? HuskyEyeColor.fromRandom(this.random).ordinal()
             : current.eyeColorVariantOrdinal();
-    this.applyTraits(new DogTraits(this.breed, coatVariantOrdinal, eyeColorVariantOrdinal));
+    this.applyTraits(new DogTraits(rigBreed, coatVariantOrdinal, eyeColorVariantOrdinal));
   }
 
   public int getBarkCooldownTicks() {
@@ -371,7 +441,7 @@ public class UnleashedDogEntity extends TameableEntity implements GeoEntity, Ang
   }
 
   protected boolean canBark() {
-    return this.breed.hasBarkSound()
+    return this.getVoiceBreed().hasBarkSound()
         && !this.isDead()
         && !this.isSleepingInBed()
         && this.barkCooldownTicks <= 0;
@@ -426,7 +496,7 @@ public class UnleashedDogEntity extends TameableEntity implements GeoEntity, Ang
   }
 
   private void tickHowl() {
-    if (!this.breed.howls()) {
+    if (!this.getVoiceBreed().howls()) {
       return;
     }
 
@@ -485,6 +555,7 @@ public class UnleashedDogEntity extends TameableEntity implements GeoEntity, Ang
     builder.add(COAT_VARIANT, 0);
     builder.add(EYE_COLOR_VARIANT, 0);
     builder.add(HOWLING, false);
+    builder.add(GENOME, new NbtCompound());
   }
 
   public DogCommand getCommand() {
@@ -546,11 +617,11 @@ public class UnleashedDogEntity extends TameableEntity implements GeoEntity, Ang
   }
 
   public @Nullable UnleashedDogCoat getCoatVariant() {
-    return DogCoats.coatOf(this.breed, this.dataTracker.get(COAT_VARIANT));
+    return DogCoats.coatOf(this.getRigSourceBreed(), this.dataTracker.get(COAT_VARIANT));
   }
 
   public @Nullable HuskyEyeColor getEyeColorVariant() {
-    return this.breed.hasEyeColorVariants()
+    return this.getRigSourceBreed().hasEyeColorVariants()
         ? HuskyEyeColor.fromOrdinal(this.dataTracker.get(EYE_COLOR_VARIANT))
         : null;
   }
@@ -1088,10 +1159,9 @@ public class UnleashedDogEntity extends TameableEntity implements GeoEntity, Ang
     if (!this.isTamed()) {
       return false;
     }
-    if (!this.isSameSpecies(other)) {
+    if (!(other instanceof UnleashedDogEntity otherDog)) {
       return false;
     }
-    final UnleashedDogEntity otherDog = (UnleashedDogEntity) other;
     if (!otherDog.isTamed()) {
       return false;
     }
@@ -1103,16 +1173,25 @@ public class UnleashedDogEntity extends TameableEntity implements GeoEntity, Ang
 
   @Override
   public PassiveEntity createChild(ServerWorld world, PassiveEntity entity) {
-    if (!this.isSameSpecies(entity)) {
+    if (!(entity instanceof UnleashedDogEntity partner)) {
       return null;
     }
-    final UnleashedDogEntity baby = (UnleashedDogEntity) this.getType().create(world);
+    final UnleashedDogBreed childBreed =
+        this.breed == partner.getBreed() && this.breed != UnleashedDogBreed.CROSS_BREED
+            ? this.breed
+            : UnleashedDogBreed.CROSS_BREED;
+    final UnleashedDogEntity baby = ModEntities.getDogEntityType(childBreed).create(world);
     if (baby == null) {
       return null;
     }
     baby.setBaby(true);
     baby.setParentDogUuid(this.getUuid());
-    baby.setSecondParentDogUuid(entity.getUuid());
+    baby.setSecondParentDogUuid(partner.getUuid());
+    if (childBreed == UnleashedDogBreed.CROSS_BREED) {
+      baby.applyGenome(
+          DogGenomeCombiner.combine(this.genomeOrPure(), partner.genomeOrPure(), this.random));
+      baby.setHealth(baby.getMaxHealth());
+    }
     baby.rollAppearance(SpawnReason.BREEDING);
     final PlayerEntity lovingPlayer = this.getLovingPlayer();
     if (lovingPlayer != null) {
@@ -1120,8 +1199,7 @@ public class UnleashedDogEntity extends TameableEntity implements GeoEntity, Ang
     } else {
       final UUID inheritedOwnerUuid =
           BreedingOwnerResolver.resolveInheritedOwnerUuid(
-              this.getOwnerUuid(),
-              entity instanceof UnleashedDogEntity otherDog ? otherDog.getOwnerUuid() : null);
+              this.getOwnerUuid(), partner.getOwnerUuid());
       if (inheritedOwnerUuid != null) {
         baby.setOwnerUuid(inheritedOwnerUuid);
         baby.setTamed(true, true);
@@ -1507,11 +1585,15 @@ public class UnleashedDogEntity extends TameableEntity implements GeoEntity, Ang
   public void writeCustomDataToNbt(NbtCompound nbt) {
     super.writeCustomDataToNbt(nbt);
     this.writeAngerToNbt(nbt);
+    final DogGenome genome = this.getGenome();
+    if (genome != null) {
+      nbt.put(ModNbtKeys.GENOME, genome.toNbt());
+    }
     final DogTraits traits = this.getTraits();
-    if (DogCoats.hasCoatVariants(this.breed)) {
+    if (DogCoats.hasCoatVariants(traits.rigSourceBreed())) {
       nbt.putInt(ModNbtKeys.COAT_VARIANT, traits.coatVariantOrdinal());
     }
-    if (this.breed.hasEyeColorVariants()) {
+    if (traits.rigSourceBreed().hasEyeColorVariants()) {
       nbt.putInt(ModNbtKeys.EYE_COLOR_VARIANT, traits.eyeColorVariantOrdinal());
     }
     nbt.putInt(ModNbtKeys.COLLAR_COLOR, this.getCollarColor().getId());
@@ -1558,10 +1640,16 @@ public class UnleashedDogEntity extends TameableEntity implements GeoEntity, Ang
   public void readCustomDataFromNbt(NbtCompound nbt) {
     super.readCustomDataFromNbt(nbt);
     this.readAngerFromNbt(this.getWorld(), nbt);
+    if (nbt.contains(ModNbtKeys.GENOME, NbtElement.COMPOUND_TYPE)) {
+      final DogGenome genome = DogGenome.fromNbt(nbt.getCompound(ModNbtKeys.GENOME));
+      if (genome != null) {
+        this.applyGenome(genome);
+      }
+    }
     final DogTraits currentTraits = this.getTraits();
     this.applyTraits(
         new DogTraits(
-            this.breed,
+            this.getRigSourceBreed(),
             nbt.contains(ModNbtKeys.COAT_VARIANT, NbtElement.NUMBER_TYPE)
                 ? nbt.getInt(ModNbtKeys.COAT_VARIANT)
                 : currentTraits.coatVariantOrdinal(),

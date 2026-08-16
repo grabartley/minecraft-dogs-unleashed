@@ -94,6 +94,11 @@ class ModNetworkingTest {
 
   private static ModNetworking.PetSyncData samplePet(
       final UnleashedDogBreed breed, final String name) {
+    return samplePet(breed, name, List.of());
+  }
+
+  private static ModNetworking.PetSyncData samplePet(
+      final UnleashedDogBreed breed, final String name, final List<BreedShare> composition) {
     return new ModNetworking.PetSyncData(
         UUID.randomUUID().toString(),
         breed,
@@ -108,7 +113,10 @@ class ModNetworkingTest {
         false,
         1,
         2,
-        0);
+        0,
+        0.29f,
+        3.5f,
+        composition);
   }
 
   static Stream<Arguments> openDogInspectPayloads() {
@@ -149,6 +157,59 @@ class ModNetworkingTest {
     final RegistryByteBuf buf = newBuf();
     ModNetworking.OpenDogInspectPayload.CODEC.encode(buf, payload);
     assertEquals(payload, ModNetworking.OpenDogInspectPayload.CODEC.decode(buf));
+  }
+
+  @Test
+  @DisplayName("PetSyncData codec round-trips a cross-breed pet with genome fields")
+  void petSyncDataCodecRoundTripsCrossBreedGenomeFields() {
+    final ModNetworking.PetSyncData pet =
+        samplePet(
+            UnleashedDogBreed.CROSS_BREED,
+            "Pixel",
+            List.of(
+                new BreedShare(UnleashedDogBreed.HUSKY, 0.5f),
+                new BreedShare(UnleashedDogBreed.BEAGLE, 0.5f)));
+    final RegistryByteBuf buf = newBuf();
+    ModNetworking.PetSyncData.CODEC.encode(buf, pet);
+    assertEquals(pet, ModNetworking.PetSyncData.CODEC.decode(buf));
+  }
+
+  static Stream<Arguments> displayBreedCases() {
+    return Stream.of(
+        Arguments.of(
+            "pure breed ignores composition",
+            samplePet(UnleashedDogBreed.BEAGLE, "Rex"),
+            UnleashedDogBreed.BEAGLE),
+        Arguments.of(
+            "cross-breed without composition falls back to its own breed",
+            samplePet(UnleashedDogBreed.CROSS_BREED, "Pixel"),
+            UnleashedDogBreed.CROSS_BREED),
+        Arguments.of(
+            "cross-breed resolves the dominant composition breed",
+            samplePet(
+                UnleashedDogBreed.CROSS_BREED,
+                "Pixel",
+                List.of(
+                    new BreedShare(UnleashedDogBreed.SHIBA_INU, 0.25f),
+                    new BreedShare(UnleashedDogBreed.HUSKY, 0.75f))),
+            UnleashedDogBreed.HUSKY),
+        Arguments.of(
+            "cross-breed breaks share ties by serialized id",
+            samplePet(
+                UnleashedDogBreed.CROSS_BREED,
+                "Pixel",
+                List.of(
+                    new BreedShare(UnleashedDogBreed.SHIBA_INU, 0.5f),
+                    new BreedShare(UnleashedDogBreed.BEAGLE, 0.5f))),
+            UnleashedDogBreed.BEAGLE));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("displayBreedCases")
+  @DisplayName("displayBreed resolves the breed the client should render")
+  void displayBreedResolvesRenderBreed(
+      final String label, final ModNetworking.PetSyncData pet, final UnleashedDogBreed expected) {
+    assertEquals(expected, pet.displayBreed());
   }
 
   @Test

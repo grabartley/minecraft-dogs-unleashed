@@ -28,6 +28,9 @@ public class ModEntities {
   public static final EntityType<UnleashedDogEntity> SHIBA_INU =
       registerDog(UnleashedDogBreed.SHIBA_INU);
 
+  public static final EntityType<UnleashedDogEntity> CROSS_BREED =
+      registerDog(UnleashedDogBreed.CROSS_BREED);
+
   public static final EntityType<TennisBallProjectileEntity> TENNIS_BALL_PROJECTILE =
       Registry.register(
           Registries.ENTITY_TYPE,
@@ -73,6 +76,7 @@ public class ModEntities {
       case BEAGLE -> BEAGLE;
       case GOLDEN_RETRIEVER -> GOLDEN_RETRIEVER;
       case SHIBA_INU -> SHIBA_INU;
+      case CROSS_BREED -> CROSS_BREED;
     };
   }
 

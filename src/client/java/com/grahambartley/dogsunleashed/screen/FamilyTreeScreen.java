@@ -427,7 +427,7 @@ public class FamilyTreeScreen extends Screen implements DogConnectionsListener {
     textY += 14;
     context.drawText(
         this.textRenderer,
-        Text.translatable(dog.pet().breed().translationKey()),
+        DogBreedNames.displayName(dog.pet().breed(), dog.pet().composition()),
         textX,
         textY,
         0xAAAAAA,

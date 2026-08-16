@@ -80,7 +80,7 @@ public final class DogPortraitRenderer {
       return null;
     }
     final EntityType<? extends UnleashedDogEntity> type =
-        pet.breed() == null ? null : ModEntities.getDogEntityType(pet.breed());
+        pet.breed() == null ? null : ModEntities.getDogEntityType(pet.displayBreed());
     if (type == null) {
       return null;
     }

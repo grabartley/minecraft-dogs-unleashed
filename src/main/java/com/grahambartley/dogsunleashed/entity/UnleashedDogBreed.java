@@ -100,6 +100,20 @@ public enum UnleashedDogBreed {
       new Attributes(18.0, 0.32, 3.5),
       new Voice(false, () -> ModSounds.SHIBA_INU_BARK),
       false,
+      new RenderTransforms(1.5f, 0.75f, 0.0f)),
+  CROSS_BREED(
+      "crossbreed",
+      "snout",
+      new FetchCarryProfiles(
+          new CarryProfile(0.0, 0.0, 0.36f),
+          new CarryProfile(0.0, 0.0, 0.38f),
+          new CarryProfile(0.0, -0.05, 0.45f)),
+      new SpawnEggColors(0x8B7355, 0xC4A484),
+      new Dimensions(0.8f, 1.1f),
+      null,
+      new Attributes(18.0, 0.29, 3.5),
+      new Voice(false, null),
+      false,
       new RenderTransforms(1.5f, 0.75f, 0.0f));
 
   private final String serializedId;
@@ -219,6 +233,7 @@ public enum UnleashedDogBreed {
       case "beagle" -> BEAGLE;
       case "goldenretriever", "golden_retriever" -> GOLDEN_RETRIEVER;
       case "shibainu", "shiba_inu" -> SHIBA_INU;
+      case "crossbreed", "cross_breed" -> CROSS_BREED;
       default -> null;
     };
   }

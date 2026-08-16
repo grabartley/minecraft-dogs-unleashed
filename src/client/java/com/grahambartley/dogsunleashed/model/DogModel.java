@@ -12,12 +12,13 @@ public class DogModel extends GeoModel<UnleashedDogEntity> {
 
   @Override
   public Identifier getModelResource(UnleashedDogEntity animatable) {
-    return Identifier.of(MOD_ID, "geo/" + animatable.getBreedId() + ".geo.json");
+    return Identifier.of(
+        MOD_ID, "geo/" + animatable.getRigSourceBreed().serializedId() + ".geo.json");
   }
 
   @Override
   public Identifier getTextureResource(UnleashedDogEntity animatable) {
-    final StringBuilder fileName = new StringBuilder(animatable.getBreedId());
+    final StringBuilder fileName = new StringBuilder(animatable.getRigSourceBreed().serializedId());
     final UnleashedDogCoat coat = animatable.getCoatVariant();
     if (coat != null) {
       fileName.append("_").append(coat.getTexturePrefix());
@@ -31,6 +32,6 @@ public class DogModel extends GeoModel<UnleashedDogEntity> {
 
   @Override
   public Identifier getAnimationResource(UnleashedDogEntity animatable) {
-    return Identifier.of(MOD_ID, animatable.getBreed().animationPath());
+    return Identifier.of(MOD_ID, animatable.getRigSourceBreed().animationPath());
   }
 }
