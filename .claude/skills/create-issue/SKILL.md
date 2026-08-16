@@ -11,7 +11,7 @@ Use this skill when the user wants a new GitHub issue created for `grabartley/mi
 
 1. Leave every new issue unassigned unless the user gives an assignee.
 2. Add every new issue to project `Minecraft Dogs Unleashed` (project 1).
-3. Set the project status to `Ready` unless the user says otherwise.
+3. Set the project status from `Board Status`, not to a fixed value.
 4. Keep issue titles brief and concise.
 5. Write issue bodies so the work can be implemented from the issue alone.
 6. Treat every issue as public. Do not expose local file paths, private notes, or machine-specific details.
@@ -91,26 +91,51 @@ Verify the labels exist before using them:
 gh label list --repo grabartley/minecraft-dogs-unleashed
 ```
 
+## Board Status
+
+Status answers one question: can someone pick this up today?
+
+| Status | Apply when |
+|---|---|
+| `Backlog` | The issue is blocked on an art or audio asset that does not exist yet. In practice this is every issue carrying `requires art`. |
+| `Ready` | Nothing blocks it. This includes `[Art]` issues, because the artist can start immediately, and implementation issues that need no asset. |
+
+Rules:
+
+- Do not park a `requires art` issue in `Ready`. A column that mixes startable work with work waiting on an asset stops being a queue.
+- When the blocking `[Art]` issue closes, move its `requires art` counterpart from `Backlog` to `Ready`.
+- An explicit status from the user always wins over this rule.
+- `[Epic]` parents get `Backlog` on creation and move to `In progress` once any child is being worked.
+
 ## Epics And Sub-Issues
 
 Feature-track grouping uses **native sub-issues under an `[Epic]` parent**, not milestones and not labels. GitHub allows one milestone per issue, which makes milestones a partition rather than a grouping, so they are reserved for releases.
 
-When an issue is part of a larger effort:
+Attaching to an epic is the default. Leaving an issue unparented is the exception, and needs a reason you would be willing to write down.
+
+For every new issue:
 
 1. Find the `[Epic]` parent it belongs to:
    ```bash
    gh issue list --repo grabartley/minecraft-dogs-unleashed --label epic --state open \
      --json number,title --jq '.[] | "#\(.number) \(.title)"'
    ```
-2. Attach the new issue as a sub-issue of that parent, using the child's database id, not its number:
+2. If no existing epic fits and the work clearly spans several issues, create the `[Epic]` parent first: `epic` label, project status `Backlog`, and a body covering `## Goal`, `## Why These Ship Together`, and `## Sequencing`.
+3. Attach the new issue as a sub-issue of that parent, using the child's database id, not its number:
    ```bash
    CHILD_ID=$(gh api repos/grabartley/minecraft-dogs-unleashed/issues/<child-number> --jq .id)
    gh api -X POST repos/grabartley/minecraft-dogs-unleashed/issues/<parent-number>/sub_issues \
      -F sub_issue_id="$CHILD_ID"
    ```
-3. If no existing epic fits and the work clearly spans several issues, create a new `[Epic]` parent first: `epic` label, project status `Backlog`, and a body covering `## Goal`, `## Why These Ship Together`, and `## Sequencing`.
+4. Verify the link, passing `per_page=100`:
+   ```bash
+   gh api "repos/grabartley/minecraft-dogs-unleashed/issues/<parent-number>/sub_issues?per_page=100" \
+     --jq '.[] | "#\(.number) \(.title)"'
+   ```
+   The endpoint pages at 30 by default. On a long-running epic a child that linked successfully is absent from the default response, which reads as a failed link and invites a pointless retry.
+5. Add the new issue to the epic body's `## Sequencing` section as well. The sub-issue link drives the GitHub UI; the body is what a human reads to understand ordering.
 
-Leave an issue unparented when it is genuinely standalone polish. Not everything needs an epic, and a one-issue epic is noise.
+Leave an issue unparented only when it is genuinely standalone polish. A one-issue epic is noise, but so is a backlog of orphans that never surface in the planning view.
 
 Epics pair a build issue with its art issue under the same parent, so the art queue and the work it blocks stay visible together.
 
@@ -173,9 +198,9 @@ Body rules:
 7. Decide the asset label: `requires art`, `art`, or neither.
 8. Create the issue with `gh issue create`, passing the asset label if one applies.
 9. If the user provided an assignee, assign the issue.
-10. Attach the issue to its `[Epic]` parent as a sub-issue when it is part of a larger effort.
+10. Attach the issue to its `[Epic]` parent as a sub-issue, and verify the link with `per_page=100`.
 11. Add the issue to project 1.
-12. Set project status to `Ready` unless the user asked for another status.
+12. Set project status per `Board Status`: `Backlog` when blocked on art, `Ready` otherwise.
 13. Return the issue URL, assignment state, status, label, and epic parent that were applied.
 
 ## GitHub Commands
@@ -233,7 +258,7 @@ gh project item-edit \
 --single-select-option-id 61e4505c
 ```
 
-If the user asked for a status other than `Ready`, use the matching option id instead.
+`61e4505c` is `Ready`. Swap in `f75ad846` for `Backlog` when the issue is blocked on art, per `Board Status`, or the matching option id when the user asked for a specific status.
 
 ## Final Checks
 
@@ -249,10 +274,11 @@ Before creating the issue, confirm:
 After creating the issue, confirm:
 - The issue is unassigned unless the user requested an assignee.
 - The issue was added to project `Minecraft Dogs Unleashed`.
-- The project status is `Ready` unless told otherwise.
+- The project status matches `Board Status`: `Backlog` when blocked on art, `Ready` otherwise.
 - The returned URL opens the created issue.
 - At most one of `requires art` and `art` is applied.
 - The issue is a sub-issue of an `[Epic]` parent, or is genuinely standalone.
+- The sub-issue link was verified with `per_page=100`, not assumed from the POST succeeding.
 - **No milestone is set.** Milestones are applied by the release pipeline on publish.
 
 ## Related Skills
