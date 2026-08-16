@@ -21,7 +21,8 @@ public class DogCollarLayer extends GeoRenderLayer<UnleashedDogEntity> {
   }
 
   protected Identifier getCollarTexture(final UnleashedDogEntity animatable) {
-    return Identifier.of(MOD_ID, "textures/entity/" + animatable.getBreedId() + "_collar.png");
+    return Identifier.of(
+        MOD_ID, "textures/entity/" + animatable.getRigSourceBreed().serializedId() + "_collar.png");
   }
 
   @Override

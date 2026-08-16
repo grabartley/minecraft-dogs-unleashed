@@ -19,12 +19,21 @@ public final class ModNbtKeys {
   public static final String PORTRAIT_HUSKY_EYE = "PortraitHuskyEye";
   public static final String PARENT_A_ID = "ParentAId";
   public static final String PARENT_B_ID = "ParentBId";
+  public static final String COMPOSITION = "Composition";
+  public static final String MOVEMENT_SPEED = "MovementSpeed";
+  public static final String ATTACK_DAMAGE = "AttackDamage";
   public static final String PETS = "Pets";
   public static final String PETS_BY_OWNER = "PetsByOwner";
   public static final String PREFERENCES_BY_PLAYER = "PreferencesByPlayer";
   public static final String BREED_FILTER = "BreedFilter";
   public static final String ALIVE_FILTER = "AliveFilter";
 
+  public static final String GENOME = "Genome";
+  public static final String GENOME_COMPOSITION = "GenomeComposition";
+  public static final String GENOME_MAX_HEALTH = "GenomeMaxHealth";
+  public static final String GENOME_MOVEMENT_SPEED = "GenomeMovementSpeed";
+  public static final String GENOME_ATTACK_DAMAGE = "GenomeAttackDamage";
+  public static final String GENOME_VOICE_BREED = "GenomeVoiceBreed";
   public static final String COAT_VARIANT = "CoatVariant";
   public static final String EYE_COLOR_VARIANT = "EyeColorVariant";
   public static final String COLLAR_COLOR = "CollarColor";

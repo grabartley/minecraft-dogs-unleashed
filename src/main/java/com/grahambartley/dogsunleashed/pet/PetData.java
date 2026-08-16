@@ -3,9 +3,13 @@ package com.grahambartley.dogsunleashed.pet;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
+import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.util.DyeColor;
@@ -34,6 +38,9 @@ public final class PetData {
   private int huskyEyeVariant;
   private UUID parentAId;
   private UUID parentBId;
+  private List<BreedShare> composition;
+  private float movementSpeed;
+  private float attackDamage;
 
   public PetData(
       UUID petId,
@@ -58,6 +65,7 @@ public final class PetData {
     this.collarColor = DEFAULT_COLLAR_COLOR_ID;
     this.coatVariant = UnleashedDogEntity.UNSET_VARIANT;
     this.huskyEyeVariant = UnleashedDogEntity.UNSET_VARIANT;
+    this.composition = List.of();
   }
 
   public UUID getPetId() {
@@ -140,6 +148,18 @@ public final class PetData {
     return huskyEyeVariant;
   }
 
+  public List<BreedShare> getComposition() {
+    return composition;
+  }
+
+  public float getMovementSpeed() {
+    return movementSpeed;
+  }
+
+  public float getAttackDamage() {
+    return attackDamage;
+  }
+
   public UUID getParentAId() {
     return parentAId;
   }
@@ -172,6 +192,10 @@ public final class PetData {
     this.collarColor = dog.getCollarColor().getId();
     this.coatVariant = coatVariantOf(dog);
     this.huskyEyeVariant = huskyEyeVariantOf(dog);
+    this.movementSpeed = (float) dog.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
+    this.attackDamage = (float) dog.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
+    final DogGenome genome = dog.getGenome();
+    this.composition = genome != null ? genome.composition() : List.of();
   }
 
   public static int coatVariantOf(final UnleashedDogEntity dog) {
@@ -225,6 +249,11 @@ public final class PetData {
     nbt.putInt(ModNbtKeys.PORTRAIT_COLLAR, collarColor);
     nbt.putInt(ModNbtKeys.PORTRAIT_COAT_VARIANT, coatVariant);
     nbt.putInt(ModNbtKeys.PORTRAIT_HUSKY_EYE, huskyEyeVariant);
+    nbt.putFloat(ModNbtKeys.MOVEMENT_SPEED, movementSpeed);
+    nbt.putFloat(ModNbtKeys.ATTACK_DAMAGE, attackDamage);
+    if (!composition.isEmpty()) {
+      nbt.put(ModNbtKeys.COMPOSITION, DogGenome.compositionToNbt(composition));
+    }
     if (parentAId != null) {
       nbt.putUuid(ModNbtKeys.PARENT_A_ID, parentAId);
     }
@@ -260,6 +289,15 @@ public final class PetData {
     }
     if (nbt.contains(ModNbtKeys.PORTRAIT_HUSKY_EYE, NbtElement.NUMBER_TYPE)) {
       pet.huskyEyeVariant = nbt.getInt(ModNbtKeys.PORTRAIT_HUSKY_EYE);
+    }
+    if (nbt.contains(ModNbtKeys.MOVEMENT_SPEED, NbtElement.NUMBER_TYPE)) {
+      pet.movementSpeed = nbt.getFloat(ModNbtKeys.MOVEMENT_SPEED);
+    }
+    if (nbt.contains(ModNbtKeys.ATTACK_DAMAGE, NbtElement.NUMBER_TYPE)) {
+      pet.attackDamage = nbt.getFloat(ModNbtKeys.ATTACK_DAMAGE);
+    }
+    if (nbt.contains(ModNbtKeys.COMPOSITION, NbtElement.COMPOUND_TYPE)) {
+      pet.composition = DogGenome.compositionFromNbt(nbt.getCompound(ModNbtKeys.COMPOSITION));
     }
     if (nbt.containsUuid(ModNbtKeys.PARENT_A_ID)) {
       pet.parentAId = nbt.getUuid(ModNbtKeys.PARENT_A_ID);

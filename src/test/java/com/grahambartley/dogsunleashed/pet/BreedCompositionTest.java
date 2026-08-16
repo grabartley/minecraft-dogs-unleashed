@@ -3,12 +3,15 @@ package com.grahambartley.dogsunleashed.pet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
+import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.BlockPos;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -117,6 +120,52 @@ class BreedCompositionTest {
             new BreedShare(UnleashedDogBreed.DACHSHUND, 0.5f),
             new BreedShare(UnleashedDogBreed.SHIBA_INU, 0.5f)),
         BreedComposition.compute(child, UnleashedDogBreed.SHIBA_INU, pets::get));
+  }
+
+  private UUID registerDogWithStoredComposition(
+      final UUID parentAId, final UUID parentBId, final List<BreedShare> composition) {
+    final UUID id = registerDog(UnleashedDogBreed.CROSS_BREED, parentAId, parentBId);
+    final NbtCompound nbt = pets.get(id).toNbt();
+    nbt.put(ModNbtKeys.COMPOSITION, DogGenome.compositionToNbt(composition));
+    pets.put(id, PetData.fromNbt(nbt));
+    return id;
+  }
+
+  @Test
+  @DisplayName("a stored genome composition wins over the lineage walk")
+  void storedCompositionWinsOverLineageWalk() {
+    final UUID husky = registerDog(UnleashedDogBreed.HUSKY);
+    final UUID beagle = registerDog(UnleashedDogBreed.BEAGLE);
+    final List<BreedShare> stored =
+        List.of(
+            new BreedShare(UnleashedDogBreed.HUSKY, 0.575f),
+            new BreedShare(UnleashedDogBreed.BEAGLE, 0.425f));
+    final UUID cross = registerDogWithStoredComposition(husky, beagle, stored);
+
+    assertEquals(stored, BreedComposition.compute(cross, UnleashedDogBreed.CROSS_BREED, pets::get));
+  }
+
+  @Test
+  @DisplayName("a cross-breed ancestor contributes its stored composition instead of its lineage")
+  void crossBreedAncestorContributesStoredComposition() {
+    final UUID husky = registerDog(UnleashedDogBreed.HUSKY);
+    final UUID beagle = registerDog(UnleashedDogBreed.BEAGLE);
+    final UUID crossParent =
+        registerDogWithStoredComposition(
+            husky,
+            beagle,
+            List.of(
+                new BreedShare(UnleashedDogBreed.HUSKY, 0.5f),
+                new BreedShare(UnleashedDogBreed.BEAGLE, 0.5f)));
+    final UUID shiba = registerDog(UnleashedDogBreed.SHIBA_INU);
+    final UUID child = registerDog(UnleashedDogBreed.CROSS_BREED, crossParent, shiba);
+
+    assertEquals(
+        List.of(
+            new BreedShare(UnleashedDogBreed.SHIBA_INU, 0.5f),
+            new BreedShare(UnleashedDogBreed.BEAGLE, 0.25f),
+            new BreedShare(UnleashedDogBreed.HUSKY, 0.25f)),
+        BreedComposition.compute(child, UnleashedDogBreed.CROSS_BREED, pets::get));
   }
 
   @Test

@@ -102,7 +102,7 @@ public class DogInspectScreen extends Screen {
             DogTraitFormat.formatComposition(
                 data.composition(), breed -> Text.translatable(breed.translationKey()).getString()),
             VALUE_COLOR);
-    final UnleashedDogCoat coat = DogCoats.coatOf(pet.breed(), pet.coatVariant());
+    final UnleashedDogCoat coat = DogCoats.coatOf(pet.displayBreed(), pet.coatVariant());
     if (coat != null) {
       infoY =
           drawInfoLine(
@@ -113,7 +113,8 @@ public class DogInspectScreen extends Screen {
               Text.translatable(coat.translationKey()).getString(),
               VALUE_COLOR);
     }
-    final int rarityChance = DogRarityClassifier.chancePercent(pet.breed(), pet.coatVariant());
+    final int rarityChance =
+        DogRarityClassifier.chancePercent(pet.displayBreed(), pet.coatVariant());
     final DogRarity rarity = DogRarityClassifier.classify(rarityChance);
     infoY =
         drawInfoLine(
@@ -125,7 +126,7 @@ public class DogInspectScreen extends Screen {
                 Text.translatable(rarity.translationKey()).getString(), rarityChance),
             rarity.colorArgb());
 
-    DogStatsPanel.draw(context, this.textRenderer, pet.breed(), infoX, infoY, INFO_LABEL_WIDTH);
+    DogStatsPanel.drawForPet(context, this.textRenderer, pet, infoX, infoY, INFO_LABEL_WIDTH);
 
     context.drawCenteredTextWithShadow(
         this.textRenderer,
@@ -138,7 +139,7 @@ public class DogInspectScreen extends Screen {
   private String displayName() {
     final ModNetworking.PetSyncData pet = data.pet();
     return pet.name().isEmpty()
-        ? Text.translatable(pet.breed().translationKey()).getString()
+        ? DogBreedNames.displayName(pet.breed(), pet.composition()).getString()
         : pet.name();
   }
 

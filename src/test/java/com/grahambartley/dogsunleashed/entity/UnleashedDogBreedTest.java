@@ -24,7 +24,9 @@ class UnleashedDogBreedTest {
         Arguments.of("goldenretriever", UnleashedDogBreed.GOLDEN_RETRIEVER),
         Arguments.of("golden_retriever", UnleashedDogBreed.GOLDEN_RETRIEVER),
         Arguments.of("shibainu", UnleashedDogBreed.SHIBA_INU),
-        Arguments.of("shiba_inu", UnleashedDogBreed.SHIBA_INU));
+        Arguments.of("shiba_inu", UnleashedDogBreed.SHIBA_INU),
+        Arguments.of("crossbreed", UnleashedDogBreed.CROSS_BREED),
+        Arguments.of("cross_breed", UnleashedDogBreed.CROSS_BREED));
   }
 
   @ParameterizedTest(name = "\"{0}\" -> {1}")
@@ -141,7 +143,8 @@ class UnleashedDogBreedTest {
         Arguments.of(UnleashedDogBreed.DACHSHUND, 0.8f, 1.1f),
         Arguments.of(UnleashedDogBreed.BEAGLE, 0.8f, 1.1f),
         Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, 0.8f, 1.1f),
-        Arguments.of(UnleashedDogBreed.SHIBA_INU, 0.8f, 1.1f));
+        Arguments.of(UnleashedDogBreed.SHIBA_INU, 0.8f, 1.1f),
+        Arguments.of(UnleashedDogBreed.CROSS_BREED, 0.8f, 1.1f));
   }
 
   @ParameterizedTest(name = "{0} dimensions = ({1} x {2})")
@@ -165,7 +168,8 @@ class UnleashedDogBreedTest {
         Arguments.of(UnleashedDogBreed.DACHSHUND, 10.0, 0.25, 2.0),
         Arguments.of(UnleashedDogBreed.BEAGLE, 17.0, 0.29, 3.0),
         Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, 24.0, 0.30, 4.0),
-        Arguments.of(UnleashedDogBreed.SHIBA_INU, 18.0, 0.32, 3.5));
+        Arguments.of(UnleashedDogBreed.SHIBA_INU, 18.0, 0.32, 3.5),
+        Arguments.of(UnleashedDogBreed.CROSS_BREED, 18.0, 0.29, 3.5));
   }
 
   @ParameterizedTest(name = "{0} attributes = (hp={1}, speed={2}, attack={3})")
@@ -195,6 +199,13 @@ class UnleashedDogBreedTest {
 
   @ParameterizedTest
   @EnumSource(UnleashedDogBreed.class)
+  @DisplayName("only the cross-breed is excluded from natural spawning")
+  void onlyCrossBreedIsExcludedFromNaturalSpawning(final UnleashedDogBreed breed) {
+    assertEquals(breed != UnleashedDogBreed.CROSS_BREED, breed.isNaturallySpawning());
+  }
+
+  @ParameterizedTest
+  @EnumSource(UnleashedDogBreed.class)
   @DisplayName("every naturally spawning breed declares a coherent spawn configuration")
   void everyNaturallySpawningBreedSpawnConfigurationIsCoherent(final UnleashedDogBreed breed) {
     final UnleashedDogBreed.SpawnSettings spawn = breed.spawnSettings();
@@ -213,7 +224,8 @@ class UnleashedDogBreedTest {
         Arguments.of(UnleashedDogBreed.DACHSHUND, false, true),
         Arguments.of(UnleashedDogBreed.BEAGLE, false, true),
         Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, false, true),
-        Arguments.of(UnleashedDogBreed.SHIBA_INU, false, true));
+        Arguments.of(UnleashedDogBreed.SHIBA_INU, false, true),
+        Arguments.of(UnleashedDogBreed.CROSS_BREED, false, false));
   }
 
   @ParameterizedTest(name = "{0} howls={1} barks={2}")
@@ -238,7 +250,8 @@ class UnleashedDogBreedTest {
         Arguments.of(UnleashedDogBreed.DACHSHUND, 1.3f, 0.75f, 180.0f),
         Arguments.of(UnleashedDogBreed.BEAGLE, 1.5f, 0.75f, 0.0f),
         Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, 1.7f, 0.85f, 0.0f),
-        Arguments.of(UnleashedDogBreed.SHIBA_INU, 1.5f, 0.75f, 0.0f));
+        Arguments.of(UnleashedDogBreed.SHIBA_INU, 1.5f, 0.75f, 0.0f),
+        Arguments.of(UnleashedDogBreed.CROSS_BREED, 1.5f, 0.75f, 0.0f));
   }
 
   @ParameterizedTest(name = "{0} render transforms = (adult={1}, baby={2}, yaw={3})")

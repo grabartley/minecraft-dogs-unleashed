@@ -58,7 +58,9 @@ class DogCoatsTest {
   @DisplayName("a roll resolver exists exactly for breeds with coat variants")
   void rollResolverExistsExactlyForBreedsWithCoatVariants(final UnleashedDogBreed breed) {
     assertEquals(DogCoats.hasCoatVariants(breed), DogCoats.rollResolverFor(breed) != null);
-    assertEquals(breed != UnleashedDogBreed.GOLDEN_RETRIEVER, DogCoats.hasCoatVariants(breed));
+    assertEquals(
+        breed != UnleashedDogBreed.GOLDEN_RETRIEVER && breed != UnleashedDogBreed.CROSS_BREED,
+        DogCoats.hasCoatVariants(breed));
   }
 
   static Stream<Arguments> rollTables() {

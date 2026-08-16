@@ -40,7 +40,7 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
       int colour) {
     if (!isReRender) {
       final UnleashedDogBreed.RenderTransforms transforms =
-          animatable.getBreed().renderTransforms();
+          animatable.getRigSourceBreed().renderTransforms();
       final float scale = animatable.isBaby() ? transforms.babyScale() : transforms.adultScale();
       poseStack.scale(scale, scale, scale);
       if (transforms.bodyYawOffsetDegrees() != 0.0f) {

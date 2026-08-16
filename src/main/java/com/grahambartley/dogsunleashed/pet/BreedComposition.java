@@ -43,6 +43,9 @@ public final class BreedComposition {
     if (pet == null) {
       return null;
     }
+    if (!pet.getComposition().isEmpty()) {
+      return storedShares(pet.getComposition());
+    }
     if (remainingGenerations == 0 || (pet.getParentAId() == null && pet.getParentBId() == null)) {
       return pureShares(pet.getBreed());
     }
@@ -52,6 +55,14 @@ public final class BreedComposition {
         sharesOf(pet.getParentBId(), lookup, remainingGenerations - 1);
     final Map<UnleashedDogBreed, Double> fallback = pureShares(pet.getBreed());
     return averageOf(parentA != null ? parentA : fallback, parentB != null ? parentB : fallback);
+  }
+
+  private static Map<UnleashedDogBreed, Double> storedShares(final List<BreedShare> composition) {
+    final Map<UnleashedDogBreed, Double> shares = new EnumMap<>(UnleashedDogBreed.class);
+    for (final BreedShare share : composition) {
+      shares.merge(share.breed(), (double) share.share(), Double::sum);
+    }
+    return shares;
   }
 
   private static Map<UnleashedDogBreed, Double> pureShares(final UnleashedDogBreed breed) {

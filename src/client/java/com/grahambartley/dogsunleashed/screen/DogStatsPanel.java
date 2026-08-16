@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.screen;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import com.grahambartley.dogsunleashed.network.ModNetworking.PetSyncData;
 import java.util.Arrays;
 import java.util.function.ToDoubleFunction;
 import net.minecraft.client.font.TextRenderer;
@@ -51,10 +52,42 @@ final class DogStatsPanel {
     return Math.round(fraction * barWidth);
   }
 
+  static int drawForPet(
+      final DrawContext context,
+      final TextRenderer textRenderer,
+      final PetSyncData pet,
+      final int x,
+      final int y,
+      final int labelWidth) {
+    if (pet.breed() == UnleashedDogBreed.CROSS_BREED) {
+      return draw(
+          context,
+          textRenderer,
+          pet.maxHealth(),
+          pet.movementSpeed(),
+          pet.attackDamage(),
+          x,
+          y,
+          labelWidth);
+    }
+    final UnleashedDogBreed.Attributes attributes = pet.breed().attributes();
+    return draw(
+        context,
+        textRenderer,
+        attributes.maxHealth(),
+        attributes.movementSpeed(),
+        attributes.attackDamage(),
+        x,
+        y,
+        labelWidth);
+  }
+
   static int draw(
       final DrawContext context,
       final TextRenderer textRenderer,
-      final UnleashedDogBreed breed,
+      final double maxHealth,
+      final double movementSpeed,
+      final double attackDamage,
       final int x,
       final int y,
       final int labelWidth) {
@@ -64,8 +97,8 @@ final class DogStatsPanel {
             context,
             textRenderer,
             "screen.dogs-unleashed.pet_details.stat_health",
-            String.format("%.0f", breed.attributes().maxHealth()),
-            fraction(breed.attributes().maxHealth(), maxHealthAcrossBreeds()),
+            String.format("%.0f", maxHealth),
+            fraction(maxHealth, maxHealthAcrossBreeds()),
             HEALTH_FILL,
             x,
             rowY,
@@ -75,8 +108,8 @@ final class DogStatsPanel {
             context,
             textRenderer,
             "screen.dogs-unleashed.pet_details.stat_speed",
-            String.format("%.2f", breed.attributes().movementSpeed()),
-            fraction(breed.attributes().movementSpeed(), maxSpeedAcrossBreeds()),
+            String.format("%.2f", movementSpeed),
+            fraction(movementSpeed, maxSpeedAcrossBreeds()),
             SPEED_FILL,
             x,
             rowY,
@@ -86,8 +119,8 @@ final class DogStatsPanel {
             context,
             textRenderer,
             "screen.dogs-unleashed.pet_details.stat_attack",
-            String.format("%.1f", breed.attributes().attackDamage()),
-            fraction(breed.attributes().attackDamage(), maxAttackAcrossBreeds()),
+            String.format("%.1f", attackDamage),
+            fraction(attackDamage, maxAttackAcrossBreeds()),
             ATTACK_FILL,
             x,
             rowY,

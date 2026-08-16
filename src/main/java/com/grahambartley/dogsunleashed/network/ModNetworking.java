@@ -11,6 +11,7 @@ import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.DogWheelAction;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.EditServerConfigC2SPayload;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.SyncServerConfigS2CPayload;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
@@ -30,6 +31,7 @@ import java.util.Set;
 import java.util.UUID;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
@@ -213,7 +215,10 @@ public final class ModNetworking {
       boolean baby,
       int collarColor,
       int coatVariant,
-      int huskyEyeVariant) {
+      int huskyEyeVariant,
+      float movementSpeed,
+      float attackDamage,
+      List<BreedShare> composition) {
 
     public static final PacketCodec<RegistryByteBuf, PetSyncData> CODEC =
         PacketCodec.of(PetSyncData::write, PetSyncData::read);
@@ -233,7 +238,17 @@ public final class ModNetworking {
           petData.isBaby(),
           petData.getCollarColorId(),
           petData.getCoatVariant(),
-          petData.getHuskyEyeVariant());
+          petData.getHuskyEyeVariant(),
+          petData.getMovementSpeed(),
+          petData.getAttackDamage(),
+          petData.getComposition());
+    }
+
+    public UnleashedDogBreed displayBreed() {
+      if (this.breed != UnleashedDogBreed.CROSS_BREED || this.composition.isEmpty()) {
+        return this.breed;
+      }
+      return DogGenome.dominantOf(this.composition);
     }
 
     private void write(final RegistryByteBuf buf) {
@@ -251,6 +266,9 @@ public final class ModNetworking {
       buf.writeInt(this.collarColor);
       buf.writeInt(this.coatVariant);
       buf.writeInt(this.huskyEyeVariant);
+      buf.writeFloat(this.movementSpeed);
+      buf.writeFloat(this.attackDamage);
+      writeBreedShareList(buf, this.composition);
     }
 
     private static PetSyncData read(final RegistryByteBuf buf) {
@@ -268,7 +286,10 @@ public final class ModNetworking {
           buf.readBoolean(),
           buf.readInt(),
           buf.readInt(),
-          buf.readInt());
+          buf.readInt(),
+          buf.readFloat(),
+          buf.readFloat(),
+          readBreedShareList(buf));
     }
   }
 
@@ -864,8 +885,11 @@ public final class ModNetworking {
     }
     final UUID ownerId = dog.getOwnerUuid();
     final String ownerName = ownerId != null ? resolveOwnerName(server, ownerId) : "";
+    final DogGenome genome = dog.getGenome();
     final List<BreedShare> composition =
-        PetManager.get(server).getBreedComposition(dog.getUuid(), dog.getBreed());
+        genome != null
+            ? genome.composition()
+            : PetManager.get(server).getBreedComposition(dog.getUuid(), dog.getBreed());
     ServerPlayNetworking.send(
         player,
         new OpenDogInspectPayload(petSyncDataOf(dog), dog.isTamed(), ownerName, composition));
@@ -873,6 +897,7 @@ public final class ModNetworking {
 
   private static PetSyncData petSyncDataOf(final UnleashedDogEntity dog) {
     final BlockPos pos = dog.getBlockPos();
+    final DogGenome genome = dog.getGenome();
     return new PetSyncData(
         dog.getUuid().toString(),
         dog.getBreed(),
@@ -887,6 +912,9 @@ public final class ModNetworking {
         dog.isBaby(),
         dog.getCollarColor().getId(),
         PetData.coatVariantOf(dog),
-        PetData.huskyEyeVariantOf(dog));
+        PetData.huskyEyeVariantOf(dog),
+        (float) dog.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED),
+        (float) dog.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE),
+        genome != null ? genome.composition() : List.of());
   }
 }

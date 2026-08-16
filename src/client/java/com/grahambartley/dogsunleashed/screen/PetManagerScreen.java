@@ -344,7 +344,7 @@ public class PetManagerScreen extends Screen {
         nameColor,
         true);
 
-    final String breedName = Text.translatable(pet.breed().translationKey()).getString();
+    final String breedName = DogBreedNames.displayName(pet.breed(), pet.composition()).getString();
     context.drawText(this.textRenderer, breedName, textX, y + 18, 0xAAAAAA, false);
 
     if (pet.alive()) {
@@ -459,7 +459,8 @@ public class PetManagerScreen extends Screen {
     DACHSHUND(UnleashedDogBreed.DACHSHUND),
     BEAGLE(UnleashedDogBreed.BEAGLE),
     GOLDEN_RETRIEVER(UnleashedDogBreed.GOLDEN_RETRIEVER),
-    SHIBA_INU(UnleashedDogBreed.SHIBA_INU);
+    SHIBA_INU(UnleashedDogBreed.SHIBA_INU),
+    MIXED(UnleashedDogBreed.CROSS_BREED);
 
     private final UnleashedDogBreed breed;
 
@@ -486,6 +487,7 @@ public class PetManagerScreen extends Screen {
         case BEAGLE -> BEAGLE;
         case GOLDEN_RETRIEVER -> GOLDEN_RETRIEVER;
         case SHIBA_INU -> SHIBA_INU;
+        case CROSS_BREED -> MIXED;
       };
     }
   }

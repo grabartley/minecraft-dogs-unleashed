@@ -179,8 +179,16 @@ Coordinated squad, colour-coded pack, rainbow chaos — your call.
 Tame dogs with raw or cooked meats and bones (1-in-3 chance per feed). On tame, a naming screen opens so your new friend
 gets a proper name immediately. Over 200 built-in name suggestions or type your own.
 
-Breeding is same-breed only. Both parents must be tamed and not sitting. Puppies inherit their owner's UUID (preferring
+Any two tamed dogs can breed. Both parents must be tamed and not sitting. Puppies inherit their owner's UUID (preferring
 the player who clicked). Breeding roll tables include rare coat variants you will not find in the wild.
+
+Same-breed pairs produce pure puppies, exactly as before. Mixed pairs produce true cross-breeds: each one carries a
+genome recording its breed composition (a 50/50 first cross, exact recursive splits from there), stats blended from its
+ancestry with a small mutation jitter and a rare throwback toward one ancestor, a coat rolled from its dominant breed's
+breeding table, and the bark (or Husky howl) of one parent's line. Cross-breeds render as their dominant-composition
+breed for now, show up as "Husky-Beagle Mix" style names (or "Mixed Breed" for wilder blends), get their own "Mixed"
+filter in the Pet Manager, and their real percentages appear across the details, inspect, and family tree screens.
+Cross-breeds can themselves breed with anything, recursively.
 
 ### Loyalty Across Any Teleport
 

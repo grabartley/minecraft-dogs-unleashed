@@ -71,9 +71,9 @@ class DogRarityClassifierTest {
 
   @ParameterizedTest(name = "{0}")
   @EnumSource(UnleashedDogBreed.class)
-  @DisplayName("every breed except the golden retriever has coat variants")
+  @DisplayName("every breed except the golden retriever and the cross-breed has coat variants")
   void coatVariantAvailabilityPerBreed(final UnleashedDogBreed breed) {
-    if (breed == UnleashedDogBreed.GOLDEN_RETRIEVER) {
+    if (breed == UnleashedDogBreed.GOLDEN_RETRIEVER || breed == UnleashedDogBreed.CROSS_BREED) {
       assertFalse(DogRarityClassifier.hasCoatVariants(breed));
     } else {
       assertTrue(DogRarityClassifier.hasCoatVariants(breed));

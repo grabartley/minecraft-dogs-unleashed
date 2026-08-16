@@ -1,5 +1,7 @@
 package com.grahambartley.dogsunleashed.gametest;
 
+import com.grahambartley.dogsunleashed.ModEntities;
+import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
@@ -15,9 +17,10 @@ import net.minecraft.util.math.BlockPos;
 
 /**
  * Breed-specific contracts: per-breed attributes (max health, movement speed, attack damage) and
- * the {@code createChild} same-species guarantee. Per-breed bodies fan out via {@link
- * CustomTestProvider} over {@link DogTestData#getAllBreeds()}; the cross-breed-rejection check is a
- * fixed pair of breeds and stays a plain {@link GameTest}.
+ * the same-breed {@code createChild} pure-child guarantee. Per-breed bodies fan out via {@link
+ * CustomTestProvider} over {@link DogTestData#getAllBreeds()}; the mixed-pair check is a fixed pair
+ * of breeds and stays a plain {@link GameTest}, with the full genome contract covered by {@code
+ * DogCrossBreedingGameTest}.
  */
 public final class DogEntityBreedSpecificTest implements FabricGameTest {
 
@@ -92,7 +95,7 @@ public final class DogEntityBreedSpecificTest implements FabricGameTest {
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void dogOnlyBreedsSameSpecies(TestContext context) {
+  public void mixedPairProducesCrossBreedBaby(TestContext context) {
     final UnleashedDogEntity husky =
         DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, new BlockPos(0, 1, 0));
     final UnleashedDogEntity beagle =
@@ -101,7 +104,13 @@ public final class DogEntityBreedSpecificTest implements FabricGameTest {
     final UnleashedDogEntity baby =
         (UnleashedDogEntity) husky.createChild(context.getWorld(), beagle);
 
-    context.assertTrue(baby == null, "Different species should not be able to breed");
+    context.assertTrue(baby != null, "A mixed pair should produce a puppy");
+    context.assertTrue(
+        baby.getBreed() == UnleashedDogBreed.CROSS_BREED,
+        "A mixed pair should produce a cross-breed puppy");
+    context.assertTrue(
+        baby.getType() == ModEntities.CROSS_BREED,
+        "A cross-breed puppy should use the cross-breed entity type");
     context.complete();
   }
 }
