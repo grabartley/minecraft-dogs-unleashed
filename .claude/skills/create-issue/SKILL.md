@@ -15,6 +15,9 @@ Use this skill when the user wants a new GitHub issue created for `grabartley/mi
 4. Keep issue titles brief and concise.
 5. Write issue bodies so the work can be implemented from the issue alone.
 6. Treat every issue as public. Do not expose local file paths, private notes, or machine-specific details.
+7. Apply the asset labels described in `Asset Labels`.
+8. Attach the issue to an `[Epic]` parent when it is part of a larger effort, per `Epics And Sub-Issues`.
+9. Never set a milestone by hand. See `Milestones Are Automated`.
 
 ## Public Repo Rules
 
@@ -65,6 +68,65 @@ Do not create a duplicate issue when an open or closed issue already covers the 
 - explain the overlap briefly
 - only create a new issue if the user still wants a separate tracking artifact
 
+## Asset Labels
+
+Art and code are worked by different people, so every issue that touches an asset must declare which side of that split it sits on. Apply exactly one of these, or neither.
+
+| Label | Apply when | Example |
+|---|---|---|
+| `requires art` | The issue is implementation work that cannot ship until an art or audio asset it does **not** produce exists. | `[Build] Add Dog Whistle item` needs the whistle model and texture. |
+| `art` | The issue **produces** the asset: a model, texture, animation, sprite, icon, or sound. | `[Art] Dog Whistle 3D model and texture` |
+
+Rules:
+
+- Never apply both to one issue. If a single issue would need both, it is two issues.
+- Do not apply `requires art` when the asset already exists in the repo. Say so in `Out Of Scope` instead, for example "No new texture art, the PNG already exists".
+- Do not apply `requires art` for UI drawn with `DrawContext` primitives. This repo's screens are drawn in code and `assets/dogs-unleashed/textures/gui/` does not exist, so a new screen is usually not blocked on art.
+- Sound and music count as assets. A ticket that wires up bark audio someone else must record or source gets `requires art`.
+- When you create a `requires art` issue and its art counterpart does not exist yet, follow the art dependency workflow: propose the art scope to Graham first and only create the `[Art]` issue assigned to `vitoriavedanaa` once he agrees.
+
+Verify the labels exist before using them:
+
+```bash
+gh label list --repo grabartley/minecraft-dogs-unleashed
+```
+
+## Epics And Sub-Issues
+
+Feature-track grouping uses **native sub-issues under an `[Epic]` parent**, not milestones and not labels. GitHub allows one milestone per issue, which makes milestones a partition rather than a grouping, so they are reserved for releases.
+
+When an issue is part of a larger effort:
+
+1. Find the `[Epic]` parent it belongs to:
+   ```bash
+   gh issue list --repo grabartley/minecraft-dogs-unleashed --label epic --state open \
+     --json number,title --jq '.[] | "#\(.number) \(.title)"'
+   ```
+2. Attach the new issue as a sub-issue of that parent, using the child's database id, not its number:
+   ```bash
+   CHILD_ID=$(gh api repos/grabartley/minecraft-dogs-unleashed/issues/<child-number> --jq .id)
+   gh api -X POST repos/grabartley/minecraft-dogs-unleashed/issues/<parent-number>/sub_issues \
+     -F sub_issue_id="$CHILD_ID"
+   ```
+3. If no existing epic fits and the work clearly spans several issues, create a new `[Epic]` parent first: `epic` label, project status `Backlog`, and a body covering `## Goal`, `## Why These Ship Together`, and `## Sequencing`.
+
+Leave an issue unparented when it is genuinely standalone polish. Not everything needs an epic, and a one-issue epic is noise.
+
+Epics pair a build issue with its art issue under the same parent, so the art queue and the work it blocks stay visible together.
+
+## Milestones Are Automated
+
+**Never pass `--milestone` when creating or editing an issue.**
+
+A milestone means "this shipped in version X.Y.Z", nothing else. The release pipeline in `.github/workflows/cicd.yml` owns them end to end: on a `workflow_dispatch` release it creates the `vX.Y.Z` milestone, applies it to every issue closed by a pull request merged since the previous release, and closes it.
+
+Consequences to respect:
+
+- An open issue should have no milestone. If one does, it was set by hand and is wrong.
+- Milestones are applied on release, not on merge. An issue merged to `main` stays unmilestoned until the next version ships.
+- The issue is only picked up if a pull request closes it. Make sure the implementing PR uses a closing keyword such as `Closes #<number>`, which the `pr` skill already does.
+- `[Epic]` parents usually never carry a milestone, because they are closed manually rather than by a pull request. That is correct and expected.
+
 ## Title Guidance
 
 - Keep titles short.
@@ -74,8 +136,10 @@ Do not create a duplicate issue when an open or closed issue already covers the 
 - `[Bug] <short bug summary>`
 - `[Docs] <short docs task>`
 - `[Research] <short investigation target>`
-- `[Tracking] <short umbrella or planning topic>`
+- `[Art] <short asset deliverable>`
+- `[Epic] <short feature track>`
 - Do not cram acceptance criteria or implementation notes into the title.
+- Prefer `[Epic]` over `[Tracking]` for umbrella issues. `[Tracking]` is legacy and appears only on older issues.
 
 ## Body Standards
 
@@ -106,11 +170,13 @@ Body rules:
 4. Draft a concise title.
 5. Draft the body in markdown.
 6. Write the body to a temp file to preserve formatting and avoid shell quoting problems.
-7. Create the issue with `gh issue create`.
-8. If the user provided an assignee, assign the issue.
-9. Add the issue to project 1.
-10. Set project status to `Ready` unless the user asked for another status.
-11. Return the issue URL, assignment state, and status that were applied.
+7. Decide the asset label: `requires art`, `art`, or neither.
+8. Create the issue with `gh issue create`, passing the asset label if one applies.
+9. If the user provided an assignee, assign the issue.
+10. Attach the issue to its `[Epic]` parent as a sub-issue when it is part of a larger effort.
+11. Add the issue to project 1.
+12. Set project status to `Ready` unless the user asked for another status.
+13. Return the issue URL, assignment state, status, label, and epic parent that were applied.
 
 ## GitHub Commands
 
@@ -120,8 +186,11 @@ Create the issue:
 gh issue create \
 --repo grabartley/minecraft-dogs-unleashed \
 --title "<brief title>" \
---body-file .claude/tmp/issue-body.md
+--body-file .claude/tmp/issue-body.md \
+--label "requires art"
 ```
+
+Drop the `--label` flag when no asset label applies. Do not add `--milestone`; the release pipeline owns milestones.
 
 If the user provided an assignee, either include it at creation time or assign it immediately after:
 
@@ -175,12 +244,16 @@ Before creating the issue, confirm:
 - The body contains enough detail to implement the work without local context.
 - Repo paths are relative and accurate.
 - External references are summarized in the body.
+- The asset label decision was made deliberately, including the decision to apply neither.
 
 After creating the issue, confirm:
 - The issue is unassigned unless the user requested an assignee.
 - The issue was added to project `Minecraft Dogs Unleashed`.
 - The project status is `Ready` unless told otherwise.
 - The returned URL opens the created issue.
+- At most one of `requires art` and `art` is applied.
+- The issue is a sub-issue of an `[Epic]` parent, or is genuinely standalone.
+- **No milestone is set.** Milestones are applied by the release pipeline on publish.
 
 ## Related Skills
 
