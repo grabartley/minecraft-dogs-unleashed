@@ -167,5 +167,16 @@
   "advancements.dogs-unleashed.forever_in_our_hearts.title": "永远在我们心中",
   "advancements.dogs-unleashed.forever_in_our_hearts.description": "将狗的坟墓保存为物品。",
   "advancements.dogs-unleashed.cherry_companion.title": "樱花伙伴",
-  "advancements.dogs-unleashed.cherry_companion.description": "驯服一只柴犬。"
+  "advancements.dogs-unleashed.cherry_companion.description": "驯服一只柴犬。",
+
+  "command.dogs-unleashed.equipment": "装备",
+  "screen.dogs-unleashed.dog_equipment.slot.armour": "护甲",
+  "screen.dogs-unleashed.dog_equipment.slot.armour.empty": "可放入犬用护甲",
+  "screen.dogs-unleashed.dog_equipment.slot.armour.glyph": "甲",
+  "screen.dogs-unleashed.dog_equipment.slot.pendant": "吊坠",
+  "screen.dogs-unleashed.dog_equipment.slot.pendant.empty": "可放入项圈吊坠",
+  "screen.dogs-unleashed.dog_equipment.slot.pendant.glyph": "坠",
+  "screen.dogs-unleashed.dog_equipment.slot.cosmetic": "装饰",
+  "screen.dogs-unleashed.dog_equipment.slot.cosmetic.empty": "可放入装饰配件",
+  "screen.dogs-unleashed.dog_equipment.slot.cosmetic.glyph": "饰"
 }

@@ -49,6 +49,7 @@ import com.grahambartley.dogsunleashed.network.ModNetworking;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetManager;
 import com.grahambartley.dogsunleashed.pet.PetRegistrar;
+import com.grahambartley.dogsunleashed.screenhandler.DogEquipmentScreenHandler;
 import com.grahambartley.dogsunleashed.util.BreedingOwnerResolver;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -58,12 +59,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityStatuses;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
@@ -90,6 +93,7 @@ import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemStack;
@@ -99,9 +103,11 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.recipe.Ingredient;
+import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
@@ -127,7 +133,8 @@ import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class UnleashedDogEntity extends TameableEntity implements GeoEntity, Angerable {
+public class UnleashedDogEntity extends TameableEntity
+    implements GeoEntity, Angerable, ExtendedScreenHandlerFactory<Integer> {
 
   // Keep in sync with PetData.DEFAULT_COLLAR_COLOR_ID. PetData mirrors this value from DyeColor
   // directly because referencing this constant would class-load UnleashedDogEntity, a MobEntity
@@ -201,6 +208,10 @@ public class UnleashedDogEntity extends TameableEntity implements GeoEntity, Ang
   private static final TrackedData<String> ACTIVE_FETCH_TYPE_ID =
       DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.STRING);
   private static final TrackedData<ItemStack> CARRIED_FETCH_ITEM_STACK =
+      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
+  private static final TrackedData<ItemStack> PENDANT_ITEM =
+      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
+  private static final TrackedData<ItemStack> COSMETIC_ITEM =
       DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
   // String over Identifier because 1.21.1 lacks native Identifier TrackedDataHandler.
   // Syncs the active fetch type id (e.g. "dogs-unleashed:stick") for client-side carry rendering.
@@ -279,10 +290,16 @@ public class UnleashedDogEntity extends TameableEntity implements GeoEntity, Ang
 
   private static final UnleashedDogBreed FALLBACK_RIG_BREED = UnleashedDogBreed.HUSKY;
 
+  private static final float GUARANTEED_EQUIPMENT_DROP_CHANCE = 2.0f;
+  private static final DogEquipmentSlot[] TRACKED_EQUIPMENT_SLOTS = {
+    DogEquipmentSlot.PENDANT, DogEquipmentSlot.COSMETIC
+  };
+
   public UnleashedDogEntity(
       EntityType<? extends TameableEntity> entityType, World world, UnleashedDogBreed breed) {
     super(entityType, world);
     this.breed = breed;
+    this.setEquipmentDropChance(EquipmentSlot.BODY, GUARANTEED_EQUIPMENT_DROP_CHANCE);
   }
 
   // Mirrors WolfEntity.canSpawn: the vanilla AnimalEntity predicate only allows grass_block below,
@@ -550,6 +567,8 @@ public class UnleashedDogEntity extends TameableEntity implements GeoEntity, Ang
     builder.add(IS_CARRYING_FETCH_ITEM, false);
     builder.add(ACTIVE_FETCH_TYPE_ID, NO_ACTIVE_FETCH_TYPE);
     builder.add(CARRIED_FETCH_ITEM_STACK, ItemStack.EMPTY);
+    builder.add(PENDANT_ITEM, ItemStack.EMPTY);
+    builder.add(COSMETIC_ITEM, ItemStack.EMPTY);
     builder.add(PLAY_PARTNER_UUID, Optional.empty());
     builder.add(COMMAND, DogCommand.FOLLOW.id());
     builder.add(COAT_VARIANT, 0);
@@ -789,6 +808,51 @@ public class UnleashedDogEntity extends TameableEntity implements GeoEntity, Ang
 
   public void setCarriedFetchItemStack(ItemStack stack) {
     this.dataTracker.set(CARRIED_FETCH_ITEM_STACK, stack);
+  }
+
+  public ItemStack getEquipment(final DogEquipmentSlot slot) {
+    return switch (slot) {
+      case ARMOUR -> this.getEquippedStack(EquipmentSlot.BODY);
+      case PENDANT -> this.dataTracker.get(PENDANT_ITEM);
+      case COSMETIC -> this.dataTracker.get(COSMETIC_ITEM);
+    };
+  }
+
+  public void setEquipment(final DogEquipmentSlot slot, final ItemStack stack) {
+    switch (slot) {
+      case ARMOUR -> this.equipStack(EquipmentSlot.BODY, stack);
+      case PENDANT -> this.dataTracker.set(PENDANT_ITEM, stack);
+      case COSMETIC -> this.dataTracker.set(COSMETIC_ITEM, stack);
+    }
+  }
+
+  @Override
+  public boolean canUseSlot(final EquipmentSlot slot) {
+    return slot == EquipmentSlot.BODY || super.canUseSlot(slot);
+  }
+
+  @Override
+  public Integer getScreenOpeningData(final ServerPlayerEntity player) {
+    return this.getId();
+  }
+
+  @Override
+  public ScreenHandler createMenu(
+      final int syncId, final PlayerInventory playerInventory, final PlayerEntity player) {
+    return new DogEquipmentScreenHandler(syncId, playerInventory, this);
+  }
+
+  @Override
+  protected void dropEquipment(
+      final ServerWorld world, final DamageSource source, final boolean causedByPlayer) {
+    super.dropEquipment(world, source, causedByPlayer);
+    for (final DogEquipmentSlot slot : TRACKED_EQUIPMENT_SLOTS) {
+      final ItemStack stack = this.getEquipment(slot);
+      if (!stack.isEmpty()) {
+        this.dropStack(stack);
+        this.setEquipment(slot, ItemStack.EMPTY);
+      }
+    }
   }
 
   public void startPlayMode(PlayerEntity player, FetchItemType fetchItemType) {
@@ -1084,6 +1148,13 @@ public class UnleashedDogEntity extends TameableEntity implements GeoEntity, Ang
         return ActionResult.SUCCESS;
       }
 
+      if (this.isOwner(player) && !player.isSneaking()) {
+        final ActionResult equipResult = this.tryDirectEquip(player, hand, itemStack);
+        if (equipResult != null) {
+          return equipResult;
+        }
+      }
+
       if (this.isOwner(player) && !this.isTamingItem(itemStack)) {
         if (player.isSneaking()) {
           final String dogName = this.getTamedName();
@@ -1114,6 +1185,34 @@ public class UnleashedDogEntity extends TameableEntity implements GeoEntity, Ang
     }
 
     return super.interactMob(player, hand);
+  }
+
+  private @Nullable ActionResult tryDirectEquip(
+      final PlayerEntity player, final Hand hand, final ItemStack heldStack) {
+    if (heldStack.isOf(Items.SHEARS)) {
+      final ItemStack equippedArmour = this.getEquipment(DogEquipmentSlot.ARMOUR);
+      if (equippedArmour.isEmpty()) {
+        return null;
+      }
+      this.setEquipment(DogEquipmentSlot.ARMOUR, ItemStack.EMPTY);
+      heldStack.damage(1, player, getSlotForHand(hand));
+      player.giveItemStack(equippedArmour);
+      this.playSoundIfNotSilent(SoundEvents.ITEM_ARMOR_UNEQUIP_WOLF);
+      return ActionResult.SUCCESS;
+    }
+
+    final DogEquipmentSlot slot = DogEquipmentSlot.directEquipSlotFor(heldStack);
+    if (slot == null) {
+      return null;
+    }
+    final ItemStack previous = this.getEquipment(slot);
+    this.setEquipment(slot, heldStack.copyWithCount(1));
+    heldStack.decrementUnlessCreative(1, player);
+    if (!previous.isEmpty()) {
+      player.giveItemStack(previous);
+    }
+    this.playSoundIfNotSilent(SoundEvents.ITEM_ARMOR_EQUIP_GENERIC.value());
+    return ActionResult.SUCCESS;
   }
 
   @Override
@@ -1642,6 +1741,31 @@ public class UnleashedDogEntity extends TameableEntity implements GeoEntity, Ang
           .result()
           .ifPresent(tag -> nbt.put(ModNbtKeys.CARRIED_FETCH_ITEM_STACK, tag));
     }
+    this.writeEquipmentToNbt(nbt, DogEquipmentSlot.PENDANT, ModNbtKeys.PENDANT_ITEM);
+    this.writeEquipmentToNbt(nbt, DogEquipmentSlot.COSMETIC, ModNbtKeys.COSMETIC_ITEM);
+  }
+
+  private void writeEquipmentToNbt(
+      final NbtCompound nbt, final DogEquipmentSlot slot, final String key) {
+    final ItemStack stack = this.getEquipment(slot);
+    if (stack.isEmpty()) {
+      return;
+    }
+    ItemStack.CODEC
+        .encodeStart(this.getWorld().getRegistryManager().getOps(NbtOps.INSTANCE), stack)
+        .result()
+        .ifPresent(tag -> nbt.put(key, tag));
+  }
+
+  private void readEquipmentFromNbt(
+      final NbtCompound nbt, final DogEquipmentSlot slot, final String key) {
+    if (!nbt.contains(key)) {
+      return;
+    }
+    ItemStack.CODEC
+        .parse(this.getWorld().getRegistryManager().getOps(NbtOps.INSTANCE), nbt.get(key))
+        .result()
+        .ifPresent(stack -> this.setEquipment(slot, stack));
   }
 
   @Override
@@ -1730,6 +1854,8 @@ public class UnleashedDogEntity extends TameableEntity implements GeoEntity, Ang
           .result()
           .ifPresent(this::setCarriedFetchItemStack);
     }
+    this.readEquipmentFromNbt(nbt, DogEquipmentSlot.PENDANT, ModNbtKeys.PENDANT_ITEM);
+    this.readEquipmentFromNbt(nbt, DogEquipmentSlot.COSMETIC, ModNbtKeys.COSMETIC_ITEM);
   }
 
   @Override
