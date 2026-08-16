@@ -73,7 +73,9 @@ All driver code is TEMPORARY and must never be committed. It exists only in the 
 1. **Absolute paths only.** Every command runs with an explicit
    `cd /path/to/.claude/worktrees/dogs-unleashed-<branch> && ...`. The classic failure mode is the
    shell cwd silently resetting to the main checkout, which launches the OLD mod without the
-   driver and "does nothing". If a run produces zero `[QA]` log lines, check cwd first.
+   driver and "does nothing". If a run produces zero `[QA]` log lines, check cwd first. The tell is
+   in the log itself: the Gradle `problems-report` path at the end names the checkout that actually
+   built, so if it points at the main checkout rather than the worktree, that run proved nothing.
 2. Compile and PROVE the driver is in the build before launching:
    `./gradlew compileClientJava` then confirm
    `ls build/classes/java/client/.../<Feature>QaDriver.class` exists and
@@ -86,6 +88,57 @@ All driver code is TEMPORARY and must never be committed. It exists only in the 
 5. Read the `[QA]` log lines, then Read every captured PNG and actually LOOK at it: sector
    alignment, text legibility, state highlights, scale behaviour. A green log with wrong pixels is
    a failed QA.
+
+## The Dev World Is Mutable State, And A Dead Player Poisons It
+
+`run/saves/New World` persists between runs. A driver that kills the player writes that death into
+the save, and **every later run in that worktree inherits it**. This is the single most expensive
+failure mode in this skill, because it does not look like a harness problem.
+
+**Symptom.** The world renders normally, screenshots look fine, and inventory edits show up in the
+hotbar, so the setup appears to have worked. But server-side, `getPlayerList().get(0)` returns a
+player with `isRemoved() == true` and `world.getPlayers()` is empty. `TameableEntity.getOwner()`
+resolves through `world.getPlayerByUuid(...)`, so it returns null, every `isOwner(player)` check
+returns false, and interactions return `PASS` while consuming nothing. That is indistinguishable
+from a genuine bug in the feature under test.
+
+**Cause.** The saved player is at zero health. The driver's setup calls
+`player.changeGameMode(GameMode.SURVIVAL)`, the player dies again on the very next tick, and the
+entity is removed from the world while `PlayerManager` keeps handing out the dead reference.
+
+**Diagnose it first, before touching feature code.** Log the player state at the moment of the
+interaction, not just the outcome:
+
+```java
+System.out.println("[QA] isOwner=" + dog.isOwner(player)
+    + " playerRemoved=" + player.isRemoved()
+    + " worldPlayers=" + player.getServerWorld().getPlayers().size());
+```
+
+`playerRemoved=true` or `worldPlayers=0` means the harness is broken, not the feature.
+
+**Fix.** Restore a clean save into the worktree, then re-run:
+
+```bash
+rm -rf <worktree>/run/saves/"New World"
+cp -a <main-checkout>/run/saves/"New World" <worktree>/run/saves/
+```
+
+**Avoid causing it.** Two rules:
+
+- A heightmap query against an ungenerated chunk answers with the world bottom. Any teleport that
+  derives its Y from `world.getTopY(...)` must force generation first, or it drops the player into
+  the void and corrupts the save:
+  ```java
+  world.getChunk(x >> 4, z >> 4);              // generate before querying
+  final int y = world.getTopY(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, x, z);
+  ```
+- Restore the player in setup regardless: `setHealth(getMaxHealth())`, food to 20, `setAir`,
+  `clearStatusEffects()`, `setFireTicks(0)`. It is three lines and it makes the run idempotent.
+
+Prefer `player.requestTeleport(x, y, z)` for moving the player within one world. And do not trust
+terrain for framing: flatten a small stage of grass with air above it so the shot composes the same
+way on any seed, rather than discovering the camera is buried in a dirt cliff.
 
 ## Publishing Evidence to the PR
 
@@ -114,6 +167,8 @@ once. Always add on top with normal commits; to replace a PR's evidence, overwri
 ## Checklist Before Handoff to Manual QA
 
 - [ ] Driver ran to `[QA] DONE` with zero `[QA] ERROR`
+- [ ] Server-side interactions actually took effect; a `PASS` result with nothing consumed means
+      checking `player.isRemoved()` before suspecting the feature
 - [ ] Every screenshot visually verified by reading the PNG, at multiple GUI scales for rendering
 - [ ] Server-side state assertions logged and correct (e.g. command/DataTracker values after a click)
 - [ ] Temp driver + initializer hook reverted; `git status` shows only intended files
@@ -125,3 +180,4 @@ once. Always add on top with normal commits; to replace a PR's evidence, overwri
 - `build` — requires this skill before manual QA handoff
 - `run-game-client` — plain manual launch, used when a human is driving
 - `worktree` — provides the isolated `run/` directory this skill relies on
+- `item-sprite`, authoring a flat item sprite; this skill verifies the result in the client
