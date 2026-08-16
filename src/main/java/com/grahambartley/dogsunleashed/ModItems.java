@@ -15,6 +15,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 
 public class ModItems {
 
@@ -91,6 +92,18 @@ public class ModItems {
               UnleashedDogBreed.SHIBA_INU.spawnEggColors().primary(),
               UnleashedDogBreed.SHIBA_INU.spawnEggColors().secondary(),
               new Item.Settings()));
+
+  /** Returns the breed's spawn egg, or {@code null} for breeds that only occur through breeding. */
+  public static @Nullable Item getSpawnEgg(final UnleashedDogBreed breed) {
+    return switch (breed) {
+      case HUSKY -> HUSKY_SPAWN_EGG;
+      case DACHSHUND -> DACHSHUND_SPAWN_EGG;
+      case BEAGLE -> BEAGLE_SPAWN_EGG;
+      case GOLDEN_RETRIEVER -> GOLDEN_RETRIEVER_SPAWN_EGG;
+      case SHIBA_INU -> SHIBA_INU_SPAWN_EGG;
+      case CROSS_BREED -> null;
+    };
+  }
 
   public static void initialize() {
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS)

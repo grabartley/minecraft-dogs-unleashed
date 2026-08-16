@@ -29,6 +29,10 @@ repositories {
 		name = 'Terraformers'
 		url 'https://maven.terraformersmc.com/'
 	}
+	maven {
+		name = 'BlameJared'
+		url 'https://maven.blamejared.com/'
+	}
 }
 
 loom {
@@ -81,6 +85,12 @@ dependencies {
 	// Mod Menu is optional at runtime; never bundled. Dev-only dep so devs can launch with it.
 	modCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
 	modLocalRuntime "com.terraformersmc:modmenu:${project.modmenu_version}"
+
+	// JEI and EMI are optional recipe viewers; never bundled. Dev-only deps so devs can launch with them.
+	modCompileOnly "mezz.jei:jei-1.21.1-fabric-api:${project.jei_version}"
+	modLocalRuntime "mezz.jei:jei-1.21.1-fabric:${project.jei_version}"
+	modCompileOnly "dev.emi:emi-fabric:${project.emi_version}:api"
+	modLocalRuntime "dev.emi:emi-fabric:${project.emi_version}"
 
 	testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -164,6 +174,7 @@ tasks.register("verifyMainSourceSideSafety") {
 	doLast {
 		def disallowedPatterns = [
 			"net.minecraft.client.",
+			"com.grahambartley.dogsunleashed.compat.",
 			"com.grahambartley.dogsunleashed.render.",
 			"com.grahambartley.dogsunleashed.model.",
 			"com.grahambartley.dogsunleashed.screen.",

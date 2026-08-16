@@ -26,6 +26,12 @@
     "modmenu": [
       "com.grahambartley.dogsunleashed.DogsUnleashedModMenu"
     ],
+    "jei_mod_plugin": [
+      "com.grahambartley.dogsunleashed.compat.jei.DogsUnleashedJeiPlugin"
+    ],
+    "emi": [
+      "com.grahambartley.dogsunleashed.compat.emi.DogsUnleashedEmiPlugin"
+    ],
     "fabric-gametest": [
       "com.grahambartley.dogsunleashed.gametest.DogAdvancementGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogCommandGameTest",
@@ -78,5 +84,9 @@
     "java": ">=21",
     "fabric-api": ">=0.107.0+1.21.1",
     "geckolib": ">=4.7"
+  },
+  "suggests": {
+    "jei": "*",
+    "emi": "*"
   }
 }
