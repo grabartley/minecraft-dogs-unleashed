@@ -15,6 +15,13 @@ Ensure Java 21 is active (`jenv local 21` or `sdk use java 21-amzn`), then:
 ./gradlew runClient
 ```
 
+JEI and EMI stay out of the dev client by default so their overlays do not cover the screens
+screenshots capture. To exercise the recipe viewer integration, launch with them loaded:
+
+```bash
+./gradlew runClient -Precipe_viewers=true
+```
+
 ## Testing Commands
 
 - `/gamemode creative` - access spawn eggs

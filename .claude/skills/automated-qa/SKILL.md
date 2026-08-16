@@ -64,6 +64,9 @@ All driver code is TEMPORARY and must never be committed. It exists only in the 
   screen-open packet handler that checks `currentScreen == null`). Pin `guiScale` to a known value
   so the first screenshots are deterministic.
 - These are `run/` files, untracked; no cleanup needed beyond not committing them.
+- Leave `recipe_viewers` off (the default). JEI and EMI draw full-height sidebars and a search bar
+  over every screen, which lands in the captured framebuffer and makes the evidence unreadable.
+  Only pass `-Precipe_viewers=true` when the recipe viewer integration is itself under test.
 
 ## Run Protocol
 
