@@ -665,14 +665,8 @@ public final class ModNetworking {
                 return;
               }
               final String dogName = dog.getTamedName();
-              if (action == DogWheelAction.GO_TO_BED) {
-                final BlockPos bedPos = dog.getAssignedBedPos().orElse(null);
-                if (bedPos == null) {
-                  return;
-                }
-                dog.commandToSleep(bedPos);
-                player.sendMessage(
-                    Text.translatable("block.dogs-unleashed.dog_bed.sleep_command", dogName), true);
+              if (action.isOneShot()) {
+                runOneShotWheelAction(action, dog, player, dogName);
                 return;
               }
               final DogCommand command = action.command();
@@ -680,6 +674,26 @@ public final class ModNetworking {
               dog.acknowledgeCommand();
               player.sendMessage(Text.translatable(command.messageKey(), dogName), true);
             });
+  }
+
+  private static void runOneShotWheelAction(
+      final DogWheelAction action,
+      final UnleashedDogEntity dog,
+      final ServerPlayerEntity player,
+      final String dogName) {
+    switch (action) {
+      case GO_TO_BED -> {
+        final BlockPos bedPos = dog.getAssignedBedPos().orElse(null);
+        if (bedPos == null) {
+          return;
+        }
+        dog.commandToSleep(bedPos);
+        player.sendMessage(
+            Text.translatable("block.dogs-unleashed.dog_bed.sleep_command", dogName), true);
+      }
+      case EQUIPMENT -> player.openHandledScreen(dog);
+      default -> {}
+    }
   }
 
   private static void handleEditServerConfig(

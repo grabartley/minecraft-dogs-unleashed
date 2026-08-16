@@ -1,12 +1,13 @@
 package com.grahambartley.dogsunleashed.entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -23,7 +24,7 @@ class DogWheelActionTest {
   }
 
   @ParameterizedTest(name = "id {0}")
-  @ValueSource(ints = {-1, 8, 42, Integer.MAX_VALUE, Integer.MIN_VALUE})
+  @ValueSource(ints = {-1, 9, 42, Integer.MAX_VALUE, Integer.MIN_VALUE})
   @DisplayName("unknown wire ids resolve to null so the server drops the packet")
   void unknownIdResolvesToNull(final int id) {
     assertNull(DogWheelAction.fromId(id));
@@ -46,12 +47,21 @@ class DogWheelActionTest {
   void commandMappings(final DogWheelAction action, final DogCommand expected) {
     assertSame(expected, action.command());
     assertEquals(expected.translationKey(), action.translationKey());
+    assertFalse(action.isOneShot());
   }
 
-  @Test
-  @DisplayName("Go to Bed is a one-shot action with no persistent command")
-  void goToBedHasNoCommand() {
-    assertNull(DogWheelAction.GO_TO_BED.command());
-    assertEquals("command.dogs-unleashed.go_to_bed", DogWheelAction.GO_TO_BED.translationKey());
+  static Stream<Arguments> oneShotActions() {
+    return Stream.of(
+        Arguments.of(DogWheelAction.GO_TO_BED, "command.dogs-unleashed.go_to_bed"),
+        Arguments.of(DogWheelAction.EQUIPMENT, "command.dogs-unleashed.equipment"));
+  }
+
+  @ParameterizedTest(name = "{0} -> {1}")
+  @MethodSource("oneShotActions")
+  @DisplayName("one-shot actions carry no persistent command but keep their own label")
+  void oneShotActionsHaveNoCommand(final DogWheelAction action, final String expectedKey) {
+    assertNull(action.command());
+    assertTrue(action.isOneShot());
+    assertEquals(expectedKey, action.translationKey());
   }
 }

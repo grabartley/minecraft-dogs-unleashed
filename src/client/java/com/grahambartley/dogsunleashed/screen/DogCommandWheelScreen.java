@@ -78,7 +78,8 @@ public class DogCommandWheelScreen extends Screen {
           new ItemStack(Items.IRON_SWORD),
           new ItemStack(Items.SHIELD),
           new ItemStack(Items.GRASS_BLOCK),
-          new ItemStack(Items.RED_BED)
+          new ItemStack(Items.RED_BED),
+          new ItemStack(Items.WOLF_ARMOR)
         };
   }
 

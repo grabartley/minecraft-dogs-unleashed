@@ -264,5 +264,16 @@
   "coat.dogs-unleashed.beagle.lilac_2": "Lilac II",
   "coat.dogs-unleashed.shibainu.red": "Red",
   "coat.dogs-unleashed.shibainu.black": "Black & Tan",
-  "coat.dogs-unleashed.shibainu.sesame": "Sesame"
+  "coat.dogs-unleashed.shibainu.sesame": "Sesame",
+
+  "command.dogs-unleashed.equipment": "Equipment",
+  "screen.dogs-unleashed.dog_equipment.slot.armour": "Armour",
+  "screen.dogs-unleashed.dog_equipment.slot.armour.empty": "Holds canine body armour",
+  "screen.dogs-unleashed.dog_equipment.slot.armour.glyph": "A",
+  "screen.dogs-unleashed.dog_equipment.slot.pendant": "Pendant",
+  "screen.dogs-unleashed.dog_equipment.slot.pendant.empty": "Holds a collar pendant",
+  "screen.dogs-unleashed.dog_equipment.slot.pendant.glyph": "P",
+  "screen.dogs-unleashed.dog_equipment.slot.cosmetic": "Cosmetic",
+  "screen.dogs-unleashed.dog_equipment.slot.cosmetic.empty": "Holds a cosmetic accessory",
+  "screen.dogs-unleashed.dog_equipment.slot.cosmetic.glyph": "C"
 }

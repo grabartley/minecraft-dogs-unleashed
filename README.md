@@ -91,7 +91,7 @@ animated with GeckoLib, each with idle, walk, sit, sleep, shake, head tilt, and 
 ### The Command Wheel
 
 Vanilla wolves have one move: sit. Our dogs take real commands. Right-click any of your tamed dogs to open a radial
-command wheel with eight options:
+command wheel with nine options:
 
 | Command       | What your dog does                                                                                     |
 |---------------|--------------------------------------------------------------------------------------------------------|
@@ -103,10 +103,26 @@ command wheel with eight options:
 | **Guard**     | Holds an area like Stay and attacks hostile mobs that come near it.                                     |
 | **Free Roam** | Wanders freely without following, but still comes along when you change dimension so it is never lost.  |
 | **Go to Bed** | Sends the dog to its assigned bed to sleep. Greyed out until a bed is assigned.                         |
+| **Equipment** | Opens the dog's equipment screen. See below.                                                            |
 
 Hover a sector to see its name, click to command. The active command is highlighted, the world keeps running behind the
-wheel, and number keys 1-8 work as shortcuts. Your dog barks and wags to acknowledge, and commands persist across
+wheel, and number keys 1-9 work as shortcuts. Your dog barks and wags to acknowledge, and commands persist across
 saves, restarts, and dimension changes.
+
+### Dog Equipment
+
+Every tamed dog carries three equipment slots: **armour**, **pendant**, and **cosmetic**. Pick Equipment from the
+command wheel to open one screen holding all three alongside your own inventory, so shift-clicking and dragging behave
+exactly like the vanilla horse inventory.
+
+The armour slot takes any canine body armour, including vanilla `minecraft:wolf_armor`, so your dogs can wear it from
+day one. Right-clicking your dog while holding a piece of armour equips it directly, and right-clicking with shears
+takes it back off, just like vanilla wolves. Swapping a filled slot hands the old item back rather than deleting it.
+
+Equipment persists across world reloads, dimension changes, and Pet Manager summons, and every occupied slot drops at
+the death position when a dog dies, with no chance roll. Only the dog's owner can open the screen; wild and untamed
+dogs cannot be equipped at all. The pendant and cosmetic slots ship empty on purpose, waiting on the items that fill
+them.
 
 ### Fetch (Yes, Actual Fetch)
 

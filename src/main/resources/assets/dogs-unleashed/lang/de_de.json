@@ -167,5 +167,16 @@
   "advancements.dogs-unleashed.forever_in_our_hearts.title": "Für immer in unseren Herzen",
   "advancements.dogs-unleashed.forever_in_our_hearts.description": "Bewahre das Grab eines Hundes als Gegenstand auf.",
   "advancements.dogs-unleashed.cherry_companion.title": "Kirschblüten-Begleiter",
-  "advancements.dogs-unleashed.cherry_companion.description": "Zähme einen Shiba Inu."
+  "advancements.dogs-unleashed.cherry_companion.description": "Zähme einen Shiba Inu.",
+
+  "command.dogs-unleashed.equipment": "Ausrüstung",
+  "screen.dogs-unleashed.dog_equipment.slot.armour": "Rüstung",
+  "screen.dogs-unleashed.dog_equipment.slot.armour.empty": "Nimmt Hunde-Körperrüstung auf",
+  "screen.dogs-unleashed.dog_equipment.slot.armour.glyph": "R",
+  "screen.dogs-unleashed.dog_equipment.slot.pendant": "Anhänger",
+  "screen.dogs-unleashed.dog_equipment.slot.pendant.empty": "Nimmt einen Halsbandanhänger auf",
+  "screen.dogs-unleashed.dog_equipment.slot.pendant.glyph": "A",
+  "screen.dogs-unleashed.dog_equipment.slot.cosmetic": "Zierde",
+  "screen.dogs-unleashed.dog_equipment.slot.cosmetic.empty": "Nimmt ein Schmuckstück auf",
+  "screen.dogs-unleashed.dog_equipment.slot.cosmetic.glyph": "Z"
 }

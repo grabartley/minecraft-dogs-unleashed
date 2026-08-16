@@ -167,5 +167,16 @@
   "advancements.dogs-unleashed.forever_in_our_hearts.title": "Por siempre en nuestros corazones",
   "advancements.dogs-unleashed.forever_in_our_hearts.description": "Conserva la tumba de un perro como objeto.",
   "advancements.dogs-unleashed.cherry_companion.title": "Compañero de los cerezos",
-  "advancements.dogs-unleashed.cherry_companion.description": "Domestica un Shiba Inu."
+  "advancements.dogs-unleashed.cherry_companion.description": "Domestica un Shiba Inu.",
+
+  "command.dogs-unleashed.equipment": "Equipamiento",
+  "screen.dogs-unleashed.dog_equipment.slot.armour": "Armadura",
+  "screen.dogs-unleashed.dog_equipment.slot.armour.empty": "Admite armadura canina",
+  "screen.dogs-unleashed.dog_equipment.slot.armour.glyph": "A",
+  "screen.dogs-unleashed.dog_equipment.slot.pendant": "Colgante",
+  "screen.dogs-unleashed.dog_equipment.slot.pendant.empty": "Admite un colgante de collar",
+  "screen.dogs-unleashed.dog_equipment.slot.pendant.glyph": "C",
+  "screen.dogs-unleashed.dog_equipment.slot.cosmetic": "Cosmético",
+  "screen.dogs-unleashed.dog_equipment.slot.cosmetic.empty": "Admite un accesorio cosmético",
+  "screen.dogs-unleashed.dog_equipment.slot.cosmetic.glyph": "O"
 }

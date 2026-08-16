@@ -167,5 +167,16 @@
   "advancements.dogs-unleashed.forever_in_our_hearts.title": "Навсегда в наших сердцах",
   "advancements.dogs-unleashed.forever_in_our_hearts.description": "Сохраните могилу собаки в виде предмета.",
   "advancements.dogs-unleashed.cherry_companion.title": "Вишнёвый компаньон",
-  "advancements.dogs-unleashed.cherry_companion.description": "Приручите сиба-ину."
+  "advancements.dogs-unleashed.cherry_companion.description": "Приручите сиба-ину.",
+
+  "command.dogs-unleashed.equipment": "Снаряжение",
+  "screen.dogs-unleashed.dog_equipment.slot.armour": "Броня",
+  "screen.dogs-unleashed.dog_equipment.slot.armour.empty": "Принимает собачью броню",
+  "screen.dogs-unleashed.dog_equipment.slot.armour.glyph": "Б",
+  "screen.dogs-unleashed.dog_equipment.slot.pendant": "Подвеска",
+  "screen.dogs-unleashed.dog_equipment.slot.pendant.empty": "Принимает подвеску для ошейника",
+  "screen.dogs-unleashed.dog_equipment.slot.pendant.glyph": "П",
+  "screen.dogs-unleashed.dog_equipment.slot.cosmetic": "Украшение",
+  "screen.dogs-unleashed.dog_equipment.slot.cosmetic.empty": "Принимает косметический аксессуар",
+  "screen.dogs-unleashed.dog_equipment.slot.cosmetic.glyph": "У"
 }
