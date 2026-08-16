@@ -86,11 +86,15 @@ dependencies {
 	modCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
 	modLocalRuntime "com.terraformersmc:modmenu:${project.modmenu_version}"
 
-	// JEI and EMI are optional recipe viewers; never bundled. Dev-only deps so devs can launch with them.
+	// JEI and EMI are optional recipe viewers; never bundled. The APIs are always on the compile
+	// classpath so the compat plugins build, but their runtimes stay out of the dev client unless
+	// -Precipe_viewers=true, because their overlays cover the screens automated QA captures.
 	modCompileOnly "mezz.jei:jei-1.21.1-fabric-api:${project.jei_version}"
-	modLocalRuntime "mezz.jei:jei-1.21.1-fabric:${project.jei_version}"
 	modCompileOnly "dev.emi:emi-fabric:${project.emi_version}:api"
-	modLocalRuntime "dev.emi:emi-fabric:${project.emi_version}"
+	if (project.recipe_viewers.toBoolean()) {
+		modLocalRuntime "mezz.jei:jei-1.21.1-fabric:${project.jei_version}"
+		modLocalRuntime "dev.emi:emi-fabric:${project.emi_version}"
+	}
 
 	testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
