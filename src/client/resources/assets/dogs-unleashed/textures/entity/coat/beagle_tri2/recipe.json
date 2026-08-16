@@ -1,0 +1,10 @@
+{
+  "pigments": {
+    "pigment1": "#FAF6F3",
+    "pigment2": "#977144"
+  },
+  "baseScale": {
+    "pigment1": 128,
+    "pigment2": 108
+  }
+}
