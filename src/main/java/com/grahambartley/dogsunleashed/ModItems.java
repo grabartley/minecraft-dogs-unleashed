@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.item.DogBedItem;
 import com.grahambartley.dogsunleashed.item.DogGraveItem;
+import com.grahambartley.dogsunleashed.item.DogTreatItem;
 import com.grahambartley.dogsunleashed.item.FrisbeeItem;
 import com.grahambartley.dogsunleashed.item.StickThrowHandler;
 import com.grahambartley.dogsunleashed.item.TennisBallItem;
@@ -36,6 +37,12 @@ public class ModItems {
           Registries.ITEM,
           Identifier.of(DogsUnleashed.MOD_ID, "dog_bed"),
           new DogBedItem(ModBlocks.DOG_BED, new Item.Settings()));
+
+  public static final Item DOG_TREAT =
+      Registry.register(
+          Registries.ITEM,
+          Identifier.of(DogsUnleashed.MOD_ID, "dog_treat"),
+          new DogTreatItem(new Item.Settings().maxCount(16)));
 
   public static final Item DOG_GRAVE =
       Registry.register(
@@ -108,6 +115,8 @@ public class ModItems {
   public static void initialize() {
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS)
         .register(entries -> entries.add(TENNIS_BALL));
+    ItemGroupEvents.modifyEntriesEvent(ItemGroups.FOOD_AND_DRINK)
+        .register(entries -> entries.add(DOG_TREAT));
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS)
         .register(
             entries -> {

@@ -17,6 +17,7 @@ import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModBlockTags;
 import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModEntities;
+import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.ModSounds;
 import com.grahambartley.dogsunleashed.advancement.DogSleptInBedCriterion;
@@ -193,6 +194,8 @@ public class UnleashedDogEntity extends TameableEntity
   private static final TrackedData<Integer> TAIL_WAG_TIMER =
       DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.INTEGER);
   private static final TrackedData<Integer> SHAKE_PROGRESS =
+      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.INTEGER);
+  private static final TrackedData<Integer> TREAT_BUFF_TICKS =
       DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.INTEGER);
   private static final TrackedData<Boolean> HEAD_TILTING =
       DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
@@ -560,6 +563,7 @@ public class UnleashedDogEntity extends TameableEntity
     builder.add(COLLAR_COLOR, DEFAULT_COLLAR_COLOR_ID);
     builder.add(TAIL_WAG_TIMER, 0);
     builder.add(SHAKE_PROGRESS, 0);
+    builder.add(TREAT_BUFF_TICKS, 0);
     builder.add(HEAD_TILTING, false);
     builder.add(SLEEPING_IN_BED, false);
     builder.add(COMMANDED_TO_SLEEP, false);
@@ -1009,6 +1013,44 @@ public class UnleashedDogEntity extends TameableEntity
     return this.dataTracker.get(TAIL_WAG_TIMER);
   }
 
+  public int getTreatBuffTicks() {
+    return this.dataTracker.get(TREAT_BUFF_TICKS);
+  }
+
+  public boolean hasTreatBuff() {
+    return this.getTreatBuffTicks() > 0;
+  }
+
+  /**
+   * Starts (or refreshes) the Dog Treat buff and plays the reaction: a tail wag, a heart burst and
+   * a single bark. Refreshing resets the full duration rather than stacking, matching how vanilla
+   * handles a re-applied status effect of equal strength.
+   */
+  public void applyTreatBuff() {
+    this.dataTracker.set(TREAT_BUFF_TICKS, DogTreatBuff.DURATION_TICKS);
+    DogTreatBuff.apply(this);
+    this.dataTracker.set(TAIL_WAG_TIMER, TAIL_WAG_DURATION_TICKS);
+    if (this.getWorld() instanceof ServerWorld serverWorld) {
+      this.spawnHeartParticles(serverWorld);
+    }
+    final SoundEvent barkSound = this.getBarkSound();
+    if (barkSound != null) {
+      this.playSound(barkSound, DogsUnleashed.SERVER_CONFIG.barkVolume(), this.getBarkPitch());
+      this.barkCooldownTicks = BARK_COOLDOWN_TICKS;
+    }
+  }
+
+  private void tickTreatBuff() {
+    final int remaining = this.dataTracker.get(TREAT_BUFF_TICKS);
+    if (remaining <= 0) {
+      return;
+    }
+    if (remaining == 1) {
+      DogTreatBuff.clear(this);
+    }
+    this.dataTracker.set(TREAT_BUFF_TICKS, remaining - 1);
+  }
+
   private void spawnHeartParticles(final ServerWorld serverWorld) {
     final int count =
         REUNION_HEART_PARTICLE_MIN_COUNT
@@ -1135,6 +1177,12 @@ public class UnleashedDogEntity extends TameableEntity
     }
 
     if (this.isTamed()) {
+      if (this.isOwner(player) && !player.isSneaking() && itemStack.isOf(ModItems.DOG_TREAT)) {
+        itemStack.decrementUnlessCreative(1, player);
+        this.applyTreatBuff();
+        return ActionResult.SUCCESS;
+      }
+
       if (this.isBreedingItem(itemStack) && this.getHealth() < this.getMaxHealth()) {
         itemStack.decrementUnlessCreative(1, player);
         this.heal(BREEDING_ITEM_HEAL_AMOUNT);
@@ -1435,6 +1483,7 @@ public class UnleashedDogEntity extends TameableEntity
       }
       this.tryBark(nearbyPlayer);
       this.tickHowl();
+      this.tickTreatBuff();
 
       final boolean inWater = this.isTouchingWater();
 
@@ -1716,6 +1765,7 @@ public class UnleashedDogEntity extends TameableEntity
               nbt.putInt(ModNbtKeys.BED_POS_Z, pos.getZ());
             });
     nbt.putBoolean(ModNbtKeys.CARRYING_BALL, this.isCarryingFetchItem());
+    nbt.putInt(ModNbtKeys.TREAT_BUFF_TICKS, this.getTreatBuffTicks());
     nbt.putInt(ModNbtKeys.COMMAND_MODE, this.getCommand().id());
     if (this.commandAnchorPos != null) {
       nbt.putInt(ModNbtKeys.COMMAND_ANCHOR_X, this.commandAnchorPos.getX());
@@ -1814,6 +1864,13 @@ public class UnleashedDogEntity extends TameableEntity
     }
     if (nbt.contains(ModNbtKeys.CARRYING_BALL)) {
       this.setCarryingFetchItem(nbt.getBoolean(ModNbtKeys.CARRYING_BALL));
+    }
+    if (nbt.contains(ModNbtKeys.TREAT_BUFF_TICKS, NbtElement.NUMBER_TYPE)) {
+      final int treatBuffTicks = Math.max(0, nbt.getInt(ModNbtKeys.TREAT_BUFF_TICKS));
+      this.dataTracker.set(TREAT_BUFF_TICKS, treatBuffTicks);
+      if (treatBuffTicks > 0) {
+        DogTreatBuff.apply(this);
+      }
     }
     if (nbt.contains(ModNbtKeys.COMMAND_MODE, NbtElement.NUMBER_TYPE)) {
       this.dataTracker.set(COMMAND, DogCommand.fromId(nbt.getInt(ModNbtKeys.COMMAND_MODE)).id());

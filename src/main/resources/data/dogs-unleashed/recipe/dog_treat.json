@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "minecraft:wheat" },
+    { "item": "minecraft:bone_meal" },
+    { "item": "minecraft:sugar" }
+  ],
+  "result": {
+    "id": "dogs-unleashed:dog_treat",
+    "count": 4
+  }
+}

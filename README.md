@@ -124,6 +124,23 @@ the death position when a dog dies, with no chance roll. Only the dog's owner ca
 dogs cannot be equipped at all. The pendant and cosmetic slots ship empty on purpose, waiting on the items that fill
 them.
 
+### Dog Treats
+
+Craft four **Dog Treats** at a time from wheat, bone meal and sugar, then right-click one of your own tamed dogs while
+holding one. The dog eats it on the spot, barks, wags its tail and throws off a burst of hearts.
+
+| Effect                 | Value                                                            |
+|------------------------|------------------------------------------------------------------|
+| Duration               | 60 seconds                                                       |
+| Movement speed         | +10% of the dog's base speed                                     |
+| Attack damage          | +1                                                               |
+| Stack size             | 16                                                               |
+
+Feeding again refreshes the full 60 seconds rather than stacking a second copy, so a pocket of treats keeps one dog
+topped up instead of turning it into a rocket. The remaining duration is saved with the dog, so the buff survives world
+reloads, dimension changes and Pet Manager summons. Untamed dogs and dogs belonging to someone else refuse the treat,
+and refusing never consumes one.
+
 ### Fetch (Yes, Actual Fetch)
 
 Sneak-right-click your dog with a fetch item to enter play mode, then throw it and watch your dog:
@@ -372,6 +389,7 @@ next to its crafting recipe:
 | Tennis Ball, Stick, Frisbee    | How to start play mode, and how far each fetch item glides                         |
 | Dog Bed                        | Assigning a dog, auto-sleep rules, and how to unassign                             |
 | Dog Grave                      | How graves appear on death and how to preserve one with a pickaxe                  |
+| Dog Treat                      | How to feed one, what the buff does, and how long it lasts                         |
 | Taming and breeding foods      | Which vanilla foods tame, which breed, and the 1-in-3 tame chance                  |
 | Each breed's spawn egg         | Breed flavour plus the biomes it spawns in and its health, attack and speed        |
 

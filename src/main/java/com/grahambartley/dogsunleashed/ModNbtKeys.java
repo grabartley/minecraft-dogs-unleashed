@@ -53,6 +53,7 @@ public final class ModNbtKeys {
   public static final String PARENT_DOG_ID = "ParentDogId";
   public static final String SECOND_PARENT_DOG_ID = "SecondParentDogId";
   public static final String SPAWNED_BY_DOG_SPAWNER = "SpawnedByDogSpawner";
+  public static final String TREAT_BUFF_TICKS = "TreatBuffTicks";
   public static final String COMMAND_MODE = "CommandMode";
   public static final String COMMAND_ANCHOR_X = "CommandAnchorX";
   public static final String COMMAND_ANCHOR_Y = "CommandAnchorY";
