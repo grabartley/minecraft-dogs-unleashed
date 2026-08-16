@@ -54,5 +54,11 @@ public class ModComponents {
               .packetCodec(DyeColor.PACKET_CODEC)
               .build());
 
+  public static final ComponentType<UUID> WHISTLE_TARGET_PET =
+      Registry.register(
+          Registries.DATA_COMPONENT_TYPE,
+          Identifier.of(DogsUnleashed.MOD_ID, "whistle_target_pet"),
+          ComponentType.<UUID>builder().codec(Uuids.CODEC).packetCodec(Uuids.PACKET_CODEC).build());
+
   public static void initialize() {}
 }

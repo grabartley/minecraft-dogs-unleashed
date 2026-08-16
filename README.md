@@ -141,6 +141,24 @@ topped up instead of turning it into a rocket. The remaining duration is saved w
 reloads, dimension changes and Pet Manager summons. Untamed dogs and dogs belonging to someone else refuse the treat,
 and refusing never consumes one.
 
+### Dog Whistle
+
+Craft a **Dog Whistle** from a gold ingot above a piece of string above any colour of wool, then right-click it in the
+air to call a dog to you from anywhere in the world. It is the Pet Manager's Summon button without the screen: the
+whistle chunk-loads the dog's last known position, finds it, and delivers it beside you, across dimensions if it has to.
+
+| Action                    | What happens                                                                 |
+|---------------------------|------------------------------------------------------------------------------|
+| Right-click in the air    | Blows the whistle and calls the dog it is pointed at                          |
+| Sneak + right-click       | Points the whistle at the next dog in your pack and names it above the hotbar |
+| A whistle you never aimed | Calls whichever of your dogs is nearest, and remembers that one               |
+| A dog that has since died | Quietly moves to a living dog on the next blow                                |
+
+Pack order is fixed rather than by distance or recency, so the same number of sneak-clicks always lands on the same dog.
+The target is stored on the whistle itself, so it survives saves and reloads, and two whistles in the same inventory can
+be pointed at two different dogs. Blowing puts the whistle on a one-second cooldown, so holding right-click cannot
+re-summon every tick.
+
 ### Fetch (Yes, Actual Fetch)
 
 Sneak-right-click your dog with a fetch item to enter play mode, then throw it and watch your dog:
@@ -390,6 +408,7 @@ next to its crafting recipe:
 | Dog Bed                        | Assigning a dog, auto-sleep rules, and how to unassign                             |
 | Dog Grave                      | How graves appear on death and how to preserve one with a pickaxe                  |
 | Dog Treat                      | How to feed one, what the buff does, and how long it lasts                         |
+| Dog Whistle                    | Calling a dog from anywhere, and how the target is chosen and cycled                |
 | Taming and breeding foods      | Which vanilla foods tame, which breed, and the 1-in-3 tame chance                  |
 | Each breed's spawn egg         | Breed flavour plus the biomes it spawns in and its health, attack and speed        |
 
@@ -445,6 +464,9 @@ phrasing-polish PRs there are especially appreciated.
 ## Open Source
 
 Dogs Unleashed is open source under the MIT license. Built with love and treats ❤️
+
+The Dog Whistle sound is cut from [Soft whistle.ogg](https://commons.wikimedia.org/wiki/File:Soft_whistle.ogg) by
+stilgar, released into the public domain via pdsounds.org. Every other asset is original work.
 
 If Dogs Unleashed made you smile on a long survival night, a star on GitHub or a coffee on Ko-fi means the world.
 

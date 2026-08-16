@@ -140,6 +140,13 @@ Prefer `player.requestTeleport(x, y, z)` for moving the player within one world.
 terrain for framing: flatten a small stage of grass with air above it so the shot composes the same
 way on any seed, rather than discovering the camera is buried in a dirt cliff.
 
+**The dev world is also populated, and its residents will do your test for you.** It already holds
+tamed, registered dogs, so any driver that resolves "the player's pets" picks one of those rather
+than the one it just spawned. Worse, a freshly spawned tamed dog runs `FollowOwnerGoal`, which
+teleports it to its owner past twelve blocks: a recall test that waits a couple of seconds before
+acting watches the dog arrive on its own and calls that a pass. Give any dog you spawn for a test
+`setAiDisabled(true)`, and point the feature at it explicitly by id instead of letting it resolve.
+
 ## Publishing Evidence to the PR
 
 GitHub's `user-attachments` uploads are not available via `gh`, so the evidence lives on the
