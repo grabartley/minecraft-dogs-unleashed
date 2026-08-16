@@ -36,22 +36,12 @@ public record DogProportions(Map<String, BoneAdjustment> bones, float adultScale
 
   static {
     BY_BREED.put(UnleashedDogBreed.GOLDEN_RETRIEVER, new DogProportions(Map.of(), 1.7f, 0.85f));
-    BY_BREED.put(
-        UnleashedDogBreed.BEAGLE,
-        new DogProportions(
-            Map.of(
-                "Torso", offset(0, -1.7f, 0),
-                "tail", offset(0, -0.6f, -1.4f),
-                "frontleg1", offset(0, 1.6f, 0),
-                "frontleg2", offset(0, 1.6f, 0),
-                "backleg1", offset(0, 1.6f, 0),
-                "backleg2", offset(0, 1.6f, 0)),
-            1.5f,
-            0.75f));
-  }
-
-  private static BoneAdjustment offset(final float x, final float y, final float z) {
-    return new BoneAdjustment(x, y, z, 1, 1, 1);
+    // Per-bone shape values are calibrated against how the breed rendered on its own rig, not
+    // derived from pivot differences: the rig is nested, so a body offset carries its whole
+    // subtree and a pivot delta does not translate into an offset one for one. Both breeds
+    // currently differ by overall size alone; real per-bone shape values are a tuning pass with
+    // the artist, and the blending below is ready for them.
+    BY_BREED.put(UnleashedDogBreed.BEAGLE, new DogProportions(Map.of(), 1.5f, 0.75f));
   }
 
   public static DogProportions of(final UnleashedDogBreed breed) {
