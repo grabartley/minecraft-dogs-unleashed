@@ -37,7 +37,7 @@ public class GuardTargetGoal extends ActiveTargetGoal<HostileEntity> {
   public boolean canStart() {
     return this.dog.getCommand() == DogCommand.GUARD
         && !this.dog.isBaby()
-        && this.dog.getCommandAnchorPos() != null
+        && this.dog.getCommandController().getAnchorPos() != null
         && super.canStart();
   }
 
@@ -55,7 +55,7 @@ public class GuardTargetGoal extends ActiveTargetGoal<HostileEntity> {
     if (target.hasCustomName()) {
       return false;
     }
-    final BlockPos anchor = dog.getCommandAnchorPos();
+    final BlockPos anchor = dog.getCommandController().getAnchorPos();
     return anchor != null
         && target.squaredDistanceTo(
                 anchor.getX() + POSITION_CENTER_OFFSET,

@@ -61,9 +61,9 @@ public final class DogEntityNbt {
     this.dog.getAmbienceEffects().writeNbt(nbt);
     this.dog.getSleepController().writeNbt(nbt);
     this.dog.getPlaySession().writeNbt(nbt);
-    nbt.putInt(ModNbtKeys.TREAT_BUFF_TICKS, this.dog.getTreatBuffTicks());
+    nbt.putInt(ModNbtKeys.TREAT_BUFF_TICKS, this.dog.getTreatBuffState().getRemainingTicks());
     nbt.putInt(ModNbtKeys.COMMAND_MODE, this.dog.getCommand().id());
-    final BlockPos anchor = this.dog.getCommandAnchorPos();
+    final BlockPos anchor = this.dog.getCommandController().getAnchorPos();
     if (anchor != null) {
       nbt.putInt(ModNbtKeys.COMMAND_ANCHOR_X, anchor.getX());
       nbt.putInt(ModNbtKeys.COMMAND_ANCHOR_Y, anchor.getY());
@@ -97,19 +97,23 @@ public final class DogEntityNbt {
     this.dog.getPlaySession().readNbt(nbt);
     if (nbt.contains(ModNbtKeys.TREAT_BUFF_TICKS, NbtElement.NUMBER_TYPE)) {
       final int treatBuffTicks = sanitizedTreatBuffTicks(nbt.getInt(ModNbtKeys.TREAT_BUFF_TICKS));
-      this.dog.setTreatBuffTicksFromSave(treatBuffTicks);
+      this.dog.getTreatBuffState().setRemainingTicksFromSave(treatBuffTicks);
       if (treatBuffTicks > 0) {
         DogTreatBuff.apply(this.dog);
       }
     }
     if (nbt.contains(ModNbtKeys.COMMAND_MODE, NbtElement.NUMBER_TYPE)) {
-      this.dog.setCommandFromSave(DogCommand.fromId(nbt.getInt(ModNbtKeys.COMMAND_MODE)));
+      this.dog
+          .getCommandController()
+          .setCommandFromSave(DogCommand.fromId(nbt.getInt(ModNbtKeys.COMMAND_MODE)));
     } else {
-      this.dog.setCommandFromSave(commandForLegacySave(this.dog.isSitting()));
+      this.dog
+          .getCommandController()
+          .setCommandFromSave(commandForLegacySave(this.dog.isSitting()));
     }
     final BlockPos anchor = commandAnchorFrom(nbt);
     if (anchor != null) {
-      this.dog.setCommandAnchorPosFromSave(anchor);
+      this.dog.getCommandController().setAnchorPosFromSave(anchor);
     }
     if (nbt.contains(ModNbtKeys.SPAWNED_BY_DOG_SPAWNER)) {
       this.dog.setSpawnedByDogSpawner(nbt.getBoolean(ModNbtKeys.SPAWNED_BY_DOG_SPAWNER));

@@ -236,7 +236,7 @@ public final class PetLocationService {
     if (forcePlacement) {
       // An explicit summon overrides whatever the dog was told before: it should follow its owner
       // out of the recall. Automatic follows only move dogs already in a following command.
-      dog.applyCommand(DogCommand.FOLLOW);
+      dog.getCommandController().apply(DogCommand.FOLLOW);
     }
     // Always relocate by recreating the entity, even within one world. In-place teleports of a
     // dog freshly streamed in from a ticket-loaded far chunk leave its tracker entry stale:

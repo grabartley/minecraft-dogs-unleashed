@@ -47,7 +47,7 @@ public final class DogCommandGameTest implements FabricGameTest {
     final UnleashedDogEntity dog = spawnOwnedDog(context, new BlockPos(0, 1, 0));
     dog.setAiDisabled(true);
 
-    dog.applyCommand(DogCommand.SIT);
+    dog.getCommandController().apply(DogCommand.SIT);
 
     context.assertTrue(dog.getCommand() == DogCommand.SIT, "Command should be SIT");
     context.assertTrue(dog.isSitting(), "Sit command should set the sitting flag");
@@ -59,12 +59,13 @@ public final class DogCommandGameTest implements FabricGameTest {
     final UnleashedDogEntity dog = spawnOwnedDog(context, new BlockPos(0, 1, 0));
     dog.setAiDisabled(true);
 
-    dog.applyCommand(DogCommand.STAY);
+    dog.getCommandController().apply(DogCommand.STAY);
 
     context.assertTrue(dog.getCommand() == DogCommand.STAY, "Command should be STAY");
     context.assertTrue(
-        dog.getBlockPos().equals(dog.getCommandAnchorPos()),
-        "Stay should anchor at the dog's position, anchor=" + dog.getCommandAnchorPos());
+        dog.getBlockPos().equals(dog.getCommandController().getAnchorPos()),
+        "Stay should anchor at the dog's position, anchor="
+            + dog.getCommandController().getAnchorPos());
     context.assertFalse(dog.isSitting(), "Stay must not sit the dog");
     context.complete();
   }
@@ -74,12 +75,13 @@ public final class DogCommandGameTest implements FabricGameTest {
     final UnleashedDogEntity dog = spawnOwnedDog(context, new BlockPos(0, 1, 0));
     dog.setAiDisabled(true);
 
-    dog.applyCommand(DogCommand.STAY);
-    dog.applyCommand(DogCommand.SIT);
-    dog.applyCommand(DogCommand.FOLLOW);
+    dog.getCommandController().apply(DogCommand.STAY);
+    dog.getCommandController().apply(DogCommand.SIT);
+    dog.getCommandController().apply(DogCommand.FOLLOW);
 
     context.assertTrue(dog.getCommand() == DogCommand.FOLLOW, "Command should be FOLLOW");
-    context.assertTrue(dog.getCommandAnchorPos() == null, "Follow should clear the anchor");
+    context.assertTrue(
+        dog.getCommandController().getAnchorPos() == null, "Follow should clear the anchor");
     context.assertFalse(dog.isSitting(), "Follow should clear the sitting flag");
     context.complete();
   }
@@ -93,7 +95,7 @@ public final class DogCommandGameTest implements FabricGameTest {
     dog.setAssignedBedPos(absPos);
     dog.getSleepController().startSleepingInBed(absPos);
 
-    dog.applyCommand(DogCommand.HEEL);
+    dog.getCommandController().apply(DogCommand.HEEL);
 
     context.assertFalse(dog.isSleepingInBed(), "Issuing a command should wake a sleeping dog");
     context.assertFalse(dog.isCommandedToSleep(), "Issuing a command should clear commanded sleep");
@@ -105,7 +107,7 @@ public final class DogCommandGameTest implements FabricGameTest {
   public void damageDemotesSitToFollow(final TestContext context) {
     final UnleashedDogEntity dog = spawnOwnedDog(context, new BlockPos(0, 1, 0));
     dog.setAiDisabled(true);
-    dog.applyCommand(DogCommand.SIT);
+    dog.getCommandController().apply(DogCommand.SIT);
 
     DogTestHelper.damageEntity(dog, 1.0f);
 
@@ -119,8 +121,8 @@ public final class DogCommandGameTest implements FabricGameTest {
   public void commandAndAnchorPersistThroughNbtRoundTrip(final TestContext context) {
     final UnleashedDogEntity source = spawnOwnedDog(context, new BlockPos(0, 1, 0));
     source.setAiDisabled(true);
-    source.applyCommand(DogCommand.GUARD);
-    final BlockPos anchor = source.getCommandAnchorPos();
+    source.getCommandController().apply(DogCommand.GUARD);
+    final BlockPos anchor = source.getCommandController().getAnchorPos();
 
     final NbtCompound nbt = new NbtCompound();
     source.writeCustomDataToNbt(nbt);
@@ -131,8 +133,9 @@ public final class DogCommandGameTest implements FabricGameTest {
     context.assertTrue(
         restored.getCommand() == DogCommand.GUARD, "Command should survive an NBT round trip");
     context.assertTrue(
-        anchor != null && anchor.equals(restored.getCommandAnchorPos()),
-        "Anchor should survive an NBT round trip, anchor=" + restored.getCommandAnchorPos());
+        anchor != null && anchor.equals(restored.getCommandController().getAnchorPos()),
+        "Anchor should survive an NBT round trip, anchor="
+            + restored.getCommandController().getAnchorPos());
     context.complete();
   }
 
@@ -199,8 +202,8 @@ public final class DogCommandGameTest implements FabricGameTest {
     final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, new BlockPos(2, 2, 2));
     placeOwnerAt(context, dog, new BlockPos(20, 2, 2));
-    dog.applyCommand(DogCommand.STAY);
-    final BlockPos anchor = dog.getCommandAnchorPos();
+    dog.getCommandController().apply(DogCommand.STAY);
+    final BlockPos anchor = dog.getCommandController().getAnchorPos();
 
     context.runAtTick(
         100,
@@ -224,7 +227,7 @@ public final class DogCommandGameTest implements FabricGameTest {
     final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, new BlockPos(2, 2, 2));
     final ServerPlayerEntity owner = placeOwnerAt(context, dog, new BlockPos(10, 2, 2));
-    dog.applyCommand(DogCommand.HEEL);
+    dog.getCommandController().apply(DogCommand.HEEL);
 
     context.runAtTick(
         140,
@@ -248,7 +251,7 @@ public final class DogCommandGameTest implements FabricGameTest {
     final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, new BlockPos(2, 2, 2));
     final ServerPlayerEntity owner = placeOwnerAt(context, dog, new BlockPos(20, 2, 2));
-    dog.applyCommand(DogCommand.FREE_ROAM);
+    dog.getCommandController().apply(DogCommand.FREE_ROAM);
 
     context.runAtTick(
         100,
@@ -273,7 +276,7 @@ public final class DogCommandGameTest implements FabricGameTest {
     placeOwnerAt(context, dog, new BlockPos(1, 2, 3));
     final HuskEntity husk = context.spawnEntity(EntityType.HUSK, new BlockPos(5, 2, 5));
     husk.setAiDisabled(true);
-    dog.applyCommand(DogCommand.HUNT);
+    dog.getCommandController().apply(DogCommand.HUNT);
 
     final LivingEntity[] firstTarget = new LivingEntity[1];
     context.runAtEveryTick(
@@ -304,7 +307,7 @@ public final class DogCommandGameTest implements FabricGameTest {
     placeOwnerAt(context, dog, new BlockPos(1, 2, 3));
     final CowEntity cow = context.spawnEntity(EntityType.COW, new BlockPos(5, 2, 5));
     cow.setAiDisabled(true);
-    dog.applyCommand(DogCommand.HUNT);
+    dog.getCommandController().apply(DogCommand.HUNT);
 
     final LivingEntity[] firstTarget = new LivingEntity[1];
     context.runAtEveryTick(
@@ -336,7 +339,7 @@ public final class DogCommandGameTest implements FabricGameTest {
     final UnleashedDogEntity otherDog =
         DogTestHelper.spawnDog(context, DogTestData.HUSKY, new BlockPos(1, 2, 5));
     otherDog.setAiDisabled(true);
-    dog.applyCommand(DogCommand.HUNT);
+    dog.getCommandController().apply(DogCommand.HUNT);
 
     final LivingEntity[] firstTarget = new LivingEntity[1];
     context.runAtEveryTick(
@@ -366,7 +369,7 @@ public final class DogCommandGameTest implements FabricGameTest {
     final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, new BlockPos(1, 2, 1));
     placeOwnerAt(context, dog, new BlockPos(1, 2, 3));
-    dog.applyCommand(DogCommand.GUARD);
+    dog.getCommandController().apply(DogCommand.GUARD);
     final HuskEntity husk = context.spawnEntity(EntityType.HUSK, new BlockPos(5, 2, 5));
     husk.setAiDisabled(true);
 
@@ -392,7 +395,7 @@ public final class DogCommandGameTest implements FabricGameTest {
     final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, new BlockPos(2, 2, 2));
     placeOwnerAt(context, dog, new BlockPos(4, 2, 2));
-    dog.applyCommand(DogCommand.GUARD);
+    dog.getCommandController().apply(DogCommand.GUARD);
     final HuskEntity husk = context.spawnEntity(EntityType.HUSK, new BlockPos(20, 2, 2));
     husk.setAiDisabled(true);
 

@@ -82,7 +82,7 @@ public final class DogInteractions {
       return;
     }
     this.dog.setOwner(player);
-    this.dog.applyCommand(DogCommand.SIT);
+    this.dog.getCommandController().apply(DogCommand.SIT);
     this.dog
         .getWorld()
         .sendEntityStatus(this.dog, EntityStatuses.ADD_POSITIVE_PLAYER_REACTION_PARTICLES);
@@ -168,7 +168,7 @@ public final class DogInteractions {
       return null;
     }
     itemStack.decrementUnlessCreative(1, player);
-    this.dog.applyTreatBuff();
+    this.dog.getTreatBuffState().apply();
     return ActionResult.SUCCESS;
   }
 
