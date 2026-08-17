@@ -1,7 +1,6 @@
 package com.grahambartley.dogsunleashed.screen;
 
 import com.grahambartley.dogsunleashed.ModEntities;
-import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
@@ -15,8 +14,6 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.EntityType;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.DyeColor;
 
 /**
  * Renders a pet record as a live 3D dog portrait at any size, falling back to a breed-colored
@@ -30,7 +27,6 @@ public final class DogPortraitRenderer {
   private static final int BASE_SHADOW_SIZE = 22;
   private static final float BASE_SCALE = 0.35f;
   private static final float FULL_COLOR = 1.0f;
-  private static final int COLLAR_COLOR_COUNT = DyeColor.values().length;
   private static final int DECEASED_OVERLAY_COLOR = 0x889A9A9A;
 
   private final Map<UUID, UnleashedDogEntity> portraitEntities = new HashMap<>();
@@ -79,12 +75,16 @@ public final class DogPortraitRenderer {
     if (client.world == null) {
       return null;
     }
+    if (pet.breed() == null) {
+      return null;
+    }
+    final PortraitDogAppearance appearance = PortraitDogAppearance.of(pet);
     final EntityType<? extends UnleashedDogEntity> type =
-        pet.breed() == null ? null : ModEntities.getDogEntityType(pet.displayBreed());
+        ModEntities.getDogEntityType(appearance.entityBreed());
     if (type == null) {
       return null;
     }
-    final UUID id = UUID.fromString(pet.petId());
+    final UUID id = appearance.entityId();
     UnleashedDogEntity entity = portraitEntities.get(id);
     if (entity == null || entity.getType() != type) {
       if (entity != null) {
@@ -94,28 +94,18 @@ public final class DogPortraitRenderer {
       if (created == null) {
         return null;
       }
+      // ear inheritance is seeded off the entity uuid, so the portrait has to borrow the pet's own
+      // id or it shows a different ear pair from the dog standing in the world
+      created.setUuid(id);
       portraitEntities.put(id, created);
       entity = created;
     }
-    applyPetAppearance(entity, pet);
+    appearance.applyTo(entity);
     if (client.player != null) {
       entity.setPosition(client.player.getX(), client.player.getY(), client.player.getZ());
     }
     entity.setSitting(true);
     return entity;
-  }
-
-  private static void applyPetAppearance(final UnleashedDogEntity dog, final PetSyncData pet) {
-    dog.setBaby(pet.baby());
-    dog.setCollarColor(DyeColor.byId(Math.floorMod(pet.collarColor(), COLLAR_COLOR_COUNT)));
-    final NbtCompound nbt = new NbtCompound();
-    if (pet.coatVariant() >= 0) {
-      nbt.putInt(ModNbtKeys.COAT_VARIANT, pet.coatVariant());
-    }
-    if (dog.getBreed().hasEyeColorVariants()) {
-      nbt.putInt(ModNbtKeys.EYE_COLOR_VARIANT, pet.huskyEyeVariant());
-    }
-    dog.readCustomDataFromNbt(nbt);
   }
 
   private static void drawMissingPortraitPlaceholder(

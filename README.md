@@ -248,7 +248,9 @@ breeds share one skeleton, so a puppy's proportions interpolate between its ance
 runtime from layered art: pigment colours blend by ancestry, pattern markings like the Beagle's saddle are inherited
 whole rather than averaged into mush, and eyes and nose are stamped last so they stay crisp. Ear shape is inherited
 whole from one ancestor, because a floppy Beagle ear and a feathered Golden ear are different shapes rather than two
-ends of a slider. The remaining three breeds keep their own rigs and coats until their art is normalised the same way.
+ends of a slider. Every 3D portrait in the menus draws the same animal as the world does, so a cross looks identical in
+the Pet Manager, Pet Details, inspect and family tree screens as it does standing beside you, ear shape included. The
+remaining three breeds keep their own rigs and coats until their art is normalised the same way.
 
 ### Loyalty Across Any Teleport
 
