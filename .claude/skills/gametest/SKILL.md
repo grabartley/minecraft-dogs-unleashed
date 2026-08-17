@@ -513,6 +513,8 @@ The CI workflow runs the same task on every PR (`.github/workflows/cicd.yml`). B
 | Sleep flag asserted true after `damage()` call but it's false | `AutoSleepGoal` re-slept the dog the very next tick | Assert in the same tick as the mutation, not 10 ticks later |
 | `COMMANDED_TO_SLEEP` asserted true after `startSleepingInBed` | Production intentionally clears it once asleep | Test the transition (was true, now false) |
 | Test passes sometimes, fails sometimes, no obvious cause | Cross-test contamination on world clock or static maps | Move tests into a named `batchId`; clear static state in `@BeforeBatch` |
+| A block you "removed" is still there, but only for fluids | `removeBlock` sets the pos to its own fluid state, so removing water re-places water | `setBlockState(pos, Blocks.AIR)` |
+| A dog is never rained on no matter how you set the weather | The framework roofs every structure with barriers unless the test opts out | `@GameTest(skyAccess = true)`, and remember weather is world state so pin it per batch |
 
 ## Skills you should use alongside this one
 

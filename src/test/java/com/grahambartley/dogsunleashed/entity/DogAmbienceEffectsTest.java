@@ -1,7 +1,6 @@
 package com.grahambartley.dogsunleashed.entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -112,44 +111,6 @@ class DogAmbienceEffectsTest {
           return false;
         });
     assertEquals(1, draws.get());
-  }
-
-  static Stream<Arguments> dryingTimers() {
-    return Stream.of(
-        Arguments.of("submerged resets the timer", true, false, 15, 0),
-        Arguments.of("submerged resets a timer that was already counting", true, true, 15, 0),
-        Arguments.of("the tick the dog leaves the water starts at one", false, true, 0, 1),
-        Arguments.of("a running dry timer keeps climbing", false, false, 5, 6),
-        Arguments.of("a dog that was never wet stays at zero", false, false, 0, 0));
-  }
-
-  @ParameterizedTest(name = "{0}")
-  @MethodSource("dryingTimers")
-  @DisplayName("the drying timer resets in water, starts on exit, and climbs while dry")
-  void dryingTimerTransitions(
-      final String label,
-      final boolean inWater,
-      final boolean wasInWater,
-      final int ticksSinceLeftWater,
-      final int expected) {
-    assertEquals(
-        expected,
-        DogAmbienceEffects.nextTicksSinceLeftWater(inWater, wasInWater, ticksSinceLeftWater));
-  }
-
-  @Test
-  @DisplayName("the shake fires on exactly one tick after leaving the water, and never in it")
-  void shakeStartsOnASingleDryTick() {
-    int startTicks = 0;
-    for (int ticks = 0; ticks <= 60; ticks++) {
-      if (DogAmbienceEffects.isShakeStartTick(false, ticks)) {
-        startTicks++;
-      }
-      assertFalse(
-          DogAmbienceEffects.isShakeStartTick(true, ticks),
-          "a submerged dog should never start a shake, ticks=" + ticks);
-    }
-    assertEquals(1, startTicks);
   }
 
   @Test

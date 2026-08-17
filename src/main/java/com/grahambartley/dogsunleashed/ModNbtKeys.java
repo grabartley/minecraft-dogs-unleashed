@@ -38,8 +38,8 @@ public final class ModNbtKeys {
   public static final String EYE_COLOR_VARIANT = "EyeColorVariant";
   public static final String COLLAR_COLOR = "CollarColor";
   public static final String SHAKE_PROGRESS = "ShakeProgress";
-  public static final String WAS_IN_WATER = "WasInWater";
-  public static final String TICKS_SINCE_LEFT_WATER = "TicksSinceLeftWater";
+  public static final String WAS_WET = "WasWet";
+  public static final String TICKS_SINCE_WET = "TicksSinceWet";
   public static final String SLEEPING_IN_BED = "SleepingInBed";
   public static final String BED_POS_X = "BedPosX";
   public static final String BED_POS_Y = "BedPosY";
