@@ -47,6 +47,7 @@ public final class DogsUnleashedConfigScreen extends Screen {
   private int autoSleepRangeBlocks;
   private float barkVolume;
   private float howlVolume;
+  private boolean showDogNames;
 
   public DogsUnleashedConfigScreen(@Nullable Screen parent) {
     super(Text.translatable("screen.dogs-unleashed.settings.title"));
@@ -68,6 +69,7 @@ public final class DogsUnleashedConfigScreen extends Screen {
     this.autoSleepRangeBlocks = current.autoSleepRangeBlocks();
     this.barkVolume = current.barkVolume();
     this.howlVolume = current.howlVolume();
+    this.showDogNames = current.showDogNames();
   }
 
   @Override
@@ -104,6 +106,15 @@ public final class DogsUnleashedConfigScreen extends Screen {
         "screen.dogs-unleashed.settings.dropleashonplay.tooltip",
         this.dropLeashOnPlayMode,
         value -> this.dropLeashOnPlayMode = value);
+    y += ROW_HEIGHT;
+    addBooleanRow(
+        left,
+        y,
+        canEdit,
+        "screen.dogs-unleashed.settings.shownames",
+        "screen.dogs-unleashed.settings.shownames.tooltip",
+        this.showDogNames,
+        value -> this.showDogNames = value);
     y += ROW_HEIGHT + SECTION_GAP;
 
     y = addSectionHeader("screen.dogs-unleashed.settings.spawning", y);
@@ -329,7 +340,8 @@ public final class DogsUnleashedConfigScreen extends Screen {
             this.autoSleepEnabled,
             this.autoSleepRangeBlocks,
             this.barkVolume,
-            this.howlVolume);
+            this.howlVolume,
+            this.showDogNames);
     ClientPlayNetworking.send(new EditServerConfigC2SPayload(updated));
     close();
   }

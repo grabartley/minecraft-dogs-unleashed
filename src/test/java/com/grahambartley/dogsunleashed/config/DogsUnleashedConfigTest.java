@@ -27,7 +27,7 @@ class DogsUnleashedConfigTest {
   private static DogsUnleashedConfig configWithSpawnRates(
       final int globalPercent, final Map<String, Integer> breedPercents) {
     return new DogsUnleashedConfig(
-        true, globalPercent, breedPercents, false, true, true, true, 32, 1.0f, 1.5f);
+        true, globalPercent, breedPercents, false, true, true, true, 32, 1.0f, 1.5f, true);
   }
 
   @Test
@@ -71,6 +71,7 @@ class DogsUnleashedConfigTest {
     assertEquals(32, defaults.autoSleepRangeBlocks());
     assertEquals(1.0f, defaults.barkVolume());
     assertEquals(1.5f, defaults.howlVolume());
+    assertTrue(defaults.showDogNames());
   }
 
   @ParameterizedTest(name = "{0} defaults to 100")
@@ -114,7 +115,8 @@ class DogsUnleashedConfigTest {
             false,
             64,
             0.5f,
-            0.25f);
+            0.25f,
+            false);
     assertTrue(DogsUnleashedConfig.save(path, original));
     assertTrue(Files.exists(path));
     assertEquals(original, DogsUnleashedConfig.load(path));
@@ -154,6 +156,7 @@ class DogsUnleashedConfigTest {
     assertTrue(loaded.autoSleepEnabled());
     assertEquals(32, loaded.autoSleepRangeBlocks());
     assertEquals(1.5f, loaded.howlVolume());
+    assertTrue(loaded.showDogNames());
   }
 
   static Stream<Arguments> autoSleepRangeClampCases() {
@@ -175,7 +178,8 @@ class DogsUnleashedConfigTest {
       "constructor clamps autoSleepRangeBlocks to [AUTO_SLEEP_RANGE_MIN, AUTO_SLEEP_RANGE_MAX]")
   void constructorClampsAutoSleepRange(final int input, final int expected) {
     final DogsUnleashedConfig config =
-        new DogsUnleashedConfig(true, 100, Map.of(), false, true, true, true, input, 1.0f, 1.5f);
+        new DogsUnleashedConfig(
+            true, 100, Map.of(), false, true, true, true, input, 1.0f, 1.5f, true);
     assertEquals(expected, config.autoSleepRangeBlocks());
   }
 
@@ -195,7 +199,8 @@ class DogsUnleashedConfigTest {
   @DisplayName("constructor clamps barkVolume and howlVolume to [VOLUME_MIN, VOLUME_MAX]")
   void constructorClampsVolumes(final float input, final float expected) {
     final DogsUnleashedConfig config =
-        new DogsUnleashedConfig(true, 100, Map.of(), false, true, true, true, 32, input, input);
+        new DogsUnleashedConfig(
+            true, 100, Map.of(), false, true, true, true, 32, input, input, true);
     assertEquals(expected, config.barkVolume());
     assertEquals(expected, config.howlVolume());
   }
@@ -264,6 +269,30 @@ class DogsUnleashedConfigTest {
     final Path path = tempDir.resolve("dropleash.json");
     Files.writeString(path, "{\"dropLeashOnPlayMode\": false}", StandardCharsets.UTF_8);
     assertFalse(DogsUnleashedConfig.load(path).dropLeashOnPlayMode());
+  }
+
+  @Test
+  @DisplayName("load() honors an opt-out showDogNames=false from JSON")
+  void loadHonorsShowDogNamesOptOut() throws IOException {
+    final Path path = tempDir.resolve("shownames.json");
+    Files.writeString(path, "{\"showDogNames\": false}", StandardCharsets.UTF_8);
+    assertFalse(DogsUnleashedConfig.load(path).showDogNames());
+  }
+
+  @Test
+  @DisplayName(
+      "load() defaults showDogNames to true for a config written before the option existed")
+  void loadPreExistingConfigWithoutShowDogNamesDefaultsToTrue() throws IOException {
+    final Path path = tempDir.resolve("legacy.json");
+    Files.writeString(
+        path,
+        "{\"enableNaturalSpawning\": true, \"spawnRateMultiplierPercent\": 100,"
+            + " \"capIndependentSpawningEnabled\": true, \"gravesEnabled\": true,"
+            + " \"dropLeashOnPlayMode\": true, \"autoSleepEnabled\": true,"
+            + " \"autoSleepRangeBlocks\": 32, \"barkVolume\": 1.0, \"howlVolume\": 1.5}",
+        StandardCharsets.UTF_8);
+
+    assertTrue(DogsUnleashedConfig.load(path).showDogNames());
   }
 
   @Test
@@ -354,7 +383,8 @@ class DogsUnleashedConfigTest {
             .withAutoSleepEnabled(false)
             .withAutoSleepRangeBlocks(64)
             .withBarkVolume(0.25f)
-            .withHowlVolume(0.75f);
+            .withHowlVolume(0.75f)
+            .withShowDogNames(false);
 
     assertEquals(DogsUnleashedConfig.defaults(), original);
     assertFalse(updated.enableNaturalSpawning());
@@ -368,5 +398,6 @@ class DogsUnleashedConfigTest {
     assertEquals(64, updated.autoSleepRangeBlocks());
     assertEquals(0.25f, updated.barkVolume());
     assertEquals(0.75f, updated.howlVolume());
+    assertFalse(updated.showDogNames());
   }
 }

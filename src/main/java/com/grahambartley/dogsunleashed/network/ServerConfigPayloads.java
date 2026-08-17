@@ -70,6 +70,7 @@ public final class ServerConfigPayloads {
     buf.writeInt(config.autoSleepRangeBlocks());
     buf.writeFloat(config.barkVolume());
     buf.writeFloat(config.howlVolume());
+    buf.writeBoolean(config.showDogNames());
   }
 
   private static DogsUnleashedConfig readConfig(final RegistryByteBuf buf) {
@@ -83,6 +84,7 @@ public final class ServerConfigPayloads {
         buf.readBoolean(),
         buf.readInt(),
         buf.readFloat(),
-        buf.readFloat());
+        buf.readFloat(),
+        buf.readBoolean());
   }
 }

@@ -340,6 +340,7 @@ also edit via `/dogsunleashed config`.
 | Cap-Independent Spawner   | On      | On / Off   | Dedicated spawner that spawns wild dog packs near players even when the creature cap is full. Takes effect immediately. |
 | Dog Graves on Death       | On      | On / Off   | Whether tamed dogs leave a grave block. Off drops loot normally. |
 | Drop Leash on Play Mode   | On      | On / Off   | Whether starting fetch with a leashed dog drops the leash first. Off keeps the leash on and pauses fetching while leashed. |
+| Show Dog Names            | On      | On / Off   | Whether named dogs show their name above their head. Off hides every dog name without renaming anything. |
 | Auto-Sleep at Night       | On      | On / Off   | Whether dogs auto-sleep in their assigned bed at night.          |
 | Auto-Sleep Range (blocks) | 32      | 4 to 128   | How far a dog can be from its bed and still return at night.     |
 | Bark Volume               | 1.0     | 0.0 to 2.0 | Multiplier on bark sound volume (0.0 mutes).                     |
@@ -367,6 +368,7 @@ offline.
 /dogsunleashed config spawnrate <breed> <0..500>
 /dogsunleashed config capindependentspawning <true|false>
 /dogsunleashed config graves <true|false>
+/dogsunleashed config shownames <true|false>
 /dogsunleashed config autosleep <true|false>
 /dogsunleashed config autosleeprange <4..128>
 /dogsunleashed config barkvolume <0.0..2.0>

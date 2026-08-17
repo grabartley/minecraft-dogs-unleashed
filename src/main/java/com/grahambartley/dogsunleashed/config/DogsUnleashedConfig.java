@@ -30,7 +30,8 @@ public record DogsUnleashedConfig(
     boolean autoSleepEnabled,
     int autoSleepRangeBlocks,
     float barkVolume,
-    float howlVolume) {
+    float howlVolume,
+    boolean showDogNames) {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DogsUnleashedConfig.class);
   private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -51,6 +52,7 @@ public record DogsUnleashedConfig(
   public static final int DEFAULT_AUTO_SLEEP_RANGE_BLOCKS = 32;
   public static final float DEFAULT_BARK_VOLUME = 1.0f;
   public static final float DEFAULT_HOWL_VOLUME = 1.5f;
+  public static final boolean DEFAULT_SHOW_DOG_NAMES = true;
 
   static final String KEY_ENABLE_NATURAL_SPAWNING = "enableNaturalSpawning";
   static final String KEY_SPAWN_RATE_MULTIPLIER_PERCENT = "spawnRateMultiplierPercent";
@@ -62,6 +64,7 @@ public record DogsUnleashedConfig(
   static final String KEY_AUTO_SLEEP_RANGE_BLOCKS = "autoSleepRangeBlocks";
   static final String KEY_BARK_VOLUME = "barkVolume";
   static final String KEY_HOWL_VOLUME = "howlVolume";
+  static final String KEY_SHOW_DOG_NAMES = "showDogNames";
 
   public DogsUnleashedConfig {
     spawnRateMultiplierPercent =
@@ -84,7 +87,8 @@ public record DogsUnleashedConfig(
         DEFAULT_AUTO_SLEEP_ENABLED,
         DEFAULT_AUTO_SLEEP_RANGE_BLOCKS,
         DEFAULT_BARK_VOLUME,
-        DEFAULT_HOWL_VOLUME);
+        DEFAULT_HOWL_VOLUME,
+        DEFAULT_SHOW_DOG_NAMES);
   }
 
   /**
@@ -115,7 +119,8 @@ public record DogsUnleashedConfig(
         autoSleepEnabled,
         autoSleepRangeBlocks,
         barkVolume,
-        howlVolume);
+        howlVolume,
+        showDogNames);
   }
 
   public DogsUnleashedConfig withSpawnRateMultiplierPercent(int value) {
@@ -129,7 +134,8 @@ public record DogsUnleashedConfig(
         autoSleepEnabled,
         autoSleepRangeBlocks,
         barkVolume,
-        howlVolume);
+        howlVolume,
+        showDogNames);
   }
 
   public DogsUnleashedConfig withBreedSpawnRateMultiplierPercent(
@@ -146,7 +152,8 @@ public record DogsUnleashedConfig(
         autoSleepEnabled,
         autoSleepRangeBlocks,
         barkVolume,
-        howlVolume);
+        howlVolume,
+        showDogNames);
   }
 
   public DogsUnleashedConfig withCapIndependentSpawningEnabled(boolean value) {
@@ -160,7 +167,8 @@ public record DogsUnleashedConfig(
         autoSleepEnabled,
         autoSleepRangeBlocks,
         barkVolume,
-        howlVolume);
+        howlVolume,
+        showDogNames);
   }
 
   public DogsUnleashedConfig withGravesEnabled(boolean value) {
@@ -174,7 +182,8 @@ public record DogsUnleashedConfig(
         autoSleepEnabled,
         autoSleepRangeBlocks,
         barkVolume,
-        howlVolume);
+        howlVolume,
+        showDogNames);
   }
 
   public DogsUnleashedConfig withDropLeashOnPlayMode(boolean value) {
@@ -188,7 +197,8 @@ public record DogsUnleashedConfig(
         autoSleepEnabled,
         autoSleepRangeBlocks,
         barkVolume,
-        howlVolume);
+        howlVolume,
+        showDogNames);
   }
 
   public DogsUnleashedConfig withAutoSleepEnabled(boolean value) {
@@ -202,7 +212,8 @@ public record DogsUnleashedConfig(
         value,
         autoSleepRangeBlocks,
         barkVolume,
-        howlVolume);
+        howlVolume,
+        showDogNames);
   }
 
   public DogsUnleashedConfig withAutoSleepRangeBlocks(int value) {
@@ -216,7 +227,8 @@ public record DogsUnleashedConfig(
         autoSleepEnabled,
         value,
         barkVolume,
-        howlVolume);
+        howlVolume,
+        showDogNames);
   }
 
   public DogsUnleashedConfig withBarkVolume(float value) {
@@ -230,7 +242,8 @@ public record DogsUnleashedConfig(
         autoSleepEnabled,
         autoSleepRangeBlocks,
         value,
-        howlVolume);
+        howlVolume,
+        showDogNames);
   }
 
   public DogsUnleashedConfig withHowlVolume(float value) {
@@ -244,6 +257,22 @@ public record DogsUnleashedConfig(
         autoSleepEnabled,
         autoSleepRangeBlocks,
         barkVolume,
+        value,
+        showDogNames);
+  }
+
+  public DogsUnleashedConfig withShowDogNames(boolean value) {
+    return new DogsUnleashedConfig(
+        enableNaturalSpawning,
+        spawnRateMultiplierPercent,
+        breedSpawnRateMultipliersPercent,
+        capIndependentSpawningEnabled,
+        gravesEnabled,
+        dropLeashOnPlayMode,
+        autoSleepEnabled,
+        autoSleepRangeBlocks,
+        barkVolume,
+        howlVolume,
         value);
   }
 
@@ -315,6 +344,10 @@ public record DogsUnleashedConfig(
         root.has(KEY_AUTO_SLEEP_ENABLED)
             ? root.get(KEY_AUTO_SLEEP_ENABLED).getAsBoolean()
             : defaults.autoSleepEnabled;
+    final boolean showDogNames =
+        root.has(KEY_SHOW_DOG_NAMES)
+            ? root.get(KEY_SHOW_DOG_NAMES).getAsBoolean()
+            : defaults.showDogNames;
 
     final int rawSpawnRate =
         root.has(KEY_SPAWN_RATE_MULTIPLIER_PERCENT)
@@ -360,7 +393,8 @@ public record DogsUnleashedConfig(
         autoSleepEnabled,
         rawRange,
         rawBark,
-        rawHowl);
+        rawHowl,
+        showDogNames);
   }
 
   static JsonObject toJson(DogsUnleashedConfig config) {
@@ -380,6 +414,7 @@ public record DogsUnleashedConfig(
     root.addProperty(KEY_AUTO_SLEEP_RANGE_BLOCKS, config.autoSleepRangeBlocks);
     root.addProperty(KEY_BARK_VOLUME, config.barkVolume);
     root.addProperty(KEY_HOWL_VOLUME, config.howlVolume);
+    root.addProperty(KEY_SHOW_DOG_NAMES, config.showDogNames);
     return root;
   }
 
