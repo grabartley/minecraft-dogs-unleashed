@@ -10,7 +10,6 @@ import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
 import com.grahambartley.dogsunleashed.block.entity.DogBedBlockEntity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
-import com.grahambartley.dogsunleashed.entity.fetch.FetchProjectileEntity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenomeCombiner;
@@ -38,9 +37,7 @@ import com.grahambartley.dogsunleashed.screenhandler.DogEquipmentScreenHandler;
 import com.grahambartley.dogsunleashed.util.BreedingOwnerResolver;
 import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
@@ -77,7 +74,6 @@ import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -93,7 +89,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.TimeHelper;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -123,8 +118,6 @@ public class UnleashedDogEntity extends TameableEntity
   public static final int UNSET_VARIANT = -1;
 
   private static final double POSITION_CENTER_OFFSET = 0.5;
-  private static final int FETCH_DETECTION_XZ_RANGE = 128;
-  private static final int FETCH_DETECTION_Y_RANGE = 64;
   private static final double ESCAPE_DANGER_SPEED = 1.5;
   private static final float POUNCE_STRENGTH = 0.4F;
   private static final double DEFAULT_GOAL_SPEED = 1.0;
@@ -188,12 +181,6 @@ public class UnleashedDogEntity extends TameableEntity
   private static final TrackedData<Integer> COMMAND =
       DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.INTEGER);
 
-  private static final String NO_ACTIVE_FETCH_TYPE = "";
-
-  private static final Map<UUID, UUID> ACTIVE_PLAY_SESSIONS = new HashMap<>();
-
-  private boolean inPlayMode = false;
-  private BlockPos activeFetchBlockPos = null;
   private BlockPos commandAnchorPos = null;
 
   private static final UniformIntProvider ANGER_TIME_RANGE = TimeHelper.betweenSeconds(20, 39);
@@ -230,6 +217,7 @@ public class UnleashedDogEntity extends TameableEntity
   private final DogVocalization vocalization = new DogVocalization(this);
   private final DogAmbienceEffects ambience = new DogAmbienceEffects(this);
   private final DogSleepController sleep = new DogSleepController(this);
+  private final DogPlaySession play = new DogPlaySession(this);
   private UUID parentDogUuid = null;
   private UUID secondParentDogUuid = null;
   private boolean spawnedByDogSpawner = false;
@@ -433,7 +421,7 @@ public class UnleashedDogEntity extends TameableEntity
     builder.add(COMMANDED_TO_SLEEP, false);
     builder.add(ASSIGNED_BED_POS, Optional.empty());
     builder.add(IS_CARRYING_FETCH_ITEM, false);
-    builder.add(ACTIVE_FETCH_TYPE_ID, NO_ACTIVE_FETCH_TYPE);
+    builder.add(ACTIVE_FETCH_TYPE_ID, DogPlaySession.NO_ACTIVE_FETCH_TYPE);
     builder.add(CARRIED_FETCH_ITEM_STACK, ItemStack.EMPTY);
     builder.add(PENDANT_ITEM, ItemStack.EMPTY);
     builder.add(COSMETIC_ITEM, ItemStack.EMPTY);
@@ -594,33 +582,39 @@ public class UnleashedDogEntity extends TameableEntity
   }
 
   public boolean isInPlayMode() {
-    return this.inPlayMode;
+    return this.play.isInPlayMode();
   }
 
   public @Nullable UUID getPlayPartnerPlayerUuid() {
     return this.dataTracker.get(PLAY_PARTNER_UUID).orElse(null);
   }
 
-  public BlockPos getActiveFetchBlockPos() {
-    return this.activeFetchBlockPos;
+  void setPlayPartnerPlayerUuid(final @Nullable UUID playerUuid) {
+    this.dataTracker.set(PLAY_PARTNER_UUID, Optional.ofNullable(playerUuid));
   }
 
-  public void setActiveFetchBlockPos(BlockPos pos) {
-    this.activeFetchBlockPos = pos;
+  public @Nullable BlockPos getActiveFetchBlockPos() {
+    return this.play.activeFetchBlockPos();
+  }
+
+  public void setActiveFetchBlockPos(final @Nullable BlockPos pos) {
+    this.play.setActiveFetchBlockPos(pos);
+  }
+
+  String activeFetchTypeId() {
+    return this.dataTracker.get(ACTIVE_FETCH_TYPE_ID);
+  }
+
+  void setActiveFetchTypeId(final String activeFetchTypeId) {
+    this.dataTracker.set(ACTIVE_FETCH_TYPE_ID, activeFetchTypeId);
   }
 
   public @Nullable FetchItemType getActiveFetchType() {
-    String activeFetchTypeId = this.dataTracker.get(ACTIVE_FETCH_TYPE_ID);
-    if (activeFetchTypeId.isEmpty()) {
-      return null;
-    }
-    return FetchTypes.forId(Identifier.of(activeFetchTypeId));
+    return DogPlaySession.fetchTypeFromId(this.activeFetchTypeId());
   }
 
-  public void setActiveFetchType(@Nullable FetchItemType activeFetchType) {
-    this.dataTracker.set(
-        ACTIVE_FETCH_TYPE_ID,
-        activeFetchType != null ? activeFetchType.id().toString() : NO_ACTIVE_FETCH_TYPE);
+  public void setActiveFetchType(final @Nullable FetchItemType activeFetchType) {
+    this.setActiveFetchTypeId(DogPlaySession.fetchTypeIdOf(activeFetchType));
   }
 
   public boolean isCarryingFetchItem() {
@@ -687,103 +681,32 @@ public class UnleashedDogEntity extends TameableEntity
     }
   }
 
-  public void startPlayMode(PlayerEntity player, FetchItemType fetchItemType) {
-    UUID priorDogUuid =
-        ActivePlaySessions.takeover(ACTIVE_PLAY_SESSIONS, player.getUuid(), this.getUuid());
-    if (priorDogUuid != null) {
-      endPlayModeForDog(priorDogUuid);
-    }
-    this.inPlayMode = true;
-    this.dataTracker.set(PLAY_PARTNER_UUID, Optional.of(player.getUuid()));
-    this.activeFetchBlockPos = null;
-    this.setActiveFetchType(fetchItemType);
-    this.demoteSitToFollow();
-  }
-
-  private void endPlayModeForDog(UUID priorDogUuid) {
-    if (!(this.getWorld() instanceof ServerWorld serverWorld)) {
-      return;
-    }
-    for (ServerWorld world : serverWorld.getServer().getWorlds()) {
-      Entity prior = world.getEntity(priorDogUuid);
-      if (prior instanceof UnleashedDogEntity priorDog) {
-        priorDog.endPlayMode();
-        return;
-      }
-    }
+  public void startPlayMode(final PlayerEntity player, final FetchItemType fetchItemType) {
+    this.play.startPlayMode(player, fetchItemType);
   }
 
   public void endPlayMode() {
-    ActivePlaySessions.clear(
-        ACTIVE_PLAY_SESSIONS, this.inPlayMode, this.getPlayPartnerPlayerUuid(), this.getUuid());
-    this.inPlayMode = false;
-    this.dataTracker.set(PLAY_PARTNER_UUID, Optional.empty());
-    this.activeFetchBlockPos = null;
-    this.setActiveFetchType(null);
-    this.setCarryingFetchItem(false);
+    this.play.endPlayMode();
   }
 
-  public static boolean isAnyDogInPlayModeFor(UUID playerUuid) {
-    return ACTIVE_PLAY_SESSIONS.containsKey(playerUuid);
+  public static boolean isAnyDogInPlayModeFor(final UUID playerUuid) {
+    return DogPlaySession.isAnyDogInPlayModeFor(playerUuid);
   }
 
-  /**
-   * Client-safe mirror of {@link #isAnyDogInPlayModeFor}. {@code ACTIVE_PLAY_SESSIONS} only lives
-   * on the logical server, so on a dedicated server the client evaluates the play-mode gate by
-   * scanning tracked dogs for a synced {@code PLAY_PARTNER_UUID} matching the player. The scan
-   * range mirrors fetch detection; dogs beyond client tracking range are invisible here, which only
-   * skips the cosmetic prediction, never the server-authoritative throw.
-   */
-  public static boolean isAnyNearbyDogInPlayModeFor(PlayerEntity player) {
-    return !player
-        .getWorld()
-        .getEntitiesByClass(
-            UnleashedDogEntity.class,
-            player
-                .getBoundingBox()
-                .expand(
-                    FETCH_DETECTION_XZ_RANGE, FETCH_DETECTION_Y_RANGE, FETCH_DETECTION_XZ_RANGE),
-            dog -> player.getUuid().equals(dog.getPlayPartnerPlayerUuid()))
-        .isEmpty();
+  public static boolean isAnyNearbyDogInPlayModeFor(final PlayerEntity player) {
+    return DogPlaySession.isAnyNearbyDogInPlayModeFor(player);
   }
 
   public static boolean isAnyDogInPlayMode() {
-    return !ACTIVE_PLAY_SESSIONS.isEmpty();
+    return DogPlaySession.isAnyDogInPlayMode();
   }
 
-  /**
-   * Clears the JVM-global active play sessions map. The map otherwise lives for the lifetime of the
-   * JVM; in singleplayer it survives world reloads and in gametest batches it leaks state between
-   * tests. Called by test {@code @BeforeBatch} hooks and by {@code SERVER_STOPPED}.
-   */
   public static void clearActivePlaySessions() {
-    ActivePlaySessions.clearAll(ACTIVE_PLAY_SESSIONS);
+    DogPlaySession.clearActivePlaySessions();
   }
 
   public boolean isActivelyFetching() {
-    if (!this.isInPlayMode()) {
-      return false;
-    }
-    if (this.isCarryingFetchItem() || this.activeFetchBlockPos != null) {
-      return true;
-    }
-    final UUID partnerUuid = this.getPlayPartnerPlayerUuid();
-    if (partnerUuid == null) {
-      return false;
-    }
-
-    return !this.getWorld()
-        .getEntitiesByClass(
-            Entity.class,
-            this.getBoundingBox()
-                .expand(
-                    FETCH_DETECTION_XZ_RANGE, FETCH_DETECTION_Y_RANGE, FETCH_DETECTION_XZ_RANGE),
-            entity ->
-                entity instanceof FetchProjectileEntity
-                    && entity instanceof ProjectileEntity projectile
-                    && projectile.getOwner() instanceof PlayerEntity player
-                    && partnerUuid.equals(player.getUuid()))
-        .isEmpty();
+    return this.play.isActivelyFetching();
   }
 
   /**
@@ -924,7 +847,7 @@ public class UnleashedDogEntity extends TameableEntity
         if (this.isLeashed() && DogsUnleashed.SERVER_CONFIG.dropLeashOnPlayMode()) {
           this.detachLeash();
         }
-        endOtherNearbyPlayModes(player);
+        this.play.endOtherNearbyPlayModes(player);
         this.startPlayMode(player, fetchItemType);
         player.sendMessage(
             Text.translatable("message.dogs-unleashed.play_start", this.getTamedName()), true);
@@ -1275,28 +1198,8 @@ public class UnleashedDogEntity extends TameableEntity
 
   @Override
   public void remove(RemovalReason reason) {
-    if (ActivePlaySessions.shouldEndOnRemoval(reason)) {
-      this.endPlayMode();
-    }
+    this.play.endOnRemoval(reason);
     super.remove(reason);
-  }
-
-  private void endOtherNearbyPlayModes(PlayerEntity player) {
-    for (UnleashedDogEntity dog :
-        this.getWorld()
-            .getEntitiesByClass(
-                UnleashedDogEntity.class,
-                this.getBoundingBox()
-                    .expand(
-                        FETCH_DETECTION_XZ_RANGE,
-                        FETCH_DETECTION_Y_RANGE,
-                        FETCH_DETECTION_XZ_RANGE),
-                candidate ->
-                    candidate != this
-                        && candidate.isInPlayMode()
-                        && player.getUuid().equals(candidate.getPlayPartnerPlayerUuid()))) {
-      dog.endPlayMode();
-    }
   }
 
   @Override
@@ -1355,7 +1258,7 @@ public class UnleashedDogEntity extends TameableEntity
     nbt.putInt(ModNbtKeys.COLLAR_COLOR, this.getCollarColor().getId());
     this.ambience.writeNbt(nbt);
     this.sleep.writeNbt(nbt);
-    nbt.putBoolean(ModNbtKeys.CARRYING_BALL, this.isCarryingFetchItem());
+    this.play.writeNbt(nbt);
     nbt.putInt(ModNbtKeys.TREAT_BUFF_TICKS, this.getTreatBuffTicks());
     nbt.putInt(ModNbtKeys.COMMAND_MODE, this.getCommand().id());
     if (this.commandAnchorPos != null) {
@@ -1369,17 +1272,6 @@ public class UnleashedDogEntity extends TameableEntity
     }
     if (this.secondParentDogUuid != null) {
       nbt.putUuid(ModNbtKeys.SECOND_PARENT_DOG_ID, this.secondParentDogUuid);
-    }
-    String activeFetchTypeId = this.dataTracker.get(ACTIVE_FETCH_TYPE_ID);
-    if (!activeFetchTypeId.isEmpty()) {
-      nbt.putString(ModNbtKeys.ACTIVE_FETCH_TYPE_ID, activeFetchTypeId);
-    }
-    ItemStack carried = this.getCarriedFetchItemStack();
-    if (!carried.isEmpty()) {
-      ItemStack.CODEC
-          .encodeStart(this.getWorld().getRegistryManager().getOps(NbtOps.INSTANCE), carried)
-          .result()
-          .ifPresent(tag -> nbt.put(ModNbtKeys.CARRIED_FETCH_ITEM_STACK, tag));
     }
     this.writeEquipmentToNbt(nbt, DogEquipmentSlot.PENDANT, ModNbtKeys.PENDANT_ITEM);
     this.writeEquipmentToNbt(nbt, DogEquipmentSlot.COSMETIC, ModNbtKeys.COSMETIC_ITEM);
@@ -1433,9 +1325,7 @@ public class UnleashedDogEntity extends TameableEntity
     }
     this.ambience.readNbt(nbt);
     this.sleep.readNbt(nbt);
-    if (nbt.contains(ModNbtKeys.CARRYING_BALL)) {
-      this.setCarryingFetchItem(nbt.getBoolean(ModNbtKeys.CARRYING_BALL));
-    }
+    this.play.readNbt(nbt);
     if (nbt.contains(ModNbtKeys.TREAT_BUFF_TICKS, NbtElement.NUMBER_TYPE)) {
       final int treatBuffTicks = Math.max(0, nbt.getInt(ModNbtKeys.TREAT_BUFF_TICKS));
       this.dataTracker.set(TREAT_BUFF_TICKS, treatBuffTicks);
@@ -1467,17 +1357,6 @@ public class UnleashedDogEntity extends TameableEntity
     }
     if (nbt.containsUuid(ModNbtKeys.SECOND_PARENT_DOG_ID)) {
       this.secondParentDogUuid = nbt.getUuid(ModNbtKeys.SECOND_PARENT_DOG_ID);
-    }
-    if (nbt.contains(ModNbtKeys.ACTIVE_FETCH_TYPE_ID, NbtElement.STRING_TYPE)) {
-      this.dataTracker.set(ACTIVE_FETCH_TYPE_ID, nbt.getString(ModNbtKeys.ACTIVE_FETCH_TYPE_ID));
-    }
-    if (nbt.contains(ModNbtKeys.CARRIED_FETCH_ITEM_STACK)) {
-      ItemStack.CODEC
-          .parse(
-              this.getWorld().getRegistryManager().getOps(NbtOps.INSTANCE),
-              nbt.get(ModNbtKeys.CARRIED_FETCH_ITEM_STACK))
-          .result()
-          .ifPresent(this::setCarriedFetchItemStack);
     }
     this.readEquipmentFromNbt(nbt, DogEquipmentSlot.PENDANT, ModNbtKeys.PENDANT_ITEM);
     this.readEquipmentFromNbt(nbt, DogEquipmentSlot.COSMETIC, ModNbtKeys.COSMETIC_ITEM);
