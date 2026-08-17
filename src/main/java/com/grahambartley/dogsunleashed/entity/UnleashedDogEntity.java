@@ -6,26 +6,12 @@ import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModBlockTags;
 import com.grahambartley.dogsunleashed.block.entity.DogBedBlockEntity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
-import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
-import com.grahambartley.dogsunleashed.entity.goal.AutoSleepGoal;
-import com.grahambartley.dogsunleashed.entity.goal.CommandFollowOwnerGoal;
-import com.grahambartley.dogsunleashed.entity.goal.FetchChaseGoal;
-import com.grahambartley.dogsunleashed.entity.goal.FetchRetrieveGoal;
-import com.grahambartley.dogsunleashed.entity.goal.FetchReturnGoal;
-import com.grahambartley.dogsunleashed.entity.goal.FetchTemptGoal;
-import com.grahambartley.dogsunleashed.entity.goal.FollowParentDogGoal;
-import com.grahambartley.dogsunleashed.entity.goal.GuardTargetGoal;
-import com.grahambartley.dogsunleashed.entity.goal.HuntTargetGoal;
-import com.grahambartley.dogsunleashed.entity.goal.PuppyAwareWanderGoal;
-import com.grahambartley.dogsunleashed.entity.goal.ReturnToAnchorGoal;
-import com.grahambartley.dogsunleashed.entity.goal.SleepInBedGoal;
 import com.grahambartley.dogsunleashed.entity.variant.DogCoats;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
 import com.grahambartley.dogsunleashed.entity.variant.UnleashedDogCoat;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetManager;
-import java.util.EnumSet;
 import java.util.Optional;
 import java.util.UUID;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
@@ -35,20 +21,6 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.ai.goal.ActiveTargetGoal;
-import net.minecraft.entity.ai.goal.AnimalMateGoal;
-import net.minecraft.entity.ai.goal.AttackWithOwnerGoal;
-import net.minecraft.entity.ai.goal.EscapeDangerGoal;
-import net.minecraft.entity.ai.goal.LookAroundGoal;
-import net.minecraft.entity.ai.goal.LookAtEntityGoal;
-import net.minecraft.entity.ai.goal.MeleeAttackGoal;
-import net.minecraft.entity.ai.goal.PounceAtTargetGoal;
-import net.minecraft.entity.ai.goal.RevengeGoal;
-import net.minecraft.entity.ai.goal.SitGoal;
-import net.minecraft.entity.ai.goal.SwimGoal;
-import net.minecraft.entity.ai.goal.TemptGoal;
-import net.minecraft.entity.ai.goal.TrackOwnerAttackerGoal;
-import net.minecraft.entity.ai.goal.UniversalAngerGoal;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
@@ -82,10 +54,6 @@ import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.animation.PlayState;
-import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class UnleashedDogEntity extends TameableEntity
@@ -98,16 +66,6 @@ public class UnleashedDogEntity extends TameableEntity
   public static final int UNSET_VARIANT = -1;
 
   private static final double POSITION_CENTER_OFFSET = 0.5;
-  private static final double ESCAPE_DANGER_SPEED = 1.5;
-  private static final float POUNCE_STRENGTH = 0.4F;
-  private static final double DEFAULT_GOAL_SPEED = 1.0;
-  private static final float FOLLOW_OWNER_MAX_DISTANCE = 10.0F;
-  private static final float FOLLOW_OWNER_MIN_DISTANCE = 2.0F;
-  private static final float HEEL_MAX_DISTANCE = 4.0F;
-  private static final float HEEL_MIN_DISTANCE = 1.5F;
-  private static final float LOOK_AT_PLAYER_RANGE = 8.0F;
-  private static final int PLAYER_ANGER_TARGET_CHANCE = 10;
-  private static final double MOVEMENT_THRESHOLD = 0.001;
   private static final double NEARBY_PLAYER_RANGE = 10.0D;
 
   private static final TrackedData<Integer> ANGER_TIME =
@@ -633,60 +591,7 @@ public class UnleashedDogEntity extends TameableEntity
 
   @Override
   protected void initGoals() {
-    this.goalSelector.add(1, new SwimGoal(this));
-    this.goalSelector.add(2, new SitGoal(this));
-    this.goalSelector.add(3, new SleepInBedGoal(this));
-    this.goalSelector.add(3, new FetchChaseGoal(this));
-    this.goalSelector.add(3, new FetchRetrieveGoal(this));
-    this.goalSelector.add(3, new FetchReturnGoal(this));
-    this.goalSelector.add(4, new AutoSleepGoal(this));
-    this.goalSelector.add(5, new EscapeDangerGoal(this, ESCAPE_DANGER_SPEED));
-    this.goalSelector.add(6, new PounceAtTargetGoal(this, POUNCE_STRENGTH));
-    this.goalSelector.add(7, new MeleeAttackGoal(this, DEFAULT_GOAL_SPEED, true));
-    this.goalSelector.add(8, new AnimalMateGoal(this, DEFAULT_GOAL_SPEED));
-    this.goalSelector.add(
-        9, new TemptGoal(this, DEFAULT_GOAL_SPEED, DogFoods.tamingIngredient(), false));
-    this.goalSelector.add(
-        9, new FetchTemptGoal(this, DEFAULT_GOAL_SPEED, FetchTypes.asIngredient(), false));
-    // The three goals below share a priority; their command gates keep them mutually exclusive.
-    this.goalSelector.add(10, new ReturnToAnchorGoal(this));
-    this.goalSelector.add(
-        10,
-        new CommandFollowOwnerGoal(
-            this,
-            DEFAULT_GOAL_SPEED,
-            FOLLOW_OWNER_MAX_DISTANCE,
-            FOLLOW_OWNER_MIN_DISTANCE,
-            EnumSet.of(DogCommand.FOLLOW, DogCommand.HUNT)));
-    this.goalSelector.add(
-        10,
-        new CommandFollowOwnerGoal(
-            this,
-            DEFAULT_GOAL_SPEED,
-            HEEL_MAX_DISTANCE,
-            HEEL_MIN_DISTANCE,
-            EnumSet.of(DogCommand.HEEL)));
-    this.goalSelector.add(11, new FollowParentDogGoal(this, DEFAULT_GOAL_SPEED));
-    this.goalSelector.add(12, new PuppyAwareWanderGoal(this, DEFAULT_GOAL_SPEED));
-    this.goalSelector.add(13, new LookAtEntityGoal(this, PlayerEntity.class, LOOK_AT_PLAYER_RANGE));
-    this.goalSelector.add(14, new LookAroundGoal(this));
-
-    this.targetSelector.add(1, new TrackOwnerAttackerGoal(this));
-    this.targetSelector.add(2, new AttackWithOwnerGoal(this));
-    this.targetSelector.add(
-        3, new RevengeGoal(this, DogFriendlyTargetPolicy.FRIENDLY_TARGET_TYPES));
-    this.targetSelector.add(
-        4,
-        new ActiveTargetGoal<>(
-            this,
-            PlayerEntity.class,
-            PLAYER_ANGER_TARGET_CHANCE,
-            true,
-            false,
-            this::shouldAngerAt));
-    this.targetSelector.add(5, new UniversalAngerGoal<>(this, true));
-    this.targetSelector.add(6, new HuntTargetGoal(this));
-    this.targetSelector.add(6, new GuardTargetGoal(this));
+    DogGoalRegistrar.registerGoals(this, this.goalSelector, this.targetSelector);
   }
 
   @Override
@@ -760,11 +665,6 @@ public class UnleashedDogEntity extends TameableEntity
 
   boolean isPlayerHoldingTamingOrBreedingItem(final PlayerEntity player) {
     return DogFoods.isHoldingTamingOrBreedingItem(player);
-  }
-
-  protected boolean isMoving(final AnimationState<UnleashedDogEntity> animationState) {
-    return animationState.getAnimatable().getVelocity().horizontalLengthSquared()
-        > MOVEMENT_THRESHOLD;
   }
 
   @Override
@@ -931,81 +831,7 @@ public class UnleashedDogEntity extends TameableEntity
 
   @Override
   public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-    controllers.add(
-        new AnimationController<>(
-            this,
-            "movement",
-            0,
-            state -> {
-              if (state.getAnimatable().isSleepingInBed()) {
-                return state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.SLEEP));
-              }
-              if (state.getAnimatable().isInSittingPose()) {
-                return state.setAndContinue(RawAnimation.begin().thenLoop("sit"));
-              }
-              if (this.isMoving(state)) {
-                return state.setAndContinue(RawAnimation.begin().thenLoop("walk"));
-              }
-              return state.setAndContinue(RawAnimation.begin().thenLoop("idle"));
-            }));
-
-    controllers.add(
-        new AnimationController<>(
-            this,
-            "tail",
-            0,
-            state -> {
-              final UnleashedDogEntity dog = state.getAnimatable();
-              if (dog.getTailWagTimerTicks() > 0 && !dog.isSleepingInBed()) {
-                return state.setAndContinue(RawAnimation.begin().thenLoop("tail_wag"));
-              }
-              return PlayState.STOP;
-            }));
-
-    controllers.add(
-        new AnimationController<>(
-            this,
-            "shake",
-            0,
-            state -> {
-              if (state.getAnimatable().isShaking()) {
-                return state.setAndContinue(RawAnimation.begin().thenLoop("shake"));
-              }
-              return PlayState.STOP;
-            }));
-
-    controllers.add(
-        new AnimationController<>(
-            this,
-            "howl",
-            0,
-            state -> {
-              if (this.isHowling()) {
-                if (this.isInSittingPose()) {
-                  return state.setAndContinue(
-                      RawAnimation.begin().thenLoop(DogAnimationKeys.HOWL_SIT));
-                }
-                return state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.HOWL));
-              }
-              return PlayState.STOP;
-            }));
-
-    controllers.add(
-        new AnimationController<>(
-            this,
-            "head_tilt",
-            5,
-            state -> {
-              final UnleashedDogEntity dog = state.getAnimatable();
-              if (dog.isHeadTilting()) {
-                if (state.getController().getAnimationState()
-                    == AnimationController.State.STOPPED) {
-                  state.getController().forceAnimationReset();
-                }
-                return state.setAndContinue(RawAnimation.begin().thenPlayAndHold("head_tilt"));
-              }
-              return PlayState.STOP;
-            }));
+    DogAnimationControllers.register(this, controllers);
   }
 
   @Override
