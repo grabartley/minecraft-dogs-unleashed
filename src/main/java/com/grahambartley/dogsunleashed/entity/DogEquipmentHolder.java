@@ -58,15 +58,15 @@ public final class DogEquipmentHolder {
     this.dog.setEquipmentDropChance(EquipmentSlot.BODY, GUARANTEED_ARMOUR_DROP_CHANCE);
   }
 
-  ItemStack get(final DogEquipmentSlot slot) {
+  public ItemStack getStack(final DogEquipmentSlot slot) {
     return switch (slot) {
       case ARMOUR -> this.dog.getEquippedStack(EquipmentSlot.BODY);
-      case PENDANT -> this.dog.pendantItem();
-      case COSMETIC -> this.dog.cosmeticItem();
+      case PENDANT -> this.dog.getPendantItem();
+      case COSMETIC -> this.dog.getCosmeticItem();
     };
   }
 
-  void set(final DogEquipmentSlot slot, final ItemStack stack) {
+  public void setStack(final DogEquipmentSlot slot, final ItemStack stack) {
     switch (slot) {
       case ARMOUR -> this.dog.equipStack(EquipmentSlot.BODY, stack);
       case PENDANT -> this.dog.setPendantItem(stack);
@@ -80,10 +80,10 @@ public final class DogEquipmentHolder {
 
   void dropModOwnedSlots() {
     for (final PersistedSlot owned : MOD_OWNED_SLOTS) {
-      final ItemStack stack = this.get(owned.slot());
+      final ItemStack stack = this.getStack(owned.slot());
       if (!stack.isEmpty()) {
         this.dog.dropStack(stack);
-        this.set(owned.slot(), ItemStack.EMPTY);
+        this.setStack(owned.slot(), ItemStack.EMPTY);
       }
     }
   }
@@ -93,7 +93,9 @@ public final class DogEquipmentHolder {
       final PlayerEntity player, final Hand hand, final ItemStack heldStack) {
     final DogEquipmentSlot targetSlot = DogEquipmentSlot.directEquipSlotFor(heldStack);
     return switch (directEquipOutcome(
-        heldStack.isOf(Items.SHEARS), !this.get(DogEquipmentSlot.ARMOUR).isEmpty(), targetSlot)) {
+        heldStack.isOf(Items.SHEARS),
+        !this.getStack(DogEquipmentSlot.ARMOUR).isEmpty(),
+        targetSlot)) {
       case IGNORED -> null;
       case SHEAR_OFF_ARMOUR -> this.shearOffArmour(player, hand, heldStack);
       case EQUIP -> this.equipFromHand(player, targetSlot, heldStack);
@@ -102,8 +104,8 @@ public final class DogEquipmentHolder {
 
   private ActionResult shearOffArmour(
       final PlayerEntity player, final Hand hand, final ItemStack shears) {
-    final ItemStack equippedArmour = this.get(DogEquipmentSlot.ARMOUR);
-    this.set(DogEquipmentSlot.ARMOUR, ItemStack.EMPTY);
+    final ItemStack equippedArmour = this.getStack(DogEquipmentSlot.ARMOUR);
+    this.setStack(DogEquipmentSlot.ARMOUR, ItemStack.EMPTY);
     shears.damage(1, player, LivingEntity.getSlotForHand(hand));
     player.giveItemStack(equippedArmour);
     this.dog.playSoundIfNotSilent(SoundEvents.ITEM_ARMOR_UNEQUIP_WOLF);
@@ -112,8 +114,8 @@ public final class DogEquipmentHolder {
 
   private ActionResult equipFromHand(
       final PlayerEntity player, final DogEquipmentSlot slot, final ItemStack heldStack) {
-    final ItemStack previous = this.get(slot);
-    this.set(slot, heldStack.copyWithCount(1));
+    final ItemStack previous = this.getStack(slot);
+    this.setStack(slot, heldStack.copyWithCount(1));
     heldStack.decrementUnlessCreative(1, player);
     if (!previous.isEmpty()) {
       player.giveItemStack(previous);
@@ -124,7 +126,7 @@ public final class DogEquipmentHolder {
 
   void writeNbt(final NbtCompound nbt) {
     for (final PersistedSlot owned : MOD_OWNED_SLOTS) {
-      final ItemStack stack = this.get(owned.slot());
+      final ItemStack stack = this.getStack(owned.slot());
       if (stack.isEmpty()) {
         continue;
       }
@@ -145,7 +147,7 @@ public final class DogEquipmentHolder {
               this.dog.getWorld().getRegistryManager().getOps(NbtOps.INSTANCE),
               nbt.get(owned.nbtKey()))
           .result()
-          .ifPresent(stack -> this.set(owned.slot(), stack));
+          .ifPresent(stack -> this.setStack(owned.slot(), stack));
     }
   }
 }

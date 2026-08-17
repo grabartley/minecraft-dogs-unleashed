@@ -116,7 +116,8 @@ public final class DogEntitySoundTest implements FabricGameTest {
     final UnleashedDogEntity husky = DogTestHelper.spawnDog(context, DogTestData.HUSKY);
 
     context.assertTrue(
-        husky.getHowlCooldownTicks() == 0, "Husky howl cooldown should be 0 at spawn");
+        husky.getVocalization().getHowlCooldownTicks() == 0,
+        "Husky howl cooldown should be 0 at spawn");
     context.complete();
   }
 
@@ -125,7 +126,7 @@ public final class DogEntitySoundTest implements FabricGameTest {
     final BlockPos absBedPos = context.getAbsolutePos(new BlockPos(0, 1, 0));
     final UnleashedDogEntity husky = DogTestHelper.spawnDog(context, DogTestData.HUSKY);
 
-    context.runAtTick(5, () -> husky.startSleepingInBed(absBedPos));
+    context.runAtTick(5, () -> husky.getSleepController().startSleepingInBed(absBedPos));
 
     context.runAtTick(
         10,
@@ -150,7 +151,7 @@ public final class DogEntitySoundTest implements FabricGameTest {
         10,
         () -> {
           context.assertTrue(
-              husky.getHowlCooldownTicks() == 0,
+              husky.getVocalization().getHowlCooldownTicks() == 0,
               "Howl cooldown should still be 0 since howl has not triggered");
           context.complete();
         });
@@ -164,7 +165,7 @@ public final class DogEntitySoundTest implements FabricGameTest {
         50,
         () -> {
           context.assertTrue(
-              husky.getHowlCooldownTicks() >= 0,
+              husky.getVocalization().getHowlCooldownTicks() >= 0,
               "husky howl cooldown should never go negative after ticking");
           context.complete();
         });
@@ -179,7 +180,7 @@ public final class DogEntitySoundTest implements FabricGameTest {
         10,
         () -> {
           context.assertTrue(
-              dog.getBarkCooldownTicks() > 0,
+              dog.getVocalization().getBarkCooldownTicks() > 0,
               "Low health dog should have barked (cooldown should be > 0)");
           context.complete();
         });
@@ -194,7 +195,7 @@ public final class DogEntitySoundTest implements FabricGameTest {
         10,
         () -> {
           context.assertTrue(
-              dog.getBarkCooldownTicks() == 0,
+              dog.getVocalization().getBarkCooldownTicks() == 0,
               data.breed().serializedId() + " should not bark at low health");
           context.complete();
         });
@@ -212,7 +213,7 @@ public final class DogEntitySoundTest implements FabricGameTest {
         10,
         () -> {
           context.assertTrue(
-              dog.getBarkCooldownTicks() > 0,
+              dog.getVocalization().getBarkCooldownTicks() > 0,
               "Dog with target should have barked (cooldown should be > 0)");
           context.complete();
         });
@@ -230,7 +231,7 @@ public final class DogEntitySoundTest implements FabricGameTest {
         10,
         () -> {
           context.assertTrue(
-              dog.getBarkCooldownTicks() == 0,
+              dog.getVocalization().getBarkCooldownTicks() == 0,
               data.breed().serializedId() + " should not bark with a target");
           context.complete();
         });
@@ -245,7 +246,7 @@ public final class DogEntitySoundTest implements FabricGameTest {
         10,
         () -> {
           context.assertTrue(
-              dog.getBarkCooldownTicks() > 0,
+              dog.getVocalization().getBarkCooldownTicks() > 0,
               "Dog should have barked when taking damage (cooldown should be > 0)");
           context.complete();
         });
@@ -261,7 +262,7 @@ public final class DogEntitySoundTest implements FabricGameTest {
         10,
         () -> {
           context.assertTrue(
-              dog.getBarkCooldownTicks() == 0,
+              dog.getVocalization().getBarkCooldownTicks() == 0,
               data.breed().serializedId() + " should not bark when taking damage");
           context.complete();
         });
@@ -279,17 +280,18 @@ public final class DogEntitySoundTest implements FabricGameTest {
         10,
         () -> {
           context.assertTrue(
-              dog.getBarkCooldownTicks() > 0, "Dog should have barked once (cooldown > 0)");
-          final int cooldownAfterFirstBark = dog.getBarkCooldownTicks();
+              dog.getVocalization().getBarkCooldownTicks() > 0,
+              "Dog should have barked once (cooldown > 0)");
+          final int cooldownAfterFirstBark = dog.getVocalization().getBarkCooldownTicks();
 
           context.runAtTick(
               12,
               () -> {
                 context.assertTrue(
-                    dog.getBarkCooldownTicks() < cooldownAfterFirstBark,
+                    dog.getVocalization().getBarkCooldownTicks() < cooldownAfterFirstBark,
                     "Cooldown should be decrementing");
                 context.assertTrue(
-                    dog.getBarkCooldownTicks() > 0,
+                    dog.getVocalization().getBarkCooldownTicks() > 0,
                     "Cooldown should still be active, preventing another bark");
                 context.complete();
               });
@@ -303,7 +305,7 @@ public final class DogEntitySoundTest implements FabricGameTest {
         10,
         () -> {
           context.assertTrue(
-              dog.getBarkCooldownTicks() == 0,
+              dog.getVocalization().getBarkCooldownTicks() == 0,
               data.breed().serializedId() + " bark cooldown should stay 0");
           context.complete();
         });

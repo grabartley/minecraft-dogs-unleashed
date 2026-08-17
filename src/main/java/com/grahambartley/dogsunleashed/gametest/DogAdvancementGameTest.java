@@ -123,7 +123,7 @@ public final class DogAdvancementGameTest implements FabricGameTest {
 
     HuskyHowledCriterion.INSTANCE.trigger(player);
     new FetchReturnGoal(husky).tick();
-    husky.startSleepingInBed(absBedPos);
+    husky.getSleepController().startSleepingInBed(absBedPos);
 
     final ItemStack graveStack = new ItemStack(ModItems.DOG_GRAVE);
     player.getInventory().setStack(0, graveStack);

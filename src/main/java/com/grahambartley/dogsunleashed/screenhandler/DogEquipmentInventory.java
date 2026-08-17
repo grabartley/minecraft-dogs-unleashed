@@ -70,7 +70,7 @@ public class DogEquipmentInventory implements Inventory {
     if (this.dog == null) {
       return;
     }
-    this.dog.setEquipment(SLOTS[index], stack);
+    this.dog.getEquipmentHolder().setStack(SLOTS[index], stack);
   }
 
   @Override
@@ -103,6 +103,6 @@ public class DogEquipmentInventory implements Inventory {
   }
 
   private ItemStack stackIn(final DogEquipmentSlot slot) {
-    return this.dog == null ? ItemStack.EMPTY : this.dog.getEquipment(slot);
+    return this.dog == null ? ItemStack.EMPTY : this.dog.getEquipmentHolder().getStack(slot);
   }
 }

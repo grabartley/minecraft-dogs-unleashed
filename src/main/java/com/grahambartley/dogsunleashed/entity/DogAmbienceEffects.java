@@ -116,7 +116,7 @@ public final class DogAmbienceEffects {
     this.dog.setTailWagTimer(TAIL_WAG_DURATION_TICKS);
   }
 
-  void celebrateOwnerArrival() {
+  public void celebrateOwnerArrival() {
     if (!(this.dog.getWorld() instanceof ServerWorld serverWorld) || !this.dog.isAlive()) {
       return;
     }
@@ -138,7 +138,7 @@ public final class DogAmbienceEffects {
     this.pendingBirthWakeHearts = true;
   }
 
-  boolean hasPendingBirthWakeHearts() {
+  public boolean hasPendingBirthWakeHearts() {
     return this.pendingBirthWakeHearts;
   }
 

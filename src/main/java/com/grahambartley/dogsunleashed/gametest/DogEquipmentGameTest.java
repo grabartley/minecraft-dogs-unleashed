@@ -65,7 +65,7 @@ public final class DogEquipmentGameTest implements FabricGameTest {
     dog.interactMob(owner, Hand.MAIN_HAND);
 
     context.assertTrue(
-        dog.getEquipment(DogEquipmentSlot.ARMOUR).isOf(Items.WOLF_ARMOR),
+        dog.getEquipmentHolder().getStack(DogEquipmentSlot.ARMOUR).isOf(Items.WOLF_ARMOR),
         "Right-clicking with wolf armour should fill the armour slot");
     context.assertEquals(
         owner.getStackInHand(Hand.MAIN_HAND).getCount(),
@@ -77,13 +77,13 @@ public final class DogEquipmentGameTest implements FabricGameTest {
   private static void testShearsRemoveArmour(final TestContext context, final DogTestData data) {
     final ServerPlayerEntity owner = survivalOwnerAt(context, OWNER_POS);
     final UnleashedDogEntity dog = spawnOwnedDog(context, data, owner);
-    dog.setEquipment(DogEquipmentSlot.ARMOUR, new ItemStack(Items.WOLF_ARMOR));
+    dog.getEquipmentHolder().setStack(DogEquipmentSlot.ARMOUR, new ItemStack(Items.WOLF_ARMOR));
     owner.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.SHEARS));
 
     dog.interactMob(owner, Hand.MAIN_HAND);
 
     context.assertTrue(
-        dog.getEquipment(DogEquipmentSlot.ARMOUR).isEmpty(),
+        dog.getEquipmentHolder().getStack(DogEquipmentSlot.ARMOUR).isEmpty(),
         "Shearing should empty the armour slot");
     context.assertTrue(
         inventoryHolds(owner, Items.WOLF_ARMOR, 0),
@@ -101,7 +101,7 @@ public final class DogEquipmentGameTest implements FabricGameTest {
     dog.interactMob(player, Hand.MAIN_HAND);
 
     context.assertTrue(
-        dog.getEquipment(DogEquipmentSlot.ARMOUR).isEmpty(),
+        dog.getEquipmentHolder().getStack(DogEquipmentSlot.ARMOUR).isEmpty(),
         "An untamed dog must not accept equipment from any interaction");
     context.complete();
   }
@@ -140,13 +140,13 @@ public final class DogEquipmentGameTest implements FabricGameTest {
     final UnleashedDogEntity dog = spawnOwnedDog(context, DogTestData.HUSKY, owner);
     final ItemStack worn = new ItemStack(Items.WOLF_ARMOR);
     worn.setDamage(WORN_ARMOUR_DAMAGE);
-    dog.setEquipment(DogEquipmentSlot.ARMOUR, worn);
+    dog.getEquipmentHolder().setStack(DogEquipmentSlot.ARMOUR, worn);
     owner.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.WOLF_ARMOR));
 
     dog.interactMob(owner, Hand.MAIN_HAND);
 
     context.assertEquals(
-        dog.getEquipment(DogEquipmentSlot.ARMOUR).getDamage(),
+        dog.getEquipmentHolder().getStack(DogEquipmentSlot.ARMOUR).getDamage(),
         0,
         "The freshly equipped armour should be the undamaged one");
     context.assertTrue(
@@ -159,9 +159,9 @@ public final class DogEquipmentGameTest implements FabricGameTest {
   public void everySlotSurvivesAnNbtRoundTrip(final TestContext context) {
     final UnleashedDogEntity dog = DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS);
     dog.setAiDisabled(true);
-    dog.setEquipment(DogEquipmentSlot.ARMOUR, new ItemStack(Items.WOLF_ARMOR));
-    dog.setEquipment(DogEquipmentSlot.PENDANT, new ItemStack(Items.GOLD_INGOT));
-    dog.setEquipment(DogEquipmentSlot.COSMETIC, new ItemStack(Items.PAPER));
+    dog.getEquipmentHolder().setStack(DogEquipmentSlot.ARMOUR, new ItemStack(Items.WOLF_ARMOR));
+    dog.getEquipmentHolder().setStack(DogEquipmentSlot.PENDANT, new ItemStack(Items.GOLD_INGOT));
+    dog.getEquipmentHolder().setStack(DogEquipmentSlot.COSMETIC, new ItemStack(Items.PAPER));
 
     final NbtCompound nbt = new NbtCompound();
     dog.writeCustomDataToNbt(nbt);
@@ -181,8 +181,8 @@ public final class DogEquipmentGameTest implements FabricGameTest {
   public void equipmentSurvivesTheSummonTeleportPath(final TestContext context) {
     final UnleashedDogEntity dog = DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS);
     dog.setAiDisabled(true);
-    dog.setEquipment(DogEquipmentSlot.ARMOUR, new ItemStack(Items.WOLF_ARMOR));
-    dog.setEquipment(DogEquipmentSlot.PENDANT, new ItemStack(Items.GOLD_INGOT));
+    dog.getEquipmentHolder().setStack(DogEquipmentSlot.ARMOUR, new ItemStack(Items.WOLF_ARMOR));
+    dog.getEquipmentHolder().setStack(DogEquipmentSlot.PENDANT, new ItemStack(Items.GOLD_INGOT));
 
     final BlockPos destination = context.getAbsolutePos(OWNER_POS);
     final UnleashedDogEntity summoned =
@@ -197,9 +197,9 @@ public final class DogEquipmentGameTest implements FabricGameTest {
   public void deathDropsEveryOccupiedSlot(final TestContext context) {
     final UnleashedDogEntity dog = DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS);
     dog.setAiDisabled(true);
-    dog.setEquipment(DogEquipmentSlot.ARMOUR, new ItemStack(Items.WOLF_ARMOR));
-    dog.setEquipment(DogEquipmentSlot.PENDANT, new ItemStack(Items.GOLD_INGOT));
-    dog.setEquipment(DogEquipmentSlot.COSMETIC, new ItemStack(Items.PAPER));
+    dog.getEquipmentHolder().setStack(DogEquipmentSlot.ARMOUR, new ItemStack(Items.WOLF_ARMOR));
+    dog.getEquipmentHolder().setStack(DogEquipmentSlot.PENDANT, new ItemStack(Items.GOLD_INGOT));
+    dog.getEquipmentHolder().setStack(DogEquipmentSlot.COSMETIC, new ItemStack(Items.PAPER));
 
     dog.kill();
 
@@ -220,7 +220,8 @@ public final class DogEquipmentGameTest implements FabricGameTest {
 
     for (final DogEquipmentSlot slot : DogEquipmentSlot.values()) {
       context.assertTrue(
-          wild.getEquipment(slot).isEmpty(), "A naturally spawned dog must have an empty " + slot);
+          wild.getEquipmentHolder().getStack(slot).isEmpty(),
+          "A naturally spawned dog must have an empty " + slot);
     }
     context.complete();
   }
@@ -235,7 +236,7 @@ public final class DogEquipmentGameTest implements FabricGameTest {
     handler.quickMove(owner, FIRST_HOTBAR_SLOT_INDEX);
 
     context.assertTrue(
-        dog.getEquipment(DogEquipmentSlot.ARMOUR).isOf(Items.WOLF_ARMOR),
+        dog.getEquipmentHolder().getStack(DogEquipmentSlot.ARMOUR).isOf(Items.WOLF_ARMOR),
         "Shift-clicking wolf armour should route it into the armour slot");
     context.assertTrue(
         owner.getInventory().getStack(0).isEmpty(),
@@ -247,13 +248,13 @@ public final class DogEquipmentGameTest implements FabricGameTest {
   public void shiftClickMovesArmourBackOutOfTheArmourSlot(final TestContext context) {
     final ServerPlayerEntity owner = serverOwnerAt(context, OWNER_POS);
     final UnleashedDogEntity dog = spawnOwnedDog(context, DogTestData.HUSKY, owner);
-    dog.setEquipment(DogEquipmentSlot.ARMOUR, new ItemStack(Items.WOLF_ARMOR));
+    dog.getEquipmentHolder().setStack(DogEquipmentSlot.ARMOUR, new ItemStack(Items.WOLF_ARMOR));
     final DogEquipmentScreenHandler handler = openHandler(owner, dog);
 
     handler.quickMove(owner, 0);
 
     context.assertTrue(
-        dog.getEquipment(DogEquipmentSlot.ARMOUR).isEmpty(),
+        dog.getEquipmentHolder().getStack(DogEquipmentSlot.ARMOUR).isEmpty(),
         "Shift-clicking out of the armour slot should empty it");
     context.assertTrue(
         owner.getInventory().contains(new ItemStack(Items.WOLF_ARMOR)),
@@ -272,7 +273,8 @@ public final class DogEquipmentGameTest implements FabricGameTest {
 
     for (final DogEquipmentSlot slot : DogEquipmentSlot.values()) {
       context.assertTrue(
-          dog.getEquipment(slot).isEmpty(), slot + " must stay empty for an unaccepted item");
+          dog.getEquipmentHolder().getStack(slot).isEmpty(),
+          slot + " must stay empty for an unaccepted item");
     }
     context.complete();
   }
@@ -299,13 +301,13 @@ public final class DogEquipmentGameTest implements FabricGameTest {
   public void takingArmourOutOfTheScreenClearsTheEntitySlot(final TestContext context) {
     final ServerPlayerEntity owner = serverOwnerAt(context, OWNER_POS);
     final UnleashedDogEntity dog = spawnOwnedDog(context, DogTestData.HUSKY, owner);
-    dog.setEquipment(DogEquipmentSlot.ARMOUR, new ItemStack(Items.WOLF_ARMOR));
+    dog.getEquipmentHolder().setStack(DogEquipmentSlot.ARMOUR, new ItemStack(Items.WOLF_ARMOR));
     final DogEquipmentScreenHandler handler = openHandler(owner, dog);
 
     handler.onSlotClick(0, 0, SlotActionType.PICKUP, owner);
 
     context.assertTrue(
-        dog.getEquipment(DogEquipmentSlot.ARMOUR).isEmpty(),
+        dog.getEquipmentHolder().getStack(DogEquipmentSlot.ARMOUR).isEmpty(),
         "Picking the armour up must clear the entity slot, not just the screen copy");
     context.assertTrue(
         handler.getCursorStack().isOf(Items.WOLF_ARMOR),
@@ -371,8 +373,12 @@ public final class DogEquipmentGameTest implements FabricGameTest {
       final DogEquipmentSlot slot,
       final Item expected) {
     context.assertTrue(
-        dog.getEquipment(slot).isOf(expected),
-        slot + " should still hold " + expected + " but held " + dog.getEquipment(slot));
+        dog.getEquipmentHolder().getStack(slot).isOf(expected),
+        slot
+            + " should still hold "
+            + expected
+            + " but held "
+            + dog.getEquipmentHolder().getStack(slot));
   }
 
   private static void assertDroppedExactlyOne(final TestContext context, final Item expected) {

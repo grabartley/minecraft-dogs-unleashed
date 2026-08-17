@@ -75,7 +75,7 @@ public final class DogLeashGameTest implements FabricGameTest {
     final ServerPlayerEntity owner = spawnOwnerAt(context, OWNER_POS);
     final UnleashedDogEntity dog = DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS);
     dog.setAiDisabled(true);
-    dog.startSleepingInBed(context.getAbsolutePos(BED_POS));
+    dog.getSleepController().startSleepingInBed(context.getAbsolutePos(BED_POS));
     context.assertTrue(dog.isSleepingInBed(), "The dog should be asleep before the leash attaches");
 
     dog.attachLeash(owner, true);
@@ -94,7 +94,7 @@ public final class DogLeashGameTest implements FabricGameTest {
     final ServerPlayerEntity owner = spawnOwnerAt(context, OWNER_POS);
     final UnleashedDogEntity dog = DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS);
     dog.setAiDisabled(true);
-    dog.commandToSleep(context.getAbsolutePos(BED_POS));
+    dog.getSleepController().commandToSleep(context.getAbsolutePos(BED_POS));
     context.assertTrue(
         dog.isCommandedToSleep(), "The dog should be en route to bed before the leash attaches");
 
@@ -122,7 +122,8 @@ public final class DogLeashGameTest implements FabricGameTest {
     dog.interactMob(owner, Hand.MAIN_HAND);
 
     context.assertTrue(
-        dog.isInPlayMode(), "Sneak-right-click with a fetch item should start play mode");
+        dog.getPlaySession().isInPlayMode(),
+        "Sneak-right-click with a fetch item should start play mode");
     context.assertFalse(
         dog.isLeashed(), "Starting play mode should drop the leash when the config is on");
     context.complete();
@@ -144,7 +145,8 @@ public final class DogLeashGameTest implements FabricGameTest {
       dog.interactMob(owner, Hand.MAIN_HAND);
 
       context.assertTrue(
-          dog.isInPlayMode(), "Play mode should still start while the drop-leash config is off");
+          dog.getPlaySession().isInPlayMode(),
+          "Play mode should still start while the drop-leash config is off");
       context.assertTrue(
           dog.isLeashed(), "The leash should stay attached while the drop-leash config is off");
     } finally {

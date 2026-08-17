@@ -62,7 +62,7 @@ public class DogBedBlockEntity extends BlockEntity implements GeoBlockEntity {
     if (this.assignedDogUuid != null && world != null) {
       final UnleashedDogEntity dog = getAssignedDog(world);
       if (dog != null) {
-        dog.clearAssignedBed();
+        dog.getSleepController().clearAssignedBed();
       }
     }
     this.assignedDogUuid = null;

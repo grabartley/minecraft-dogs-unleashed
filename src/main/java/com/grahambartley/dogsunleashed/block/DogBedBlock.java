@@ -180,12 +180,12 @@ public class DogBedBlock extends HorizontalFacingBlock implements BlockEntityPro
       if (dog != null && dog.isOwner(player)) {
         final String dogName = getDogName(world, dog);
         if (dog.isSleepingInBed()) {
-          dog.markManuallyWoken();
+          dog.getSleepController().markManuallyWoken();
           dog.wakeUp();
           player.sendMessage(
               Text.translatable("block.dogs-unleashed.dog_bed.wake_command", dogName), true);
         } else {
-          dog.commandToSleep(pos);
+          dog.getSleepController().commandToSleep(pos);
           player.sendMessage(
               Text.translatable("block.dogs-unleashed.dog_bed.sleep_command", dogName), true);
         }

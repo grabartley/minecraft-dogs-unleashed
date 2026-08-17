@@ -29,10 +29,12 @@ public interface FetchProjectileEntity {
             .getEntitiesByClass(
                 UnleashedDogEntity.class,
                 projectile.getBoundingBox().expand(NOTIFY_PLAY_RANGE),
-                dog -> dog.isInPlayMode() && playerUuid.equals(dog.getPlayPartnerPlayerUuid()));
+                dog ->
+                    dog.getPlaySession().isInPlayMode()
+                        && playerUuid.equals(dog.getPlayPartnerPlayerUuid()));
     for (UnleashedDogEntity dog : playingDogs) {
       dog.setActiveFetchType(fetchProjectileEntity.getFetchItemType());
-      dog.setActiveFetchBlockPos(fetchItemPos);
+      dog.getPlaySession().setActiveFetchBlockPos(fetchItemPos);
     }
   }
 
@@ -48,9 +50,11 @@ public interface FetchProjectileEntity {
             .getEntitiesByClass(
                 UnleashedDogEntity.class,
                 projectile.getBoundingBox().expand(NOTIFY_PLAY_RANGE),
-                dog -> dog.isInPlayMode() && playerUuid.equals(dog.getPlayPartnerPlayerUuid()));
+                dog ->
+                    dog.getPlaySession().isInPlayMode()
+                        && playerUuid.equals(dog.getPlayPartnerPlayerUuid()));
     for (UnleashedDogEntity dog : playingDogs) {
-      dog.endPlayMode();
+      dog.getPlaySession().endPlayMode();
     }
   }
 }

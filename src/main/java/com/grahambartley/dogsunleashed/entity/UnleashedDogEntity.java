@@ -5,7 +5,6 @@ import static com.grahambartley.dogsunleashed.ModConstants.BARK_PITCH;
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModBlockTags;
 import com.grahambartley.dogsunleashed.ModItems;
-import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
 import com.grahambartley.dogsunleashed.block.entity.DogBedBlockEntity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
@@ -70,7 +69,6 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -183,6 +181,7 @@ public class UnleashedDogEntity extends TameableEntity
   private final DogEquipmentHolder equipment = new DogEquipmentHolder(this);
   private final DogAppearanceRoller appearance = new DogAppearanceRoller(this);
   private final DogLineage lineage = new DogLineage(this);
+  private final DogEntityNbt persistence = new DogEntityNbt(this);
   private boolean spawnedByDogSpawner = false;
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -222,7 +221,7 @@ public class UnleashedDogEntity extends TameableEntity
         this.applyGenome(this.appearance.randomFounderMix());
         this.setHealth(this.getMaxHealth());
       }
-      this.rollAppearance(spawnReason);
+      this.getAppearanceRoller().rollAppearance(spawnReason);
     }
     return super.initialize(world, difficulty, spawnReason, entityData);
   }
@@ -289,10 +288,6 @@ public class UnleashedDogEntity extends TameableEntity
         .setBaseValue(genome.attackDamage());
   }
 
-  DogGenome genomeOrPure() {
-    return this.appearance.genomeOrPure();
-  }
-
   @Override
   public void onTrackedDataSet(final TrackedData<?> data) {
     super.onTrackedDataSet(data);
@@ -313,28 +308,12 @@ public class UnleashedDogEntity extends TameableEntity
     this.dataTracker.set(EYE_COLOR_VARIANT, traits.eyeColorVariantOrdinal());
   }
 
-  protected void rollAppearance(final SpawnReason spawnReason) {
-    this.appearance.rollAppearance(spawnReason);
-  }
-
-  public int getBarkCooldownTicks() {
-    return this.vocalization.barkCooldownTicks();
-  }
-
-  public float getBarkPitch() {
-    return this.vocalization.barkPitch();
-  }
-
   public boolean isHowling() {
     return this.dataTracker.get(HOWLING);
   }
 
   void setHowling(final boolean howling) {
     this.dataTracker.set(HOWLING, howling);
-  }
-
-  public int getHowlCooldownTicks() {
-    return this.vocalization.howlCooldownTicks();
   }
 
   @Override
@@ -370,6 +349,46 @@ public class UnleashedDogEntity extends TameableEntity
     return this.commandAnchorPos;
   }
 
+  public DogVocalization getVocalization() {
+    return this.vocalization;
+  }
+
+  public DogAmbienceEffects getAmbienceEffects() {
+    return this.ambience;
+  }
+
+  public DogSleepController getSleepController() {
+    return this.sleep;
+  }
+
+  public DogPlaySession getPlaySession() {
+    return this.play;
+  }
+
+  DogAppearanceRoller getAppearanceRoller() {
+    return this.appearance;
+  }
+
+  public DogLineage getLineage() {
+    return this.lineage;
+  }
+
+  public DogEquipmentHolder getEquipmentHolder() {
+    return this.equipment;
+  }
+
+  void setCommandAnchorPosFromSave(final BlockPos anchorPos) {
+    this.commandAnchorPos = anchorPos;
+  }
+
+  void setCommandFromSave(final DogCommand command) {
+    this.dataTracker.set(COMMAND, command.id());
+  }
+
+  void setTreatBuffTicksFromSave(final int treatBuffTicks) {
+    this.dataTracker.set(TREAT_BUFF_TICKS, treatBuffTicks);
+  }
+
   /**
    * Single entry point for switching command modes: keeps the sitting pose, the Stay/Guard anchor,
    * and any in-progress sleep consistent with the new command.
@@ -379,7 +398,7 @@ public class UnleashedDogEntity extends TameableEntity
       return;
     }
     if (this.isSleepingInBed() || this.isCommandedToSleep()) {
-      this.markManuallyWoken();
+      this.getSleepController().markManuallyWoken();
       this.wakeUp();
     }
     this.dataTracker.set(COMMAND, command.id());
@@ -393,7 +412,7 @@ public class UnleashedDogEntity extends TameableEntity
   /** Bark-and-wag feedback for a command issued in person, separate from silent state changes. */
   public void acknowledgeCommand() {
     this.ambience.startTailWag();
-    this.vocalization.barkIfReady(this.getBarkPitch());
+    this.vocalization.barkIfReady(this.getVocalization().getBarkPitch());
   }
 
   /**
@@ -470,48 +489,17 @@ public class UnleashedDogEntity extends TameableEntity
     this.dataTracker.set(COMMANDED_TO_SLEEP, commanded);
   }
 
-  void releaseBirthWakeHearts() {
-    this.ambience.releaseBirthWakeHearts();
-  }
-
-  public void clearAssignedBed() {
-    this.sleep.clearAssignedBed();
-  }
-
-  public void commandToSleep(final BlockPos bedPos) {
-    this.sleep.commandToSleep(bedPos);
-  }
-
   public boolean isCommandedToSleep() {
     return this.dataTracker.get(COMMANDED_TO_SLEEP);
   }
 
-  public void markManuallyWoken() {
-    this.sleep.markManuallyWoken();
-  }
-
-  public boolean isAutoSleepSuppressed() {
-    return this.sleep.isAutoSleepSuppressed();
-  }
-
-  public void startSleepingInBed(final BlockPos bedPos) {
-    this.sleep.startSleepingInBed(bedPos);
-  }
-
+  @Override
   public void wakeUp() {
     this.sleep.wakeUp();
   }
 
-  public boolean hasPendingBirthWakeHearts() {
-    return this.ambience.hasPendingBirthWakeHearts();
-  }
-
   public boolean hasAssignedBed() {
     return this.getAssignedBedPos().isPresent();
-  }
-
-  public boolean isInPlayMode() {
-    return this.play.isInPlayMode();
   }
 
   public @Nullable UUID getPlayPartnerPlayerUuid() {
@@ -522,15 +510,7 @@ public class UnleashedDogEntity extends TameableEntity
     this.dataTracker.set(PLAY_PARTNER_UUID, Optional.ofNullable(playerUuid));
   }
 
-  public @Nullable BlockPos getActiveFetchBlockPos() {
-    return this.play.activeFetchBlockPos();
-  }
-
-  public void setActiveFetchBlockPos(final @Nullable BlockPos pos) {
-    this.play.setActiveFetchBlockPos(pos);
-  }
-
-  String activeFetchTypeId() {
+  String getActiveFetchTypeId() {
     return this.dataTracker.get(ACTIVE_FETCH_TYPE_ID);
   }
 
@@ -539,7 +519,7 @@ public class UnleashedDogEntity extends TameableEntity
   }
 
   public @Nullable FetchItemType getActiveFetchType() {
-    return DogPlaySession.fetchTypeFromId(this.activeFetchTypeId());
+    return DogPlaySession.fetchTypeFromId(this.getActiveFetchTypeId());
   }
 
   public void setActiveFetchType(final @Nullable FetchItemType activeFetchType) {
@@ -565,15 +545,7 @@ public class UnleashedDogEntity extends TameableEntity
     this.dataTracker.set(CARRIED_FETCH_ITEM_STACK, stack);
   }
 
-  public ItemStack getEquipment(final DogEquipmentSlot slot) {
-    return this.equipment.get(slot);
-  }
-
-  public void setEquipment(final DogEquipmentSlot slot, final ItemStack stack) {
-    this.equipment.set(slot, stack);
-  }
-
-  ItemStack pendantItem() {
+  ItemStack getPendantItem() {
     return this.dataTracker.get(PENDANT_ITEM);
   }
 
@@ -581,7 +553,7 @@ public class UnleashedDogEntity extends TameableEntity
     this.dataTracker.set(PENDANT_ITEM, stack);
   }
 
-  ItemStack cosmeticItem() {
+  ItemStack getCosmeticItem() {
     return this.dataTracker.get(COSMETIC_ITEM);
   }
 
@@ -612,14 +584,6 @@ public class UnleashedDogEntity extends TameableEntity
     this.equipment.dropModOwnedSlots();
   }
 
-  public void startPlayMode(final PlayerEntity player, final FetchItemType fetchItemType) {
-    this.play.startPlayMode(player, fetchItemType);
-  }
-
-  public void endPlayMode() {
-    this.play.endPlayMode();
-  }
-
   public static boolean isAnyDogInPlayModeFor(final UUID playerUuid) {
     return DogPlaySession.isAnyDogInPlayModeFor(playerUuid);
   }
@@ -634,21 +598,6 @@ public class UnleashedDogEntity extends TameableEntity
 
   public static void clearActivePlaySessions() {
     DogPlaySession.clearActivePlaySessions();
-  }
-
-  public boolean isActivelyFetching() {
-    return this.play.isActivelyFetching();
-  }
-
-  /**
-   * Celebrates the arrival of this dog's owner with a tail wag and a small burst of heart
-   * particles. Server-authoritative: the tail wag is driven by the synced {@code TAIL_WAG_TIMER}
-   * tracked data so it animates on every tracking client, and the hearts go out via {@code
-   * spawnParticles} which the server broadcasts to nearby players. A per-dog cooldown keyed on
-   * entity age prevents repeat bursts when an owner relogs or paces in and out of the same chunk.
-   */
-  public void celebrateOwnerArrival() {
-    this.ambience.celebrateOwnerArrival();
   }
 
   public int getTailWagTimerTicks() {
@@ -673,7 +622,7 @@ public class UnleashedDogEntity extends TameableEntity
     DogTreatBuff.apply(this);
     this.ambience.startTailWag();
     this.ambience.burstHearts();
-    this.vocalization.forceBark(this.getBarkPitch());
+    this.vocalization.forceBark(this.getVocalization().getBarkPitch());
   }
 
   private void tickTreatBuff() {
@@ -771,8 +720,8 @@ public class UnleashedDogEntity extends TameableEntity
 
     FetchItemType fetchItemType = FetchTypes.forItem(itemStack.getItem());
     if (this.isTamed() && this.isOwner(player) && player.isSneaking() && fetchItemType != null) {
-      if (this.isInPlayMode()) {
-        this.endPlayMode();
+      if (this.getPlaySession().isInPlayMode()) {
+        this.getPlaySession().endPlayMode();
         player.sendMessage(
             Text.translatable("message.dogs-unleashed.play_end", this.getTamedName()), true);
       } else {
@@ -780,7 +729,7 @@ public class UnleashedDogEntity extends TameableEntity
           this.detachLeash();
         }
         this.play.endOtherNearbyPlayModes(player);
-        this.startPlayMode(player, fetchItemType);
+        this.getPlaySession().startPlayMode(player, fetchItemType);
         player.sendMessage(
             Text.translatable("message.dogs-unleashed.play_start", this.getTamedName()), true);
       }
@@ -914,30 +863,6 @@ public class UnleashedDogEntity extends TameableEntity
     }
   }
 
-  public void setParentDogUuid(final UUID parentDogUuid) {
-    this.lineage.setParentDogUuid(parentDogUuid);
-  }
-
-  public @Nullable UUID getParentDogUuid() {
-    return this.lineage.getParentDogUuid();
-  }
-
-  public void setSecondParentDogUuid(final UUID secondParentDogUuid) {
-    this.lineage.setSecondParentDogUuid(secondParentDogUuid);
-  }
-
-  public @Nullable UUID getSecondParentDogUuid() {
-    return this.lineage.getSecondParentDogUuid();
-  }
-
-  /**
-   * Resolves the living parent dog this puppy follows, or {@code null} when there is no recorded
-   * parent or it is no longer alive and loaded in the server world.
-   */
-  public @Nullable UnleashedDogEntity getParentDog() {
-    return this.lineage.getParentDog();
-  }
-
   /**
    * Puppies are non-combatants until they grow up. Refusing to accept a target while {@code
    * isBaby()} keeps {@code PounceAtTargetGoal} and {@code MeleeAttackGoal} inert (both require a
@@ -1049,7 +974,7 @@ public class UnleashedDogEntity extends TameableEntity
 
   @Override
   public void onDeath(DamageSource damageSource) {
-    this.endPlayMode();
+    this.getPlaySession().endPlayMode();
     super.onDeath(damageSource);
 
     // CRITICAL: Only spawn graves for tamed dogs
@@ -1088,88 +1013,13 @@ public class UnleashedDogEntity extends TameableEntity
   @Override
   public void writeCustomDataToNbt(NbtCompound nbt) {
     super.writeCustomDataToNbt(nbt);
-    this.writeAngerToNbt(nbt);
-    final DogGenome genome = this.getGenome();
-    if (genome != null) {
-      nbt.put(ModNbtKeys.GENOME, genome.toNbt());
-    }
-    final DogTraits traits = this.getTraits();
-    if (DogCoats.hasCoatVariants(traits.rigSourceBreed())) {
-      nbt.putInt(ModNbtKeys.COAT_VARIANT, traits.coatVariantOrdinal());
-    }
-    if (traits.rigSourceBreed().hasEyeColorVariants()) {
-      nbt.putInt(ModNbtKeys.EYE_COLOR_VARIANT, traits.eyeColorVariantOrdinal());
-    }
-    nbt.putInt(ModNbtKeys.COLLAR_COLOR, this.getCollarColor().getId());
-    this.ambience.writeNbt(nbt);
-    this.sleep.writeNbt(nbt);
-    this.play.writeNbt(nbt);
-    nbt.putInt(ModNbtKeys.TREAT_BUFF_TICKS, this.getTreatBuffTicks());
-    nbt.putInt(ModNbtKeys.COMMAND_MODE, this.getCommand().id());
-    if (this.commandAnchorPos != null) {
-      nbt.putInt(ModNbtKeys.COMMAND_ANCHOR_X, this.commandAnchorPos.getX());
-      nbt.putInt(ModNbtKeys.COMMAND_ANCHOR_Y, this.commandAnchorPos.getY());
-      nbt.putInt(ModNbtKeys.COMMAND_ANCHOR_Z, this.commandAnchorPos.getZ());
-    }
-    nbt.putBoolean(ModNbtKeys.SPAWNED_BY_DOG_SPAWNER, this.spawnedByDogSpawner);
-    this.lineage.writeNbt(nbt);
-    this.equipment.writeNbt(nbt);
+    this.persistence.writeNbt(nbt);
   }
 
   @Override
   public void readCustomDataFromNbt(NbtCompound nbt) {
     super.readCustomDataFromNbt(nbt);
-    this.readAngerFromNbt(this.getWorld(), nbt);
-    if (nbt.contains(ModNbtKeys.GENOME, NbtElement.COMPOUND_TYPE)) {
-      final DogGenome genome = DogGenome.fromNbt(nbt.getCompound(ModNbtKeys.GENOME));
-      if (genome != null) {
-        this.applyGenome(genome);
-      }
-    }
-    final DogTraits currentTraits = this.getTraits();
-    this.applyTraits(
-        new DogTraits(
-            this.getRigSourceBreed(),
-            nbt.contains(ModNbtKeys.COAT_VARIANT, NbtElement.NUMBER_TYPE)
-                ? nbt.getInt(ModNbtKeys.COAT_VARIANT)
-                : currentTraits.coatVariantOrdinal(),
-            nbt.contains(ModNbtKeys.EYE_COLOR_VARIANT, NbtElement.NUMBER_TYPE)
-                ? nbt.getInt(ModNbtKeys.EYE_COLOR_VARIANT)
-                : currentTraits.eyeColorVariantOrdinal()));
-    if (nbt.contains(ModNbtKeys.COLLAR_COLOR, NbtElement.NUMBER_TYPE)) {
-      this.setCollarColor(DyeColor.byId(nbt.getInt(ModNbtKeys.COLLAR_COLOR)));
-    }
-    this.ambience.readNbt(nbt);
-    this.sleep.readNbt(nbt);
-    this.play.readNbt(nbt);
-    if (nbt.contains(ModNbtKeys.TREAT_BUFF_TICKS, NbtElement.NUMBER_TYPE)) {
-      final int treatBuffTicks = Math.max(0, nbt.getInt(ModNbtKeys.TREAT_BUFF_TICKS));
-      this.dataTracker.set(TREAT_BUFF_TICKS, treatBuffTicks);
-      if (treatBuffTicks > 0) {
-        DogTreatBuff.apply(this);
-      }
-    }
-    if (nbt.contains(ModNbtKeys.COMMAND_MODE, NbtElement.NUMBER_TYPE)) {
-      this.dataTracker.set(COMMAND, DogCommand.fromId(nbt.getInt(ModNbtKeys.COMMAND_MODE)).id());
-    } else {
-      // Pre-command saves: sitting dogs stay seated, everything else keeps today's follow default.
-      this.dataTracker.set(
-          COMMAND, this.isSitting() ? DogCommand.SIT.id() : DogCommand.FOLLOW.id());
-    }
-    if (nbt.contains(ModNbtKeys.COMMAND_ANCHOR_X, NbtElement.NUMBER_TYPE)
-        && nbt.contains(ModNbtKeys.COMMAND_ANCHOR_Y, NbtElement.NUMBER_TYPE)
-        && nbt.contains(ModNbtKeys.COMMAND_ANCHOR_Z, NbtElement.NUMBER_TYPE)) {
-      this.commandAnchorPos =
-          new BlockPos(
-              nbt.getInt(ModNbtKeys.COMMAND_ANCHOR_X),
-              nbt.getInt(ModNbtKeys.COMMAND_ANCHOR_Y),
-              nbt.getInt(ModNbtKeys.COMMAND_ANCHOR_Z));
-    }
-    if (nbt.contains(ModNbtKeys.SPAWNED_BY_DOG_SPAWNER)) {
-      this.spawnedByDogSpawner = nbt.getBoolean(ModNbtKeys.SPAWNED_BY_DOG_SPAWNER);
-    }
-    this.lineage.readNbt(nbt);
-    this.equipment.readNbt(nbt);
+    this.persistence.readNbt(nbt);
   }
 
   @Override

@@ -40,12 +40,12 @@ public final class DogSleepController {
     return isNight(currentTimeOfDay);
   }
 
-  void clearAssignedBed() {
+  public void clearAssignedBed() {
     this.dog.setAssignedBedPos(null);
     this.wakeUp();
   }
 
-  void commandToSleep(final BlockPos bedPos) {
+  public void commandToSleep(final BlockPos bedPos) {
     if (!this.dog.isTamed()) {
       return;
     }
@@ -63,12 +63,12 @@ public final class DogSleepController {
             BED_APPROACH_SPEED);
   }
 
-  void markManuallyWoken() {
+  public void markManuallyWoken() {
     this.manuallyWokenAge = this.dog.age;
     this.manuallyWokenAtNight = isNight(timeOfDay(this.dog.getWorld().getTimeOfDay()));
   }
 
-  boolean isAutoSleepSuppressed() {
+  public boolean isAutoSleepSuppressed() {
     if (!this.manuallyWokenAtNight) {
       return false;
     }
@@ -85,7 +85,7 @@ public final class DogSleepController {
     return true;
   }
 
-  void startSleepingInBed(final BlockPos bedPos) {
+  public void startSleepingInBed(final BlockPos bedPos) {
     this.dog.setSleepingInBed(true);
     this.dog.setCommandedToSleep(false);
     this.dog.refreshPositionAndAngles(
@@ -107,7 +107,7 @@ public final class DogSleepController {
     this.dog.setNoGravity(false);
     this.dog.setSleepingInBed(false);
     this.dog.setCommandedToSleep(false);
-    this.dog.releaseBirthWakeHearts();
+    this.dog.getAmbienceEffects().releaseBirthWakeHearts();
   }
 
   void writeNbt(final NbtCompound nbt) {

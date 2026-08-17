@@ -34,7 +34,7 @@ public class FollowParentDogGoal extends Goal {
     if (!this.puppy.isBaby()) {
       return false;
     }
-    final UnleashedDogEntity resolved = this.puppy.getParentDog();
+    final UnleashedDogEntity resolved = this.puppy.getLineage().getParentDog();
     if (resolved == null) {
       return false;
     }

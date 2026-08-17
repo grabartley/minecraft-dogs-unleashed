@@ -36,7 +36,7 @@ public final class DogReunionGameTest implements FabricGameTest {
     context.runAtTick(
         3,
         () -> {
-          dog.celebrateOwnerArrival();
+          dog.getAmbienceEffects().celebrateOwnerArrival();
           context.assertTrue(
               dog.getTailWagTimerTicks() > 0,
               "celebrateOwnerArrival should start a tail wag, timer=" + dog.getTailWagTimerTicks());
@@ -51,13 +51,13 @@ public final class DogReunionGameTest implements FabricGameTest {
             context, DogTestData.HUSKY, new BlockPos(1, 1, 0), UUID.randomUUID());
     dog.setAiDisabled(true);
 
-    context.runAtTick(3, dog::celebrateOwnerArrival);
+    context.runAtTick(3, () -> dog.getAmbienceEffects().celebrateOwnerArrival());
 
     context.runAtTick(
         25,
         () -> {
           final int before = dog.getTailWagTimerTicks();
-          dog.celebrateOwnerArrival();
+          dog.getAmbienceEffects().celebrateOwnerArrival();
           final int after = dog.getTailWagTimerTicks();
 
           context.assertTrue(

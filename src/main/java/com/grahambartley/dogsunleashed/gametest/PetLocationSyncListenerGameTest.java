@@ -144,7 +144,7 @@ public final class PetLocationSyncListenerGameTest implements FabricGameTest {
     final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
     final UnleashedDogEntity husky = spawnTamedDog(context, owner);
     final UUID parentUuid = UUID.randomUUID();
-    husky.setParentDogUuid(parentUuid);
+    husky.getLineage().setParentDogUuid(parentUuid);
     final PetData petData = registerPet(context, owner, husky, true);
     context.assertTrue(
         petData.getParentAId() == null, "Precondition: legacy record starts without parents");

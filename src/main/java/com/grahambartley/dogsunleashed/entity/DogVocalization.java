@@ -62,15 +62,15 @@ public final class DogVocalization {
     return !dead && !sleepingInBed && !day && moonPhase == FULL_MOON_PHASE;
   }
 
-  public int barkCooldownTicks() {
+  public int getBarkCooldownTicks() {
     return this.barkCooldownTicks;
   }
 
-  public int howlCooldownTicks() {
+  public int getHowlCooldownTicks() {
     return this.howlCooldownTicks;
   }
 
-  public float barkPitch() {
+  public float getBarkPitch() {
     return barkPitch(this.dog.isBaby());
   }
 
@@ -115,7 +115,7 @@ public final class DogVocalization {
 
   private void tryBark(final @Nullable PlayerEntity nearbyPlayer) {
     if (this.canBark() && this.shouldBark(nearbyPlayer)) {
-      this.playBark(this.barkPitch());
+      this.playBark(this.getBarkPitch());
     }
   }
 

@@ -50,7 +50,7 @@ public class AutoSleepGoal extends Goal {
     if (this.dog.isSleepingInBed()) {
       return false;
     }
-    if (this.dog.isAutoSleepSuppressed()) {
+    if (this.dog.getSleepController().isAutoSleepSuppressed()) {
       return false;
     }
     if (!this.dog.hasAssignedBed()) {
@@ -170,7 +170,7 @@ public class AutoSleepGoal extends Goal {
       return;
     }
 
-    if (this.dog.isAutoSleepSuppressed()) {
+    if (this.dog.getSleepController().isAutoSleepSuppressed()) {
       this.dog.getNavigation().stop();
       return;
     }
@@ -189,7 +189,7 @@ public class AutoSleepGoal extends Goal {
     final double distanceToBed = this.dog.getBlockPos().getSquaredDistance(this.targetBedPos);
 
     if (distanceToBed <= CLOSE_ENOUGH_DISTANCE * CLOSE_ENOUGH_DISTANCE) {
-      this.dog.startSleepingInBed(this.targetBedPos);
+      this.dog.getSleepController().startSleepingInBed(this.targetBedPos);
     } else {
       this.dog
           .getNavigation()

@@ -113,7 +113,7 @@ public class SleepInBedGoal extends Goal {
     final double distanceToBed = this.dog.getBlockPos().getSquaredDistance(this.targetBedPos);
 
     if (distanceToBed <= CLOSE_ENOUGH_DISTANCE * CLOSE_ENOUGH_DISTANCE) {
-      this.dog.startSleepingInBed(this.targetBedPos);
+      this.dog.getSleepController().startSleepingInBed(this.targetBedPos);
     } else {
       this.dog
           .getNavigation()

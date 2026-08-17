@@ -136,7 +136,7 @@ public final class DogBedBlockGameTest implements FabricGameTest {
         10,
         () -> {
           husky.setAssignedBedPos(absBedPos);
-          husky.startSleepingInBed(absBedPos);
+          husky.getSleepController().startSleepingInBed(absBedPos);
 
           context.assertTrue(
               husky.isSleepingInBed(), "Dog should be sleeping after startSleepingInBed");
@@ -164,7 +164,7 @@ public final class DogBedBlockGameTest implements FabricGameTest {
         10,
         () -> {
           husky.setAssignedBedPos(absBedPos);
-          husky.startSleepingInBed(absBedPos);
+          husky.getSleepController().startSleepingInBed(absBedPos);
           context.assertTrue(husky.isSleepingInBed(), "Dog should be sleeping");
         });
 
@@ -195,7 +195,7 @@ public final class DogBedBlockGameTest implements FabricGameTest {
           husky.setAssignedBedPos(absBedPos);
           context.assertTrue(husky.hasAssignedBed(), "Dog should have assigned bed");
 
-          husky.clearAssignedBed();
+          husky.getSleepController().clearAssignedBed();
           context.assertTrue(
               !husky.hasAssignedBed(), "Dog should not have assigned bed after clearAssignedBed");
           context.complete();

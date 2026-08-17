@@ -57,7 +57,7 @@ public class FetchReturnGoal extends Goal {
   public void tick() {
     Entity owner = this.dog.getOwner();
     if (!(owner instanceof PlayerEntity player) || !player.isAlive()) {
-      this.dog.endPlayMode();
+      this.dog.getPlaySession().endPlayMode();
       return;
     }
 
@@ -84,7 +84,7 @@ public class FetchReturnGoal extends Goal {
       }
 
       this.dog.setCarryingFetchItem(false);
-      this.dog.setActiveFetchBlockPos(null);
+      this.dog.getPlaySession().setActiveFetchBlockPos(null);
     }
   }
 
@@ -125,7 +125,7 @@ public class FetchReturnGoal extends Goal {
       return fetchItemType;
     }
 
-    BlockPos activeFetchBlockPos = this.dog.getActiveFetchBlockPos();
+    BlockPos activeFetchBlockPos = this.dog.getPlaySession().getActiveFetchBlockPos();
     if (activeFetchBlockPos != null) {
       FetchItemType resolvedType =
           FetchTypes.forBlock(this.dog.getWorld().getBlockState(activeFetchBlockPos).getBlock());

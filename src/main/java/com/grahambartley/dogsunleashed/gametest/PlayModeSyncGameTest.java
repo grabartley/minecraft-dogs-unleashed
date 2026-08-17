@@ -48,7 +48,7 @@ public final class PlayModeSyncGameTest implements FabricGameTest {
     final PlayerEntity player = spawnPlayer(context);
     final UnleashedDogEntity dog = spawnDog(context);
 
-    dog.startPlayMode(player, FetchTypes.STICK);
+    dog.getPlaySession().startPlayMode(player, FetchTypes.STICK);
 
     context.assertTrue(
         player.getUuid().equals(dog.getPlayPartnerPlayerUuid()),
@@ -60,9 +60,9 @@ public final class PlayModeSyncGameTest implements FabricGameTest {
   public void endPlayModeClearsSyncedPlayPartner(final TestContext context) {
     final PlayerEntity player = spawnPlayer(context);
     final UnleashedDogEntity dog = spawnDog(context);
-    dog.startPlayMode(player, FetchTypes.STICK);
+    dog.getPlaySession().startPlayMode(player, FetchTypes.STICK);
 
-    dog.endPlayMode();
+    dog.getPlaySession().endPlayMode();
 
     context.assertTrue(
         dog.getPlayPartnerPlayerUuid() == null,
@@ -75,7 +75,7 @@ public final class PlayModeSyncGameTest implements FabricGameTest {
     final PlayerEntity player = spawnPlayer(context);
     final UnleashedDogEntity dog = spawnDog(context);
 
-    dog.startPlayMode(player, FetchTypes.STICK);
+    dog.getPlaySession().startPlayMode(player, FetchTypes.STICK);
 
     context.assertTrue(
         UnleashedDogEntity.isAnyNearbyDogInPlayModeFor(player),
@@ -89,7 +89,7 @@ public final class PlayModeSyncGameTest implements FabricGameTest {
     final PlayerEntity bystander = spawnPlayer(context);
     final UnleashedDogEntity dog = spawnDog(context);
 
-    dog.startPlayMode(partner, FetchTypes.STICK);
+    dog.getPlaySession().startPlayMode(partner, FetchTypes.STICK);
 
     context.assertFalse(
         UnleashedDogEntity.isAnyNearbyDogInPlayModeFor(bystander),
@@ -101,9 +101,9 @@ public final class PlayModeSyncGameTest implements FabricGameTest {
   public void nearbyGateFalseAfterPlayModeEnds(final TestContext context) {
     final PlayerEntity player = spawnPlayer(context);
     final UnleashedDogEntity dog = spawnDog(context);
-    dog.startPlayMode(player, FetchTypes.STICK);
+    dog.getPlaySession().startPlayMode(player, FetchTypes.STICK);
 
-    dog.endPlayMode();
+    dog.getPlaySession().endPlayMode();
 
     context.assertFalse(
         UnleashedDogEntity.isAnyNearbyDogInPlayModeFor(player),
@@ -116,9 +116,9 @@ public final class PlayModeSyncGameTest implements FabricGameTest {
     final PlayerEntity player = spawnPlayer(context);
     final UnleashedDogEntity firstDog = spawnDog(context);
     final UnleashedDogEntity secondDog = spawnDog(context);
-    firstDog.startPlayMode(player, FetchTypes.STICK);
+    firstDog.getPlaySession().startPlayMode(player, FetchTypes.STICK);
 
-    secondDog.startPlayMode(player, FetchTypes.STICK);
+    secondDog.getPlaySession().startPlayMode(player, FetchTypes.STICK);
 
     context.assertTrue(
         firstDog.getPlayPartnerPlayerUuid() == null,
@@ -133,7 +133,7 @@ public final class PlayModeSyncGameTest implements FabricGameTest {
   public void dogRemovalClearsSyncedPlayPartner(final TestContext context) {
     final PlayerEntity player = spawnPlayer(context);
     final UnleashedDogEntity dog = spawnDog(context);
-    dog.startPlayMode(player, FetchTypes.STICK);
+    dog.getPlaySession().startPlayMode(player, FetchTypes.STICK);
 
     dog.discard();
 

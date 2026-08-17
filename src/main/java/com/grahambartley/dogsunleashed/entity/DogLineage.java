@@ -65,15 +65,17 @@ public final class DogLineage {
       return null;
     }
     baby.setBaby(true);
-    baby.setParentDogUuid(this.dog.getUuid());
-    baby.setSecondParentDogUuid(partner.getUuid());
+    baby.getLineage().setParentDogUuid(this.dog.getUuid());
+    baby.getLineage().setSecondParentDogUuid(partner.getUuid());
     if (childBreed == UnleashedDogBreed.CROSS_BREED) {
       baby.applyGenome(
           DogGenomeCombiner.combine(
-              this.dog.genomeOrPure(), partner.genomeOrPure(), this.dog.getRandom()));
+              this.dog.getAppearanceRoller().genomeOrPure(),
+              partner.getAppearanceRoller().genomeOrPure(),
+              this.dog.getRandom()));
       baby.setHealth(baby.getMaxHealth());
     }
-    baby.rollAppearance(SpawnReason.BREEDING);
+    baby.getAppearanceRoller().rollAppearance(SpawnReason.BREEDING);
     final PlayerEntity lovingPlayer = this.dog.getLovingPlayer();
     if (lovingPlayer != null) {
       baby.tame(lovingPlayer);
@@ -92,26 +94,26 @@ public final class DogLineage {
     return baby;
   }
 
-  void setParentDogUuid(final UUID parentDogUuid) {
+  public void setParentDogUuid(final UUID parentDogUuid) {
     this.parentDogUuid = parentDogUuid;
   }
 
   @Nullable
-  UUID getParentDogUuid() {
+  public UUID getParentDogUuid() {
     return this.parentDogUuid;
   }
 
-  void setSecondParentDogUuid(final UUID secondParentDogUuid) {
+  public void setSecondParentDogUuid(final UUID secondParentDogUuid) {
     this.secondParentDogUuid = secondParentDogUuid;
   }
 
   @Nullable
-  UUID getSecondParentDogUuid() {
+  public UUID getSecondParentDogUuid() {
     return this.secondParentDogUuid;
   }
 
   @Nullable
-  UnleashedDogEntity getParentDog() {
+  public UnleashedDogEntity getParentDog() {
     if (this.parentDogUuid == null || !(this.dog.getWorld() instanceof ServerWorld serverWorld)) {
       return null;
     }
