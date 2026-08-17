@@ -18,7 +18,6 @@ public final class DogAmbienceEffects {
 
   private static final int RANDOM_TAIL_WAG_CHANCE = 200;
   private static final int SHAKE_PARTICLE_START_TICK = 10;
-  private static final int SHAKE_DELAY_TICKS = 20;
   private static final double POSITION_CENTER_OFFSET = 0.5;
   private static final int SHAKE_PARTICLE_COUNT = 20;
   private static final double SHAKE_PARTICLE_HORIZONTAL_OFFSET_RANGE = 0.5;
@@ -33,9 +32,8 @@ public final class DogAmbienceEffects {
   private static final double REUNION_HEART_VERTICAL_OFFSET_RANGE = 0.7;
 
   private final UnleashedDogEntity dog;
+  private final DogWetness wetness = new DogWetness();
 
-  private boolean wasInWater = false;
-  private int ticksSinceLeftWater = 0;
   private int lastReunionAge = -1;
   private boolean pendingBirthWakeHearts = false;
 
@@ -69,21 +67,6 @@ public final class DogAmbienceEffects {
     return randomWagHit.getAsBoolean() ? TAIL_WAG_DURATION_TICKS : currentTimer;
   }
 
-  public static int nextTicksSinceLeftWater(
-      final boolean inWater, final boolean wasInWater, final int ticksSinceLeftWater) {
-    if (inWater) {
-      return 0;
-    }
-    if (wasInWater) {
-      return 1;
-    }
-    return ticksSinceLeftWater > 0 ? ticksSinceLeftWater + 1 : ticksSinceLeftWater;
-  }
-
-  public static boolean isShakeStartTick(final boolean inWater, final int ticksSinceLeftWater) {
-    return !inWater && ticksSinceLeftWater == SHAKE_DELAY_TICKS;
-  }
-
   public static boolean isShakeParticleTick(final int shakeProgress) {
     return SHAKE_DURATION_TICKS - shakeProgress == SHAKE_PARTICLE_START_TICK;
   }
@@ -95,13 +78,9 @@ public final class DogAmbienceEffects {
   }
 
   void tickShakeOff() {
-    final boolean inWater = this.dog.isTouchingWater();
-    this.ticksSinceLeftWater =
-        nextTicksSinceLeftWater(inWater, this.wasInWater, this.ticksSinceLeftWater);
-    if (isShakeStartTick(inWater, this.ticksSinceLeftWater) && !this.dog.isShaking()) {
+    if (this.wetness.tick(this.dog.isTouchingWaterOrRain())) {
       this.startShaking();
     }
-    this.wasInWater = inWater;
 
     final int shakeProgress = this.dog.getShakeProgress();
     if (shakeProgress > 0) {
@@ -151,8 +130,7 @@ public final class DogAmbienceEffects {
 
   void writeNbt(final NbtCompound nbt) {
     nbt.putInt(ModNbtKeys.SHAKE_PROGRESS, this.dog.getShakeProgress());
-    nbt.putBoolean(ModNbtKeys.WAS_IN_WATER, this.wasInWater);
-    nbt.putInt(ModNbtKeys.TICKS_SINCE_LEFT_WATER, this.ticksSinceLeftWater);
+    this.wetness.writeNbt(nbt);
     nbt.putBoolean(ModNbtKeys.PENDING_BIRTH_WAKE_HEARTS, this.pendingBirthWakeHearts);
   }
 
@@ -160,12 +138,7 @@ public final class DogAmbienceEffects {
     if (nbt.contains(ModNbtKeys.SHAKE_PROGRESS, NbtElement.NUMBER_TYPE)) {
       this.dog.setShakeProgress(nbt.getInt(ModNbtKeys.SHAKE_PROGRESS));
     }
-    if (nbt.contains(ModNbtKeys.WAS_IN_WATER)) {
-      this.wasInWater = nbt.getBoolean(ModNbtKeys.WAS_IN_WATER);
-    }
-    if (nbt.contains(ModNbtKeys.TICKS_SINCE_LEFT_WATER, NbtElement.NUMBER_TYPE)) {
-      this.ticksSinceLeftWater = nbt.getInt(ModNbtKeys.TICKS_SINCE_LEFT_WATER);
-    }
+    this.wetness.readNbt(nbt);
     if (nbt.contains(ModNbtKeys.PENDING_BIRTH_WAKE_HEARTS)) {
       this.pendingBirthWakeHearts = nbt.getBoolean(ModNbtKeys.PENDING_BIRTH_WAKE_HEARTS);
     }

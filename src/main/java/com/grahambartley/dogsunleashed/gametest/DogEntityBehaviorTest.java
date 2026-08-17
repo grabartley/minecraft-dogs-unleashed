@@ -227,7 +227,7 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
 
           context.assertTrue(
               nbt.contains("ShakeProgress"), "NBT should contain ShakeProgress data");
-          context.assertTrue(nbt.contains("WasInWater"), "NBT should contain WasInWater data");
+          context.assertTrue(nbt.contains("WasWet"), "NBT should contain WasWet data");
 
           final UnleashedDogEntity newDog = data.factory().apply(world);
           newDog.readCustomDataFromNbt(nbt);

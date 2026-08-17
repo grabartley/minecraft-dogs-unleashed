@@ -298,7 +298,9 @@ when they have a target, or just because (1 in 7200 chance per tick, roughly onc
 
 - **Head tilting** when you hold taming food nearby. It is impossible not to smile at.
 - **Tail wagging** when you hold food or just because they love you.
-- **Shaking** after leaving water — 20 tick delay, 22 tick animation, splash particles.
+- **Shaking** after getting wet, whether they climbed out of water or stood out in the rain. Rain counts while the
+sky above them is open, so 20 ticks after they duck under cover or the rain stops, they shake it off: 22 tick
+animation, splash particles.
 - **Floof.** So much floof.
 
 ## Quick Start

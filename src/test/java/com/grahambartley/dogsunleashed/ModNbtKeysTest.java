@@ -50,9 +50,8 @@ class ModNbtKeysTest {
         Arguments.of("EYE_COLOR_VARIANT", ModNbtKeys.EYE_COLOR_VARIANT, "EyeColorVariant"),
         Arguments.of("COLLAR_COLOR", ModNbtKeys.COLLAR_COLOR, "CollarColor"),
         Arguments.of("SHAKE_PROGRESS", ModNbtKeys.SHAKE_PROGRESS, "ShakeProgress"),
-        Arguments.of("WAS_IN_WATER", ModNbtKeys.WAS_IN_WATER, "WasInWater"),
-        Arguments.of(
-            "TICKS_SINCE_LEFT_WATER", ModNbtKeys.TICKS_SINCE_LEFT_WATER, "TicksSinceLeftWater"),
+        Arguments.of("WAS_WET", ModNbtKeys.WAS_WET, "WasWet"),
+        Arguments.of("TICKS_SINCE_WET", ModNbtKeys.TICKS_SINCE_WET, "TicksSinceWet"),
         Arguments.of("SLEEPING_IN_BED", ModNbtKeys.SLEEPING_IN_BED, "SleepingInBed"),
         Arguments.of("BED_POS_X", ModNbtKeys.BED_POS_X, "BedPosX"),
         Arguments.of("BED_POS_Y", ModNbtKeys.BED_POS_Y, "BedPosY"),
