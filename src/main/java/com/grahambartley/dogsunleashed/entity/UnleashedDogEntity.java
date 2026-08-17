@@ -15,7 +15,6 @@ import static com.grahambartley.dogsunleashed.ModConstants.RANDOM_HOWL_CHANCE;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModBlockTags;
-import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
@@ -23,9 +22,7 @@ import com.grahambartley.dogsunleashed.ModSounds;
 import com.grahambartley.dogsunleashed.advancement.DogSleptInBedCriterion;
 import com.grahambartley.dogsunleashed.advancement.HuskyHowledCriterion;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
-import com.grahambartley.dogsunleashed.block.DogGraveBlock;
 import com.grahambartley.dogsunleashed.block.entity.DogBedBlockEntity;
-import com.grahambartley.dogsunleashed.block.entity.DogGraveBlockEntity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchProjectileEntity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
@@ -62,8 +59,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityStatuses;
@@ -117,7 +112,6 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.TimeHelper;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.intprovider.UniformIntProvider;
 import net.minecraft.util.math.random.Random;
@@ -175,10 +169,6 @@ public class UnleashedDogEntity extends TameableEntity
   private static final int RANDOM_TAIL_WAG_CHANCE = 200;
   private static final double MOVEMENT_THRESHOLD = 0.001;
   private static final double NEARBY_PLAYER_RANGE = 10.0D;
-  private static final int GRAVE_SEARCH_RADIUS = 3;
-  private static final int GRAVE_SEARCH_MIN_Y = -2;
-  private static final int GRAVE_SEARCH_MAX_Y = 2;
-  private static final int HORIZONTAL_DIRECTION_COUNT = 4;
 
   private static final TrackedData<Integer> ANGER_TIME =
       DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.INTEGER);
@@ -1647,102 +1637,8 @@ public class UnleashedDogEntity extends TameableEntity
             });
 
     if (DogsUnleashed.SERVER_CONFIG.gravesEnabled()) {
-      spawnGrave(serverWorld, bedPosToAvoid);
+      DogGraveSpawner.spawnGrave(serverWorld, this, bedPosToAvoid);
     }
-  }
-
-  private void spawnGrave(ServerWorld world, BlockPos bedPosToAvoid) {
-    final BlockPos deathPos = this.getBlockPos();
-
-    final BlockPos gravePos = findValidGravePosition(world, deathPos, bedPosToAvoid);
-
-    if (gravePos != null) {
-      final Direction facing =
-          Direction.Type.HORIZONTAL.stream()
-              .toList()
-              .get(world.getRandom().nextInt(HORIZONTAL_DIRECTION_COUNT));
-      world.setBlockState(
-          gravePos, ModBlocks.DOG_GRAVE.getDefaultState().with(DogGraveBlock.FACING, facing));
-
-      if (world.getBlockEntity(gravePos) instanceof DogGraveBlockEntity graveEntity) {
-        graveEntity.setDogUuid(this.getUuid());
-        graveEntity.setFlowerColor(this.getCollarColor());
-
-        final PetManager petManager = PetManager.get(world.getServer());
-        final PetData petData = petManager.getPetByEntityId(this.getUuid());
-        final String dogName = petData != null ? petData.getName() : this.getName().getString();
-
-        graveEntity.setDogName(dogName);
-      }
-    }
-  }
-
-  private BlockPos findValidGravePosition(
-      ServerWorld world, BlockPos center, BlockPos bedPosToAvoid) {
-    // First pass: look for air blocks (preferred)
-    for (int radius = 0; radius <= GRAVE_SEARCH_RADIUS; radius++) {
-      for (int dx = -radius; dx <= radius; dx++) {
-        for (int dz = -radius; dz <= radius; dz++) {
-          if (Math.abs(dx) != radius && Math.abs(dz) != radius) {
-            continue;
-          }
-
-          for (int dy = GRAVE_SEARCH_MIN_Y; dy <= GRAVE_SEARCH_MAX_Y; dy++) {
-            final BlockPos testPos = center.add(dx, dy, dz);
-
-            // Skip bed position if provided
-            if (bedPosToAvoid != null && testPos.equals(bedPosToAvoid)) {
-              continue;
-            }
-
-            // Prefer positions that are currently air
-            if (world.getBlockState(testPos).isAir() && isValidGravePosition(world, testPos)) {
-              return testPos;
-            }
-          }
-        }
-      }
-    }
-
-    // Second pass: accept replaceable blocks if no air found
-    for (int radius = 0; radius <= GRAVE_SEARCH_RADIUS; radius++) {
-      for (int dx = -radius; dx <= radius; dx++) {
-        for (int dz = -radius; dz <= radius; dz++) {
-          if (Math.abs(dx) != radius && Math.abs(dz) != radius) {
-            continue;
-          }
-
-          for (int dy = GRAVE_SEARCH_MIN_Y; dy <= GRAVE_SEARCH_MAX_Y; dy++) {
-            final BlockPos testPos = center.add(dx, dy, dz);
-
-            // Skip bed position if provided
-            if (bedPosToAvoid != null && testPos.equals(bedPosToAvoid)) {
-              continue;
-            }
-
-            if (isValidGravePosition(world, testPos)) {
-              return testPos;
-            }
-          }
-        }
-      }
-    }
-
-    return null;
-  }
-
-  private boolean isValidGravePosition(ServerWorld world, BlockPos pos) {
-    final BlockState stateAtPos = world.getBlockState(pos);
-    final BlockState stateBelow = world.getBlockState(pos.down());
-    final BlockState stateAbove = world.getBlockState(pos.up());
-
-    final boolean hasValidGround =
-        !stateBelow.isAir() && stateBelow.isSolidBlock(world, pos.down());
-    final boolean canReplace = stateAtPos.isReplaceable() || stateAtPos.isAir();
-    final boolean hasAirAbove = stateAbove.isAir() || stateAbove.isReplaceable();
-    final boolean notInFluid = !stateAtPos.isOf(Blocks.WATER) && !stateAtPos.isOf(Blocks.LAVA);
-
-    return hasValidGround && canReplace && hasAirAbove && notInFluid;
   }
 
   @Override
