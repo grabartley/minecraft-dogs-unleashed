@@ -77,6 +77,14 @@ public final class DogsUnleashedCommand {
                                             setDropLeashOnPlayMode(
                                                 ctx, BoolArgumentType.getBool(ctx, "enabled")))))
                     .then(
+                        CommandManager.literal("shownames")
+                            .then(
+                                CommandManager.argument("enabled", BoolArgumentType.bool())
+                                    .executes(
+                                        ctx ->
+                                            setShowDogNames(
+                                                ctx, BoolArgumentType.getBool(ctx, "enabled")))))
+                    .then(
                         CommandManager.literal("autosleep")
                             .then(
                                 CommandManager.argument("enabled", BoolArgumentType.bool())
@@ -203,6 +211,7 @@ public final class DogsUnleashedCommand {
         Text.translatable("command.dogs-unleashed.help.capindependentspawning"),
         Text.translatable("command.dogs-unleashed.help.graves"),
         Text.translatable("command.dogs-unleashed.help.dropleashonplay"),
+        Text.translatable("command.dogs-unleashed.help.shownames"),
         Text.translatable("command.dogs-unleashed.help.autosleep"),
         Text.translatable(
             "command.dogs-unleashed.help.autosleeprange",
@@ -258,6 +267,7 @@ public final class DogsUnleashedCommand {
             Text.translatable("command.dogs-unleashed.status.graves", config.gravesEnabled()),
             Text.translatable(
                 "command.dogs-unleashed.status.dropleashonplay", config.dropLeashOnPlayMode()),
+            Text.translatable("command.dogs-unleashed.status.shownames", config.showDogNames()),
             Text.translatable("command.dogs-unleashed.status.autosleep", config.autoSleepEnabled()),
             Text.translatable(
                 "command.dogs-unleashed.status.autosleeprange", config.autoSleepRangeBlocks()),
@@ -326,6 +336,16 @@ public final class DogsUnleashedCommand {
         ctx,
         DogsUnleashed.SERVER_CONFIG.withDropLeashOnPlayMode(value),
         "dropleashonplay",
+        Boolean.toString(value),
+        false);
+  }
+
+  private static int setShowDogNames(
+      final CommandContext<ServerCommandSource> ctx, final boolean value) {
+    return applyUpdate(
+        ctx,
+        DogsUnleashed.SERVER_CONFIG.withShowDogNames(value),
+        "shownames",
         Boolean.toString(value),
         false);
   }

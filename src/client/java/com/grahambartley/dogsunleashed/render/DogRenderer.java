@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.render;
 
+import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.rig.DogProportions;
@@ -28,6 +29,11 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
   @Override
   public float getMotionAnimThreshold(UnleashedDogEntity animatable) {
     return 0.005f;
+  }
+
+  @Override
+  public boolean hasLabel(UnleashedDogEntity animatable) {
+    return DogsUnleashed.SERVER_CONFIG.showDogNames() && super.hasLabel(animatable);
   }
 
   @Override
