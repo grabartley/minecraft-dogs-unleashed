@@ -1,8 +1,9 @@
 package com.grahambartley.dogsunleashed.screen;
 
 import com.grahambartley.dogsunleashed.network.DogConnectionsListener;
-import com.grahambartley.dogsunleashed.network.ModNetworking;
 import com.grahambartley.dogsunleashed.network.ModNetworkingClient;
+import com.grahambartley.dogsunleashed.network.payload.ConnectionDogSyncData;
+import com.grahambartley.dogsunleashed.network.payload.SyncDogConnectionsPayload;
 import com.grahambartley.dogsunleashed.screen.FamilyTreeLayout.NodePosition;
 import com.grahambartley.dogsunleashed.screen.FamilyTreeLayout.Relations;
 import java.util.HashMap;
@@ -53,7 +54,7 @@ public class FamilyTreeScreen extends Screen implements DogConnectionsListener {
   private final Screen parent;
   private final DogPortraitRenderer portraits = new DogPortraitRenderer();
 
-  private final Map<String, ModNetworking.ConnectionDogSyncData> nodesById = new HashMap<>();
+  private final Map<String, ConnectionDogSyncData> nodesById = new HashMap<>();
   private final Map<String, Relations> relationsById = new HashMap<>();
   private final Set<String> expandedIds = new LinkedHashSet<>();
   private final Set<String> requestedIds = new LinkedHashSet<>();
@@ -73,7 +74,7 @@ public class FamilyTreeScreen extends Screen implements DogConnectionsListener {
   private ButtonWidget toggleExpandButton;
   private ButtonWidget focusButton;
 
-  public FamilyTreeScreen(final Screen parent, final ModNetworking.ConnectionDogSyncData focusDog) {
+  public FamilyTreeScreen(final Screen parent, final ConnectionDogSyncData focusDog) {
     super(Text.translatable("screen.dogs-unleashed.family_tree.title"));
     this.parent = parent;
     this.focusId = focusDog.pet().petId();
@@ -111,7 +112,7 @@ public class FamilyTreeScreen extends Screen implements DogConnectionsListener {
   }
 
   @Override
-  public void onDogConnections(final ModNetworking.SyncDogConnectionsPayload payload) {
+  public void onDogConnections(final SyncDogConnectionsPayload payload) {
     final String id = payload.self().pet().petId();
     storeNode(payload.self());
     payload.parents().forEach(this::storeNode);
@@ -129,11 +130,11 @@ public class FamilyTreeScreen extends Screen implements DogConnectionsListener {
     recomputeLayout();
   }
 
-  private void storeNode(final ModNetworking.ConnectionDogSyncData dog) {
+  private void storeNode(final ConnectionDogSyncData dog) {
     nodesById.put(dog.pet().petId(), dog);
   }
 
-  private static List<String> petIds(final List<ModNetworking.ConnectionDogSyncData> dogs) {
+  private static List<String> petIds(final List<ConnectionDogSyncData> dogs) {
     return dogs.stream().map(dog -> dog.pet().petId()).toList();
   }
 
@@ -243,7 +244,7 @@ public class FamilyTreeScreen extends Screen implements DogConnectionsListener {
   }
 
   private void renderHeader(final DrawContext context) {
-    final ModNetworking.ConnectionDogSyncData focus = nodesById.get(focusId);
+    final ConnectionDogSyncData focus = nodesById.get(focusId);
     final String focusName = focus != null ? focus.pet().name() : "";
     context.drawCenteredTextWithShadow(
         this.textRenderer,
@@ -349,7 +350,7 @@ public class FamilyTreeScreen extends Screen implements DogConnectionsListener {
       final int mouseY) {
     final String hoveredId = nodeAt(mouseX, mouseY, positions, centerX, centerY, panX, panY, zoom);
     for (final Map.Entry<String, NodePosition> entry : positions.entrySet()) {
-      final ModNetworking.ConnectionDogSyncData dog = nodesById.get(entry.getKey());
+      final ConnectionDogSyncData dog = nodesById.get(entry.getKey());
       if (dog == null) {
         continue;
       }
@@ -401,8 +402,7 @@ public class FamilyTreeScreen extends Screen implements DogConnectionsListener {
     context.fill(x, 0, this.width, this.height, PANEL_COLOR);
     context.fill(x, 0, x + 1, this.height, CARD_BORDER);
 
-    final ModNetworking.ConnectionDogSyncData dog =
-        selectedId != null ? nodesById.get(selectedId) : null;
+    final ConnectionDogSyncData dog = selectedId != null ? nodesById.get(selectedId) : null;
     final boolean hasSelection = dog != null;
     final boolean selectionIsFocus = hasSelection && selectedId.equals(focusId);
     toggleExpandButton.visible = hasSelection && !selectionIsFocus;

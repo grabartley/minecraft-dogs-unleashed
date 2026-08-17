@@ -5,8 +5,10 @@ import com.grahambartley.dogsunleashed.entity.variant.DogRarity;
 import com.grahambartley.dogsunleashed.entity.variant.DogRarityClassifier;
 import com.grahambartley.dogsunleashed.entity.variant.UnleashedDogCoat;
 import com.grahambartley.dogsunleashed.network.DogConnectionsListener;
-import com.grahambartley.dogsunleashed.network.ModNetworking;
 import com.grahambartley.dogsunleashed.network.ModNetworkingClient;
+import com.grahambartley.dogsunleashed.network.payload.ConnectionDogSyncData;
+import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
+import com.grahambartley.dogsunleashed.network.payload.SyncDogConnectionsPayload;
 import com.grahambartley.dogsunleashed.pet.BreedComposition;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import com.grahambartley.dogsunleashed.screen.FamilyTreeLayout.NodePosition;
@@ -48,11 +50,11 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
   private static final float LOW_HEALTH_COLOR_THRESHOLD = 0.5f;
 
   private final Screen parent;
-  private final ModNetworking.PetSyncData pet;
+  private final PetSyncData pet;
   private final DogPortraitRenderer portraits = new DogPortraitRenderer();
-  private @Nullable ModNetworking.SyncDogConnectionsPayload connections;
+  private @Nullable SyncDogConnectionsPayload connections;
 
-  public PetDetailsScreen(final Screen parent, final ModNetworking.PetSyncData pet) {
+  public PetDetailsScreen(final Screen parent, final PetSyncData pet) {
     super(Text.translatable("screen.dogs-unleashed.pet_details.title"));
     this.parent = parent;
     this.pet = pet;
@@ -89,7 +91,7 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
     ModNetworkingClient.sendRequestDogConnections(UUID.fromString(pet.petId()));
   }
 
-  private ModNetworking.ConnectionDogSyncData focusConnectionData() {
+  private ConnectionDogSyncData focusConnectionData() {
     if (connections != null) {
       return connections.self();
     }
@@ -97,11 +99,11 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
     final String ownerId =
         client.player != null ? client.player.getUuid().toString() : new UUID(0, 0).toString();
     final String ownerName = client.player != null ? client.player.getGameProfile().getName() : "";
-    return new ModNetworking.ConnectionDogSyncData(pet, ownerId, ownerName);
+    return new ConnectionDogSyncData(pet, ownerId, ownerName);
   }
 
   @Override
-  public void onDogConnections(final ModNetworking.SyncDogConnectionsPayload payload) {
+  public void onDogConnections(final SyncDogConnectionsPayload payload) {
     if (payload.self().pet().petId().equals(pet.petId())) {
       connections = payload;
     }
@@ -305,7 +307,7 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
       return;
     }
 
-    final Map<String, ModNetworking.ConnectionDogSyncData> dogs = new HashMap<>();
+    final Map<String, ConnectionDogSyncData> dogs = new HashMap<>();
     dogs.put(connections.self().pet().petId(), connections.self());
     connections.parents().forEach(dog -> dogs.put(dog.pet().petId(), dog));
     connections.mates().forEach(dog -> dogs.put(dog.pet().petId(), dog));
@@ -327,7 +329,7 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
     final int previewCenterX = (boxLeft + boxRight) / 2;
     final int previewCenterY = (boxTop + this.height - 40) / 2 + 4;
     for (final Map.Entry<String, NodePosition> entry : positions.entrySet()) {
-      final ModNetworking.ConnectionDogSyncData dog = dogs.get(entry.getKey());
+      final ConnectionDogSyncData dog = dogs.get(entry.getKey());
       if (dog == null) {
         continue;
       }
@@ -360,7 +362,7 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
     }
   }
 
-  static boolean hasNoRelatives(final ModNetworking.SyncDogConnectionsPayload payload) {
+  static boolean hasNoRelatives(final SyncDogConnectionsPayload payload) {
     return payload.parents().isEmpty()
         && payload.mates().isEmpty()
         && payload.siblings().isEmpty()

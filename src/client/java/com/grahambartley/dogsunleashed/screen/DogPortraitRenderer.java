@@ -4,7 +4,7 @@ import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
-import com.grahambartley.dogsunleashed.network.ModNetworking;
+import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -38,7 +38,7 @@ public final class DogPortraitRenderer {
   public void draw(
       final DrawContext context,
       final TextRenderer textRenderer,
-      final ModNetworking.PetSyncData pet,
+      final PetSyncData pet,
       final int x,
       final int y,
       final int size,
@@ -74,7 +74,7 @@ public final class DogPortraitRenderer {
     portraitEntities.clear();
   }
 
-  private UnleashedDogEntity obtainPortraitEntity(final ModNetworking.PetSyncData pet) {
+  private UnleashedDogEntity obtainPortraitEntity(final PetSyncData pet) {
     final MinecraftClient client = MinecraftClient.getInstance();
     if (client.world == null) {
       return null;
@@ -105,8 +105,7 @@ public final class DogPortraitRenderer {
     return entity;
   }
 
-  private static void applyPetAppearance(
-      final UnleashedDogEntity dog, final ModNetworking.PetSyncData pet) {
+  private static void applyPetAppearance(final UnleashedDogEntity dog, final PetSyncData pet) {
     dog.setBaby(pet.baby());
     dog.setCollarColor(DyeColor.byId(Math.floorMod(pet.collarColor(), COLLAR_COLOR_COUNT)));
     final NbtCompound nbt = new NbtCompound();
@@ -122,7 +121,7 @@ public final class DogPortraitRenderer {
   private static void drawMissingPortraitPlaceholder(
       final DrawContext context,
       final TextRenderer textRenderer,
-      final ModNetworking.PetSyncData pet,
+      final PetSyncData pet,
       final int x,
       final int y,
       final int size) {

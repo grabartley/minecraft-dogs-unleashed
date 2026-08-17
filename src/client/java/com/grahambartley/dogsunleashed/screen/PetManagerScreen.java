@@ -1,8 +1,8 @@
 package com.grahambartley.dogsunleashed.screen;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
-import com.grahambartley.dogsunleashed.network.ModNetworking;
 import com.grahambartley.dogsunleashed.network.ModNetworkingClient;
+import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
 import com.grahambartley.dogsunleashed.pet.PetAliveFilter;
 import com.grahambartley.dogsunleashed.util.DimensionLabelFormatter;
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public class PetManagerScreen extends Screen {
 
   private static final List<BreedFilterOption> BREED_OPTIONS = List.of(BreedFilterOption.values());
 
-  private List<ModNetworking.PetSyncData> pets = new ArrayList<>();
+  private List<PetSyncData> pets = new ArrayList<>();
   private TextFieldWidget searchField;
   private CyclingButtonWidget<BreedFilterOption> breedFilterButton;
   private CyclingButtonWidget<PetAliveFilter> aliveFilterButton;
@@ -190,7 +190,7 @@ public class PetManagerScreen extends Screen {
     }
   }
 
-  public void updatePetsList(final List<ModNetworking.PetSyncData> pets) {
+  public void updatePetsList(final List<PetSyncData> pets) {
     portraits.clear();
     this.pets = new ArrayList<>(pets);
     this.scrollOffset = 0;
@@ -228,7 +228,7 @@ public class PetManagerScreen extends Screen {
 
     final int listStartY = 95;
     for (int i = 0; i < ENTRIES_PER_PAGE && i + scrollOffset < pets.size(); i++) {
-      final ModNetworking.PetSyncData pet = pets.get(i + scrollOffset);
+      final PetSyncData pet = pets.get(i + scrollOffset);
       final int entryY = listStartY + i * ENTRY_HEIGHT;
       renderPetEntry(
           context, pet, centerX - ENTRY_WIDTH / 2, entryY, (float) mouseX, (float) mouseY);
@@ -305,7 +305,7 @@ public class PetManagerScreen extends Screen {
 
   private void renderPetEntry(
       final DrawContext context,
-      final ModNetworking.PetSyncData pet,
+      final PetSyncData pet,
       final int x,
       final int y,
       final float mouseX,
@@ -417,7 +417,7 @@ public class PetManagerScreen extends Screen {
             && mouseX < listX + ENTRY_WIDTH
             && mouseY >= entryY
             && mouseY < entryY + ENTRY_HEIGHT - 5) {
-          final ModNetworking.PetSyncData pet = pets.get(i + scrollOffset);
+          final PetSyncData pet = pets.get(i + scrollOffset);
           if (pet.alive() && isWithinRowSummonButton(mouseX, mouseY, listX, entryY)) {
             ModNetworkingClient.sendSummonPet(UUID.fromString(pet.petId()));
           } else {

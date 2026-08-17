@@ -4,7 +4,8 @@ import com.grahambartley.dogsunleashed.entity.variant.DogCoats;
 import com.grahambartley.dogsunleashed.entity.variant.DogRarity;
 import com.grahambartley.dogsunleashed.entity.variant.DogRarityClassifier;
 import com.grahambartley.dogsunleashed.entity.variant.UnleashedDogCoat;
-import com.grahambartley.dogsunleashed.network.ModNetworking;
+import com.grahambartley.dogsunleashed.network.payload.OpenDogInspectPayload;
+import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -27,10 +28,10 @@ public class DogInspectScreen extends Screen {
   private static final int HINT_COLOR = 0xFF888888;
   private static final float LOW_HEALTH_COLOR_THRESHOLD = 0.5f;
 
-  private final ModNetworking.OpenDogInspectPayload data;
+  private final OpenDogInspectPayload data;
   private final DogPortraitRenderer portraits = new DogPortraitRenderer();
 
-  public DogInspectScreen(final ModNetworking.OpenDogInspectPayload data) {
+  public DogInspectScreen(final OpenDogInspectPayload data) {
     super(Text.translatable("screen.dogs-unleashed.dog_inspect.title"));
     this.data = data;
   }
@@ -45,7 +46,7 @@ public class DogInspectScreen extends Screen {
     context.fill(cardX, cardY, cardX + CARD_WIDTH, cardY + CARD_HEIGHT, CARD_BACKGROUND);
     context.drawBorder(cardX, cardY, CARD_WIDTH, CARD_HEIGHT, CARD_BORDER);
 
-    final ModNetworking.PetSyncData pet = data.pet();
+    final PetSyncData pet = data.pet();
     final int portraitX = cardX + CARD_PADDING;
     final int portraitY = cardY + CARD_PADDING;
     portraits.draw(
@@ -137,7 +138,7 @@ public class DogInspectScreen extends Screen {
   }
 
   private String displayName() {
-    final ModNetworking.PetSyncData pet = data.pet();
+    final PetSyncData pet = data.pet();
     return pet.name().isEmpty()
         ? DogBreedNames.displayName(pet.breed(), pet.composition()).getString()
         : pet.name();
