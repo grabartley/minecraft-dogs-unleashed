@@ -1,7 +1,6 @@
 package com.grahambartley.dogsunleashed.entity;
 
 import static com.grahambartley.dogsunleashed.ModConstants.BARK_PITCH;
-import static com.grahambartley.dogsunleashed.ModConstants.MINECRAFT_TICK_RATE;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModBlockTags;
@@ -86,7 +85,6 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -129,17 +127,6 @@ public class UnleashedDogEntity extends TameableEntity
   private static final double SLEEP_POSITION_Y_OFFSET = 0.1;
   private static final int FETCH_DETECTION_XZ_RANGE = 128;
   private static final int FETCH_DETECTION_Y_RANGE = 64;
-  private static final int SHAKE_PARTICLE_COUNT = 20;
-  private static final double SHAKE_PARTICLE_HORIZONTAL_OFFSET_RANGE = 0.5;
-  private static final double SHAKE_PARTICLE_VERTICAL_OFFSET_RANGE = 0.5;
-  private static final double SHAKE_PARTICLE_HORIZONTAL_VELOCITY_RANGE = 0.3;
-  private static final double SHAKE_PARTICLE_VERTICAL_VELOCITY_RANGE = 0.1;
-  private static final double SHAKE_PARTICLE_SPEED = 0.1;
-  private static final int REUNION_COOLDOWN_TICKS = 60 * MINECRAFT_TICK_RATE;
-  private static final int REUNION_HEART_PARTICLE_MIN_COUNT = 4;
-  private static final int REUNION_HEART_PARTICLE_MAX_COUNT = 6;
-  private static final double REUNION_HEART_HORIZONTAL_OFFSET_RANGE = 0.6;
-  private static final double REUNION_HEART_VERTICAL_OFFSET_RANGE = 0.7;
   private static final double ESCAPE_DANGER_SPEED = 1.5;
   private static final float POUNCE_STRENGTH = 0.4F;
   private static final double DEFAULT_GOAL_SPEED = 1.0;
@@ -153,7 +140,6 @@ public class UnleashedDogEntity extends TameableEntity
   private static final long DAY_LENGTH_TICKS = 24000;
   private static final long NIGHT_START_TICK = 13000;
   private static final float BREEDING_ITEM_HEAL_AMOUNT = 2.0F;
-  private static final int RANDOM_TAIL_WAG_CHANCE = 200;
   private static final double MOVEMENT_THRESHOLD = 0.001;
   private static final double NEARBY_PLAYER_RANGE = 10.0D;
 
@@ -216,15 +202,7 @@ public class UnleashedDogEntity extends TameableEntity
 
   private static final UniformIntProvider ANGER_TIME_RANGE = TimeHelper.betweenSeconds(20, 39);
   private java.util.UUID angryAt;
-  private static final float TAIL_WAG_DURATION_SECONDS = 3.75f;
-  private static final int TAIL_WAG_DURATION_TICKS =
-      (int) (TAIL_WAG_DURATION_SECONDS * MINECRAFT_TICK_RATE);
-  private static final int SHAKE_DURATION_TICKS = 22;
-  private static final int SHAKE_PARTICLE_START_TICK = 10;
-  private static final int SHAKE_DELAY_TICKS = 20;
 
-  private boolean wasInWater = false;
-  private int ticksSinceLeftWater = 0;
   private static final Ingredient BREEDING_INGREDIENT =
       Ingredient.ofItems(
           Items.CHICKEN,
@@ -254,10 +232,9 @@ public class UnleashedDogEntity extends TameableEntity
           Items.BONE);
 
   private final DogVocalization vocalization = new DogVocalization(this);
+  private final DogAmbienceEffects ambience = new DogAmbienceEffects(this);
   private int manuallyWokenAge = -1;
   private boolean manuallyWokenAtNight = false;
-  private int lastReunionAge = -1;
-  private boolean pendingBirthWakeHearts = false;
   private UUID parentDogUuid = null;
   private UUID secondParentDogUuid = null;
   private boolean spawnedByDogSpawner = false;
@@ -503,7 +480,7 @@ public class UnleashedDogEntity extends TameableEntity
 
   /** Bark-and-wag feedback for a command issued in person, separate from silent state changes. */
   public void acknowledgeCommand() {
-    this.dataTracker.set(TAIL_WAG_TIMER, TAIL_WAG_DURATION_TICKS);
+    this.ambience.startTailWag();
     this.vocalization.barkIfReady(this.getBarkPitch());
   }
 
@@ -547,6 +524,18 @@ public class UnleashedDogEntity extends TameableEntity
 
   public boolean isHeadTilting() {
     return this.dataTracker.get(HEAD_TILTING);
+  }
+
+  void setHeadTilting(final boolean tilting) {
+    this.dataTracker.set(HEAD_TILTING, tilting);
+  }
+
+  void setShakeProgress(final int progress) {
+    this.dataTracker.set(SHAKE_PROGRESS, progress);
+  }
+
+  void setTailWagTimer(final int ticks) {
+    this.dataTracker.set(TAIL_WAG_TIMER, ticks);
   }
 
   public boolean isSleepingInBed() {
@@ -639,14 +628,11 @@ public class UnleashedDogEntity extends TameableEntity
     this.setNoGravity(false);
     this.dataTracker.set(SLEEPING_IN_BED, false);
     this.dataTracker.set(COMMANDED_TO_SLEEP, false);
-    if (this.pendingBirthWakeHearts && this.getWorld() instanceof ServerWorld serverWorld) {
-      this.spawnHeartParticles(serverWorld);
-      this.pendingBirthWakeHearts = false;
-    }
+    this.ambience.releaseBirthWakeHearts();
   }
 
   public boolean hasPendingBirthWakeHearts() {
-    return this.pendingBirthWakeHearts;
+    return this.ambience.hasPendingBirthWakeHearts();
   }
 
   public boolean hasAssignedBed() {
@@ -846,38 +832,6 @@ public class UnleashedDogEntity extends TameableEntity
         .isEmpty();
   }
 
-  private void startShaking() {
-    if (!this.isShaking() && !this.isInSittingPose()) {
-      this.dataTracker.set(SHAKE_PROGRESS, SHAKE_DURATION_TICKS);
-    }
-  }
-
-  public void spawnShakeParticles() {
-    if (this.getWorld() instanceof ServerWorld serverWorld) {
-      for (int i = 0; i < SHAKE_PARTICLE_COUNT; i++) {
-        final double offsetX =
-            (this.random.nextDouble() - POSITION_CENTER_OFFSET)
-                * SHAKE_PARTICLE_HORIZONTAL_OFFSET_RANGE;
-        final double offsetY = this.random.nextDouble() * SHAKE_PARTICLE_VERTICAL_OFFSET_RANGE;
-        final double offsetZ =
-            (this.random.nextDouble() - POSITION_CENTER_OFFSET)
-                * SHAKE_PARTICLE_HORIZONTAL_OFFSET_RANGE;
-        serverWorld.spawnParticles(
-            ParticleTypes.SPLASH,
-            this.getX() + offsetX,
-            this.getY() + offsetY + POSITION_CENTER_OFFSET,
-            this.getZ() + offsetZ,
-            1,
-            (this.random.nextDouble() - POSITION_CENTER_OFFSET)
-                * SHAKE_PARTICLE_HORIZONTAL_VELOCITY_RANGE,
-            this.random.nextDouble() * SHAKE_PARTICLE_VERTICAL_VELOCITY_RANGE,
-            (this.random.nextDouble() - POSITION_CENTER_OFFSET)
-                * SHAKE_PARTICLE_HORIZONTAL_VELOCITY_RANGE,
-            SHAKE_PARTICLE_SPEED);
-      }
-    }
-  }
-
   /**
    * Celebrates the arrival of this dog's owner with a tail wag and a small burst of heart
    * particles. Server-authoritative: the tail wag is driven by the synced {@code TAIL_WAG_TIMER}
@@ -886,15 +840,7 @@ public class UnleashedDogEntity extends TameableEntity
    * entity age prevents repeat bursts when an owner relogs or paces in and out of the same chunk.
    */
   public void celebrateOwnerArrival() {
-    if (!(this.getWorld() instanceof ServerWorld serverWorld) || !this.isAlive()) {
-      return;
-    }
-    if (this.lastReunionAge != -1 && this.age - this.lastReunionAge < REUNION_COOLDOWN_TICKS) {
-      return;
-    }
-    this.lastReunionAge = this.age;
-    this.dataTracker.set(TAIL_WAG_TIMER, TAIL_WAG_DURATION_TICKS);
-    this.spawnHeartParticles(serverWorld);
+    this.ambience.celebrateOwnerArrival();
   }
 
   public int getTailWagTimerTicks() {
@@ -917,10 +863,8 @@ public class UnleashedDogEntity extends TameableEntity
   public void applyTreatBuff() {
     this.dataTracker.set(TREAT_BUFF_TICKS, DogTreatBuff.DURATION_TICKS);
     DogTreatBuff.apply(this);
-    this.dataTracker.set(TAIL_WAG_TIMER, TAIL_WAG_DURATION_TICKS);
-    if (this.getWorld() instanceof ServerWorld serverWorld) {
-      this.spawnHeartParticles(serverWorld);
-    }
+    this.ambience.startTailWag();
+    this.ambience.burstHearts();
     this.vocalization.forceBark(this.getBarkPitch());
   }
 
@@ -933,32 +877,6 @@ public class UnleashedDogEntity extends TameableEntity
       DogTreatBuff.clear(this);
     }
     this.dataTracker.set(TREAT_BUFF_TICKS, remaining - 1);
-  }
-
-  private void spawnHeartParticles(final ServerWorld serverWorld) {
-    final int count =
-        REUNION_HEART_PARTICLE_MIN_COUNT
-            + this.random.nextInt(
-                REUNION_HEART_PARTICLE_MAX_COUNT - REUNION_HEART_PARTICLE_MIN_COUNT + 1);
-    for (int i = 0; i < count; i++) {
-      final double offsetX =
-          (this.random.nextDouble() - POSITION_CENTER_OFFSET)
-              * REUNION_HEART_HORIZONTAL_OFFSET_RANGE;
-      final double offsetY = this.random.nextDouble() * REUNION_HEART_VERTICAL_OFFSET_RANGE;
-      final double offsetZ =
-          (this.random.nextDouble() - POSITION_CENTER_OFFSET)
-              * REUNION_HEART_HORIZONTAL_OFFSET_RANGE;
-      serverWorld.spawnParticles(
-          ParticleTypes.HEART,
-          this.getX() + offsetX,
-          this.getEyeY() + offsetY,
-          this.getZ() + offsetZ,
-          1,
-          0.0,
-          0.0,
-          0.0,
-          0.0);
-    }
   }
 
   @Override
@@ -1261,7 +1179,7 @@ public class UnleashedDogEntity extends TameableEntity
   public void setBaby(final boolean baby) {
     super.setBaby(baby);
     if (baby) {
-      this.pendingBirthWakeHearts = true;
+      this.ambience.armBirthWakeHearts();
     }
   }
 
@@ -1315,42 +1233,6 @@ public class UnleashedDogEntity extends TameableEntity
         || this.isBreedingItem(player.getOffHandStack());
   }
 
-  private void updateHeadTilt(final PlayerEntity nearbyPlayer) {
-    final boolean shouldTilt =
-        nearbyPlayer != null && this.isPlayerHoldingTamingOrBreedingItem(nearbyPlayer);
-    this.dataTracker.set(HEAD_TILTING, shouldTilt);
-  }
-
-  private void updateTailWag(final PlayerEntity nearbyPlayer) {
-    final int currentTimer = this.dataTracker.get(TAIL_WAG_TIMER);
-
-    if (!this.isInSittingPose() && this.getAngerTime() <= 0) {
-      boolean shouldWag = false;
-
-      if (nearbyPlayer != null) {
-        final boolean holdingTamingItem =
-            this.isTamingItem(nearbyPlayer.getMainHandStack())
-                || this.isTamingItem(nearbyPlayer.getOffHandStack());
-        final boolean holdingBreedingItem =
-            this.isBreedingItem(nearbyPlayer.getMainHandStack())
-                || this.isBreedingItem(nearbyPlayer.getOffHandStack());
-
-        shouldWag =
-            (!this.isTamed() && holdingTamingItem) || (this.isTamed() && holdingBreedingItem);
-      }
-
-      if (shouldWag) {
-        this.dataTracker.set(TAIL_WAG_TIMER, TAIL_WAG_DURATION_TICKS);
-      } else if (currentTimer > 0) {
-        this.dataTracker.set(TAIL_WAG_TIMER, currentTimer - 1);
-      } else if (this.isTamed() && this.random.nextInt(RANDOM_TAIL_WAG_CHANCE) == 0) {
-        this.dataTracker.set(TAIL_WAG_TIMER, TAIL_WAG_DURATION_TICKS);
-      }
-    } else if (currentTimer > 0) {
-      this.dataTracker.set(TAIL_WAG_TIMER, currentTimer - 1);
-    }
-  }
-
   protected boolean isMoving(final AnimationState<UnleashedDogEntity> animationState) {
     return animationState.getAnimatable().getVelocity().horizontalLengthSquared()
         > MOVEMENT_THRESHOLD;
@@ -1366,38 +1248,12 @@ public class UnleashedDogEntity extends TameableEntity
 
       final PlayerEntity nearbyPlayer = this.getWorld().getClosestPlayer(this, NEARBY_PLAYER_RANGE);
 
-      this.updateHeadTilt(nearbyPlayer);
-      this.updateTailWag(nearbyPlayer);
+      this.ambience.updateSocialCues(nearbyPlayer);
 
       this.vocalization.tick(nearbyPlayer);
       this.tickTreatBuff();
 
-      final boolean inWater = this.isTouchingWater();
-
-      if (inWater) {
-        this.ticksSinceLeftWater = 0;
-      } else {
-        if (this.wasInWater) {
-          this.ticksSinceLeftWater = 1;
-        } else if (this.ticksSinceLeftWater > 0) {
-          this.ticksSinceLeftWater++;
-        }
-
-        if (this.ticksSinceLeftWater == SHAKE_DELAY_TICKS && !this.isShaking()) {
-          this.startShaking();
-        }
-      }
-
-      this.wasInWater = inWater;
-
-      final int shakeProgress = this.getShakeProgress();
-      if (shakeProgress > 0) {
-        final int ticksElapsed = SHAKE_DURATION_TICKS - shakeProgress;
-        if (ticksElapsed == SHAKE_PARTICLE_START_TICK) {
-          this.spawnShakeParticles();
-        }
-        this.dataTracker.set(SHAKE_PROGRESS, shakeProgress - 1);
-      }
+      this.ambience.tickShakeOff();
     }
   }
 
@@ -1543,9 +1399,7 @@ public class UnleashedDogEntity extends TameableEntity
       nbt.putInt(ModNbtKeys.EYE_COLOR_VARIANT, traits.eyeColorVariantOrdinal());
     }
     nbt.putInt(ModNbtKeys.COLLAR_COLOR, this.getCollarColor().getId());
-    nbt.putInt(ModNbtKeys.SHAKE_PROGRESS, this.getShakeProgress());
-    nbt.putBoolean(ModNbtKeys.WAS_IN_WATER, this.wasInWater);
-    nbt.putInt(ModNbtKeys.TICKS_SINCE_LEFT_WATER, this.ticksSinceLeftWater);
+    this.ambience.writeNbt(nbt);
     nbt.putBoolean(ModNbtKeys.SLEEPING_IN_BED, this.isSleepingInBed());
     this.getAssignedBedPos()
         .ifPresent(
@@ -1562,7 +1416,6 @@ public class UnleashedDogEntity extends TameableEntity
       nbt.putInt(ModNbtKeys.COMMAND_ANCHOR_Y, this.commandAnchorPos.getY());
       nbt.putInt(ModNbtKeys.COMMAND_ANCHOR_Z, this.commandAnchorPos.getZ());
     }
-    nbt.putBoolean(ModNbtKeys.PENDING_BIRTH_WAKE_HEARTS, this.pendingBirthWakeHearts);
     nbt.putBoolean(ModNbtKeys.SPAWNED_BY_DOG_SPAWNER, this.spawnedByDogSpawner);
     if (this.parentDogUuid != null) {
       nbt.putUuid(ModNbtKeys.PARENT_DOG_ID, this.parentDogUuid);
@@ -1631,15 +1484,7 @@ public class UnleashedDogEntity extends TameableEntity
     if (nbt.contains(ModNbtKeys.COLLAR_COLOR, NbtElement.NUMBER_TYPE)) {
       this.setCollarColor(DyeColor.byId(nbt.getInt(ModNbtKeys.COLLAR_COLOR)));
     }
-    if (nbt.contains(ModNbtKeys.SHAKE_PROGRESS, NbtElement.NUMBER_TYPE)) {
-      this.dataTracker.set(SHAKE_PROGRESS, nbt.getInt(ModNbtKeys.SHAKE_PROGRESS));
-    }
-    if (nbt.contains(ModNbtKeys.WAS_IN_WATER)) {
-      this.wasInWater = nbt.getBoolean(ModNbtKeys.WAS_IN_WATER);
-    }
-    if (nbt.contains(ModNbtKeys.TICKS_SINCE_LEFT_WATER, NbtElement.NUMBER_TYPE)) {
-      this.ticksSinceLeftWater = nbt.getInt(ModNbtKeys.TICKS_SINCE_LEFT_WATER);
-    }
+    this.ambience.readNbt(nbt);
     if (nbt.contains(ModNbtKeys.SLEEPING_IN_BED)) {
       this.dataTracker.set(SLEEPING_IN_BED, nbt.getBoolean(ModNbtKeys.SLEEPING_IN_BED));
     }
@@ -1677,9 +1522,6 @@ public class UnleashedDogEntity extends TameableEntity
               nbt.getInt(ModNbtKeys.COMMAND_ANCHOR_X),
               nbt.getInt(ModNbtKeys.COMMAND_ANCHOR_Y),
               nbt.getInt(ModNbtKeys.COMMAND_ANCHOR_Z));
-    }
-    if (nbt.contains(ModNbtKeys.PENDING_BIRTH_WAKE_HEARTS)) {
-      this.pendingBirthWakeHearts = nbt.getBoolean(ModNbtKeys.PENDING_BIRTH_WAKE_HEARTS);
     }
     if (nbt.contains(ModNbtKeys.SPAWNED_BY_DOG_SPAWNER)) {
       this.spawnedByDogSpawner = nbt.getBoolean(ModNbtKeys.SPAWNED_BY_DOG_SPAWNER);
