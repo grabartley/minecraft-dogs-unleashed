@@ -7,7 +7,6 @@ import com.grahambartley.dogsunleashed.ModBlockTags;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
-import com.grahambartley.dogsunleashed.advancement.DogSleptInBedCriterion;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
 import com.grahambartley.dogsunleashed.block.entity.DogBedBlockEntity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
@@ -124,7 +123,6 @@ public class UnleashedDogEntity extends TameableEntity
   public static final int UNSET_VARIANT = -1;
 
   private static final double POSITION_CENTER_OFFSET = 0.5;
-  private static final double SLEEP_POSITION_Y_OFFSET = 0.1;
   private static final int FETCH_DETECTION_XZ_RANGE = 128;
   private static final int FETCH_DETECTION_Y_RANGE = 64;
   private static final double ESCAPE_DANGER_SPEED = 1.5;
@@ -137,8 +135,6 @@ public class UnleashedDogEntity extends TameableEntity
   private static final float LOOK_AT_PLAYER_RANGE = 8.0F;
   private static final int PLAYER_ANGER_TARGET_CHANCE = 10;
   private static final int TAME_SUCCESS_CHANCE = 3;
-  private static final long DAY_LENGTH_TICKS = 24000;
-  private static final long NIGHT_START_TICK = 13000;
   private static final float BREEDING_ITEM_HEAL_AMOUNT = 2.0F;
   private static final double MOVEMENT_THRESHOLD = 0.001;
   private static final double NEARBY_PLAYER_RANGE = 10.0D;
@@ -233,8 +229,7 @@ public class UnleashedDogEntity extends TameableEntity
 
   private final DogVocalization vocalization = new DogVocalization(this);
   private final DogAmbienceEffects ambience = new DogAmbienceEffects(this);
-  private int manuallyWokenAge = -1;
-  private boolean manuallyWokenAtNight = false;
+  private final DogSleepController sleep = new DogSleepController(this);
   private UUID parentDogUuid = null;
   private UUID secondParentDogUuid = null;
   private boolean spawnedByDogSpawner = false;
@@ -489,7 +484,7 @@ public class UnleashedDogEntity extends TameableEntity
    * command must stop being Sit or the pose and command would disagree, but a full {@link
    * #applyCommand} would also clear the attack target these paths may have just set.
    */
-  private void demoteSitToFollow() {
+  void demoteSitToFollow() {
     if (this.getCommand() == DogCommand.SIT) {
       this.dataTracker.set(COMMAND, DogCommand.FOLLOW.id());
     }
@@ -546,29 +541,28 @@ public class UnleashedDogEntity extends TameableEntity
     return this.dataTracker.get(ASSIGNED_BED_POS);
   }
 
-  public void setAssignedBedPos(BlockPos pos) {
+  public void setAssignedBedPos(final @Nullable BlockPos pos) {
     this.dataTracker.set(ASSIGNED_BED_POS, Optional.ofNullable(pos));
   }
 
-  public void clearAssignedBed() {
-    this.dataTracker.set(ASSIGNED_BED_POS, Optional.empty());
-    this.wakeUp();
+  void setSleepingInBed(final boolean sleeping) {
+    this.dataTracker.set(SLEEPING_IN_BED, sleeping);
   }
 
-  public void commandToSleep(BlockPos bedPos) {
-    if (!this.isTamed()) {
-      return;
-    }
-    this.setAssignedBedPos(bedPos);
-    this.demoteSitToFollow();
-    this.manuallyWokenAge = -1;
-    this.manuallyWokenAtNight = false;
-    this.dataTracker.set(COMMANDED_TO_SLEEP, true);
-    this.navigation.startMovingTo(
-        bedPos.getX() + POSITION_CENTER_OFFSET,
-        bedPos.getY(),
-        bedPos.getZ() + POSITION_CENTER_OFFSET,
-        DEFAULT_GOAL_SPEED);
+  void setCommandedToSleep(final boolean commanded) {
+    this.dataTracker.set(COMMANDED_TO_SLEEP, commanded);
+  }
+
+  void releaseBirthWakeHearts() {
+    this.ambience.releaseBirthWakeHearts();
+  }
+
+  public void clearAssignedBed() {
+    this.sleep.clearAssignedBed();
+  }
+
+  public void commandToSleep(final BlockPos bedPos) {
+    this.sleep.commandToSleep(bedPos);
   }
 
   public boolean isCommandedToSleep() {
@@ -576,59 +570,19 @@ public class UnleashedDogEntity extends TameableEntity
   }
 
   public void markManuallyWoken() {
-    this.manuallyWokenAge = this.age;
-    final long timeOfDay = this.getWorld().getTimeOfDay() % DAY_LENGTH_TICKS;
-    this.manuallyWokenAtNight = timeOfDay >= NIGHT_START_TICK;
+    this.sleep.markManuallyWoken();
   }
 
   public boolean isAutoSleepSuppressed() {
-    if (!this.manuallyWokenAtNight) {
-      return false;
-    }
-
-    final int elapsed = this.age - this.manuallyWokenAge;
-    final long currentTimeOfDay = this.getWorld().getTimeOfDay() % DAY_LENGTH_TICKS;
-
-    if (!shouldKeepAutoSleepSuppressed(elapsed, currentTimeOfDay)) {
-      this.manuallyWokenAtNight = false;
-      this.manuallyWokenAge = -1;
-      return false;
-    }
-
-    return true;
+    return this.sleep.isAutoSleepSuppressed();
   }
 
-  static boolean shouldKeepAutoSleepSuppressed(int elapsed, long currentTimeOfDay) {
-    if (elapsed >= DAY_LENGTH_TICKS) {
-      return false;
-    }
-
-    return currentTimeOfDay >= NIGHT_START_TICK;
-  }
-
-  public void startSleepingInBed(BlockPos bedPos) {
-    this.dataTracker.set(SLEEPING_IN_BED, true);
-    this.dataTracker.set(COMMANDED_TO_SLEEP, false);
-    this.refreshPositionAndAngles(
-        bedPos.getX() + POSITION_CENTER_OFFSET,
-        bedPos.getY() + SLEEP_POSITION_Y_OFFSET,
-        bedPos.getZ() + POSITION_CENTER_OFFSET,
-        this.getYaw(),
-        this.getPitch());
-    this.setVelocity(0, 0, 0);
-    this.setNoGravity(true);
-    this.navigation.stop();
-
-    if (this.getOwner() instanceof ServerPlayerEntity player) {
-      DogSleptInBedCriterion.INSTANCE.trigger(player);
-    }
+  public void startSleepingInBed(final BlockPos bedPos) {
+    this.sleep.startSleepingInBed(bedPos);
   }
 
   public void wakeUp() {
-    this.setNoGravity(false);
-    this.dataTracker.set(SLEEPING_IN_BED, false);
-    this.dataTracker.set(COMMANDED_TO_SLEEP, false);
-    this.ambience.releaseBirthWakeHearts();
+    this.sleep.wakeUp();
   }
 
   public boolean hasPendingBirthWakeHearts() {
@@ -1400,14 +1354,7 @@ public class UnleashedDogEntity extends TameableEntity
     }
     nbt.putInt(ModNbtKeys.COLLAR_COLOR, this.getCollarColor().getId());
     this.ambience.writeNbt(nbt);
-    nbt.putBoolean(ModNbtKeys.SLEEPING_IN_BED, this.isSleepingInBed());
-    this.getAssignedBedPos()
-        .ifPresent(
-            pos -> {
-              nbt.putInt(ModNbtKeys.BED_POS_X, pos.getX());
-              nbt.putInt(ModNbtKeys.BED_POS_Y, pos.getY());
-              nbt.putInt(ModNbtKeys.BED_POS_Z, pos.getZ());
-            });
+    this.sleep.writeNbt(nbt);
     nbt.putBoolean(ModNbtKeys.CARRYING_BALL, this.isCarryingFetchItem());
     nbt.putInt(ModNbtKeys.TREAT_BUFF_TICKS, this.getTreatBuffTicks());
     nbt.putInt(ModNbtKeys.COMMAND_MODE, this.getCommand().id());
@@ -1485,18 +1432,7 @@ public class UnleashedDogEntity extends TameableEntity
       this.setCollarColor(DyeColor.byId(nbt.getInt(ModNbtKeys.COLLAR_COLOR)));
     }
     this.ambience.readNbt(nbt);
-    if (nbt.contains(ModNbtKeys.SLEEPING_IN_BED)) {
-      this.dataTracker.set(SLEEPING_IN_BED, nbt.getBoolean(ModNbtKeys.SLEEPING_IN_BED));
-    }
-    if (nbt.contains(ModNbtKeys.BED_POS_X)
-        && nbt.contains(ModNbtKeys.BED_POS_Y)
-        && nbt.contains(ModNbtKeys.BED_POS_Z)) {
-      this.setAssignedBedPos(
-          new BlockPos(
-              nbt.getInt(ModNbtKeys.BED_POS_X),
-              nbt.getInt(ModNbtKeys.BED_POS_Y),
-              nbt.getInt(ModNbtKeys.BED_POS_Z)));
-    }
+    this.sleep.readNbt(nbt);
     if (nbt.contains(ModNbtKeys.CARRYING_BALL)) {
       this.setCarryingFetchItem(nbt.getBoolean(ModNbtKeys.CARRYING_BALL));
     }
