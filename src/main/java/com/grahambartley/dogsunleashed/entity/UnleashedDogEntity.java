@@ -4,7 +4,6 @@ import static com.grahambartley.dogsunleashed.ModConstants.BARK_PITCH;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModBlockTags;
-import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
@@ -12,7 +11,6 @@ import com.grahambartley.dogsunleashed.block.entity.DogBedBlockEntity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
-import com.grahambartley.dogsunleashed.entity.genome.DogGenomeCombiner;
 import com.grahambartley.dogsunleashed.entity.goal.AutoSleepGoal;
 import com.grahambartley.dogsunleashed.entity.goal.CommandFollowOwnerGoal;
 import com.grahambartley.dogsunleashed.entity.goal.FetchChaseGoal;
@@ -33,7 +31,6 @@ import com.grahambartley.dogsunleashed.network.ModNetworking;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetManager;
 import com.grahambartley.dogsunleashed.pet.PetRegistrar;
-import com.grahambartley.dogsunleashed.util.BreedingOwnerResolver;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.UUID;
@@ -72,7 +69,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.recipe.Ingredient;
@@ -180,42 +176,13 @@ public class UnleashedDogEntity extends TameableEntity
   private static final UniformIntProvider ANGER_TIME_RANGE = TimeHelper.betweenSeconds(20, 39);
   private java.util.UUID angryAt;
 
-  private static final Ingredient BREEDING_INGREDIENT =
-      Ingredient.ofItems(
-          Items.CHICKEN,
-          Items.COOKED_CHICKEN,
-          Items.BEEF,
-          Items.COOKED_BEEF,
-          Items.PORKCHOP,
-          Items.COOKED_PORKCHOP,
-          Items.MUTTON,
-          Items.COOKED_MUTTON,
-          Items.RABBIT,
-          Items.COOKED_RABBIT,
-          Items.ROTTEN_FLESH);
-  private static final Ingredient TAMING_INGREDIENT =
-      Ingredient.ofItems(
-          Items.CHICKEN,
-          Items.COOKED_CHICKEN,
-          Items.BEEF,
-          Items.COOKED_BEEF,
-          Items.PORKCHOP,
-          Items.COOKED_PORKCHOP,
-          Items.MUTTON,
-          Items.COOKED_MUTTON,
-          Items.RABBIT,
-          Items.COOKED_RABBIT,
-          Items.ROTTEN_FLESH,
-          Items.BONE);
-
   private final DogVocalization vocalization = new DogVocalization(this);
   private final DogAmbienceEffects ambience = new DogAmbienceEffects(this);
   private final DogSleepController sleep = new DogSleepController(this);
   private final DogPlaySession play = new DogPlaySession(this);
   private final DogEquipmentHolder equipment = new DogEquipmentHolder(this);
   private final DogAppearanceRoller appearance = new DogAppearanceRoller(this);
-  private UUID parentDogUuid = null;
-  private UUID secondParentDogUuid = null;
+  private final DogLineage lineage = new DogLineage(this);
   private boolean spawnedByDogSpawner = false;
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -733,7 +700,8 @@ public class UnleashedDogEntity extends TameableEntity
     this.goalSelector.add(6, new PounceAtTargetGoal(this, POUNCE_STRENGTH));
     this.goalSelector.add(7, new MeleeAttackGoal(this, DEFAULT_GOAL_SPEED, true));
     this.goalSelector.add(8, new AnimalMateGoal(this, DEFAULT_GOAL_SPEED));
-    this.goalSelector.add(9, new TemptGoal(this, DEFAULT_GOAL_SPEED, TAMING_INGREDIENT, false));
+    this.goalSelector.add(
+        9, new TemptGoal(this, DEFAULT_GOAL_SPEED, DogFoods.tamingIngredient(), false));
     this.goalSelector.add(
         9, new FetchTemptGoal(this, DEFAULT_GOAL_SPEED, FetchTypes.asIngredient(), false));
     // The three goals below share a priority; their command gates keep them mutually exclusive.
@@ -887,22 +855,22 @@ public class UnleashedDogEntity extends TameableEntity
 
   @Override
   public boolean isBreedingItem(ItemStack stack) {
-    return BREEDING_INGREDIENT.test(stack);
+    return DogFoods.isBreedingItem(stack);
   }
 
   public boolean isTamingItem(ItemStack stack) {
-    return TAMING_INGREDIENT.test(stack);
+    return DogFoods.isTamingItem(stack);
   }
 
   public static Ingredient breedingIngredient() {
-    return BREEDING_INGREDIENT;
+    return DogFoods.breedingIngredient();
   }
 
   public static Ingredient tamingIngredient() {
-    return TAMING_INGREDIENT;
+    return DogFoods.tamingIngredient();
   }
 
-  private void tame(final @Nullable PlayerEntity player) {
+  void tame(final @Nullable PlayerEntity player) {
     if (player == null) {
       return;
     }
@@ -930,62 +898,12 @@ public class UnleashedDogEntity extends TameableEntity
 
   @Override
   public boolean canBreedWith(AnimalEntity other) {
-    if (other == this) {
-      return false;
-    }
-    if (!this.isTamed()) {
-      return false;
-    }
-    if (!(other instanceof UnleashedDogEntity otherDog)) {
-      return false;
-    }
-    if (!otherDog.isTamed()) {
-      return false;
-    }
-    if (otherDog.isInSittingPose()) {
-      return false;
-    }
-    return this.isInLove() && otherDog.isInLove();
+    return this.lineage.canBreedWith(other);
   }
 
   @Override
   public PassiveEntity createChild(ServerWorld world, PassiveEntity entity) {
-    if (!(entity instanceof UnleashedDogEntity partner)) {
-      return null;
-    }
-    final UnleashedDogBreed childBreed =
-        this.breed == partner.getBreed() && this.breed != UnleashedDogBreed.CROSS_BREED
-            ? this.breed
-            : UnleashedDogBreed.CROSS_BREED;
-    final UnleashedDogEntity baby = ModEntities.getDogEntityType(childBreed).create(world);
-    if (baby == null) {
-      return null;
-    }
-    baby.setBaby(true);
-    baby.setParentDogUuid(this.getUuid());
-    baby.setSecondParentDogUuid(partner.getUuid());
-    if (childBreed == UnleashedDogBreed.CROSS_BREED) {
-      baby.applyGenome(
-          DogGenomeCombiner.combine(this.genomeOrPure(), partner.genomeOrPure(), this.random));
-      baby.setHealth(baby.getMaxHealth());
-    }
-    baby.rollAppearance(SpawnReason.BREEDING);
-    final PlayerEntity lovingPlayer = this.getLovingPlayer();
-    if (lovingPlayer != null) {
-      baby.tame(lovingPlayer);
-    } else {
-      final UUID inheritedOwnerUuid =
-          BreedingOwnerResolver.resolveInheritedOwnerUuid(
-              this.getOwnerUuid(), partner.getOwnerUuid());
-      if (inheritedOwnerUuid != null) {
-        baby.setOwnerUuid(inheritedOwnerUuid);
-        baby.setTamed(true, true);
-        // The baby is still unpositioned here; AnimalEntity#breed moves and spawns it right after,
-        // and the resulting ENTITY_LOAD makes PetLocationSyncListener write the real position.
-        PetRegistrar.registerPetFor(baby, inheritedOwnerUuid);
-      }
-    }
-    return baby;
+    return this.lineage.createChild(world, entity);
   }
 
   @Override
@@ -997,19 +915,19 @@ public class UnleashedDogEntity extends TameableEntity
   }
 
   public void setParentDogUuid(final UUID parentDogUuid) {
-    this.parentDogUuid = parentDogUuid;
+    this.lineage.setParentDogUuid(parentDogUuid);
   }
 
   public @Nullable UUID getParentDogUuid() {
-    return this.parentDogUuid;
+    return this.lineage.getParentDogUuid();
   }
 
   public void setSecondParentDogUuid(final UUID secondParentDogUuid) {
-    this.secondParentDogUuid = secondParentDogUuid;
+    this.lineage.setSecondParentDogUuid(secondParentDogUuid);
   }
 
   public @Nullable UUID getSecondParentDogUuid() {
-    return this.secondParentDogUuid;
+    return this.lineage.getSecondParentDogUuid();
   }
 
   /**
@@ -1017,13 +935,7 @@ public class UnleashedDogEntity extends TameableEntity
    * parent or it is no longer alive and loaded in the server world.
    */
   public @Nullable UnleashedDogEntity getParentDog() {
-    if (this.parentDogUuid == null || !(this.getWorld() instanceof ServerWorld serverWorld)) {
-      return null;
-    }
-    return serverWorld.getEntity(this.parentDogUuid) instanceof UnleashedDogEntity parent
-            && parent.isAlive()
-        ? parent
-        : null;
+    return this.lineage.getParentDog();
   }
 
   /**
@@ -1040,10 +952,7 @@ public class UnleashedDogEntity extends TameableEntity
   }
 
   boolean isPlayerHoldingTamingOrBreedingItem(final PlayerEntity player) {
-    return this.isTamingItem(player.getMainHandStack())
-        || this.isTamingItem(player.getOffHandStack())
-        || this.isBreedingItem(player.getMainHandStack())
-        || this.isBreedingItem(player.getOffHandStack());
+    return DogFoods.isHoldingTamingOrBreedingItem(player);
   }
 
   protected boolean isMoving(final AnimationState<UnleashedDogEntity> animationState) {
@@ -1203,12 +1112,7 @@ public class UnleashedDogEntity extends TameableEntity
       nbt.putInt(ModNbtKeys.COMMAND_ANCHOR_Z, this.commandAnchorPos.getZ());
     }
     nbt.putBoolean(ModNbtKeys.SPAWNED_BY_DOG_SPAWNER, this.spawnedByDogSpawner);
-    if (this.parentDogUuid != null) {
-      nbt.putUuid(ModNbtKeys.PARENT_DOG_ID, this.parentDogUuid);
-    }
-    if (this.secondParentDogUuid != null) {
-      nbt.putUuid(ModNbtKeys.SECOND_PARENT_DOG_ID, this.secondParentDogUuid);
-    }
+    this.lineage.writeNbt(nbt);
     this.equipment.writeNbt(nbt);
   }
 
@@ -1264,12 +1168,7 @@ public class UnleashedDogEntity extends TameableEntity
     if (nbt.contains(ModNbtKeys.SPAWNED_BY_DOG_SPAWNER)) {
       this.spawnedByDogSpawner = nbt.getBoolean(ModNbtKeys.SPAWNED_BY_DOG_SPAWNER);
     }
-    if (nbt.containsUuid(ModNbtKeys.PARENT_DOG_ID)) {
-      this.parentDogUuid = nbt.getUuid(ModNbtKeys.PARENT_DOG_ID);
-    }
-    if (nbt.containsUuid(ModNbtKeys.SECOND_PARENT_DOG_ID)) {
-      this.secondParentDogUuid = nbt.getUuid(ModNbtKeys.SECOND_PARENT_DOG_ID);
-    }
+    this.lineage.readNbt(nbt);
     this.equipment.readNbt(nbt);
   }
 
