@@ -34,12 +34,9 @@ import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetManager;
 import com.grahambartley.dogsunleashed.pet.PetRegistrar;
 import com.grahambartley.dogsunleashed.util.BreedingOwnerResolver;
-import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.BiFunction;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityData;
@@ -216,6 +213,7 @@ public class UnleashedDogEntity extends TameableEntity
   private final DogSleepController sleep = new DogSleepController(this);
   private final DogPlaySession play = new DogPlaySession(this);
   private final DogEquipmentHolder equipment = new DogEquipmentHolder(this);
+  private final DogAppearanceRoller appearance = new DogAppearanceRoller(this);
   private UUID parentDogUuid = null;
   private UUID secondParentDogUuid = null;
   private boolean spawnedByDogSpawner = false;
@@ -254,7 +252,7 @@ public class UnleashedDogEntity extends TameableEntity
       @Nullable EntityData entityData) {
     if (spawnReason != SpawnReason.BREEDING) {
       if (this.breed == UnleashedDogBreed.CROSS_BREED && this.getGenome() == null) {
-        this.applyGenome(this.randomFounderMix());
+        this.applyGenome(this.appearance.randomFounderMix());
         this.setHealth(this.getMaxHealth());
       }
       this.rollAppearance(spawnReason);
@@ -324,25 +322,8 @@ public class UnleashedDogEntity extends TameableEntity
         .setBaseValue(genome.attackDamage());
   }
 
-  private DogGenome genomeOrPure() {
-    final DogGenome genome = this.getGenome();
-    return genome != null ? genome : DogGenome.pure(this.breed);
-  }
-
-  private DogGenome randomFounderMix() {
-    final List<UnleashedDogBreed> founders =
-        Arrays.stream(UnleashedDogBreed.values())
-            .filter(UnleashedDogBreed::isNaturallySpawning)
-            .toList();
-    final int firstIndex = this.random.nextInt(founders.size());
-    int secondIndex = this.random.nextInt(founders.size() - 1);
-    if (secondIndex >= firstIndex) {
-      secondIndex++;
-    }
-    return DogGenomeCombiner.combine(
-        DogGenome.pure(founders.get(firstIndex)),
-        DogGenome.pure(founders.get(secondIndex)),
-        this.random);
+  DogGenome genomeOrPure() {
+    return this.appearance.genomeOrPure();
   }
 
   @Override
@@ -366,19 +347,7 @@ public class UnleashedDogEntity extends TameableEntity
   }
 
   protected void rollAppearance(final SpawnReason spawnReason) {
-    final UnleashedDogBreed rigBreed = this.getRigSourceBreed();
-    final BiFunction<SpawnReason, Integer, UnleashedDogCoat> rollResolver =
-        DogCoats.rollResolverFor(rigBreed);
-    final DogTraits current = this.getTraits();
-    final int coatVariantOrdinal =
-        rollResolver != null
-            ? rollResolver.apply(spawnReason, this.random.nextInt(DogCoats.ROLL_BOUND)).getOrdinal()
-            : current.coatVariantOrdinal();
-    final int eyeColorVariantOrdinal =
-        rigBreed.hasEyeColorVariants()
-            ? HuskyEyeColor.fromRandom(this.random).ordinal()
-            : current.eyeColorVariantOrdinal();
-    this.applyTraits(new DogTraits(rigBreed, coatVariantOrdinal, eyeColorVariantOrdinal));
+    this.appearance.rollAppearance(spawnReason);
   }
 
   public int getBarkCooldownTicks() {
