@@ -117,8 +117,6 @@ public class UnleashedDogEntity extends TameableEntity
   private static final TrackedData<Integer> COMMAND =
       DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.INTEGER);
 
-  private BlockPos commandAnchorPos = null;
-
   private static final UniformIntProvider ANGER_TIME_RANGE = TimeHelper.betweenSeconds(20, 39);
   private java.util.UUID angryAt;
 
@@ -131,6 +129,8 @@ public class UnleashedDogEntity extends TameableEntity
   private final DogLineage lineage = new DogLineage(this);
   private final DogEntityNbt persistence = new DogEntityNbt(this);
   private final DogInteractions interactions = new DogInteractions(this);
+  private final DogCommandController commandController = new DogCommandController(this);
+  private final DogTreatBuffState treatBuff = new DogTreatBuffState(this);
   private boolean spawnedByDogSpawner = false;
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -294,8 +294,13 @@ public class UnleashedDogEntity extends TameableEntity
     return DogCommand.fromId(this.dataTracker.get(COMMAND));
   }
 
-  public @Nullable BlockPos getCommandAnchorPos() {
-    return this.commandAnchorPos;
+  void setCommandRaw(final DogCommand command) {
+    this.dataTracker.set(COMMAND, command.id());
+  }
+
+  /** {@code jumping} is protected on {@code LivingEntity}, so only the entity can clear it. */
+  void stopJumping() {
+    this.jumping = false;
   }
 
   public DogVocalization getVocalization() {
@@ -330,54 +335,12 @@ public class UnleashedDogEntity extends TameableEntity
     return this.interactions;
   }
 
-  void setCommandAnchorPosFromSave(final BlockPos anchorPos) {
-    this.commandAnchorPos = anchorPos;
+  public DogCommandController getCommandController() {
+    return this.commandController;
   }
 
-  void setCommandFromSave(final DogCommand command) {
-    this.dataTracker.set(COMMAND, command.id());
-  }
-
-  void setTreatBuffTicksFromSave(final int treatBuffTicks) {
-    this.dataTracker.set(TREAT_BUFF_TICKS, treatBuffTicks);
-  }
-
-  /**
-   * Single entry point for switching command modes: keeps the sitting pose, the Stay/Guard anchor,
-   * and any in-progress sleep consistent with the new command.
-   */
-  public void applyCommand(final DogCommand command) {
-    if (!this.isTamed()) {
-      return;
-    }
-    if (this.isSleepingInBed() || this.isCommandedToSleep()) {
-      this.getSleepController().markManuallyWoken();
-      this.wakeUp();
-    }
-    this.dataTracker.set(COMMAND, command.id());
-    this.commandAnchorPos = command.isAnchored() ? this.getBlockPos() : null;
-    this.setSitting(command == DogCommand.SIT);
-    this.jumping = false;
-    this.navigation.stop();
-    this.setTarget(null);
-  }
-
-  /** Bark-and-wag feedback for a command issued in person, separate from silent state changes. */
-  public void acknowledgeCommand() {
-    this.ambience.startTailWag();
-    this.vocalization.barkIfReady(this.getVocalization().getBarkPitch());
-  }
-
-  /**
-   * For code paths that force a sitting dog to stand (damage, play mode, bed-block sleep): the
-   * command must stop being Sit or the pose and command would disagree, but a full {@link
-   * #applyCommand} would also clear the attack target these paths may have just set.
-   */
-  void demoteSitToFollow() {
-    if (this.getCommand() == DogCommand.SIT) {
-      this.dataTracker.set(COMMAND, DogCommand.FOLLOW.id());
-    }
-    this.setSitting(false);
+  public DogTreatBuffState getTreatBuffState() {
+    return this.treatBuff;
   }
 
   public DyeColor getCollarColor() {
@@ -557,36 +520,12 @@ public class UnleashedDogEntity extends TameableEntity
     return this.dataTracker.get(TAIL_WAG_TIMER);
   }
 
-  public int getTreatBuffTicks() {
+  int getTreatBuffTicks() {
     return this.dataTracker.get(TREAT_BUFF_TICKS);
   }
 
-  public boolean hasTreatBuff() {
-    return this.getTreatBuffTicks() > 0;
-  }
-
-  /**
-   * Starts (or refreshes) the Dog Treat buff and plays the reaction: a tail wag, a heart burst and
-   * a single bark. Refreshing resets the full duration rather than stacking, matching how vanilla
-   * handles a re-applied status effect of equal strength.
-   */
-  public void applyTreatBuff() {
-    this.dataTracker.set(TREAT_BUFF_TICKS, DogTreatBuff.DURATION_TICKS);
-    DogTreatBuff.apply(this);
-    this.ambience.startTailWag();
-    this.ambience.burstHearts();
-    this.vocalization.forceBark(this.getVocalization().getBarkPitch());
-  }
-
-  private void tickTreatBuff() {
-    final int remaining = this.dataTracker.get(TREAT_BUFF_TICKS);
-    if (remaining <= 0) {
-      return;
-    }
-    if (remaining == 1) {
-      DogTreatBuff.clear(this);
-    }
-    this.dataTracker.set(TREAT_BUFF_TICKS, remaining - 1);
+  void setTreatBuffTicks(final int treatBuffTicks) {
+    this.dataTracker.set(TREAT_BUFF_TICKS, treatBuffTicks);
   }
 
   @Override
@@ -680,7 +619,7 @@ public class UnleashedDogEntity extends TameableEntity
       this.ambience.updateSocialCues(nearbyPlayer);
 
       this.vocalization.tick(nearbyPlayer);
-      this.tickTreatBuff();
+      this.treatBuff.tick();
 
       this.ambience.tickShakeOff();
     }
@@ -692,7 +631,7 @@ public class UnleashedDogEntity extends TameableEntity
       return false;
     }
     if (!this.getWorld().isClient) {
-      this.demoteSitToFollow();
+      this.commandController.demoteSitToFollow();
       this.wakeUp();
       this.vocalization.barkIfReady(BARK_PITCH);
     }

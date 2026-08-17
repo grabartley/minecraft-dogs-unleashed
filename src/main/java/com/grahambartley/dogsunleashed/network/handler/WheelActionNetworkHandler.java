@@ -40,8 +40,8 @@ public final class WheelActionNetworkHandler {
                 return;
               }
               final DogCommand command = action.command();
-              dog.applyCommand(command);
-              dog.acknowledgeCommand();
+              dog.getCommandController().apply(command);
+              dog.getCommandController().acknowledge();
               player.sendMessage(Text.translatable(command.messageKey(), dogName), true);
             });
   }

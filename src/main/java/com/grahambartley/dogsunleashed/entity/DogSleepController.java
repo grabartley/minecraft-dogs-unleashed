@@ -50,7 +50,7 @@ public final class DogSleepController {
       return;
     }
     this.dog.setAssignedBedPos(bedPos);
-    this.dog.demoteSitToFollow();
+    this.dog.getCommandController().demoteSitToFollow();
     this.manuallyWokenAge = -1;
     this.manuallyWokenAtNight = false;
     this.dog.setCommandedToSleep(true);

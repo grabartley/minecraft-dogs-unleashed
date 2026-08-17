@@ -35,7 +35,7 @@ public class PuppyAwareWanderGoal extends WanderAroundFarGoal {
     if (this.dog.isBaby()) {
       return FuzzyTargeting.find(this.mob, PUPPY_HORIZONTAL_RANGE, PUPPY_VERTICAL_RANGE);
     }
-    final BlockPos anchor = this.dog.getCommandAnchorPos();
+    final BlockPos anchor = this.dog.getCommandController().getAnchorPos();
     if (this.dog.getCommand().isAnchored() && anchor != null) {
       return FuzzyTargeting.findTo(
           this.mob,

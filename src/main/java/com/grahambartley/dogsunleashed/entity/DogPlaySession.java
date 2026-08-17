@@ -126,7 +126,7 @@ public final class DogPlaySession {
     this.dog.setPlayPartnerPlayerUuid(player.getUuid());
     this.activeFetchBlockPos = null;
     this.dog.setActiveFetchType(fetchItemType);
-    this.dog.demoteSitToFollow();
+    this.dog.getCommandController().demoteSitToFollow();
   }
 
   public void endPlayMode() {
