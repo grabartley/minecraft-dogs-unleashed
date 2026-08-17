@@ -3,8 +3,8 @@ package com.grahambartley.dogsunleashed.screen;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.DogWheelAction;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
-import com.grahambartley.dogsunleashed.network.ModNetworking;
 import com.grahambartley.dogsunleashed.network.ModNetworkingClient;
+import com.grahambartley.dogsunleashed.network.payload.OpenCommandWheelPayload;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.UUID;
 import net.minecraft.client.gui.DrawContext;
@@ -62,7 +62,7 @@ public class DogCommandWheelScreen extends Screen {
   private final ItemStack[] icons;
   private DogCommand currentCommand;
 
-  public DogCommandWheelScreen(final ModNetworking.OpenCommandWheelPayload payload) {
+  public DogCommandWheelScreen(final OpenCommandWheelPayload payload) {
     super(Text.translatable("screen.dogs-unleashed.command_wheel.title"));
     this.dogEntityId = payload.entityId();
     this.dogId = payload.dogId();

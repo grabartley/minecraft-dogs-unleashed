@@ -4,6 +4,18 @@ import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.entity.DogWheelAction;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.SyncServerConfigS2CPayload;
+import com.grahambartley.dogsunleashed.network.payload.OpenCommandWheelPayload;
+import com.grahambartley.dogsunleashed.network.payload.OpenDogInspectPayload;
+import com.grahambartley.dogsunleashed.network.payload.OpenNamingScreenPayload;
+import com.grahambartley.dogsunleashed.network.payload.RequestDogConnectionsPayload;
+import com.grahambartley.dogsunleashed.network.payload.RequestPetManagerStatePayload;
+import com.grahambartley.dogsunleashed.network.payload.RequestPetsPayload;
+import com.grahambartley.dogsunleashed.network.payload.SelectWheelActionPayload;
+import com.grahambartley.dogsunleashed.network.payload.SetPetNamePayload;
+import com.grahambartley.dogsunleashed.network.payload.SummonPetPayload;
+import com.grahambartley.dogsunleashed.network.payload.SyncDogConnectionsPayload;
+import com.grahambartley.dogsunleashed.network.payload.SyncPetManagerStatePayload;
+import com.grahambartley.dogsunleashed.network.payload.SyncPetsPayload;
 import com.grahambartley.dogsunleashed.pet.PetAliveFilter;
 import com.grahambartley.dogsunleashed.screen.DogCommandWheelScreen;
 import com.grahambartley.dogsunleashed.screen.DogInspectScreen;
@@ -17,25 +29,24 @@ public final class ModNetworkingClient {
 
   public static void registerClientReceivers() {
     ClientPlayNetworking.registerGlobalReceiver(
-        ModNetworking.OpenNamingScreenPayload.ID, ModNetworkingClient::handleOpenNamingScreen);
+        OpenNamingScreenPayload.ID, ModNetworkingClient::handleOpenNamingScreen);
     ClientPlayNetworking.registerGlobalReceiver(
-        ModNetworking.OpenCommandWheelPayload.ID, ModNetworkingClient::handleOpenCommandWheel);
+        OpenCommandWheelPayload.ID, ModNetworkingClient::handleOpenCommandWheel);
 
     ClientPlayNetworking.registerGlobalReceiver(
-        ModNetworking.SyncPetsPayload.ID, ModNetworkingClient::handleSyncPets);
+        SyncPetsPayload.ID, ModNetworkingClient::handleSyncPets);
     ClientPlayNetworking.registerGlobalReceiver(
-        ModNetworking.SyncPetManagerStatePayload.ID,
-        ModNetworkingClient::handleSyncPetManagerState);
+        SyncPetManagerStatePayload.ID, ModNetworkingClient::handleSyncPetManagerState);
     ClientPlayNetworking.registerGlobalReceiver(
         SyncServerConfigS2CPayload.ID, ModNetworkingClient::handleSyncServerConfig);
     ClientPlayNetworking.registerGlobalReceiver(
-        ModNetworking.SyncDogConnectionsPayload.ID, ModNetworkingClient::handleSyncDogConnections);
+        SyncDogConnectionsPayload.ID, ModNetworkingClient::handleSyncDogConnections);
     ClientPlayNetworking.registerGlobalReceiver(
-        ModNetworking.OpenDogInspectPayload.ID, ModNetworkingClient::handleOpenDogInspect);
+        OpenDogInspectPayload.ID, ModNetworkingClient::handleOpenDogInspect);
   }
 
   private static void handleOpenDogInspect(
-      ModNetworking.OpenDogInspectPayload payload, ClientPlayNetworking.Context context) {
+      OpenDogInspectPayload payload, ClientPlayNetworking.Context context) {
     context
         .client()
         .execute(
@@ -49,7 +60,7 @@ public final class ModNetworkingClient {
   }
 
   private static void handleSyncDogConnections(
-      ModNetworking.SyncDogConnectionsPayload payload, ClientPlayNetworking.Context context) {
+      SyncDogConnectionsPayload payload, ClientPlayNetworking.Context context) {
     context
         .client()
         .execute(
@@ -67,7 +78,7 @@ public final class ModNetworkingClient {
   }
 
   private static void handleOpenNamingScreen(
-      ModNetworking.OpenNamingScreenPayload payload, ClientPlayNetworking.Context context) {
+      OpenNamingScreenPayload payload, ClientPlayNetworking.Context context) {
     context
         .client()
         .execute(
@@ -80,7 +91,7 @@ public final class ModNetworkingClient {
   }
 
   private static void handleOpenCommandWheel(
-      ModNetworking.OpenCommandWheelPayload payload, ClientPlayNetworking.Context context) {
+      OpenCommandWheelPayload payload, ClientPlayNetworking.Context context) {
     context
         .client()
         .execute(
@@ -94,7 +105,7 @@ public final class ModNetworkingClient {
   }
 
   private static void handleSyncPets(
-      ModNetworking.SyncPetsPayload payload, ClientPlayNetworking.Context context) {
+      SyncPetsPayload payload, ClientPlayNetworking.Context context) {
     context
         .client()
         .execute(
@@ -106,7 +117,7 @@ public final class ModNetworkingClient {
   }
 
   private static void handleSyncPetManagerState(
-      ModNetworking.SyncPetManagerStatePayload payload, ClientPlayNetworking.Context context) {
+      SyncPetManagerStatePayload payload, ClientPlayNetworking.Context context) {
     context
         .client()
         .execute(
@@ -119,28 +130,27 @@ public final class ModNetworkingClient {
   }
 
   public static void sendSelectWheelAction(UUID dogId, DogWheelAction action) {
-    ClientPlayNetworking.send(new ModNetworking.SelectWheelActionPayload(dogId, action.id()));
+    ClientPlayNetworking.send(new SelectWheelActionPayload(dogId, action.id()));
   }
 
   public static void sendSetPetName(UUID petId, String name) {
-    ClientPlayNetworking.send(new ModNetworking.SetPetNamePayload(petId, name));
+    ClientPlayNetworking.send(new SetPetNamePayload(petId, name));
   }
 
   public static void sendSummonPet(UUID petId) {
-    ClientPlayNetworking.send(new ModNetworking.SummonPetPayload(petId));
+    ClientPlayNetworking.send(new SummonPetPayload(petId));
   }
 
   public static void sendRequestPets(
       UnleashedDogBreed breedFilter, PetAliveFilter aliveFilter, String searchQuery) {
-    ClientPlayNetworking.send(
-        new ModNetworking.RequestPetsPayload(breedFilter, aliveFilter, searchQuery));
+    ClientPlayNetworking.send(new RequestPetsPayload(breedFilter, aliveFilter, searchQuery));
   }
 
   public static void sendRequestPetManagerState() {
-    ClientPlayNetworking.send(new ModNetworking.RequestPetManagerStatePayload());
+    ClientPlayNetworking.send(new RequestPetManagerStatePayload());
   }
 
   public static void sendRequestDogConnections(UUID dogId) {
-    ClientPlayNetworking.send(new ModNetworking.RequestDogConnectionsPayload(dogId));
+    ClientPlayNetworking.send(new RequestDogConnectionsPayload(dogId));
   }
 }

@@ -1,7 +1,7 @@
 package com.grahambartley.dogsunleashed.screen;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
-import com.grahambartley.dogsunleashed.network.ModNetworking.PetSyncData;
+import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
 import java.util.Arrays;
 import java.util.function.ToDoubleFunction;
 import net.minecraft.client.font.TextRenderer;
