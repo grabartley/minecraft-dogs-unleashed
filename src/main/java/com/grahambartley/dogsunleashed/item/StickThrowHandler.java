@@ -1,7 +1,7 @@
 package com.grahambartley.dogsunleashed.item;
 
+import com.grahambartley.dogsunleashed.entity.DogPlaySession;
 import com.grahambartley.dogsunleashed.entity.StickProjectileEntity;
-import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -27,8 +27,8 @@ public final class StickThrowHandler {
     // synced tracked data so dedicated-server throws still predict (arm swing, stack decrement).
     final boolean isPlayModePartner =
         world.isClient
-            ? UnleashedDogEntity.isAnyNearbyDogInPlayModeFor(player)
-            : UnleashedDogEntity.isAnyDogInPlayModeFor(player.getUuid());
+            ? DogPlaySession.isAnyNearbyDogInPlayModeFor(player)
+            : DogPlaySession.isAnyDogInPlayModeFor(player.getUuid());
     if (!isPlayModePartner) {
       return TypedActionResult.pass(itemStack);
     }

@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
+import com.grahambartley.dogsunleashed.entity.DogPlaySession;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import net.minecraft.entity.ai.goal.TemptGoal;
 import net.minecraft.recipe.Ingredient;
@@ -47,7 +48,7 @@ public class FetchTemptGoal extends TemptGoal {
       return this.dog.getPlaySession().isActivelyFetching();
     }
 
-    return UnleashedDogEntity.isAnyDogInPlayMode();
+    return DogPlaySession.isAnyDogInPlayMode();
   }
 
   private boolean canFollowClosestPlayer() {
@@ -60,6 +61,6 @@ public class FetchTemptGoal extends TemptGoal {
       return true;
     }
 
-    return !UnleashedDogEntity.isAnyDogInPlayModeFor(this.closestPlayer.getUuid());
+    return !DogPlaySession.isAnyDogInPlayModeFor(this.closestPlayer.getUuid());
   }
 }

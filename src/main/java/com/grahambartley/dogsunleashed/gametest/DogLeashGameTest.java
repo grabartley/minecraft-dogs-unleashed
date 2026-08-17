@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.gametest;
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
+import com.grahambartley.dogsunleashed.entity.DogPlaySession;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
@@ -30,12 +31,12 @@ public final class DogLeashGameTest implements FabricGameTest {
 
   @BeforeBatch(batchId = INTERACT_BATCH)
   public void clearSessionsBefore(final ServerWorld world) {
-    UnleashedDogEntity.clearActivePlaySessions();
+    DogPlaySession.clearActivePlaySessions();
   }
 
   @AfterBatch(batchId = INTERACT_BATCH)
   public void clearSessionsAfter(final ServerWorld world) {
-    UnleashedDogEntity.clearActivePlaySessions();
+    DogPlaySession.clearActivePlaySessions();
   }
 
   @BeforeBatch(batchId = SLEEP_BATCH)

@@ -1,8 +1,8 @@
 package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModEntities;
+import com.grahambartley.dogsunleashed.entity.DogPlaySession;
 import com.grahambartley.dogsunleashed.entity.StickProjectileEntity;
-import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -24,7 +24,7 @@ import net.minecraft.world.GameMode;
  * Real-behavior coverage of the {@code StickThrowHandler} play-mode gate (#179). The handler is the
  * mod's only {@link UseItemCallback}; before #179 every non-sneaking stick right-click launched a
  * {@link StickProjectileEntity}. Now it only throws when the player is the play-mode partner of a
- * tamed dog ({@code UnleashedDogEntity.isAnyDogInPlayModeFor}).
+ * tamed dog ({@code DogPlaySession.isAnyDogInPlayModeFor}).
  *
  * <p>Tests fire the real {@code UseItemCallback.EVENT} invoker rather than calling the handler
  * method directly, so they also assert the callback stays registered: deleting the {@code
@@ -45,12 +45,12 @@ public final class StickThrowHandlerGameTest implements FabricGameTest {
 
   @BeforeBatch(batchId = BATCH)
   public void clearSessionsBefore(final ServerWorld world) {
-    UnleashedDogEntity.clearActivePlaySessions();
+    DogPlaySession.clearActivePlaySessions();
   }
 
   @AfterBatch(batchId = BATCH)
   public void clearSessionsAfter(final ServerWorld world) {
-    UnleashedDogEntity.clearActivePlaySessions();
+    DogPlaySession.clearActivePlaySessions();
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = 5)

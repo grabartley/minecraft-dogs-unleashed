@@ -6,6 +6,7 @@ import static com.grahambartley.dogsunleashed.ModConstants.PUPPY_BARK_PITCH_MULT
 import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
+import com.grahambartley.dogsunleashed.entity.DogPlaySession;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.concurrent.atomic.AtomicBoolean;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -41,13 +42,13 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
 
   private static void prepareBatch(final ServerWorld world) {
     world.getGameRules().get(GameRules.DO_DAYLIGHT_CYCLE).set(false, world.getServer());
-    UnleashedDogEntity.clearActivePlaySessions();
+    DogPlaySession.clearActivePlaySessions();
     DogBedBlock.clearPendingAssignments();
   }
 
   private static void teardownBatch(final ServerWorld world) {
     world.getGameRules().get(GameRules.DO_DAYLIGHT_CYCLE).set(true, world.getServer());
-    UnleashedDogEntity.clearActivePlaySessions();
+    DogPlaySession.clearActivePlaySessions();
     DogBedBlock.clearPendingAssignments();
   }
 

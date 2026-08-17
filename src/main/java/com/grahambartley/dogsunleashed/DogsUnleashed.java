@@ -6,7 +6,7 @@ import com.grahambartley.dogsunleashed.advancement.HuskyHowledCriterion;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
 import com.grahambartley.dogsunleashed.command.DogsUnleashedCommand;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
-import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.DogPlaySession;
 import com.grahambartley.dogsunleashed.listener.PetLocationSyncListener;
 import com.grahambartley.dogsunleashed.listener.PlayerDimensionChangeListener;
 import com.grahambartley.dogsunleashed.listener.PlayerJoinReunionListener;
@@ -88,7 +88,7 @@ public class DogsUnleashed implements ModInitializer {
    * inheriting stale player/dog UUID pairs from the previous world. See #176.
    */
   private static void clearJvmGlobalSessionState(MinecraftServer server) {
-    UnleashedDogEntity.clearActivePlaySessions();
+    DogPlaySession.clearActivePlaySessions();
     DogBedBlock.clearPendingAssignments();
   }
 }
