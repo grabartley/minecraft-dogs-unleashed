@@ -1,26 +1,14 @@
 package com.grahambartley.dogsunleashed.entity;
 
-import static com.grahambartley.dogsunleashed.ModConstants.BARK_COOLDOWN_TICKS;
 import static com.grahambartley.dogsunleashed.ModConstants.BARK_PITCH;
-import static com.grahambartley.dogsunleashed.ModConstants.FULL_MOON_PHASE;
-import static com.grahambartley.dogsunleashed.ModConstants.HOWL_COOLDOWN_TICKS;
-import static com.grahambartley.dogsunleashed.ModConstants.HOWL_DURATION_TICKS;
-import static com.grahambartley.dogsunleashed.ModConstants.HOWL_HEARING_RANGE_SQUARED;
-import static com.grahambartley.dogsunleashed.ModConstants.HOWL_PITCH;
-import static com.grahambartley.dogsunleashed.ModConstants.LOW_HEALTH_THRESHOLD;
 import static com.grahambartley.dogsunleashed.ModConstants.MINECRAFT_TICK_RATE;
-import static com.grahambartley.dogsunleashed.ModConstants.PUPPY_BARK_PITCH_MULTIPLIER;
-import static com.grahambartley.dogsunleashed.ModConstants.RANDOM_BARK_CHANCE;
-import static com.grahambartley.dogsunleashed.ModConstants.RANDOM_HOWL_CHANCE;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModBlockTags;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
-import com.grahambartley.dogsunleashed.ModSounds;
 import com.grahambartley.dogsunleashed.advancement.DogSleptInBedCriterion;
-import com.grahambartley.dogsunleashed.advancement.HuskyHowledCriterion;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
 import com.grahambartley.dogsunleashed.block.entity.DogBedBlockEntity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
@@ -103,7 +91,6 @@ import net.minecraft.recipe.Ingredient;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -266,9 +253,7 @@ public class UnleashedDogEntity extends TameableEntity
           Items.ROTTEN_FLESH,
           Items.BONE);
 
-  private int barkCooldownTicks = 0;
-  private int howlCooldownTicks = 0;
-  private int howlActiveTicks = 0;
+  private final DogVocalization vocalization = new DogVocalization(this);
   private int manuallyWokenAge = -1;
   private boolean manuallyWokenAtNight = false;
   private int lastReunionAge = -1;
@@ -427,10 +412,6 @@ public class UnleashedDogEntity extends TameableEntity
     this.dataTracker.set(EYE_COLOR_VARIANT, traits.eyeColorVariantOrdinal());
   }
 
-  protected @Nullable SoundEvent getBarkSound() {
-    return this.getVoiceBreed().barkSound();
-  }
-
   protected void rollAppearance(final SpawnReason spawnReason) {
     final UnleashedDogBreed rigBreed = this.getRigSourceBreed();
     final BiFunction<SpawnReason, Integer, UnleashedDogCoat> rollResolver =
@@ -448,103 +429,23 @@ public class UnleashedDogEntity extends TameableEntity
   }
 
   public int getBarkCooldownTicks() {
-    return this.barkCooldownTicks;
-  }
-
-  protected boolean canBark() {
-    return this.getVoiceBreed().hasBarkSound()
-        && !this.isDead()
-        && !this.isSleepingInBed()
-        && this.barkCooldownTicks <= 0;
-  }
-
-  private boolean shouldBark(final PlayerEntity nearbyPlayer) {
-    if (nearbyPlayer != null && this.isPlayerHoldingTamingOrBreedingItem(nearbyPlayer)) {
-      return true;
-    }
-    if (this.getHealth() < this.getMaxHealth() * LOW_HEALTH_THRESHOLD && !this.isLeashed()) {
-      return true;
-    }
-    if (this.getTarget() != null) {
-      return true;
-    }
-    return this.random.nextInt(RANDOM_BARK_CHANCE) == 0;
+    return this.vocalization.barkCooldownTicks();
   }
 
   public float getBarkPitch() {
-    return this.isBaby() ? BARK_PITCH * PUPPY_BARK_PITCH_MULTIPLIER : BARK_PITCH;
-  }
-
-  private void tryBark(final PlayerEntity nearbyPlayer) {
-    if (this.canBark() && this.shouldBark(nearbyPlayer)) {
-      this.playSound(
-          this.getBarkSound(), DogsUnleashed.SERVER_CONFIG.barkVolume(), this.getBarkPitch());
-      this.barkCooldownTicks = BARK_COOLDOWN_TICKS;
-    }
+    return this.vocalization.barkPitch();
   }
 
   public boolean isHowling() {
     return this.dataTracker.get(HOWLING);
   }
 
-  private void setHowling(boolean howling) {
+  void setHowling(final boolean howling) {
     this.dataTracker.set(HOWLING, howling);
   }
 
   public int getHowlCooldownTicks() {
-    return this.howlCooldownTicks;
-  }
-
-  private boolean isHowlConditionMet() {
-    return !this.isDead()
-        && !this.isSleepingInBed()
-        && !this.getWorld().isDay()
-        && this.getWorld().getMoonPhase() == FULL_MOON_PHASE;
-  }
-
-  private boolean canHowl() {
-    return isHowlConditionMet() && this.howlCooldownTicks <= 0;
-  }
-
-  private void tickHowl() {
-    if (!this.getVoiceBreed().howls()) {
-      return;
-    }
-
-    if (this.howlCooldownTicks > 0) this.howlCooldownTicks--;
-
-    if (this.howlActiveTicks > 0) {
-      this.howlActiveTicks--;
-      if (this.howlActiveTicks == 0) {
-        this.setHowling(false);
-      }
-    }
-
-    boolean willHowl = this.canHowl() && this.random.nextInt(RANDOM_HOWL_CHANCE) == 0;
-    if (willHowl) {
-      this.setHowling(true);
-      this.playSound(ModSounds.HUSKY_HOWL, DogsUnleashed.SERVER_CONFIG.howlVolume(), HOWL_PITCH);
-      this.howlCooldownTicks = HOWL_COOLDOWN_TICKS;
-      this.howlActiveTicks = HOWL_DURATION_TICKS;
-      this.triggerHowlAdvancement();
-    }
-  }
-
-  private void triggerHowlAdvancement() {
-    if (!(this.getWorld() instanceof ServerWorld)) {
-      return;
-    }
-
-    final Entity owner = this.getOwner();
-    if (!(owner instanceof ServerPlayerEntity player) || !player.isAlive()) {
-      return;
-    }
-
-    if (this.squaredDistanceTo(player) > HOWL_HEARING_RANGE_SQUARED) {
-      return;
-    }
-
-    HuskyHowledCriterion.INSTANCE.trigger(player);
+    return this.vocalization.howlCooldownTicks();
   }
 
   @Override
@@ -603,11 +504,7 @@ public class UnleashedDogEntity extends TameableEntity
   /** Bark-and-wag feedback for a command issued in person, separate from silent state changes. */
   public void acknowledgeCommand() {
     this.dataTracker.set(TAIL_WAG_TIMER, TAIL_WAG_DURATION_TICKS);
-    if (this.canBark()) {
-      this.playSound(
-          this.getBarkSound(), DogsUnleashed.SERVER_CONFIG.barkVolume(), this.getBarkPitch());
-      this.barkCooldownTicks = BARK_COOLDOWN_TICKS;
-    }
+    this.vocalization.barkIfReady(this.getBarkPitch());
   }
 
   /**
@@ -1024,11 +921,7 @@ public class UnleashedDogEntity extends TameableEntity
     if (this.getWorld() instanceof ServerWorld serverWorld) {
       this.spawnHeartParticles(serverWorld);
     }
-    final SoundEvent barkSound = this.getBarkSound();
-    if (barkSound != null) {
-      this.playSound(barkSound, DogsUnleashed.SERVER_CONFIG.barkVolume(), this.getBarkPitch());
-      this.barkCooldownTicks = BARK_COOLDOWN_TICKS;
-    }
+    this.vocalization.forceBark(this.getBarkPitch());
   }
 
   private void tickTreatBuff() {
@@ -1415,7 +1308,7 @@ public class UnleashedDogEntity extends TameableEntity
     super.setTarget(target);
   }
 
-  private boolean isPlayerHoldingTamingOrBreedingItem(final PlayerEntity player) {
+  boolean isPlayerHoldingTamingOrBreedingItem(final PlayerEntity player) {
     return this.isTamingItem(player.getMainHandStack())
         || this.isTamingItem(player.getOffHandStack())
         || this.isBreedingItem(player.getMainHandStack())
@@ -1476,11 +1369,7 @@ public class UnleashedDogEntity extends TameableEntity
       this.updateHeadTilt(nearbyPlayer);
       this.updateTailWag(nearbyPlayer);
 
-      if (this.barkCooldownTicks > 0) {
-        this.barkCooldownTicks--;
-      }
-      this.tryBark(nearbyPlayer);
-      this.tickHowl();
+      this.vocalization.tick(nearbyPlayer);
       this.tickTreatBuff();
 
       final boolean inWater = this.isTouchingWater();
@@ -1520,10 +1409,7 @@ public class UnleashedDogEntity extends TameableEntity
     if (!this.getWorld().isClient) {
       this.demoteSitToFollow();
       this.wakeUp();
-      if (this.canBark()) {
-        this.playSound(this.getBarkSound(), DogsUnleashed.SERVER_CONFIG.barkVolume(), BARK_PITCH);
-        this.barkCooldownTicks = BARK_COOLDOWN_TICKS;
-      }
+      this.vocalization.barkIfReady(BARK_PITCH);
     }
     return super.damage(source, amount);
   }
