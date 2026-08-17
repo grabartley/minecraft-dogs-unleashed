@@ -4,8 +4,6 @@ import static com.grahambartley.dogsunleashed.ModConstants.BARK_PITCH;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModBlockTags;
-import com.grahambartley.dogsunleashed.ModItems;
-import com.grahambartley.dogsunleashed.block.DogBedBlock;
 import com.grahambartley.dogsunleashed.block.entity.DogBedBlockEntity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
@@ -25,18 +23,14 @@ import com.grahambartley.dogsunleashed.entity.goal.SleepInBedGoal;
 import com.grahambartley.dogsunleashed.entity.variant.DogCoats;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
 import com.grahambartley.dogsunleashed.entity.variant.UnleashedDogCoat;
-import com.grahambartley.dogsunleashed.item.DogWhistleItem;
-import com.grahambartley.dogsunleashed.network.ModNetworking;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetManager;
-import com.grahambartley.dogsunleashed.pet.PetRegistrar;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.UUID;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityData;
-import net.minecraft.entity.EntityStatuses;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
@@ -66,10 +60,8 @@ import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.recipe.Ingredient;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -115,8 +107,6 @@ public class UnleashedDogEntity extends TameableEntity
   private static final float HEEL_MIN_DISTANCE = 1.5F;
   private static final float LOOK_AT_PLAYER_RANGE = 8.0F;
   private static final int PLAYER_ANGER_TARGET_CHANCE = 10;
-  private static final int TAME_SUCCESS_CHANCE = 3;
-  private static final float BREEDING_ITEM_HEAL_AMOUNT = 2.0F;
   private static final double MOVEMENT_THRESHOLD = 0.001;
   private static final double NEARBY_PLAYER_RANGE = 10.0D;
 
@@ -182,6 +172,7 @@ public class UnleashedDogEntity extends TameableEntity
   private final DogAppearanceRoller appearance = new DogAppearanceRoller(this);
   private final DogLineage lineage = new DogLineage(this);
   private final DogEntityNbt persistence = new DogEntityNbt(this);
+  private final DogInteractions interactions = new DogInteractions(this);
   private boolean spawnedByDogSpawner = false;
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -375,6 +366,10 @@ public class UnleashedDogEntity extends TameableEntity
 
   public DogEquipmentHolder getEquipmentHolder() {
     return this.equipment;
+  }
+
+  public DogInteractions getInteractions() {
+    return this.interactions;
   }
 
   void setCommandAnchorPosFromSave(final BlockPos anchorPos) {
@@ -704,101 +699,11 @@ public class UnleashedDogEntity extends TameableEntity
 
   @Override
   public ActionResult interactMob(PlayerEntity player, Hand hand) {
-    final ItemStack itemStack = player.getStackInHand(hand);
+    return this.interactions.interact(player, hand);
+  }
 
-    if (this.getWorld().isClient) {
-      final boolean shouldInteract = this.isOwner(player) || !this.isTamed() || player.isSneaking();
-      return shouldInteract ? ActionResult.CONSUME : ActionResult.PASS;
-    }
-
-    if (!this.isOwner(player) && player.isSneaking()) {
-      if (player instanceof ServerPlayerEntity serverPlayer) {
-        ModNetworking.sendOpenDogInspect(serverPlayer, this);
-      }
-      return ActionResult.SUCCESS;
-    }
-
-    FetchItemType fetchItemType = FetchTypes.forItem(itemStack.getItem());
-    if (this.isTamed() && this.isOwner(player) && player.isSneaking() && fetchItemType != null) {
-      if (this.getPlaySession().isInPlayMode()) {
-        this.getPlaySession().endPlayMode();
-        player.sendMessage(
-            Text.translatable("message.dogs-unleashed.play_end", this.getTamedName()), true);
-      } else {
-        if (this.isLeashed() && DogsUnleashed.SERVER_CONFIG.dropLeashOnPlayMode()) {
-          this.detachLeash();
-        }
-        this.play.endOtherNearbyPlayModes(player);
-        this.getPlaySession().startPlayMode(player, fetchItemType);
-        player.sendMessage(
-            Text.translatable("message.dogs-unleashed.play_start", this.getTamedName()), true);
-      }
-      return ActionResult.SUCCESS;
-    }
-
-    if (this.isTamed()) {
-      if (this.isOwner(player) && !player.isSneaking() && itemStack.isOf(ModItems.DOG_WHISTLE)) {
-        DogWhistleItem.bind(itemStack, this.getUuid(), this.getTamedName());
-        player.sendMessage(
-            Text.translatable("message.dogs-unleashed.whistle.bound", this.getTamedName()), true);
-        return ActionResult.SUCCESS;
-      }
-
-      if (this.isOwner(player) && !player.isSneaking() && itemStack.isOf(ModItems.DOG_TREAT)) {
-        itemStack.decrementUnlessCreative(1, player);
-        this.applyTreatBuff();
-        return ActionResult.SUCCESS;
-      }
-
-      if (this.isBreedingItem(itemStack) && this.getHealth() < this.getMaxHealth()) {
-        itemStack.decrementUnlessCreative(1, player);
-        this.heal(BREEDING_ITEM_HEAL_AMOUNT);
-        return ActionResult.SUCCESS;
-      }
-
-      if (itemStack.getItem() instanceof DyeItem dyeItem) {
-        final DyeColor dyeColor = dyeItem.getColor();
-        this.setCollarColor(dyeColor);
-        itemStack.decrementUnlessCreative(1, player);
-        return ActionResult.SUCCESS;
-      }
-
-      if (this.isOwner(player) && !player.isSneaking()) {
-        final ActionResult equipResult = this.equipment.tryDirectEquip(player, hand, itemStack);
-        if (equipResult != null) {
-          return equipResult;
-        }
-      }
-
-      if (this.isOwner(player) && !this.isTamingItem(itemStack)) {
-        if (player.isSneaking()) {
-          final String dogName = this.getTamedName();
-          DogBedBlock.setPendingAssignment(player.getUuid(), this.getUuid());
-          player.sendMessage(
-              Text.translatable("message.dogs-unleashed.pending_bed_assignment", dogName), true);
-          return ActionResult.SUCCESS;
-        }
-        if (player instanceof ServerPlayerEntity serverPlayer) {
-          ModNetworking.sendOpenCommandWheel(serverPlayer, this);
-        }
-        return ActionResult.SUCCESS;
-      }
-
-      ActionResult actionResult = super.interactMob(player, hand);
-      if (actionResult.isAccepted() || this.isBreedingItem(itemStack)) {
-        return actionResult;
-      }
-    } else if (this.isTamingItem(itemStack)) {
-      itemStack.decrementUnlessCreative(1, player);
-      if (this.random.nextInt(TAME_SUCCESS_CHANCE) == 0) {
-        this.tame(player);
-      } else {
-        this.getWorld()
-            .sendEntityStatus(this, EntityStatuses.ADD_NEGATIVE_PLAYER_REACTION_PARTICLES);
-      }
-      return ActionResult.SUCCESS;
-    }
-
+  /** Lets {@link DogInteractions} reach the vanilla interaction it defers to. */
+  ActionResult vanillaInteract(final PlayerEntity player, final Hand hand) {
     return super.interactMob(player, hand);
   }
 
@@ -809,29 +714,6 @@ public class UnleashedDogEntity extends TameableEntity
 
   public boolean isTamingItem(ItemStack stack) {
     return DogFoods.isTamingItem(stack);
-  }
-
-  public static Ingredient breedingIngredient() {
-    return DogFoods.breedingIngredient();
-  }
-
-  public static Ingredient tamingIngredient() {
-    return DogFoods.tamingIngredient();
-  }
-
-  void tame(final @Nullable PlayerEntity player) {
-    if (player == null) {
-      return;
-    }
-    this.setOwner(player);
-    this.applyCommand(DogCommand.SIT);
-    this.getWorld().sendEntityStatus(this, EntityStatuses.ADD_POSITIVE_PLAYER_REACTION_PARTICLES);
-
-    final PetData petData = PetRegistrar.registerPetFor(this, player.getUuid());
-    if (petData != null && player instanceof ServerPlayerEntity serverPlayer) {
-      ModNetworking.sendOpenNamingScreen(
-          serverPlayer, this.getUuid(), this.getBreed(), petData.getName());
-    }
   }
 
   public String getTamedName() {
