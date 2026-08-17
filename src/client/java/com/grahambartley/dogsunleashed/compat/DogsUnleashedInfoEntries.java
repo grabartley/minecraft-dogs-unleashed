@@ -63,6 +63,7 @@ public final class DogsUnleashedInfoEntries {
     definitions.add(dyed("dog_bed", () -> ModItems.DOG_BED, () -> ModComponents.DOG_BED_COLOR));
     definitions.add(item("dog_grave", () -> ModItems.DOG_GRAVE));
     definitions.add(item("dog_treat", () -> ModItems.DOG_TREAT));
+    definitions.add(item("dog_whistle", () -> ModItems.DOG_WHISTLE));
     definitions.add(
         text("taming_food", () -> matchingStacks(UnleashedDogEntity.tamingIngredient())));
     definitions.add(

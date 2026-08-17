@@ -6,6 +6,7 @@ import com.grahambartley.dogsunleashed.render.DogBedItemRenderer;
 import com.grahambartley.dogsunleashed.render.DogGraveBlockEntityRenderer;
 import com.grahambartley.dogsunleashed.render.DogGraveItemRenderer;
 import com.grahambartley.dogsunleashed.render.DogRenderer;
+import com.grahambartley.dogsunleashed.render.DogWhistleItemRenderer;
 import com.grahambartley.dogsunleashed.render.FrisbeeBlockEntityRenderer;
 import com.grahambartley.dogsunleashed.render.FrisbeeItemRenderer;
 import com.grahambartley.dogsunleashed.render.FrisbeeProjectileRenderer;
@@ -49,6 +50,8 @@ public class DogsUnleashedClient implements ClientModInitializer {
     BuiltinItemRendererRegistry.INSTANCE.register(
         ModItems.TENNIS_BALL, new TennisBallItemRenderer());
     BuiltinItemRendererRegistry.INSTANCE.register(ModItems.FRISBEE, new FrisbeeItemRenderer());
+    BuiltinItemRendererRegistry.INSTANCE.register(
+        ModItems.DOG_WHISTLE, new DogWhistleItemRenderer());
 
     HandledScreens.register(ModScreenHandlers.DOG_EQUIPMENT, DogEquipmentScreen::new);
 

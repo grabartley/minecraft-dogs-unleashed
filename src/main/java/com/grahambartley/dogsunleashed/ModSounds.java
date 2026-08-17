@@ -15,6 +15,8 @@ public class ModSounds {
 
   public static final SoundEvent HUSKY_HOWL = registerSound("entity.husky.howl");
 
+  public static final SoundEvent DOG_WHISTLE_BLOW = registerSound("item.dog_whistle.blow");
+
   private static SoundEvent registerSound(final String name) {
     final Identifier id = Identifier.of(DogsUnleashed.MOD_ID, name);
     return Registry.register(Registries.SOUND_EVENT, id, SoundEvent.of(id));

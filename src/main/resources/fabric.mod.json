@@ -5,7 +5,7 @@
   "name": "Dogs Unleashed",
   "description": "Adds new dog breeds and dog-related items to enhance the player's experience with their canine companions. Breeds spawn naturally across biomes with their own coats, sounds, and personalities. Dogs sleep in dog beds, fetch thrown sticks, follow you between dimensions, and leave a grave behind when they die. Operators can tune spawning, graves, auto-sleep, and bark volume in-game from the settings screen or the /dogsunleashed command.",
   "authors": [
-    "Vitória Vedana",
+    "Vit\u00f3ria Vedana",
     "Graham Bartley"
   ],
   "contact": {
@@ -37,6 +37,7 @@
       "com.grahambartley.dogsunleashed.gametest.DogCommandGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogEquipmentGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogTreatGameTest",
+      "com.grahambartley.dogsunleashed.gametest.DogWhistleGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogEntityBreedSpecificTest",
       "com.grahambartley.dogsunleashed.gametest.DogCrossBreedingGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogEntityCoreTest",

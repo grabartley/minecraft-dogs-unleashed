@@ -41,5 +41,11 @@
     "sounds": [
       "dogs-unleashed:entity/husky/howl1"
     ]
+  },
+  "item.dog_whistle.blow": {
+    "subtitle": "subtitles.dogs-unleashed.dog_whistle.blow",
+    "sounds": [
+      "dogs-unleashed:item/dog_whistle/blow1"
+    ]
   }
 }

@@ -14,7 +14,6 @@
   "entity.dogs-unleashed.tennis_ball_projectile": "Tennis Ball",
   "entity.dogs-unleashed.stick_projectile": "Stick",
   "entity.dogs-unleashed.frisbee_projectile": "Frisbee",
-
   "block.dogs-unleashed.dog_bed": "Dog Bed",
   "block.dogs-unleashed.dog_bed.colored": "%s Dog Bed",
   "block.dogs-unleashed.dog_bed.assigned": "%s will sleep here",
@@ -22,16 +21,20 @@
   "block.dogs-unleashed.dog_bed.sleep_command": "%s is going to sleep",
   "block.dogs-unleashed.dog_bed.wake_command": "%s is waking up",
   "block.dogs-unleashed.dog_bed.no_dog_nearby": "No tamed dog nearby",
-
   "block.dogs-unleashed.dog_grave": "Dog Grave",
   "block.dogs-unleashed.dog_grave.named": "%s's Grave",
-
   "item.dogs-unleashed.tennis_ball": "Tennis Ball",
   "block.dogs-unleashed.tennis_ball": "Tennis Ball",
   "block.dogs-unleashed.stick": "Stick",
   "item.dogs-unleashed.dog_treat": "Dog Treat",
   "item.dogs-unleashed.dog_treat.tooltip": "Your dog will love it.",
   "item.dogs-unleashed.dog_treat.effect": "%1$ss: +%2$s%% Speed, +%3$s Attack Damage",
+  "item.dogs-unleashed.dog_whistle": "Dog Whistle",
+  "item.dogs-unleashed.dog_whistle.unbound": "Right-click your dog to bind it",
+  "item.dogs-unleashed.dog_whistle.bound": "Bound to %1$s",
+  "message.dogs-unleashed.whistle.bound": "%1$s answers this whistle now",
+  "message.dogs-unleashed.whistle.unbound": "This whistle is not bound to a dog",
+  "subtitles.dogs-unleashed.dog_whistle.blow": "Dog Whistle blows",
   "item.dogs-unleashed.frisbee": "Frisbee",
   "item.dogs-unleashed.frisbee.colored": "%s Frisbee",
   "block.dogs-unleashed.frisbee": "Frisbee",
@@ -39,13 +42,11 @@
   "message.dogs-unleashed.play_end": "Stopped playing with %s",
   "message.dogs-unleashed.play_fetch_returned": "%s brought the %s back!",
   "message.dogs-unleashed.play_end_no_retrieve": "%s couldn't retrieve the %s",
-
   "message.dogs-unleashed.pending_bed_assignment": "Selected %s! Now right-click a dog bed to assign them",
   "message.dogs-unleashed.bed_assigned": "%s has been assigned to this bed",
   "message.dogs-unleashed.no_pending_assignment": "Sneak + right-click a dog first, then right-click this bed",
   "message.dogs-unleashed.summon_failed": "Couldn't find %s anywhere",
   "message.dogs-unleashed.summon_deceased": "%s has passed away and can't be summoned",
-
   "command.dogs-unleashed.follow": "Follow",
   "command.dogs-unleashed.heel": "Heel",
   "command.dogs-unleashed.stay": "Stay",
@@ -63,19 +64,15 @@
   "message.dogs-unleashed.command_free_roam": "%s is free to roam",
   "screen.dogs-unleashed.command_wheel.title": "Dog Commands",
   "screen.dogs-unleashed.command_wheel.no_bed": "Assign a bed first",
-
   "key.dogs-unleashed.open_pet_manager": "Open Pet Manager",
   "category.dogs-unleashed.general": "Dogs Unleashed",
-
   "toast.dogs-unleashed.keybind_nudge.title": "Dogs Unleashed",
   "toast.dogs-unleashed.keybind_nudge.description": "Bind the Pet Manager key under Controls > Dogs Unleashed.",
-
   "screen.dogs-unleashed.pet_naming.title": "Name Your New Friend!",
   "screen.dogs-unleashed.pet_naming.header": "You just tamed a %s!",
   "screen.dogs-unleashed.pet_naming.prompt": "What would you like to name them?",
   "screen.dogs-unleashed.pet_naming.name_field": "Pet Name",
   "screen.dogs-unleashed.pet_naming.confirm": "Welcome Home! 🐕",
-
   "screen.dogs-unleashed.pet_manager.title": "My Pets",
   "screen.dogs-unleashed.pet_manager.search": "Search by name...",
   "screen.dogs-unleashed.pet_manager.search_button": "Search",
@@ -91,7 +88,6 @@
   "screen.dogs-unleashed.pet_manager.settings_tooltip": "Settings",
   "screen.dogs-unleashed.pet_manager.keybind_hint": "Set a keybind under Controls > Dogs Unleashed for faster access.",
   "screen.dogs-unleashed.pet_manager.row_summon": "Summon",
-
   "screen.dogs-unleashed.pet_details.title": "Pet Details",
   "screen.dogs-unleashed.pet_details.back": "← Back",
   "screen.dogs-unleashed.pet_details.view_family_tree": "View Family Tree",
@@ -111,7 +107,6 @@
   "screen.dogs-unleashed.pet_details.stat_health": "Max Health",
   "screen.dogs-unleashed.pet_details.stat_speed": "Speed",
   "screen.dogs-unleashed.pet_details.stat_attack": "Attack",
-
   "screen.dogs-unleashed.family_tree.title": "Family Tree",
   "screen.dogs-unleashed.family_tree.header": "%s's Family Tree",
   "screen.dogs-unleashed.family_tree.back": "← Back",
@@ -123,7 +118,6 @@
   "screen.dogs-unleashed.family_tree.node_limit": "Tree is at its limit, collapse a branch to expand further",
   "screen.dogs-unleashed.family_tree.truncated": "Some relatives are hidden (very large family)",
   "screen.dogs-unleashed.family_tree.hint": "Drag to pan • Scroll to zoom • Click a dog to select and expand",
-
   "screen.dogs-unleashed.settings.title": "Dogs Unleashed Settings",
   "screen.dogs-unleashed.settings.gameplay": "Gameplay",
   "screen.dogs-unleashed.settings.sleep": "Sleep",
@@ -155,7 +149,6 @@
   "screen.dogs-unleashed.settings.barkvolume.tooltip": "Scales the volume of all dog bark sounds. Set to 0.0 to mute barks.",
   "screen.dogs-unleashed.settings.howlvolume": "Husky Howl Volume",
   "screen.dogs-unleashed.settings.howlvolume.tooltip": "Scales the volume of the Husky howl sound. Set to 0.0 to mute howls.",
-
   "command.dogs-unleashed.help.header": "Dogs Unleashed commands (operators only):",
   "command.dogs-unleashed.help.status": "- /dogsunleashed status",
   "command.dogs-unleashed.help.spawn": "- /dogsunleashed config spawn <true|false>",
@@ -195,7 +188,6 @@
   "command.dogs-unleashed.pet.dead": "dead",
   "command.dogs-unleashed.summon.success": "Summoning %s to %s.",
   "command.dogs-unleashed.summon.notfound": "%s has no pet with id %s.",
-
   "advancements.dogs-unleashed.root.title": "Dogs Unleashed",
   "advancements.dogs-unleashed.root.description": "Expand the pack.",
   "advancements.dogs-unleashed.best_friend.title": "Best Friend",
@@ -212,7 +204,6 @@
   "advancements.dogs-unleashed.forever_in_our_hearts.description": "Preserve a dog's grave as an item.",
   "advancements.dogs-unleashed.cherry_companion.title": "Cherry Companion",
   "advancements.dogs-unleashed.cherry_companion.description": "Tame a Shiba Inu.",
-
   "screen.dogs-unleashed.dog_inspect.title": "Dog Details",
   "screen.dogs-unleashed.dog_inspect.wild": "Wild",
   "screen.dogs-unleashed.dog_inspect.owner": "Owner: %s",
@@ -221,13 +212,13 @@
   "rarity.dogs-unleashed.uncommon": "Uncommon",
   "rarity.dogs-unleashed.rare": "Rare",
   "rarity.dogs-unleashed.epic": "Epic",
-
   "info.dogs-unleashed.tennis_ball": "A fetch toy. Sneak + right-click one of your tamed dogs while holding it to start play mode, then throw it: your dog chases the ball down, picks it up, and drops it back at your feet.",
   "info.dogs-unleashed.stick": "Doubles as a fetch toy. Sneak + right-click one of your tamed dogs while holding a stick to start play mode, then throw it for them to retrieve. No crafting needed.",
   "info.dogs-unleashed.frisbee": "The long-range fetch toy: it glides roughly three times further than a tennis ball before landing, which makes it the best choice in open terrain.\n\nCraft it with four honeycomb around a dye. The frisbee keeps the colour of the dye used, and all 16 colours are craftable.",
   "info.dogs-unleashed.dog_bed": "Place a dog bed, then sneak + right-click your tamed dog and right-click the bed to assign it to them.\n\nAn assigned dog auto-sleeps at night while it is within 32 blocks in clear weather, and stays asleep until you right-click the bed or give it a new command. Sneak + right-click the bed to unassign the dog.",
   "info.dogs-unleashed.dog_grave": "When a tamed dog dies, a grave appears near where it fell, marked with the dog's name and a flower matching its collar colour.\n\nMine the grave with a pickaxe to collect it as an item that keeps the name, id and collar colour, then place it anywhere as a memorial. Broken without a pickaxe, the grave is lost.",
   "info.dogs-unleashed.dog_treat": "A baked biscuit for a dog that already trusts you. Right-click one of your own tamed dogs while holding a treat and they eat it on the spot, with a bark, a tail wag and a burst of hearts.\n\nFor the next 60 seconds that dog moves 10% faster and hits 1 point harder. Feeding again refreshes the full 60 seconds rather than stacking, and the buff survives saves, reloads and dimension changes.\n\nCraft four at a time from wheat, bone meal and sugar in any arrangement.",
+  "info.dogs-unleashed.dog_whistle": "A brass whistle on a cord that answers to exactly one dog.\n\nRight-click one of your own tamed dogs while holding it and the whistle binds to that dog, engraving its name into the tooltip. Right-click in the air after that and the dog comes to you from wherever it is, chunk-loading its last known position and crossing dimensions if it has to. Right-click a different dog of yours to move the binding across.\n\nThe binding lives on the whistle itself, so it survives saves and reloads, and a player can carry one whistle per dog. Blowing an unbound whistle, or one whose dog has died, says so above the hotbar.\n\nCraft one from a gold ingot above a piece of string above any colour of wool.",
   "info.dogs-unleashed.taming_food": "Feed to a wild Dogs Unleashed dog to tame it, with a 1-in-3 chance per feed. A naming screen opens the moment the dog is tamed. Hold one near a wild dog and it will tilt its head at you.",
   "info.dogs-unleashed.breeding_food": "Feed to two tamed Dogs Unleashed dogs to breed them. Both parents must be tamed and not sitting, and puppies inherit their coat, size and temperament from both sides. Breeding two different breeds produces a mixed-breed dog.\n\nFeeding a hurt dog heals it instead.",
   "info.dogs-unleashed.spawn_egg.biomes": "Spawns naturally in: %s",
@@ -237,7 +228,6 @@
   "info.dogs-unleashed.beagle_spawn_egg": "A mid-sized scent hound with twelve coat patterns, the widest coat range of any breed in the mod.",
   "info.dogs-unleashed.goldenretriever_spawn_egg": "The classic fetch dog and the sturdiest breed after the Husky. Only found on beaches, so bring a boat.",
   "info.dogs-unleashed.shibainu_spawn_egg": "The fastest breed in the pack, and the hardest to find: cherry groves only.",
-
   "coat.dogs-unleashed.husky.black_white": "Black & White",
   "coat.dogs-unleashed.husky.grey_white": "Grey & White",
   "coat.dogs-unleashed.husky.agouti": "Agouti",
@@ -269,7 +259,6 @@
   "coat.dogs-unleashed.shibainu.red": "Red",
   "coat.dogs-unleashed.shibainu.black": "Black & Tan",
   "coat.dogs-unleashed.shibainu.sesame": "Sesame",
-
   "command.dogs-unleashed.equipment": "Equipment",
   "screen.dogs-unleashed.dog_equipment.slot.armour": "Armour",
   "screen.dogs-unleashed.dog_equipment.slot.armour.empty": "Holds canine body armour",
