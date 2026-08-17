@@ -2,9 +2,7 @@ package com.grahambartley.dogsunleashed.entity;
 
 import static com.grahambartley.dogsunleashed.ModConstants.BARK_PITCH;
 
-import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModBlockTags;
-import com.grahambartley.dogsunleashed.block.entity.DogBedBlockEntity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.entity.variant.DogCoats;
@@ -15,7 +13,6 @@ import com.grahambartley.dogsunleashed.pet.PetManager;
 import java.util.Optional;
 import java.util.UUID;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
@@ -65,7 +62,6 @@ public class UnleashedDogEntity extends TameableEntity
   public static final int DEFAULT_COLLAR_COLOR_ID = DyeColor.RED.getId();
   public static final int UNSET_VARIANT = -1;
 
-  private static final double POSITION_CENTER_OFFSET = 0.5;
   private static final double NEARBY_PLAYER_RANGE = 10.0D;
 
   private static final TrackedData<Integer> ANGER_TIME =
@@ -500,22 +496,6 @@ public class UnleashedDogEntity extends TameableEntity
     this.equipment.dropModOwnedSlots();
   }
 
-  public static boolean isAnyDogInPlayModeFor(final UUID playerUuid) {
-    return DogPlaySession.isAnyDogInPlayModeFor(playerUuid);
-  }
-
-  public static boolean isAnyNearbyDogInPlayModeFor(final PlayerEntity player) {
-    return DogPlaySession.isAnyNearbyDogInPlayModeFor(player);
-  }
-
-  public static boolean isAnyDogInPlayMode() {
-    return DogPlaySession.isAnyDogInPlayMode();
-  }
-
-  public static void clearActivePlaySessions() {
-    DogPlaySession.clearActivePlaySessions();
-  }
-
   public int getTailWagTimerTicks() {
     return this.dataTracker.get(TAIL_WAG_TIMER);
   }
@@ -638,53 +618,8 @@ public class UnleashedDogEntity extends TameableEntity
     return super.damage(source, amount);
   }
 
-  /**
-   * Recreates this dog in the destination world at the given position, which may be the current
-   * world. Recreation, rather than an in-place teleport, guarantees clients receive a fresh spawn
-   * at the correct position: in-place long-range teleports of entities streamed in from
-   * ticket-loaded chunks leave stale tracker state behind, making the dog invisible until relog.
-   *
-   * @return the dog entity in the destination world (may be a different instance from {@code this})
-   */
   public UnleashedDogEntity teleportToWorld(ServerWorld destination, Vec3d pos) {
-    final NbtCompound nbt = this.writeNbt(new NbtCompound());
-    nbt.remove("Dimension");
-
-    final ServerWorld currentWorld = (ServerWorld) this.getWorld();
-    final UnleashedDogEntity newDog = (UnleashedDogEntity) this.getType().create(destination);
-    if (newDog == null) {
-      DogsUnleashed.log.warn(
-          "[Dog] teleportToWorld: failed to create entity in {}",
-          destination.getRegistryKey().getValue());
-      return this;
-    }
-
-    newDog.readNbt(nbt);
-    newDog.setPos(pos.x, pos.y, pos.z);
-    newDog.setYaw(this.getYaw());
-    newDog.setPitch(this.getPitch());
-
-    this.remove(RemovalReason.CHANGED_DIMENSION);
-    currentWorld
-        .getChunk(this.getBlockPos().getX() >> 4, this.getBlockPos().getZ() >> 4)
-        .setNeedsSaving(true);
-
-    final Entity existing = destination.getEntity(this.getUuid());
-    if (existing != null && existing != this) {
-      DogsUnleashed.log.warn(
-          "[Dog] teleportToWorld: removing stale entity {} from {} (UUID collision)",
-          existing.getUuid(),
-          destination.getRegistryKey().getValue());
-      existing.remove(RemovalReason.DISCARDED);
-    }
-
-    destination.spawnEntity(newDog);
-
-    DogsUnleashed.log.info(
-        "[Dog] teleportToWorld: new dog {} spawned in {}",
-        newDog.getUuid(),
-        destination.getRegistryKey().getValue());
-    return newDog;
+    return DogWorldTransfer.teleportToWorld(this, destination, pos);
   }
 
   @Override
@@ -695,39 +630,11 @@ public class UnleashedDogEntity extends TameableEntity
 
   @Override
   public void onDeath(DamageSource damageSource) {
-    this.getPlaySession().endPlayMode();
+    this.play.endPlayMode();
     super.onDeath(damageSource);
 
-    // CRITICAL: Only spawn graves for tamed dogs
-    if (!(this.getWorld() instanceof ServerWorld serverWorld)) {
-      return;
-    }
-
-    if (!this.isTamed()) {
-      return;
-    }
-
-    final PetManager petManager = PetManager.get(serverWorld.getServer());
-    final PetData petData = petManager.getPetByEntityId(this.getUuid());
-    if (petData != null) {
-      petData.syncAppearanceFrom(this);
-      petManager.updatePet(petData);
-    }
-    petManager.markPetDeceased(this.getUuid());
-
-    // Get bed position before clearing it (needed to avoid spawning grave on bed)
-    final BlockPos bedPosToAvoid = this.getAssignedBedPos().orElse(null);
-
-    this.getAssignedBedPos()
-        .ifPresent(
-            bedPos -> {
-              if (serverWorld.getBlockEntity(bedPos) instanceof DogBedBlockEntity bedEntity) {
-                bedEntity.clearAssignedDog(serverWorld);
-              }
-            });
-
-    if (DogsUnleashed.SERVER_CONFIG.gravesEnabled()) {
-      DogGraveSpawner.spawnGrave(serverWorld, this, bedPosToAvoid);
+    if (this.getWorld() instanceof ServerWorld serverWorld && this.isTamed()) {
+      DogDeathHandler.onTamedDogDeath(this, serverWorld);
     }
   }
 

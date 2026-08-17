@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.gametest;
 import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
+import com.grahambartley.dogsunleashed.entity.DogPlaySession;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.concurrent.atomic.AtomicBoolean;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -30,13 +31,13 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
    */
   private static void prepareSleepBatch(final ServerWorld world) {
     world.getGameRules().get(GameRules.DO_DAYLIGHT_CYCLE).set(false, world.getServer());
-    UnleashedDogEntity.clearActivePlaySessions();
+    DogPlaySession.clearActivePlaySessions();
     DogBedBlock.clearPendingAssignments();
   }
 
   private static void teardownSleepBatch(final ServerWorld world) {
     world.getGameRules().get(GameRules.DO_DAYLIGHT_CYCLE).set(true, world.getServer());
-    UnleashedDogEntity.clearActivePlaySessions();
+    DogPlaySession.clearActivePlaySessions();
     DogBedBlock.clearPendingAssignments();
   }
 

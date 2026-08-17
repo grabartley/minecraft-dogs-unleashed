@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModEntities;
+import com.grahambartley.dogsunleashed.entity.DogPlaySession;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -35,12 +36,12 @@ public final class PlayModeSyncGameTest implements FabricGameTest {
 
   @BeforeBatch(batchId = BATCH)
   public void clearSessionsBefore(final ServerWorld world) {
-    UnleashedDogEntity.clearActivePlaySessions();
+    DogPlaySession.clearActivePlaySessions();
   }
 
   @AfterBatch(batchId = BATCH)
   public void clearSessionsAfter(final ServerWorld world) {
-    UnleashedDogEntity.clearActivePlaySessions();
+    DogPlaySession.clearActivePlaySessions();
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = 20)
@@ -78,7 +79,7 @@ public final class PlayModeSyncGameTest implements FabricGameTest {
     dog.getPlaySession().startPlayMode(player, FetchTypes.STICK);
 
     context.assertTrue(
-        UnleashedDogEntity.isAnyNearbyDogInPlayModeFor(player),
+        DogPlaySession.isAnyNearbyDogInPlayModeFor(player),
         "The nearby-dog gate should pass for the play-mode partner");
     context.complete();
   }
@@ -92,7 +93,7 @@ public final class PlayModeSyncGameTest implements FabricGameTest {
     dog.getPlaySession().startPlayMode(partner, FetchTypes.STICK);
 
     context.assertFalse(
-        UnleashedDogEntity.isAnyNearbyDogInPlayModeFor(bystander),
+        DogPlaySession.isAnyNearbyDogInPlayModeFor(bystander),
         "The nearby-dog gate should reject a player who is not the play-mode partner");
     context.complete();
   }
@@ -106,7 +107,7 @@ public final class PlayModeSyncGameTest implements FabricGameTest {
     dog.getPlaySession().endPlayMode();
 
     context.assertFalse(
-        UnleashedDogEntity.isAnyNearbyDogInPlayModeFor(player),
+        DogPlaySession.isAnyNearbyDogInPlayModeFor(player),
         "The nearby-dog gate should stop passing once play mode ends");
     context.complete();
   }
