@@ -204,9 +204,10 @@ public final class DogCrossBreedingGameTest implements FabricGameTest {
 
     context.assertTrue(baby != null, "Mixed pair should produce a puppy");
     context.assertTrue(
-        husky.getUuid().equals(baby.getParentDogUuid()), "First parent UUID should be recorded");
+        husky.getUuid().equals(baby.getLineage().getParentDogUuid()),
+        "First parent UUID should be recorded");
     context.assertTrue(
-        beagle.getUuid().equals(baby.getSecondParentDogUuid()),
+        beagle.getUuid().equals(baby.getLineage().getSecondParentDogUuid()),
         "Second parent UUID should be recorded");
     context.complete();
   }

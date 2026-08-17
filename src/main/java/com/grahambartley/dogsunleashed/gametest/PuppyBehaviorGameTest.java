@@ -129,13 +129,15 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
     dog.setAiDisabled(true);
 
     context.assertTrue(
-        Math.abs(dog.getBarkPitch() - BARK_PITCH) < PITCH_EPSILON,
-        "Adult bark pitch should be the base pitch, got " + dog.getBarkPitch());
+        Math.abs(dog.getVocalization().getBarkPitch() - BARK_PITCH) < PITCH_EPSILON,
+        "Adult bark pitch should be the base pitch, got " + dog.getVocalization().getBarkPitch());
 
     dog.setBaby(true);
     context.assertTrue(
-        Math.abs(dog.getBarkPitch() - BARK_PITCH * PUPPY_BARK_PITCH_MULTIPLIER) < PITCH_EPSILON,
-        "Puppy bark pitch should be the boosted pitch, got " + dog.getBarkPitch());
+        Math.abs(dog.getVocalization().getBarkPitch() - BARK_PITCH * PUPPY_BARK_PITCH_MULTIPLIER)
+            < PITCH_EPSILON,
+        "Puppy bark pitch should be the boosted pitch, got "
+            + dog.getVocalization().getBarkPitch());
     context.complete();
   }
 
@@ -149,18 +151,22 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
     dog.setAiDisabled(true);
 
     context.assertTrue(
-        !dog.hasPendingBirthWakeHearts(), "A freshly spawned adult should not have hearts armed");
+        !dog.getAmbienceEffects().hasPendingBirthWakeHearts(),
+        "A freshly spawned adult should not have hearts armed");
 
     dog.setBaby(true);
-    context.assertTrue(dog.hasPendingBirthWakeHearts(), "Birth should arm the heart burst");
+    context.assertTrue(
+        dog.getAmbienceEffects().hasPendingBirthWakeHearts(), "Birth should arm the heart burst");
 
     dog.wakeUp();
     context.assertTrue(
-        !dog.hasPendingBirthWakeHearts(), "First wake-up after birth should consume the hearts");
+        !dog.getAmbienceEffects().hasPendingBirthWakeHearts(),
+        "First wake-up after birth should consume the hearts");
 
     dog.wakeUp();
     context.assertTrue(
-        !dog.hasPendingBirthWakeHearts(), "Birth-wake hearts should be a one-shot, not re-armed");
+        !dog.getAmbienceEffects().hasPendingBirthWakeHearts(),
+        "Birth-wake hearts should be a one-shot, not re-armed");
     context.complete();
   }
 
@@ -181,15 +187,18 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
         10,
         () -> {
           context.assertTrue(
-              puppy.getParentDog() == null, "No recorded parent should resolve to null");
+              puppy.getLineage().getParentDog() == null,
+              "No recorded parent should resolve to null");
 
-          puppy.setParentDogUuid(parent.getUuid());
+          puppy.getLineage().setParentDogUuid(parent.getUuid());
           context.assertTrue(
-              puppy.getParentDog() == parent, "Recorded parent should resolve while alive");
+              puppy.getLineage().getParentDog() == parent,
+              "Recorded parent should resolve while alive");
 
           parent.discard();
           context.assertTrue(
-              puppy.getParentDog() == null, "A parent that is gone should resolve to null");
+              puppy.getLineage().getParentDog() == null,
+              "A parent that is gone should resolve to null");
           context.complete();
         });
   }
@@ -214,7 +223,7 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
     final UnleashedDogEntity puppy = context.spawnEntity(ModEntities.HUSKY, new BlockPos(5, 1, 5));
     puppy.setBaby(true);
     puppy.setInvulnerable(true);
-    puppy.setParentDogUuid(parent.getUuid());
+    puppy.getLineage().setParentDogUuid(parent.getUuid());
 
     final AtomicBoolean reached = new AtomicBoolean(false);
     context.runAtEveryTick(

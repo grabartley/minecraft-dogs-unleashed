@@ -58,9 +58,9 @@ public final class DogEntityNbt {
       nbt.putInt(ModNbtKeys.EYE_COLOR_VARIANT, traits.eyeColorVariantOrdinal());
     }
     nbt.putInt(ModNbtKeys.COLLAR_COLOR, this.dog.getCollarColor().getId());
-    this.dog.ambience().writeNbt(nbt);
-    this.dog.sleep().writeNbt(nbt);
-    this.dog.play().writeNbt(nbt);
+    this.dog.getAmbienceEffects().writeNbt(nbt);
+    this.dog.getSleepController().writeNbt(nbt);
+    this.dog.getPlaySession().writeNbt(nbt);
     nbt.putInt(ModNbtKeys.TREAT_BUFF_TICKS, this.dog.getTreatBuffTicks());
     nbt.putInt(ModNbtKeys.COMMAND_MODE, this.dog.getCommand().id());
     final BlockPos anchor = this.dog.getCommandAnchorPos();
@@ -70,8 +70,8 @@ public final class DogEntityNbt {
       nbt.putInt(ModNbtKeys.COMMAND_ANCHOR_Z, anchor.getZ());
     }
     nbt.putBoolean(ModNbtKeys.SPAWNED_BY_DOG_SPAWNER, this.dog.isSpawnedByDogSpawner());
-    this.dog.lineage().writeNbt(nbt);
-    this.dog.equipment().writeNbt(nbt);
+    this.dog.getLineage().writeNbt(nbt);
+    this.dog.getEquipmentHolder().writeNbt(nbt);
   }
 
   void readNbt(final NbtCompound nbt) {
@@ -92,9 +92,9 @@ public final class DogEntityNbt {
     if (nbt.contains(ModNbtKeys.COLLAR_COLOR, NbtElement.NUMBER_TYPE)) {
       this.dog.setCollarColor(DyeColor.byId(nbt.getInt(ModNbtKeys.COLLAR_COLOR)));
     }
-    this.dog.ambience().readNbt(nbt);
-    this.dog.sleep().readNbt(nbt);
-    this.dog.play().readNbt(nbt);
+    this.dog.getAmbienceEffects().readNbt(nbt);
+    this.dog.getSleepController().readNbt(nbt);
+    this.dog.getPlaySession().readNbt(nbt);
     if (nbt.contains(ModNbtKeys.TREAT_BUFF_TICKS, NbtElement.NUMBER_TYPE)) {
       final int treatBuffTicks = sanitizedTreatBuffTicks(nbt.getInt(ModNbtKeys.TREAT_BUFF_TICKS));
       this.dog.setTreatBuffTicksFromSave(treatBuffTicks);
@@ -114,7 +114,7 @@ public final class DogEntityNbt {
     if (nbt.contains(ModNbtKeys.SPAWNED_BY_DOG_SPAWNER)) {
       this.dog.setSpawnedByDogSpawner(nbt.getBoolean(ModNbtKeys.SPAWNED_BY_DOG_SPAWNER));
     }
-    this.dog.lineage().readNbt(nbt);
-    this.dog.equipment().readNbt(nbt);
+    this.dog.getLineage().readNbt(nbt);
+    this.dog.getEquipmentHolder().readNbt(nbt);
   }
 }

@@ -290,7 +290,7 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
   public void sleepingDogStaysBehindOnLongDistanceTeleport(TestContext context) {
     final ServerPlayerEntity owner = placePlayer(context, LONG_TELEPORT_START);
     final UnleashedDogEntity husky = spawnRegisteredDog(context, owner, DOG_START);
-    husky.startSleepingInBed(context.getAbsolutePos(DOG_START));
+    husky.getSleepController().startSleepingInBed(context.getAbsolutePos(DOG_START));
     final Vec3d dogStartPos = husky.getPos();
 
     context.runAtTick(TELEPORT_TICK, () -> teleport(context, owner, LONG_TELEPORT_DESTINATION));

@@ -57,7 +57,7 @@ public final class WheelActionNetworkHandler {
         if (bedPos == null) {
           return;
         }
-        dog.commandToSleep(bedPos);
+        dog.getSleepController().commandToSleep(bedPos);
         player.sendMessage(
             Text.translatable("block.dogs-unleashed.dog_bed.sleep_command", dogName), true);
       }

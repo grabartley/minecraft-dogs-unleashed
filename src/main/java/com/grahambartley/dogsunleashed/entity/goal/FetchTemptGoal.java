@@ -43,8 +43,8 @@ public class FetchTemptGoal extends TemptGoal {
   }
 
   private boolean isTemptSuppressed() {
-    if (this.dog.isInPlayMode()) {
-      return this.dog.isActivelyFetching();
+    if (this.dog.getPlaySession().isInPlayMode()) {
+      return this.dog.getPlaySession().isActivelyFetching();
     }
 
     return UnleashedDogEntity.isAnyDogInPlayMode();
@@ -55,7 +55,7 @@ public class FetchTemptGoal extends TemptGoal {
       return true;
     }
 
-    if (this.dog.isInPlayMode()
+    if (this.dog.getPlaySession().isInPlayMode()
         && this.closestPlayer.getUuid().equals(this.dog.getPlayPartnerPlayerUuid())) {
       return true;
     }

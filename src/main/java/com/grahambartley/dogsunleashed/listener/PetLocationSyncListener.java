@@ -44,7 +44,8 @@ public final class PetLocationSyncListener {
     // Records from before parentage was persisted heal here too, recovering whatever the entity
     // still remembers (dogs bred before the second parent was captured know at most one).
     final boolean parentsBackfilled =
-        petData.recordParents(dog.getParentDogUuid(), dog.getSecondParentDogUuid());
+        petData.recordParents(
+            dog.getLineage().getParentDogUuid(), dog.getLineage().getSecondParentDogUuid());
     if (!petData.isAlive()) {
       if (parentsBackfilled) {
         petManager.updatePet(petData);

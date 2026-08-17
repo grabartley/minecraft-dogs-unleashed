@@ -107,7 +107,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
           context.assertTrue(!husky.isCommandedToSleep(), "Dog should not be commanded initially");
           context.assertTrue(!husky.isSleepingInBed(), "Dog should not be sleeping initially");
 
-          husky.commandToSleep(absBedPos);
+          husky.getSleepController().commandToSleep(absBedPos);
 
           context.assertTrue(
               husky.isCommandedToSleep(), "commandToSleep should set COMMANDED_TO_SLEEP");
@@ -135,7 +135,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
           context.assertTrue(!husky.isSleepingInBed(), "Dog should not be sleeping initially");
 
           husky.setAssignedBedPos(absBedPos);
-          husky.startSleepingInBed(absBedPos);
+          husky.getSleepController().startSleepingInBed(absBedPos);
 
           context.assertTrue(
               husky.isSleepingInBed(), "startSleepingInBed should set SLEEPING_IN_BED");
@@ -157,7 +157,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
         10,
         () -> {
           husky.setAssignedBedPos(absBedPos);
-          husky.startSleepingInBed(absBedPos);
+          husky.getSleepController().startSleepingInBed(absBedPos);
           context.assertTrue(husky.isSleepingInBed(), "Dog should be sleeping");
 
           husky.wakeUp();
@@ -207,8 +207,8 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
         () -> {
           world.setTimeOfDay(13000);
           husky.setAssignedBedPos(absBedPos);
-          husky.commandToSleep(absBedPos);
-          husky.startSleepingInBed(absBedPos);
+          husky.getSleepController().commandToSleep(absBedPos);
+          husky.getSleepController().startSleepingInBed(absBedPos);
           context.assertTrue(husky.isSleepingInBed(), "Dog should be sleeping at tick 10");
           context.assertTrue(
               !husky.isCommandedToSleep(),
@@ -253,8 +253,8 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
         10,
         () -> {
           husky.setAssignedBedPos(absBedPos);
-          husky.commandToSleep(absBedPos);
-          husky.startSleepingInBed(absBedPos);
+          husky.getSleepController().commandToSleep(absBedPos);
+          husky.getSleepController().startSleepingInBed(absBedPos);
         });
 
     context.runAtTick(
@@ -286,8 +286,8 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
         10,
         () -> {
           husky.setAssignedBedPos(absBedPos);
-          husky.commandToSleep(absBedPos);
-          husky.startSleepingInBed(absBedPos);
+          husky.getSleepController().commandToSleep(absBedPos);
+          husky.getSleepController().startSleepingInBed(absBedPos);
           context.assertTrue(husky.isSleepingInBed(), "Dog should be sleeping before damage");
         });
 
@@ -341,8 +341,8 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
         () -> {
           world.setTimeOfDay(13000);
           husky.setAssignedBedPos(absBedPos);
-          husky.commandToSleep(absBedPos);
-          husky.startSleepingInBed(absBedPos);
+          husky.getSleepController().commandToSleep(absBedPos);
+          husky.getSleepController().startSleepingInBed(absBedPos);
           context.assertTrue(husky.isSleepingInBed(), "Dog should be sleeping");
           context.assertTrue(!husky.isCommandedToSleep(), "Dog should clear command once sleeping");
         });
@@ -397,8 +397,8 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
         () -> {
           pinNight(world);
           husky.setAssignedBedPos(absBedPos);
-          husky.commandToSleep(absBedPos);
-          husky.startSleepingInBed(absBedPos);
+          husky.getSleepController().commandToSleep(absBedPos);
+          husky.getSleepController().startSleepingInBed(absBedPos);
           context.assertTrue(husky.isSleepingInBed(), "Dog should be sleeping at night");
         });
 
@@ -406,11 +406,12 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
         40,
         () -> {
           pinNight(world);
-          husky.markManuallyWoken();
+          husky.getSleepController().markManuallyWoken();
           husky.wakeUp();
           context.assertTrue(!husky.isSleepingInBed(), "Dog should wake manually");
           context.assertTrue(
-              husky.isAutoSleepSuppressed(), "Manual wake at night should suppress auto-sleep");
+              husky.getSleepController().isAutoSleepSuppressed(),
+              "Manual wake at night should suppress auto-sleep");
         });
 
     context.runAtTick(
@@ -418,7 +419,8 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
         () -> {
           pinNight(world);
           context.assertTrue(
-              husky.isAutoSleepSuppressed(), "Suppression should hold for the remainder of night");
+              husky.getSleepController().isAutoSleepSuppressed(),
+              "Suppression should hold for the remainder of night");
           context.assertTrue(!husky.isSleepingInBed(), "Dog should stay awake during suppression");
         });
 
@@ -427,7 +429,8 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
         () -> {
           pinDay(world);
           context.assertTrue(
-              !husky.isAutoSleepSuppressed(), "Suppression should clear after sunrise");
+              !husky.getSleepController().isAutoSleepSuppressed(),
+              "Suppression should clear after sunrise");
           context.complete();
         });
   }
@@ -472,9 +475,9 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
         () -> {
           pinNight(world);
           husky.setAssignedBedPos(absBedPos);
-          husky.commandToSleep(absBedPos);
-          husky.startSleepingInBed(absBedPos);
-          husky.markManuallyWoken();
+          husky.getSleepController().commandToSleep(absBedPos);
+          husky.getSleepController().startSleepingInBed(absBedPos);
+          husky.getSleepController().markManuallyWoken();
           husky.wakeUp();
           context.assertTrue(!husky.isSleepingInBed(), "Dog should be awake after manual wake");
           // Freeze the dog in place between tick 10 and tick 130 so it can't wander out of range,
@@ -491,14 +494,16 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
         () -> {
           pinNight(world);
           context.assertTrue(
-              husky.isAutoSleepSuppressed(), "Suppression should still be active at night");
+              husky.getSleepController().isAutoSleepSuppressed(),
+              "Suppression should still be active at night");
         });
 
     context.runAtTick(
         90,
         () -> {
           pinDay(world);
-          context.assertTrue(!husky.isAutoSleepSuppressed(), "Suppression clears at sunrise");
+          context.assertTrue(
+              !husky.getSleepController().isAutoSleepSuppressed(), "Suppression clears at sunrise");
         });
 
     context.runAtTick(
@@ -569,8 +574,8 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
         10,
         () -> {
           husky.setAssignedBedPos(absBedPos);
-          husky.commandToSleep(absBedPos);
-          husky.startSleepingInBed(absBedPos);
+          husky.getSleepController().commandToSleep(absBedPos);
+          husky.getSleepController().startSleepingInBed(absBedPos);
           context.assertTrue(husky.isSleepingInBed(), "Dog should be sleeping");
           context.assertTrue(
               !husky.isCommandedToSleep(),
@@ -607,14 +612,14 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
         10,
         () -> {
           husky.setAssignedBedPos(absBedPos);
-          husky.commandToSleep(absBedPos);
+          husky.getSleepController().commandToSleep(absBedPos);
           context.assertTrue(
               husky.isCommandedToSleep(), "commandToSleep should set COMMANDED_TO_SLEEP");
           context.assertTrue(
               !husky.isSleepingInBed(),
               "Dog should not yet be sleeping immediately after commandToSleep");
 
-          husky.startSleepingInBed(absBedPos);
+          husky.getSleepController().startSleepingInBed(absBedPos);
           context.assertTrue(
               husky.isSleepingInBed(), "startSleepingInBed should set SLEEPING_IN_BED");
           context.assertTrue(

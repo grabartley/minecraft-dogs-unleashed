@@ -33,11 +33,13 @@ public final class DogLineageGameTest implements FabricGameTest {
         (UnleashedDogEntity) parent.createChild(context.getWorld(), otherParent);
 
     context.assertTrue(
-        parent.getUuid().equals(baby.getParentDogUuid()),
-        "Baby should remember the initiating parent, but was " + baby.getParentDogUuid());
+        parent.getUuid().equals(baby.getLineage().getParentDogUuid()),
+        "Baby should remember the initiating parent, but was "
+            + baby.getLineage().getParentDogUuid());
     context.assertTrue(
-        otherParent.getUuid().equals(baby.getSecondParentDogUuid()),
-        "Baby should remember the partner parent, but was " + baby.getSecondParentDogUuid());
+        otherParent.getUuid().equals(baby.getLineage().getSecondParentDogUuid()),
+        "Baby should remember the partner parent, but was "
+            + baby.getLineage().getSecondParentDogUuid());
     context.complete();
   }
 
@@ -46,8 +48,8 @@ public final class DogLineageGameTest implements FabricGameTest {
     final UnleashedDogEntity original = spawnTamedDog(context, UUID.randomUUID(), PARENT_POS);
     final UUID parentUuid = UUID.randomUUID();
     final UUID secondParentUuid = UUID.randomUUID();
-    original.setParentDogUuid(parentUuid);
-    original.setSecondParentDogUuid(secondParentUuid);
+    original.getLineage().setParentDogUuid(parentUuid);
+    original.getLineage().setSecondParentDogUuid(secondParentUuid);
 
     final NbtCompound nbt = new NbtCompound();
     original.writeCustomDataToNbt(nbt);
@@ -55,12 +57,13 @@ public final class DogLineageGameTest implements FabricGameTest {
     reloaded.readCustomDataFromNbt(nbt);
 
     context.assertTrue(
-        parentUuid.equals(reloaded.getParentDogUuid()),
-        "First parent should survive the NBT round-trip, but was " + reloaded.getParentDogUuid());
+        parentUuid.equals(reloaded.getLineage().getParentDogUuid()),
+        "First parent should survive the NBT round-trip, but was "
+            + reloaded.getLineage().getParentDogUuid());
     context.assertTrue(
-        secondParentUuid.equals(reloaded.getSecondParentDogUuid()),
+        secondParentUuid.equals(reloaded.getLineage().getSecondParentDogUuid()),
         "Second parent should survive the NBT round-trip, but was "
-            + reloaded.getSecondParentDogUuid());
+            + reloaded.getLineage().getSecondParentDogUuid());
     context.complete();
   }
 
@@ -68,7 +71,7 @@ public final class DogLineageGameTest implements FabricGameTest {
   public void legacyNbtWithoutSecondParentReadsAsUnknown(TestContext context) {
     final UnleashedDogEntity original = spawnTamedDog(context, UUID.randomUUID(), PARENT_POS);
     final UUID parentUuid = UUID.randomUUID();
-    original.setParentDogUuid(parentUuid);
+    original.getLineage().setParentDogUuid(parentUuid);
 
     final NbtCompound nbt = new NbtCompound();
     original.writeCustomDataToNbt(nbt);
@@ -76,12 +79,13 @@ public final class DogLineageGameTest implements FabricGameTest {
     reloaded.readCustomDataFromNbt(nbt);
 
     context.assertTrue(
-        parentUuid.equals(reloaded.getParentDogUuid()),
-        "Legacy single parent should still load, but was " + reloaded.getParentDogUuid());
+        parentUuid.equals(reloaded.getLineage().getParentDogUuid()),
+        "Legacy single parent should still load, but was "
+            + reloaded.getLineage().getParentDogUuid());
     context.assertTrue(
-        reloaded.getSecondParentDogUuid() == null,
+        reloaded.getLineage().getSecondParentDogUuid() == null,
         "A pre-lineage save must read back with no second parent, but was "
-            + reloaded.getSecondParentDogUuid());
+            + reloaded.getLineage().getSecondParentDogUuid());
     context.complete();
   }
 

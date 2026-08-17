@@ -28,10 +28,12 @@ public class FetchChaseGoal extends Goal {
 
   @Override
   public boolean canStart() {
-    if (!this.dog.isInPlayMode() || this.dog.isInSittingPose() || this.dog.isLeashed()) {
+    if (!this.dog.getPlaySession().isInPlayMode()
+        || this.dog.isInSittingPose()
+        || this.dog.isLeashed()) {
       return false;
     }
-    if (this.dog.getActiveFetchBlockPos() != null) {
+    if (this.dog.getPlaySession().getActiveFetchBlockPos() != null) {
       return false;
     }
     return this.findTargetBall();
@@ -39,10 +41,12 @@ public class FetchChaseGoal extends Goal {
 
   @Override
   public boolean shouldContinue() {
-    if (!this.dog.isInPlayMode() || this.dog.isInSittingPose() || this.dog.isLeashed()) {
+    if (!this.dog.getPlaySession().isInPlayMode()
+        || this.dog.isInSittingPose()
+        || this.dog.isLeashed()) {
       return false;
     }
-    if (this.dog.getActiveFetchBlockPos() != null) {
+    if (this.dog.getPlaySession().getActiveFetchBlockPos() != null) {
       return false;
     }
     return this.targetFetchProjectile != null && !this.targetFetchProjectile.isRemoved();

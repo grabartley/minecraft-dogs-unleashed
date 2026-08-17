@@ -31,13 +31,15 @@ public class FetchRetrieveGoal extends Goal {
 
   @Override
   public boolean canStart() {
-    if (!this.dog.isInPlayMode() || this.dog.isInSittingPose() || this.dog.isLeashed()) {
+    if (!this.dog.getPlaySession().isInPlayMode()
+        || this.dog.isInSittingPose()
+        || this.dog.isLeashed()) {
       return false;
     }
     if (this.dog.isCarryingFetchItem()) {
       return false;
     }
-    BlockPos fetchItemPos = this.dog.getActiveFetchBlockPos();
+    BlockPos fetchItemPos = this.dog.getPlaySession().getActiveFetchBlockPos();
     if (fetchItemPos == null) {
       return false;
     }
@@ -47,7 +49,9 @@ public class FetchRetrieveGoal extends Goal {
 
   @Override
   public boolean shouldContinue() {
-    if (!this.dog.isInPlayMode() || this.dog.isInSittingPose() || this.dog.isLeashed()) {
+    if (!this.dog.getPlaySession().isInPlayMode()
+        || this.dog.isInSittingPose()
+        || this.dog.isLeashed()) {
       return false;
     }
     if (this.dog.isCarryingFetchItem()) {
@@ -59,11 +63,11 @@ public class FetchRetrieveGoal extends Goal {
     if (this.getFetchItemTypeAt(this.targetFetchItemPos) == null) {
       BlockPos updatedPos = this.findNearbyFetchItem();
       if (updatedPos == null) {
-        this.dog.endPlayMode();
+        this.dog.getPlaySession().endPlayMode();
         return false;
       }
       this.targetFetchItemPos = updatedPos;
-      this.dog.setActiveFetchBlockPos(updatedPos);
+      this.dog.getPlaySession().setActiveFetchBlockPos(updatedPos);
     }
     return true;
   }
@@ -73,7 +77,7 @@ public class FetchRetrieveGoal extends Goal {
   }
 
   private BlockPos findNearbyFetchItem() {
-    BlockPos origin = this.dog.getActiveFetchBlockPos();
+    BlockPos origin = this.dog.getPlaySession().getActiveFetchBlockPos();
     if (origin == null) {
       return null;
     }
@@ -126,7 +130,7 @@ public class FetchRetrieveGoal extends Goal {
       if (fetchItemType != null) {
         ItemStack carriedStack = this.buildCarriedStack(fetchItemType, this.targetFetchItemPos);
         this.dog.getWorld().removeBlock(this.targetFetchItemPos, false);
-        this.dog.setActiveFetchBlockPos(null);
+        this.dog.getPlaySession().setActiveFetchBlockPos(null);
         this.dog.setActiveFetchType(fetchItemType);
         this.dog.setCarriedFetchItemStack(carriedStack);
         this.dog.setCarryingFetchItem(true);

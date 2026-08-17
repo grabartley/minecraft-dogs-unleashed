@@ -91,7 +91,7 @@ public final class DogCommandGameTest implements FabricGameTest {
     dog.setAiDisabled(true);
     final BlockPos absPos = context.getAbsolutePos(relPos);
     dog.setAssignedBedPos(absPos);
-    dog.startSleepingInBed(absPos);
+    dog.getSleepController().startSleepingInBed(absPos);
 
     dog.applyCommand(DogCommand.HEEL);
 

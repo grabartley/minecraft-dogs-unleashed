@@ -103,20 +103,20 @@ public final class DogPlaySession {
         .expand(FETCH_DETECTION_XZ_RANGE, FETCH_DETECTION_Y_RANGE, FETCH_DETECTION_XZ_RANGE);
   }
 
-  boolean isInPlayMode() {
+  public boolean isInPlayMode() {
     return this.inPlayMode;
   }
 
   @Nullable
-  BlockPos activeFetchBlockPos() {
+  public BlockPos getActiveFetchBlockPos() {
     return this.activeFetchBlockPos;
   }
 
-  void setActiveFetchBlockPos(final @Nullable BlockPos pos) {
+  public void setActiveFetchBlockPos(final @Nullable BlockPos pos) {
     this.activeFetchBlockPos = pos;
   }
 
-  void startPlayMode(final PlayerEntity player, final FetchItemType fetchItemType) {
+  public void startPlayMode(final PlayerEntity player, final FetchItemType fetchItemType) {
     final UUID priorDogUuid =
         ActivePlaySessions.takeover(ACTIVE_PLAY_SESSIONS, player.getUuid(), this.dog.getUuid());
     if (priorDogUuid != null) {
@@ -129,7 +129,7 @@ public final class DogPlaySession {
     this.dog.demoteSitToFollow();
   }
 
-  void endPlayMode() {
+  public void endPlayMode() {
     ActivePlaySessions.clear(
         ACTIVE_PLAY_SESSIONS,
         this.inPlayMode,
@@ -157,13 +157,13 @@ public final class DogPlaySession {
                 fetchDetectionBox(this.dog),
                 candidate ->
                     candidate != this.dog
-                        && candidate.isInPlayMode()
+                        && candidate.getPlaySession().isInPlayMode()
                         && player.getUuid().equals(candidate.getPlayPartnerPlayerUuid()))) {
-      other.endPlayMode();
+      other.getPlaySession().endPlayMode();
     }
   }
 
-  boolean isActivelyFetching() {
+  public boolean isActivelyFetching() {
     final UUID partnerUuid = this.dog.getPlayPartnerPlayerUuid();
     return switch (fetchStatus(
         this.inPlayMode,
@@ -197,7 +197,7 @@ public final class DogPlaySession {
     for (final ServerWorld world : serverWorld.getServer().getWorlds()) {
       final Entity prior = world.getEntity(priorDogUuid);
       if (prior instanceof UnleashedDogEntity priorDog) {
-        priorDog.endPlayMode();
+        priorDog.getPlaySession().endPlayMode();
         return;
       }
     }
@@ -216,7 +216,7 @@ public final class DogPlaySession {
 
   void writeNbt(final NbtCompound nbt) {
     nbt.putBoolean(ModNbtKeys.CARRYING_BALL, this.dog.isCarryingFetchItem());
-    final String activeFetchTypeId = this.dog.activeFetchTypeId();
+    final String activeFetchTypeId = this.dog.getActiveFetchTypeId();
     if (!activeFetchTypeId.isEmpty()) {
       nbt.putString(ModNbtKeys.ACTIVE_FETCH_TYPE_ID, activeFetchTypeId);
     }

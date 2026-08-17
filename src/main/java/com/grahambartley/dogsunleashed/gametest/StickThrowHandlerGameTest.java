@@ -131,7 +131,10 @@ public final class StickThrowHandlerGameTest implements FabricGameTest {
 
   /** Spawns a tamed-dog play partner for the player so {@code isAnyDogInPlayModeFor} is true. */
   private void startPlayModeWithDog(final TestContext context, final PlayerEntity player) {
-    context.spawnEntity(ModEntities.HUSKY, PLAYER_POS).startPlayMode(player, FetchTypes.STICK);
+    context
+        .spawnEntity(ModEntities.HUSKY, PLAYER_POS)
+        .getPlaySession()
+        .startPlayMode(player, FetchTypes.STICK);
   }
 
   /**

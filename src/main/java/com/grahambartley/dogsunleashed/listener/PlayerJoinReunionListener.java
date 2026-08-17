@@ -47,7 +47,7 @@ public final class PlayerJoinReunionListener {
             dog -> dog.isAlive() && dog.isTamed() && dog.isOwner(player));
 
     for (final UnleashedDogEntity dog : dogs) {
-      dog.celebrateOwnerArrival();
+      dog.getAmbienceEffects().celebrateOwnerArrival();
     }
   }
 }
