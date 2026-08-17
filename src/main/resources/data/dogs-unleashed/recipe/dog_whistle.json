@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " G ",
+    " S ",
+    " W "
+  ],
+  "key": {
+    "G": { "item": "minecraft:gold_ingot" },
+    "S": { "item": "minecraft:string" },
+    "W": { "tag": "minecraft:wool" }
+  },
+  "result": {
+    "id": "dogs-unleashed:dog_whistle",
+    "count": 1
+  }
+}
