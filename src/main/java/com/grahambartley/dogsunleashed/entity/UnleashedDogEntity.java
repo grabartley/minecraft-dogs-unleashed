@@ -33,7 +33,6 @@ import com.grahambartley.dogsunleashed.network.ModNetworking;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetManager;
 import com.grahambartley.dogsunleashed.pet.PetRegistrar;
-import com.grahambartley.dogsunleashed.screenhandler.DogEquipmentScreenHandler;
 import com.grahambartley.dogsunleashed.util.BreedingOwnerResolver;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -79,12 +78,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
@@ -218,6 +215,7 @@ public class UnleashedDogEntity extends TameableEntity
   private final DogAmbienceEffects ambience = new DogAmbienceEffects(this);
   private final DogSleepController sleep = new DogSleepController(this);
   private final DogPlaySession play = new DogPlaySession(this);
+  private final DogEquipmentHolder equipment = new DogEquipmentHolder(this);
   private UUID parentDogUuid = null;
   private UUID secondParentDogUuid = null;
   private boolean spawnedByDogSpawner = false;
@@ -229,16 +227,11 @@ public class UnleashedDogEntity extends TameableEntity
 
   private static final UnleashedDogBreed FALLBACK_RIG_BREED = UnleashedDogBreed.HUSKY;
 
-  private static final float GUARANTEED_EQUIPMENT_DROP_CHANCE = 2.0f;
-  private static final DogEquipmentSlot[] TRACKED_EQUIPMENT_SLOTS = {
-    DogEquipmentSlot.PENDANT, DogEquipmentSlot.COSMETIC
-  };
-
   public UnleashedDogEntity(
       EntityType<? extends TameableEntity> entityType, World world, UnleashedDogBreed breed) {
     super(entityType, world);
     this.breed = breed;
-    this.setEquipmentDropChance(EquipmentSlot.BODY, GUARANTEED_EQUIPMENT_DROP_CHANCE);
+    this.equipment.guaranteeArmourDrop();
   }
 
   // Mirrors WolfEntity.canSpawn: the vanilla AnimalEntity predicate only allows grass_block below,
@@ -637,24 +630,32 @@ public class UnleashedDogEntity extends TameableEntity
   }
 
   public ItemStack getEquipment(final DogEquipmentSlot slot) {
-    return switch (slot) {
-      case ARMOUR -> this.getEquippedStack(EquipmentSlot.BODY);
-      case PENDANT -> this.dataTracker.get(PENDANT_ITEM);
-      case COSMETIC -> this.dataTracker.get(COSMETIC_ITEM);
-    };
+    return this.equipment.get(slot);
   }
 
   public void setEquipment(final DogEquipmentSlot slot, final ItemStack stack) {
-    switch (slot) {
-      case ARMOUR -> this.equipStack(EquipmentSlot.BODY, stack);
-      case PENDANT -> this.dataTracker.set(PENDANT_ITEM, stack);
-      case COSMETIC -> this.dataTracker.set(COSMETIC_ITEM, stack);
-    }
+    this.equipment.set(slot, stack);
+  }
+
+  ItemStack pendantItem() {
+    return this.dataTracker.get(PENDANT_ITEM);
+  }
+
+  void setPendantItem(final ItemStack stack) {
+    this.dataTracker.set(PENDANT_ITEM, stack);
+  }
+
+  ItemStack cosmeticItem() {
+    return this.dataTracker.get(COSMETIC_ITEM);
+  }
+
+  void setCosmeticItem(final ItemStack stack) {
+    this.dataTracker.set(COSMETIC_ITEM, stack);
   }
 
   @Override
   public boolean canUseSlot(final EquipmentSlot slot) {
-    return slot == EquipmentSlot.BODY || super.canUseSlot(slot);
+    return DogEquipmentHolder.isArmourSlot(slot) || super.canUseSlot(slot);
   }
 
   @Override
@@ -665,20 +666,14 @@ public class UnleashedDogEntity extends TameableEntity
   @Override
   public ScreenHandler createMenu(
       final int syncId, final PlayerInventory playerInventory, final PlayerEntity player) {
-    return new DogEquipmentScreenHandler(syncId, playerInventory, this);
+    return this.equipment.createMenu(syncId, playerInventory);
   }
 
   @Override
   protected void dropEquipment(
       final ServerWorld world, final DamageSource source, final boolean causedByPlayer) {
     super.dropEquipment(world, source, causedByPlayer);
-    for (final DogEquipmentSlot slot : TRACKED_EQUIPMENT_SLOTS) {
-      final ItemStack stack = this.getEquipment(slot);
-      if (!stack.isEmpty()) {
-        this.dropStack(stack);
-        this.setEquipment(slot, ItemStack.EMPTY);
-      }
-    }
+    this.equipment.dropModOwnedSlots();
   }
 
   public void startPlayMode(final PlayerEntity player, final FetchItemType fetchItemType) {
@@ -883,7 +878,7 @@ public class UnleashedDogEntity extends TameableEntity
       }
 
       if (this.isOwner(player) && !player.isSneaking()) {
-        final ActionResult equipResult = this.tryDirectEquip(player, hand, itemStack);
+        final ActionResult equipResult = this.equipment.tryDirectEquip(player, hand, itemStack);
         if (equipResult != null) {
           return equipResult;
         }
@@ -919,34 +914,6 @@ public class UnleashedDogEntity extends TameableEntity
     }
 
     return super.interactMob(player, hand);
-  }
-
-  private @Nullable ActionResult tryDirectEquip(
-      final PlayerEntity player, final Hand hand, final ItemStack heldStack) {
-    if (heldStack.isOf(Items.SHEARS)) {
-      final ItemStack equippedArmour = this.getEquipment(DogEquipmentSlot.ARMOUR);
-      if (equippedArmour.isEmpty()) {
-        return null;
-      }
-      this.setEquipment(DogEquipmentSlot.ARMOUR, ItemStack.EMPTY);
-      heldStack.damage(1, player, getSlotForHand(hand));
-      player.giveItemStack(equippedArmour);
-      this.playSoundIfNotSilent(SoundEvents.ITEM_ARMOR_UNEQUIP_WOLF);
-      return ActionResult.SUCCESS;
-    }
-
-    final DogEquipmentSlot slot = DogEquipmentSlot.directEquipSlotFor(heldStack);
-    if (slot == null) {
-      return null;
-    }
-    final ItemStack previous = this.getEquipment(slot);
-    this.setEquipment(slot, heldStack.copyWithCount(1));
-    heldStack.decrementUnlessCreative(1, player);
-    if (!previous.isEmpty()) {
-      player.giveItemStack(previous);
-    }
-    this.playSoundIfNotSilent(SoundEvents.ITEM_ARMOR_EQUIP_GENERIC.value());
-    return ActionResult.SUCCESS;
   }
 
   @Override
@@ -1273,31 +1240,7 @@ public class UnleashedDogEntity extends TameableEntity
     if (this.secondParentDogUuid != null) {
       nbt.putUuid(ModNbtKeys.SECOND_PARENT_DOG_ID, this.secondParentDogUuid);
     }
-    this.writeEquipmentToNbt(nbt, DogEquipmentSlot.PENDANT, ModNbtKeys.PENDANT_ITEM);
-    this.writeEquipmentToNbt(nbt, DogEquipmentSlot.COSMETIC, ModNbtKeys.COSMETIC_ITEM);
-  }
-
-  private void writeEquipmentToNbt(
-      final NbtCompound nbt, final DogEquipmentSlot slot, final String key) {
-    final ItemStack stack = this.getEquipment(slot);
-    if (stack.isEmpty()) {
-      return;
-    }
-    ItemStack.CODEC
-        .encodeStart(this.getWorld().getRegistryManager().getOps(NbtOps.INSTANCE), stack)
-        .result()
-        .ifPresent(tag -> nbt.put(key, tag));
-  }
-
-  private void readEquipmentFromNbt(
-      final NbtCompound nbt, final DogEquipmentSlot slot, final String key) {
-    if (!nbt.contains(key)) {
-      return;
-    }
-    ItemStack.CODEC
-        .parse(this.getWorld().getRegistryManager().getOps(NbtOps.INSTANCE), nbt.get(key))
-        .result()
-        .ifPresent(stack -> this.setEquipment(slot, stack));
+    this.equipment.writeNbt(nbt);
   }
 
   @Override
@@ -1358,8 +1301,7 @@ public class UnleashedDogEntity extends TameableEntity
     if (nbt.containsUuid(ModNbtKeys.SECOND_PARENT_DOG_ID)) {
       this.secondParentDogUuid = nbt.getUuid(ModNbtKeys.SECOND_PARENT_DOG_ID);
     }
-    this.readEquipmentFromNbt(nbt, DogEquipmentSlot.PENDANT, ModNbtKeys.PENDANT_ITEM);
-    this.readEquipmentFromNbt(nbt, DogEquipmentSlot.COSMETIC, ModNbtKeys.COSMETIC_ITEM);
+    this.equipment.readNbt(nbt);
   }
 
   @Override
