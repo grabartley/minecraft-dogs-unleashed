@@ -131,20 +131,19 @@ public final class DogResurrection {
     return dog;
   }
 
-  /** The rod is spent along with the totem and the grave, rather than left hanging over nothing. */
-  private static void consumeRodAbove(final ServerWorld world, final BlockPos gravePos) {
-    final BlockPos rodPos = gravePos.up();
-    if (world.getBlockState(rodPos).isOf(Blocks.LIGHTNING_ROD)) {
-      world.removeBlock(rodPos, false);
-    }
-  }
-
   private static void applyTotemBlessing(final UnleashedDogEntity dog) {
     dog.addStatusEffect(
         new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, TOTEM_FIRE_RESISTANCE_TICKS, 0));
     dog.addStatusEffect(
         new StatusEffectInstance(
             StatusEffects.ABSORPTION, TOTEM_ABSORPTION_TICKS, TOTEM_ABSORPTION_AMPLIFIER));
+  }
+
+  /** The rod is spent along with the totem and the grave, rather than left hanging over nothing. */
+  private static void consumeRodAbove(final ServerWorld world, final BlockPos gravePos) {
+    if (world.getBlockState(gravePos.up()).isOf(Blocks.LIGHTNING_ROD)) {
+      world.removeBlock(gravePos.up(), false);
+    }
   }
 
   private static void playRitualEffects(final ServerWorld world, final BlockPos gravePos) {

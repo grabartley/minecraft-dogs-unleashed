@@ -7,7 +7,9 @@ import com.grahambartley.dogsunleashed.block.entity.DogGraveBlockEntity;
 import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.world.ServerWorld;
@@ -15,14 +17,23 @@ import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
+import net.minecraft.world.RaycastContext;
 
 public final class DogGraveGameTest implements FabricGameTest {
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  private static final String ARENA = "dogs-unleashed:dog_arena";
+  // Relative y1 is the template floor, so the grave stands on it at y2.
+  private static final BlockPos REL_GRAVE = new BlockPos(3, 2, 3);
+
+  @GameTest(templateName = ARENA)
   public void dogGraveCanBePlaced(final TestContext context) {
-    final BlockPos relGravePos = new BlockPos(0, 1, 0);
+    final BlockPos relGravePos = REL_GRAVE;
     final ServerWorld world = context.getWorld();
 
     context.setBlockState(relGravePos, ModBlocks.DOG_GRAVE.getDefaultState());
@@ -33,9 +44,9 @@ public final class DogGraveGameTest implements FabricGameTest {
     context.complete();
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  @GameTest(templateName = ARENA)
   public void dogGraveHasBlockEntity(final TestContext context) {
-    final BlockPos relGravePos = new BlockPos(0, 1, 0);
+    final BlockPos relGravePos = REL_GRAVE;
     final ServerWorld world = context.getWorld();
 
     context.setBlockState(relGravePos, ModBlocks.DOG_GRAVE.getDefaultState());
@@ -47,9 +58,9 @@ public final class DogGraveGameTest implements FabricGameTest {
     context.complete();
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+  @GameTest(templateName = ARENA, tickLimit = 100)
   public void dogGraveStoresDogData(final TestContext context) {
-    final BlockPos relGravePos = new BlockPos(0, 1, 0);
+    final BlockPos relGravePos = REL_GRAVE;
     final ServerWorld world = context.getWorld();
 
     context.setBlockState(relGravePos, ModBlocks.DOG_GRAVE.getDefaultState());
@@ -80,7 +91,7 @@ public final class DogGraveGameTest implements FabricGameTest {
         });
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+  @GameTest(templateName = ARENA, tickLimit = 100)
   public void dogGraveItemRetainsData(final TestContext context) {
     final UUID dogUuid = UUID.randomUUID();
     final String dogName = "Memorial";
@@ -107,9 +118,9 @@ public final class DogGraveGameTest implements FabricGameTest {
         });
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  @GameTest(templateName = ARENA)
   public void dogGraveRequiresPickaxe(final TestContext context) {
-    final BlockPos relGravePos = new BlockPos(0, 1, 0);
+    final BlockPos relGravePos = REL_GRAVE;
     final ServerWorld world = context.getWorld();
 
     context.setBlockState(relGravePos, ModBlocks.DOG_GRAVE.getDefaultState());
@@ -124,9 +135,9 @@ public final class DogGraveGameTest implements FabricGameTest {
     context.complete();
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+  @GameTest(templateName = ARENA, tickLimit = 100)
   public void dogGraveRequiresPickaxeToBreak(final TestContext context) {
-    final BlockPos relGravePos = new BlockPos(0, 1, 0);
+    final BlockPos relGravePos = REL_GRAVE;
     final ServerWorld world = context.getWorld();
 
     context.setBlockState(relGravePos, ModBlocks.DOG_GRAVE.getDefaultState());
@@ -152,9 +163,9 @@ public final class DogGraveGameTest implements FabricGameTest {
     context.complete();
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+  @GameTest(templateName = ARENA, tickLimit = 100)
   public void dogGravePickaxeDropsWithData(final TestContext context) {
-    final BlockPos relGravePos = new BlockPos(0, 1, 0);
+    final BlockPos relGravePos = REL_GRAVE;
     final ServerWorld world = context.getWorld();
 
     final UUID dogUuid = UUID.randomUUID();
@@ -189,9 +200,9 @@ public final class DogGraveGameTest implements FabricGameTest {
         });
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+  @GameTest(templateName = ARENA, tickLimit = 100)
   public void dogGravePlacementRetainsData(final TestContext context) {
-    final BlockPos relGravePos = new BlockPos(0, 1, 0);
+    final BlockPos relGravePos = REL_GRAVE;
     final ServerWorld world = context.getWorld();
 
     final UUID dogUuid = UUID.randomUUID();
@@ -223,6 +234,82 @@ public final class DogGraveGameTest implements FabricGameTest {
           context.assertTrue(
               flowerColor.equals(grave.getFlowerColor()), "Flower color should persist");
 
+          context.complete();
+        });
+  }
+
+  /**
+   * The original hitbox bug: the headstone overflowed its block cell, and a raycast only tests a
+   * shape while the ray is inside that shape's own cell, so a level ray at the top of the stone
+   * sailed straight through it. The stone now stands inside one cell, so any ray that meets it
+   * hits.
+   */
+  @GameTest(templateName = ARENA, tickLimit = 100)
+  public void aRayAtHeadstoneTopHeightHitsTheGrave(final TestContext context) {
+    context.setBlockState(REL_GRAVE, ModBlocks.DOG_GRAVE.getDefaultState());
+    final var player = context.createMockPlayer(GameMode.SURVIVAL);
+
+    final Vec3d from = context.getAbsolute(new Vec3d(3.5, 2.9, 0.2));
+    final Vec3d to = context.getAbsolute(new Vec3d(3.5, 2.9, 3.5));
+    final BlockHitResult hit =
+        context
+            .getWorld()
+            .raycast(
+                new RaycastContext(
+                    from,
+                    to,
+                    RaycastContext.ShapeType.OUTLINE,
+                    RaycastContext.FluidHandling.NONE,
+                    player));
+
+    context.assertTrue(
+        hit.getType() == HitResult.Type.BLOCK
+            && hit.getBlockPos().equals(context.getAbsolutePos(REL_GRAVE)),
+        "A ray at the top of the headstone should hit the grave, but hit "
+            + hit.getType()
+            + " at "
+            + hit.getBlockPos());
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 100)
+  public void theHeadstoneFillsItsCellSoItsWholeHeightIsTargetable(final TestContext context) {
+    context.setBlockState(REL_GRAVE, ModBlocks.DOG_GRAVE.getDefaultState());
+    final BlockState state = context.getWorld().getBlockState(context.getAbsolutePos(REL_GRAVE));
+    final var shape = state.getOutlineShape(context.getWorld(), context.getAbsolutePos(REL_GRAVE));
+
+    context.assertTrue(
+        shape.getMax(net.minecraft.util.math.Direction.Axis.Y) == 1.0,
+        "The hitbox must reach the top of its cell so nothing of the stone is unreachable");
+    context.assertTrue(
+        shape.getMin(net.minecraft.util.math.Direction.Axis.Y) == 0.0,
+        "The hitbox must start at the ground");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 100)
+  public void aRodPlacedOnTopOfTheGraveLandsDirectlyAboveIt(final TestContext context) {
+    context.setBlockState(REL_GRAVE, ModBlocks.DOG_GRAVE.getDefaultState());
+    final var player = context.createMockPlayer(GameMode.SURVIVAL);
+
+    context.useStackOnBlock(player, new ItemStack(Items.LIGHTNING_ROD), REL_GRAVE, Direction.UP);
+
+    context.expectBlock(Blocks.LIGHTNING_ROD, REL_GRAVE.up());
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 100)
+  public void breakingAGraveFreesItsInstalledTotem(final TestContext context) {
+    context.setBlockState(REL_GRAVE, ModBlocks.DOG_GRAVE.getDefaultState());
+    final DogGraveBlockEntity grave = context.getBlockEntity(REL_GRAVE);
+    grave.installTotem(UUID.randomUUID());
+
+    context.getWorld().removeBlock(context.getAbsolutePos(REL_GRAVE), false);
+
+    context.runAtTick(
+        10,
+        () -> {
+          context.expectEntityAround(EntityType.ITEM, REL_GRAVE, 3.0);
           context.complete();
         });
   }

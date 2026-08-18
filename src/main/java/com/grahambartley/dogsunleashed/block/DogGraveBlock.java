@@ -22,8 +22,6 @@ import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.BlockMirror;
-import net.minecraft.util.BlockRotation;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
@@ -36,19 +34,21 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A raycast only ever tests a block's shape while the ray is inside that block's own cell, so a
+ * model taller than its cell can never be aimed at above the cell line. The headstone is therefore
+ * sized to stand within one block, and its hitbox is that whole block: every part of the stone is
+ * targetable, and a lightning rod placed on top lands in the cell the stone's tip pokes into, which
+ * buries the rod's base in the stone.
+ */
 public class DogGraveBlock extends HorizontalFacingBlock implements BlockEntityProvider {
 
   public static final MapCodec<DogGraveBlock> CODEC = createCodec(DogGraveBlock::new);
   public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
-  // Visual size after 2x scaling: 1.125 x 1.5 x 0.375 blocks - CENTERED
-  private static final VoxelShape SHAPE_NORTH =
-      VoxelShapes.cuboid(0.0, 0.0, 0.3125, 1.0, 1.5, 0.6875);
-  private static final VoxelShape SHAPE_SOUTH =
-      VoxelShapes.cuboid(0.0, 0.0, 0.3125, 1.0, 1.5, 0.6875);
-  private static final VoxelShape SHAPE_EAST =
-      VoxelShapes.cuboid(0.3125, 0.0, 0.0, 0.6875, 1.5, 1.0);
-  private static final VoxelShape SHAPE_WEST =
-      VoxelShapes.cuboid(0.3125, 0.0, 0.0, 0.6875, 1.5, 1.0);
+  private static final VoxelShape SHAPE_NORTH_SOUTH =
+      VoxelShapes.cuboid(0.0, 0.0, 0.3125, 1.0, 1.0, 0.6875);
+  private static final VoxelShape SHAPE_EAST_WEST =
+      VoxelShapes.cuboid(0.3125, 0.0, 0.0, 0.6875, 1.0, 1.0);
 
   public DogGraveBlock(Settings settings) {
     super(settings);
@@ -64,11 +64,8 @@ public class DogGraveBlock extends HorizontalFacingBlock implements BlockEntityP
   protected VoxelShape getOutlineShape(
       BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
     return switch (state.get(FACING)) {
-      case NORTH -> SHAPE_NORTH;
-      case SOUTH -> SHAPE_SOUTH;
-      case EAST -> SHAPE_EAST;
-      case WEST -> SHAPE_WEST;
-      default -> SHAPE_NORTH;
+      case EAST, WEST -> SHAPE_EAST_WEST;
+      default -> SHAPE_NORTH_SOUTH;
     };
   }
 
@@ -86,16 +83,6 @@ public class DogGraveBlock extends HorizontalFacingBlock implements BlockEntityP
   @Override
   public BlockState getPlacementState(ItemPlacementContext ctx) {
     return this.getDefaultState().with(FACING, ctx.getHorizontalPlayerFacing());
-  }
-
-  @Override
-  protected BlockState rotate(BlockState state, BlockRotation rotation) {
-    return state.with(FACING, rotation.rotate(state.get(FACING)));
-  }
-
-  @Override
-  protected BlockState mirror(BlockState state, BlockMirror mirror) {
-    return state.rotate(mirror.getRotation(state.get(FACING)));
   }
 
   @Override
@@ -135,8 +122,10 @@ public class DogGraveBlock extends HorizontalFacingBlock implements BlockEntityP
   }
 
   /**
-   * The grave holds a single Totem of Undying, the offering the resurrection ritual consumes. Any
-   * right-click on a grave that already holds one takes it back, so the totem is never trapped.
+   * The grave holds a single Totem of Undying, the offering the resurrection ritual consumes. A
+   * totem in hand installs one and an empty hand takes it back; every other item passes straight
+   * through, so the ritual's own lightning rod can still be placed on a grave already holding a
+   * totem.
    */
   @Override
   protected ActionResult onUse(
@@ -150,23 +139,24 @@ public class DogGraveBlock extends HorizontalFacingBlock implements BlockEntityP
       return ActionResult.PASS;
     }
 
-    if (graveBlockEntity.hasTotem()) {
-      graveBlockEntity.clearTotem();
-      player.giveItemStack(new ItemStack(Items.TOTEM_OF_UNDYING));
-      player.sendMessage(
-          Text.translatable(
-              "block.dogs-unleashed.dog_grave.totem_removed", graveBlockEntity.getDogName()),
-          true);
-      return ActionResult.SUCCESS;
-    }
-
     final ItemStack heldStack = player.getStackInHand(Hand.MAIN_HAND);
-    if (heldStack.isOf(Items.TOTEM_OF_UNDYING)) {
+
+    if (!graveBlockEntity.hasTotem() && heldStack.isOf(Items.TOTEM_OF_UNDYING)) {
       graveBlockEntity.installTotem(player.getUuid());
       heldStack.decrementUnlessCreative(1, player);
       player.sendMessage(
           Text.translatable(
               "block.dogs-unleashed.dog_grave.totem_installed", graveBlockEntity.getDogName()),
+          true);
+      return ActionResult.SUCCESS;
+    }
+
+    if (graveBlockEntity.hasTotem() && heldStack.isEmpty()) {
+      graveBlockEntity.clearTotem();
+      player.giveItemStack(new ItemStack(Items.TOTEM_OF_UNDYING));
+      player.sendMessage(
+          Text.translatable(
+              "block.dogs-unleashed.dog_grave.totem_removed", graveBlockEntity.getDogName()),
           true);
       return ActionResult.SUCCESS;
     }
@@ -205,16 +195,13 @@ public class DogGraveBlock extends HorizontalFacingBlock implements BlockEntityP
 
   @Override
   public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-    if (!world.isClient && !player.isCreative()) {
-      BlockEntity blockEntity = world.getBlockEntity(pos);
-      if (blockEntity instanceof DogGraveBlockEntity graveBlockEntity) {
-        final ItemStack tool = player.getMainHandStack();
-        if (tool.getItem() instanceof PickaxeItem) {
-          final ItemStack stack = new ItemStack(this);
-          addGraveDataToStack(stack, graveBlockEntity);
-          dropStack(world, pos, stack);
-        }
-      }
+    if (!world.isClient
+        && !player.isCreative()
+        && world.getBlockEntity(pos) instanceof DogGraveBlockEntity graveBlockEntity
+        && player.getMainHandStack().getItem() instanceof PickaxeItem) {
+      final ItemStack stack = new ItemStack(this);
+      addGraveDataToStack(stack, graveBlockEntity);
+      dropStack(world, pos, stack);
     }
     return super.onBreak(world, pos, state, player);
   }

@@ -22,16 +22,21 @@ import software.bernie.geckolib.renderer.GeoBlockRenderer;
 
 public class DogGraveBlockEntityRenderer extends GeoBlockRenderer<DogGraveBlockEntity> {
 
-  private static final float GRAVE_SCALE = 2.0f;
-  private static final float NAME_TAG_HEIGHT = 2.2f;
+  // Sized so the headstone stands inside its own block cell, which is what lets its whole height
+  // be aimed at, with the very tip crossing into the cell above so a lightning rod placed there
+  // has its base buried in the stone rather than hovering over it.
+  private static final float GRAVE_SCALE = 1.285f;
+  // Just clear of the headstone's top; it tracks the stone's height, not the block's.
+  private static final float NAME_TAG_HEIGHT = 1.32f;
   private static final float NAME_TAG_TEXT_SCALE = 0.025f;
   private static final ItemStack TOTEM_STACK = new ItemStack(Items.TOTEM_OF_UNDYING);
-  private static final float TOTEM_SCALE = 0.7f;
+  private static final float TOTEM_SCALE = 0.45f;
   private static final float TOTEM_LEAN_DEGREES = -24.0f;
+  // Negative tips the totem's top toward the stone's centre, so it leans in, not out.
   private static final float TOTEM_SIDE_TILT_DEGREES = -8.0f;
-  private static final double TOTEM_BASE_HEIGHT = 0.34;
-  private static final double TOTEM_SIDE_OFFSET = 0.24;
-  private static final double TOTEM_OFFSET_FROM_CENTRE = 0.30;
+  private static final double TOTEM_BASE_HEIGHT = 0.218;
+  private static final double TOTEM_SIDE_OFFSET = -0.154;
+  private static final double TOTEM_OFFSET_FROM_CENTRE = 0.16;
 
   public DogGraveBlockEntityRenderer(BlockEntityRendererFactory.Context context) {
     super(new DogGraveModel());
@@ -123,7 +128,7 @@ public class DogGraveBlockEntityRenderer extends GeoBlockRenderer<DogGraveBlockE
       DogGraveBlockEntity entity, String name, int textColor, MatrixStack matrices, int light) {
     final MinecraftClient client = MinecraftClient.getInstance();
 
-    // Only render when crosshair is on this grave
+    // Only render when the crosshair is on this grave
     if (!(client.crosshairTarget instanceof BlockHitResult hit)) return;
     if (!hit.getBlockPos().equals(entity.getPos())) return;
 
