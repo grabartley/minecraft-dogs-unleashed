@@ -1,8 +1,19 @@
 {
   "variants": {
-    "facing=north": { "model": "dogs-unleashed:block/dog_grave" },
-    "facing=south": { "model": "dogs-unleashed:block/dog_grave", "y": 180 },
-    "facing=west": { "model": "dogs-unleashed:block/dog_grave", "y": 270 },
-    "facing=east": { "model": "dogs-unleashed:block/dog_grave", "y": 90 }
+    "facing=north": {
+      "model": "dogs-unleashed:block/dog_grave"
+    },
+    "facing=south": {
+      "model": "dogs-unleashed:block/dog_grave",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "dogs-unleashed:block/dog_grave",
+      "y": 270
+    },
+    "facing=east": {
+      "model": "dogs-unleashed:block/dog_grave",
+      "y": 90
+    }
   }
 }

@@ -26,6 +26,7 @@ import net.minecraft.test.TestContext;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.GameMode;
 import org.jetbrains.annotations.Nullable;
 
@@ -78,6 +79,7 @@ public final class ResurrectionRitualGameTest implements FabricGameTest {
     final PlayerEntity player = context.createMockPlayer(GameMode.SURVIVAL);
     final DogGraveBlockEntity grave = placeGrave(context, UUID.randomUUID());
     grave.installTotem(player.getUuid());
+    player.setStackInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
 
     context.useBlock(REL_GRAVE, player);
 
@@ -85,6 +87,39 @@ public final class ResurrectionRitualGameTest implements FabricGameTest {
     context.assertTrue(
         player.getInventory().contains(new ItemStack(Items.TOTEM_OF_UNDYING)),
         "The retrieved totem should land back in the player's inventory");
+    context.complete();
+  }
+
+  /**
+   * The ritual needs a rod on a grave that already holds its totem, so the grave must not swallow
+   * every right-click: only an empty hand takes the totem back.
+   */
+  @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
+  public void aGraveHoldingATotemStillAcceptsItsLightningRod(final TestContext context) {
+    final PlayerEntity player = context.createMockPlayer(GameMode.SURVIVAL);
+    final DogGraveBlockEntity grave = placeGrave(context, UUID.randomUUID());
+    grave.installTotem(player.getUuid());
+
+    context.useStackOnBlock(player, new ItemStack(Items.LIGHTNING_ROD), REL_GRAVE, Direction.UP);
+
+    context.assertTrue(grave.hasTotem(), "Placing a rod must not knock the totem out of the grave");
+    context.expectBlock(Blocks.LIGHTNING_ROD, REL_ROD);
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
+  public void aGraveHoldingATotemRefusesASecondOne(final TestContext context) {
+    final PlayerEntity player = context.createMockPlayer(GameMode.SURVIVAL);
+    final DogGraveBlockEntity grave = placeGrave(context, UUID.randomUUID());
+    grave.installTotem(player.getUuid());
+    player.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.TOTEM_OF_UNDYING, 2));
+
+    context.useBlock(REL_GRAVE, player);
+
+    context.assertTrue(grave.hasTotem(), "The installed totem should stay put");
+    context.assertTrue(
+        player.getStackInHand(Hand.MAIN_HAND).getCount() == 2,
+        "A grave that already holds a totem must not consume another");
     context.complete();
   }
 

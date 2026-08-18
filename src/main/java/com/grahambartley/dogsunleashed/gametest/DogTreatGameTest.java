@@ -2,12 +2,14 @@ package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
+import com.grahambartley.dogsunleashed.entity.DogFoods;
 import com.grahambartley.dogsunleashed.entity.DogTreatBuff;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
@@ -33,7 +35,16 @@ public final class DogTreatGameTest implements FabricGameTest {
   private static final BlockPos DOG_POS = new BlockPos(3, 2, 3);
   private static final BlockPos OWNER_POS = new BlockPos(4, 2, 3);
   private static final BlockPos STRANGER_POS = new BlockPos(2, 2, 3);
+  private static final BlockPos TEMPT_DOG_POS = new BlockPos(5, 2, 5);
+  private static final BlockPos TEMPT_PLAYER_POS = new BlockPos(1, 2, 1);
   private static final int TICK_LIMIT = 20;
+  private static final int SOCIAL_CUE_ASSERT_TICK = 5;
+  private static final int SOCIAL_CUE_RESAMPLE_TICK = 12;
+  private static final UUID ABSENT_OWNER_UUID =
+      UUID.fromString("00000000-0000-0000-0000-0000000d0655");
+  private static final int TEMPT_TICK_LIMIT = 140;
+  private static final int TEMPT_ASSERT_TICK = 120;
+  private static final double TEMPT_MIN_APPROACH = 1.5;
   private static final int EXPIRY_TICK_LIMIT = 40;
   private static final int EXPIRY_ASSERT_TICK = 10;
   private static final int HELD_STACK_COUNT = 3;
@@ -134,6 +145,138 @@ public final class DogTreatGameTest implements FabricGameTest {
         HELD_STACK_COUNT,
         "Feeding an untamed dog must not consume a treat");
     context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void aTreatDrawsAttentionWithoutBecomingAFood(final TestContext context) {
+    final ItemStack treat = new ItemStack(ModItems.DOG_TREAT);
+    final UnleashedDogEntity dog = DogTestHelper.spawnDog(context, DogTestData.HUSKY, DOG_POS);
+    dog.setAiDisabled(true);
+
+    context.assertTrue(DogFoods.isAttentionItem(treat), "A treat should be an attention item");
+    context.assertTrue(
+        DogFoods.attentionIngredient().test(treat),
+        "The tempt goal's ingredient should accept a treat");
+    context.assertTrue(dog.isTreatItem(treat), "A dog should recognise a treat");
+    context.assertFalse(dog.isTamingItem(treat), "A treat must not tame a dog");
+    context.assertFalse(dog.isBreedingItem(treat), "A treat must not breed a dog");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void everyTamingFoodStillDrawsAttention(final TestContext context) {
+    for (final ItemStack stack : DogFoods.tamingIngredient().getMatchingStacks()) {
+      context.assertTrue(
+          DogFoods.isAttentionItem(stack),
+          stack.getItem() + " should still draw attention after the treat joined the set");
+    }
+    context.assertFalse(
+        DogFoods.isAttentionItem(new ItemStack(Items.BREAD)),
+        "Food a dog cannot use should still draw no attention");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void heldTreatMakesAnUntamedDogHeadTilt(final TestContext context) {
+    final ServerPlayerEntity player = survivalOwnerAt(context, OWNER_POS);
+    final UnleashedDogEntity dog = DogTestHelper.spawnDog(context, DogTestData.HUSKY, DOG_POS);
+    dog.setAiDisabled(true);
+    player.setStackInHand(Hand.MAIN_HAND, new ItemStack(ModItems.DOG_TREAT));
+
+    context.runAtTick(
+        SOCIAL_CUE_ASSERT_TICK,
+        () -> {
+          context.assertTrue(
+              dog.isHeadTilting(), "A dog should head tilt at a player holding a treat");
+          context.complete();
+        });
+  }
+
+  /**
+   * The dog is owned by an absent player on purpose: a mock player joining celebrates its own
+   * nearby dogs a tick later, which would start a tail wag this test would then credit to the
+   * treat. Holding the wag at full across two samples rules out the 1-in-200 idle wag roll too,
+   * since that one decays instead of refreshing.
+   */
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void heldTreatMakesATamedDogWagItsTail(final TestContext context) {
+    final ServerPlayerEntity player = survivalOwnerAt(context, OWNER_POS);
+    final UnleashedDogEntity dog =
+        DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS, ABSENT_OWNER_UUID);
+    dog.setAiDisabled(true);
+    player.setStackInHand(Hand.MAIN_HAND, new ItemStack(ModItems.DOG_TREAT));
+
+    final int[] firstSample = new int[1];
+    context.runAtTick(
+        SOCIAL_CUE_ASSERT_TICK,
+        () -> {
+          firstSample[0] = dog.getTailWagTimerTicks();
+          context.assertTrue(
+              firstSample[0] > 0,
+              "A tamed dog should wag for a held treat, timer=" + firstSample[0]);
+        });
+    context.runAtTick(
+        SOCIAL_CUE_RESAMPLE_TICK,
+        () -> {
+          context.assertTrue(
+              dog.getTailWagTimerTicks() >= firstSample[0],
+              "A held treat should keep the wag refreshed rather than let it decay, "
+                  + firstSample[0]
+                  + " then "
+                  + dog.getTailWagTimerTicks());
+          context.complete();
+        });
+  }
+
+  /** A treat only feeds a tamed dog, so an untamed one notices it without getting its hopes up. */
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void heldTreatDoesNotMakeAnUntamedDogWagItsTail(final TestContext context) {
+    final ServerPlayerEntity player = survivalOwnerAt(context, OWNER_POS);
+    final UnleashedDogEntity dog = DogTestHelper.spawnDog(context, DogTestData.HUSKY, DOG_POS);
+    dog.setAiDisabled(true);
+    player.setStackInHand(Hand.MAIN_HAND, new ItemStack(ModItems.DOG_TREAT));
+
+    context.runAtTick(
+        SOCIAL_CUE_ASSERT_TICK,
+        () -> {
+          context.assertEquals(
+              dog.getTailWagTimerTicks(),
+              0,
+              "An untamed dog cannot be fed a treat, so it should not wag for one");
+          context.complete();
+        });
+  }
+
+  /**
+   * Tempting is goal-driven navigation, so it is timing sensitive by nature: the contract is that a
+   * dog closes the gap within the window, not that it arrives on a given tick.
+   */
+  @GameTest(
+      templateName = ARENA,
+      batchId = BATCH,
+      tickLimit = TEMPT_TICK_LIMIT,
+      maxAttempts = 3,
+      requiredSuccesses = 1)
+  public void aDogWalksTowardsAHeldTreat(final TestContext context) {
+    final ServerPlayerEntity player = survivalOwnerAt(context, TEMPT_PLAYER_POS);
+    final UnleashedDogEntity dog =
+        DogTestHelper.spawnDog(context, DogTestData.HUSKY, TEMPT_DOG_POS);
+    player.setStackInHand(Hand.MAIN_HAND, new ItemStack(ModItems.DOG_TREAT));
+
+    final double startingDistance = dog.distanceTo(player);
+
+    context.runAtTick(
+        TEMPT_ASSERT_TICK,
+        () -> {
+          final double distance = dog.distanceTo(player);
+          context.assertTrue(
+              distance < startingDistance - TEMPT_MIN_APPROACH,
+              "A dog should walk towards a held treat, closing from "
+                  + startingDistance
+                  + " to "
+                  + distance);
+          context.complete();
+        });
   }
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
