@@ -22,7 +22,10 @@ import software.bernie.geckolib.renderer.GeoBlockRenderer;
 
 public class DogGraveBlockEntityRenderer extends GeoBlockRenderer<DogGraveBlockEntity> {
 
-  private static final float GRAVE_SCALE = 2.0f;
+  // Sized so the headstone tops out level with the block boundary above its upper half,
+  // which is where the ritual's lightning rod sits. At the old scale the stone stopped a
+  // third of a block short and the rod appeared to float over it.
+  private static final float GRAVE_SCALE = 2.42f;
   private static final float NAME_TAG_HEIGHT = 2.2f;
   private static final float NAME_TAG_TEXT_SCALE = 0.025f;
   private static final ItemStack TOTEM_STACK = new ItemStack(Items.TOTEM_OF_UNDYING);
