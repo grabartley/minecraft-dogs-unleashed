@@ -122,8 +122,10 @@ public class DogGraveBlock extends HorizontalFacingBlock implements BlockEntityP
   }
 
   /**
-   * The grave holds a single Totem of Undying, the offering the resurrection ritual consumes. Any
-   * right-click on a grave that already holds one takes it back, so the totem is never trapped.
+   * The grave holds a single Totem of Undying, the offering the resurrection ritual consumes. A
+   * totem in hand installs one and an empty hand takes it back; every other item passes straight
+   * through, so the ritual's own lightning rod can still be placed on a grave already holding a
+   * totem.
    */
   @Override
   protected ActionResult onUse(
@@ -137,23 +139,24 @@ public class DogGraveBlock extends HorizontalFacingBlock implements BlockEntityP
       return ActionResult.PASS;
     }
 
-    if (graveBlockEntity.hasTotem()) {
-      graveBlockEntity.clearTotem();
-      player.giveItemStack(new ItemStack(Items.TOTEM_OF_UNDYING));
-      player.sendMessage(
-          Text.translatable(
-              "block.dogs-unleashed.dog_grave.totem_removed", graveBlockEntity.getDogName()),
-          true);
-      return ActionResult.SUCCESS;
-    }
-
     final ItemStack heldStack = player.getStackInHand(Hand.MAIN_HAND);
-    if (heldStack.isOf(Items.TOTEM_OF_UNDYING)) {
+
+    if (!graveBlockEntity.hasTotem() && heldStack.isOf(Items.TOTEM_OF_UNDYING)) {
       graveBlockEntity.installTotem(player.getUuid());
       heldStack.decrementUnlessCreative(1, player);
       player.sendMessage(
           Text.translatable(
               "block.dogs-unleashed.dog_grave.totem_installed", graveBlockEntity.getDogName()),
+          true);
+      return ActionResult.SUCCESS;
+    }
+
+    if (graveBlockEntity.hasTotem() && heldStack.isEmpty()) {
+      graveBlockEntity.clearTotem();
+      player.giveItemStack(new ItemStack(Items.TOTEM_OF_UNDYING));
+      player.sendMessage(
+          Text.translatable(
+              "block.dogs-unleashed.dog_grave.totem_removed", graveBlockEntity.getDogName()),
           true);
       return ActionResult.SUCCESS;
     }
