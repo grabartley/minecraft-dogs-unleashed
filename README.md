@@ -218,10 +218,40 @@ it anywhere as a memorial.
 
 The grave avoids spawning on top of their bed. Because even in death, they want to be near home.
 
+A grave also holds a single Totem of Undying, the offering the resurrection ritual consumes. Right-click the grave
+holding a totem to install it, and right-click again to take it back. The totem drops if the grave is ever broken.
+
+### Resurrection & Undead Pets
+
+A grave is not the end. Install a Totem of Undying on it, place a Lightning Rod in the block directly above, and wait
+for a thunderstorm. When lightning strikes the rod, the ritual spends the totem, the rod and the grave itself, and your
+dog claws its way back as an undead version of itself, with matted greenish fur, a tattered silhouette, and eyes
+that glow red in the dark. The spent totem blesses the risen dog with Fire Resistance and Absorption, exactly as a held
+totem would, and lightning can never harm what lightning raised, so the storm that performs the ritual poses no danger
+to its result. A Channeling trident works just as well if you would rather not wait for the
+weather.
+
+An undead pet keeps everything that made it itself: name, breed, coat, eye colour, collar, lineage, and the exact genome
+it was born with. What it loses is strength. Undead pets have half the max health and half the attack damage they had in
+life, they count as undead to every vanilla system (Instant Damage heals them, Instant Health hurts them, Smite bites
+deeper, Poison and Regeneration do nothing at all), and their whole schedule runs backwards: they sleep by day and are
+awake at night.
+
+That inverted schedule is the catch, because an undead pet burns in direct sunlight exactly like a zombie. It wants to
+sleep through the very hours that will kill it, so it needs somewhere sheltered to do it. Shade, a roof, water, rain,
+and dog armour all keep it safe. Leave one asleep under the open sky and it will catch fire, and a pet that dies while
+undead is gone permanently: the grave still appears, but the ritual will refuse it forever.
+
+Curing works exactly like a zombie villager. Hit the undead pet with Weakness (splash potion, lingering potion, or
+tipped arrow), then use a Golden Apple on it. The apple is consumed, the dog gains Strength, and after a few minutes it
+converts back to its living self with everything intact. A cured pet is an ordinary pet again, which means it can die,
+be resurrected, and be cured again for as long as you keep finding totems.
+
 ### Advancements
 
 The Dogs Unleashed advancement tab tracks the full pack experience: taming your first dog, collecting every breed,
-hearing a Husky howl, finishing a fetch return, seeing a dog sleep in bed, preserving a grave, and taming a Shiba Inu.
+hearing a Husky howl, finishing a fetch return, seeing a dog sleep in bed, preserving a grave, taming a Shiba Inu,
+raising a fallen pet at its grave, and curing one back to life.
 
 ### Collar Dyeing
 
@@ -263,7 +293,7 @@ position as a last resort.
 
 ### Pet Manager
 
-Press the configured keybind to open the Pet Manager screen. Filter by breed, alive or deceased status, or search by
+Press the configured keybind to open the Pet Manager screen. Filter by breed, by status (alive, undead, or deceased), or search by
 name. Each living dog's row carries a Summon button that brings them to you from anywhere, even across dimensions: the
 system loads their chunk, finds them, and delivers them. Clicking a row opens that dog's Pet Details screen, with a
 large 3D portrait, their breed makeup as percentages, their named coat variant and how rare it is (Common through

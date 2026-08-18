@@ -70,6 +70,10 @@ public final class DogEntityNbt {
       nbt.putInt(ModNbtKeys.COMMAND_ANCHOR_Z, anchor.getZ());
     }
     nbt.putBoolean(ModNbtKeys.SPAWNED_BY_DOG_SPAWNER, this.dog.isSpawnedByDogSpawner());
+    nbt.putInt(ModNbtKeys.CURING_TICKS, this.dog.getCuring().getRemainingTicks());
+    if (this.dog.getCuring().getCurerId() != null) {
+      nbt.putUuid(ModNbtKeys.CURING_PLAYER_ID, this.dog.getCuring().getCurerId());
+    }
     this.dog.getLineage().writeNbt(nbt);
     this.dog.getEquipmentHolder().writeNbt(nbt);
   }
@@ -118,7 +122,15 @@ public final class DogEntityNbt {
     if (nbt.contains(ModNbtKeys.SPAWNED_BY_DOG_SPAWNER)) {
       this.dog.setSpawnedByDogSpawner(nbt.getBoolean(ModNbtKeys.SPAWNED_BY_DOG_SPAWNER));
     }
+    this.dog
+        .getCuring()
+        .restoreFromSave(
+            nbt.getInt(ModNbtKeys.CURING_TICKS),
+            nbt.containsUuid(ModNbtKeys.CURING_PLAYER_ID)
+                ? nbt.getUuid(ModNbtKeys.CURING_PLAYER_ID)
+                : null);
     this.dog.getLineage().readNbt(nbt);
     this.dog.getEquipmentHolder().readNbt(nbt);
+    this.dog.getUndeadState().applyAttributeScaling();
   }
 }

@@ -14,14 +14,19 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.item.PickaxeItem;
 import net.minecraft.stat.Stats;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
+import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.DyeColor;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
@@ -127,6 +132,60 @@ public class DogGraveBlock extends HorizontalFacingBlock implements BlockEntityP
     }
 
     super.onPlaced(world, pos, state, placer, itemStack);
+  }
+
+  /**
+   * The grave holds a single Totem of Undying, the offering the resurrection ritual consumes. Any
+   * right-click on a grave that already holds one takes it back, so the totem is never trapped.
+   */
+  @Override
+  protected ActionResult onUse(
+      BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
+    if (world.isClient) {
+      return ActionResult.SUCCESS;
+    }
+
+    final BlockEntity blockEntity = world.getBlockEntity(pos);
+    if (!(blockEntity instanceof DogGraveBlockEntity graveBlockEntity)) {
+      return ActionResult.PASS;
+    }
+
+    if (graveBlockEntity.hasTotem()) {
+      graveBlockEntity.clearTotem();
+      player.giveItemStack(new ItemStack(Items.TOTEM_OF_UNDYING));
+      player.sendMessage(
+          Text.translatable(
+              "block.dogs-unleashed.dog_grave.totem_removed", graveBlockEntity.getDogName()),
+          true);
+      return ActionResult.SUCCESS;
+    }
+
+    final ItemStack heldStack = player.getStackInHand(Hand.MAIN_HAND);
+    if (heldStack.isOf(Items.TOTEM_OF_UNDYING)) {
+      graveBlockEntity.installTotem(player.getUuid());
+      heldStack.decrementUnlessCreative(1, player);
+      player.sendMessage(
+          Text.translatable(
+              "block.dogs-unleashed.dog_grave.totem_installed", graveBlockEntity.getDogName()),
+          true);
+      return ActionResult.SUCCESS;
+    }
+
+    return ActionResult.PASS;
+  }
+
+  /** An installed totem belongs to the player, so it survives the grave however the grave goes. */
+  @Override
+  protected void onStateReplaced(
+      BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
+    if (!world.isClient
+        && !state.isOf(newState.getBlock())
+        && world.getBlockEntity(pos) instanceof DogGraveBlockEntity graveBlockEntity
+        && graveBlockEntity.hasTotem()) {
+      graveBlockEntity.clearTotem();
+      dropStack(world, pos, new ItemStack(Items.TOTEM_OF_UNDYING));
+    }
+    super.onStateReplaced(state, world, pos, newState, moved);
   }
 
   @Override

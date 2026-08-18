@@ -31,7 +31,7 @@ public final class PetData {
   private float maxHealth;
   private BlockPos lastKnownPosition;
   private String dimension;
-  private boolean alive;
+  private PetLifeState lifeState;
   private boolean baby;
   private int collarColor;
   private int coatVariant;
@@ -39,6 +39,7 @@ public final class PetData {
   private UUID parentAId;
   private UUID parentBId;
   private List<BreedShare> composition;
+  private DogGenome genome;
   private float movementSpeed;
   private float attackDamage;
 
@@ -51,7 +52,7 @@ public final class PetData {
       float maxHealth,
       BlockPos lastKnownPosition,
       String dimension,
-      boolean alive) {
+      PetLifeState lifeState) {
     this.petId = petId;
     this.ownerId = ownerId;
     this.breed = breed;
@@ -60,7 +61,7 @@ public final class PetData {
     this.maxHealth = maxHealth;
     this.lastKnownPosition = lastKnownPosition;
     this.dimension = dimension;
-    this.alive = alive;
+    this.lifeState = lifeState;
     this.baby = false;
     this.collarColor = DEFAULT_COLLAR_COLOR_ID;
     this.coatVariant = UnleashedDogEntity.UNSET_VARIANT;
@@ -124,12 +125,16 @@ public final class PetData {
     this.dimension = dimension;
   }
 
-  public boolean isAlive() {
-    return alive;
+  public PetLifeState getLifeState() {
+    return lifeState;
   }
 
-  public void setAlive(boolean alive) {
-    this.alive = alive;
+  public void setLifeState(PetLifeState lifeState) {
+    this.lifeState = lifeState;
+  }
+
+  public boolean isAlive() {
+    return lifeState.isAlive();
   }
 
   public boolean isBaby() {
@@ -150,6 +155,10 @@ public final class PetData {
 
   public List<BreedShare> getComposition() {
     return composition;
+  }
+
+  public DogGenome getGenome() {
+    return genome;
   }
 
   public float getMovementSpeed() {
@@ -194,8 +203,9 @@ public final class PetData {
     this.huskyEyeVariant = huskyEyeVariantOf(dog);
     this.movementSpeed = (float) dog.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
     this.attackDamage = (float) dog.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
-    final DogGenome genome = dog.getGenome();
-    this.composition = genome != null ? genome.composition() : List.of();
+    final DogGenome dogGenome = dog.getGenome();
+    this.genome = dogGenome;
+    this.composition = dogGenome != null ? dogGenome.composition() : List.of();
   }
 
   public static int coatVariantOf(final UnleashedDogEntity dog) {
@@ -244,7 +254,7 @@ public final class PetData {
     nbt.putInt(ModNbtKeys.POS_Y, lastKnownPosition.getY());
     nbt.putInt(ModNbtKeys.POS_Z, lastKnownPosition.getZ());
     nbt.putString(ModNbtKeys.DIMENSION, dimension);
-    nbt.putBoolean(ModNbtKeys.ALIVE, alive);
+    nbt.putString(ModNbtKeys.LIFE_STATE, lifeState.serializedName());
     nbt.putBoolean(ModNbtKeys.PORTRAIT_BABY, baby);
     nbt.putInt(ModNbtKeys.PORTRAIT_COLLAR, collarColor);
     nbt.putInt(ModNbtKeys.PORTRAIT_COAT_VARIANT, coatVariant);
@@ -254,6 +264,9 @@ public final class PetData {
     if (!composition.isEmpty()) {
       nbt.put(ModNbtKeys.COMPOSITION, DogGenome.compositionToNbt(composition));
     }
+    if (genome != null) {
+      nbt.put(ModNbtKeys.GENOME, genome.toNbt());
+    }
     if (parentAId != null) {
       nbt.putUuid(ModNbtKeys.PARENT_A_ID, parentAId);
     }
@@ -261,6 +274,12 @@ public final class PetData {
       nbt.putUuid(ModNbtKeys.PARENT_B_ID, parentBId);
     }
     return nbt;
+  }
+
+  static PetLifeState lifeStateFrom(final NbtCompound nbt) {
+    return nbt.contains(ModNbtKeys.LIFE_STATE, NbtElement.STRING_TYPE)
+        ? PetLifeState.fromSerializedName(nbt.getString(ModNbtKeys.LIFE_STATE))
+        : PetLifeState.fromLegacyAliveFlag(nbt.getBoolean(ModNbtKeys.ALIVE));
   }
 
   public static PetData fromNbt(NbtCompound nbt) {
@@ -277,7 +296,7 @@ public final class PetData {
                 nbt.getInt(ModNbtKeys.POS_Y),
                 nbt.getInt(ModNbtKeys.POS_Z)),
             nbt.getString(ModNbtKeys.DIMENSION),
-            nbt.getBoolean(ModNbtKeys.ALIVE));
+            lifeStateFrom(nbt));
     if (nbt.contains(ModNbtKeys.PORTRAIT_BABY)) {
       pet.baby = nbt.getBoolean(ModNbtKeys.PORTRAIT_BABY);
     }
@@ -298,6 +317,9 @@ public final class PetData {
     }
     if (nbt.contains(ModNbtKeys.COMPOSITION, NbtElement.COMPOUND_TYPE)) {
       pet.composition = DogGenome.compositionFromNbt(nbt.getCompound(ModNbtKeys.COMPOSITION));
+    }
+    if (nbt.contains(ModNbtKeys.GENOME, NbtElement.COMPOUND_TYPE)) {
+      pet.genome = DogGenome.fromNbt(nbt.getCompound(ModNbtKeys.GENOME));
     }
     if (nbt.containsUuid(ModNbtKeys.PARENT_A_ID)) {
       pet.parentAId = nbt.getUuid(ModNbtKeys.PARENT_A_ID);

@@ -105,6 +105,8 @@ public class PetManagerScreen extends Screen {
                               Text.translatable("screen.dogs-unleashed.pet_manager.all_status");
                           case ALIVE ->
                               Text.translatable("screen.dogs-unleashed.pet_manager.alive_only");
+                          case UNDEAD ->
+                              Text.translatable("screen.dogs-unleashed.pet_manager.undead_only");
                           case DECEASED ->
                               Text.translatable("screen.dogs-unleashed.pet_manager.deceased_only");
                         })
@@ -335,7 +337,7 @@ public class PetManagerScreen extends Screen {
 
     final int textX = x + THUMBNAIL_SIZE + 15;
     final int textMaxWidth = rowSummonButtonX(x) - textX - 6;
-    final int nameColor = pet.alive() ? 0xFFFFFF : 0x888888;
+    final int nameColor = PetLifeStateDisplay.nameColor(pet.lifeState(), 0xFFFFFF, 0x888888);
     context.drawText(
         this.textRenderer,
         this.textRenderer.trimToWidth(pet.name(), textMaxWidth),
@@ -346,6 +348,17 @@ public class PetManagerScreen extends Screen {
 
     final String breedName = DogBreedNames.displayName(pet.breed(), pet.composition()).getString();
     context.drawText(this.textRenderer, breedName, textX, y + 18, 0xAAAAAA, false);
+
+    final Text statusLabel = PetLifeStateDisplay.statusLabel(pet.lifeState());
+    if (pet.alive() && statusLabel != null) {
+      context.drawText(
+          this.textRenderer,
+          statusLabel,
+          textX + textMaxWidth - this.textRenderer.getWidth(statusLabel),
+          y + 18,
+          PetLifeStateDisplay.statusColor(pet.lifeState()),
+          false);
+    }
 
     if (pet.alive()) {
       final String healthText = String.format("%.1f / %.1f ❤", pet.health(), pet.maxHealth());
@@ -364,13 +377,13 @@ public class PetManagerScreen extends Screen {
           y + 44,
           0x888888,
           false);
-    } else {
+    } else if (statusLabel != null) {
       context.drawText(
           this.textRenderer,
-          Text.translatable("screen.dogs-unleashed.pet_manager.deceased"),
+          statusLabel,
           textX,
           y + 31,
-          0xFF5555,
+          PetLifeStateDisplay.statusColor(pet.lifeState()),
           false);
     }
   }

@@ -1,0 +1,21 @@
+{
+  "parent": "dogs-unleashed:best_friend",
+  "display": {
+    "icon": {
+      "id": "minecraft:totem_of_undying"
+    },
+    "title": {
+      "translate": "advancements.dogs-unleashed.second_leash_of_life.title"
+    },
+    "description": {
+      "translate": "advancements.dogs-unleashed.second_leash_of_life.description"
+    },
+    "frame": "goal"
+  },
+  "criteria": {
+    "resurrected_a_pet": {
+      "trigger": "dogs-unleashed:pet_resurrected"
+    }
+  },
+  "requirements": [["resurrected_a_pet"]]
+}

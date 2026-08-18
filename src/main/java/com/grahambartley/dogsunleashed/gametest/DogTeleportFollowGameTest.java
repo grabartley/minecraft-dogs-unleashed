@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.pet.PetData;
+import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import com.grahambartley.dogsunleashed.pet.PetLocationService;
 import com.grahambartley.dogsunleashed.pet.PetManager;
 import java.util.Set;
@@ -236,7 +237,7 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
             20.0f,
             context.getAbsolutePos(DOG_START),
             context.getWorld().getRegistryKey().getValue().toString(),
-            true);
+            PetLifeState.LIVING);
     PetManager.get(context.getWorld().getServer()).registerPet(ghost);
 
     PetLocationService.loadAndSummon(context.getWorld().getServer(), ghost, owner);
@@ -352,7 +353,7 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
             husky.getMaxHealth(),
             husky.getBlockPos(),
             world.getRegistryKey().getValue().toString(),
-            true);
+            PetLifeState.LIVING);
     PetManager.get(world.getServer()).registerPet(petData);
     return husky;
   }

@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
  */
 record PortraitDogAppearance(
     UnleashedDogBreed entityBreed,
+    boolean undead,
     UUID entityId,
     boolean baby,
     DyeColor collarColor,
@@ -30,6 +31,7 @@ record PortraitDogAppearance(
   static PortraitDogAppearance of(final PetSyncData pet) {
     return new PortraitDogAppearance(
         pet.breed(),
+        pet.undead(),
         UUID.fromString(pet.petId()),
         pet.baby(),
         DyeColor.byId(Math.floorMod(pet.collarColor(), COLLAR_COLOR_COUNT)),

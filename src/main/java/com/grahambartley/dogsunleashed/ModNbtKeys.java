@@ -13,6 +13,7 @@ public final class ModNbtKeys {
   public static final String POS_Z = "PosZ";
   public static final String DIMENSION = "Dimension";
   public static final String ALIVE = "Alive";
+  public static final String LIFE_STATE = "LifeState";
   public static final String PORTRAIT_BABY = "PortraitBaby";
   public static final String PORTRAIT_COLLAR = "PortraitCollar";
   public static final String PORTRAIT_COAT_VARIANT = "portraitCoatVariant";
@@ -58,6 +59,8 @@ public final class ModNbtKeys {
   public static final String COMMAND_ANCHOR_X = "CommandAnchorX";
   public static final String COMMAND_ANCHOR_Y = "CommandAnchorY";
   public static final String COMMAND_ANCHOR_Z = "CommandAnchorZ";
+  public static final String CURING_TICKS = "CuringTicks";
+  public static final String CURING_PLAYER_ID = "CuringPlayerId";
 
   private ModNbtKeys() {}
 }

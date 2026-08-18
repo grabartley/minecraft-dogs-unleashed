@@ -23,6 +23,9 @@ class ModNbtKeysTest {
         Arguments.of("POS_Z", ModNbtKeys.POS_Z, "PosZ"),
         Arguments.of("DIMENSION", ModNbtKeys.DIMENSION, "Dimension"),
         Arguments.of("ALIVE", ModNbtKeys.ALIVE, "Alive"),
+        Arguments.of("LIFE_STATE", ModNbtKeys.LIFE_STATE, "LifeState"),
+        Arguments.of("CURING_TICKS", ModNbtKeys.CURING_TICKS, "CuringTicks"),
+        Arguments.of("CURING_PLAYER_ID", ModNbtKeys.CURING_PLAYER_ID, "CuringPlayerId"),
         Arguments.of("PORTRAIT_BABY", ModNbtKeys.PORTRAIT_BABY, "PortraitBaby"),
         Arguments.of("PORTRAIT_COLLAR", ModNbtKeys.PORTRAIT_COLLAR, "PortraitCollar"),
         Arguments.of(

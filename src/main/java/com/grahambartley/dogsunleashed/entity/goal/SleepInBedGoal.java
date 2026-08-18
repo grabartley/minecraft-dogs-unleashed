@@ -62,12 +62,9 @@ public class SleepInBedGoal extends Goal {
 
     if (this.dog.isSleepingInBed()) {
       final World world = this.dog.getWorld();
-      final long timeOfDay = world.getTimeOfDay() % 24000;
-      final boolean isDayTime = timeOfDay < 13000 || timeOfDay >= 23000;
-      if (isDayTime || world.isRaining() || world.isThundering()) {
-        return false;
-      }
-      return true;
+      return DogSleepWindow.isSleepTime(
+              world.getTimeOfDay(), this.dog.isBaby(), this.dog.isUndead())
+          && !DogSleepWindow.isWokenByWeather(world, this.dog.isUndead());
     }
 
     return this.dog.isCommandedToSleep();

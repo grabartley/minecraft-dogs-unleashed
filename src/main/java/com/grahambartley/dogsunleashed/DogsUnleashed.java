@@ -3,6 +3,8 @@ package com.grahambartley.dogsunleashed;
 import com.grahambartley.dogsunleashed.advancement.DogSleptInBedCriterion;
 import com.grahambartley.dogsunleashed.advancement.FetchReturnedCriterion;
 import com.grahambartley.dogsunleashed.advancement.HuskyHowledCriterion;
+import com.grahambartley.dogsunleashed.advancement.PetCuredCriterion;
+import com.grahambartley.dogsunleashed.advancement.PetResurrectedCriterion;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
 import com.grahambartley.dogsunleashed.command.DogsUnleashedCommand;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
@@ -10,6 +12,7 @@ import com.grahambartley.dogsunleashed.entity.DogPlaySession;
 import com.grahambartley.dogsunleashed.listener.PetLocationSyncListener;
 import com.grahambartley.dogsunleashed.listener.PlayerDimensionChangeListener;
 import com.grahambartley.dogsunleashed.listener.PlayerJoinReunionListener;
+import com.grahambartley.dogsunleashed.listener.ResurrectionRitualListener;
 import com.grahambartley.dogsunleashed.network.ModNetworking;
 import com.grahambartley.dogsunleashed.server.ServerConfigService;
 import java.util.ArrayList;
@@ -38,6 +41,8 @@ public class DogsUnleashed implements ModInitializer {
     HuskyHowledCriterion.register();
     FetchReturnedCriterion.register();
     DogSleptInBedCriterion.register();
+    PetResurrectedCriterion.register();
+    PetCuredCriterion.register();
 
     ModSounds.initialize();
     ModComponents.initialize();
@@ -53,6 +58,7 @@ public class DogsUnleashed implements ModInitializer {
     PlayerDimensionChangeListener.initialize();
     PlayerJoinReunionListener.initialize();
     PetLocationSyncListener.initialize();
+    ResurrectionRitualListener.initialize();
 
     ServerLifecycleEvents.SERVER_STARTING.register(ServerConfigService::loadFromWorld);
 

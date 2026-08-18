@@ -5,6 +5,8 @@ import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.advancement.HuskyHowledCriterion;
+import com.grahambartley.dogsunleashed.advancement.PetCuredCriterion;
+import com.grahambartley.dogsunleashed.advancement.PetResurrectedCriterion;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
 import com.grahambartley.dogsunleashed.entity.goal.FetchReturnGoal;
@@ -37,7 +39,9 @@ public final class DogAdvancementGameTest implements FabricGameTest {
           "fetch",
           "sweet_dreams",
           "forever_in_our_hearts",
-          "cherry_companion");
+          "cherry_companion",
+          "second_leash_of_life",
+          "best_friend_again");
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void advancementsLoadFromDataPackResources(final TestContext context) {
@@ -141,6 +145,24 @@ public final class DogAdvancementGameTest implements FabricGameTest {
     context.assertTrue(
         player.getAdvancementTracker().getProgress(foreverInOurHearts).isDone(),
         "inventory_changed with a dog grave should unlock forever_in_our_hearts");
+    context.complete();
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+  public void resurrectionAndCureTriggersUnlockTheirAdvancements(final TestContext context) {
+    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+    final AdvancementEntry secondLeashOfLife = getAdvancement(context, "second_leash_of_life");
+    final AdvancementEntry bestFriendAgain = getAdvancement(context, "best_friend_again");
+
+    PetResurrectedCriterion.INSTANCE.trigger(player);
+    PetCuredCriterion.INSTANCE.trigger(player);
+
+    context.assertTrue(
+        player.getAdvancementTracker().getProgress(secondLeashOfLife).isDone(),
+        "pet_resurrected should unlock second_leash_of_life");
+    context.assertTrue(
+        player.getAdvancementTracker().getProgress(bestFriendAgain).isDone(),
+        "pet_cured should unlock best_friend_again");
     context.complete();
   }
 

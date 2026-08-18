@@ -15,6 +15,8 @@ import com.grahambartley.dogsunleashed.render.coat.CoatPigments.Donor;
 import com.grahambartley.dogsunleashed.render.coat.CoatRecipe;
 import com.grahambartley.dogsunleashed.render.coat.DogCoatIds;
 import com.grahambartley.dogsunleashed.render.coat.DogCoatTextures;
+import com.grahambartley.dogsunleashed.render.coat.UndeadCoatTextures;
+import com.grahambartley.dogsunleashed.render.coat.UndeadDogEyes;
 import com.grahambartley.dogsunleashed.render.coat.VariantIslands;
 import com.grahambartley.dogsunleashed.render.coat.VariantIslands.Island;
 import java.util.ArrayList;
@@ -37,6 +39,14 @@ public class DogModel extends GeoModel<UnleashedDogEntity> {
 
   @Override
   public Identifier getTextureResource(final UnleashedDogEntity animatable) {
+    final Identifier living = livingTextureResource(animatable);
+    if (!animatable.isUndead()) {
+      return living;
+    }
+    return UndeadCoatTextures.undeadOf(living, UndeadDogEyes.of(animatable.getRigSourceBreed()));
+  }
+
+  private Identifier livingTextureResource(final UnleashedDogEntity animatable) {
     if (usesSharedRig(animatable)) {
       final Identifier composited = compositedTexture(animatable);
       if (composited != null) {

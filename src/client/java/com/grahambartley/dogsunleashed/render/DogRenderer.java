@@ -8,6 +8,7 @@ import com.grahambartley.dogsunleashed.entity.rig.DogProportions.BoneAdjustment;
 import com.grahambartley.dogsunleashed.model.DogModel;
 import com.grahambartley.dogsunleashed.render.layer.DogCarryFetchItemLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogCollarLayer;
+import com.grahambartley.dogsunleashed.render.layer.UndeadEyeGlowLayer;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -24,6 +25,7 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
     super(context, new DogModel());
     this.addRenderLayer(new DogCollarLayer(this));
     this.addRenderLayer(new DogCarryFetchItemLayer<>(this));
+    this.addRenderLayer(new UndeadEyeGlowLayer(this));
   }
 
   @Override

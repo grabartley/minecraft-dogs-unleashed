@@ -5,6 +5,7 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.listener.PetLocationSyncListener;
 import com.grahambartley.dogsunleashed.pet.PetData;
+import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import com.grahambartley.dogsunleashed.pet.PetManager;
 import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -28,7 +29,7 @@ public final class PetLocationSyncListenerGameTest implements FabricGameTest {
   public void recordLocationHealsStaleRecordFromLiveEntity(TestContext context) {
     final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
     final UnleashedDogEntity husky = spawnTamedDog(context, owner);
-    final PetData petData = registerPet(context, owner, husky, true);
+    final PetData petData = registerPet(context, owner, husky, PetLifeState.LIVING);
 
     PetLocationSyncListener.recordLocation(husky, context.getWorld());
 
@@ -46,7 +47,7 @@ public final class PetLocationSyncListenerGameTest implements FabricGameTest {
     final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
     final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(1, 2, 1));
     husky.setAiDisabled(true);
-    final PetData petData = registerPet(context, owner, husky, true);
+    final PetData petData = registerPet(context, owner, husky, PetLifeState.LIVING);
 
     PetLocationSyncListener.recordLocation(husky, context.getWorld());
 
@@ -60,7 +61,7 @@ public final class PetLocationSyncListenerGameTest implements FabricGameTest {
   public void recordLocationIgnoresDeceasedRecords(TestContext context) {
     final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
     final UnleashedDogEntity husky = spawnTamedDog(context, owner);
-    final PetData petData = registerPet(context, owner, husky, false);
+    final PetData petData = registerPet(context, owner, husky, PetLifeState.DECEASED);
 
     PetLocationSyncListener.recordLocation(husky, context.getWorld());
 
@@ -124,7 +125,7 @@ public final class PetLocationSyncListenerGameTest implements FabricGameTest {
   public void recordLocationKeepsTheExistingRecordName(TestContext context) {
     final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
     final UnleashedDogEntity husky = spawnTamedDog(context, owner);
-    registerPet(context, owner, husky, true);
+    registerPet(context, owner, husky, PetLifeState.LIVING);
 
     PetLocationSyncListener.recordLocation(husky, context.getWorld());
 
@@ -145,7 +146,7 @@ public final class PetLocationSyncListenerGameTest implements FabricGameTest {
     final UnleashedDogEntity husky = spawnTamedDog(context, owner);
     final UUID parentUuid = UUID.randomUUID();
     husky.getLineage().setParentDogUuid(parentUuid);
-    final PetData petData = registerPet(context, owner, husky, true);
+    final PetData petData = registerPet(context, owner, husky, PetLifeState.LIVING);
     context.assertTrue(
         petData.getParentAId() == null, "Precondition: legacy record starts without parents");
 
@@ -167,7 +168,10 @@ public final class PetLocationSyncListenerGameTest implements FabricGameTest {
   }
 
   private static PetData registerPet(
-      TestContext context, ServerPlayerEntity owner, UnleashedDogEntity husky, boolean alive) {
+      TestContext context,
+      ServerPlayerEntity owner,
+      UnleashedDogEntity husky,
+      PetLifeState lifeState) {
     final ServerWorld world = context.getWorld();
     final PetData petData =
         new PetData(
@@ -179,7 +183,7 @@ public final class PetLocationSyncListenerGameTest implements FabricGameTest {
             husky.getMaxHealth(),
             STALE_POSITION,
             "minecraft:the_end",
-            alive);
+            lifeState);
     PetManager.get(world.getServer()).registerPet(petData);
     return petData;
   }

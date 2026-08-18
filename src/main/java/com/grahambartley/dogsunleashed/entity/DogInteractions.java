@@ -100,6 +100,7 @@ public final class DogInteractions {
         firstHandled(
             List.of(
                 () -> this.tryBindWhistle(player, itemStack),
+                () -> this.tryCure(player, itemStack),
                 () -> this.tryFeedTreat(player, itemStack),
                 () -> this.tryHeal(player, itemStack),
                 () -> this.tryDyeCollar(player, itemStack),
@@ -159,6 +160,16 @@ public final class DogInteractions {
     }
     DogWhistleItem.bind(itemStack, this.dog.getUuid(), this.dog.getTamedName());
     this.sendFeedback(player, "message.dogs-unleashed.whistle.bound");
+    return ActionResult.SUCCESS;
+  }
+
+  /** Weakness plus a Golden Apple starts the conversion back to a living dog. */
+  private @Nullable ActionResult tryCure(final PlayerEntity player, final ItemStack itemStack) {
+    if (!this.dog.getCuring().canStart(itemStack)) {
+      return null;
+    }
+    itemStack.decrementUnlessCreative(1, player);
+    this.dog.getCuring().start(player);
     return ActionResult.SUCCESS;
   }
 

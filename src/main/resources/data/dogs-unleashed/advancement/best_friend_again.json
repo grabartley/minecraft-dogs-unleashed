@@ -1,0 +1,21 @@
+{
+  "parent": "dogs-unleashed:second_leash_of_life",
+  "display": {
+    "icon": {
+      "id": "minecraft:golden_apple"
+    },
+    "title": {
+      "translate": "advancements.dogs-unleashed.best_friend_again.title"
+    },
+    "description": {
+      "translate": "advancements.dogs-unleashed.best_friend_again.description"
+    },
+    "frame": "goal"
+  },
+  "criteria": {
+    "cured_a_pet": {
+      "trigger": "dogs-unleashed:pet_cured"
+    }
+  },
+  "requirements": [["cured_a_pet"]]
+}

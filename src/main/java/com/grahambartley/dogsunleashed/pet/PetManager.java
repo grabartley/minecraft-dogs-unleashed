@@ -194,7 +194,7 @@ public final class PetManager extends PersistentState {
       pets = pets.stream().filter(p -> p.getBreed() == breedFilter).toList();
     }
     if (aliveFilter != null && aliveFilter != PetAliveFilter.ALL) {
-      pets = pets.stream().filter(p -> aliveFilter.appliesTo(p.isAlive())).toList();
+      pets = pets.stream().filter(p -> aliveFilter.appliesTo(p.getLifeState())).toList();
     }
     if (searchQuery != null && !searchQuery.isEmpty()) {
       final String normalizedQuery = searchQuery.toLowerCase(Locale.ROOT);
@@ -206,11 +206,31 @@ public final class PetManager extends PersistentState {
     return pets;
   }
 
-  public void markPetDeceased(UUID petId) {
+  /**
+   * Records a dog's death. A pet that dies while undead is {@link PetLifeState#LOST}: it still gets
+   * a grave, but the resurrection ritual will refuse it forever after.
+   */
+  public void markPetDeceased(UUID petId, boolean diedUndead) {
     final PetData pet = petsById.get(petId);
     if (pet != null) {
-      pet.setAlive(false);
+      pet.setLifeState(diedUndead ? PetLifeState.LOST : PetLifeState.DECEASED);
       pet.setHealth(0);
+      markDirty();
+    }
+  }
+
+  public void markPetResurrected(UUID petId) {
+    setLifeState(petId, PetLifeState.UNDEAD);
+  }
+
+  public void markPetCured(UUID petId) {
+    setLifeState(petId, PetLifeState.LIVING);
+  }
+
+  private void setLifeState(final UUID petId, final PetLifeState lifeState) {
+    final PetData pet = petsById.get(petId);
+    if (pet != null) {
+      pet.setLifeState(lifeState);
       markDirty();
     }
   }
