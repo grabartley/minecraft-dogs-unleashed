@@ -99,8 +99,8 @@ command wheel with nine options:
 | **Heel**      | Sticks close, within a few blocks, instead of the usual loose follow.                                   |
 | **Stay**      | Holds an area around the spot where you gave the command, without sitting. Still uses a nearby bed at night. |
 | **Sit**       | The classic. Sits until told otherwise.                                                                 |
-| **Hunt**      | Follows you and actively attacks hostile mobs and unnamed wild animals nearby. Name-tagged animals, tamed pets, villagers, golems, and other dogs are always safe. |
-| **Guard**     | Holds an area like Stay and attacks hostile mobs that come near it.                                     |
+| **Hunt**      | Follows you and actively attacks hostile mobs and unnamed wild animals nearby. Name-tagged animals, tamed pets, villagers, golems, and other dogs are always safe. Holds its ground when hurt instead of breaking off. |
+| **Guard**     | Holds an area like Stay and attacks hostile mobs that come near it. Holds its ground when hurt instead of breaking off. |
 | **Free Roam** | Wanders freely without following, but still comes along when you change dimension so it is never lost.  |
 | **Go to Bed** | Sends the dog to its assigned bed to sleep. Greyed out until a bed is assigned.                         |
 | **Equipment** | Opens the dog's equipment screen. See below.                                                            |
