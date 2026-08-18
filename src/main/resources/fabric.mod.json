@@ -62,7 +62,9 @@
       "com.grahambartley.dogsunleashed.gametest.DogLeashGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogLineageGameTest",
       "com.grahambartley.dogsunleashed.gametest.PetManagerConnectionsGameTest",
-      "com.grahambartley.dogsunleashed.gametest.DogWetnessGameTest"
+      "com.grahambartley.dogsunleashed.gametest.DogWetnessGameTest",
+      "com.grahambartley.dogsunleashed.gametest.ResurrectionRitualGameTest",
+      "com.grahambartley.dogsunleashed.gametest.UndeadDogGameTest"
     ]
   },
   "mixins": [

@@ -59,27 +59,32 @@ final class DogStatsPanel {
       final int x,
       final int y,
       final int labelWidth) {
-    if (pet.breed() == UnleashedDogBreed.CROSS_BREED) {
-      return draw(
-          context,
-          textRenderer,
-          pet.maxHealth(),
-          pet.movementSpeed(),
-          pet.attackDamage(),
-          x,
-          y,
-          labelWidth);
-    }
-    final UnleashedDogBreed.Attributes attributes = pet.breed().attributes();
     return draw(
         context,
         textRenderer,
-        attributes.maxHealth(),
-        attributes.movementSpeed(),
-        attributes.attackDamage(),
+        maxHealthOf(pet),
+        movementSpeedOf(pet),
+        attackDamageOf(pet),
         x,
         y,
         labelWidth);
+  }
+
+  /**
+   * A pet's own numbers whenever the record carries them, since a cross-breed's genome and an
+   * undead pet's halved stats both differ from the breed preset. Records written before those
+   * fields were persisted store zero, and fall back to the preset.
+   */
+  static double maxHealthOf(final PetSyncData pet) {
+    return pet.maxHealth() > 0 ? pet.maxHealth() : pet.breed().attributes().maxHealth();
+  }
+
+  static double movementSpeedOf(final PetSyncData pet) {
+    return pet.movementSpeed() > 0 ? pet.movementSpeed() : pet.breed().attributes().movementSpeed();
+  }
+
+  static double attackDamageOf(final PetSyncData pet) {
+    return pet.attackDamage() > 0 ? pet.attackDamage() : pet.breed().attributes().attackDamage();
   }
 
   static int draw(

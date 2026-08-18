@@ -1,30 +1,28 @@
 package com.grahambartley.dogsunleashed.pet;
 
+import java.util.Set;
 import org.jetbrains.annotations.Nullable;
 
 public enum PetAliveFilter {
   ALL("ALL", null),
-  ALIVE("ALIVE", true),
-  DECEASED("DECEASED", false);
+  ALIVE("ALIVE", Set.of(PetLifeState.LIVING)),
+  UNDEAD("UNDEAD", Set.of(PetLifeState.UNDEAD)),
+  DECEASED("DECEASED", Set.of(PetLifeState.DECEASED, PetLifeState.LOST));
 
   private final String serializedName;
-  private final Boolean aliveValue;
+  private final @Nullable Set<PetLifeState> matchedStates;
 
-  PetAliveFilter(final String serializedName, final @Nullable Boolean aliveValue) {
+  PetAliveFilter(final String serializedName, final @Nullable Set<PetLifeState> matchedStates) {
     this.serializedName = serializedName;
-    this.aliveValue = aliveValue;
+    this.matchedStates = matchedStates;
   }
 
   public String serializedName() {
     return this.serializedName;
   }
 
-  public @Nullable Boolean aliveValue() {
-    return this.aliveValue;
-  }
-
-  public boolean appliesTo(final boolean alive) {
-    return this.aliveValue == null || this.aliveValue == alive;
+  public boolean appliesTo(final PetLifeState lifeState) {
+    return this.matchedStates == null || this.matchedStates.contains(lifeState);
   }
 
   public static PetAliveFilter fromSerializedName(final @Nullable String serializedName) {

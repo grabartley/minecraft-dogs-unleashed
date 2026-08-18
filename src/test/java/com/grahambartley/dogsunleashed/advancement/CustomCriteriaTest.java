@@ -15,8 +15,10 @@ class CustomCriteriaTest {
     return Stream.of(
         Arguments.of("HuskyHowled", HuskyHowledCriterion.ID, "dogs-unleashed:husky_howled"),
         Arguments.of("FetchReturned", FetchReturnedCriterion.ID, "dogs-unleashed:fetch_returned"),
+        Arguments.of("DogSleptInBed", DogSleptInBedCriterion.ID, "dogs-unleashed:dog_slept_in_bed"),
         Arguments.of(
-            "DogSleptInBed", DogSleptInBedCriterion.ID, "dogs-unleashed:dog_slept_in_bed"));
+            "PetResurrected", PetResurrectedCriterion.ID, "dogs-unleashed:pet_resurrected"),
+        Arguments.of("PetCured", PetCuredCriterion.ID, "dogs-unleashed:pet_cured"));
   }
 
   @ParameterizedTest(name = "{0} ID = {2}")

@@ -21,11 +21,15 @@ public class DogGraveBlockEntity extends BlockEntity implements GeoBlockEntity {
   private static final String NBT_DOG_UUID = "DogUuid";
   private static final String NBT_DOG_NAME = "DogName";
   private static final String NBT_FLOWER_COLOR = "FlowerColor";
+  private static final String NBT_HAS_TOTEM = "HasTotem";
+  private static final String NBT_TOTEM_INSTALLER_ID = "TotemInstallerId";
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
   private UUID dogUuid = null;
   private String dogName = "";
   private DyeColor flowerColor = DyeColor.RED;
+  private boolean hasTotem = false;
+  private UUID totemInstallerId = null;
 
   public DogGraveBlockEntity(BlockPos pos, BlockState state) {
     super(ModBlockEntities.DOG_GRAVE, pos, state);
@@ -67,6 +71,32 @@ public class DogGraveBlockEntity extends BlockEntity implements GeoBlockEntity {
     }
   }
 
+  public boolean hasTotem() {
+    return this.hasTotem;
+  }
+
+  /** Remembered so the resurrection advancement lands on whoever set the ritual up. */
+  public UUID getTotemInstallerId() {
+    return this.totemInstallerId;
+  }
+
+  public void installTotem(UUID installerId) {
+    this.setTotem(true, installerId);
+  }
+
+  public void clearTotem() {
+    this.setTotem(false, null);
+  }
+
+  private void setTotem(boolean hasTotem, UUID totemInstallerId) {
+    this.hasTotem = hasTotem;
+    this.totemInstallerId = totemInstallerId;
+    this.markDirty();
+    if (this.world != null) {
+      this.world.updateListeners(this.pos, this.getCachedState(), this.getCachedState(), 3);
+    }
+  }
+
   @Override
   protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
     super.writeNbt(nbt, registryLookup);
@@ -75,6 +105,10 @@ public class DogGraveBlockEntity extends BlockEntity implements GeoBlockEntity {
     }
     nbt.putString(NBT_DOG_NAME, this.dogName);
     nbt.putInt(NBT_FLOWER_COLOR, this.flowerColor.getId());
+    nbt.putBoolean(NBT_HAS_TOTEM, this.hasTotem);
+    if (this.totemInstallerId != null) {
+      nbt.putUuid(NBT_TOTEM_INSTALLER_ID, this.totemInstallerId);
+    }
   }
 
   @Override
@@ -91,6 +125,9 @@ public class DogGraveBlockEntity extends BlockEntity implements GeoBlockEntity {
     if (nbt.contains(NBT_FLOWER_COLOR)) {
       this.flowerColor = DyeColor.byId(nbt.getInt(NBT_FLOWER_COLOR));
     }
+    this.hasTotem = nbt.getBoolean(NBT_HAS_TOTEM);
+    this.totemInstallerId =
+        nbt.containsUuid(NBT_TOTEM_INSTALLER_ID) ? nbt.getUuid(NBT_TOTEM_INSTALLER_ID) : null;
   }
 
   @Override

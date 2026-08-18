@@ -31,6 +31,24 @@ public class ModEntities {
   public static final EntityType<UnleashedDogEntity> CROSS_BREED =
       registerDog(UnleashedDogBreed.CROSS_BREED);
 
+  public static final EntityType<UnleashedDogEntity> ZOMBIE_HUSKY =
+      registerZombieDog(UnleashedDogBreed.HUSKY);
+
+  public static final EntityType<UnleashedDogEntity> ZOMBIE_DACHSHUND =
+      registerZombieDog(UnleashedDogBreed.DACHSHUND);
+
+  public static final EntityType<UnleashedDogEntity> ZOMBIE_BEAGLE =
+      registerZombieDog(UnleashedDogBreed.BEAGLE);
+
+  public static final EntityType<UnleashedDogEntity> ZOMBIE_GOLDEN_RETRIEVER =
+      registerZombieDog(UnleashedDogBreed.GOLDEN_RETRIEVER);
+
+  public static final EntityType<UnleashedDogEntity> ZOMBIE_SHIBA_INU =
+      registerZombieDog(UnleashedDogBreed.SHIBA_INU);
+
+  public static final EntityType<UnleashedDogEntity> ZOMBIE_CROSS_BREED =
+      registerZombieDog(UnleashedDogBreed.CROSS_BREED);
+
   public static final EntityType<TennisBallProjectileEntity> TENNIS_BALL_PROJECTILE =
       Registry.register(
           Registries.ENTITY_TYPE,
@@ -59,12 +77,26 @@ public class ModEntities {
               .build(Identifier.of(DogsUnleashed.MOD_ID, "frisbee_projectile").toString()));
 
   private static EntityType<UnleashedDogEntity> registerDog(final UnleashedDogBreed breed) {
-    final Identifier id = Identifier.of(DogsUnleashed.MOD_ID, breed.serializedId());
+    return registerDog(breed, false, breed.serializedId());
+  }
+
+  /**
+   * Undead behaviour in 1.21.1 is driven entirely by entity type tags, which cannot vary per
+   * instance, so an undead dog needs its own registered type rather than a flag on a living one.
+   */
+  private static EntityType<UnleashedDogEntity> registerZombieDog(final UnleashedDogBreed breed) {
+    return registerDog(breed, true, "zombie_" + breed.serializedId());
+  }
+
+  private static EntityType<UnleashedDogEntity> registerDog(
+      final UnleashedDogBreed breed, final boolean undead, final String path) {
+    final Identifier id = Identifier.of(DogsUnleashed.MOD_ID, path);
     return Registry.register(
         Registries.ENTITY_TYPE,
         id,
         EntityType.Builder.<UnleashedDogEntity>create(
-                (type, world) -> new UnleashedDogEntity(type, world, breed), SpawnGroup.CREATURE)
+                (type, world) -> new UnleashedDogEntity(type, world, breed, undead),
+                SpawnGroup.CREATURE)
             .dimensions(breed.dimensions().width(), breed.dimensions().height())
             .build(id.toString()));
   }
@@ -80,9 +112,23 @@ public class ModEntities {
     };
   }
 
+  public static EntityType<UnleashedDogEntity> getZombieDogEntityType(
+      final UnleashedDogBreed breed) {
+    return switch (breed) {
+      case HUSKY -> ZOMBIE_HUSKY;
+      case DACHSHUND -> ZOMBIE_DACHSHUND;
+      case BEAGLE -> ZOMBIE_BEAGLE;
+      case GOLDEN_RETRIEVER -> ZOMBIE_GOLDEN_RETRIEVER;
+      case SHIBA_INU -> ZOMBIE_SHIBA_INU;
+      case CROSS_BREED -> ZOMBIE_CROSS_BREED;
+    };
+  }
+
   public static void initialize() {
     for (final UnleashedDogBreed breed : UnleashedDogBreed.values()) {
       FabricDefaultAttributeRegistry.register(getDogEntityType(breed), breed.createAttributes());
+      FabricDefaultAttributeRegistry.register(
+          getZombieDogEntityType(breed), breed.createAttributes());
     }
   }
 }

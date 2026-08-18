@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.gametest;
 import com.grahambartley.dogsunleashed.command.DogsUnleashedCommand;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.pet.PetData;
+import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import java.util.List;
 import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -59,7 +60,8 @@ public final class DogsUnleashedCommandGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 20)
   public void listLinesRendersHeaderThenEntryPerPet(final TestContext context) {
-    final PetData pet = pet("Rex", true, new BlockPos(10, 64, -20), "minecraft:overworld");
+    final PetData pet =
+        pet("Rex", PetLifeState.LIVING, new BlockPos(10, 64, -20), "minecraft:overworld");
     final List<Text> lines = DogsUnleashedCommand.listLines("Alex", List.of(pet));
 
     context.assertTrue(lines.size() == 2, "A one-pet roster must produce a header plus one entry");
@@ -82,7 +84,8 @@ public final class DogsUnleashedCommandGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 20)
   public void findLineRendersDeceasedPetDescriptor(final TestContext context) {
-    final PetData pet = pet("Bella", false, new BlockPos(0, 70, 0), "minecraft:the_nether");
+    final PetData pet =
+        pet("Bella", PetLifeState.DECEASED, new BlockPos(0, 70, 0), "minecraft:the_nether");
     final Text line =
         DogsUnleashedCommand.findLine(pet, "minecraft:the_nether", new BlockPos(5, 71, 9));
 
@@ -103,7 +106,8 @@ public final class DogsUnleashedCommandGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 20)
   public void findLineRendersMissingLocationAsUnknown(final TestContext context) {
-    final PetData pet = pet("Max", true, new BlockPos(3, 3, 3), "minecraft:overworld");
+    final PetData pet =
+        pet("Max", PetLifeState.LIVING, new BlockPos(3, 3, 3), "minecraft:overworld");
     final Text line = DogsUnleashedCommand.findLine(pet, null, null);
 
     assertTranslatable(
@@ -153,10 +157,10 @@ public final class DogsUnleashedCommandGameTest implements FabricGameTest {
 
   private static PetData pet(
       final String name,
-      final boolean alive,
+      final PetLifeState lifeState,
       @Nullable final BlockPos pos,
       final String dimension) {
     return new PetData(
-        PET_ID, OWNER, UnleashedDogBreed.HUSKY, name, 20.0f, 20.0f, pos, dimension, alive);
+        PET_ID, OWNER, UnleashedDogBreed.HUSKY, name, 20.0f, 20.0f, pos, dimension, lifeState);
   }
 }

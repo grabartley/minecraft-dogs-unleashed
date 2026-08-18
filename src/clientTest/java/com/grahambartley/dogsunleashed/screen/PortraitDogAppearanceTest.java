@@ -12,6 +12,7 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
+import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -245,7 +246,7 @@ class PortraitDogAppearanceTest {
         64,
         -20,
         "minecraft:overworld",
-        true,
+        PetLifeState.LIVING,
         false,
         collarColorId,
         coatVariant,

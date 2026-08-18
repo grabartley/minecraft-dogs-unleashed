@@ -34,19 +34,29 @@ class PetAliveFilterTest {
 
   static Stream<Arguments> appliesToCases() {
     return Stream.of(
-        Arguments.of(PetAliveFilter.ALL, true, true),
-        Arguments.of(PetAliveFilter.ALL, false, true),
-        Arguments.of(PetAliveFilter.ALIVE, true, true),
-        Arguments.of(PetAliveFilter.ALIVE, false, false),
-        Arguments.of(PetAliveFilter.DECEASED, true, false),
-        Arguments.of(PetAliveFilter.DECEASED, false, true));
+        Arguments.of(PetAliveFilter.ALL, PetLifeState.LIVING, true),
+        Arguments.of(PetAliveFilter.ALL, PetLifeState.UNDEAD, true),
+        Arguments.of(PetAliveFilter.ALL, PetLifeState.DECEASED, true),
+        Arguments.of(PetAliveFilter.ALL, PetLifeState.LOST, true),
+        Arguments.of(PetAliveFilter.ALIVE, PetLifeState.LIVING, true),
+        Arguments.of(PetAliveFilter.ALIVE, PetLifeState.UNDEAD, false),
+        Arguments.of(PetAliveFilter.ALIVE, PetLifeState.DECEASED, false),
+        Arguments.of(PetAliveFilter.ALIVE, PetLifeState.LOST, false),
+        Arguments.of(PetAliveFilter.UNDEAD, PetLifeState.UNDEAD, true),
+        Arguments.of(PetAliveFilter.UNDEAD, PetLifeState.LIVING, false),
+        Arguments.of(PetAliveFilter.UNDEAD, PetLifeState.DECEASED, false),
+        Arguments.of(PetAliveFilter.UNDEAD, PetLifeState.LOST, false),
+        Arguments.of(PetAliveFilter.DECEASED, PetLifeState.DECEASED, true),
+        Arguments.of(PetAliveFilter.DECEASED, PetLifeState.LOST, true),
+        Arguments.of(PetAliveFilter.DECEASED, PetLifeState.LIVING, false),
+        Arguments.of(PetAliveFilter.DECEASED, PetLifeState.UNDEAD, false));
   }
 
-  @ParameterizedTest(name = "{0}.appliesTo(alive={1}) = {2}")
+  @ParameterizedTest(name = "{0}.appliesTo({1}) = {2}")
   @MethodSource("appliesToCases")
-  @DisplayName("appliesTo matches the filter against the entity's alive flag")
-  void appliesToMatchesFilterAgainstAliveFlag(
-      final PetAliveFilter filter, final boolean alive, final boolean expected) {
-    assertEquals(expected, filter.appliesTo(alive));
+  @DisplayName("appliesTo matches the filter against the pet's lifecycle state")
+  void appliesToMatchesFilterAgainstLifeState(
+      final PetAliveFilter filter, final PetLifeState lifeState, final boolean expected) {
+    assertEquals(expected, filter.appliesTo(lifeState));
   }
 }

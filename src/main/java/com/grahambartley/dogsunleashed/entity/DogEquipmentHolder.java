@@ -61,16 +61,16 @@ public final class DogEquipmentHolder {
   public ItemStack getStack(final DogEquipmentSlot slot) {
     return switch (slot) {
       case ARMOUR -> this.dog.getEquippedStack(EquipmentSlot.BODY);
-      case PENDANT -> this.dog.getPendantItem();
-      case COSMETIC -> this.dog.getCosmeticItem();
+      case PENDANT -> this.dog.getDataTracker().get(UnleashedDogEntity.PENDANT_ITEM);
+      case COSMETIC -> this.dog.getDataTracker().get(UnleashedDogEntity.COSMETIC_ITEM);
     };
   }
 
   public void setStack(final DogEquipmentSlot slot, final ItemStack stack) {
     switch (slot) {
       case ARMOUR -> this.dog.equipStack(EquipmentSlot.BODY, stack);
-      case PENDANT -> this.dog.setPendantItem(stack);
-      case COSMETIC -> this.dog.setCosmeticItem(stack);
+      case PENDANT -> this.dog.getDataTracker().set(UnleashedDogEntity.PENDANT_ITEM, stack);
+      case COSMETIC -> this.dog.getDataTracker().set(UnleashedDogEntity.COSMETIC_ITEM, stack);
     }
   }
 

@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.gametest;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.pet.DirectConnections;
 import com.grahambartley.dogsunleashed.pet.PetData;
+import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import com.grahambartley.dogsunleashed.pet.PetManager;
 import java.util.List;
 import java.util.Set;
@@ -216,6 +217,6 @@ public final class PetManagerConnectionsGameTest implements FabricGameTest {
         20.0f,
         new BlockPos(0, 64, 0),
         "minecraft:overworld",
-        true);
+        PetLifeState.LIVING);
   }
 }

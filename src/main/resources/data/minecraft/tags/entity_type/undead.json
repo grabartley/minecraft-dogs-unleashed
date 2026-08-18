@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "dogs-unleashed:zombie_husky",
+    "dogs-unleashed:zombie_dachshund",
+    "dogs-unleashed:zombie_beagle",
+    "dogs-unleashed:zombie_goldenretriever",
+    "dogs-unleashed:zombie_shibainu",
+    "dogs-unleashed:zombie_crossbreed"
+  ]
+}

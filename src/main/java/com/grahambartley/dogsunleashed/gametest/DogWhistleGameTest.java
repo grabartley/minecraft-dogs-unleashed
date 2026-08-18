@@ -6,6 +6,7 @@ import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.pet.PetData;
+import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import com.grahambartley.dogsunleashed.pet.PetManager;
 import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -171,7 +172,7 @@ public final class DogWhistleGameTest implements FabricGameTest {
     final BlockPos before = dog.getBlockPos();
     giveWhistle(owner);
     dog.interactMob(owner, Hand.MAIN_HAND);
-    PetManager.get(context.getWorld().getServer()).markPetDeceased(dog.getUuid());
+    PetManager.get(context.getWorld().getServer()).markPetDeceased(dog.getUuid(), false);
 
     ModItems.DOG_WHISTLE.use(context.getWorld(), owner, Hand.MAIN_HAND);
 
@@ -215,7 +216,7 @@ public final class DogWhistleGameTest implements FabricGameTest {
                 10.0f,
                 context.getAbsolutePos(relativePos),
                 world.getRegistryKey().getValue().toString(),
-                true));
+                PetLifeState.LIVING));
     return dog;
   }
 }

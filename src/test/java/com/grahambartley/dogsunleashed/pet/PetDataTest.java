@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(MinecraftBootstrapExtension.class)
@@ -54,7 +55,7 @@ class PetDataTest {
         20.0f,
         BASE_POS,
         BASE_DIM,
-        true);
+        PetLifeState.LIVING);
   }
 
   @ParameterizedTest(name = "differsFrom is true when {0} changes")
@@ -287,6 +288,55 @@ class PetDataTest {
         composition,
         PetData.fromNbt(read.toNbt()).getComposition(),
         "composition after a second round-trip");
+  }
+
+  @ParameterizedTest(name = "{0} survives the NBT round-trip")
+  @EnumSource(PetLifeState.class)
+  @DisplayName("every lifecycle state survives the NBT round-trip")
+  void lifeStateSurvivesNbtRoundTrip(final PetLifeState lifeState) {
+    final PetData pet = baselinePet();
+    pet.setLifeState(lifeState);
+
+    assertEquals(lifeState, PetData.fromNbt(pet.toNbt()).getLifeState());
+  }
+
+  static Stream<Arguments> legacyAliveFlags() {
+    return Stream.of(
+        Arguments.of("alive", true, PetLifeState.LIVING),
+        Arguments.of("not alive", false, PetLifeState.DECEASED));
+  }
+
+  @ParameterizedTest(name = "a legacy record marked {0} loads as {2}")
+  @MethodSource("legacyAliveFlags")
+  @DisplayName("records written before the lifecycle enum load from their old alive flag")
+  void legacyNbtWithoutLifeStateReadsAliveFlag(
+      final String label, final boolean alive, final PetLifeState expected) {
+    final NbtCompound nbt = baselinePet().toNbt();
+    nbt.remove(ModNbtKeys.LIFE_STATE);
+    nbt.putBoolean(ModNbtKeys.ALIVE, alive);
+
+    assertEquals(expected, PetData.fromNbt(nbt).getLifeState());
+  }
+
+  @Test
+  @DisplayName("the genome survives the NBT round-trip so a resurrected pet keeps its stats")
+  void genomeSurvivesNbtRoundTrip() {
+    final DogGenome genome =
+        new DogGenome(
+            List.of(
+                new BreedShare(UnleashedDogBreed.HUSKY, 0.6f),
+                new BreedShare(UnleashedDogBreed.BEAGLE, 0.4f)),
+            21.5,
+            0.295,
+            4.1,
+            UnleashedDogBreed.BEAGLE);
+    final NbtCompound nbt = baselinePet().toNbt();
+    nbt.put(ModNbtKeys.GENOME, genome.toNbt());
+
+    final PetData reloaded = PetData.fromNbt(nbt);
+
+    assertEquals(genome, reloaded.getGenome(), "genome");
+    assertEquals(genome, PetData.fromNbt(reloaded.toNbt()).getGenome(), "genome after re-save");
   }
 
   @Test

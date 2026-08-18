@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.gametest;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.pet.PetAliveFilter;
 import com.grahambartley.dogsunleashed.pet.PetData;
+import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import com.grahambartley.dogsunleashed.pet.PetManager;
 import java.util.List;
 import java.util.Locale;
@@ -155,9 +156,9 @@ public final class PetManagerFilterGameTest implements FabricGameTest {
 
   private void assertLocaleNeutralCase(final TestContext context, final LocaleSearchCase testCase) {
     final PetManager petManager = new PetManager();
-    petManager.registerPet(pet("Biscuit", UnleashedDogBreed.HUSKY, true));
-    petManager.registerPet(pet("Whiskey", UnleashedDogBreed.HUSKY, true));
-    petManager.registerPet(pet("Bella", UnleashedDogBreed.HUSKY, true));
+    petManager.registerPet(pet("Biscuit", UnleashedDogBreed.HUSKY, PetLifeState.LIVING));
+    petManager.registerPet(pet("Whiskey", UnleashedDogBreed.HUSKY, PetLifeState.LIVING));
+    petManager.registerPet(pet("Bella", UnleashedDogBreed.HUSKY, PetLifeState.LIVING));
 
     // Force the classic locale where default-locale case folding diverges from Locale.ROOT. The
     // set/filter/restore is synchronous so the global default is only Turkish for this single call.
@@ -221,15 +222,15 @@ public final class PetManagerFilterGameTest implements FabricGameTest {
 
   private static PetManager seededRoster() {
     final PetManager petManager = new PetManager();
-    petManager.registerPet(pet("Rex", UnleashedDogBreed.HUSKY, true));
-    petManager.registerPet(pet("Bella", UnleashedDogBreed.HUSKY, false));
-    petManager.registerPet(pet("Max", UnleashedDogBreed.BEAGLE, true));
-    petManager.registerPet(pet("Luna", UnleashedDogBreed.BEAGLE, false));
+    petManager.registerPet(pet("Rex", UnleashedDogBreed.HUSKY, PetLifeState.LIVING));
+    petManager.registerPet(pet("Bella", UnleashedDogBreed.HUSKY, PetLifeState.DECEASED));
+    petManager.registerPet(pet("Max", UnleashedDogBreed.BEAGLE, PetLifeState.LIVING));
+    petManager.registerPet(pet("Luna", UnleashedDogBreed.BEAGLE, PetLifeState.DECEASED));
     return petManager;
   }
 
   private static PetData pet(
-      final String name, final UnleashedDogBreed breed, final boolean alive) {
+      final String name, final UnleashedDogBreed breed, final PetLifeState lifeState) {
     return new PetData(
         UUID.nameUUIDFromBytes(name.getBytes()),
         OWNER,
@@ -239,6 +240,6 @@ public final class PetManagerFilterGameTest implements FabricGameTest {
         20.0f,
         BlockPos.ORIGIN,
         "minecraft:overworld",
-        alive);
+        lifeState);
   }
 }

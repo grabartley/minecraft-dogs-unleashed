@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
+import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import java.util.List;
 import java.util.stream.Stream;
 import net.minecraft.network.RegistryByteBuf;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 class PetSyncDataTest {
@@ -30,6 +32,38 @@ class PetSyncDataTest {
     final RegistryByteBuf buf = newBuf();
     PetSyncData.CODEC.encode(buf, pet);
     assertEquals(pet, PetSyncData.CODEC.decode(buf));
+  }
+
+  @ParameterizedTest(name = "codec round-trips a {0} pet")
+  @EnumSource(PetLifeState.class)
+  @DisplayName("codec round-trips every lifecycle state so the client can render undead pets")
+  void codecRoundTripsEveryLifeState(final PetLifeState lifeState) {
+    final PetSyncData pet =
+        new PetSyncData(
+            samplePet(UnleashedDogBreed.HUSKY, "Balto").petId(),
+            UnleashedDogBreed.HUSKY,
+            "Balto",
+            9.0f,
+            18.0f,
+            1,
+            2,
+            3,
+            "minecraft:overworld",
+            lifeState,
+            false,
+            1,
+            0,
+            0,
+            0.3f,
+            5.0f,
+            List.of());
+    final RegistryByteBuf buf = newBuf();
+    PetSyncData.CODEC.encode(buf, pet);
+
+    final PetSyncData decoded = PetSyncData.CODEC.decode(buf);
+    assertEquals(pet, decoded);
+    assertEquals(lifeState.isAlive(), decoded.alive(), "alive");
+    assertEquals(lifeState == PetLifeState.UNDEAD, decoded.undead(), "undead");
   }
 
   static Stream<Arguments> displayBreedCases() {

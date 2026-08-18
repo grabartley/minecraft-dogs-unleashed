@@ -42,7 +42,7 @@ public final class PetRegistrar {
             dog.getMaxHealth(),
             dog.getBlockPos(),
             serverWorld.getRegistryKey().getValue().toString(),
-            true);
+            PetLifeState.LIVING);
     petData.syncAppearanceFrom(dog);
     petData.recordParents(
         dog.getLineage().getParentDogUuid(), dog.getLineage().getSecondParentDogUuid());

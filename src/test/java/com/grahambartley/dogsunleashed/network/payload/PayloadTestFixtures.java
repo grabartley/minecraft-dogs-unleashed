@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.network.payload;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
+import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import io.netty.buffer.Unpooled;
 import java.util.List;
 import java.util.UUID;
@@ -33,7 +34,7 @@ final class PayloadTestFixtures {
         64,
         -20,
         "minecraft:overworld",
-        true,
+        PetLifeState.LIVING,
         false,
         1,
         2,

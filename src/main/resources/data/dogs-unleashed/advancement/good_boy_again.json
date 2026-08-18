@@ -1,0 +1,21 @@
+{
+  "parent": "dogs-unleashed:back_from_the_dead",
+  "display": {
+    "icon": {
+      "id": "minecraft:golden_apple"
+    },
+    "title": {
+      "translate": "advancements.dogs-unleashed.good_boy_again.title"
+    },
+    "description": {
+      "translate": "advancements.dogs-unleashed.good_boy_again.description"
+    },
+    "frame": "goal"
+  },
+  "criteria": {
+    "cured_a_pet": {
+      "trigger": "dogs-unleashed:pet_cured"
+    }
+  },
+  "requirements": [["cured_a_pet"]]
+}

@@ -133,7 +133,7 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
         pet.name(),
         portraitX + PORTRAIT_SIZE / 2,
         portraitY + PORTRAIT_SIZE + 10,
-        pet.alive() ? 0xFFFFFF : 0xAAAAAA);
+        PetLifeStateDisplay.nameColor(pet.lifeState(), 0xFFFFFF, 0xAAAAAA));
 
     renderInfo(context);
     renderFamilyPreview(context, mouseX, mouseY);
@@ -183,6 +183,17 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
             "screen.dogs-unleashed.pet_details.owner",
             resolveOwnerName(),
             VALUE_COLOR);
+    final Text statusLabel = PetLifeStateDisplay.statusLabel(pet.lifeState());
+    if (statusLabel != null) {
+      y =
+          drawInfoLine(
+              context,
+              x,
+              y,
+              "screen.dogs-unleashed.pet_details.status",
+              statusLabel.getString(),
+              PetLifeStateDisplay.statusColor(pet.lifeState()));
+    }
     if (pet.alive()) {
       final int healthColor =
           pet.health() > pet.maxHealth() * LOW_HEALTH_COLOR_THRESHOLD ? 0xFF55FF55 : 0xFFFF5555;

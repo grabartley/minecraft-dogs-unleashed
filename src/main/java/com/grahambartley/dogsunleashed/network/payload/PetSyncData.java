@@ -5,6 +5,7 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import com.grahambartley.dogsunleashed.pet.PetData;
+import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import java.util.List;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.network.RegistryByteBuf;
@@ -21,7 +22,7 @@ public record PetSyncData(
     int posY,
     int posZ,
     String dimension,
-    boolean alive,
+    PetLifeState lifeState,
     boolean baby,
     int collarColor,
     int coatVariant,
@@ -44,7 +45,7 @@ public record PetSyncData(
         petData.getLastKnownPosition().getY(),
         petData.getLastKnownPosition().getZ(),
         petData.getDimension(),
-        petData.isAlive(),
+        petData.getLifeState(),
         petData.isBaby(),
         petData.getCollarColorId(),
         petData.getCoatVariant(),
@@ -67,7 +68,7 @@ public record PetSyncData(
         pos.getY(),
         pos.getZ(),
         dog.getWorld().getRegistryKey().getValue().toString(),
-        dog.isAlive(),
+        dog.isUndead() ? PetLifeState.UNDEAD : PetLifeState.LIVING,
         dog.isBaby(),
         dog.getCollarColor().getId(),
         PetData.coatVariantOf(dog),
@@ -75,6 +76,15 @@ public record PetSyncData(
         (float) dog.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED),
         (float) dog.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE),
         genome != null ? genome.composition() : List.of());
+  }
+
+  /** Undead pets are still alive: they walk around, take commands, and can be cured. */
+  public boolean alive() {
+    return this.lifeState.isAlive();
+  }
+
+  public boolean undead() {
+    return this.lifeState == PetLifeState.UNDEAD;
   }
 
   public UnleashedDogBreed displayBreed() {
@@ -94,7 +104,7 @@ public record PetSyncData(
     buf.writeInt(this.posY);
     buf.writeInt(this.posZ);
     buf.writeString(this.dimension);
-    buf.writeBoolean(this.alive);
+    buf.writeString(this.lifeState.serializedName());
     buf.writeBoolean(this.baby);
     buf.writeInt(this.collarColor);
     buf.writeInt(this.coatVariant);
@@ -115,7 +125,7 @@ public record PetSyncData(
         buf.readInt(),
         buf.readInt(),
         buf.readString(),
-        buf.readBoolean(),
+        PetLifeState.fromSerializedName(buf.readString()),
         buf.readBoolean(),
         buf.readInt(),
         buf.readInt(),

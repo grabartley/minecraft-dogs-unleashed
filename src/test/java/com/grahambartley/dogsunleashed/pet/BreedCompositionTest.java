@@ -41,7 +41,7 @@ class BreedCompositionTest {
             10.0f,
             new BlockPos(0, 64, 0),
             "minecraft:overworld",
-            true);
+            PetLifeState.LIVING);
     pet.recordParents(parentAId, parentBId);
     pets.put(id, pet);
     return id;
@@ -183,7 +183,7 @@ class BreedCompositionTest {
             10.0f,
             new BlockPos(0, 64, 0),
             "minecraft:overworld",
-            true);
+            PetLifeState.LIVING);
     dogA.recordParents(b, null);
     final PetData dogB =
         new PetData(
@@ -195,7 +195,7 @@ class BreedCompositionTest {
             10.0f,
             new BlockPos(0, 64, 0),
             "minecraft:overworld",
-            true);
+            PetLifeState.LIVING);
     dogB.recordParents(a, null);
     pets.put(a, dogA);
     pets.put(b, dogB);

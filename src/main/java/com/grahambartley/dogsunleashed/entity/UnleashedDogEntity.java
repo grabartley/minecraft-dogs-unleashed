@@ -1,6 +1,13 @@
 package com.grahambartley.dogsunleashed.entity;
 
 import static com.grahambartley.dogsunleashed.ModConstants.BARK_PITCH;
+import static net.minecraft.entity.data.TrackedDataHandlerRegistry.BOOLEAN;
+import static net.minecraft.entity.data.TrackedDataHandlerRegistry.INTEGER;
+import static net.minecraft.entity.data.TrackedDataHandlerRegistry.ITEM_STACK;
+import static net.minecraft.entity.data.TrackedDataHandlerRegistry.NBT_COMPOUND;
+import static net.minecraft.entity.data.TrackedDataHandlerRegistry.OPTIONAL_BLOCK_POS;
+import static net.minecraft.entity.data.TrackedDataHandlerRegistry.OPTIONAL_UUID;
+import static net.minecraft.entity.data.TrackedDataHandlerRegistry.STRING;
 
 import com.grahambartley.dogsunleashed.ModBlockTags;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
@@ -18,11 +25,10 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
+import net.minecraft.entity.data.TrackedDataHandler;
 import net.minecraft.entity.mob.Angerable;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.PassiveEntity;
@@ -64,54 +70,37 @@ public class UnleashedDogEntity extends TameableEntity
 
   private static final double NEARBY_PLAYER_RANGE = 10.0D;
 
-  private static final TrackedData<Integer> ANGER_TIME =
-      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.INTEGER);
-  private static final TrackedData<Integer> COAT_VARIANT =
-      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.INTEGER);
-  private static final TrackedData<Integer> EYE_COLOR_VARIANT =
-      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.INTEGER);
-  private static final TrackedData<Boolean> HOWLING =
-      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-  private static final TrackedData<NbtCompound> GENOME =
-      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.NBT_COMPOUND);
-  private static final TrackedData<Integer> COLLAR_COLOR =
-      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.INTEGER);
-  private static final TrackedData<Integer> TAIL_WAG_TIMER =
-      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.INTEGER);
-  private static final TrackedData<Integer> SHAKE_PROGRESS =
-      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.INTEGER);
-  private static final TrackedData<Integer> TREAT_BUFF_TICKS =
-      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.INTEGER);
-  private static final TrackedData<Boolean> HEAD_TILTING =
-      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-  private static final TrackedData<Boolean> SLEEPING_IN_BED =
-      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-  private static final TrackedData<Boolean> COMMANDED_TO_SLEEP =
-      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-  private static final TrackedData<Optional<BlockPos>> ASSIGNED_BED_POS =
-      DataTracker.registerData(
-          UnleashedDogEntity.class, TrackedDataHandlerRegistry.OPTIONAL_BLOCK_POS);
-  private static final TrackedData<Boolean> IS_CARRYING_FETCH_ITEM =
-      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-  private static final TrackedData<String> ACTIVE_FETCH_TYPE_ID =
-      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.STRING);
-  private static final TrackedData<ItemStack> CARRIED_FETCH_ITEM_STACK =
-      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
-  private static final TrackedData<ItemStack> PENDANT_ITEM =
-      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
-  private static final TrackedData<ItemStack> COSMETIC_ITEM =
-      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
+  private static final TrackedData<Integer> ANGER_TIME = data(INTEGER);
+  private static final TrackedData<Integer> COAT_VARIANT = data(INTEGER);
+  private static final TrackedData<Integer> EYE_COLOR_VARIANT = data(INTEGER);
+  private static final TrackedData<Boolean> HOWLING = data(BOOLEAN);
+  private static final TrackedData<NbtCompound> GENOME = data(NBT_COMPOUND);
+  private static final TrackedData<Integer> COLLAR_COLOR = data(INTEGER);
+  private static final TrackedData<Integer> TAIL_WAG_TIMER = data(INTEGER);
+  private static final TrackedData<Integer> SHAKE_PROGRESS = data(INTEGER);
+  private static final TrackedData<Integer> TREAT_BUFF_TICKS = data(INTEGER);
+  private static final TrackedData<Boolean> HEAD_TILTING = data(BOOLEAN);
+  private static final TrackedData<Boolean> SLEEPING_IN_BED = data(BOOLEAN);
+  private static final TrackedData<Boolean> COMMANDED_TO_SLEEP = data(BOOLEAN);
+  private static final TrackedData<Optional<BlockPos>> ASSIGNED_BED_POS = data(OPTIONAL_BLOCK_POS);
+  private static final TrackedData<Boolean> IS_CARRYING_FETCH_ITEM = data(BOOLEAN);
+  private static final TrackedData<String> ACTIVE_FETCH_TYPE_ID = data(STRING);
+  private static final TrackedData<ItemStack> CARRIED_FETCH_ITEM_STACK = data(ITEM_STACK);
+  static final TrackedData<ItemStack> PENDANT_ITEM = data(ITEM_STACK);
+  static final TrackedData<ItemStack> COSMETIC_ITEM = data(ITEM_STACK);
   // String over Identifier because 1.21.1 lacks native Identifier TrackedDataHandler.
   // Syncs the active fetch type id (e.g. "dogs-unleashed:stick") for client-side carry rendering.
 
   // Synced so the client can mirror the play-mode gate: ACTIVE_PLAY_SESSIONS only exists on the
   // logical server, so on a dedicated server the client predicts stick throws off this instead.
-  private static final TrackedData<Optional<UUID>> PLAY_PARTNER_UUID =
-      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
+  private static final TrackedData<Optional<UUID>> PLAY_PARTNER_UUID = data(OPTIONAL_UUID);
 
   // Int over enum because 1.21.1 has no enum TrackedDataHandler; DogCommand.fromId round-trips it.
-  private static final TrackedData<Integer> COMMAND =
-      DataTracker.registerData(UnleashedDogEntity.class, TrackedDataHandlerRegistry.INTEGER);
+  private static final TrackedData<Integer> COMMAND = data(INTEGER);
+
+  private static <T> TrackedData<T> data(final TrackedDataHandler<T> handler) {
+    return DataTracker.registerData(UnleashedDogEntity.class, handler);
+  }
 
   private static final UniformIntProvider ANGER_TIME_RANGE = TimeHelper.betweenSeconds(20, 39);
   private java.util.UUID angryAt;
@@ -127,19 +116,25 @@ public class UnleashedDogEntity extends TameableEntity
   private final DogInteractions interactions = new DogInteractions(this);
   private final DogCommandController commandController = new DogCommandController(this);
   private final DogTreatBuffState treatBuff = new DogTreatBuffState(this);
+  private final DogGenomeCache genomeCache = new DogGenomeCache(this);
+  private final DogUndeadState undeadState = new DogUndeadState(this);
+  private final DogCuring curing = new DogCuring(this);
   private boolean spawnedByDogSpawner = false;
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
   private final UnleashedDogBreed breed;
-  private @Nullable DogGenome cachedGenome;
-  private boolean genomeCacheValid;
+  private final boolean undead;
 
   private static final UnleashedDogBreed FALLBACK_RIG_BREED = UnleashedDogBreed.HUSKY;
 
   public UnleashedDogEntity(
-      EntityType<? extends TameableEntity> entityType, World world, UnleashedDogBreed breed) {
+      EntityType<? extends TameableEntity> entityType,
+      World world,
+      UnleashedDogBreed breed,
+      boolean undead) {
     super(entityType, world);
     this.breed = breed;
+    this.undead = undead;
     this.equipment.guaranteeArmourDrop();
   }
 
@@ -168,6 +163,7 @@ public class UnleashedDogEntity extends TameableEntity
       }
       this.getAppearanceRoller().rollAppearance(spawnReason);
     }
+    this.undeadState.applyAttributeScaling();
     return super.initialize(world, difficulty, spawnReason, entityData);
   }
 
@@ -202,6 +198,24 @@ public class UnleashedDogEntity extends TameableEntity
     return this.breed;
   }
 
+  /** Fixed by the entity type: undead and living dogs are separate registered types. */
+  public boolean isUndead() {
+    return this.undead;
+  }
+
+  public DogUndeadState getUndeadState() {
+    return this.undeadState;
+  }
+
+  public DogCuring getCuring() {
+    return this.curing;
+  }
+
+  /** Lets {@link DogUndeadState} reach the protected {@code MobEntity} daylight check. */
+  boolean isExposedToDaylight() {
+    return this.isAffectedByDaylight();
+  }
+
   public UnleashedDogBreed getRigSourceBreed() {
     if (this.breed != UnleashedDogBreed.CROSS_BREED) {
       return this.breed;
@@ -216,28 +230,26 @@ public class UnleashedDogEntity extends TameableEntity
   }
 
   public @Nullable DogGenome getGenome() {
-    if (!this.genomeCacheValid) {
-      final NbtCompound genomeNbt = this.dataTracker.get(GENOME);
-      this.cachedGenome = genomeNbt.isEmpty() ? null : DogGenome.fromNbt(genomeNbt);
-      this.genomeCacheValid = true;
-    }
-    return this.cachedGenome;
+    return this.genomeCache.get();
   }
 
   public void applyGenome(final DogGenome genome) {
-    this.dataTracker.set(GENOME, genome.toNbt());
-    this.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(genome.maxHealth());
-    this.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED)
-        .setBaseValue(genome.movementSpeed());
-    this.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE)
-        .setBaseValue(genome.attackDamage());
+    this.genomeCache.apply(genome);
+  }
+
+  NbtCompound getTrackedGenomeNbt() {
+    return this.dataTracker.get(GENOME);
+  }
+
+  void setTrackedGenomeNbt(final NbtCompound genomeNbt) {
+    this.dataTracker.set(GENOME, genomeNbt);
   }
 
   @Override
-  public void onTrackedDataSet(final TrackedData<?> data) {
-    super.onTrackedDataSet(data);
-    if (GENOME.equals(data)) {
-      this.genomeCacheValid = false;
+  public void onTrackedDataSet(final TrackedData<?> trackedData) {
+    super.onTrackedDataSet(trackedData);
+    if (GENOME.equals(trackedData)) {
+      this.genomeCache.invalidate();
     }
   }
 
@@ -457,22 +469,6 @@ public class UnleashedDogEntity extends TameableEntity
     this.dataTracker.set(CARRIED_FETCH_ITEM_STACK, stack);
   }
 
-  ItemStack getPendantItem() {
-    return this.dataTracker.get(PENDANT_ITEM);
-  }
-
-  void setPendantItem(final ItemStack stack) {
-    this.dataTracker.set(PENDANT_ITEM, stack);
-  }
-
-  ItemStack getCosmeticItem() {
-    return this.dataTracker.get(COSMETIC_ITEM);
-  }
-
-  void setCosmeticItem(final ItemStack stack) {
-    this.dataTracker.set(COSMETIC_ITEM, stack);
-  }
-
   @Override
   public boolean canUseSlot(final EquipmentSlot slot) {
     return DogEquipmentHolder.isArmourSlot(slot) || super.canUseSlot(slot);
@@ -564,7 +560,7 @@ public class UnleashedDogEntity extends TameableEntity
   @Override
   public void setBaby(final boolean baby) {
     super.setBaby(baby);
-    if (baby) {
+    if (baby && !this.undead) {
       this.ambience.armBirthWakeHearts();
     }
   }
@@ -602,6 +598,8 @@ public class UnleashedDogEntity extends TameableEntity
       this.treatBuff.tick();
 
       this.ambience.tickShakeOff();
+      this.undeadState.tick();
+      this.curing.tick();
     }
   }
 

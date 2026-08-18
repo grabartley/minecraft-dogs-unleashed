@@ -4,6 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
+import com.grahambartley.dogsunleashed.pet.PetLifeState;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -53,6 +56,52 @@ class DogStatsPanelTest {
       final int fill = DogStatsPanel.fillWidth(fraction, DogStatsPanel.BAR_WIDTH);
       assertTrue(fill > 0 && fill <= DogStatsPanel.BAR_WIDTH, "fill " + fill + " is out of range");
     }
+  }
+
+  static PetSyncData pet(
+      final UnleashedDogBreed breed,
+      final float maxHealth,
+      final float movementSpeed,
+      final float attackDamage) {
+    return new PetSyncData(
+        "pet",
+        breed,
+        "Balto",
+        maxHealth,
+        maxHealth,
+        0,
+        64,
+        0,
+        "minecraft:overworld",
+        PetLifeState.LIVING,
+        false,
+        0,
+        0,
+        0,
+        movementSpeed,
+        attackDamage,
+        List.of());
+  }
+
+  @Test
+  @DisplayName("an undead pet's bars show its halved numbers, not its breed's")
+  void undeadStatsComeFromTheRecordRatherThanTheBreed() {
+    final PetSyncData undeadHusky = pet(UnleashedDogBreed.HUSKY, 12.5f, 0.30f, 2.5f);
+
+    assertEquals(12.5, DogStatsPanel.maxHealthOf(undeadHusky), 1.0e-6);
+    assertEquals(2.5, DogStatsPanel.attackDamageOf(undeadHusky), 1.0e-6);
+    assertEquals(0.30, DogStatsPanel.movementSpeedOf(undeadHusky), 1.0e-6);
+  }
+
+  @ParameterizedTest(name = "{0} with an empty record falls back to its preset")
+  @EnumSource(UnleashedDogBreed.class)
+  @DisplayName("records written before per-pet stats existed fall back to the breed preset")
+  void legacyRecordsFallBackToTheBreedPreset(final UnleashedDogBreed breed) {
+    final PetSyncData legacy = pet(breed, 0.0f, 0.0f, 0.0f);
+
+    assertEquals(breed.attributes().maxHealth(), DogStatsPanel.maxHealthOf(legacy), 1.0e-6);
+    assertEquals(breed.attributes().movementSpeed(), DogStatsPanel.movementSpeedOf(legacy), 1.0e-6);
+    assertEquals(breed.attributes().attackDamage(), DogStatsPanel.attackDamageOf(legacy), 1.0e-6);
   }
 
   @ParameterizedTest(name = "fraction {0} of {1}px fills {2}px")
