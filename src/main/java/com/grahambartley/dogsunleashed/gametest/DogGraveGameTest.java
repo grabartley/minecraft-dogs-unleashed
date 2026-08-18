@@ -3,14 +3,12 @@ package com.grahambartley.dogsunleashed.gametest;
 import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.ModItems;
-import com.grahambartley.dogsunleashed.block.DogGraveBlock;
 import com.grahambartley.dogsunleashed.block.entity.DogGraveBlockEntity;
 import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -30,8 +28,8 @@ import net.minecraft.world.RaycastContext;
 public final class DogGraveGameTest implements FabricGameTest {
 
   private static final String ARENA = "dogs-unleashed:dog_arena";
-  private static final BlockPos REL_GRAVE = new BlockPos(3, 1, 3);
-  private static final BlockPos REL_GRAVE_UPPER = new BlockPos(3, 2, 3);
+  // Relative y1 is the template floor, so the grave stands on it at y2.
+  private static final BlockPos REL_GRAVE = new BlockPos(3, 2, 3);
 
   @GameTest(templateName = ARENA)
   public void dogGraveCanBePlaced(final TestContext context) {
@@ -240,59 +238,19 @@ public final class DogGraveGameTest implements FabricGameTest {
         });
   }
 
-  @GameTest(templateName = ARENA, tickLimit = 100)
-  public void spawnedGravesStandTwoBlocksTall(final TestContext context) {
-    context.setBlockState(REL_GRAVE, ModBlocks.DOG_GRAVE.getDefaultState());
-    context.setBlockState(
-        REL_GRAVE_UPPER,
-        ModBlocks.DOG_GRAVE.getDefaultState().with(DogGraveBlock.HALF, DoubleBlockHalf.UPPER));
-
-    final BlockState upper =
-        context.getWorld().getBlockState(context.getAbsolutePos(REL_GRAVE_UPPER));
-    context.assertTrue(
-        upper.isOf(ModBlocks.DOG_GRAVE) && upper.get(DogGraveBlock.HALF) == DoubleBlockHalf.UPPER,
-        "The grave should carry an upper half above its base");
-    context.assertTrue(
-        context.getBlockEntity(REL_GRAVE) instanceof DogGraveBlockEntity,
-        "The base half should hold the block entity");
-    context.assertTrue(
-        context.getWorld().getBlockEntity(context.getAbsolutePos(REL_GRAVE_UPPER)) == null,
-        "The upper half should hold no block entity of its own");
-    context.complete();
-  }
-
-  @GameTest(templateName = ARENA, tickLimit = 100)
-  public void aLegacyGraveHealsItsMissingUpperHalf(final TestContext context) {
-    context.setBlockState(REL_GRAVE, ModBlocks.DOG_GRAVE.getDefaultState());
-
-    context.runAtTick(
-        10,
-        () -> {
-          final BlockState upper =
-              context.getWorld().getBlockState(context.getAbsolutePos(REL_GRAVE_UPPER));
-          context.assertTrue(
-              upper.isOf(ModBlocks.DOG_GRAVE)
-                  && upper.get(DogGraveBlock.HALF) == DoubleBlockHalf.UPPER,
-              "A lone base from an old world should grow its upper half after loading");
-          context.complete();
-        });
-  }
-
   /**
-   * The original hitbox bug: the headstone is a block and a half tall, but a ray at head height
-   * used to sail through the air cell where its top half stands, so labels flickered and a rod
-   * could not be placed on top unless aimed from above.
+   * The original hitbox bug: the headstone overflowed its block cell, and a raycast only tests a
+   * shape while the ray is inside that shape's own cell, so a level ray at the top of the stone
+   * sailed straight through it. The stone now stands inside one cell, so any ray that meets it
+   * hits.
    */
   @GameTest(templateName = ARENA, tickLimit = 100)
   public void aRayAtHeadstoneTopHeightHitsTheGrave(final TestContext context) {
     context.setBlockState(REL_GRAVE, ModBlocks.DOG_GRAVE.getDefaultState());
-    context.setBlockState(
-        REL_GRAVE_UPPER,
-        ModBlocks.DOG_GRAVE.getDefaultState().with(DogGraveBlock.HALF, DoubleBlockHalf.UPPER));
     final var player = context.createMockPlayer(GameMode.SURVIVAL);
 
-    final Vec3d from = context.getAbsolute(new Vec3d(3.5, 2.3, 0.2));
-    final Vec3d to = context.getAbsolute(new Vec3d(3.5, 2.3, 3.5));
+    final Vec3d from = context.getAbsolute(new Vec3d(3.5, 2.9, 0.2));
+    final Vec3d to = context.getAbsolute(new Vec3d(3.5, 2.9, 3.5));
     final BlockHitResult hit =
         context
             .getWorld()
@@ -306,8 +264,8 @@ public final class DogGraveGameTest implements FabricGameTest {
 
     context.assertTrue(
         hit.getType() == HitResult.Type.BLOCK
-            && hit.getBlockPos().equals(context.getAbsolutePos(REL_GRAVE_UPPER)),
-        "A level ray at the top of the headstone should hit the grave's upper half, but hit "
+            && hit.getBlockPos().equals(context.getAbsolutePos(REL_GRAVE)),
+        "A ray at the top of the headstone should hit the grave, but hit "
             + hit.getType()
             + " at "
             + hit.getBlockPos());
@@ -315,43 +273,42 @@ public final class DogGraveGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = ARENA, tickLimit = 100)
-  public void aRodPlacedOnTopOfTheGraveLandsAboveIt(final TestContext context) {
+  public void theHeadstoneFillsItsCellSoItsWholeHeightIsTargetable(final TestContext context) {
     context.setBlockState(REL_GRAVE, ModBlocks.DOG_GRAVE.getDefaultState());
-    context.setBlockState(
-        REL_GRAVE_UPPER,
-        ModBlocks.DOG_GRAVE.getDefaultState().with(DogGraveBlock.HALF, DoubleBlockHalf.UPPER));
-    final var player = context.createMockPlayer(GameMode.SURVIVAL);
+    final BlockState state = context.getWorld().getBlockState(context.getAbsolutePos(REL_GRAVE));
+    final var shape = state.getOutlineShape(context.getWorld(), context.getAbsolutePos(REL_GRAVE));
 
-    context.useStackOnBlock(
-        player, new ItemStack(Items.LIGHTNING_ROD), REL_GRAVE_UPPER, Direction.UP);
-
-    context.expectBlock(Blocks.LIGHTNING_ROD, REL_GRAVE_UPPER.up());
+    context.assertTrue(
+        shape.getMax(net.minecraft.util.math.Direction.Axis.Y) == 1.0,
+        "The hitbox must reach the top of its cell so nothing of the stone is unreachable");
+    context.assertTrue(
+        shape.getMin(net.minecraft.util.math.Direction.Axis.Y) == 0.0,
+        "The hitbox must start at the ground");
     context.complete();
   }
 
   @GameTest(templateName = ARENA, tickLimit = 100)
-  public void breakingTheUpperHalfTakesTheWholeGraveAndFreesItsTotem(final TestContext context) {
+  public void aRodPlacedOnTopOfTheGraveLandsDirectlyAboveIt(final TestContext context) {
     context.setBlockState(REL_GRAVE, ModBlocks.DOG_GRAVE.getDefaultState());
-    context.setBlockState(
-        REL_GRAVE_UPPER,
-        ModBlocks.DOG_GRAVE.getDefaultState().with(DogGraveBlock.HALF, DoubleBlockHalf.UPPER));
-    final DogGraveBlockEntity grave = context.getBlockEntity(REL_GRAVE);
-    grave.installTotem(UUID.randomUUID());
     final var player = context.createMockPlayer(GameMode.SURVIVAL);
 
-    ModBlocks.DOG_GRAVE.onBreak(
-        context.getWorld(),
-        context.getAbsolutePos(REL_GRAVE_UPPER),
-        context.getWorld().getBlockState(context.getAbsolutePos(REL_GRAVE_UPPER)),
-        player);
-    context.getWorld().removeBlock(context.getAbsolutePos(REL_GRAVE_UPPER), false);
+    context.useStackOnBlock(player, new ItemStack(Items.LIGHTNING_ROD), REL_GRAVE, Direction.UP);
+
+    context.expectBlock(Blocks.LIGHTNING_ROD, REL_GRAVE.up());
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 100)
+  public void breakingAGraveFreesItsInstalledTotem(final TestContext context) {
+    context.setBlockState(REL_GRAVE, ModBlocks.DOG_GRAVE.getDefaultState());
+    final DogGraveBlockEntity grave = context.getBlockEntity(REL_GRAVE);
+    grave.installTotem(UUID.randomUUID());
+
+    context.getWorld().removeBlock(context.getAbsolutePos(REL_GRAVE), false);
 
     context.runAtTick(
         10,
         () -> {
-          context.assertTrue(
-              context.getWorld().getBlockState(context.getAbsolutePos(REL_GRAVE)).isAir(),
-              "Breaking the upper half should take the base with it");
           context.expectEntityAround(EntityType.ITEM, REL_GRAVE, 3.0);
           context.complete();
         });

@@ -5,9 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
 import com.grahambartley.dogsunleashed.ModBlocks;
-import java.util.stream.Stream;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
@@ -15,86 +13,58 @@ import net.minecraft.world.EmptyBlockView;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(MinecraftBootstrapExtension.class)
 class DogGraveBlockTest {
 
-  private static BlockState state(final Direction facing, final DoubleBlockHalf half) {
-    return ModBlocks.DOG_GRAVE
-        .getDefaultState()
-        .with(DogGraveBlock.FACING, facing)
-        .with(DogGraveBlock.HALF, half);
+  private static VoxelShape shapeOf(final Direction facing) {
+    final BlockState state =
+        ModBlocks.DOG_GRAVE.getDefaultState().with(DogGraveBlock.FACING, facing);
+    return state.getOutlineShape(EmptyBlockView.INSTANCE, BlockPos.ORIGIN);
   }
 
-  private static VoxelShape shapeOf(final Direction facing, final DoubleBlockHalf half) {
-    return state(facing, half).getOutlineShape(EmptyBlockView.INSTANCE, BlockPos.ORIGIN);
-  }
-
-  @ParameterizedTest(name = "facing {0}, the base fills its own cell's height and no more")
+  /**
+   * A raycast only tests a block's shape while the ray is inside that block's own cell, so a shape
+   * that stopped short of the cell top left the rest of the headstone unreachable, and one that
+   * overflowed the cell could never be hit above the cell line at all.
+   */
+  @ParameterizedTest(name = "facing {0}, the hitbox spans the full height of its cell")
   @EnumSource(
       value = Direction.class,
       names = {"NORTH", "SOUTH", "EAST", "WEST"})
-  @DisplayName("the base half's hitbox stays inside its own block cell")
-  void baseHitboxStaysInsideItsCell(final Direction facing) {
-    final VoxelShape shape = shapeOf(facing, DoubleBlockHalf.LOWER);
-    assertEquals(0.0, shape.getMin(Direction.Axis.Y), 1.0e-9);
-    assertEquals(1.0, shape.getMax(Direction.Axis.Y), 1.0e-9, "a shape past 1.0 cannot be raycast");
+  @DisplayName("the hitbox fills its cell top to bottom, so the whole headstone can be aimed at")
+  void hitboxFillsItsCellVertically(final Direction facing) {
+    final VoxelShape shape = shapeOf(facing);
+    assertEquals(0.0, shape.getMin(Direction.Axis.Y), 1.0e-9, "hitbox must start at the ground");
+    assertEquals(1.0, shape.getMax(Direction.Axis.Y), 1.0e-9, "hitbox must reach the cell top");
   }
 
-  @ParameterizedTest(name = "facing {0}, the upper half carries the top of the headstone")
+  @ParameterizedTest(name = "facing {0}, the hitbox stays within its cell horizontally")
   @EnumSource(
       value = Direction.class,
       names = {"NORTH", "SOUTH", "EAST", "WEST"})
-  @DisplayName("the upper half's hitbox covers the headstone's top half block")
-  void upperHitboxCoversTheHeadstoneTop(final Direction facing) {
-    final VoxelShape shape = shapeOf(facing, DoubleBlockHalf.UPPER);
-    assertEquals(0.0, shape.getMin(Direction.Axis.Y), 1.0e-9);
-    assertEquals(0.5, shape.getMax(Direction.Axis.Y), 1.0e-9);
-  }
-
-  @ParameterizedTest(name = "facing {0}, both halves share one footprint")
-  @EnumSource(
-      value = Direction.class,
-      names = {"NORTH", "SOUTH", "EAST", "WEST"})
-  @DisplayName("the two halves stack into one continuous headstone")
-  void halvesShareOneFootprint(final Direction facing) {
-    final VoxelShape lower = shapeOf(facing, DoubleBlockHalf.LOWER);
-    final VoxelShape upper = shapeOf(facing, DoubleBlockHalf.UPPER);
-    for (final Direction.Axis axis : new Direction.Axis[] {Direction.Axis.X, Direction.Axis.Z}) {
-      assertEquals(lower.getMin(axis), upper.getMin(axis), 1.0e-9, "min " + axis);
-      assertEquals(lower.getMax(axis), upper.getMax(axis), 1.0e-9, "max " + axis);
+  @DisplayName("the hitbox never leaves its own cell, which is the only volume a ray tests")
+  void hitboxStaysWithinItsCell(final Direction facing) {
+    final VoxelShape shape = shapeOf(facing);
+    for (final Direction.Axis axis : Direction.Axis.values()) {
+      assertTrue(shape.getMin(axis) >= 0.0, "min " + axis + " leaves the cell");
+      assertTrue(shape.getMax(axis) <= 1.0, "max " + axis + " leaves the cell");
     }
-  }
-
-  static Stream<Arguments> basePosCases() {
-    final BlockPos pos = new BlockPos(10, 64, -3);
-    return Stream.of(
-        Arguments.of(DoubleBlockHalf.LOWER, pos, pos),
-        Arguments.of(DoubleBlockHalf.UPPER, pos, pos.down()));
-  }
-
-  @ParameterizedTest(name = "{0} resolves to {2}")
-  @MethodSource("basePosCases")
-  @DisplayName("either half resolves to the cell holding the block entity")
-  void basePosResolvesToTheEntityCell(
-      final DoubleBlockHalf half, final BlockPos pos, final BlockPos expected) {
-    assertEquals(expected, DogGraveBlock.basePosOf(state(Direction.NORTH, half), pos));
   }
 
   @ParameterizedTest(name = "facing {0} is thinner than it is wide")
   @EnumSource(
       value = Direction.class,
       names = {"NORTH", "SOUTH", "EAST", "WEST"})
-  @DisplayName("the slab stays thin along its facing axis")
+  @DisplayName("the headstone stays a thin slab along its facing axis")
   void slabStaysThinAlongItsFacingAxis(final Direction facing) {
-    final VoxelShape shape = shapeOf(facing, DoubleBlockHalf.LOWER);
+    final VoxelShape shape = shapeOf(facing);
     final Direction.Axis thin =
         facing == Direction.EAST || facing == Direction.WEST ? Direction.Axis.X : Direction.Axis.Z;
+    final Direction.Axis wide = thin == Direction.Axis.X ? Direction.Axis.Z : Direction.Axis.X;
     assertTrue(
-        shape.getMax(thin) - shape.getMin(thin) < 0.5,
+        shape.getMax(thin) - shape.getMin(thin) < shape.getMax(wide) - shape.getMin(wide),
         "the headstone should stay a thin slab along " + thin);
   }
 }

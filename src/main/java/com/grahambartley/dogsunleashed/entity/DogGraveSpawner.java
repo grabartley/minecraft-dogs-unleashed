@@ -39,8 +39,8 @@ public final class DogGraveSpawner {
         Direction.Type.HORIZONTAL.stream()
             .toList()
             .get(world.getRandom().nextInt(HORIZONTAL_DIRECTION_COUNT));
-    DogGraveBlock.placeGrave(
-        world, gravePos, ModBlocks.DOG_GRAVE.getDefaultState().with(DogGraveBlock.FACING, facing));
+    world.setBlockState(
+        gravePos, ModBlocks.DOG_GRAVE.getDefaultState().with(DogGraveBlock.FACING, facing));
 
     if (world.getBlockEntity(gravePos) instanceof DogGraveBlockEntity graveEntity) {
       graveEntity.setDogUuid(dog.getUuid());
