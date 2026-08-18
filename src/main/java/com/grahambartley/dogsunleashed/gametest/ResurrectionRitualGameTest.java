@@ -15,6 +15,8 @@ import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LightningEntity;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -168,6 +170,58 @@ public final class ResurrectionRitualGameTest implements FabricGameTest {
           context.assertTrue(
               dog.getHealth() == dog.getMaxHealth(),
               "A freshly raised pet should come back on full undead health");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
+  public void aRaisedPetRisesUnderTheTotemsBlessing(final TestContext context) {
+    final PetData pet = deceasedPetWithGrave(context, "Phoenix", true);
+
+    context.runAtTick(STRIKE_TICK, () -> strikeRod(context));
+
+    context.runAtTick(
+        ASSERT_TICK,
+        () -> {
+          final UnleashedDogEntity dog = raisedDog(context, pet.getPetId());
+          context.assertTrue(dog != null, "The pet should have been raised");
+          context.assertTrue(
+              dog.hasStatusEffect(StatusEffects.FIRE_RESISTANCE),
+              "The consumed totem should grant Fire Resistance, as a held totem does");
+          context.assertTrue(
+              dog.hasStatusEffect(StatusEffects.ABSORPTION),
+              "The consumed totem should grant Absorption, as a held totem does");
+          context.assertTrue(
+              !dog.hasStatusEffect(StatusEffects.REGENERATION),
+              "The dog's own undead typing must refuse the totem's Regeneration");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
+  public void lightningCannotHarmWhatLightningRaised(final TestContext context) {
+    final UnleashedDogEntity dog = context.spawnEntity(ModEntities.ZOMBIE_HUSKY, REL_DOG);
+    dog.setAiDisabled(true);
+    final float healthBefore = dog.getHealth();
+
+    context.runAtTick(
+        STRIKE_TICK,
+        () -> {
+          final LightningEntity bolt = EntityType.LIGHTNING_BOLT.create(context.getWorld());
+          bolt.refreshPositionAfterTeleport(dog.getX(), dog.getY(), dog.getZ());
+          context.getWorld().spawnEntity(bolt);
+        });
+
+    context.runAtTick(
+        ASSERT_TICK,
+        () -> {
+          context.assertTrue(!dog.isOnFire(), "A live strike must not set an undead dog on fire");
+          context.assertTrue(
+              dog.getHealth() == healthBefore,
+              "A live strike must not hurt an undead dog, but health went from "
+                  + healthBefore
+                  + " to "
+                  + dog.getHealth());
           context.complete();
         });
   }

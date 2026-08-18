@@ -8,6 +8,8 @@ import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetManager;
 import java.util.UUID;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -27,6 +29,14 @@ public final class DogResurrection {
   private static final int RITUAL_PARTICLE_COUNT = 40;
   private static final double RITUAL_PARTICLE_SPREAD = 0.6;
   private static final double RITUAL_PARTICLE_SPEED = 0.15;
+
+  // Matches what a held Totem of Undying grants in vanilla, minus Regeneration, which the dog's
+  // own undead typing refuses. Fire Resistance is the load-bearing one: the ritual needs a
+  // thunderstorm, and a storm keeps striking after the dog is up, so a freshly raised half-health
+  // pet would otherwise risk burning to permanent loss at its own grave.
+  private static final int TOTEM_FIRE_RESISTANCE_TICKS = 800;
+  private static final int TOTEM_ABSORPTION_TICKS = 100;
+  private static final int TOTEM_ABSORPTION_AMPLIFIER = 1;
 
   private DogResurrection() {}
 
@@ -112,6 +122,7 @@ public final class DogResurrection {
     dog.getCommandController().apply(DogCommand.FOLLOW);
     dog.getUndeadState().applyAttributeScaling();
     dog.setHealth(dog.getMaxHealth());
+    applyTotemBlessing(dog);
 
     world.spawnEntity(dog);
     return dog;
@@ -123,6 +134,14 @@ public final class DogResurrection {
     if (world.getBlockState(rodPos).isOf(Blocks.LIGHTNING_ROD)) {
       world.removeBlock(rodPos, false);
     }
+  }
+
+  private static void applyTotemBlessing(final UnleashedDogEntity dog) {
+    dog.addStatusEffect(
+        new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, TOTEM_FIRE_RESISTANCE_TICKS, 0));
+    dog.addStatusEffect(
+        new StatusEffectInstance(
+            StatusEffects.ABSORPTION, TOTEM_ABSORPTION_TICKS, TOTEM_ABSORPTION_AMPLIFIER));
   }
 
   private static void playRitualEffects(final ServerWorld world, final BlockPos gravePos) {

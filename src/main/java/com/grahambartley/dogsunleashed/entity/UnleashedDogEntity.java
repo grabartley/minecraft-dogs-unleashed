@@ -23,6 +23,7 @@ import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.LightningEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.damage.DamageSource;
@@ -614,6 +615,15 @@ public class UnleashedDogEntity extends TameableEntity
       this.vocalization.barkIfReady(BARK_PITCH);
     }
     return super.damage(source, amount);
+  }
+
+  /** Lightning cannot harm what lightning raised: the ritual needs a storm, and storms restrike. */
+  @Override
+  public void onStruckByLightning(final ServerWorld world, final LightningEntity lightning) {
+    if (this.undead) {
+      return;
+    }
+    super.onStruckByLightning(world, lightning);
   }
 
   public UnleashedDogEntity teleportToWorld(ServerWorld destination, Vec3d pos) {
