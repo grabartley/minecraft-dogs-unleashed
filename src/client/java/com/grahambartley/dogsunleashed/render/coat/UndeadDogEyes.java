@@ -24,7 +24,7 @@ public enum UndeadDogEyes {
   TEMPLATE(128, new EyePixel(7, 47), new EyePixel(10, 47)),
   HUSKY(64, new EyePixel(26, 20), new EyePixel(28, 20)),
   DACHSHUND(128, new EyePixel(98, 6), new EyePixel(100, 6)),
-  SHIBA_INU(64, new EyePixel(50, 50), new EyePixel(53, 50));
+  SHIBA_INU(128, new EyePixel(50, 50), new EyePixel(53, 50));
 
   public record EyePixel(int x, int y) {}
 

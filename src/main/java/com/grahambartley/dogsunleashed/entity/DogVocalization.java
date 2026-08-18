@@ -20,6 +20,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import org.jetbrains.annotations.Nullable;
 
 public final class DogVocalization {
@@ -74,14 +75,25 @@ public final class DogVocalization {
     return barkPitch(this.dog.isBaby());
   }
 
+  /**
+   * An undead dog speaks with the zombie's voice whatever its breed, which also gives the husky a
+   * bark trigger it never has in life.
+   */
   @Nullable
-  SoundEvent barkSound() {
+  public SoundEvent barkSound() {
+    if (this.dog.isUndead()) {
+      return SoundEvents.ENTITY_ZOMBIE_AMBIENT;
+    }
     return this.dog.getVoiceBreed().barkSound();
+  }
+
+  public SoundEvent howlSound() {
+    return this.dog.isUndead() ? SoundEvents.ENTITY_ZOMBIE_AMBIENT : ModSounds.HUSKY_HOWL;
   }
 
   boolean canBark() {
     return isBarkReady(
-        this.dog.getVoiceBreed().hasBarkSound(),
+        this.barkSound() != null,
         this.dog.isDead(),
         this.dog.isSleepingInBed(),
         this.barkCooldownTicks);
@@ -158,8 +170,7 @@ public final class DogVocalization {
 
     if (this.canHowl() && this.dog.getRandom().nextInt(RANDOM_HOWL_CHANCE) == 0) {
       this.dog.setHowling(true);
-      this.dog.playSound(
-          ModSounds.HUSKY_HOWL, DogsUnleashed.SERVER_CONFIG.howlVolume(), HOWL_PITCH);
+      this.dog.playSound(this.howlSound(), DogsUnleashed.SERVER_CONFIG.howlVolume(), HOWL_PITCH);
       this.howlCooldownTicks = HOWL_COOLDOWN_TICKS;
       this.howlActiveTicks = HOWL_DURATION_TICKS;
       this.triggerHowlAdvancement();

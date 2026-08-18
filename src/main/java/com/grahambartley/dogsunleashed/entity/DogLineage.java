@@ -25,15 +25,20 @@ public final class DogLineage {
   }
 
   /** The breeding readiness of one dog in a pair, as the mate gate reads it. */
-  public record MateState(boolean tamed, boolean sitting, boolean inLove) {}
+  public record MateState(boolean tamed, boolean sitting, boolean inLove, boolean undead) {}
 
-  /** Only the partner's sitting pose gates the pair; the initiator's is asymmetric on purpose. */
+  /**
+   * Only the partner's sitting pose gates the pair; the initiator's is asymmetric on purpose.
+   * Undeath gates both sides: the dead do not sire the living.
+   */
   public static boolean matesCanBreed(final MateState self, final MateState partner) {
     return self.tamed()
         && partner.tamed()
         && !partner.sitting()
         && self.inLove()
-        && partner.inLove();
+        && partner.inLove()
+        && !self.undead()
+        && !partner.undead();
   }
 
   public static UnleashedDogBreed childBreed(
@@ -44,7 +49,7 @@ public final class DogLineage {
   }
 
   private static MateState mateStateOf(final UnleashedDogEntity dog) {
-    return new MateState(dog.isTamed(), dog.isInSittingPose(), dog.isInLove());
+    return new MateState(dog.isTamed(), dog.isInSittingPose(), dog.isInLove(), dog.isUndead());
   }
 
   boolean canBreedWith(final AnimalEntity other) {

@@ -528,9 +528,10 @@ public class UnleashedDogEntity extends TameableEntity
     return super.interactMob(player, hand);
   }
 
+  /** Undead pets refuse breeding food: no love mode, and Instant Damage is what heals them. */
   @Override
   public boolean isBreedingItem(ItemStack stack) {
-    return DogFoods.isBreedingItem(stack);
+    return !this.undead && DogFoods.isBreedingItem(stack);
   }
 
   public boolean isTamingItem(ItemStack stack) {

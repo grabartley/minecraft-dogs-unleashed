@@ -55,16 +55,25 @@ class DogLineageTest {
   }
 
   private static MateState ready() {
-    return new MateState(true, false, true);
+    return new MateState(true, false, true, false);
+  }
+
+  private static MateState undeadReady() {
+    return new MateState(true, false, true, true);
   }
 
   static Stream<Arguments> blockedPairs() {
     return Stream.of(
-        Arguments.of("the initiator is untamed", new MateState(false, false, true), ready()),
-        Arguments.of("the partner is untamed", ready(), new MateState(false, false, true)),
-        Arguments.of("the partner is sitting", ready(), new MateState(true, true, true)),
-        Arguments.of("the initiator is not in love", new MateState(true, false, false), ready()),
-        Arguments.of("the partner is not in love", ready(), new MateState(true, false, false)));
+        Arguments.of("the initiator is untamed", new MateState(false, false, true, false), ready()),
+        Arguments.of("the partner is untamed", ready(), new MateState(false, false, true, false)),
+        Arguments.of("the partner is sitting", ready(), new MateState(true, true, true, false)),
+        Arguments.of(
+            "the initiator is not in love", new MateState(true, false, false, false), ready()),
+        Arguments.of(
+            "the partner is not in love", ready(), new MateState(true, false, false, false)),
+        Arguments.of("the initiator is undead", undeadReady(), ready()),
+        Arguments.of("the partner is undead", ready(), undeadReady()),
+        Arguments.of("both are undead", undeadReady(), undeadReady()));
   }
 
   @ParameterizedTest(name = "{0}")
@@ -84,6 +93,6 @@ class DogLineageTest {
   @Test
   @DisplayName("the initiator's own sitting pose does not block the pair")
   void theInitiatorsSittingPoseDoesNotBlockThePair() {
-    assertTrue(DogLineage.matesCanBreed(new MateState(true, true, true), ready()));
+    assertTrue(DogLineage.matesCanBreed(new MateState(true, true, true, false), ready()));
   }
 }

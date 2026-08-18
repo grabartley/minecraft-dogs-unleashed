@@ -27,9 +27,11 @@ public class DogGraveBlockEntityRenderer extends GeoBlockRenderer<DogGraveBlockE
   private static final float NAME_TAG_TEXT_SCALE = 0.025f;
   private static final ItemStack TOTEM_STACK = new ItemStack(Items.TOTEM_OF_UNDYING);
   private static final float TOTEM_SCALE = 0.7f;
-  private static final float TOTEM_LEAN_DEGREES = 20.0f;
-  private static final double TOTEM_BASE_HEIGHT = 0.3;
-  private static final double TOTEM_OFFSET_FROM_CENTRE = 0.32;
+  private static final float TOTEM_LEAN_DEGREES = -24.0f;
+  private static final float TOTEM_SIDE_TILT_DEGREES = -8.0f;
+  private static final double TOTEM_BASE_HEIGHT = 0.34;
+  private static final double TOTEM_SIDE_OFFSET = 0.24;
+  private static final double TOTEM_OFFSET_FROM_CENTRE = 0.30;
 
   public DogGraveBlockEntityRenderer(BlockEntityRendererFactory.Context context) {
     super(new DogGraveModel());
@@ -99,8 +101,9 @@ public class DogGraveBlockEntityRenderer extends GeoBlockRenderer<DogGraveBlockE
     matrices.push();
     matrices.translate(0.5, TOTEM_BASE_HEIGHT, 0.5);
     matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-facing.asRotation()));
-    matrices.translate(0.0, 0.0, TOTEM_OFFSET_FROM_CENTRE);
+    matrices.translate(TOTEM_SIDE_OFFSET, 0.0, TOTEM_OFFSET_FROM_CENTRE);
     matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(TOTEM_LEAN_DEGREES));
+    matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(TOTEM_SIDE_TILT_DEGREES));
     matrices.scale(TOTEM_SCALE, TOTEM_SCALE, TOTEM_SCALE);
     MinecraftClient.getInstance()
         .getItemRenderer()
