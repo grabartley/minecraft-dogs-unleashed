@@ -5,10 +5,10 @@
       "id": "minecraft:totem_of_undying"
     },
     "title": {
-      "translate": "advancements.dogs-unleashed.back_from_the_dead.title"
+      "translate": "advancements.dogs-unleashed.second_leash_of_life.title"
     },
     "description": {
-      "translate": "advancements.dogs-unleashed.back_from_the_dead.description"
+      "translate": "advancements.dogs-unleashed.second_leash_of_life.description"
     },
     "frame": "goal"
   },

@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.entity;
 
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.advancement.PetCuredCriterion;
+import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetManager;
 import java.util.UUID;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -98,6 +99,22 @@ public final class DogCuring {
     }
   }
 
+  /**
+   * Writes the living body back onto the pet record. The record's max health is only ever set at
+   * registration and at each conversion, so without this a cured pet would keep advertising the
+   * halved max health it had while undead.
+   */
+  private static void recordTheCure(final ServerWorld world, final UnleashedDogEntity cured) {
+    final PetManager petManager = PetManager.get(world.getServer());
+    petManager.markPetCured(cured.getUuid());
+    final PetData pet = petManager.getPetByEntityId(cured.getUuid());
+    if (pet != null) {
+      pet.setHealth(cured.getHealth());
+      pet.setMaxHealth(cured.getMaxHealth());
+      petManager.updatePet(pet);
+    }
+  }
+
   private void finish() {
     if (!(this.dog.getWorld() instanceof ServerWorld world)) {
       return;
@@ -115,7 +132,7 @@ public final class DogCuring {
 
     cured.removeStatusEffect(StatusEffects.STRENGTH);
     DogUndeadState.restoreLivingAttributes(cured);
-    PetManager.get(world.getServer()).markPetCured(cured.getUuid());
+    recordTheCure(world, cured);
 
     world.playSoundFromEntity(
         null,

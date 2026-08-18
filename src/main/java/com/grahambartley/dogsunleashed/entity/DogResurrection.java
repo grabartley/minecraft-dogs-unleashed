@@ -7,6 +7,7 @@ import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetManager;
 import java.util.UUID;
+import net.minecraft.block.Blocks;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -66,6 +67,7 @@ public final class DogResurrection {
     final UUID installerId = grave.getTotemInstallerId();
     grave.clearTotem();
     world.removeBlock(gravePos, false);
+    consumeRodAbove(world, gravePos);
 
     petManager.markPetResurrected(petData.getPetId());
     petData.setHealth(undeadDog.getHealth());
@@ -113,6 +115,14 @@ public final class DogResurrection {
 
     world.spawnEntity(dog);
     return dog;
+  }
+
+  /** The rod is spent along with the totem and the grave, rather than left hanging over nothing. */
+  private static void consumeRodAbove(final ServerWorld world, final BlockPos gravePos) {
+    final BlockPos rodPos = gravePos.up();
+    if (world.getBlockState(rodPos).isOf(Blocks.LIGHTNING_ROD)) {
+      world.removeBlock(rodPos, false);
+    }
   }
 
   private static void playRitualEffects(final ServerWorld world, final BlockPos gravePos) {

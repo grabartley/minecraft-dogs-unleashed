@@ -40,8 +40,8 @@ public final class DogAdvancementGameTest implements FabricGameTest {
           "sweet_dreams",
           "forever_in_our_hearts",
           "cherry_companion",
-          "back_from_the_dead",
-          "good_boy_again");
+          "second_leash_of_life",
+          "best_friend_again");
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void advancementsLoadFromDataPackResources(final TestContext context) {
@@ -151,18 +151,18 @@ public final class DogAdvancementGameTest implements FabricGameTest {
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void resurrectionAndCureTriggersUnlockTheirAdvancements(final TestContext context) {
     final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
-    final AdvancementEntry backFromTheDead = getAdvancement(context, "back_from_the_dead");
-    final AdvancementEntry goodBoyAgain = getAdvancement(context, "good_boy_again");
+    final AdvancementEntry secondLeashOfLife = getAdvancement(context, "second_leash_of_life");
+    final AdvancementEntry bestFriendAgain = getAdvancement(context, "best_friend_again");
 
     PetResurrectedCriterion.INSTANCE.trigger(player);
     PetCuredCriterion.INSTANCE.trigger(player);
 
     context.assertTrue(
-        player.getAdvancementTracker().getProgress(backFromTheDead).isDone(),
-        "pet_resurrected should unlock back_from_the_dead");
+        player.getAdvancementTracker().getProgress(secondLeashOfLife).isDone(),
+        "pet_resurrected should unlock second_leash_of_life");
     context.assertTrue(
-        player.getAdvancementTracker().getProgress(goodBoyAgain).isDone(),
-        "pet_cured should unlock good_boy_again");
+        player.getAdvancementTracker().getProgress(bestFriendAgain).isDone(),
+        "pet_cured should unlock best_friend_again");
     context.complete();
   }
 

@@ -113,6 +113,9 @@ public final class ResurrectionRitualGameTest implements FabricGameTest {
               context.getWorld().getBlockState(context.getAbsolutePos(REL_GRAVE)).isAir(),
               "The ritual should consume the grave");
           context.assertTrue(
+              context.getWorld().getBlockState(context.getAbsolutePos(REL_ROD)).isAir(),
+              "The ritual should consume the rod rather than leave it hanging over nothing");
+          context.assertTrue(
               raisedDog(context, pet.getPetId()) != null,
               "An undead dog should stand where the grave was");
           context.complete();

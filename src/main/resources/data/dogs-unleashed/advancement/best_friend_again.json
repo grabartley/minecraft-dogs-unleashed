@@ -1,14 +1,14 @@
 {
-  "parent": "dogs-unleashed:back_from_the_dead",
+  "parent": "dogs-unleashed:second_leash_of_life",
   "display": {
     "icon": {
       "id": "minecraft:golden_apple"
     },
     "title": {
-      "translate": "advancements.dogs-unleashed.good_boy_again.title"
+      "translate": "advancements.dogs-unleashed.best_friend_again.title"
     },
     "description": {
-      "translate": "advancements.dogs-unleashed.good_boy_again.description"
+      "translate": "advancements.dogs-unleashed.best_friend_again.description"
     },
     "frame": "goal"
   },

@@ -214,6 +214,10 @@ public final class UndeadDogGameTest implements FabricGameTest {
               cured.getMaxHealth() == UnleashedDogBreed.HUSKY.attributes().maxHealth(),
               "A cured dog should be back on its living max health, but had "
                   + cured.getMaxHealth());
+          context.assertTrue(
+              pet.getMaxHealth() == UnleashedDogBreed.HUSKY.attributes().maxHealth(),
+              "The pet record should carry the living max health again, but had "
+                  + pet.getMaxHealth());
           context.complete();
         });
   }

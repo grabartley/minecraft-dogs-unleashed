@@ -224,8 +224,8 @@ holding a totem to install it, and right-click again to take it back. The totem 
 ### Resurrection & Undead Pets
 
 A grave is not the end. Install a Totem of Undying on it, place a Lightning Rod in the block directly above, and wait
-for a thunderstorm. When lightning strikes the rod, the totem is consumed, the grave is gone, and your dog claws its way
-back as an undead version of itself. A Channeling trident works just as well if you would rather not wait for the
+for a thunderstorm. When lightning strikes the rod, the ritual spends the totem, the rod and the grave itself, and your
+dog claws its way back as an undead version of itself. A Channeling trident works just as well if you would rather not wait for the
 weather.
 
 An undead pet keeps everything that made it itself: name, breed, coat, eye colour, collar, lineage, and the exact genome
