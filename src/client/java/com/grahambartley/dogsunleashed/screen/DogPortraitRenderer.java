@@ -80,7 +80,9 @@ public final class DogPortraitRenderer {
     }
     final PortraitDogAppearance appearance = PortraitDogAppearance.of(pet);
     final EntityType<? extends UnleashedDogEntity> type =
-        ModEntities.getDogEntityType(appearance.entityBreed());
+        appearance.undead()
+            ? ModEntities.getZombieDogEntityType(appearance.entityBreed())
+            : ModEntities.getDogEntityType(appearance.entityBreed());
     if (type == null) {
       return null;
     }

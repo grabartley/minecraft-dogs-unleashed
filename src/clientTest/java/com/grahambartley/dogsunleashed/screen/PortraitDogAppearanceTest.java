@@ -221,6 +221,42 @@ class PortraitDogAppearanceTest {
     assertFalse(nbt.contains(ModNbtKeys.EYE_COLOR_VARIANT));
   }
 
+  static Stream<Arguments> lifeStateCases() {
+    return Stream.of(
+        Arguments.of(PetLifeState.LIVING, false),
+        Arguments.of(PetLifeState.UNDEAD, true),
+        Arguments.of(PetLifeState.DECEASED, false),
+        Arguments.of(PetLifeState.LOST, false));
+  }
+
+  @ParameterizedTest(name = "a {0} pet portrays undead={1}")
+  @MethodSource("lifeStateCases")
+  @DisplayName("only an undead pet's portrait dresses up as the zombie entity type")
+  void onlyUndeadPetsPortrayTheZombieType(final PetLifeState lifeState, final boolean expected) {
+    final PetSyncData base = pet(UnleashedDogBreed.BEAGLE, List.of());
+    final PetSyncData pet =
+        new PetSyncData(
+            base.petId(),
+            base.breed(),
+            base.name(),
+            base.health(),
+            base.maxHealth(),
+            base.posX(),
+            base.posY(),
+            base.posZ(),
+            base.dimension(),
+            lifeState,
+            base.baby(),
+            base.collarColor(),
+            base.coatVariant(),
+            base.huskyEyeVariant(),
+            base.movementSpeed(),
+            base.attackDamage(),
+            base.composition());
+
+    assertEquals(expected, PortraitDogAppearance.of(pet).undead());
+  }
+
   private static PetSyncData pet(
       final UnleashedDogBreed breed, final List<BreedShare> composition) {
     return pet(breed, composition, 3, 2, 0);
