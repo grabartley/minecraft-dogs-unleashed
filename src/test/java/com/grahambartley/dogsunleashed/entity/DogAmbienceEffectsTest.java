@@ -19,27 +19,34 @@ class DogAmbienceEffectsTest {
 
   static Stream<Arguments> wagInterest() {
     return Stream.of(
-        Arguments.of("untamed dog, taming item", false, true, false, true),
-        Arguments.of("untamed dog, breeding item", false, false, true, false),
-        Arguments.of("tamed dog, breeding item", true, false, true, true),
-        Arguments.of("tamed dog, taming item", true, true, false, false),
-        Arguments.of("empty handed", false, false, false, false),
-        Arguments.of("untamed dog, both items", false, true, true, true),
-        Arguments.of("tamed dog, both items", true, true, true, true));
+        Arguments.of("untamed dog, taming item", false, true, false, false, true),
+        Arguments.of("untamed dog, breeding item", false, false, true, false, false),
+        Arguments.of("untamed dog, treat", false, false, false, true, false),
+        Arguments.of("tamed dog, breeding item", true, false, true, false, true),
+        Arguments.of("tamed dog, taming item", true, true, false, false, false),
+        Arguments.of("tamed dog, treat", true, false, false, true, true),
+        Arguments.of("tamed dog, bone and treat", true, true, false, true, true),
+        Arguments.of("empty handed", false, false, false, false, false),
+        Arguments.of("untamed dog, both foods", false, true, true, false, true),
+        Arguments.of("tamed dog, both foods", true, true, true, false, true),
+        Arguments.of("tamed dog, everything", true, true, true, true, true));
   }
 
   @ParameterizedTest(name = "{0}")
   @MethodSource("wagInterest")
-  @DisplayName("an untamed dog wags for a taming item and a tamed one wags for a breeding item")
+  @DisplayName(
+      "a dog wags for what it can accept: taming food untamed, breeding food or a treat tamed")
   void wagInterestDependsOnTameState(
       final String label,
       final boolean tamed,
       final boolean holdingTamingItem,
       final boolean holdingBreedingItem,
+      final boolean holdingTreat,
       final boolean expected) {
     assertEquals(
         expected,
-        DogAmbienceEffects.shouldWagForPlayer(tamed, holdingTamingItem, holdingBreedingItem));
+        DogAmbienceEffects.shouldWagForPlayer(
+            tamed, holdingTamingItem, holdingBreedingItem, holdingTreat));
   }
 
   static Stream<Arguments> tailWagTimers() {

@@ -133,7 +133,7 @@ public final class DogVocalization {
 
   private boolean shouldBark(final @Nullable PlayerEntity nearbyPlayer) {
     final boolean playerHoldingLure =
-        nearbyPlayer != null && this.dog.isPlayerHoldingTamingOrBreedingItem(nearbyPlayer);
+        nearbyPlayer != null && this.dog.isPlayerHoldingAttentionItem(nearbyPlayer);
     return hasBarkTrigger(
             playerHoldingLure,
             this.dog.getHealth(),

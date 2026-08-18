@@ -129,6 +129,10 @@ them.
 Craft four **Dog Treats** at a time from wheat, bone meal and sugar, then right-click one of your own tamed dogs while
 holding one. The dog eats it on the spot, barks, wags its tail and throws off a burst of hearts.
 
+Just holding a treat is enough to turn heads. Every dog in range head tilts, barks and walks over to you the same way
+it would for taming or breeding food, and your own dogs wag their tails on top of that. Untamed dogs come running too,
+but a treat still will not tame one, so keep a bone handy.
+
 | Effect                 | Value                                                            |
 |------------------------|------------------------------------------------------------------|
 | Duration               | 60 seconds                                                       |
@@ -329,7 +333,7 @@ when they have a target, or just because (1 in 7200 chance per tick, roughly onc
 
 ### Little Details
 
-- **Head tilting** when you hold taming food nearby. It is impossible not to smile at.
+- **Head tilting** when you hold taming food, breeding food, or a Dog Treat nearby. It is impossible not to smile at.
 - **Tail wagging** when you hold food or just because they love you.
 - **Shaking** after getting wet, whether they climbed out of water or stood out in the rain. Rain counts while the
 sky above them is open, so 20 ticks after they duck under cover or the rain stops, they shake it off: 22 tick
@@ -447,7 +451,7 @@ next to its crafting recipe:
 | Tennis Ball, Stick, Frisbee    | How to start play mode, and how far each fetch item glides                         |
 | Dog Bed                        | Assigning a dog, auto-sleep rules, and how to unassign                             |
 | Dog Grave                      | How graves appear on death and how to preserve one with a pickaxe                  |
-| Dog Treat                      | How to feed one, what the buff does, and how long it lasts                         |
+| Dog Treat                      | How to feed one, what the buff does, how long it lasts, and how dogs react to one   |
 | Dog Whistle                    | Calling a dog from anywhere, and how the target is chosen and cycled                |
 | Taming and breeding foods      | Which vanilla foods tame, which breed, and the 1-in-3 tame chance                  |
 | Each breed's spawn egg         | Breed flavour plus the biomes it spawns in and its health, attack and speed        |

@@ -538,6 +538,10 @@ public class UnleashedDogEntity extends TameableEntity
     return DogFoods.isTamingItem(stack);
   }
 
+  public boolean isTreatItem(ItemStack stack) {
+    return DogFoods.isTreatItem(stack);
+  }
+
   public String getTamedName() {
     if (this.getWorld() instanceof ServerWorld serverWorld) {
       final PetManager petManager = PetManager.get(serverWorld.getServer());
@@ -580,8 +584,12 @@ public class UnleashedDogEntity extends TameableEntity
     super.setTarget(target);
   }
 
-  boolean isPlayerHoldingTamingOrBreedingItem(final PlayerEntity player) {
-    return DogFoods.isHoldingTamingOrBreedingItem(player);
+  boolean isPlayerHoldingAttentionItem(final PlayerEntity player) {
+    return DogFoods.isHoldingAttentionItem(player);
+  }
+
+  boolean isPlayerHoldingTreat(final PlayerEntity player) {
+    return DogFoods.isHoldingTreat(player);
   }
 
   @Override
