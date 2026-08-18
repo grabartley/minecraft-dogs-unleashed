@@ -175,6 +175,32 @@ public final class ResurrectionRitualGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
+  public void aRaisedPetAnswersToItsName(final TestContext context) {
+    final PetData pet = deceasedPetWithGrave(context, "Banjo", true);
+
+    context.runAtTick(STRIKE_TICK, () -> strikeRod(context));
+
+    context.runAtTick(
+        ASSERT_TICK,
+        () -> {
+          final UnleashedDogEntity dog = raisedDog(context, pet.getPetId());
+          context.assertTrue(dog != null, "The pet should have been raised");
+          context.assertTrue(
+              dog.hasCustomName(),
+              "The raised dog should carry its pet name, so death messages and name tags use it");
+          context.assertTrue(
+              "Banjo".equals(dog.getCustomName().getString()),
+              "The raised dog should be named after its record, but was "
+                  + dog.getCustomName().getString());
+          context.assertTrue(
+              "Banjo".equals(dog.getDisplayName().getString()),
+              "The display name feeding death messages should be the pet name, but was "
+                  + dog.getDisplayName().getString());
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
   public void aRaisedPetRisesUnderTheTotemsBlessing(final TestContext context) {
     final PetData pet = deceasedPetWithGrave(context, "Phoenix", true);
 

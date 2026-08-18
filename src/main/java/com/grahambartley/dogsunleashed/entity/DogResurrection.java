@@ -15,6 +15,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
@@ -117,6 +118,8 @@ public final class DogResurrection {
     dog.getLineage().setParentDogUuid(petData.getParentAId());
     dog.getLineage().setSecondParentDogUuid(petData.getParentBId());
     dog.setBaby(petData.isBaby());
+    dog.setCustomName(Text.literal(petData.getName()));
+    dog.setCustomNameVisible(true);
     dog.setOwnerUuid(petData.getOwnerId());
     dog.setTamed(true, true);
     dog.getCommandController().apply(DogCommand.FOLLOW);

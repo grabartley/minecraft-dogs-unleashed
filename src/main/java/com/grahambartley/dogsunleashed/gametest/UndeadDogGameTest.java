@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModEntities;
+import com.grahambartley.dogsunleashed.ModSounds;
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
@@ -17,6 +18,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.test.AfterBatch;
 import net.minecraft.test.BeforeBatch;
 import net.minecraft.test.GameTest;
@@ -147,6 +149,80 @@ public final class UndeadDogGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
+  public void anUndeadDogSpeaksWithAZombiesVoice(final TestContext context) {
+    final UnleashedDogEntity undeadHusky = spawnUndeadDog(context);
+    final UnleashedDogEntity undeadBeagle =
+        context.spawnEntity(ModEntities.ZOMBIE_BEAGLE, REL_DOG.east(2));
+    undeadBeagle.setAiDisabled(true);
+    final UnleashedDogEntity livingBeagle =
+        context.spawnEntity(ModEntities.BEAGLE, REL_DOG.east(4));
+    livingBeagle.setAiDisabled(true);
+
+    context.assertTrue(
+        undeadHusky.getVocalization().barkSound() == SoundEvents.ENTITY_ZOMBIE_AMBIENT,
+        "An undead husky should groan like a zombie");
+    context.assertTrue(
+        undeadHusky.getVocalization().howlSound() == SoundEvents.ENTITY_ZOMBIE_AMBIENT,
+        "An undead husky's moon howl should come out as a zombie groan");
+    context.assertTrue(
+        undeadBeagle.getVocalization().barkSound() == SoundEvents.ENTITY_ZOMBIE_AMBIENT,
+        "An undead beagle should groan rather than bark");
+    context.assertTrue(
+        livingBeagle.getVocalization().barkSound() == ModSounds.BEAGLE_BARK,
+        "A living beagle must keep its own bark");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
+  public void anUndeadHuskyGainsAVoiceItNeverHadInLife(final TestContext context) {
+    final UnleashedDogEntity undeadHusky = spawnUndeadDog(context);
+
+    context.runAtTick(5, () -> undeadHusky.setHealth(1.0f));
+
+    context.runAtTick(
+        15,
+        () -> {
+          context.assertTrue(
+              undeadHusky.getVocalization().getBarkCooldownTicks() > 0,
+              "A hurt undead husky should have groaned; in life the breed has no bark at all");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
+  public void theDeadDoNotSireTheLiving(final TestContext context) {
+    final UnleashedDogEntity undead = spawnOwnedUndeadDog(context);
+    final UnleashedDogEntity living = context.spawnEntity(ModEntities.HUSKY, REL_DOG.east(2));
+    living.setAiDisabled(true);
+    living.setOwnerUuid(undead.getOwnerUuid());
+    living.setTamed(true, true);
+    undead.setLoveTicks(600);
+    living.setLoveTicks(600);
+
+    context.assertTrue(
+        !undead.canBreedWith(living), "An undead dog must not breed with a living one");
+    context.assertTrue(
+        !living.canBreedWith(undead), "A living dog must not breed with an undead one");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
+  public void anUndeadDogRefusesBreedingFood(final TestContext context) {
+    final UnleashedDogEntity undead = spawnOwnedUndeadDog(context);
+    final UnleashedDogEntity living = context.spawnEntity(ModEntities.HUSKY, REL_DOG.east(2));
+    living.setAiDisabled(true);
+    final ItemStack breedingFood = new ItemStack(Items.COOKED_CHICKEN);
+
+    context.assertTrue(
+        living.isBreedingItem(breedingFood),
+        "A living dog should accept the breeding food this test relies on");
+    context.assertTrue(
+        !undead.isBreedingItem(breedingFood),
+        "An undead dog must refuse breeding food, so no love mode and no food healing");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
   public void aWeakenedUndeadDogFedAGoldenAppleStartsConverting(final TestContext context) {
     final UnleashedDogEntity dog = spawnOwnedUndeadDog(context);
     dog.addStatusEffect(new StatusEffectInstance(StatusEffects.WEAKNESS, WEAKNESS_DURATION_TICKS));
@@ -196,6 +272,7 @@ public final class UndeadDogGameTest implements FabricGameTest {
   @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
   public void aCompletedCureBringsBackTheLivingDog(final TestContext context) {
     final UnleashedDogEntity dog = spawnOwnedUndeadDog(context);
+    dog.setCustomName(net.minecraft.text.Text.literal("Wraith"));
     final PetData pet = registerPet(context, dog, PetLifeState.UNDEAD);
     final UUID petId = dog.getUuid();
 
@@ -214,6 +291,9 @@ public final class UndeadDogGameTest implements FabricGameTest {
               cured.getMaxHealth() == UnleashedDogBreed.HUSKY.attributes().maxHealth(),
               "A cured dog should be back on its living max health, but had "
                   + cured.getMaxHealth());
+          context.assertTrue(
+              cured.hasCustomName() && "Wraith".equals(cured.getCustomName().getString()),
+              "The cure must carry the dog's name across the entity swap");
           context.assertTrue(
               pet.getMaxHealth() == UnleashedDogBreed.HUSKY.attributes().maxHealth(),
               "The pet record should carry the living max health again, but had "

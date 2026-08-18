@@ -226,7 +226,8 @@ holding a totem to install it, and right-click again to take it back. The totem 
 A grave is not the end. Install a Totem of Undying on it, place a Lightning Rod in the block directly above, and wait
 for a thunderstorm. When lightning strikes the rod, the ritual spends the totem, the rod and the grave itself, and your
 dog claws its way back as an undead version of itself, with matted greenish fur, a tattered silhouette, and eyes
-that glow red in the dark. The spent totem blesses the risen dog with Fire Resistance and Absorption, exactly as a held
+that glow red in the dark, and it speaks with a zombie's groan in place of its bark, even for the moonlit howl of a
+Husky. The spent totem blesses the risen dog with Fire Resistance and Absorption, exactly as a held
 totem would, and lightning can never harm what lightning raised, so the storm that performs the ritual poses no danger
 to its result. A Channeling trident works just as well if you would rather not wait for the
 weather.
