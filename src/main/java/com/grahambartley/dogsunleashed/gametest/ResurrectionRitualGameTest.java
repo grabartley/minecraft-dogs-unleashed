@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModEntities;
+import com.grahambartley.dogsunleashed.block.DogGraveBlock;
 import com.grahambartley.dogsunleashed.block.entity.DogGraveBlockEntity;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LightningEntity;
 import net.minecraft.entity.effect.StatusEffects;
@@ -39,8 +41,10 @@ import org.jetbrains.annotations.Nullable;
 public final class ResurrectionRitualGameTest implements FabricGameTest {
 
   private static final String ARENA = "dogs-unleashed:dog_arena";
-  // Relative y1 is the template floor, so the ritual site is built one layer up.
-  private static final BlockPos REL_GRAVE = new BlockPos(3, 2, 3);
+  // The grave is two blocks tall and the rod sits above its upper half, so the site starts on the
+  // template floor to fit all three inside the arena's height.
+  private static final BlockPos REL_GRAVE = new BlockPos(3, 1, 3);
+  private static final BlockPos REL_GRAVE_UPPER = new BlockPos(3, 2, 3);
   private static final BlockPos REL_ROD = new BlockPos(3, 3, 3);
   private static final BlockPos REL_DOG = new BlockPos(1, 2, 1);
   private static final DyeColor COLLAR = DyeColor.LIME;
@@ -318,12 +322,38 @@ public final class ResurrectionRitualGameTest implements FabricGameTest {
         });
   }
 
+  @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
+  public void aLegacySingleBlockGraveStillResurrects(final TestContext context) {
+    final PetData pet = deceasedPetWithGrave(context, "Relic", true);
+    context.setBlockState(REL_GRAVE_UPPER, Blocks.LIGHTNING_ROD.getDefaultState());
+    context.setBlockState(REL_ROD, Blocks.AIR.getDefaultState());
+
+    context.runAtTick(
+        STRIKE_TICK, () -> context.spawnEntity(EntityType.LIGHTNING_BOLT, REL_GRAVE_UPPER));
+
+    context.runAtTick(
+        ASSERT_TICK,
+        () -> {
+          context.assertTrue(
+              pet.getLifeState() == PetLifeState.UNDEAD,
+              "A grave from before the upper half existed must still resurrect, but the pet was "
+                  + pet.getLifeState());
+          context.assertTrue(
+              context.getWorld().getBlockState(context.getAbsolutePos(REL_GRAVE_UPPER)).isAir(),
+              "The legacy ritual should consume its rod");
+          context.complete();
+        });
+  }
+
   private static void strikeRod(final TestContext context) {
     context.spawnEntity(EntityType.LIGHTNING_BOLT, REL_ROD);
   }
 
   private static DogGraveBlockEntity placeGrave(final TestContext context, final UUID dogUuid) {
     context.setBlockState(REL_GRAVE, ModBlocks.DOG_GRAVE.getDefaultState());
+    context.setBlockState(
+        REL_GRAVE_UPPER,
+        ModBlocks.DOG_GRAVE.getDefaultState().with(DogGraveBlock.HALF, DoubleBlockHalf.UPPER));
     final DogGraveBlockEntity grave = context.getBlockEntity(REL_GRAVE);
     grave.setDogUuid(dogUuid);
     return grave;

@@ -2,11 +2,13 @@ package com.grahambartley.dogsunleashed.entity;
 
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.advancement.PetResurrectedCriterion;
+import com.grahambartley.dogsunleashed.block.DogGraveBlock;
 import com.grahambartley.dogsunleashed.block.entity.DogGraveBlockEntity;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetManager;
 import java.util.UUID;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
@@ -77,8 +79,7 @@ public final class DogResurrection {
 
     final UUID installerId = grave.getTotemInstallerId();
     grave.clearTotem();
-    world.removeBlock(gravePos, false);
-    consumeRodAbove(world, gravePos);
+    consumeGraveAndRod(world, gravePos);
 
     petManager.markPetResurrected(petData.getPetId());
     petData.setHealth(undeadDog.getHealth());
@@ -131,12 +132,24 @@ public final class DogResurrection {
     return dog;
   }
 
-  /** The rod is spent along with the totem and the grave, rather than left hanging over nothing. */
-  private static void consumeRodAbove(final ServerWorld world, final BlockPos gravePos) {
-    final BlockPos rodPos = gravePos.up();
-    if (world.getBlockState(rodPos).isOf(Blocks.LIGHTNING_ROD)) {
-      world.removeBlock(rodPos, false);
+  /**
+   * The whole ritual site is spent: both halves of the grave, and the rod above them rather than
+   * left hanging over nothing. The rod sits two above the base on a healed grave and directly above
+   * on a legacy single-block one, so both spots are checked.
+   */
+  private static void consumeGraveAndRod(final ServerWorld world, final BlockPos gravePos) {
+    for (final BlockPos above : new BlockPos[] {gravePos.up(), gravePos.up(2)}) {
+      final BlockState state = world.getBlockState(above);
+      if (state.isOf(Blocks.LIGHTNING_ROD)) {
+        world.removeBlock(above, false);
+        break;
+      }
+      if (!(state.getBlock() instanceof DogGraveBlock)) {
+        break;
+      }
+      world.removeBlock(above, false);
     }
+    world.removeBlock(gravePos, false);
   }
 
   private static void applyTotemBlessing(final UnleashedDogEntity dog) {

@@ -1,16 +1,21 @@
 package com.grahambartley.dogsunleashed.block.entity;
 
+import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModBlockEntities;
+import com.grahambartley.dogsunleashed.block.DogGraveBlock;
 import java.util.UUID;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import software.bernie.geckolib.animatable.GeoBlockEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
@@ -33,6 +38,34 @@ public class DogGraveBlockEntity extends BlockEntity implements GeoBlockEntity {
 
   public DogGraveBlockEntity(BlockPos pos, BlockState state) {
     super(ModBlockEntities.DOG_GRAVE, pos, state);
+  }
+
+  /**
+   * Graves placed before the upper half existed are a lone base with air where the top of the
+   * headstone should be targetable. They heal on load, deferred a tick so no block changes happen
+   * mid chunk-load. A grave whose upper cell is occupied (a legacy lightning rod, a player build)
+   * is left alone.
+   */
+  @Override
+  public void setWorld(final World world) {
+    super.setWorld(world);
+    if (world instanceof ServerWorld serverWorld) {
+      DogsUnleashed.runNextTick(() -> this.healMissingUpperHalf(serverWorld));
+    }
+  }
+
+  private void healMissingUpperHalf(final ServerWorld world) {
+    if (this.isRemoved() || !world.isChunkLoaded(this.pos)) {
+      return;
+    }
+    final BlockState state = world.getBlockState(this.pos);
+    if (!(state.getBlock() instanceof DogGraveBlock)
+        || state.get(DogGraveBlock.HALF) != DoubleBlockHalf.LOWER) {
+      return;
+    }
+    if (world.getBlockState(this.pos.up()).isAir()) {
+      world.setBlockState(this.pos.up(), state.with(DogGraveBlock.HALF, DoubleBlockHalf.UPPER));
+    }
   }
 
   public UUID getDogUuid() {

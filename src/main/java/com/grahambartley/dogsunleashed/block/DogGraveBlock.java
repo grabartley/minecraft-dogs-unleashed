@@ -7,9 +7,11 @@ import java.util.UUID;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
@@ -19,6 +21,7 @@ import net.minecraft.item.PickaxeItem;
 import net.minecraft.stat.Stats;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.DirectionProperty;
+import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -33,26 +36,44 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * The headstone stands a block and a half tall, and a raycast only tests a shape inside its own
+ * block cell, so the grave occupies two cells the way a door does: this block with {@code
+ * HALF=LOWER} carrying the block entity, and an {@code UPPER} half giving the top of the stone a
+ * real hitbox. Graves from before the upper half existed heal themselves on load, see {@link
+ * DogGraveBlockEntity#setWorld}.
+ */
 public class DogGraveBlock extends HorizontalFacingBlock implements BlockEntityProvider {
 
   public static final MapCodec<DogGraveBlock> CODEC = createCodec(DogGraveBlock::new);
   public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
+  public static final EnumProperty<DoubleBlockHalf> HALF = Properties.DOUBLE_BLOCK_HALF;
   // Visual size after 2x scaling: 1.125 x 1.5 x 0.375 blocks - CENTERED
-  private static final VoxelShape SHAPE_NORTH =
-      VoxelShapes.cuboid(0.0, 0.0, 0.3125, 1.0, 1.5, 0.6875);
-  private static final VoxelShape SHAPE_SOUTH =
-      VoxelShapes.cuboid(0.0, 0.0, 0.3125, 1.0, 1.5, 0.6875);
-  private static final VoxelShape SHAPE_EAST =
-      VoxelShapes.cuboid(0.3125, 0.0, 0.0, 0.6875, 1.5, 1.0);
-  private static final VoxelShape SHAPE_WEST =
-      VoxelShapes.cuboid(0.3125, 0.0, 0.0, 0.6875, 1.5, 1.0);
+  private static final VoxelShape LOWER_SHAPE_NORTH_SOUTH =
+      VoxelShapes.cuboid(0.0, 0.0, 0.3125, 1.0, 1.0, 0.6875);
+  private static final VoxelShape LOWER_SHAPE_EAST_WEST =
+      VoxelShapes.cuboid(0.3125, 0.0, 0.0, 0.6875, 1.0, 1.0);
+  private static final VoxelShape UPPER_SHAPE_NORTH_SOUTH =
+      VoxelShapes.cuboid(0.0, 0.0, 0.3125, 1.0, 0.5, 0.6875);
+  private static final VoxelShape UPPER_SHAPE_EAST_WEST =
+      VoxelShapes.cuboid(0.3125, 0.0, 0.0, 0.6875, 0.5, 1.0);
 
   public DogGraveBlock(Settings settings) {
     super(settings);
-    this.setDefaultState(this.stateManager.getDefaultState().with(FACING, Direction.NORTH));
+    this.setDefaultState(
+        this.stateManager
+            .getDefaultState()
+            .with(FACING, Direction.NORTH)
+            .with(HALF, DoubleBlockHalf.LOWER));
+  }
+
+  /** The cell holding the block entity, whichever half was targeted. */
+  public static BlockPos basePosOf(final BlockState state, final BlockPos pos) {
+    return state.get(HALF) == DoubleBlockHalf.UPPER ? pos.down() : pos;
   }
 
   @Override
@@ -63,12 +84,10 @@ public class DogGraveBlock extends HorizontalFacingBlock implements BlockEntityP
   @Override
   protected VoxelShape getOutlineShape(
       BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+    final boolean upper = state.get(HALF) == DoubleBlockHalf.UPPER;
     return switch (state.get(FACING)) {
-      case NORTH -> SHAPE_NORTH;
-      case SOUTH -> SHAPE_SOUTH;
-      case EAST -> SHAPE_EAST;
-      case WEST -> SHAPE_WEST;
-      default -> SHAPE_NORTH;
+      case EAST, WEST -> upper ? UPPER_SHAPE_EAST_WEST : LOWER_SHAPE_EAST_WEST;
+      default -> upper ? UPPER_SHAPE_NORTH_SOUTH : LOWER_SHAPE_NORTH_SOUTH;
     };
   }
 
@@ -80,12 +99,38 @@ public class DogGraveBlock extends HorizontalFacingBlock implements BlockEntityP
 
   @Override
   protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-    builder.add(FACING);
+    builder.add(FACING, HALF);
   }
 
   @Override
-  public BlockState getPlacementState(ItemPlacementContext ctx) {
+  public @Nullable BlockState getPlacementState(ItemPlacementContext ctx) {
+    final BlockPos pos = ctx.getBlockPos();
+    if (pos.getY() >= ctx.getWorld().getTopY() - 1
+        || !ctx.getWorld().getBlockState(pos.up()).canReplace(ctx)) {
+      return null;
+    }
     return this.getDefaultState().with(FACING, ctx.getHorizontalPlayerFacing());
+  }
+
+  /**
+   * The upper half exists only on top of its base; the base survives alone, so graves from before
+   * the upper half existed keep standing until they heal.
+   */
+  @Override
+  protected BlockState getStateForNeighborUpdate(
+      BlockState state,
+      Direction direction,
+      BlockState neighborState,
+      WorldAccess world,
+      BlockPos pos,
+      BlockPos neighborPos) {
+    if (state.get(HALF) == DoubleBlockHalf.UPPER
+        && direction == Direction.DOWN
+        && (!neighborState.isOf(this) || neighborState.get(HALF) != DoubleBlockHalf.LOWER)) {
+      return Blocks.AIR.getDefaultState();
+    }
+    return super.getStateForNeighborUpdate(
+        state, direction, neighborState, world, pos, neighborPos);
   }
 
   @Override
@@ -131,7 +176,14 @@ public class DogGraveBlock extends HorizontalFacingBlock implements BlockEntityP
       }
     }
 
+    world.setBlockState(pos.up(), state.with(HALF, DoubleBlockHalf.UPPER), Block.NOTIFY_ALL);
     super.onPlaced(world, pos, state, placer, itemStack);
+  }
+
+  /** Places both halves of a grave, the shape every non-item spawn path should produce. */
+  public static void placeGrave(final World world, final BlockPos basePos, final BlockState base) {
+    world.setBlockState(basePos, base.with(HALF, DoubleBlockHalf.LOWER));
+    world.setBlockState(basePos.up(), base.with(HALF, DoubleBlockHalf.UPPER));
   }
 
   /**
@@ -189,31 +241,36 @@ public class DogGraveBlock extends HorizontalFacingBlock implements BlockEntityP
   }
 
   @Override
-  public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-    return new DogGraveBlockEntity(pos, state);
+  public @Nullable BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+    return state.get(HALF) == DoubleBlockHalf.LOWER ? new DogGraveBlockEntity(pos, state) : null;
   }
 
   @Override
   public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state) {
     ItemStack stack = super.getPickStack(world, pos, state);
-    BlockEntity blockEntity = world.getBlockEntity(pos);
+    BlockEntity blockEntity = world.getBlockEntity(basePosOf(state, pos));
     if (blockEntity instanceof DogGraveBlockEntity graveBlockEntity) {
       addGraveDataToStack(stack, graveBlockEntity);
     }
     return stack;
   }
 
+  /** Breaking either half takes the whole grave, preserving its data through the base's entity. */
   @Override
   public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-    if (!world.isClient && !player.isCreative()) {
-      BlockEntity blockEntity = world.getBlockEntity(pos);
-      if (blockEntity instanceof DogGraveBlockEntity graveBlockEntity) {
-        final ItemStack tool = player.getMainHandStack();
-        if (tool.getItem() instanceof PickaxeItem) {
-          final ItemStack stack = new ItemStack(this);
-          addGraveDataToStack(stack, graveBlockEntity);
-          dropStack(world, pos, stack);
-        }
+    if (!world.isClient) {
+      final BlockPos basePos = basePosOf(state, pos);
+      if (!player.isCreative()
+          && world.getBlockEntity(basePos) instanceof DogGraveBlockEntity graveBlockEntity
+          && player.getMainHandStack().getItem() instanceof PickaxeItem) {
+        final ItemStack stack = new ItemStack(this);
+        addGraveDataToStack(stack, graveBlockEntity);
+        dropStack(world, basePos, stack);
+      }
+      final BlockPos otherPos = state.get(HALF) == DoubleBlockHalf.UPPER ? basePos : pos.up();
+      final BlockState other = world.getBlockState(otherPos);
+      if (other.isOf(this) && other.get(HALF) != state.get(HALF)) {
+        world.setBlockState(otherPos, Blocks.AIR.getDefaultState(), Block.NOTIFY_ALL);
       }
     }
     return super.onBreak(world, pos, state, player);

@@ -27,6 +27,13 @@
           "predicate": {
             "items": "#minecraft:mineable/pickaxe"
           }
+        },
+        {
+          "condition": "minecraft:block_state_property",
+          "block": "dogs-unleashed:dog_grave",
+          "properties": {
+            "half": "lower"
+          }
         }
       ]
     }

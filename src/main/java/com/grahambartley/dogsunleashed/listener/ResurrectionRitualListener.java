@@ -1,9 +1,11 @@
 package com.grahambartley.dogsunleashed.listener;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
+import com.grahambartley.dogsunleashed.block.DogGraveBlock;
 import com.grahambartley.dogsunleashed.block.entity.DogGraveBlockEntity;
 import com.grahambartley.dogsunleashed.entity.DogResurrection;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LightningEntity;
@@ -38,7 +40,11 @@ public final class ResurrectionRitualListener {
     if (rodPos == null) {
       return;
     }
-    final BlockPos gravePos = rodPos.down();
+    final BlockState below = world.getBlockState(rodPos.down());
+    if (!(below.getBlock() instanceof DogGraveBlock)) {
+      return;
+    }
+    final BlockPos gravePos = DogGraveBlock.basePosOf(below, rodPos.down());
     if (!(world.getBlockEntity(gravePos) instanceof DogGraveBlockEntity grave)
         || !DogResurrection.canResurrect(world, grave)) {
       return;

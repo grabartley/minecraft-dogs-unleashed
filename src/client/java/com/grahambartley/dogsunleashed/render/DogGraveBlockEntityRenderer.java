@@ -28,9 +28,9 @@ public class DogGraveBlockEntityRenderer extends GeoBlockRenderer<DogGraveBlockE
   private static final ItemStack TOTEM_STACK = new ItemStack(Items.TOTEM_OF_UNDYING);
   private static final float TOTEM_SCALE = 0.7f;
   private static final float TOTEM_LEAN_DEGREES = -24.0f;
-  private static final float TOTEM_SIDE_TILT_DEGREES = -8.0f;
+  private static final float TOTEM_SIDE_TILT_DEGREES = 8.0f;
   private static final double TOTEM_BASE_HEIGHT = 0.34;
-  private static final double TOTEM_SIDE_OFFSET = 0.24;
+  private static final double TOTEM_SIDE_OFFSET = -0.24;
   private static final double TOTEM_OFFSET_FROM_CENTRE = 0.30;
 
   public DogGraveBlockEntityRenderer(BlockEntityRendererFactory.Context context) {
@@ -123,9 +123,10 @@ public class DogGraveBlockEntityRenderer extends GeoBlockRenderer<DogGraveBlockE
       DogGraveBlockEntity entity, String name, int textColor, MatrixStack matrices, int light) {
     final MinecraftClient client = MinecraftClient.getInstance();
 
-    // Only render when crosshair is on this grave
+    // Only render when the crosshair is on this grave, either half of it
     if (!(client.crosshairTarget instanceof BlockHitResult hit)) return;
-    if (!hit.getBlockPos().equals(entity.getPos())) return;
+    if (!hit.getBlockPos().equals(entity.getPos())
+        && !hit.getBlockPos().equals(entity.getPos().up())) return;
 
     final VertexConsumerProvider.Immediate immediate =
         client.getBufferBuilders().getEntityVertexConsumers();
