@@ -12,7 +12,6 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import software.bernie.geckolib.animatable.GeoBlockEntity;
@@ -20,29 +19,15 @@ import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class DogBedBlockEntity extends BlockEntity implements GeoBlockEntity, AssignedDogHolder {
+public class DogHouseBlockEntity extends BlockEntity implements GeoBlockEntity, AssignedDogHolder {
 
-  private static final String NBT_COLOR = "Color";
   private static final String NBT_ASSIGNED_DOG = "AssignedDog";
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-  private DyeColor color = DyeColor.WHITE;
   private UUID assignedDogUuid = null;
 
-  public DogBedBlockEntity(BlockPos pos, BlockState state) {
-    super(ModBlockEntities.DOG_BED, pos, state);
-  }
-
-  public DyeColor getColor() {
-    return this.color;
-  }
-
-  public void setColor(DyeColor color) {
-    this.color = color;
-    this.markDirty();
-    if (this.world != null) {
-      this.world.updateListeners(this.pos, this.getCachedState(), this.getCachedState(), 3);
-    }
+  public DogHouseBlockEntity(BlockPos pos, BlockState state) {
+    super(ModBlockEntities.DOG_HOUSE, pos, state);
   }
 
   @Override
@@ -59,6 +44,7 @@ public class DogBedBlockEntity extends BlockEntity implements GeoBlockEntity, As
   public void setAssignedDog(UnleashedDogEntity dog) {
     this.assignedDogUuid = dog.getUuid();
     this.markDirty();
+    this.syncToClients();
   }
 
   @Override
@@ -71,6 +57,7 @@ public class DogBedBlockEntity extends BlockEntity implements GeoBlockEntity, As
     }
     this.assignedDogUuid = null;
     this.markDirty();
+    this.syncToClients();
   }
 
   @Override
@@ -88,10 +75,16 @@ public class DogBedBlockEntity extends BlockEntity implements GeoBlockEntity, As
     return null;
   }
 
+  /** The renderer draws the occupant from the client copy, so assignment changes must be synced. */
+  private void syncToClients() {
+    if (this.world != null && !this.world.isClient) {
+      this.world.updateListeners(this.pos, this.getCachedState(), this.getCachedState(), 3);
+    }
+  }
+
   @Override
   protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
     super.writeNbt(nbt, registryLookup);
-    nbt.putInt(NBT_COLOR, this.color.getId());
     if (this.assignedDogUuid != null) {
       nbt.putUuid(NBT_ASSIGNED_DOG, this.assignedDogUuid);
     }
@@ -100,9 +93,6 @@ public class DogBedBlockEntity extends BlockEntity implements GeoBlockEntity, As
   @Override
   protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
     super.readNbt(nbt, registryLookup);
-    if (nbt.contains(NBT_COLOR)) {
-      this.color = DyeColor.byId(nbt.getInt(NBT_COLOR));
-    }
     if (nbt.containsUuid(NBT_ASSIGNED_DOG)) {
       this.assignedDogUuid = nbt.getUuid(NBT_ASSIGNED_DOG);
     } else {

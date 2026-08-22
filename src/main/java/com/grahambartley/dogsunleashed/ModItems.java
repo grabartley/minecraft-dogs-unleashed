@@ -9,6 +9,7 @@ import com.grahambartley.dogsunleashed.item.FrisbeeItem;
 import com.grahambartley.dogsunleashed.item.StickThrowHandler;
 import com.grahambartley.dogsunleashed.item.TennisBallItem;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
@@ -44,6 +45,12 @@ public class ModItems {
           Registries.ITEM,
           Identifier.of(DogsUnleashed.MOD_ID, "dog_bed"),
           new DogBedItem(ModBlocks.DOG_BED, new Item.Settings()));
+
+  public static final Item DOG_HOUSE =
+      Registry.register(
+          Registries.ITEM,
+          Identifier.of(DogsUnleashed.MOD_ID, "dog_house"),
+          new BlockItem(ModBlocks.DOG_HOUSE, new Item.Settings()));
 
   public static final Item DOG_TREAT =
       Registry.register(
@@ -145,6 +152,8 @@ public class ModItems {
                 entries.add(stack);
               }
             });
+    ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL)
+        .register(entries -> entries.add(DOG_HOUSE));
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS)
         .register(entries -> entries.add(HUSKY_SPAWN_EGG));
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS)

@@ -1,11 +1,13 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
-import com.grahambartley.dogsunleashed.ModBlocks;
+import com.grahambartley.dogsunleashed.ModBlockTags;
+import com.grahambartley.dogsunleashed.block.DogSleepSpotAnchor;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.EnumSet;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 public class SleepInBedGoal extends Goal {
@@ -42,7 +44,7 @@ public class SleepInBedGoal extends Goal {
   private boolean isValidBed(BlockPos pos) {
     final World world = this.dog.getWorld();
     final BlockState state = world.getBlockState(pos);
-    return state.isOf(ModBlocks.DOG_BED);
+    return state.isIn(ModBlockTags.DOG_BEDS);
   }
 
   @Override
@@ -97,12 +99,9 @@ public class SleepInBedGoal extends Goal {
     }
 
     if (this.dog.isSleepingInBed()) {
+      final Vec3d anchor = DogSleepSpotAnchor.of(this.dog.getWorld(), this.targetBedPos);
       this.dog.refreshPositionAndAngles(
-          this.targetBedPos.getX() + BED_POSITION_OFFSET,
-          this.targetBedPos.getY() + 0.1,
-          this.targetBedPos.getZ() + BED_POSITION_OFFSET,
-          this.dog.getYaw(),
-          this.dog.getPitch());
+          anchor.x, anchor.y + 0.1, anchor.z, this.dog.getYaw(), this.dog.getPitch());
       this.dog.setVelocity(0, 0, 0);
       return;
     }

@@ -44,6 +44,13 @@
       "speck": "#8E7044",
       "edge": "#A08050",
       "dither": 0.14
+    },
+    "bedding": {
+      "light": "#4A4038",
+      "base": "#3B332C",
+      "speck": "#332C26",
+      "edge": "#241F1A",
+      "dither": 0.16
     }
   },
   "cubes": {
@@ -56,22 +63,21 @@
     "bb_main[6]": "planks",
     "bb_main[7]": "planks",
     "bb_main[8]": "planks",
-    "bb_main[9]": "planks",
-    "bb_main[10]": "planks",
-    "bb_main[11]": "void",
-    "bb_main[12]": "wool",
+    "bb_main[9]": "void",
+    "bb_main[10]": "bedding",
+    "bb_main[11]": "shingle",
+    "bb_main[12]": "shingle",
     "bb_main[13]": "shingle",
     "bb_main[14]": "gable",
     "bb_main[15]": "gable",
     "bb_main[16]": "gable",
     "bb_main[17]": "gable",
     "bb_main[18]": "gable",
-    "bb_main[19]": "shingle",
+    "bb_main[19]": "gable",
     "bb_main[20]": "shingle",
     "bb_main[21]": "shingle",
     "bb_main[22]": "shingle",
-    "bb_main[23]": "shingle",
-    "bb_main[24]": "brick"
+    "bb_main[23]": "brick"
   },
   "decals": []
 }
