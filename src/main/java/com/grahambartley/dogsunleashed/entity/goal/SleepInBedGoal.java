@@ -1,13 +1,13 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
 import com.grahambartley.dogsunleashed.ModBlockTags;
+import com.grahambartley.dogsunleashed.block.DogSleepPose;
 import com.grahambartley.dogsunleashed.block.DogSleepSpotAnchor;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.EnumSet;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 public class SleepInBedGoal extends Goal {
@@ -99,9 +99,12 @@ public class SleepInBedGoal extends Goal {
     }
 
     if (this.dog.isSleepingInBed()) {
-      final Vec3d anchor = DogSleepSpotAnchor.of(this.dog.getWorld(), this.targetBedPos);
+      final DogSleepPose pose =
+          DogSleepSpotAnchor.poseFor(this.dog.getWorld(), this.targetBedPos, this.dog.getYaw());
       this.dog.refreshPositionAndAngles(
-          anchor.x, anchor.y + 0.1, anchor.z, this.dog.getYaw(), this.dog.getPitch());
+          pose.position().x, pose.position().y, pose.position().z, pose.yaw(), this.dog.getPitch());
+      this.dog.setBodyYaw(pose.yaw());
+      this.dog.setHeadYaw(pose.yaw());
       this.dog.setVelocity(0, 0, 0);
       return;
     }

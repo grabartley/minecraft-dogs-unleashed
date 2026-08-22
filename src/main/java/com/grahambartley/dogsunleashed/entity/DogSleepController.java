@@ -3,11 +3,11 @@ package com.grahambartley.dogsunleashed.entity;
 import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.advancement.DogSleptInBedCriterion;
+import com.grahambartley.dogsunleashed.block.DogSleepPose;
 import com.grahambartley.dogsunleashed.block.DogSleepSpotAnchor;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 
 public final class DogSleepController {
 
@@ -91,13 +91,7 @@ public final class DogSleepController {
   public void startSleepingInBed(final BlockPos bedPos) {
     this.dog.setSleepingInBed(true);
     this.dog.setCommandedToSleep(false);
-    final Vec3d anchor = DogSleepSpotAnchor.of(this.dog.getWorld(), bedPos);
-    this.dog.refreshPositionAndAngles(
-        anchor.x,
-        anchor.y + SLEEP_POSITION_Y_OFFSET,
-        anchor.z,
-        this.dog.getYaw(),
-        this.dog.getPitch());
+    layDown(bedPos);
     this.dog.setVelocity(0, 0, 0);
     this.dog.setNoGravity(true);
     this.dog.getNavigation().stop();
@@ -105,6 +99,20 @@ public final class DogSleepController {
     if (this.dog.getOwner() instanceof ServerPlayerEntity player) {
       DogSleptInBedCriterion.INSTANCE.trigger(player);
     }
+  }
+
+  /**
+   * A bed leaves the dog pointing wherever it was; a house turns it to face out of its own doorway,
+   * so the body yaw has to move too. The renderer draws off body yaw, and nothing else updates it
+   * once the dog stops walking.
+   */
+  private void layDown(final BlockPos bedPos) {
+    final DogSleepPose pose =
+        DogSleepSpotAnchor.poseFor(this.dog.getWorld(), bedPos, this.dog.getYaw());
+    this.dog.refreshPositionAndAngles(
+        pose.position().x, pose.position().y, pose.position().z, pose.yaw(), this.dog.getPitch());
+    this.dog.setBodyYaw(pose.yaw());
+    this.dog.setHeadYaw(pose.yaw());
   }
 
   void wakeUp() {

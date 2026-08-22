@@ -13,8 +13,16 @@ import net.minecraft.util.math.BlockPos;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoBlockRenderer;
 
-/** The house is two blocks tall, so every pose is scaled down harder than a one-cell prop. */
+/**
+ * The house model is two blocks on every axis and its origin sits on the front-left corner rather
+ * than in its middle, so each pose has to both scale for a two-block prop and pull the model back
+ * by its own centre. Miss either and the house renders oversized and hanging out of its slot.
+ */
 public class DogHouseItemRenderer implements BuiltinItemRendererRegistry.DynamicItemRenderer {
+
+  private static final double CENTRE_X = 0.5;
+  private static final double CENTRE_Y = 1.0;
+  private static final double CENTRE_Z = 0.5;
 
   private final GeoBlockRenderer<DogHouseBlockEntity> renderer;
   private final DogHouseBlockEntity dummyEntity;
@@ -37,20 +45,14 @@ public class DogHouseItemRenderer implements BuiltinItemRendererRegistry.Dynamic
     matrices.push();
 
     switch (mode) {
-      case GUI ->
-          ItemRenderTransforms.applyDisplayPose(matrices, 0.5, 0.06, 0.0, 20.0f, 35.0f, 0.62f);
-      case GROUND -> ItemRenderTransforms.applyGroundPose(matrices, 0.5, 0.15, 0.5, 0.4f);
-      case FIXED ->
-          ItemRenderTransforms.applyDisplayPose(matrices, 0.5, 0.1, 0.5, 15.0f, 35.0f, 0.5f);
+      case GUI -> centredPose(matrices, 0.5, 0.52, 0.0, 30.0f, 45.0f, 0.27f);
+      case GROUND -> centredPose(matrices, 0.5, 0.3, 0.5, 0.0f, 0.0f, 0.20f);
+      case FIXED -> centredPose(matrices, 0.5, 0.5, 0.5, 0.0f, 0.0f, 0.26f);
       case THIRD_PERSON_LEFT_HAND, THIRD_PERSON_RIGHT_HAND ->
-          ItemRenderTransforms.applyDisplayPose(matrices, 0.5, 0.25, 0.5, 60.0f, 45.0f, 0.4f);
-      case FIRST_PERSON_LEFT_HAND ->
-          ItemRenderTransforms.applyFirstPersonPose(
-              matrices, 0.6, 0.2, 0.3, 10.0f, -80.0f, -10.0f, 0.35f);
-      case FIRST_PERSON_RIGHT_HAND ->
-          ItemRenderTransforms.applyFirstPersonPose(
-              matrices, 0.4, 0.2, 0.3, 10.0f, 80.0f, 10.0f, 0.35f);
-      default -> ItemRenderTransforms.applyGroundPose(matrices, 0.5, 0.15, 0.5, 0.4f);
+          centredPose(matrices, 0.5, 0.45, 0.5, 20.0f, 45.0f, 0.22f);
+      case FIRST_PERSON_LEFT_HAND -> centredPose(matrices, 0.45, 0.4, 0.4, 10.0f, -50.0f, 0.20f);
+      case FIRST_PERSON_RIGHT_HAND -> centredPose(matrices, 0.55, 0.4, 0.4, 10.0f, 50.0f, 0.20f);
+      default -> centredPose(matrices, 0.5, 0.3, 0.5, 0.0f, 0.0f, 0.20f);
     }
 
     final BakedGeoModel bakedModel =
@@ -73,5 +75,18 @@ public class DogHouseItemRenderer implements BuiltinItemRendererRegistry.Dynamic
         0xFFFFFFFF);
 
     matrices.pop();
+  }
+
+  /** Poses the house about its own middle rather than about the corner its model starts from. */
+  private static void centredPose(
+      final MatrixStack matrices,
+      final double x,
+      final double y,
+      final double z,
+      final float xRotation,
+      final float yRotation,
+      final float scale) {
+    ItemRenderTransforms.applyDisplayPose(matrices, x, y, z, xRotation, yRotation, scale);
+    matrices.translate(-CENTRE_X, -CENTRE_Y, -CENTRE_Z);
   }
 }

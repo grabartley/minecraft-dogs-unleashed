@@ -30,12 +30,12 @@ public final class DogHouseShape {
   /** Solid parts of the shell, in the same 32-unit frame the model is authored in. */
   private static final double[][] SHELL = {
     {0, 0, 0, 32, 2, 32}, // floor
-    {0, 2, 0, 2, 16, 32}, // left wall
-    {30, 2, 0, 32, 16, 32}, // right wall
-    {2, 2, 30, 30, 16, 32}, // back wall
-    {2, 2, 0, 7, 12, 2}, // left door post
-    {25, 2, 0, 30, 12, 2}, // right door post
-    {2, 12, 0, 30, 16, 2}, // lintel
+    {0, 2, 0, 2, 18, 32}, // left wall
+    {30, 2, 0, 32, 18, 32}, // right wall
+    {2, 2, 30, 30, 18, 32}, // back wall
+    {2, 2, 0, 6, 15, 2}, // left door post
+    {26, 2, 0, 30, 15, 2}, // right door post
+    {2, 15, 0, 30, 18, 2}, // lintel
   };
 
   private static final Map<DogHousePart, Map<Direction, VoxelShape>> SHAPES = buildShapes();
