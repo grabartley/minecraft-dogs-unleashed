@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed;
 
 import com.grahambartley.dogsunleashed.block.entity.DogBedBlockEntity;
 import com.grahambartley.dogsunleashed.block.entity.DogGraveBlockEntity;
+import com.grahambartley.dogsunleashed.block.entity.DogHouseBlockEntity;
 import com.grahambartley.dogsunleashed.block.entity.FrisbeeBlockEntity;
 import com.grahambartley.dogsunleashed.block.entity.StickBlockEntity;
 import com.grahambartley.dogsunleashed.block.entity.TennisBallBlockEntity;
@@ -23,6 +24,12 @@ public class ModBlockEntities {
           Registries.BLOCK_ENTITY_TYPE,
           Identifier.of(DogsUnleashed.MOD_ID, "dog_grave"),
           BlockEntityType.Builder.create(DogGraveBlockEntity::new, ModBlocks.DOG_GRAVE).build());
+
+  public static final BlockEntityType<DogHouseBlockEntity> DOG_HOUSE =
+      Registry.register(
+          Registries.BLOCK_ENTITY_TYPE,
+          Identifier.of(DogsUnleashed.MOD_ID, "dog_house"),
+          BlockEntityType.Builder.create(DogHouseBlockEntity::new, ModBlocks.DOG_HOUSE).build());
 
   public static final BlockEntityType<TennisBallBlockEntity> TENNIS_BALL =
       Registry.register(

@@ -61,6 +61,7 @@ public final class DogsUnleashedInfoEntries {
     definitions.add(item("stick", () -> Items.STICK));
     definitions.add(dyed("frisbee", () -> ModItems.FRISBEE, () -> ModComponents.FRISBEE_COLOR));
     definitions.add(dyed("dog_bed", () -> ModItems.DOG_BED, () -> ModComponents.DOG_BED_COLOR));
+    definitions.add(item("dog_house", () -> ModItems.DOG_HOUSE));
     definitions.add(item("dog_grave", () -> ModItems.DOG_GRAVE));
     definitions.add(item("dog_treat", () -> ModItems.DOG_TREAT));
     definitions.add(item("dog_whistle", () -> ModItems.DOG_WHISTLE));

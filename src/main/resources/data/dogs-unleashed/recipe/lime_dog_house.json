@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "dog_house",
+  "pattern": [
+    "PPP",
+    "PCP",
+    "WPW"
+  ],
+  "key": {
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "W": {
+      "tag": "minecraft:wool"
+    },
+    "C": {
+      "item": "minecraft:lime_carpet"
+    }
+  },
+  "result": {
+    "id": "dogs-unleashed:dog_house",
+    "components": {
+      "dogs-unleashed:dog_house_color": "lime"
+    }
+  }
+}

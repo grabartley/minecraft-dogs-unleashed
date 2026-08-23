@@ -21,6 +21,15 @@ public class ModComponents {
               .packetCodec(DyeColor.PACKET_CODEC)
               .build());
 
+  public static final ComponentType<DyeColor> DOG_HOUSE_COLOR =
+      Registry.register(
+          Registries.DATA_COMPONENT_TYPE,
+          Identifier.of(DogsUnleashed.MOD_ID, "dog_house_color"),
+          ComponentType.<DyeColor>builder()
+              .codec(DyeColor.CODEC)
+              .packetCodec(DyeColor.PACKET_CODEC)
+              .build());
+
   public static final ComponentType<UUID> DOG_GRAVE_UUID =
       Registry.register(
           Registries.DATA_COMPONENT_TYPE,

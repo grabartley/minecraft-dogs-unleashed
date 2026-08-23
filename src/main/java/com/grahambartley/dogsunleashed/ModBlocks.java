@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed;
 
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
 import com.grahambartley.dogsunleashed.block.DogGraveBlock;
+import com.grahambartley.dogsunleashed.block.DogHouseBlock;
 import com.grahambartley.dogsunleashed.block.FrisbeeBlock;
 import com.grahambartley.dogsunleashed.block.StickBlock;
 import com.grahambartley.dogsunleashed.block.TennisBallBlock;
@@ -36,6 +37,17 @@ public class ModBlocks {
                   .strength(2.0f)
                   .requiresTool()
                   .sounds(BlockSoundGroup.STONE)
+                  .nonOpaque()));
+
+  public static final Block DOG_HOUSE =
+      Registry.register(
+          Registries.BLOCK,
+          Identifier.of(DogsUnleashed.MOD_ID, "dog_house"),
+          new DogHouseBlock(
+              AbstractBlock.Settings.create()
+                  .mapColor(MapColor.OAK_TAN)
+                  .strength(2.0f)
+                  .sounds(BlockSoundGroup.WOOD)
                   .nonOpaque()));
 
   public static final Block TENNIS_BALL =

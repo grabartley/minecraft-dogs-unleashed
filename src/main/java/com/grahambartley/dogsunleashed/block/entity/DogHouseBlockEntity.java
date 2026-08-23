@@ -1,10 +1,12 @@
 package com.grahambartley.dogsunleashed.block.entity;
 
 import com.grahambartley.dogsunleashed.ModBlockEntities;
+import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.UUID;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.component.ComponentMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
@@ -20,17 +22,17 @@ import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class DogBedBlockEntity extends BlockEntity implements GeoBlockEntity, AssignedDogHolder {
+public class DogHouseBlockEntity extends BlockEntity implements GeoBlockEntity, AssignedDogHolder {
 
-  private static final String NBT_COLOR = "Color";
   private static final String NBT_ASSIGNED_DOG = "AssignedDog";
+  private static final String NBT_COLOR = "Color";
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-  private DyeColor color = DyeColor.WHITE;
   private UUID assignedDogUuid = null;
+  private DyeColor color = DyeColor.WHITE;
 
-  public DogBedBlockEntity(BlockPos pos, BlockState state) {
-    super(ModBlockEntities.DOG_BED, pos, state);
+  public DogHouseBlockEntity(BlockPos pos, BlockState state) {
+    super(ModBlockEntities.DOG_HOUSE, pos, state);
   }
 
   public DyeColor getColor() {
@@ -40,9 +42,7 @@ public class DogBedBlockEntity extends BlockEntity implements GeoBlockEntity, As
   public void setColor(DyeColor color) {
     this.color = color;
     this.markDirty();
-    if (this.world != null) {
-      this.world.updateListeners(this.pos, this.getCachedState(), this.getCachedState(), 3);
-    }
+    this.syncToClients();
   }
 
   @Override
@@ -59,6 +59,7 @@ public class DogBedBlockEntity extends BlockEntity implements GeoBlockEntity, As
   public void setAssignedDog(UnleashedDogEntity dog) {
     this.assignedDogUuid = dog.getUuid();
     this.markDirty();
+    this.syncToClients();
   }
 
   @Override
@@ -71,6 +72,7 @@ public class DogBedBlockEntity extends BlockEntity implements GeoBlockEntity, As
     }
     this.assignedDogUuid = null;
     this.markDirty();
+    this.syncToClients();
   }
 
   @Override
@@ -86,6 +88,13 @@ public class DogBedBlockEntity extends BlockEntity implements GeoBlockEntity, As
       }
     }
     return null;
+  }
+
+  /** The renderer draws the occupant and the cushion colour from the client copy of this. */
+  private void syncToClients() {
+    if (this.world != null && !this.world.isClient) {
+      this.world.updateListeners(this.pos, this.getCachedState(), this.getCachedState(), 3);
+    }
   }
 
   @Override
@@ -108,6 +117,22 @@ public class DogBedBlockEntity extends BlockEntity implements GeoBlockEntity, As
     } else {
       this.assignedDogUuid = null;
     }
+  }
+
+  /**
+   * The cushion colour travels on the item as a component, which is what carries it from the
+   * crafting recipe onto a placed house and back onto the house that drops when one is broken.
+   */
+  @Override
+  protected void addComponents(ComponentMap.Builder builder) {
+    super.addComponents(builder);
+    builder.add(ModComponents.DOG_HOUSE_COLOR, this.color);
+  }
+
+  @Override
+  protected void readComponents(BlockEntity.ComponentsAccess components) {
+    super.readComponents(components);
+    this.color = components.getOrDefault(ModComponents.DOG_HOUSE_COLOR, DyeColor.WHITE);
   }
 
   @Override

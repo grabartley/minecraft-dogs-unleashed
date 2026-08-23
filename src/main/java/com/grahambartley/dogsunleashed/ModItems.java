@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.item.DogBedItem;
 import com.grahambartley.dogsunleashed.item.DogGraveItem;
+import com.grahambartley.dogsunleashed.item.DogHouseItem;
 import com.grahambartley.dogsunleashed.item.DogTreatItem;
 import com.grahambartley.dogsunleashed.item.DogWhistleItem;
 import com.grahambartley.dogsunleashed.item.FrisbeeItem;
@@ -44,6 +45,12 @@ public class ModItems {
           Registries.ITEM,
           Identifier.of(DogsUnleashed.MOD_ID, "dog_bed"),
           new DogBedItem(ModBlocks.DOG_BED, new Item.Settings()));
+
+  public static final Item DOG_HOUSE =
+      Registry.register(
+          Registries.ITEM,
+          Identifier.of(DogsUnleashed.MOD_ID, "dog_house"),
+          new DogHouseItem(ModBlocks.DOG_HOUSE, new Item.Settings()));
 
   public static final Item DOG_TREAT =
       Registry.register(
@@ -142,6 +149,15 @@ public class ModItems {
               for (DyeColor color : DyeColor.values()) {
                 ItemStack stack = new ItemStack(DOG_BED);
                 stack.set(ModComponents.DOG_BED_COLOR, color);
+                entries.add(stack);
+              }
+            });
+    ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL)
+        .register(
+            entries -> {
+              for (DyeColor color : DyeColor.values()) {
+                ItemStack stack = new ItemStack(DOG_HOUSE);
+                stack.set(ModComponents.DOG_HOUSE_COLOR, color);
                 entries.add(stack);
               }
             });

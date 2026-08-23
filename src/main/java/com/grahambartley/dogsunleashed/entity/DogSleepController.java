@@ -1,7 +1,10 @@
 package com.grahambartley.dogsunleashed.entity;
 
+import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.advancement.DogSleptInBedCriterion;
+import com.grahambartley.dogsunleashed.block.DogSleepPose;
+import com.grahambartley.dogsunleashed.block.DogSleepSpotAnchor;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
@@ -88,12 +91,7 @@ public final class DogSleepController {
   public void startSleepingInBed(final BlockPos bedPos) {
     this.dog.setSleepingInBed(true);
     this.dog.setCommandedToSleep(false);
-    this.dog.refreshPositionAndAngles(
-        bedPos.getX() + POSITION_CENTER_OFFSET,
-        bedPos.getY() + SLEEP_POSITION_Y_OFFSET,
-        bedPos.getZ() + POSITION_CENTER_OFFSET,
-        this.dog.getYaw(),
-        this.dog.getPitch());
+    layDown(bedPos);
     this.dog.setVelocity(0, 0, 0);
     this.dog.setNoGravity(true);
     this.dog.getNavigation().stop();
@@ -103,11 +101,40 @@ public final class DogSleepController {
     }
   }
 
+  /**
+   * A bed leaves the dog pointing wherever it was; a house turns it to face out of its own doorway,
+   * so the body yaw has to move too. The renderer draws off body yaw, and nothing else updates it
+   * once the dog stops walking.
+   */
+  private void layDown(final BlockPos bedPos) {
+    final DogSleepPose pose =
+        DogSleepSpotAnchor.poseFor(this.dog.getWorld(), bedPos, this.dog.getYaw());
+    this.dog.refreshPositionAndAngles(
+        pose.position().x, pose.position().y, pose.position().z, pose.yaw(), this.dog.getPitch());
+    this.dog.setBodyYaw(pose.yaw());
+    this.dog.setHeadYaw(pose.yaw());
+  }
+
   void wakeUp() {
+    awardHouseComfort();
     this.dog.setNoGravity(false);
     this.dog.setSleepingInBed(false);
     this.dog.setCommandedToSleep(false);
     this.dog.getAmbienceEffects().releaseBirthWakeHearts();
+  }
+
+  /**
+   * A dog that wakes in a dog house is rested. Unassigning clears the bed position before waking,
+   * so tearing the house down never pays out the buff.
+   */
+  private void awardHouseComfort() {
+    if (!this.dog.isSleepingInBed() || this.dog.getWorld().isClient) {
+      return;
+    }
+    this.dog
+        .getAssignedBedPos()
+        .filter(pos -> this.dog.getWorld().getBlockState(pos).isOf(ModBlocks.DOG_HOUSE))
+        .ifPresent(pos -> this.dog.addStatusEffect(DogHouseComfort.wakeEffect()));
   }
 
   void writeNbt(final NbtCompound nbt) {

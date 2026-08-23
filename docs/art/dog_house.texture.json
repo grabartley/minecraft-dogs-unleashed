@@ -1,0 +1,86 @@
+{
+  "note": "Dog House block, source spec for the box-UV texture. Lives outside assets/ because GeckoLibCache scans the geo folder for any .json and FileLoader then rejects anything not ending .geo.json. Rebuild: python3 geoprop.py texture docs/art/dog_house.texture.json src/client/resources/assets/dogs-unleashed/textures/block/dog_house.png",
+  "geo": "src/client/resources/assets/dogs-unleashed/geo/dog_house.geo.json",
+  "seed": 20260822,
+  "materials": {
+    "planks": {
+      "light": "#C4A468",
+      "base": "#9B7F4A",
+      "speck": "#8A6F3E",
+      "edge": "#63502D",
+      "dither": 0.12
+    },
+    "shingle": {
+      "light": "#8A6A3E",
+      "base": "#6E5230",
+      "speck": "#5F4728",
+      "edge": "#43331D",
+      "dither": 0.13
+    },
+    "wool": {
+      "light": "#F2F4F4",
+      "base": "#E4E7E8",
+      "speck": "#D3D7D8",
+      "edge": "#A9AFB0",
+      "dither": 0.1
+    },
+    "brick": {
+      "light": "#B05A48",
+      "base": "#8E4534",
+      "speck": "#7C3B2C",
+      "edge": "#58291E",
+      "dither": 0.14
+    },
+    "void": {
+      "light": "#0B0B0D",
+      "base": "#08080A",
+      "speck": "#090909",
+      "edge": "#050506",
+      "dither": 0.05
+    },
+    "gable": {
+      "light": "#A08050",
+      "base": "#A08050",
+      "speck": "#8E7044",
+      "edge": "#A08050",
+      "dither": 0.14
+    },
+    "bedding": {
+      "light": "#4A4038",
+      "base": "#3B332C",
+      "speck": "#332C26",
+      "edge": "#241F1A",
+      "dither": 0.16
+    }
+  },
+  "cubes": {
+    "bb_main[0]": "planks",
+    "bb_main[1]": "planks",
+    "bb_main[2]": "planks",
+    "bb_main[3]": "planks",
+    "bb_main[4]": "planks",
+    "bb_main[5]": "planks",
+    "bb_main[6]": "planks",
+    "bb_main[7]": "planks",
+    "bb_main[8]": "planks",
+    "bb_main[9]": "void",
+    "bb_main[10]": "bedding",
+    "bb_main[11]": "shingle",
+    "bb_main[12]": "shingle",
+    "bb_main[13]": "shingle",
+    "bb_main[14]": "gable",
+    "bb_main[15]": "gable",
+    "bb_main[16]": "gable",
+    "bb_main[17]": "gable",
+    "bb_main[18]": "gable",
+    "bb_main[19]": "gable",
+    "bb_main[20]": "gable",
+    "bb_main[21]": "gable",
+    "bb_main[22]": "gable",
+    "bb_main[23]": "shingle",
+    "bb_main[24]": "shingle",
+    "bb_main[25]": "shingle",
+    "bb_main[26]": "brick"
+  },
+  "decals": []
+}

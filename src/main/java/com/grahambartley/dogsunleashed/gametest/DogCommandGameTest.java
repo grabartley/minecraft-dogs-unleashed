@@ -24,6 +24,17 @@ import net.minecraft.world.GameMode;
 public final class DogCommandGameTest implements FabricGameTest {
 
   private static final String BATCH = "dog-command";
+
+  /**
+   * A free-roaming dog wanders, so a single distance reading at the end of the window is decided as
+   * much by which way it happened to amble as by whether it was following. What separates the two
+   * is persistence: a following dog closes on its owner and parks there, while a wanderer only
+   * drifts past. Counting the ticks spent near the owner measures that, and does not flip when the
+   * shared world's random stream shifts under an unrelated change.
+   */
+  private static final double FREE_ROAM_NEAR_OWNER_DISTANCE = 6.0;
+
+  private static final int FREE_ROAM_NEAR_OWNER_TICK_ALLOWANCE = 25;
   private static final int TARGET_OBSERVATION_TICK = 100;
   private static final int TARGET_TICK_LIMIT = 120;
 
@@ -253,13 +264,24 @@ public final class DogCommandGameTest implements FabricGameTest {
     final ServerPlayerEntity owner = placeOwnerAt(context, dog, new BlockPos(20, 2, 2));
     dog.getCommandController().apply(DogCommand.FREE_ROAM);
 
+    final int[] ticksNearOwner = {0};
+    context.runAtEveryTick(
+        () -> {
+          if (dog.distanceTo(owner) < FREE_ROAM_NEAR_OWNER_DISTANCE) {
+            ticksNearOwner[0]++;
+          }
+        });
+
     context.runAtTick(
         100,
         () -> {
-          final double distance = dog.distanceTo(owner);
           context.assertTrue(
-              distance > 10.0,
-              "A free-roaming dog must not follow or teleport to its owner, distance=" + distance);
+              ticksNearOwner[0] <= FREE_ROAM_NEAR_OWNER_TICK_ALLOWANCE,
+              "A free-roaming dog must not seek out its owner, but it spent "
+                  + ticksNearOwner[0]
+                  + " of 100 ticks within "
+                  + FREE_ROAM_NEAR_OWNER_DISTANCE
+                  + " blocks of them");
           context.complete();
         });
   }

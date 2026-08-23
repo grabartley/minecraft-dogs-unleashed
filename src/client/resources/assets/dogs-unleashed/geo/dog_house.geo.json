@@ -1,0 +1,51 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.dog_house",
+				"texture_width": 512,
+				"texture_height": 512,
+				"visible_bounds_width": 4,
+				"visible_bounds_height": 3.5,
+				"visible_bounds_offset": [0, 1.25, 0]
+			},
+			"bones": [
+				{
+					"name": "cushion",
+					"pivot": [0, 0, 0],
+					"cubes": [
+						{"origin": [-11, 2, -14], "size": [22, 2, 24], "uv": [212, 115]}
+					]
+				},
+				{
+					"name": "bb_main",
+					"pivot": [0, 0, 0],
+					"cubes": [
+						{"origin": [-16, 0, -16], "size": [32, 2, 32], "uv": [336, 0]},
+						{"origin": [-16, 2, -16], "size": [2, 16, 32], "uv": [0, 0]},
+						{"origin": [14, 2, -16], "size": [2, 16, 32], "uv": [68, 0]},
+						{"origin": [-14, 2, 14], "size": [28, 16, 2], "uv": [368, 115]},
+						{"origin": [-14, 2, -16], "size": [4, 13, 2], "uv": [428, 115]},
+						{"origin": [10, 2, -16], "size": [4, 13, 2], "uv": [440, 115]},
+						{"origin": [-14, 15, -16], "size": [28, 3, 2], "uv": [0, 148]},
+						{"origin": [-16, 18, -16], "size": [32, 2, 32], "uv": [0, 48]},
+						{"origin": [-16, 20, -16], "size": [1, 2, 32], "uv": [128, 48]},
+						{"origin": [15, 20, -16], "size": [1, 2, 32], "uv": [194, 48]},
+						{"origin": [-16, 20, -16], "size": [32, 2, 32], "inflate": -0.05, "uv": [260, 48]},
+						{"origin": [-15, 22, -16], "size": [30, 1, 32], "inflate": -0.05, "uv": [388, 48]},
+						{"origin": [-13, 23, -16], "size": [26, 1, 32], "inflate": -0.05, "uv": [0, 82]},
+						{"origin": [-11, 24, -16], "size": [22, 1, 32], "inflate": -0.05, "uv": [116, 82]},
+						{"origin": [-9, 25, -16], "size": [18, 1, 32], "inflate": -0.05, "uv": [224, 82]},
+						{"origin": [-7, 26, -16], "size": [14, 1, 32], "inflate": -0.05, "uv": [324, 82]},
+						{"origin": [-5, 27, -16], "size": [10, 1, 32], "inflate": -0.05, "uv": [416, 82]},
+						{"origin": [-3, 28, -16], "size": [6, 1, 32], "inflate": -0.05, "uv": [0, 115]},
+						{"origin": [-1, 29, -16], "size": [2, 1, 32], "inflate": -0.05, "uv": [76, 115]},
+						{"origin": [-1, 29.6, -16], "size": [2, 1, 32], "uv": [144, 115]},
+						{"origin": [4, 24, -4], "size": [6, 8, 6], "uv": [452, 115]}
+					]
+				}
+			]
+		}
+	]
+}
