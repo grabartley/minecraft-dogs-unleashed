@@ -4,10 +4,14 @@ import com.grahambartley.dogsunleashed.block.DogHouseBlock;
 import com.grahambartley.dogsunleashed.block.entity.DogHouseBlockEntity;
 import com.grahambartley.dogsunleashed.model.DogHouseModel;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationAxis;
+import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoBlockRenderer;
 
 /**
@@ -63,6 +67,34 @@ public class DogHouseBlockEntityRenderer extends GeoBlockRenderer<DogHouseBlockE
         (right.getOffsetZ() + back.getOffsetZ()) * CELL_CENTRE);
     poseStack.multiply(
         RotationAxis.POSITIVE_Y.rotationDegrees(AUTHORED_FACING_ROTATION - facing.asRotation()));
+  }
+
+  /** Only the cushion takes the dye; every other bone keeps the tint it inherited. */
+  @Override
+  public void renderRecursively(
+      final MatrixStack poseStack,
+      final DogHouseBlockEntity animatable,
+      final GeoBone bone,
+      final RenderLayer renderType,
+      final VertexConsumerProvider bufferSource,
+      final VertexConsumer buffer,
+      final boolean isReRender,
+      final float partialTick,
+      final int packedLight,
+      final int packedOverlay,
+      final int colour) {
+    super.renderRecursively(
+        poseStack,
+        animatable,
+        bone,
+        renderType,
+        bufferSource,
+        buffer,
+        isReRender,
+        partialTick,
+        packedLight,
+        packedOverlay,
+        DogHouseCushionTint.forBone(bone.getName(), animatable.getColor(), colour));
   }
 
   /**

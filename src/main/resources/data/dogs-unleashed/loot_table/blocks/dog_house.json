@@ -6,10 +6,26 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "dogs-unleashed:dog_house"
+          "name": "dogs-unleashed:dog_house",
+          "functions": [
+            {
+              "function": "minecraft:copy_components",
+              "source": "block_entity",
+              "include": [
+                "dogs-unleashed:dog_house_color"
+              ]
+            }
+          ]
         }
       ],
       "conditions": [
+        {
+          "condition": "minecraft:block_state_property",
+          "block": "dogs-unleashed:dog_house",
+          "properties": {
+            "part": "front_left_lower"
+          }
+        },
         {
           "condition": "minecraft:survives_explosion"
         }

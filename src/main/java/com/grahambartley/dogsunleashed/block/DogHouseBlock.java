@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.block;
 
+import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.block.entity.DogHouseBlockEntity;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.block.Block;
@@ -11,6 +12,7 @@ import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
@@ -20,6 +22,7 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
+import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -45,6 +48,8 @@ public class DogHouseBlock extends HorizontalFacingBlock implements BlockEntityP
   public static final MapCodec<DogHouseBlock> CODEC = createCodec(DogHouseBlock::new);
   public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
   public static final EnumProperty<DogHousePart> PART = EnumProperty.of("part", DogHousePart.class);
+
+  private static final int MAX_CASCADE_DEPTH = 512;
 
   public DogHouseBlock(Settings settings) {
     super(settings);
@@ -162,25 +167,75 @@ public class DogHouseBlock extends HorizontalFacingBlock implements BlockEntityP
       return ActionResult.PASS;
     }
 
+    final ItemStack heldStack = player.getStackInHand(Hand.MAIN_HAND);
+    if (heldStack.getItem() instanceof DyeItem dyeItem) {
+      houseBlockEntity.setColor(dyeItem.getColor());
+      heldStack.decrementUnlessCreative(1, player);
+      return ActionResult.SUCCESS;
+    }
+
     return DogSleepSpotAssignment.handleUse(
         world, origin, player, houseBlockEntity, state.getBlock().getTranslationKey());
+  }
+
+  /** The house is picked up in the colour it was dyed, whichever cell was middle-clicked. */
+  @Override
+  public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state) {
+    final ItemStack stack = super.getPickStack(world, pos, state);
+    if (world.getBlockEntity(originOf(state, pos))
+        instanceof DogHouseBlockEntity houseBlockEntity) {
+      stack.set(ModComponents.DOG_HOUSE_COLOR, houseBlockEntity.getColor());
+    }
+    return stack;
+  }
+
+  /**
+   * A creative break drops nothing, so the whole house is taken down from its origin with drops
+   * suppressed before the cascade below can decide otherwise.
+   */
+  @Override
+  public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+    if (!world.isClient && player.isCreative()) {
+      final BlockPos origin = originOf(state, pos);
+      if (world.getBlockState(origin).isOf(this)) {
+        world.setBlockState(
+            origin, Blocks.AIR.getDefaultState(), Block.NOTIFY_ALL | Block.SKIP_DROPS);
+      }
+    }
+    return super.onBreak(world, pos, state, player);
   }
 
   /**
    * Losing any cell takes the whole house, however it was lost. A player break comes through {@code
    * onBreak}, but an explosion, a piston or a command edits one cell directly, and seven cells left
    * standing around a hole is not a house. Each cell is cleared once, so the cascade terminates.
+   *
+   * <p>Only the origin cell carries the block entity holding the cushion colour, and only its loot
+   * table drops anything. A cell broken anywhere else therefore hands the drop back to the origin
+   * while that block entity is still there to be read, rather than dropping an undyed house or,
+   * once the cascade has cleared the origin, no house at all.
    */
   @Override
   protected void onStateReplaced(
       BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
     if (!state.isOf(newState.getBlock())) {
+      dropFromOrigin(world, pos, state);
       if (world.getBlockEntity(pos) instanceof DogHouseBlockEntity houseBlockEntity) {
         houseBlockEntity.clearAssignedDog(world);
       }
       clearSiblings(world, pos, state);
     }
     super.onStateReplaced(state, world, pos, newState, moved);
+  }
+
+  private void dropFromOrigin(final World world, final BlockPos pos, final BlockState state) {
+    if (state.get(PART) == DogHousePart.ORIGIN) {
+      return;
+    }
+    final BlockPos origin = originOf(state, pos);
+    if (world.getBlockState(origin).isOf(this)) {
+      world.breakBlock(origin, true, null, MAX_CASCADE_DEPTH);
+    }
   }
 
   private void clearSiblings(final World world, final BlockPos pos, final BlockState state) {

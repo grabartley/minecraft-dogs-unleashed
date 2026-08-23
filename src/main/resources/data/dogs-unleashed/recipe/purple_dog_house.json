@@ -14,13 +14,13 @@
       "tag": "minecraft:wool"
     },
     "C": {
-      "item": "minecraft:white_carpet"
+      "item": "minecraft:purple_carpet"
     }
   },
   "result": {
     "id": "dogs-unleashed:dog_house",
     "components": {
-      "dogs-unleashed:dog_house_color": "white"
+      "dogs-unleashed:dog_house_color": "purple"
     }
   }
 }

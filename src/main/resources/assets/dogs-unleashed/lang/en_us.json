@@ -28,6 +28,7 @@
   "block.dogs-unleashed.dog_bed.wake_command": "%s is waking up",
   "block.dogs-unleashed.dog_bed.no_dog_nearby": "No tamed dog nearby",
   "block.dogs-unleashed.dog_house": "Dog House",
+  "block.dogs-unleashed.dog_house.colored": "%s Dog House",
   "block.dogs-unleashed.dog_house.unassigned": "%s is no longer assigned to this house",
   "block.dogs-unleashed.dog_house.sleep_command": "%s is going to sleep",
   "block.dogs-unleashed.dog_house.wake_command": "%s is waking up",

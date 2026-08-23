@@ -3,13 +3,13 @@ package com.grahambartley.dogsunleashed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.item.DogBedItem;
 import com.grahambartley.dogsunleashed.item.DogGraveItem;
+import com.grahambartley.dogsunleashed.item.DogHouseItem;
 import com.grahambartley.dogsunleashed.item.DogTreatItem;
 import com.grahambartley.dogsunleashed.item.DogWhistleItem;
 import com.grahambartley.dogsunleashed.item.FrisbeeItem;
 import com.grahambartley.dogsunleashed.item.StickThrowHandler;
 import com.grahambartley.dogsunleashed.item.TennisBallItem;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
@@ -50,7 +50,7 @@ public class ModItems {
       Registry.register(
           Registries.ITEM,
           Identifier.of(DogsUnleashed.MOD_ID, "dog_house"),
-          new BlockItem(ModBlocks.DOG_HOUSE, new Item.Settings()));
+          new DogHouseItem(ModBlocks.DOG_HOUSE, new Item.Settings()));
 
   public static final Item DOG_TREAT =
       Registry.register(
@@ -153,7 +153,14 @@ public class ModItems {
               }
             });
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL)
-        .register(entries -> entries.add(DOG_HOUSE));
+        .register(
+            entries -> {
+              for (DyeColor color : DyeColor.values()) {
+                ItemStack stack = new ItemStack(DOG_HOUSE);
+                stack.set(ModComponents.DOG_HOUSE_COLOR, color);
+                entries.add(stack);
+              }
+            });
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS)
         .register(entries -> entries.add(HUSKY_SPAWN_EGG));
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS)

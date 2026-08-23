@@ -55,9 +55,6 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
           animatable.getRigSourceBreed().renderTransforms();
       final float scale = overallScale(animatable, transforms);
       poseStack.scale(scale, scale, scale);
-      if (DogHouseOccupantPose.isInDogHouse(animatable)) {
-        poseStack.translate(DogHouseOccupantPose.ROLL_OFFSET_UNITS, 0.0f, 0.0f);
-      }
       if (transforms.bodyYawOffsetDegrees() != 0.0f) {
         poseStack.multiply(
             RotationAxis.POSITIVE_Y.rotationDegrees(transforms.bodyYawOffsetDegrees()));
