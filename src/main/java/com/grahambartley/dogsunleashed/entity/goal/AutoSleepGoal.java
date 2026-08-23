@@ -1,7 +1,7 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
-import com.grahambartley.dogsunleashed.ModBlocks;
+import com.grahambartley.dogsunleashed.ModBlockTags;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.EnumSet;
 import net.minecraft.block.BlockState;
@@ -80,7 +80,7 @@ public class AutoSleepGoal extends Goal {
   private boolean isValidBed(BlockPos pos) {
     final World world = this.dog.getWorld();
     final BlockState state = world.getBlockState(pos);
-    return state.isOf(ModBlocks.DOG_BED);
+    return state.isIn(ModBlockTags.DOG_BEDS);
   }
 
   private boolean isWithinRange(BlockPos bedPos) {

@@ -1,0 +1,124 @@
+{
+  "variants": {
+    "facing=north,part=front_left_lower": {
+      "model": "dogs-unleashed:block/dog_house"
+    },
+    "facing=east,part=front_left_lower": {
+      "model": "dogs-unleashed:block/dog_house",
+      "y": 90
+    },
+    "facing=south,part=front_left_lower": {
+      "model": "dogs-unleashed:block/dog_house",
+      "y": 180
+    },
+    "facing=west,part=front_left_lower": {
+      "model": "dogs-unleashed:block/dog_house",
+      "y": 270
+    },
+    "facing=north,part=front_right_lower": {
+      "model": "dogs-unleashed:block/dog_house"
+    },
+    "facing=east,part=front_right_lower": {
+      "model": "dogs-unleashed:block/dog_house",
+      "y": 90
+    },
+    "facing=south,part=front_right_lower": {
+      "model": "dogs-unleashed:block/dog_house",
+      "y": 180
+    },
+    "facing=west,part=front_right_lower": {
+      "model": "dogs-unleashed:block/dog_house",
+      "y": 270
+    },
+    "facing=north,part=back_left_lower": {
+      "model": "dogs-unleashed:block/dog_house"
+    },
+    "facing=east,part=back_left_lower": {
+      "model": "dogs-unleashed:block/dog_house",
+      "y": 90
+    },
+    "facing=south,part=back_left_lower": {
+      "model": "dogs-unleashed:block/dog_house",
+      "y": 180
+    },
+    "facing=west,part=back_left_lower": {
+      "model": "dogs-unleashed:block/dog_house",
+      "y": 270
+    },
+    "facing=north,part=back_right_lower": {
+      "model": "dogs-unleashed:block/dog_house"
+    },
+    "facing=east,part=back_right_lower": {
+      "model": "dogs-unleashed:block/dog_house",
+      "y": 90
+    },
+    "facing=south,part=back_right_lower": {
+      "model": "dogs-unleashed:block/dog_house",
+      "y": 180
+    },
+    "facing=west,part=back_right_lower": {
+      "model": "dogs-unleashed:block/dog_house",
+      "y": 270
+    },
+    "facing=north,part=front_left_upper": {
+      "model": "dogs-unleashed:block/dog_house"
+    },
+    "facing=east,part=front_left_upper": {
+      "model": "dogs-unleashed:block/dog_house",
+      "y": 90
+    },
+    "facing=south,part=front_left_upper": {
+      "model": "dogs-unleashed:block/dog_house",
+      "y": 180
+    },
+    "facing=west,part=front_left_upper": {
+      "model": "dogs-unleashed:block/dog_house",
+      "y": 270
+    },
+    "facing=north,part=front_right_upper": {
+      "model": "dogs-unleashed:block/dog_house"
+    },
+    "facing=east,part=front_right_upper": {
+      "model": "dogs-unleashed:block/dog_house",
+      "y": 90
+    },
+    "facing=south,part=front_right_upper": {
+      "model": "dogs-unleashed:block/dog_house",
+      "y": 180
+    },
+    "facing=west,part=front_right_upper": {
+      "model": "dogs-unleashed:block/dog_house",
+      "y": 270
+    },
+    "facing=north,part=back_left_upper": {
+      "model": "dogs-unleashed:block/dog_house"
+    },
+    "facing=east,part=back_left_upper": {
+      "model": "dogs-unleashed:block/dog_house",
+      "y": 90
+    },
+    "facing=south,part=back_left_upper": {
+      "model": "dogs-unleashed:block/dog_house",
+      "y": 180
+    },
+    "facing=west,part=back_left_upper": {
+      "model": "dogs-unleashed:block/dog_house",
+      "y": 270
+    },
+    "facing=north,part=back_right_upper": {
+      "model": "dogs-unleashed:block/dog_house"
+    },
+    "facing=east,part=back_right_upper": {
+      "model": "dogs-unleashed:block/dog_house",
+      "y": 90
+    },
+    "facing=south,part=back_right_upper": {
+      "model": "dogs-unleashed:block/dog_house",
+      "y": 180
+    },
+    "facing=west,part=back_right_upper": {
+      "model": "dogs-unleashed:block/dog_house",
+      "y": 270
+    }
+  }
+}

@@ -18,7 +18,7 @@
 </p>
 
 Good dogs. Big adventures. Dogs Unleashed is an open-source Fabric mod that adds five new dog breeds, a fetch system,
-dog beds, graves, a full advancement tab, and more. Every dog is unique. Every bark has its own personality. Your
+dog beds, houses, graves, a full advancement tab, and more. Every dog is unique. Every bark has its own personality. Your
 wolves have been carrying the team long enough.
 
 Time to expand the pack.
@@ -207,6 +207,20 @@ bed. Your dog will:
 - **Unassign** with a sneak-right-click of the bed if your dog gets too big for it
 
 Every breed uses its curled "sleep" pose in bed. Tiny loaf, giant loaf, same nap energy.
+
+### Dog Houses
+
+A roomier alternative to the bed, assigned exactly the same way. The house is two blocks on every
+side, which is what it takes to actually hold a sleeping dog: dogs roll onto their side to sleep, so
+a Golden Retriever is over a block and a half nose to tail. Your dog curls up inside where you can
+see it through the doorway, and:
+
+- **Wakes rested**, gaining Regeneration for 30 seconds every time it wakes up in one
+- **Counts as a bed** everywhere a dog bed does, including auto-sleep at night
+- **Breaks as one piece**, from whichever corner you hit, and drops a single house
+
+Craft it from planks, wool and a carpet. Beds still work exactly as they did; the house is the
+upgrade, not the replacement.
 
 ### Husky Howling (Full Moon Only)
 
@@ -450,6 +464,7 @@ next to its crafting recipe:
 |--------------------------------|-----------------------------------------------------------------------------------|
 | Tennis Ball, Stick, Frisbee    | How to start play mode, and how far each fetch item glides                         |
 | Dog Bed                        | Assigning a dog, auto-sleep rules, and how to unassign                             |
+| Dog House                      | Assigning a dog, the comfort buff, and how it differs from a bed                    |
 | Dog Grave                      | How graves appear on death and how to preserve one with a pickaxe                  |
 | Dog Treat                      | How to feed one, what the buff does, how long it lasts, and how dogs react to one   |
 | Dog Whistle                    | Calling a dog from anywhere, and how the target is chosen and cycled                |
