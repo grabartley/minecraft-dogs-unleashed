@@ -2,17 +2,11 @@ package com.grahambartley.dogsunleashed.render;
 
 import com.grahambartley.dogsunleashed.block.DogHouseBlock;
 import com.grahambartley.dogsunleashed.block.entity.DogHouseBlockEntity;
-import com.grahambartley.dogsunleashed.model.DogHouseModel;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationAxis;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.renderer.GeoBlockRenderer;
 
 /**
  * The whole house is drawn once, from the origin cell that owns the block entity; the other seven
@@ -30,16 +24,14 @@ import software.bernie.geckolib.renderer.GeoBlockRenderer;
  * footprint's middle onto the shared corner, and the house lands on its own cells whichever way it
  * faces.
  */
-public class DogHouseBlockEntityRenderer extends GeoBlockRenderer<DogHouseBlockEntity> {
+public class DogHouseBlockEntityRenderer extends CushionTintedDogHouseRenderer {
 
   private static final double CELL_CENTRE = 0.5;
 
   /** North is the facing the model is authored in, so its turn has to come out as none at all. */
   private static final float AUTHORED_FACING_ROTATION = 180.0f;
 
-  public DogHouseBlockEntityRenderer(BlockEntityRendererFactory.Context context) {
-    super(new DogHouseModel());
-  }
+  public DogHouseBlockEntityRenderer(BlockEntityRendererFactory.Context context) {}
 
   /**
    * The renderer's own facing lookup reports north for every dog house, so the house has to read
@@ -67,34 +59,6 @@ public class DogHouseBlockEntityRenderer extends GeoBlockRenderer<DogHouseBlockE
         (right.getOffsetZ() + back.getOffsetZ()) * CELL_CENTRE);
     poseStack.multiply(
         RotationAxis.POSITIVE_Y.rotationDegrees(AUTHORED_FACING_ROTATION - facing.asRotation()));
-  }
-
-  /** Only the cushion takes the dye; every other bone keeps the tint it inherited. */
-  @Override
-  public void renderRecursively(
-      final MatrixStack poseStack,
-      final DogHouseBlockEntity animatable,
-      final GeoBone bone,
-      final RenderLayer renderType,
-      final VertexConsumerProvider bufferSource,
-      final VertexConsumer buffer,
-      final boolean isReRender,
-      final float partialTick,
-      final int packedLight,
-      final int packedOverlay,
-      final int colour) {
-    super.renderRecursively(
-        poseStack,
-        animatable,
-        bone,
-        renderType,
-        bufferSource,
-        buffer,
-        isReRender,
-        partialTick,
-        packedLight,
-        packedOverlay,
-        DogHouseCushionTint.forBone(bone.getName(), animatable.getColor(), colour));
   }
 
   /**

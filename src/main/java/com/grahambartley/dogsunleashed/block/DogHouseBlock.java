@@ -49,8 +49,6 @@ public class DogHouseBlock extends HorizontalFacingBlock implements BlockEntityP
   public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
   public static final EnumProperty<DogHousePart> PART = EnumProperty.of("part", DogHousePart.class);
 
-  private static final int MAX_CASCADE_DEPTH = 512;
-
   public DogHouseBlock(Settings settings) {
     super(settings);
     this.setDefaultState(
@@ -234,7 +232,7 @@ public class DogHouseBlock extends HorizontalFacingBlock implements BlockEntityP
     }
     final BlockPos origin = originOf(state, pos);
     if (world.getBlockState(origin).isOf(this)) {
-      world.breakBlock(origin, true, null, MAX_CASCADE_DEPTH);
+      world.breakBlock(origin, true);
     }
   }
 
