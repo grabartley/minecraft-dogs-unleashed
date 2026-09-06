@@ -96,9 +96,6 @@ public final class DogPortraitRenderer {
       if (created == null) {
         return null;
       }
-      // ear inheritance is seeded off the entity uuid, so the portrait has to borrow the pet's own
-      // id or it shows a different ear pair from the dog standing in the world
-      created.setUuid(id);
       portraitEntities.put(id, created);
       entity = created;
     }

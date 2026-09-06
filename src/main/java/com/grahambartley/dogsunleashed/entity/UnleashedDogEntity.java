@@ -126,8 +126,6 @@ public class UnleashedDogEntity extends TameableEntity
   private final UnleashedDogBreed breed;
   private final boolean undead;
 
-  private static final UnleashedDogBreed FALLBACK_RIG_BREED = UnleashedDogBreed.HUSKY;
-
   public UnleashedDogEntity(
       EntityType<? extends TameableEntity> entityType,
       World world,
@@ -222,7 +220,7 @@ public class UnleashedDogEntity extends TameableEntity
       return this.breed;
     }
     final DogGenome genome = this.getGenome();
-    return genome != null ? genome.dominantBreed() : FALLBACK_RIG_BREED;
+    return genome != null ? genome.dominantBreed() : UnleashedDogBreed.FALLBACK_RIG;
   }
 
   public UnleashedDogBreed getVoiceBreed() {

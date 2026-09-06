@@ -15,10 +15,9 @@ import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Derives and caches the undead variant of any living coat texture, whether that coat is a flat
- * resource PNG or a composited shared-rig texture. One treatment therefore covers every coat of
- * every breed, cross-breeds included, which is the same shape the authored art of #60 takes when it
- * replaces this placeholder.
+ * Derives and caches the undead variant of any living coat texture. One treatment covers every coat
+ * of every breed, cross-breeds included, which is the same shape the authored art of #60 takes when
+ * it replaces this placeholder.
  */
 public final class UndeadCoatTextures {
 

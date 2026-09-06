@@ -152,10 +152,6 @@ of its actual ancestry, stats blended from both sides, a coat rolled from its do
 shows up as a "Husky-Beagle Mix", gets its own filter in the Pet Manager, and its percentages appear everywhere you can
 inspect it.
 
-Golden Retriever and Beagle crosses genuinely look mixed: proportions interpolate between ancestors, pigment blends,
-markings like the Beagle saddle are inherited whole rather than smudged into an average, and ear shape comes down intact
-from one side of the family. The other three breeds keep their own looks until their art gets the same treatment.
-
 Every puppy remembers both parents forever, and that memory survives death and despawns. Open any dog's **family tree**
 and you get generations laid out properly, mates side by side, litters underneath, every dog drawn with its live 3D
 model. Drag to pan, scroll to zoom, click any relative to expand their branch. Deceased ancestors stay in the tree,

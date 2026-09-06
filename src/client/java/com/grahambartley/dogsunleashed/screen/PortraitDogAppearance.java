@@ -12,9 +12,8 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Everything a menu portrait has to put on its throwaway dog for it to render as the same animal
- * the world renders. Rig choice, coat compositing, ear inheritance and bone proportions all read
- * the genome and the entity uuid, so a portrait carrying only breed and coat variant collapses a
- * cross-breed onto its dominant parent.
+ * the world renders. A cross-breed takes its rig and coat from the genome's dominant breed, so a
+ * portrait carrying only breed and coat variant falls back to a different dog entirely.
  */
 record PortraitDogAppearance(
     UnleashedDogBreed entityBreed,
