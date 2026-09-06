@@ -13,15 +13,14 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Where each rig keeps its pupils. The coordinates are fixed by the geometry's UV layout rather
- * than by any one coat, so one entry serves every coat painted on that rig: the 128px shared-rig
- * template also covers the flat beagle and golden retriever sheets, which were authored on the same
- * layout.
+ * than by any one coat, so one entry serves every coat painted on that rig.
  *
  * <p>Placeholder data for #60; the authored undead layers carry their own eye art and this table
  * goes with them.
  */
 public enum UndeadDogEyes {
-  TEMPLATE(128, new EyePixel(7, 47), new EyePixel(10, 47)),
+  BEAGLE(128, new EyePixel(7, 47), new EyePixel(10, 47)),
+  GOLDEN_RETRIEVER(128, new EyePixel(7, 47), new EyePixel(10, 47)),
   HUSKY(64, new EyePixel(26, 20), new EyePixel(28, 20)),
   DACHSHUND(128, new EyePixel(98, 6), new EyePixel(100, 6)),
   SHIBA_INU(128, new EyePixel(50, 50), new EyePixel(53, 50));
@@ -43,7 +42,9 @@ public enum UndeadDogEyes {
       case HUSKY -> HUSKY;
       case DACHSHUND -> DACHSHUND;
       case SHIBA_INU -> SHIBA_INU;
-      case BEAGLE, GOLDEN_RETRIEVER, CROSS_BREED -> TEMPLATE;
+      case GOLDEN_RETRIEVER -> GOLDEN_RETRIEVER;
+      case BEAGLE -> BEAGLE;
+      case CROSS_BREED -> HUSKY;
     };
   }
 

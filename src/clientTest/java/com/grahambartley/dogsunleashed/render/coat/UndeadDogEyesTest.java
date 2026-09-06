@@ -32,14 +32,16 @@ class UndeadDogEyesTest {
    */
   private static final Map<UndeadDogEyes, String> GEO_BY_RIG =
       Map.of(
-          UndeadDogEyes.TEMPLATE, "dog",
+          UndeadDogEyes.BEAGLE, "beagle",
+          UndeadDogEyes.GOLDEN_RETRIEVER, "goldenretriever",
           UndeadDogEyes.HUSKY, "husky",
           UndeadDogEyes.DACHSHUND, "dachshund",
           UndeadDogEyes.SHIBA_INU, "shibainu");
 
   private static final Map<UndeadDogEyes, List<String>> TEXTURES_BY_RIG =
       Map.of(
-          UndeadDogEyes.TEMPLATE, List.of("beagle_blackwhite", "goldenretriever"),
+          UndeadDogEyes.BEAGLE, List.of("beagle_blackwhite", "beagle_tri1"),
+          UndeadDogEyes.GOLDEN_RETRIEVER, List.of("goldenretriever"),
           UndeadDogEyes.HUSKY, List.of("husky_blackwhite_blueblue", "husky_graywhite_hazelhazel"),
           UndeadDogEyes.DACHSHUND, List.of("dachshund_blacktan", "dachshund_red"),
           UndeadDogEyes.SHIBA_INU, List.of("shibainu_red", "shibainu_sesame"));
@@ -117,12 +119,20 @@ class UndeadDogEyesTest {
     return stream;
   }
 
-  @ParameterizedTest(name = "the flat {0} sheet shares the shared-rig template")
-  @EnumSource(
-      value = UnleashedDogBreed.class,
-      names = {"BEAGLE", "GOLDEN_RETRIEVER", "CROSS_BREED"})
-  @DisplayName("breeds authored on the shared UV template resolve to the template entry")
-  void templateBreedsShareTheTemplateEntry(final UnleashedDogBreed breed) {
-    assertEquals(UndeadDogEyes.TEMPLATE, UndeadDogEyes.of(breed));
+  @ParameterizedTest(name = "{0} maps to the entry for the rig it renders on")
+  @MethodSource("breedRigEntries")
+  @DisplayName("each breed maps to the eye table entry for its own rig")
+  void breedsMapToTheirOwnRigEntry(final UnleashedDogBreed breed, final UndeadDogEyes expected) {
+    assertEquals(expected, UndeadDogEyes.of(breed));
+  }
+
+  static Stream<Arguments> breedRigEntries() {
+    return Stream.of(
+        Arguments.of(UnleashedDogBreed.BEAGLE, UndeadDogEyes.BEAGLE),
+        Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, UndeadDogEyes.GOLDEN_RETRIEVER),
+        Arguments.of(UnleashedDogBreed.HUSKY, UndeadDogEyes.HUSKY),
+        Arguments.of(UnleashedDogBreed.DACHSHUND, UndeadDogEyes.DACHSHUND),
+        Arguments.of(UnleashedDogBreed.SHIBA_INU, UndeadDogEyes.SHIBA_INU),
+        Arguments.of(UnleashedDogBreed.CROSS_BREED, UndeadDogEyes.HUSKY));
   }
 }
