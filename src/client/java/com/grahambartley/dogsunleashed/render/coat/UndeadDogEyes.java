@@ -36,7 +36,10 @@ public enum UndeadDogEyes {
     this.pixels = List.of(pixels);
   }
 
-  /** Cross-breeds never reach here directly: their rig source resolves to a founding breed. */
+  /**
+   * Cross-breeds never reach here directly: their rig source resolves to a founding breed, and a
+   * cross with no genome resolves to the same fallback rig the entity itself falls back to.
+   */
   public static UndeadDogEyes of(final UnleashedDogBreed rigSourceBreed) {
     return switch (rigSourceBreed) {
       case HUSKY -> HUSKY;
@@ -44,7 +47,7 @@ public enum UndeadDogEyes {
       case SHIBA_INU -> SHIBA_INU;
       case GOLDEN_RETRIEVER -> GOLDEN_RETRIEVER;
       case BEAGLE -> BEAGLE;
-      case CROSS_BREED -> HUSKY;
+      case CROSS_BREED -> of(UnleashedDogBreed.FALLBACK_RIG);
     };
   }
 

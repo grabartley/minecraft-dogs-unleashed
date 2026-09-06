@@ -123,7 +123,7 @@ class PortraitDogAppearanceTest {
   }
 
   @Test
-  @DisplayName("the portrait entity borrows the pet id so ear inheritance matches the world")
+  @DisplayName("the appearance carries the pet's own id, so each pet caches its own portrait")
   void entityIdIsThePetId() {
     assertEquals(
         UUID.fromString(PET_ID),

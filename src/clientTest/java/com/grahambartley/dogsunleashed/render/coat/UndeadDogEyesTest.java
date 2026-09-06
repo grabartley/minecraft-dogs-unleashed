@@ -133,6 +133,7 @@ class UndeadDogEyesTest {
         Arguments.of(UnleashedDogBreed.HUSKY, UndeadDogEyes.HUSKY),
         Arguments.of(UnleashedDogBreed.DACHSHUND, UndeadDogEyes.DACHSHUND),
         Arguments.of(UnleashedDogBreed.SHIBA_INU, UndeadDogEyes.SHIBA_INU),
-        Arguments.of(UnleashedDogBreed.CROSS_BREED, UndeadDogEyes.HUSKY));
+        Arguments.of(
+            UnleashedDogBreed.CROSS_BREED, UndeadDogEyes.of(UnleashedDogBreed.FALLBACK_RIG)));
   }
 }
