@@ -31,7 +31,6 @@ import net.minecraft.test.TestFunction;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
 
 public final class DogHouseGameTest implements FabricGameTest {
 
@@ -299,8 +298,7 @@ public final class DogHouseGameTest implements FabricGameTest {
               DogTestHelper.droppedStacksOf(context, ModItems.DOG_HOUSE);
           context.assertTrue(dropped.size() == 1, "expected exactly one dog house to drop");
           context.assertTrue(
-              dropped.get(0).getOrDefault(ModComponents.DOG_HOUSE_COLOR, DyeColor.WHITE)
-                  == DyeColor.WHITE,
+              dropped.get(0).get(ModComponents.DOG_HOUSE_COLOR) == DyeColor.WHITE,
               "an undyed house should drop white");
         });
   }
@@ -350,9 +348,7 @@ public final class DogHouseGameTest implements FabricGameTest {
     final BlockPos relFloor = new BlockPos(1, 1, 1);
     final BlockPos relPlaced = relFloor.up();
 
-    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
-    final Vec3d standingClear = Vec3d.ofBottomCenter(context.getAbsolutePos(new BlockPos(5, 2, 5)));
-    player.refreshPositionAndAngles(standingClear.x, standingClear.y, standingClear.z, 0.0f, 0.0f);
+    final ServerPlayerEntity player = DogTestHelper.mockPlayerStandingClearInArena(context);
 
     final ItemStack stack = new ItemStack(ModItems.DOG_HOUSE);
     stack.set(ModComponents.DOG_HOUSE_COLOR, DyeColor.ORANGE);

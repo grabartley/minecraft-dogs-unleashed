@@ -18,6 +18,7 @@ import net.minecraft.util.math.Vec3d;
 
 public final class DogTestHelper {
   private static final BlockPos DEFAULT_SPAWN_POS = new BlockPos(0, 1, 0);
+  private static final BlockPos ARENA_CLEAR_STANDING_POS = new BlockPos(5, 2, 5);
 
   private DogTestHelper() {
     throw new UnsupportedOperationException("Utility class");
@@ -64,6 +65,14 @@ public final class DogTestHelper {
         .map(ItemEntity::getStack)
         .filter(stack -> stack.isOf(item))
         .toList();
+  }
+
+  /** Stands the player where nothing the arena tests place or break can collide with them. */
+  public static ServerPlayerEntity mockPlayerStandingClearInArena(TestContext context) {
+    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+    final Vec3d clear = Vec3d.ofBottomCenter(context.getAbsolutePos(ARENA_CLEAR_STANDING_POS));
+    player.refreshPositionAndAngles(clear.x, clear.y, clear.z, 0.0f, 0.0f);
+    return player;
   }
 
   /** Drives the real placement path so component-carried state travels the way it does in play. */

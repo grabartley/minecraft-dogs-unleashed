@@ -17,14 +17,12 @@ import net.minecraft.test.TestContext;
 import net.minecraft.test.TestFunction;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 
 public final class DogBedColorGameTest implements FabricGameTest {
 
   private static final String ARENA = "dogs-unleashed:dog_arena";
   private static final BlockPos REL_FLOOR = new BlockPos(1, 1, 1);
   private static final BlockPos REL_BED = REL_FLOOR.up();
-  private static final BlockPos REL_STANDING_CLEAR = new BlockPos(5, 2, 5);
   private static final List<DyeColor> DROP_TEST_COLORS = List.of(DyeColor.MAGENTA, DyeColor.LIME);
 
   private static DogBedBlockEntity placeDyedBed(final TestContext context, final DyeColor color) {
@@ -36,21 +34,26 @@ public final class DogBedColorGameTest implements FabricGameTest {
 
   /**
    * The loot table copies the colour off the block entity's component map, so a bed that never
-   * publishes the component drops undyed and the player silently loses the colour they dyed.
+   * publishes the component drops undyed and the player silently loses the colour they dyed. This
+   * replaces the very stack the loot table produced rather than a hand-built one, so the whole
+   * round trip is under test rather than each half separately.
    */
   @CustomTestProvider
-  public List<TestFunction> breakingADyedBedDropsThatColour() {
+  public List<TestFunction> breakingAndReplacingADyedBedKeepsThatColour() {
     return DROP_TEST_COLORS.stream()
         .map(
             color ->
                 new TestFunction(
                     "dog-bed-drops",
-                    "dogbedcolorgametest.breakingadyedbeddropsthatcolour." + color.getName(),
+                    "dogbedcolorgametest.breakingandreplacingadyedbedkeepsthatcolour."
+                        + color.getName(),
                     ARENA,
                     40,
                     0L,
                     true,
                     context -> {
+                      final ServerPlayerEntity player =
+                          DogTestHelper.mockPlayerStandingClearInArena(context);
                       placeDyedBed(context, color);
                       context.getWorld().breakBlock(context.getAbsolutePos(REL_BED), true);
 
@@ -64,6 +67,18 @@ public final class DogBedColorGameTest implements FabricGameTest {
                             context.assertTrue(
                                 dropped.get(0).get(ModComponents.DOG_BED_COLOR) == color,
                                 "the dropped bed lost the colour it was dyed");
+
+                            DogTestHelper.placeStackOnTopOf(
+                                context, player, dropped.get(0).copy(), REL_FLOOR);
+                            context.assertTrue(
+                                context.getBlockState(REL_BED).isOf(ModBlocks.DOG_BED),
+                                "the dropped bed did not place back down");
+                            final DogBedBlockEntity replaced = context.getBlockEntity(REL_BED);
+                            context.assertTrue(
+                                replaced.getColor() == color,
+                                "replacing the dropped bed gave back a "
+                                    + replaced.getColor().getName()
+                                    + " bed");
                           });
                     }))
         .toList();
@@ -90,10 +105,7 @@ public final class DogBedColorGameTest implements FabricGameTest {
 
   @GameTest(templateName = ARENA, batchId = "dog-bed-colour", tickLimit = 40)
   public void placingADyedBedColoursTheBedThatAppears(final TestContext context) {
-    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
-    final Vec3d standingClear = Vec3d.ofBottomCenter(context.getAbsolutePos(REL_STANDING_CLEAR));
-    player.refreshPositionAndAngles(standingClear.x, standingClear.y, standingClear.z, 0.0f, 0.0f);
-
+    final ServerPlayerEntity player = DogTestHelper.mockPlayerStandingClearInArena(context);
     final ItemStack stack = new ItemStack(ModItems.DOG_BED);
     stack.set(ModComponents.DOG_BED_COLOR, DyeColor.ORANGE);
     DogTestHelper.placeStackOnTopOf(context, player, stack, REL_FLOOR);
@@ -144,5 +156,19 @@ public final class DogBedColorGameTest implements FabricGameTest {
             context.assertTrue(
                 reloaded.getColor() == DyeColor.CYAN,
                 "the cushion colour was lost across a save and reload"));
+  }
+
+  @GameTest(templateName = ARENA, batchId = "dog-bed-colour", tickLimit = 40)
+  public void dyeingABedTakesTheNewColour(final TestContext context) {
+    final DogBedBlockEntity bedBlockEntity = placeDyedBed(context, DyeColor.GREEN);
+
+    context.addInstantFinalTask(
+        () -> {
+          context.assertTrue(
+              bedBlockEntity.getColor() == DyeColor.GREEN, "the bed did not take the dye");
+          bedBlockEntity.setColor(DyeColor.RED);
+          context.assertTrue(
+              bedBlockEntity.getColor() == DyeColor.RED, "the bed did not take a second dye");
+        });
   }
 }
