@@ -42,7 +42,7 @@ public class DogBedBlockEntity extends BlockEntity implements GeoBlockEntity, As
   public void setColor(DyeColor color) {
     this.color = color;
     this.markDirty();
-    if (this.world != null) {
+    if (this.world != null && !this.world.isClient) {
       this.world.updateListeners(this.pos, this.getCachedState(), this.getCachedState(), 3);
     }
   }
@@ -112,10 +112,6 @@ public class DogBedBlockEntity extends BlockEntity implements GeoBlockEntity, As
     }
   }
 
-  /**
-   * The cushion colour travels on the item as a component, which is what carries it from the
-   * crafting recipe onto a placed bed and back onto the bed that drops when one is broken.
-   */
   @Override
   protected void addComponents(ComponentMap.Builder builder) {
     super.addComponents(builder);

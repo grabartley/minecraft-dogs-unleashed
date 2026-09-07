@@ -12,15 +12,14 @@ import com.grahambartley.dogsunleashed.block.DogSleepSpotAssignment;
 import com.grahambartley.dogsunleashed.block.entity.AssignedDogHolder;
 import com.grahambartley.dogsunleashed.block.entity.DogHouseBlockEntity;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsageContext;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.AfterBatch;
@@ -30,10 +29,7 @@ import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.test.TestFunction;
 import net.minecraft.util.DyeColor;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
@@ -251,17 +247,6 @@ public final class DogHouseGameTest implements FabricGameTest {
     houseBlockEntity.setColor(color);
   }
 
-  private static List<ItemStack> housesDroppedIn(final TestContext context) {
-    final Box searchBox = context.getTestBox().expand(2.0);
-    return context
-        .getWorld()
-        .getEntitiesByClass(ItemEntity.class, searchBox, entity -> true)
-        .stream()
-        .map(ItemEntity::getStack)
-        .filter(stack -> stack.isOf(ModItems.DOG_HOUSE))
-        .toList();
-  }
-
   /**
    * Only the origin cell holds the block entity carrying the colour, and the cascade that takes the
    * rest of the house down clears that cell too. Whichever cell the player swings at, exactly one
@@ -287,7 +272,8 @@ public final class DogHouseGameTest implements FabricGameTest {
 
                       context.addInstantFinalTask(
                           () -> {
-                            final List<ItemStack> dropped = housesDroppedIn(context);
+                            final List<ItemStack> dropped =
+                                DogTestHelper.droppedStacksOf(context, ModItems.DOG_HOUSE);
                             context.assertTrue(
                                 dropped.size() == 1,
                                 "expected exactly one dog house to drop from breaking "
@@ -309,7 +295,8 @@ public final class DogHouseGameTest implements FabricGameTest {
 
     context.addInstantFinalTask(
         () -> {
-          final List<ItemStack> dropped = housesDroppedIn(context);
+          final List<ItemStack> dropped =
+              DogTestHelper.droppedStacksOf(context, ModItems.DOG_HOUSE);
           context.assertTrue(dropped.size() == 1, "expected exactly one dog house to drop");
           context.assertTrue(
               dropped.get(0).getOrDefault(ModComponents.DOG_HOUSE_COLOR, DyeColor.WHITE)
@@ -369,12 +356,7 @@ public final class DogHouseGameTest implements FabricGameTest {
 
     final ItemStack stack = new ItemStack(ModItems.DOG_HOUSE);
     stack.set(ModComponents.DOG_HOUSE_COLOR, DyeColor.ORANGE);
-    player.setStackInHand(Hand.MAIN_HAND, stack);
-
-    final BlockPos absFloor = context.getAbsolutePos(relFloor);
-    final BlockHitResult hit =
-        new BlockHitResult(Vec3d.ofCenter(absFloor), Direction.UP, absFloor, false);
-    stack.useOnBlock(new ItemUsageContext(context.getWorld(), player, Hand.MAIN_HAND, stack, hit));
+    DogTestHelper.placeStackOnTopOf(context, player, stack, relFloor);
 
     context.addInstantFinalTask(
         () -> {
