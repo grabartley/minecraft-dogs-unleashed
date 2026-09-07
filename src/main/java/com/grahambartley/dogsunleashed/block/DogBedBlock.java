@@ -10,7 +10,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemPlacementContext;
@@ -22,7 +21,6 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
-import net.minecraft.util.DyeColor;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -31,6 +29,7 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldView;
 
 public class DogBedBlock extends HorizontalFacingBlock implements BlockEntityProvider {
 
@@ -92,19 +91,12 @@ public class DogBedBlock extends HorizontalFacingBlock implements BlockEntityPro
   }
 
   @Override
-  public void onPlaced(
-      World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
-    if (itemStack.contains(ModComponents.DOG_BED_COLOR)) {
-      final BlockEntity blockEntity = world.getBlockEntity(pos);
-      if (blockEntity instanceof DogBedBlockEntity dogBedBlockEntity) {
-        final DyeColor color = itemStack.get(ModComponents.DOG_BED_COLOR);
-        if (color != null) {
-          dogBedBlockEntity.setColor(color);
-        }
-      }
+  public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state) {
+    final ItemStack stack = super.getPickStack(world, pos, state);
+    if (world.getBlockEntity(pos) instanceof DogBedBlockEntity dogBedBlockEntity) {
+      stack.set(ModComponents.DOG_BED_COLOR, dogBedBlockEntity.getColor());
     }
-
-    super.onPlaced(world, pos, state, placer, itemStack);
+    return stack;
   }
 
   @Override

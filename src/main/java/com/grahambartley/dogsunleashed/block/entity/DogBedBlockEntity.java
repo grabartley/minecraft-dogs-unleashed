@@ -1,10 +1,12 @@
 package com.grahambartley.dogsunleashed.block.entity;
 
 import com.grahambartley.dogsunleashed.ModBlockEntities;
+import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.UUID;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.component.ComponentMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
@@ -108,6 +110,22 @@ public class DogBedBlockEntity extends BlockEntity implements GeoBlockEntity, As
     } else {
       this.assignedDogUuid = null;
     }
+  }
+
+  /**
+   * The cushion colour travels on the item as a component, which is what carries it from the
+   * crafting recipe onto a placed bed and back onto the bed that drops when one is broken.
+   */
+  @Override
+  protected void addComponents(ComponentMap.Builder builder) {
+    super.addComponents(builder);
+    builder.add(ModComponents.DOG_BED_COLOR, this.color);
+  }
+
+  @Override
+  protected void readComponents(BlockEntity.ComponentsAccess components) {
+    super.readComponents(components);
+    this.color = components.getOrDefault(ModComponents.DOG_BED_COLOR, DyeColor.WHITE);
   }
 
   @Override
