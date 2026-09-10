@@ -11,11 +11,6 @@ import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.math.BlockPos;
 
-/**
- * Covers the owner-reunion celebration: {@link
- * com.grahambartley.dogsunleashed.entity.UnleashedDogEntity#celebrateOwnerArrival()} and the {@link
- * PlayerJoinReunionListener} query that drives it on player join.
- */
 public final class DogReunionGameTest implements FabricGameTest {
 
   private static final String ARENA = "dogs-unleashed:dog_arena";
@@ -122,11 +117,6 @@ public final class DogReunionGameTest implements FabricGameTest {
         DogTestHelper.spawnTamedDog(
             context, DogTestData.HUSKY, new BlockPos(2, 1, 0), UUID.randomUUID());
     othersDog.setAiDisabled(true);
-    // Sitting suppresses the ~1/200-per-tick random idle wag a tamed dog can self-start, making
-    // the timer==0 assertion deterministic. celebrateOwnerArrival sets the timer with no sitting
-    // check, so a listener that wrongly celebrates a non-owned dog still fails this test. A
-    // maxAttempts retry guard cannot help here: the dedicated gametest server that runGametest
-    // and CI use constructs every test with TestAttemptConfig.once(), ignoring maxAttempts.
     othersDog.setInSittingPose(true);
 
     context.runAtTick(

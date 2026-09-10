@@ -47,7 +47,6 @@ class DogHouseLayoutTest {
     assertEquals(2, depth, "depth");
   }
 
-  /** Every cell has to be able to find the block entity, or half the house does nothing on use. */
   @ParameterizedTest(name = "facing {0}")
   @EnumSource(
       value = Direction.class,

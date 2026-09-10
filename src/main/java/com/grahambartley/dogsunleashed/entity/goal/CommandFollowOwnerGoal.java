@@ -5,11 +5,6 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.Set;
 import net.minecraft.entity.ai.goal.FollowOwnerGoal;
 
-/**
- * Vanilla follow-owner behavior gated by the dog's active command. The vanilla goal's distance
- * thresholds are private final, so each follow style (regular and heel) registers its own instance
- * at the same priority; the command gates keep them mutually exclusive.
- */
 public class CommandFollowOwnerGoal extends FollowOwnerGoal {
 
   private final UnleashedDogEntity dog;

@@ -20,10 +20,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 
-/**
- * Covers the Dog Whistle against a real server: right-clicking a dog binds the whistle to it,
- * blowing it recalls that dog, and the binding refuses dogs the player does not own.
- */
 public final class DogWhistleGameTest implements FabricGameTest {
 
   private static final BlockPos PLAYER_CORNER = new BlockPos(1, 2, 1);
@@ -92,7 +88,6 @@ public final class DogWhistleGameTest implements FabricGameTest {
 
     ModItems.DOG_WHISTLE.use(context.getWorld(), owner, Hand.MAIN_HAND);
 
-    // A summon relocates by recreating the entity, so the pre-summon reference is a corpse.
     final Entity recalled = context.getWorld().getEntity(dogId);
     context.assertTrue(recalled != null, "The recalled dog should still exist in the world");
     context.assertTrue(

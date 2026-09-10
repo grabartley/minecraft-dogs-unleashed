@@ -37,11 +37,6 @@ public final class DogHouseGameTest implements FabricGameTest {
   private static final BlockPos REL_ORIGIN = new BlockPos(1, 1, 1);
   private static final Direction FACING = Direction.NORTH;
 
-  /**
-   * These tests drive sleep imperatively with the AI off, so none of them read the world clock.
-   * Touching {@code DO_DAYLIGHT_CYCLE} here would unfreeze it underneath the time-pinned batches
-   * running in parallel, so this batch only resets the JVM-global map it can dirty.
-   */
   @BeforeBatch(batchId = "dog-house")
   public void beforeBatch(final ServerWorld world) {
     DogSleepSpotAssignment.clearPendingAssignments();
@@ -52,7 +47,6 @@ public final class DogHouseGameTest implements FabricGameTest {
     DogSleepSpotAssignment.clearPendingAssignments();
   }
 
-  /** The origin goes down first: every other cell refuses to exist without it. */
   private static void placeHouse(final TestContext context) {
     final BlockState origin =
         ModBlocks.DOG_HOUSE
@@ -83,10 +77,6 @@ public final class DogHouseGameTest implements FabricGameTest {
     return dog;
   }
 
-  /**
-   * The sleep goals resolve beds through a tag rather than by naming blocks, so the tag binding is
-   * what actually makes a house a bed. Tag bindings only exist on a running server.
-   */
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-house", tickLimit = 40)
   public void dogHouseIsTaggedAsADogBed(final TestContext context) {
     placeHouse(context);
@@ -145,7 +135,6 @@ public final class DogHouseGameTest implements FabricGameTest {
         });
   }
 
-  /** The block entity, and so the assignment and the rendered model, exists once per house. */
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-house", tickLimit = 40)
   public void onlyTheOriginCarriesTheBlockEntity(final TestContext context) {
     placeHouse(context);
@@ -210,7 +199,6 @@ public final class DogHouseGameTest implements FabricGameTest {
         });
   }
 
-  /** Tearing the house down calls the same wake path, and must not pay out the buff. */
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-house", tickLimit = 60)
   public void breakingTheHouseUnderASleepingDogGrantsNothing(final TestContext context) {
     placeHouse(context);
@@ -246,11 +234,6 @@ public final class DogHouseGameTest implements FabricGameTest {
     houseBlockEntity.setColor(color);
   }
 
-  /**
-   * Only the origin cell holds the block entity carrying the colour, and the cascade that takes the
-   * rest of the house down clears that cell too. Whichever cell the player swings at, exactly one
-   * house has to drop and it has to remember what colour it was.
-   */
   @CustomTestProvider
   public List<TestFunction> breakingAnyCellDropsOneDyedHouse() {
     return java.util.Arrays.stream(DogHousePart.values())
@@ -303,7 +286,6 @@ public final class DogHouseGameTest implements FabricGameTest {
         });
   }
 
-  /** The colour lives on the origin, so dyeing has to reach it from whichever cell was clicked. */
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-house", tickLimit = 40)
   public void dyeingTheHouseColoursTheCellThatHoldsTheBlockEntity(final TestContext context) {
     placeHouse(context);
@@ -318,7 +300,6 @@ public final class DogHouseGameTest implements FabricGameTest {
         });
   }
 
-  /** A colour that does not survive a save and reload is a colour the player loses on relog. */
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-house", tickLimit = 40)
   public void theCushionColourSurvivesAnNbtRoundTrip(final TestContext context) {
     placeHouse(context);
@@ -339,10 +320,6 @@ public final class DogHouseGameTest implements FabricGameTest {
                 "the cushion colour was lost across a save and reload"));
   }
 
-  /**
-   * The colour rides from the recipe to the placed house on the item component, so this places a
-   * real dyed stack the way a player does rather than setting the colour on the block entity.
-   */
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-house", tickLimit = 40)
   public void placingADyedHouseColoursTheHouseThatAppears(final TestContext context) {
     final BlockPos relFloor = new BlockPos(1, 1, 1);

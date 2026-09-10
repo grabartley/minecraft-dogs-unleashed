@@ -21,7 +21,6 @@ public final class DogEntityNbt {
     return Math.max(0, savedTicks);
   }
 
-  /** Saves written before command modes existed carry no id, so the sitting pose stands in. */
   public static DogCommand commandForLegacySave(final boolean sitting) {
     return sitting ? DogCommand.SIT : DogCommand.FOLLOW;
   }
@@ -31,7 +30,6 @@ public final class DogEntityNbt {
     return nbt.contains(key, NbtElement.NUMBER_TYPE) ? nbt.getInt(key) : fallbackOrdinal;
   }
 
-  /** A partially written anchor is treated as no anchor, so all three axes must be present. */
   public static @Nullable BlockPos commandAnchorFrom(final NbtCompound nbt) {
     if (!nbt.contains(ModNbtKeys.COMMAND_ANCHOR_X, NbtElement.NUMBER_TYPE)
         || !nbt.contains(ModNbtKeys.COMMAND_ANCHOR_Y, NbtElement.NUMBER_TYPE)

@@ -15,13 +15,6 @@ import net.minecraft.test.TestContext;
 import net.minecraft.test.TestFunction;
 import net.minecraft.util.math.BlockPos;
 
-/**
- * Breed-specific contracts: per-breed attributes (max health, movement speed, attack damage) and
- * the same-breed {@code createChild} pure-child guarantee. Per-breed bodies fan out via {@link
- * CustomTestProvider} over {@link DogTestData#getAllBreeds()}; the mixed-pair check is a fixed pair
- * of breeds and stays a plain {@link GameTest}, with the full genome contract covered by {@code
- * DogCrossBreedingGameTest}.
- */
 public final class DogEntityBreedSpecificTest implements FabricGameTest {
 
   @CustomTestProvider

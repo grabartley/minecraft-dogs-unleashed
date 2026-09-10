@@ -193,8 +193,6 @@ public final class DogsUnleashedCommand {
     return 1;
   }
 
-  // Package-private only so the help/status output can be asserted as List<Text> in tests;
-  // production code calls these from help() / status() exclusively.
   static List<Text> helpLines() {
     return List.of(
         Text.translatable("command.dogs-unleashed.help.header"),
@@ -239,8 +237,6 @@ public final class DogsUnleashedCommand {
     return 1;
   }
 
-  // Package-private only so the help/status output can be asserted as List<Text> in tests;
-  // production code calls these from help() / status() exclusively.
   static List<Text> statusLines(final DogsUnleashedConfig config) {
     final List<Text> lines = new ArrayList<>();
     lines.add(Text.translatable("command.dogs-unleashed.status.header"));
@@ -472,10 +468,6 @@ public final class DogsUnleashedCommand {
     return 1;
   }
 
-  // Public only so the list/find output can be asserted from the gametest package; constructing a
-  // PetData class-loads UnleashedDogEntity, which forces these formatting seams into the gametest
-  // suite rather than same-package JUnit. Production code calls them from listPets()/findPet()
-  // only.
   public static List<Text> listLines(final String playerName, final List<PetData> pets) {
     if (pets.isEmpty()) {
       return List.of(Text.translatable("command.dogs-unleashed.list.empty", playerName));

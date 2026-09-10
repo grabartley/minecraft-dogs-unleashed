@@ -71,10 +71,6 @@ class DogHouseCushionTintTest {
         DogHouseCushionTint.forBone(DogHouseCushionTint.CUSHION_BONE, DyeColor.RED, 0xFF00FF00));
   }
 
-  /**
-   * The tint is keyed on a bone name, so a rename in the model would silently stop the dye applying
-   * with nothing else failing.
-   */
   @Test
   void theShippedModelCarriesTheCushionBoneTheTintLooksFor() throws Exception {
     final JsonObject geo;

@@ -26,18 +26,10 @@ public final class DogAppearanceRoller {
         .toList();
   }
 
-  /**
-   * The second founder is drawn from a range one shorter and then shifted past the first, which
-   * lands on a distinct partner in a single draw instead of rerolling until the two differ.
-   */
   public static int distinctSecondIndex(final int firstIndex, final int rawSecondIndex) {
     return rawSecondIndex >= firstIndex ? rawSecondIndex + 1 : rawSecondIndex;
   }
 
-  /**
-   * The roll is a supplier because the original only reaches for the entity RNG when the breed has
-   * something to roll, and drawing an extra number would shift every later roll in the same tick.
-   */
   public static int resolvedVariantOrdinal(
       final boolean rollable, final int currentOrdinal, final IntSupplier roll) {
     return rollable ? roll.getAsInt() : currentOrdinal;

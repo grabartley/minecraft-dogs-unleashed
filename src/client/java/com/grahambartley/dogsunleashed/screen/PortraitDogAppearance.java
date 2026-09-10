@@ -10,11 +10,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.DyeColor;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Everything a menu portrait has to put on its throwaway dog for it to render as the same animal
- * the world renders. A cross-breed takes its rig and coat from the genome's dominant breed, so a
- * portrait carrying only breed and coat variant falls back to a different dog entirely.
- */
 record PortraitDogAppearance(
     UnleashedDogBreed entityBreed,
     boolean undead,
@@ -61,11 +56,6 @@ record PortraitDogAppearance(
     return nbt;
   }
 
-  /**
-   * Pets sync an empty composition when their dog carries no genome, which is how every unbred pure
-   * breed is stored. Leaving the genome off in that case keeps those portraits on the pure-breed
-   * path the world puts them on.
-   */
   private static @Nullable DogGenome genomeOf(final PetSyncData pet) {
     if (pet.composition().isEmpty()) {
       return null;

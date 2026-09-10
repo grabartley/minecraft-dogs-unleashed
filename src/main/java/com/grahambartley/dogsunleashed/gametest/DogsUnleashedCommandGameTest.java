@@ -14,19 +14,6 @@ import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Locks the operator command output contract for {@code /dogsunleashed list} and {@code
- * /dogsunleashed find}: {@link DogsUnleashedCommand#listLines}, {@link
- * DogsUnleashedCommand#findLine}, and {@link DogsUnleashedCommand#formatPos}. These are the pure
- * formatting seams the three op-only subcommands render through, so pinning them here keeps the
- * translated feedback stable without standing up a live command dispatcher.
- *
- * <p>Lives in the gametest suite rather than {@code src/test/java} for the same reason as {@link
- * PetManagerFilterGameTest}: constructing a {@link PetData} class-loads {@code UnleashedDogEntity}
- * for its persisted default constants, and that class only passes bytecode verification on the
- * access-widened runtime classpath. No world ticking is required, so each case runs in {@code
- * EMPTY_STRUCTURE} and completes immediately after asserting.
- */
 public final class DogsUnleashedCommandGameTest implements FabricGameTest {
 
   private static final UUID OWNER =

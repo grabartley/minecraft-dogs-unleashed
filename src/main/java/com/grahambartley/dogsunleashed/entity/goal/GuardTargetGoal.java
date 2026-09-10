@@ -7,16 +7,10 @@ import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.util.math.BlockPos;
 
-/**
- * While commanded to Guard, the dog targets hostile mobs that come near its anchor position (not
- * near the dog itself, which may have wandered within its leash radius).
- */
 public class GuardTargetGoal extends ActiveTargetGoal<HostileEntity> {
 
   private static final int TARGET_CHANCE = 10;
   private static final double GUARD_RADIUS = 12.0;
-  // The dog leashes to within 8 blocks of the anchor and threats count within 12 of it, so the
-  // entity scan must cover both offsets combined.
   private static final double SCAN_RANGE = 24.0;
   private static final double POSITION_CENTER_OFFSET = 0.5;
 

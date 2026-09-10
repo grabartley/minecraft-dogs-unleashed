@@ -11,13 +11,6 @@ import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Where each rig keeps its pupils. The coordinates are fixed by the geometry's UV layout rather
- * than by any one coat, so one entry serves every coat painted on that rig.
- *
- * <p>Placeholder data for #60; the authored undead layers carry their own eye art and this table
- * goes with them.
- */
 public enum UndeadDogEyes {
   BEAGLE(128, new EyePixel(7, 47), new EyePixel(10, 47)),
   GOLDEN_RETRIEVER(128, new EyePixel(7, 47), new EyePixel(10, 47)),
@@ -36,10 +29,6 @@ public enum UndeadDogEyes {
     this.pixels = List.of(pixels);
   }
 
-  /**
-   * Cross-breeds never reach here directly: their rig source resolves to a founding breed, and a
-   * cross with no genome resolves to the same fallback rig the entity itself falls back to.
-   */
   public static UndeadDogEyes of(final UnleashedDogBreed rigSourceBreed) {
     return switch (rigSourceBreed) {
       case HUSKY -> HUSKY;
@@ -59,10 +48,6 @@ public enum UndeadDogEyes {
     return this.pixels;
   }
 
-  /**
-   * A texture that is transparent everywhere except the pupils, rendered fullbright over the model
-   * so the eyes glow in the dark the way spider eyes do.
-   */
   public Identifier glowTexture() {
     if (this.glowTexture != null) {
       return this.glowTexture;
@@ -82,7 +67,6 @@ public enum UndeadDogEyes {
     return id;
   }
 
-  /** {@link NativeImage} colours are packed ABGR, so the RGB constant is byte-swapped here. */
   private static int packedEyeColor() {
     final int rgb = UndeadTextureTransform.EYE_RGB;
     return 0xFF000000 | ((rgb & 0xFF) << 16) | (rgb & 0xFF00) | ((rgb >> 16) & 0xFF);

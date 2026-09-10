@@ -75,10 +75,6 @@ public final class DogVocalization {
     return barkPitch(this.dog.isBaby());
   }
 
-  /**
-   * An undead dog speaks with the zombie's voice whatever its breed, which also gives the husky a
-   * bark trigger it never has in life.
-   */
   @Nullable
   public SoundEvent barkSound() {
     if (this.dog.isUndead()) {
@@ -113,7 +109,6 @@ public final class DogVocalization {
     }
   }
 
-  /** Bypasses the readiness gate so a reward bark always lands, even mid-cooldown or asleep. */
   void forceBark(final float pitch) {
     if (this.barkSound() != null) {
       this.playBark(pitch);

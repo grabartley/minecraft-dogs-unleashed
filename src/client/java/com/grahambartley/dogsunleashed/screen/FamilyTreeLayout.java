@@ -11,29 +11,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-/**
- * Pure layout math for the family tree canvas: which dogs are visible given the expanded set, which
- * generation row each one sits in, and where in the row it goes. Positions are in abstract units
- * (one unit of x per node slot, one unit of y per generation); the screen multiplies by pixel
- * spacing and applies zoom and pan. Everything here is deterministic and free of GL state so it is
- * unit-testable.
- */
 public final class FamilyTreeLayout {
 
-  /** One dog's direct family as plain id lists, mirroring the sync payload's four lists. */
   public record Relations(
       List<String> parents, List<String> mates, List<String> siblings, List<String> children) {}
 
-  /** A laid-out node: {@code x} in row-slot units, {@code depth} in generations from the focus. */
   public record NodePosition(float x, int depth) {}
 
   private FamilyTreeLayout() {}
 
-  /**
-   * The dogs shown on the canvas: the focus dog plus, for every expanded dog whose relations are
-   * known, its direct connections. Collapsing a dog naturally prunes relatives only reachable
-   * through it because visibility is re-derived from scratch.
-   */
   public static Set<String> computeVisible(
       final String focusId,
       final Set<String> expandedIds,
@@ -57,12 +43,6 @@ public final class FamilyTreeLayout {
     return visible;
   }
 
-  /**
-   * Assigns each visible dog a generation depth relative to the focus (negative above, positive
-   * below), walking outward from the focus through expanded dogs: parents one row up, children one
-   * row down, mates and siblings on the same row. The first relation to reach a dog wins, which
-   * keeps depths stable as the tree grows.
-   */
   static Map<String, Integer> assignDepths(
       final String focusId,
       final Set<String> expandedIds,
@@ -103,12 +83,6 @@ public final class FamilyTreeLayout {
     }
   }
 
-  /**
-   * Lays out the visible dogs as a human family tree: generations in rows, each row ordered by the
-   * average position of a dog's parents in the row above so children hang under their parents, and
-   * dogs who married into the family (no visible parents) pulled next to their mate. Rows are
-   * centered on x = 0.
-   */
   public static Map<String, NodePosition> layout(
       final String focusId,
       final Set<String> expandedIds,
@@ -137,12 +111,6 @@ public final class FamilyTreeLayout {
     return positions;
   }
 
-  /**
-   * Orders one generation row. The sort key is the average slot index of the dog's visible parents
-   * in the rows already laid out; a dog with no visible parents borrows its mate's key (nudged
-   * right) so couples sit together; anything else keeps its discovery order. The sort is stable, so
-   * ties preserve discovery order.
-   */
   static List<String> orderRow(
       final List<String> row,
       final Map<String, Set<String>> parentsByChild,
@@ -192,7 +160,6 @@ public final class FamilyTreeLayout {
     return count == 0 ? null : sum / count;
   }
 
-  /** Parent edges among visible dogs, merged from every known relation record. */
   public static Map<String, Set<String>> visibleParents(
       final Map<String, Relations> relationsById, final Set<String> visible) {
     final Map<String, Set<String>> parentsByChild = new LinkedHashMap<>();
@@ -214,7 +181,6 @@ public final class FamilyTreeLayout {
     return parentsByChild;
   }
 
-  /** Mate edges among visible dogs, merged from every known relation record, symmetric. */
   public static Map<String, Set<String>> visibleMates(
       final Map<String, Relations> relationsById, final Set<String> visible) {
     final Map<String, Set<String>> matesById = new LinkedHashMap<>();

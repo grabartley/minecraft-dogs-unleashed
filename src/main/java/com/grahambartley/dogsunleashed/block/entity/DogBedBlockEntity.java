@@ -45,7 +45,6 @@ public class DogBedBlockEntity extends BlockEntity implements GeoBlockEntity, As
     this.syncToClients();
   }
 
-  /** The renderer draws the cushion colour from the client copy of this. */
   private void syncToClients() {
     if (this.world != null && !this.world.isClient) {
       this.world.updateListeners(this.pos, this.getCachedState(), this.getCachedState(), 3);

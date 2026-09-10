@@ -83,7 +83,6 @@ public class DogGraveItemRenderer implements BuiltinItemRendererRegistry.Dynamic
         overlay,
         0xFFFFFFFF);
 
-    // Manually render flower layer with color
     final int flowerTint = flowerColor.getEntityColor();
     final RenderLayer flowerRenderType =
         RenderLayer.getEntityCutoutNoCull(
@@ -97,7 +96,7 @@ public class DogGraveItemRenderer implements BuiltinItemRendererRegistry.Dynamic
         flowerRenderType,
         vertexConsumers,
         flowerBuffer,
-        true, // isReRender = true
+        true,
         1.0f,
         light,
         overlay,

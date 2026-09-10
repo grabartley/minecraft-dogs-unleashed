@@ -78,7 +78,6 @@ public record PetSyncData(
         genome != null ? genome.composition() : List.of());
   }
 
-  /** Undead pets are still alive: they walk around, take commands, and can be cured. */
   public boolean alive() {
     return this.lifeState.isAlive();
   }

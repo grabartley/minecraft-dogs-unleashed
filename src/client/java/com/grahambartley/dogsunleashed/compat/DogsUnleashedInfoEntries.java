@@ -18,17 +18,8 @@ import net.minecraft.recipe.Ingredient;
 import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 
-/**
- * The single source of truth for the mod's recipe-viewer info pages, shared by the JEI and EMI
- * plugins so both viewers show the same items and the same text.
- *
- * <p>{@link #ids()} deliberately resolves without touching any registry, so the set of pages can be
- * asserted against the lang file in a plain unit test. Item stacks are only built when {@link
- * #all()} runs, which is inside the viewer's own plugin load.
- */
 public final class DogsUnleashedInfoEntries {
 
-  /** One info page: the stacks it is attached to and the paragraphs of text it shows. */
   public record InfoEntry(String id, List<ItemStack> stacks, List<Text> description) {}
 
   private record Definition(

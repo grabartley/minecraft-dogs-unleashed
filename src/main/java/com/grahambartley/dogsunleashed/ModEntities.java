@@ -80,10 +80,6 @@ public class ModEntities {
     return registerDog(breed, false, breed.serializedId());
   }
 
-  /**
-   * Undead behaviour in 1.21.1 is driven entirely by entity type tags, which cannot vary per
-   * instance, so an undead dog needs its own registered type rather than a flag on a living one.
-   */
   private static EntityType<UnleashedDogEntity> registerZombieDog(final UnleashedDogBreed breed) {
     return registerDog(breed, true, "zombie_" + breed.serializedId());
   }

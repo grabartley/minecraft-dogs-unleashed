@@ -21,10 +21,6 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Resolves what a right-click on a dog does. Each step returns {@code null} to mean "not mine, keep
- * going", so {@link #interact} reads as the interaction precedence order it enforces.
- */
 public final class DogInteractions {
 
   private static final int TAME_SUCCESS_CHANCE = 3;
@@ -72,11 +68,6 @@ public final class DogInteractions {
     return this.dog.vanillaInteract(player, hand);
   }
 
-  /**
-   * Applies ownership and the initial Sit command, then registers the pet so the owner gets the
-   * naming screen. Also used for puppies, which inherit their parents' owner rather than being
-   * tamed by hand.
-   */
   public void tame(final @Nullable PlayerEntity player) {
     if (player == null) {
       return;
@@ -163,7 +154,6 @@ public final class DogInteractions {
     return ActionResult.SUCCESS;
   }
 
-  /** Weakness plus a Golden Apple starts the conversion back to a living dog. */
   private @Nullable ActionResult tryCure(final PlayerEntity player, final ItemStack itemStack) {
     if (!this.dog.getCuring().canStart(itemStack)) {
       return null;

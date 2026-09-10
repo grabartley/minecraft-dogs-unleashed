@@ -49,10 +49,6 @@ public final class DogAmbienceEffects {
     return (!tamed && holdingTamingItem) || (tamed && (holdingBreedingItem || holdingTreat));
   }
 
-  /**
-   * The random wag roll is a supplier because the original only reaches for the entity RNG in the
-   * one branch that needs it, and drawing an extra number would shift every later roll that tick.
-   */
   public static int nextTailWagTimer(
       final boolean receptive,
       final boolean shouldWag,

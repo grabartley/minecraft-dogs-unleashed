@@ -16,11 +16,6 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-/**
- * The assign, wake, and sleep-command flow shared by every block a dog can be assigned to. The dog
- * bed and the dog house differ only in their own extra interactions, so this owns the pending
- * assignment handshake started from the pet manager and the click handling that follows it.
- */
 public final class DogSleepSpotAssignment {
 
   private static final Map<UUID, UUID> PENDING_ASSIGNMENTS = new HashMap<>();
@@ -35,19 +30,10 @@ public final class DogSleepSpotAssignment {
     return PENDING_ASSIGNMENTS.remove(playerUuid);
   }
 
-  /**
-   * Clears the JVM-global pending-assignment map. Lives for the lifetime of the JVM; survives world
-   * reloads in singleplayer and leaks state between gametest batches. Called by test batch setup
-   * hooks and by {@code SERVER_STOPPED}.
-   */
   public static void clearPendingAssignments() {
     PENDING_ASSIGNMENTS.clear();
   }
 
-  /**
-   * Handles a bare-handed or assignment click on a sleep spot. {@code messageKeyRoot} is the
-   * block's own translation key, so each block phrases its messages under its own namespace.
-   */
   public static ActionResult handleUse(
       World world,
       BlockPos pos,

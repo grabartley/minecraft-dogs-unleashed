@@ -31,7 +31,6 @@ import net.minecraft.entity.ai.goal.TrackOwnerAttackerGoal;
 import net.minecraft.entity.ai.goal.UniversalAngerGoal;
 import net.minecraft.entity.player.PlayerEntity;
 
-/** The dog's AI goal set and the priorities that order it. */
 public final class DogGoalRegistrar {
 
   private static final double ESCAPE_DANGER_SPEED = 1.5;
@@ -65,7 +64,6 @@ public final class DogGoalRegistrar {
         9, new TemptGoal(dog, DEFAULT_GOAL_SPEED, DogFoods.attentionIngredient(), false));
     goalSelector.add(
         9, new FetchTemptGoal(dog, DEFAULT_GOAL_SPEED, FetchTypes.asIngredient(), false));
-    // The three goals below share a priority; their command gates keep them mutually exclusive.
     goalSelector.add(10, new ReturnToAnchorGoal(dog));
     goalSelector.add(
         10,

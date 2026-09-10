@@ -14,18 +14,12 @@ import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Derives and caches the undead variant of any living coat texture. One treatment covers every coat
- * of every breed, cross-breeds included, which is the same shape the authored art of #60 takes when
- * it replaces this placeholder.
- */
 public final class UndeadCoatTextures {
 
   private static final Map<Identifier, Identifier> CACHE = new HashMap<>();
 
   private UndeadCoatTextures() {}
 
-  /** Drops every generated texture, so a resource reload decays from the new art. */
   public static void clear() {
     final MinecraftClient client = MinecraftClient.getInstance();
     if (client != null && client.getTextureManager() != null) {
@@ -34,10 +28,6 @@ public final class UndeadCoatTextures {
     CACHE.clear();
   }
 
-  /**
-   * Returns the undead treatment of {@code living}, falling back to the living texture untouched
-   * when its pixels cannot be read.
-   */
   public static Identifier undeadOf(final Identifier living, final UndeadDogEyes eyes) {
     final Identifier cached = CACHE.get(living);
     if (cached != null) {
@@ -86,9 +76,6 @@ public final class UndeadCoatTextures {
             x, y, abgr(255, (decayed >> 16) & 0xFF, (decayed >> 8) & 0xFF, decayed & 0xFF));
       }
     }
-    // Stamped after tattering so a torn edge can never eat an eye; skipped when a resource pack
-    // ships this coat at a different resolution, where the coordinates would land on the wrong
-    // texel. The fullbright glow layer stays correct either way, since it samples by UV.
     if (width == eyes.atlasSize() && height == eyes.atlasSize()) {
       for (final EyePixel pixel : eyes.pixels()) {
         final int rgb = UndeadTextureTransform.EYE_RGB;
@@ -115,10 +102,6 @@ public final class UndeadCoatTextures {
 
   private record SourcePixels(NativeImage image, boolean owned) {}
 
-  /**
-   * Flat coats are read back off their resource; composited coats already live in the texture
-   * manager as {@link NativeImageBackedTexture}s, whose image is borrowed rather than owned.
-   */
   private static @Nullable SourcePixels sourceOf(final Identifier living) {
     final MinecraftClient client = MinecraftClient.getInstance();
     if (client == null) {

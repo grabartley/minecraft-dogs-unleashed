@@ -24,11 +24,6 @@ import net.minecraft.world.spawner.SpecialSpawner;
 public class ModSpawns {
 
   public static void initialize() {
-    // Biome modifications bake once per server start, inside the MinecraftServer constructor.
-    // SERVER_CONFIG holds the world's saved values by then because LevelStorageMixin loads the
-    // config when the save session opens, before server construction. Resolving the config inside
-    // the callback (rather than the eager BiomeModifications.addSpawn overload) gives spawn
-    // toggles and rate multipliers restart-required semantics instead of freezing mod-init values.
     final BiomeModification spawnModification =
         BiomeModifications.create(Identifier.of(DogsUnleashed.MOD_ID, "dog_spawns"));
     for (final UnleashedDogBreed breed : UnleashedDogBreed.values()) {
@@ -67,8 +62,6 @@ public class ModSpawns {
           UnleashedDogEntity::canSpawn);
     }
 
-    // The DogSpawner is always registered and gates itself on capIndependentSpawningEnabled each
-    // attempt, so toggling it via command or screen takes effect without a restart.
     ServerWorldEvents.LOAD.register(
         (server, world) -> {
           if (!World.OVERWORLD.equals(world.getRegistryKey())) {

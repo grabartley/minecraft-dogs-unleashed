@@ -11,13 +11,8 @@ import dev.emi.emi.api.stack.EmiStack;
 import java.util.List;
 import net.minecraft.util.Identifier;
 
-/**
- * Loaded by EMI through the {@code emi} entrypoint in {@code fabric.mod.json}. Nothing else
- * references this class, so it stays unloaded when EMI is not installed.
- */
 public final class DogsUnleashedEmiPlugin implements EmiPlugin {
 
-  /** EMI expects a leading slash on ids that no recipe manager can resolve. */
   private static final String RECIPE_ID_PREFIX = "/info/";
 
   @Override

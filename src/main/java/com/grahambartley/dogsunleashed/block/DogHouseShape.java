@@ -8,34 +8,18 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 
-/**
- * The collision shape of each of the dog house's cells.
- *
- * <p>A default full-cube shape would make the doorway decorative and leave an occupant standing in
- * a wall, so the four lower cells carry a hollow shell of floor, side walls, back wall and doorway
- * frame, sliced out of the geometry the player sees.
- *
- * <p>The upper cells collide with nothing. An occupant's hitbox is 1.1 blocks tall even while it
- * lies down at 0.4, so a solid roof would leave it suffocating in the ceiling and the damage would
- * wake it the moment it fell asleep. The roof is still drawn, and still aimable through the outline
- * shape; it just does not squeeze the dog it was built for.
- *
- * <p>The shell is authored once in the house's own 32-unit frame and then cut per cell, so the
- * doorway lands correctly even though it straddles both front cells.
- */
 public final class DogHouseShape {
 
   private static final int CELL = 16;
 
-  /** Solid parts of the shell, in the same 32-unit frame the model is authored in. */
   private static final double[][] SHELL = {
-    {0, 0, 0, 32, 2, 32}, // floor
-    {0, 2, 0, 2, 18, 32}, // left wall
-    {30, 2, 0, 32, 18, 32}, // right wall
-    {2, 2, 30, 30, 18, 32}, // back wall
-    {2, 2, 0, 6, 15, 2}, // left door post
-    {26, 2, 0, 30, 15, 2}, // right door post
-    {2, 15, 0, 30, 18, 2}, // lintel
+    {0, 0, 0, 32, 2, 32},
+    {0, 2, 0, 2, 18, 32},
+    {30, 2, 0, 32, 18, 32},
+    {2, 2, 30, 30, 18, 32},
+    {2, 2, 0, 6, 15, 2},
+    {26, 2, 0, 30, 15, 2},
+    {2, 15, 0, 30, 18, 2},
   };
 
   private static final Map<DogHousePart, Map<Direction, VoxelShape>> SHAPES = buildShapes();
@@ -66,7 +50,6 @@ public final class DogHouseShape {
     return shapes;
   }
 
-  /** Cuts the shell down to one cell and rebases it into that cell's own 0..1 coordinates. */
   private static VoxelShape sliceCell(final DogHousePart part) {
     final int minU = part.right() * CELL;
     final int minW = part.back() * CELL;
@@ -91,7 +74,6 @@ public final class DogHouseShape {
     return boxes.stream().reduce(VoxelShapes.empty(), VoxelShapes::union).simplify();
   }
 
-  /** Rotates a cell's shape about its own vertical centre, a quarter turn at a time. */
   private static VoxelShape rotateClockwise(final VoxelShape shape, final int quarterTurns) {
     VoxelShape rotated = shape;
     for (int turn = 0; turn < quarterTurns; turn++) {

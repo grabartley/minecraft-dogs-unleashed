@@ -70,11 +70,6 @@ final class DogStatsPanel {
         labelWidth);
   }
 
-  /**
-   * A pet's own numbers whenever the record carries them, since a cross-breed's genome and an
-   * undead pet's halved stats both differ from the breed preset. Records written before those
-   * fields were persisted store zero, and fall back to the preset.
-   */
   static double maxHealthOf(final PetSyncData pet) {
     return pet.maxHealth() > 0 ? pet.maxHealth() : pet.breed().attributes().maxHealth();
   }

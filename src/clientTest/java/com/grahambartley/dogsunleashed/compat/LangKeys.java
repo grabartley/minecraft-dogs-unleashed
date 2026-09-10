@@ -8,7 +8,6 @@ import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 
-/** Reads the shipped {@code en_us} lang file so tests can assert that a key actually resolves. */
 final class LangKeys {
 
   private static final String LANG_PATH = "/assets/dogs-unleashed/lang/en_us.json";

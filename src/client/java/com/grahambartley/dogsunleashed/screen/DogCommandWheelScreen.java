@@ -24,19 +24,12 @@ import net.minecraft.util.math.MathHelper;
 import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 
-/**
- * Radial command menu opened by right-clicking an owned dog. Sectors are drawn as annulus segments
- * with the position-color shader (no texture assets), tessellated at native window resolution so
- * the arcs stay smooth at any GUI scale. The world keeps running behind the wheel.
- */
 public class DogCommandWheelScreen extends Screen {
 
   private static final DogWheelAction[] ACTIONS = DogWheelAction.values();
 
   private static final float OUTER_RADIUS_FRACTION = 0.32f;
   private static final int MIN_OUTER_RADIUS = 64;
-  // High enough that large scaled resolutions (GUI scale 1 on big windows) still get a wheel
-  // proportionate to the screen instead of a crosshair-sized ring.
   private static final int MAX_OUTER_RADIUS = 140;
   private static final float INNER_RADIUS_FRACTION = 0.45f;
   private static final int INNER_DETECT_MARGIN = 4;
@@ -325,11 +318,6 @@ public class DogCommandWheelScreen extends Screen {
     return (int) (outerRadius * INNER_RADIUS_FRACTION);
   }
 
-  /**
-   * Maps a mouse offset from the wheel center to a sector index, or -1 in the hub deadzone or
-   * beyond the outer detection radius. Sector 0 is centered at 12 o'clock and indices proceed
-   * clockwise (screen y grows downward).
-   */
   static int sectorIndexAt(
       final double dx,
       final double dy,

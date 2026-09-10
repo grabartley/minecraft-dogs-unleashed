@@ -6,10 +6,6 @@ import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 
-/**
- * The dog's GeckoLib controllers. Registration order decides which controller wins a shared bone,
- * so the pose controller goes first and the additive layers follow.
- */
 public final class DogAnimationControllers {
 
   private static final double MOVEMENT_THRESHOLD = 0.001;

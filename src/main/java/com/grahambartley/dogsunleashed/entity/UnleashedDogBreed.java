@@ -116,9 +116,6 @@ public enum UnleashedDogBreed {
       false,
       new RenderTransforms(1.5f, 0.75f, 0.0f));
 
-  /**
-   * The rig a dog falls back to when its own breed cannot name one, such as a cross with no genome.
-   */
   public static final UnleashedDogBreed FALLBACK_RIG = HUSKY;
 
   private final String serializedId;

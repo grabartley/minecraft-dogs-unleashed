@@ -19,17 +19,6 @@ import net.minecraft.test.TestContext;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameRules;
 
-/**
- * Behavioral coverage for the puppy differentiators: babies refuse combat targets until they grow
- * up, bark higher, follow the parent they were bred from, and sleep on a wider schedule than adults
- * (to bed two hours before night, awake one hour past sunrise) while staying up through the day.
- *
- * <p>Time-pinning tests freeze the daylight cycle so {@code setTimeOfDay} actually holds (gametest
- * skill rule 3), and each distinct pinned time gets its own batch so siblings don't race on the
- * shared world clock. Flag-style tests disable AI so the goal selector can't race the assertions
- * (rule 6). The follow test uses an untamed baby so neither {@code SitGoal} nor {@code
- * FollowOwnerGoal} can preempt the parent-follow goal under test.
- */
 public final class PuppyBehaviorGameTest implements FabricGameTest {
 
   private static final float PITCH_EPSILON = 0.001f;
@@ -92,11 +81,6 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
     teardownBatch(world);
   }
 
-  /**
-   * A baby refuses any combat target, which keeps its attack goals inert. Once it grows up, the
-   * same {@code setTarget} call sticks, proving adult combat AI is restored without any goal
-   * re-registration.
-   */
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "puppy-flags", tickLimit = 40)
   public void babyRefusesTargetUntilGrownUp(final TestContext context) {
     final UnleashedDogEntity dog = context.spawnEntity(ModEntities.HUSKY, new BlockPos(0, 1, 0));
@@ -123,7 +107,6 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
         });
   }
 
-  /** A baby barks at the boosted puppy pitch; an adult barks at the base pitch. */
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = "puppy-flags", tickLimit = 20)
   public void puppyBarkPitchIsHigherThanAdult(final TestContext context) {
     final UnleashedDogEntity dog = context.spawnEntity(ModEntities.HUSKY, new BlockPos(0, 1, 0));
@@ -142,10 +125,6 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
     context.complete();
   }
 
-  /**
-   * Being born arms the one-shot birth-wake heart burst, and the first {@code wakeUp} consumes it.
-   * A second wake is a no-op, proving the flag is genuinely one-shot.
-   */
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = "puppy-flags", tickLimit = 20)
   public void birthArmsHeartsAndFirstWakeConsumesThem(final TestContext context) {
     final UnleashedDogEntity dog = context.spawnEntity(ModEntities.HUSKY, new BlockPos(0, 1, 0));
@@ -171,11 +150,6 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
     context.complete();
   }
 
-  /**
-   * The recorded parent resolves to the live entity while it is alive, and to {@code null} the
-   * moment that parent is gone, which is exactly the "follow for as long as they are alive"
-   * contract.
-   */
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "puppy-flags", tickLimit = 40)
   public void parentDogResolvesWhileAliveAndNullWhenGone(final TestContext context) {
     final UnleashedDogEntity parent = context.spawnEntity(ModEntities.HUSKY, new BlockPos(2, 1, 0));
@@ -204,12 +178,6 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
         });
   }
 
-  /**
-   * A puppy paths toward the parent it was bred from instead of wandering off. The puppy is left
-   * untamed so neither {@code SitGoal} nor {@code FollowOwnerGoal} can interfere; the parent is a
-   * stationary, AI-disabled beacon. Navigation is inherently multi-tick, so this polls for arrival
-   * and retries for race safety (gametest skill rules 8/9).
-   */
   @GameTest(
       templateName = "dogs-unleashed:dog_arena",
       batchId = "puppy-flags",
@@ -244,7 +212,6 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
         });
   }
 
-  /** Two hours before night a puppy turns in on its bed, while an adult is still up. */
   @GameTest(
       templateName = "dogs-unleashed:dog_arena",
       batchId = "puppy-sleep-predusk",
@@ -263,7 +230,6 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
     assertStaysAwake(context, TWO_HOURS_BEFORE_NIGHT_TICK, false);
   }
 
-  /** Through the day a puppy stays awake (so it can follow its parent), even on an assigned bed. */
   @GameTest(
       templateName = "dogs-unleashed:dog_arena",
       batchId = "puppy-awake-midday",
@@ -272,7 +238,6 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
     assertStaysAwake(context, MIDDAY_TICK, true);
   }
 
-  /** A puppy sleeps in past sunrise, an hour after the adults have woken. */
   @GameTest(
       templateName = "dogs-unleashed:dog_arena",
       batchId = "puppy-sleep-postsunrise",
@@ -283,11 +248,6 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
     assertAutoSleeps(context, JUST_PAST_SUNRISE_TICK, true);
   }
 
-  /**
-   * Drives a tamed dog (baby or adult) onto an assigned bed at a pinned time and asserts
-   * AutoSleepGoal eventually puts it to sleep. The dog is anchored on its bed with clean transient
-   * state so the goal selector converges deterministically, mirroring the night-sleep suite.
-   */
   private void assertAutoSleeps(
       final TestContext context, final long pinnedTime, final boolean baby) {
     final BlockPos relBedPos = new BlockPos(0, 1, 0);
@@ -302,8 +262,6 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
       dog.setBaby(true);
     }
     dog.setInvulnerable(true);
-    // Ownerless tamed dogs get stuck in SitGoal (priority 2), which preempts AutoSleepGoal. Give an
-    // owner so the goal hierarchy matches production. Gametest skill rule 6.
     @SuppressWarnings("removal")
     final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
     dog.setOwnerUuid(owner.getUuid());
@@ -336,10 +294,6 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
         });
   }
 
-  /**
-   * Anchors a tamed dog on its assigned bed at a pinned time and asserts AutoSleepGoal never puts
-   * it to sleep across the window (the dog is outside its sleep schedule).
-   */
   private void assertStaysAwake(
       final TestContext context, final long pinnedTime, final boolean baby) {
     final BlockPos relBedPos = new BlockPos(0, 1, 0);

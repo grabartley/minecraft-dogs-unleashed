@@ -20,13 +20,6 @@ import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.math.BlockPos;
 
-/**
- * Genome contract for cross-species breeding: composition averaging within the throwback envelope,
- * recursive combination from stored genomes, per-entity attribute application, voice inheritance,
- * and NBT persistence. All checks drive {@code createChild} directly, so the pair positions and the
- * love/tame gates of live breeding are irrelevant here; {@code canBreedWith} acceptance is covered
- * separately with love ticks.
- */
 public final class DogCrossBreedingGameTest implements FabricGameTest {
 
   private static final double SHARE_DELTA = 1e-4;

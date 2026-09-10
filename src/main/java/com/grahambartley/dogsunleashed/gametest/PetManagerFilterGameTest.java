@@ -15,25 +15,10 @@ import net.minecraft.test.TestFunction;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Locks the contract of the 4-arg {@link PetManager#getPetsByOwnerFiltered}, the single filtering
- * entry point every production caller (currently {@code ModNetworking}) uses. Breed, alive-state,
- * and name-search filters layer together, and a {@code null} breed, {@code ALL} alive filter, or
- * empty/null search query is a no-op for that axis. A dedicated batch of cases pins the JVM default
- * locale to Turkish to lock the name search as locale-neutral ({@code Locale.ROOT} case folding),
- * so "I"/"i" matches do not silently drop on a Turkish-locale JVM.
- *
- * <p>This lives in the gametest suite rather than {@code src/test/java} because constructing a
- * {@link PetData} loads {@code UnleashedDogEntity} for its persisted default constants, and that
- * class only passes bytecode verification on the access-widened runtime classpath, not the plain
- * unit-test classpath. No world ticking, entity spawning, or time manipulation is required, so each
- * case runs in {@code EMPTY_STRUCTURE} and completes immediately after asserting.
- */
 public final class PetManagerFilterGameTest implements FabricGameTest {
 
   private static final UUID OWNER = UUID.nameUUIDFromBytes("petmanager-filter-owner".getBytes());
 
-  /** A single filter scenario and the pet names it should return, in registration order. */
   private record FilterCase(
       String name,
       @Nullable UnleashedDogBreed breedFilter,
@@ -123,18 +108,12 @@ public final class PetManagerFilterGameTest implements FabricGameTest {
             ctx -> assertUnknownOwnerEmpty(ctx, UnleashedDogBreed.HUSKY, PetAliveFilter.ALIVE)));
   }
 
-  /** A name-search scenario asserted while the JVM default locale is forced to Turkish. */
   private record LocaleSearchCase(String name, String searchQuery, List<String> expectedNames) {}
 
   private static final List<LocaleSearchCase> LOCALE_SEARCH_CASES =
       List.of(
-          // Under a Turkish default locale, "I".toLowerCase() folds to the dotless "ı", so a
-          // locale-sensitive search would lowercase the query "BIS" to "bıs" and fail to find the
-          // dotted "i" in "Biscuit". Locale.ROOT keeps both sides on the dotted "i" and matches.
           new LocaleSearchCase("Biscuit", "BIS", List.of("Biscuit")),
-          // Same dotted/dotless trap mid-name: "ISK" must still locate "Whiskey".
           new LocaleSearchCase("Whiskey", "ISK", List.of("Whiskey")),
-          // ASCII control: plain case-insensitive matching is unchanged under Turkish.
           new LocaleSearchCase("Bella", "bel", List.of("Bella")));
 
   @CustomTestProvider
@@ -160,8 +139,6 @@ public final class PetManagerFilterGameTest implements FabricGameTest {
     petManager.registerPet(pet("Whiskey", UnleashedDogBreed.HUSKY, PetLifeState.LIVING));
     petManager.registerPet(pet("Bella", UnleashedDogBreed.HUSKY, PetLifeState.LIVING));
 
-    // Force the classic locale where default-locale case folding diverges from Locale.ROOT. The
-    // set/filter/restore is synchronous so the global default is only Turkish for this single call.
     final Locale previousDefault = Locale.getDefault();
     final List<String> actual;
     try {
