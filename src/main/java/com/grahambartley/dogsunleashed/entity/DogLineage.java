@@ -24,13 +24,8 @@ public final class DogLineage {
     this.dog = dog;
   }
 
-  /** The breeding readiness of one dog in a pair, as the mate gate reads it. */
   public record MateState(boolean tamed, boolean sitting, boolean inLove, boolean undead) {}
 
-  /**
-   * Only the partner's sitting pose gates the pair; the initiator's is asymmetric on purpose.
-   * Undeath gates both sides: the dead do not sire the living.
-   */
   public static boolean matesCanBreed(final MateState self, final MateState partner) {
     return self.tamed()
         && partner.tamed()
@@ -91,8 +86,6 @@ public final class DogLineage {
       if (inheritedOwnerUuid != null) {
         baby.setOwnerUuid(inheritedOwnerUuid);
         baby.setTamed(true, true);
-        // The baby is still unpositioned here; AnimalEntity#breed moves and spawns it right after,
-        // and the resulting ENTITY_LOAD makes PetLocationSyncListener write the real position.
         PetRegistrar.registerPetFor(baby, inheritedOwnerUuid);
       }
     }

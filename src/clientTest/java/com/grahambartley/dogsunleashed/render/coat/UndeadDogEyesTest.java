@@ -25,11 +25,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class UndeadDogEyesTest {
 
-  /**
-   * Each entry's rig geo and a texture authored on it. The atlas-size assertions below exist
-   * because a mismatch fails silently in production: the eye stamp is skipped and the glow samples
-   * the wrong texels, which shipped as shibas with no red eyes.
-   */
   private static final Map<UndeadDogEyes, String> GEO_BY_RIG =
       Map.of(
           UndeadDogEyes.BEAGLE, "beagle",

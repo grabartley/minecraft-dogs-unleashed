@@ -14,21 +14,6 @@ import net.minecraft.test.TestContext;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameMode;
 
-/**
- * Real-behavior coverage of the play-partner sync added for #238. On a dedicated server the
- * JVM-global {@code ACTIVE_PLAY_SESSIONS} map is invisible to the client, so {@code startPlayMode}
- * / {@code endPlayMode} now mirror the partner into synced {@code PLAY_PARTNER_UUID} tracked data
- * and the client-side stick-throw gate reads it via {@code isAnyNearbyDogInPlayModeFor}.
- *
- * <p>These tests assert the tracked-data contract through the same getters the client gate uses.
- * They need a live {@code ServerWorld}: entity construction and the JVM-global play-session map
- * both fail class init on the JUnit classpath, so this lives here rather than under {@code
- * src/test/java}.
- *
- * <p>The play-session map is JVM-global, so the batch resets it before and after to avoid leaking a
- * session into a sibling test (gametest skill rule 5). Assertions run in the same tick as the
- * mutation, so the void floor of {@code EMPTY_STRUCTURE} never comes into play.
- */
 public final class PlayModeSyncGameTest implements FabricGameTest {
 
   private static final String BATCH = "play-partner-sync";
@@ -150,10 +135,6 @@ public final class PlayModeSyncGameTest implements FabricGameTest {
     return dog;
   }
 
-  /**
-   * {@code createMockPlayer} is fine here (gametest skill rule 4): the gate only reads the player's
-   * UUID and bounding box, never server-connection state.
-   */
   private PlayerEntity spawnPlayer(final TestContext context) {
     final PlayerEntity player = context.createMockPlayer(GameMode.SURVIVAL);
     final BlockPos abs = context.getAbsolutePos(DOG_POS);

@@ -24,14 +24,6 @@ import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-/**
- * Bound to one dog by right-clicking it, and calls that dog back from any distance or dimension
- * when blown. The binding lives on the stack, so a player can carry one whistle per dog.
- *
- * <p>Binding is handled in {@code UnleashedDogEntity.interactMob}, not here: vanilla offers a
- * right-click to the entity before it reaches the item, and the owner branch of that method already
- * returns SUCCESS, so an {@code useOnEntity} override would never run.
- */
 public class DogWhistleItem extends Item implements GeoItem {
 
   public static final int BLOW_COOLDOWN_TICKS = 20;
@@ -42,7 +34,6 @@ public class DogWhistleItem extends Item implements GeoItem {
     super(settings);
   }
 
-  /** Points a whistle at a dog. Both components travel together so the tooltip needs no lookup. */
   public static void bind(final ItemStack whistle, final UUID petId, final String dogName) {
     whistle.set(ModComponents.WHISTLE_TARGET_PET, petId);
     whistle.set(ModComponents.WHISTLE_TARGET_NAME, dogName);
@@ -75,7 +66,6 @@ public class DogWhistleItem extends Item implements GeoItem {
       return TypedActionResult.success(stack, false);
     }
 
-    // Keep the engraved name current, so a dog renamed since binding still reads correctly.
     stack.set(ModComponents.WHISTLE_TARGET_NAME, bound.getName());
     PetLocationService.loadAndSummon(server, bound, player);
     return TypedActionResult.success(stack, false);

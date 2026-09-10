@@ -19,13 +19,6 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Interactive family tree canvas for one focused dog. The canvas pans by dragging, zooms toward the
- * cursor on scroll, and grows incrementally: selecting any dog expands it with its direct
- * connections fetched from the server, and collapsing re-derives visibility so branches only
- * reachable through the collapsed dog fold away. A side panel shows the selected dog and hosts the
- * expand/collapse and re-focus actions.
- */
 public class FamilyTreeScreen extends Screen implements DogConnectionsListener {
 
   static final int H_SPACING = 78;
@@ -155,7 +148,6 @@ public class FamilyTreeScreen extends Screen implements DogConnectionsListener {
     }
   }
 
-  // Until the player pans or zooms themselves, the whole tree stays framed as it grows.
   private void autoFitView() {
     if (positions.isEmpty() || this.width == 0) {
       return;
@@ -625,7 +617,6 @@ public class FamilyTreeScreen extends Screen implements DogConnectionsListener {
     return Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom));
   }
 
-  /** Largest zoom (never above 1:1) that fits the tree bounds in the canvas, floor at min zoom. */
   static double computeFitZoom(
       final double boundsWidth,
       final double boundsHeight,
@@ -640,10 +631,6 @@ public class FamilyTreeScreen extends Screen implements DogConnectionsListener {
     return clampZoom(fit);
   }
 
-  /**
-   * Recomputes the pan so the world point under the cursor stays under the cursor across a zoom
-   * change: screen = center + pan + world * zoom in both directions.
-   */
   static double[] panAfterZoom(
       final double mouseX,
       final double mouseY,

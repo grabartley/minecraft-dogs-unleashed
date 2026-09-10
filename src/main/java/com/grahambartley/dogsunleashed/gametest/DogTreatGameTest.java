@@ -192,12 +192,6 @@ public final class DogTreatGameTest implements FabricGameTest {
         });
   }
 
-  /**
-   * The dog is owned by an absent player on purpose: a mock player joining celebrates its own
-   * nearby dogs a tick later, which would start a tail wag this test would then credit to the
-   * treat. Holding the wag at full across two samples rules out the 1-in-200 idle wag roll too,
-   * since that one decays instead of refreshing.
-   */
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
   public void heldTreatMakesATamedDogWagItsTail(final TestContext context) {
     final ServerPlayerEntity player = survivalOwnerAt(context, OWNER_POS);
@@ -228,7 +222,6 @@ public final class DogTreatGameTest implements FabricGameTest {
         });
   }
 
-  /** A treat only feeds a tamed dog, so an untamed one notices it without getting its hopes up. */
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
   public void heldTreatDoesNotMakeAnUntamedDogWagItsTail(final TestContext context) {
     final ServerPlayerEntity player = survivalOwnerAt(context, OWNER_POS);
@@ -247,10 +240,6 @@ public final class DogTreatGameTest implements FabricGameTest {
         });
   }
 
-  /**
-   * Tempting is goal-driven navigation, so it is timing sensitive by nature: the contract is that a
-   * dog closes the gap within the window, not that it arrives on a given tick.
-   */
   @GameTest(
       templateName = ARENA,
       batchId = BATCH,
@@ -298,10 +287,6 @@ public final class DogTreatGameTest implements FabricGameTest {
     context.complete();
   }
 
-  /**
-   * Sneak-right-clicking with any non-taming item starts the bed assignment flow, and holding a
-   * pocket of treats must not take that away from the owner.
-   */
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
   public void sneakingOwnerDoesNotFeedTheTreat(final TestContext context) {
     final ServerPlayerEntity owner = survivalOwnerAt(context, OWNER_POS);
@@ -339,10 +324,6 @@ public final class DogTreatGameTest implements FabricGameTest {
     context.complete();
   }
 
-  /**
-   * Drives the buff to its final tick through the persisted counter rather than waiting out the
-   * full sixty seconds, so the expiry path is exercised inside a normal tick budget.
-   */
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = EXPIRY_TICK_LIMIT)
   public void buffExpiryRemovesAttributeModifiers(final TestContext context) {
     final ServerPlayerEntity owner = survivalOwnerAt(context, OWNER_POS);
@@ -456,8 +437,8 @@ public final class DogTreatGameTest implements FabricGameTest {
                     "dogtreatgametest." + behavior + "." + data.breed().serializedId(),
                     ARENA,
                     tickLimit,
-                    /* setupTicks */ 0L,
-                    /* required */ true,
+                    0L,
+                    true,
                     context -> body.run(context, data)))
         .toList();
   }

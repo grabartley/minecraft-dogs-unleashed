@@ -34,15 +34,6 @@ import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * A kennel big enough to hold the dog it is for. A sleeping dog rolls onto its side, so the largest
- * breed measures over one and a half blocks nose to tail; the house is therefore two cells on every
- * axis rather than a tall model crammed into one, which also means every part of it can be aimed at
- * rather than only the cell a raycast happens to enter.
- *
- * <p>The block entity, the rendered model, and the assignment all live in the origin cell. The
- * other seven carry only their part, which is enough to find their way home.
- */
 public class DogHouseBlock extends HorizontalFacingBlock implements BlockEntityProvider {
 
   public static final MapCodec<DogHouseBlock> CODEC = createCodec(DogHouseBlock::new);
@@ -68,12 +59,10 @@ public class DogHouseBlock extends HorizontalFacingBlock implements BlockEntityP
     builder.add(FACING, PART);
   }
 
-  /** The cell holding the block entity for the house this one belongs to. */
   public static BlockPos originOf(final BlockState state, final BlockPos pos) {
     return DogHouseLayout.originOf(state.get(PART), state.get(FACING), pos);
   }
 
-  /** Placed so the doorway faces the player who put it down, not away from them. */
   @Override
   @Nullable
   public BlockState getPlacementState(ItemPlacementContext ctx) {
@@ -176,7 +165,6 @@ public class DogHouseBlock extends HorizontalFacingBlock implements BlockEntityP
         world, origin, player, houseBlockEntity, state.getBlock().getTranslationKey());
   }
 
-  /** The house is picked up in the colour it was dyed, whichever cell was middle-clicked. */
   @Override
   public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state) {
     final ItemStack stack = super.getPickStack(world, pos, state);
@@ -187,10 +175,6 @@ public class DogHouseBlock extends HorizontalFacingBlock implements BlockEntityP
     return stack;
   }
 
-  /**
-   * A creative break drops nothing, so the whole house is taken down from its origin with drops
-   * suppressed before the cascade below can decide otherwise.
-   */
   @Override
   public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
     if (!world.isClient && player.isCreative()) {
@@ -203,16 +187,6 @@ public class DogHouseBlock extends HorizontalFacingBlock implements BlockEntityP
     return super.onBreak(world, pos, state, player);
   }
 
-  /**
-   * Losing any cell takes the whole house, however it was lost. A player break comes through {@code
-   * onBreak}, but an explosion, a piston or a command edits one cell directly, and seven cells left
-   * standing around a hole is not a house. Each cell is cleared once, so the cascade terminates.
-   *
-   * <p>Only the origin cell carries the block entity holding the cushion colour, and only its loot
-   * table drops anything. A cell broken anywhere else therefore hands the drop back to the origin
-   * while that block entity is still there to be read, rather than dropping an undyed house or,
-   * once the cascade has cleared the origin, no house at all.
-   */
   @Override
   protected void onStateReplaced(
       BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {

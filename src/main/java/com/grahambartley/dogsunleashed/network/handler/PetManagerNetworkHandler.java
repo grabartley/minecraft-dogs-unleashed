@@ -26,9 +26,6 @@ public final class PetManagerNetworkHandler {
 
   private PetManagerNetworkHandler() {}
 
-  // DataTracker round-trip is the source of truth: the client sends a rename request, and the
-  // displayed name only updates when the entity DataTracker broadcast confirms it. If the server
-  // rejects the name here, it never propagates back to the client. No ACK packet is needed.
   public static void handleSetPetName(
       final SetPetNamePayload payload, final ServerPlayNetworking.Context context) {
     final ServerPlayerEntity player = context.player();

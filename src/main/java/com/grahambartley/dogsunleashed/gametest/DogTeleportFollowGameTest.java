@@ -19,14 +19,6 @@ import net.minecraft.test.TestContext;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
-/**
- * Enforces that active tamed dogs follow their owner across long-distance teleports within one
- * world (issue #259), while sitting and sleeping dogs stay behind and short teleports change
- * nothing. Runs the real {@code ServerPlayerEntity.teleport} path so the mixin wiring is covered.
- *
- * <p>The {@code teleport_arena} template floor sits at context-relative y1, so y2 is the standing
- * level and y2..y4 is the open interior.
- */
 public final class DogTeleportFollowGameTest implements FabricGameTest {
 
   private static final String TELEPORT_ARENA = "dogs-unleashed:teleport_arena";
@@ -61,8 +53,6 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
 
   @GameTest(templateName = TELEPORT_ARENA, tickLimit = 40)
   public void longDistanceTeleportPlacesDogClearOfBlocks(TestContext context) {
-    // The owner lands with their feet inside a solid block, mirroring the report of dogs spawning
-    // in the floor. The dog must be placed on a clear neighbouring position, never inside blocks.
     context.setBlockState(new BlockPos(20, 2, 2), Blocks.STONE.getDefaultState());
     final ServerPlayerEntity owner = placePlayer(context, LONG_TELEPORT_START);
     final UnleashedDogEntity husky = spawnRegisteredDog(context, owner, DOG_START);
@@ -87,8 +77,6 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
 
   @GameTest(templateName = TELEPORT_ARENA, tickLimit = 40)
   public void longDistanceTeleportToAirborneOwnerGroundsDogBeneath(TestContext context) {
-    // Mirrors an owner in creative flight: the teleport destination is mid-air, so the dog must
-    // land on the ground beneath the owner rather than being skipped for lack of safe footing.
     final ServerPlayerEntity owner = placePlayer(context, LONG_TELEPORT_START);
     final UnleashedDogEntity husky = spawnRegisteredDog(context, owner, DOG_START);
 
@@ -117,8 +105,6 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
 
   @GameTest(templateName = TELEPORT_ARENA, tickLimit = 40)
   public void longDistanceTeleportBringsDogOntoSnowLayeredGround(TestContext context) {
-    // Snow layers cover every block around the destination, as on any snowy-biome surface.
-    // Partial-height ground cover is valid footing and must never strand the dog.
     coverDestinationFloor(context, Blocks.SNOW.getDefaultState());
     final ServerPlayerEntity owner = placePlayer(context, LONG_TELEPORT_START);
     final UnleashedDogEntity husky = spawnRegisteredDog(context, owner, DOG_START);
@@ -167,8 +153,6 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
 
   @GameTest(templateName = TELEPORT_ARENA, tickLimit = 40)
   public void teleportIntoSolidTerrainLeavesDogBehindAlive(TestContext context) {
-    // The owner ends up fully buried, so there is no safe spot anywhere in summon range. The dog
-    // must be left where it was instead of being placed inside blocks to suffocate.
     fillDestinationWithStone(context);
     final ServerPlayerEntity owner = placePlayer(context, LONG_TELEPORT_START);
     final UnleashedDogEntity husky = spawnRegisteredDog(context, owner, DOG_START);
@@ -190,8 +174,6 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
 
   @GameTest(templateName = TELEPORT_ARENA, tickLimit = 40)
   public void explicitSummonDeliversDogEvenWhenOwnerIsBuried(TestContext context) {
-    // Pet Manager summons are an explicit order and must always deliver the dog. With the owner
-    // fully buried there is no safe spot, so the dog arrives at the owner's own position.
     fillDestinationWithStone(context);
     final ServerPlayerEntity owner = placePlayer(context, LONG_TELEPORT_DESTINATION);
     final UnleashedDogEntity husky = spawnRegisteredDog(context, owner, DOG_START);
@@ -224,8 +206,6 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
 
   @GameTest(templateName = TELEPORT_ARENA, tickLimit = 60)
   public void summonOfUnfindablePetGivesUpWithoutSpawningAnything(TestContext context) {
-    // A pet record whose entity no longer exists anywhere: the locate retry loop must exhaust
-    // cleanly and never conjure an entity out of the stale record.
     final ServerPlayerEntity owner = placePlayer(context, LONG_TELEPORT_START);
     final PetData ghost =
         new PetData(

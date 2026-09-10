@@ -13,17 +13,6 @@ import net.minecraft.test.TestContext;
 import net.minecraft.test.TestFunction;
 import net.minecraft.util.math.BlockPos;
 
-/**
- * Sound-related gametests. Bark-cooldown contracts fan out across every breed via {@link
- * CustomTestProvider}; the Husky branch dispatches to a negative assertion ({@code dog should NOT
- * bark}) since the breed has no bark sound. Husky-specific howl contracts remain plain {@link
- * GameTest}s since they don't generalize across breeds.
- *
- * <p>Sound-registry presence checks (huskyHasNoBarkSoundRegistered, huskyHowlSoundIsRegistered, and
- * the four per-breed BarkSoundIsRegistered tests) live in {@code DogSoundRegistrationTest} under
- * {@code src/test/java} since they only query {@code Registries.SOUND_EVENT} and don't need a live
- * world. See gametest skill rule 10.
- */
 public final class DogEntitySoundTest implements FabricGameTest {
 
   @CustomTestProvider

@@ -91,11 +91,6 @@ public record DogsUnleashedConfig(
         DEFAULT_SHOW_DOG_NAMES);
   }
 
-  /**
-   * Spawn weight for one breed after applying the global and per-breed multipliers. Returns 0 when
-   * either multiplier is 0, which callers must treat as "do not register the spawn"; a non-zero
-   * result is floored at 1 so tiny multipliers still spawn rarely instead of silently never.
-   */
   public int effectiveSpawnWeight(final int baseWeight, final String breedSerializedId) {
     final int breedPercent =
         breedSpawnRateMultipliersPercent.getOrDefault(

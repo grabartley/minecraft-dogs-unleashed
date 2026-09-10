@@ -114,7 +114,6 @@ public class ModItems {
               UnleashedDogBreed.SHIBA_INU.spawnEggColors().secondary(),
               new Item.Settings()));
 
-  /** Returns the breed's spawn egg, or {@code null} for breeds that only occur through breeding. */
   public static @Nullable Item getSpawnEgg(final UnleashedDogBreed breed) {
     return switch (breed) {
       case HUSKY -> HUSKY_SPAWN_EGG;

@@ -19,7 +19,6 @@ class DogHouseShapeTest {
 
   private static final double PROBE = 0.03;
 
-  /** A point in the cell as authored for a north-facing house, turned to match another facing. */
   private static VoxelShape probe(
       final double x, final double y, final double z, final Direction facing) {
     double px = x;
@@ -124,10 +123,6 @@ class DogHouseShapeTest {
         "the house needs a floor to lie on");
   }
 
-  /**
-   * An occupant's hitbox is 1.1 blocks tall even while it lies down at 0.4, so it reaches into the
-   * roof cells. A solid roof suffocates it, and the damage wakes it the moment it falls asleep.
-   */
   @Test
   @DisplayName("the roof leaves headroom, so an occupant is not suffocating in the ceiling")
   void theRoofCellsLeaveHeadroom() {

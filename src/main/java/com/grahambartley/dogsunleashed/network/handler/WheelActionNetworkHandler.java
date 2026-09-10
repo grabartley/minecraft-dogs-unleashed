@@ -14,8 +14,6 @@ public final class WheelActionNetworkHandler {
 
   private WheelActionNetworkHandler() {}
 
-  // Same convention as handleSetPetName: no ACK packet, the COMMAND DataTracker broadcast is the
-  // source of truth for the client.
   public static void handleSelectWheelAction(
       final SelectWheelActionPayload payload, final ServerPlayNetworking.Context context) {
     final ServerPlayerEntity player = context.player();

@@ -2,10 +2,6 @@ package com.grahambartley.dogsunleashed.block;
 
 import net.minecraft.util.StringIdentifiable;
 
-/**
- * Which of the dog house's eight cells a block is. Positions are given in the house's own frame,
- * looking out of its doorway, so a part means the same thing whichever way the house is turned.
- */
 public enum DogHousePart implements StringIdentifiable {
   FRONT_LEFT_LOWER("front_left_lower", 0, 0, 0),
   FRONT_RIGHT_LOWER("front_right_lower", 1, 0, 0),
@@ -16,7 +12,6 @@ public enum DogHousePart implements StringIdentifiable {
   BACK_LEFT_UPPER("back_left_upper", 0, 1, 1),
   BACK_RIGHT_UPPER("back_right_upper", 1, 1, 1);
 
-  /** The cell the block entity and the rendered model live in. */
   public static final DogHousePart ORIGIN = FRONT_LEFT_LOWER;
 
   private final String name;

@@ -27,7 +27,6 @@ public final class PetManager extends PersistentState {
 
   private static final String DATA_NAME = DogsUnleashed.MOD_ID + "_pets";
 
-  // Lineage searches stay bounded even on pathological worlds; far above any legitimate family.
   private static final int LINEAGE_SEARCH_VISIT_LIMIT = 512;
 
   private final Map<UUID, List<PetData>> petsByOwner = new HashMap<>();
@@ -66,8 +65,6 @@ public final class PetManager extends PersistentState {
     }
   }
 
-  // Idempotent, and parents are set-once, so re-indexing on every update only ever adds the
-  // child edges a legacy-record backfill just recovered.
   private void index(final PetData petData) {
     petsById.put(petData.getPetId(), petData);
     for (final UUID parentId : parentIdsOf(petData)) {
@@ -102,10 +99,6 @@ public final class PetManager extends PersistentState {
     return BreedComposition.compute(dogId, fallbackBreed, petsById::get);
   }
 
-  /**
-   * Resolves one dog's immediate family from the pet records, or {@code null} for an unknown dog.
-   * Mates are co-parents of at least one shared child, siblings share at least one parent.
-   */
   public DirectConnections getDirectConnections(UUID dogId) {
     final PetData self = petsById.get(dogId);
     if (self == null) {
@@ -151,11 +144,6 @@ public final class PetManager extends PersistentState {
     return pets;
   }
 
-  /**
-   * Walks the lineage graph (parent and child edges, both directions) outward from {@code dogId}
-   * and reports whether it reaches any pet owned by {@code ownerId}. This is the authorization
-   * check for family tree browsing: a player may inspect exactly the dogs connected to their own.
-   */
   public boolean isConnectedToOwnedPet(UUID ownerId, UUID dogId) {
     final Set<UUID> visited = new HashSet<>();
     final Deque<UUID> queue = new ArrayDeque<>();
@@ -206,10 +194,6 @@ public final class PetManager extends PersistentState {
     return pets;
   }
 
-  /**
-   * Records a dog's death. A pet that dies while undead is {@link PetLifeState#LOST}: it still gets
-   * a grave, but the resurrection ritual will refuse it forever after.
-   */
   public void markPetDeceased(UUID petId, boolean diedUndead) {
     final PetData pet = petsById.get(petId);
     if (pet != null) {

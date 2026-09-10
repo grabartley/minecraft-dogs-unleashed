@@ -34,13 +34,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * A raycast only ever tests a block's shape while the ray is inside that block's own cell, so a
- * model taller than its cell can never be aimed at above the cell line. The headstone is therefore
- * sized to stand within one block, and its hitbox is that whole block: every part of the stone is
- * targetable, and a lightning rod placed on top lands in the cell the stone's tip pokes into, which
- * buries the rod's base in the stone.
- */
 public class DogGraveBlock extends HorizontalFacingBlock implements BlockEntityProvider {
 
   public static final MapCodec<DogGraveBlock> CODEC = createCodec(DogGraveBlock::new);
@@ -121,12 +114,6 @@ public class DogGraveBlock extends HorizontalFacingBlock implements BlockEntityP
     super.onPlaced(world, pos, state, placer, itemStack);
   }
 
-  /**
-   * The grave holds a single Totem of Undying, the offering the resurrection ritual consumes. A
-   * totem in hand installs one and an empty hand takes it back; every other item passes straight
-   * through, so the ritual's own lightning rod can still be placed on a grave already holding a
-   * totem.
-   */
   @Override
   protected ActionResult onUse(
       BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
@@ -164,7 +151,6 @@ public class DogGraveBlock extends HorizontalFacingBlock implements BlockEntityP
     return ActionResult.PASS;
   }
 
-  /** An installed totem belongs to the player, so it survives the grave however the grave goes. */
   @Override
   protected void onStateReplaced(
       BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
@@ -219,15 +205,12 @@ public class DogGraveBlock extends HorizontalFacingBlock implements BlockEntityP
   }
 
   private void addGraveDataToStack(ItemStack stack, DogGraveBlockEntity graveBlockEntity) {
-    // Transfer UUID
     if (graveBlockEntity.getDogUuid() != null) {
       stack.set(ModComponents.DOG_GRAVE_UUID, graveBlockEntity.getDogUuid());
     }
-    // Transfer name
     if (graveBlockEntity.getDogName() != null && !graveBlockEntity.getDogName().isEmpty()) {
       stack.set(ModComponents.DOG_GRAVE_NAME, graveBlockEntity.getDogName());
     }
-    // Transfer flower color
     stack.set(ModComponents.DOG_GRAVE_FLOWER_COLOR, graveBlockEntity.getFlowerColor());
   }
 }

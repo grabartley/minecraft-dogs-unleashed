@@ -10,11 +10,6 @@ import net.minecraft.entity.passive.AbstractHorseEntity;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.TameableEntity;
 
-/**
- * While commanded to Hunt, the dog autonomously targets hostile mobs and unnamed wild animals
- * nearby. Anything name-tagged, tamed, or dog-friendly (other dogs, villagers, iron golems) is
- * never prey.
- */
 public class HuntTargetGoal extends ActiveTargetGoal<LivingEntity> {
 
   private static final int TARGET_CHANCE = 10;

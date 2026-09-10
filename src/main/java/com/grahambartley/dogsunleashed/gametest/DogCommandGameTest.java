@@ -25,13 +25,6 @@ public final class DogCommandGameTest implements FabricGameTest {
 
   private static final String BATCH = "dog-command";
 
-  /**
-   * A free-roaming dog wanders, so a single distance reading at the end of the window is decided as
-   * much by which way it happened to amble as by whether it was following. What separates the two
-   * is persistence: a following dog closes on its owner and parks there, while a wanderer only
-   * drifts past. Counting the ticks spent near the owner measures that, and does not flip when the
-   * shared world's random stream shifts under an unrelated change.
-   */
   private static final double FREE_ROAM_NEAR_OWNER_DISTANCE = 6.0;
 
   private static final int FREE_ROAM_NEAR_OWNER_TICK_ALLOWANCE = 25;

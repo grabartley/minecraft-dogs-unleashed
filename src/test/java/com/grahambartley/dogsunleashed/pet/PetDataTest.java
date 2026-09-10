@@ -32,19 +32,13 @@ class PetDataTest {
   private static final BlockPos BASE_POS = new BlockPos(10, 64, -20);
   private static final String BASE_DIM = "minecraft:overworld";
   private static final boolean BASE_BABY = false;
-  // UNSET_VARIANT is an inlined compile-time constant, so these are safe at class-load time.
   private static final int BASE_COAT = UnleashedDogEntity.UNSET_VARIANT;
   private static final int BASE_EYE = UnleashedDogEntity.UNSET_VARIANT;
 
-  // The constructor seeds collar to DyeColor.RED (matching PetData's DEFAULT_COLLAR_COLOR_ID).
-  // Source it from DyeColor directly so the test never class-loads UnleashedDogEntity, which fails
-  // bytecode verification on the unit-test classpath.
   private static int baseCollar() {
     return DyeColor.RED.getId();
   }
 
-  // The constructor seeds the appearance fields to baby=false, collar=DEFAULT, coat=UNSET,
-  // eye=UNSET, which is exactly the BASE_* baseline the differsFrom arguments compare against.
   private static PetData baselinePet() {
     return new PetData(
         UUID.randomUUID(),

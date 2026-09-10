@@ -14,14 +14,6 @@ import net.minecraft.test.TestContext;
 import net.minecraft.test.TestFunction;
 import net.minecraft.util.math.BlockPos;
 
-/**
- * Verifies the {@code dogs-unleashed:dogs_spawnable_on} spawn restriction wiring: the tag resolves
- * at runtime with the wolf-tag surfaces inherited via its {@code #minecraft:wolves_spawnable_on}
- * reference, and the registered predicate accepts spawn positions above snowy and grassy surfaces
- * while still rejecting bare stone. Predicate tests go through {@link SpawnRestriction#canSpawn} so
- * they exercise the actual registration from {@code ModSpawns.initialize()}, fanned out across
- * every breed via {@link CustomTestProvider}.
- */
 public final class DogSpawnPredicateGameTest implements FabricGameTest {
 
   private static final String ARENA = "dogs-unleashed:dog_arena";

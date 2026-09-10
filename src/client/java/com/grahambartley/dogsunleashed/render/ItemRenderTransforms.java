@@ -30,15 +30,6 @@ final class ItemRenderTransforms {
     matrices.scale(scale, scale, scale);
   }
 
-  /**
-   * Poses a model drawn by a {@code GeoItemRenderer}. That renderer translates the model half a
-   * block on every axis from inside this transform, so without the trailing translate to cancel it
-   * the prop swings around the block corner as soon as any rotation is applied.
-   *
-   * <p>The leading translate is absolute, not an offset from centre: the display modes want the
-   * model at the middle of the block, but the in-hand modes are already positioned at the hand and
-   * a half-block push there drives the model into the camera.
-   */
   static void applyGeoItemPose(
       final MatrixStack matrices,
       final double x,

@@ -68,12 +68,8 @@ public class FrisbeeBlock extends FallingBlock implements BlockEntityProvider {
 
   @Override
   public void onBlockAdded(
-      BlockState state, World world, BlockPos pos, BlockState oldState, boolean notify) {
-    // Do not schedule a falling tick — frisbee stays wherever it's placed
-  }
+      BlockState state, World world, BlockPos pos, BlockState oldState, boolean notify) {}
 
   @Override
-  public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
-    // No falling behavior
-  }
+  public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {}
 }

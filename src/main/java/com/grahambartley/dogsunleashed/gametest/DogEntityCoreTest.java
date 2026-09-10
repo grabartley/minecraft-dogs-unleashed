@@ -15,16 +15,6 @@ import net.minecraft.test.TestContext;
 import net.minecraft.test.TestFunction;
 import net.minecraft.util.DyeColor;
 
-/**
- * Core dog-entity gametests, fanned out across every breed in {@link DogTestData#getAllBreeds()}
- * via {@link CustomTestProvider}. Adding a sixth breed to {@code getAllBreeds()} automatically
- * extends every test below to the new breed with no further edits required. Each generator names
- * its child tests {@code dogentitycoretest.<behavior>.<breed-id>} so the gametest XML report keeps
- * per-breed granularity for failure diagnosis.
- *
- * <p>See gametest skill rule on {@code @CustomTestProvider} (Yarn name for what Mojang and Forge
- * docs call {@code @GameTestGenerator}).
- */
 public final class DogEntityCoreTest implements FabricGameTest {
 
   @CustomTestProvider
@@ -69,11 +59,6 @@ public final class DogEntityCoreTest implements FabricGameTest {
         .toList();
   }
 
-  /**
-   * Functional interface for a per-breed gametest body. Equivalent to {@code
-   * BiConsumer<TestContext, DogTestData>} but expressed as a named SAM so generator call sites can
-   * pass method references like {@code this::testDogCanBeTamed} without explicit casts.
-   */
   @FunctionalInterface
   private interface PerBreedBody {
     void run(TestContext context, DogTestData data);

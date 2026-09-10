@@ -3,10 +3,6 @@ package com.grahambartley.dogsunleashed.entity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 
-/**
- * The comfort a dog house gives over a plain dog bed: a dog that wakes in one is rested rather than
- * merely no longer asleep.
- */
 public final class DogHouseComfort {
 
   static final int REGENERATION_DURATION_TICKS = 600;

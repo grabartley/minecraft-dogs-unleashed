@@ -11,10 +11,6 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
-/**
- * Loaded by JEI through the {@code jei_mod_plugin} entrypoint in {@code fabric.mod.json}. Nothing
- * else references this class, so it stays unloaded when JEI is not installed.
- */
 @JeiPlugin
 public final class DogsUnleashedJeiPlugin implements IModPlugin {
 
