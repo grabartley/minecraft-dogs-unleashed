@@ -13,6 +13,7 @@ import com.grahambartley.dogsunleashed.block.entity.AssignedDogHolder;
 import com.grahambartley.dogsunleashed.block.entity.DogHouseBlockEntity;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
+import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -239,13 +240,11 @@ public final class DogHouseGameTest implements FabricGameTest {
     return java.util.Arrays.stream(DogHousePart.values())
         .map(
             part ->
-                new TestFunction(
+                GeneratedGameTest.of(
                     "dog-house-drops",
                     "doghousegametest.breakingacelldropsonedyedhouse." + part.asString(),
                     "dogs-unleashed:dog_arena",
                     40,
-                    0L,
-                    true,
                     context -> {
                       placeHouse(context);
                       dyeHouse(context, TEST_COLOR);

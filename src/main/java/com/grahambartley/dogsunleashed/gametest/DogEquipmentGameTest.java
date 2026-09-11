@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
+import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
 import com.grahambartley.dogsunleashed.screenhandler.DogEquipmentScreenHandler;
 import java.util.Collection;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -398,13 +399,11 @@ public final class DogEquipmentGameTest implements FabricGameTest {
     return DogTestData.getAllBreeds().stream()
         .map(
             data ->
-                new TestFunction(
+                GeneratedGameTest.of(
                     BATCH,
                     "dogequipmentgametest." + behavior + "." + data.breed().serializedId(),
                     ARENA,
                     tickLimit,
-                    0L,
-                    true,
                     context -> body.run(context, data)))
         .toList();
   }

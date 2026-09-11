@@ -6,6 +6,7 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
+import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
 import com.grahambartley.dogsunleashed.mixin.ServerWorldSpawnersAccessor;
 import com.grahambartley.dogsunleashed.spawner.DogSpawner;
 import java.util.List;
@@ -57,13 +58,11 @@ public final class DogSpawnerGameTest implements FabricGameTest {
     return INERTNESS_CASES.stream()
         .map(
             inertnessCase ->
-                new TestFunction(
+                GeneratedGameTest.of(
                     BATCH,
                     "dogspawnertest.inert." + inertnessCase.id(),
                     EMPTY_STRUCTURE,
                     TICK_LIMIT,
-                    0L,
-                    true,
                     ctx -> testSpawnerIsInert(ctx, inertnessCase)))
         .toList();
   }
@@ -113,13 +112,11 @@ public final class DogSpawnerGameTest implements FabricGameTest {
     return Stream.of(World.NETHER, World.END)
         .map(
             dimension ->
-                new TestFunction(
+                GeneratedGameTest.of(
                     BATCH,
                     "dogspawnertest.notregistered." + dimension.getValue().getPath(),
                     EMPTY_STRUCTURE,
                     TICK_LIMIT,
-                    0L,
-                    true,
                     ctx -> testSpawnerAbsentIn(ctx, dimension)))
         .toList();
   }
@@ -196,13 +193,11 @@ public final class DogSpawnerGameTest implements FabricGameTest {
     return DogTestData.getAllBreeds().stream()
         .map(
             data ->
-                new TestFunction(
+                GeneratedGameTest.of(
                     BATCH,
                     "dogspawnertest.breedcandidates." + data.breed().serializedId(),
                     EMPTY_STRUCTURE,
                     TICK_LIMIT,
-                    0L,
-                    true,
                     ctx -> testBreedCandidateResolution(ctx, data.breed())))
         .toList();
   }
@@ -250,13 +245,11 @@ public final class DogSpawnerGameTest implements FabricGameTest {
     return BIOME_CANDIDATES_CASES.stream()
         .map(
             biomeCase ->
-                new TestFunction(
+                GeneratedGameTest.of(
                     BATCH,
                     "dogspawnertest.biomecandidates." + biomeCase.biome().getValue().getPath(),
                     EMPTY_STRUCTURE,
                     TICK_LIMIT,
-                    0L,
-                    true,
                     ctx -> testExactCandidateSet(ctx, biomeCase)))
         .toList();
   }
@@ -298,7 +291,7 @@ public final class DogSpawnerGameTest implements FabricGameTest {
                 Stream.of(true, false)
                     .map(
                         flag ->
-                            new TestFunction(
+                            GeneratedGameTest.of(
                                 BATCH,
                                 "dogspawnertest.nbtroundtrip."
                                     + data.breed().serializedId()
@@ -306,8 +299,6 @@ public final class DogSpawnerGameTest implements FabricGameTest {
                                     + flag,
                                 ARENA,
                                 TICK_LIMIT,
-                                0L,
-                                true,
                                 ctx -> testDespawnFlagNbtRoundTrip(ctx, data, flag))))
         .toList();
   }
@@ -346,13 +337,11 @@ public final class DogSpawnerGameTest implements FabricGameTest {
     return DogTestData.getAllBreeds().stream()
         .map(
             data ->
-                new TestFunction(
+                GeneratedGameTest.of(
                     BATCH,
                     "dogspawnertest.despawnlifecycle." + data.breed().serializedId(),
                     ARENA,
                     TICK_LIMIT,
-                    0L,
-                    true,
                     ctx -> testDespawnEligibilityLifecycle(ctx, data)))
         .toList();
   }
@@ -389,13 +378,11 @@ public final class DogSpawnerGameTest implements FabricGameTest {
     return DogTestData.getAllBreeds().stream()
         .map(
             data ->
-                new TestFunction(
+                GeneratedGameTest.of(
                     BATCH,
                     "dogspawnertest.chunkgenpersistence." + data.breed().serializedId(),
                     ARENA,
                     TICK_LIMIT,
-                    0L,
-                    true,
                     ctx -> testChunkGenerationPersistence(ctx, data)))
         .toList();
   }

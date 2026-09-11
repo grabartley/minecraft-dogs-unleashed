@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
+import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
 import java.util.List;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.SpawnGroup;
@@ -23,13 +24,11 @@ public final class DogSpawnRegistrationGameTest implements FabricGameTest {
     return DogTestData.getAllBreeds().stream()
         .map(
             data ->
-                new TestFunction(
+                GeneratedGameTest.of(
                     "defaultBatch",
                     "dogspawnregistrationtest.bakedentry." + data.breed().serializedId(),
                     FabricGameTest.EMPTY_STRUCTURE,
                     TICK_LIMIT,
-                    0L,
-                    true,
                     ctx -> testBakedSpawnEntries(ctx, data)))
         .toList();
   }

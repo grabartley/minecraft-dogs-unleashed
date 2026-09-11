@@ -5,6 +5,7 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
+import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
 import java.util.List;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -32,13 +33,11 @@ public final class DogEntityBreedSpecificTest implements FabricGameTest {
     return DogTestData.getAllBreeds().stream()
         .map(
             data ->
-                new TestFunction(
+                GeneratedGameTest.of(
                     "defaultBatch",
                     "dogentitybreedspecifictest." + behavior + "." + data.breed().serializedId(),
                     FabricGameTest.EMPTY_STRUCTURE,
                     tickLimit,
-                    0L,
-                    true,
                     ctx -> body.run(ctx, data)))
         .toList();
   }

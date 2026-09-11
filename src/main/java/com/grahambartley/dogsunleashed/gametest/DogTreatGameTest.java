@@ -7,6 +7,7 @@ import com.grahambartley.dogsunleashed.entity.DogTreatBuff;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
+import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -432,13 +433,11 @@ public final class DogTreatGameTest implements FabricGameTest {
     return DogTestData.getAllBreeds().stream()
         .map(
             data ->
-                new TestFunction(
+                GeneratedGameTest.of(
                     BATCH,
                     "dogtreatgametest." + behavior + "." + data.breed().serializedId(),
                     ARENA,
                     tickLimit,
-                    0L,
-                    true,
                     context -> body.run(context, data)))
         .toList();
   }

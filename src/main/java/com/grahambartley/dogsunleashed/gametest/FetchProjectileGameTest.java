@@ -6,6 +6,7 @@ import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.block.entity.FrisbeeBlockEntity;
 import com.grahambartley.dogsunleashed.entity.FrisbeeProjectileEntity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
+import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
 import java.util.Collection;
 import java.util.List;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -149,13 +150,11 @@ public final class FetchProjectileGameTest implements FabricGameTest {
     return FETCH_CASES.stream()
         .map(
             fetchCase ->
-                new TestFunction(
+                GeneratedGameTest.of(
                     "defaultBatch",
                     "fetchprojectilegametest." + behavior + "." + fetchCase.id(),
                     FabricGameTest.EMPTY_STRUCTURE,
                     tickLimit,
-                    0L,
-                    true,
                     context -> body.run(context, fetchCase)))
         .toList();
   }

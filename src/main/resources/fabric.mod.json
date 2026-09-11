@@ -51,6 +51,7 @@
       "com.grahambartley.dogsunleashed.gametest.DogGraveGameTest",
       "com.grahambartley.dogsunleashed.gametest.PetManagerFilterGameTest",
       "com.grahambartley.dogsunleashed.gametest.FetchProjectileGameTest",
+      "com.grahambartley.dogsunleashed.gametest.FrisbeeBlockGameTest",
       "com.grahambartley.dogsunleashed.gametest.StickThrowHandlerGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogReunionGameTest",
       "com.grahambartley.dogsunleashed.gametest.PuppyBehaviorGameTest",
