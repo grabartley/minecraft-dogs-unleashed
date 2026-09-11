@@ -52,7 +52,7 @@ public final class DogBedBlockGameTest implements FabricGameTest {
 
     final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relDogPos);
     husky.setTamed(true, true);
-    husky.setAiDisabled(true); // Prevent wandering into other test structures
+    husky.setAiDisabled(true);
 
     context.runAtTick(
         10,
@@ -165,16 +165,8 @@ public final class DogBedBlockGameTest implements FabricGameTest {
     context.complete();
   }
 
-  // dogBedHasCorrectHardness and pendingAssignmentCanBeSetAndConsumed live in DogBedBlockTest
-  // under src/test/java since they only read static block state and a process-global UUID map.
-  // See gametest skill rule 10.
-
   @GameTest(templateName = "dogs-unleashed:dog_bed_pair", tickLimit = 100)
   public void reAssigningDogToNewBedClearsOldBed(final TestContext context) {
-    // Two beds live at separate relative positions. EMPTY_STRUCTURE is 1x1x1; the structure
-    // bounds are tracked by TestContext but setBlockState at an off-structure relative pos
-    // still resolves via absolute coordinates and works for assertions. Per #210, this
-    // test should eventually move to an .nbt template that covers the multi-bed footprint.
     final BlockPos relOldBedPos = new BlockPos(0, 1, 0);
     final BlockPos relNewBedPos = new BlockPos(3, 1, 0);
     final BlockPos relDogPos = new BlockPos(1, 1, 0);

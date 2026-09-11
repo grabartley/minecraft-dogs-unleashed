@@ -7,10 +7,6 @@ import com.grahambartley.dogsunleashed.pet.PetManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 
-/**
- * What a tamed dog leaves behind: an updated pet record, a freed bed, and a grave. A dog that dies
- * while undead still gets its grave, but the record is marked lost and the ritual will refuse it.
- */
 public final class DogDeathHandler {
 
   private DogDeathHandler() {}
@@ -24,7 +20,6 @@ public final class DogDeathHandler {
     }
     petManager.markPetDeceased(dog.getUuid(), dog.isUndead());
 
-    // Read before clearing: the grave must not spawn on the bed the dog was assigned to.
     final BlockPos bedPosToAvoid = dog.getAssignedBedPos().orElse(null);
 
     dog.getAssignedBedPos()

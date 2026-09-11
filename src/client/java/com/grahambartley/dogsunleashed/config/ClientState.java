@@ -13,10 +13,6 @@ import net.fabricmc.loader.api.FabricLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Client-only state that persists across launches, kept separate from {@link DogsUnleashedConfig}
- * because it is per-installation rather than server-authoritative.
- */
 public record ClientState(boolean keybindNudgeShown) {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ClientState.class);

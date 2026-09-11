@@ -9,15 +9,6 @@ import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.math.BlockPos;
 
-/**
- * Entity-level lineage contract: {@code createChild} stamps both parents' UUIDs on the puppy, and
- * both survive the entity NBT round-trip. The pet-record side of lineage (registration capture,
- * legacy backfill, graph queries) is covered by {@code PetRegistrarGameTest}, {@code
- * PetLocationSyncListenerGameTest}, and {@code PetManagerConnectionsGameTest}.
- *
- * <p>AI is disabled throughout: these are persistence contracts, not behavior (gametest skill rule
- * 6).
- */
 public final class DogLineageGameTest implements FabricGameTest {
 
   private static final BlockPos PARENT_POS = new BlockPos(1, 2, 1);

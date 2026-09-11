@@ -62,7 +62,6 @@ class DogGraveSpawnerTest {
   }
 
   static Stream<Arguments> ringSizes() {
-    // Perimeter cells of ring r, times 5 vertical layers (dy -2..2).
     return Stream.of(
         Arguments.of("centre", 0, 1 * 5),
         Arguments.of("first ring", 1, 8 * 5),

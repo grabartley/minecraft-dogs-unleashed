@@ -39,7 +39,6 @@ public final class DogPlaySession {
     this.dog = dog;
   }
 
-  /** Whether a dog counts as mid-fetch, and whether answering needs a projectile scan. */
   public enum FetchStatus {
     IDLE,
     FETCHING,
@@ -67,13 +66,6 @@ public final class DogPlaySession {
     return ACTIVE_PLAY_SESSIONS.containsKey(playerUuid);
   }
 
-  /**
-   * Client-safe mirror of {@link #isAnyDogInPlayModeFor}. {@code ACTIVE_PLAY_SESSIONS} only lives
-   * on the logical server, so on a dedicated server the client evaluates the play-mode gate by
-   * scanning tracked dogs for a synced play partner matching the player. The scan range mirrors
-   * fetch detection; dogs beyond client tracking range are invisible here, which only skips the
-   * cosmetic prediction, never the server-authoritative throw.
-   */
   public static boolean isAnyNearbyDogInPlayModeFor(final PlayerEntity player) {
     return !player
         .getWorld()
@@ -88,11 +80,6 @@ public final class DogPlaySession {
     return !ACTIVE_PLAY_SESSIONS.isEmpty();
   }
 
-  /**
-   * Clears the JVM-global active play sessions map. The map otherwise lives for the lifetime of the
-   * JVM; in singleplayer it survives world reloads and in gametest batches it leaks state between
-   * tests. Called by test {@code @BeforeBatch} hooks and by {@code SERVER_STOPPED}.
-   */
   public static void clearActivePlaySessions() {
     ActivePlaySessions.clearAll(ACTIVE_PLAY_SESSIONS);
   }

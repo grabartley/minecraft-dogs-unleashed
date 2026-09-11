@@ -67,7 +67,6 @@ public final class DogTestHelper {
         .toList();
   }
 
-  /** Stands the player where nothing the arena tests place or break can collide with them. */
   public static ServerPlayerEntity mockPlayerStandingClearInArena(TestContext context) {
     final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
     final Vec3d clear = Vec3d.ofBottomCenter(context.getAbsolutePos(ARENA_CLEAR_STANDING_POS));
@@ -75,7 +74,6 @@ public final class DogTestHelper {
     return player;
   }
 
-  /** Drives the real placement path so component-carried state travels the way it does in play. */
   public static void placeStackOnTopOf(
       TestContext context, ServerPlayerEntity player, ItemStack stack, BlockPos relFloor) {
     player.setStackInHand(Hand.MAIN_HAND, stack);

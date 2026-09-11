@@ -16,8 +16,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class ServerConfigPayloadsTest {
 
-  // The config codec only uses primitive, string, and map buf operations, so no registry lookup is
-  // needed and a null registry is safe here.
   private static RegistryByteBuf newBuf() {
     return new RegistryByteBuf(Unpooled.buffer(), null);
   }

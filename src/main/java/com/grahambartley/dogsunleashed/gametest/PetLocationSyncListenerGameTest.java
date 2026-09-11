@@ -15,12 +15,6 @@ import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.math.BlockPos;
 
-/**
- * Enforces that pet records resync their dimension and position from the live entity on
- * load/unload, so stale records (which make dogs unfindable by summons and follows) self-heal on
- * contact with the entity, and that a tamed, owned dog with no record at all gets one backfilled so
- * dogs ghosted by the old inherited-owner breeding path heal in existing worlds.
- */
 public final class PetLocationSyncListenerGameTest implements FabricGameTest {
 
   private static final BlockPos STALE_POSITION = new BlockPos(100_000, 64, 100_000);

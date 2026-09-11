@@ -14,11 +14,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-/**
- * Item-backed predicate coverage lives in {@code DogEquipmentGameTest} instead: asserting against
- * real {@code Items} constants would require running {@code Items.<clinit>} on the unit-test
- * classpath, which fails verification under Yarn-mapped jars.
- */
 @ExtendWith(MinecraftBootstrapExtension.class)
 class DogEquipmentSlotTest {
 

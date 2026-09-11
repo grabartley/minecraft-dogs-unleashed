@@ -20,12 +20,6 @@ public final class ServerConfigService {
 
   private ServerConfigService() {}
 
-  /**
-   * Loads the world's config the moment its save session opens, which happens before {@code
-   * MinecraftServer} is constructed. Fabric bakes biome modifications inside the server
-   * constructor, so spawn weights resolved there only see the world's saved values because this ran
-   * first; the {@code SERVER_STARTING} reload alone would be too late.
-   */
   public static void loadFromSession(final LevelStorage.Session session) {
     if (session == null) {
       DogsUnleashed.SERVER_CONFIG = DogsUnleashedConfig.defaults();

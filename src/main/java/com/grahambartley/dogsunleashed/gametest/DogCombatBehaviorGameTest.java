@@ -12,11 +12,6 @@ import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.math.BlockPos;
 
-/**
- * Proves which goal a hurt dog actually runs. A dog commanded to Guard or Hunt must never run the
- * escape goal, while every other command still does, so the panic gate is observed on the dog's
- * real goal selector rather than inferred from where the dog ended up.
- */
 public final class DogCombatBehaviorGameTest implements FabricGameTest {
 
   private static final String ARENA = "dogs-unleashed:dog_arena";
@@ -83,10 +78,6 @@ public final class DogCombatBehaviorGameTest implements FabricGameTest {
         });
   }
 
-  /**
-   * Magic damage rather than a mob attack: both count as panic causes, but magic needs no attacker
-   * entity, so nothing hostile is left standing in the shared test world.
-   */
   private void scheduleHits(
       final TestContext context, final UnleashedDogEntity dog, final boolean onFire) {
     for (int hit = 0; hit < HIT_COUNT; hit++) {

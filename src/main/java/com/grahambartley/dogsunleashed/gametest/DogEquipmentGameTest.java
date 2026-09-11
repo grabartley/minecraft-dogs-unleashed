@@ -403,8 +403,8 @@ public final class DogEquipmentGameTest implements FabricGameTest {
                     "dogequipmentgametest." + behavior + "." + data.breed().serializedId(),
                     ARENA,
                     tickLimit,
-                    /* setupTicks */ 0L,
-                    /* required */ true,
+                    0L,
+                    true,
                     context -> body.run(context, data)))
         .toList();
   }

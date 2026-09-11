@@ -63,9 +63,6 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 public class UnleashedDogEntity extends TameableEntity
     implements GeoEntity, Angerable, ExtendedScreenHandlerFactory<Integer> {
 
-  // Keep in sync with PetData.DEFAULT_COLLAR_COLOR_ID. PetData mirrors this value from DyeColor
-  // directly because referencing this constant would class-load UnleashedDogEntity, a MobEntity
-  // subclass that fails bytecode verification on the unit-test classpath.
   public static final int DEFAULT_COLLAR_COLOR_ID = DyeColor.RED.getId();
   public static final int UNSET_VARIANT = -1;
 
@@ -89,14 +86,9 @@ public class UnleashedDogEntity extends TameableEntity
   private static final TrackedData<ItemStack> CARRIED_FETCH_ITEM_STACK = data(ITEM_STACK);
   static final TrackedData<ItemStack> PENDANT_ITEM = data(ITEM_STACK);
   static final TrackedData<ItemStack> COSMETIC_ITEM = data(ITEM_STACK);
-  // String over Identifier because 1.21.1 lacks native Identifier TrackedDataHandler.
-  // Syncs the active fetch type id (e.g. "dogs-unleashed:stick") for client-side carry rendering.
 
-  // Synced so the client can mirror the play-mode gate: ACTIVE_PLAY_SESSIONS only exists on the
-  // logical server, so on a dedicated server the client predicts stick throws off this instead.
   private static final TrackedData<Optional<UUID>> PLAY_PARTNER_UUID = data(OPTIONAL_UUID);
 
-  // Int over enum because 1.21.1 has no enum TrackedDataHandler; DogCommand.fromId round-trips it.
   private static final TrackedData<Integer> COMMAND = data(INTEGER);
 
   private static <T> TrackedData<T> data(final TrackedDataHandler<T> handler) {
@@ -137,8 +129,6 @@ public class UnleashedDogEntity extends TameableEntity
     this.equipment.guaranteeArmourDrop();
   }
 
-  // Mirrors WolfEntity.canSpawn: the vanilla AnimalEntity predicate only allows grass_block below,
-  // which excludes the snow surfaces most husky spawn biomes are made of.
   public static boolean canSpawn(
       final EntityType<? extends UnleashedDogEntity> type,
       final WorldAccess world,
@@ -174,12 +164,6 @@ public class UnleashedDogEntity extends TameableEntity
     this.spawnedByDogSpawner = spawnedByDogSpawner;
   }
 
-  /**
-   * Wild animals never despawn ({@code AnimalEntity} hard-codes false), which is fine for
-   * chunk-generation dogs but would let the cap-independent {@code DogSpawner} monotonically fill
-   * the world. Untamed spawner-spawned dogs are therefore despawnable like ambient mobs; taming
-   * clears the flag and restores permanent persistence.
-   */
   @Override
   public boolean canImmediatelyDespawn(final double distanceSquared) {
     return this.spawnedByDogSpawner && !this.isTamed();
@@ -197,7 +181,6 @@ public class UnleashedDogEntity extends TameableEntity
     return this.breed;
   }
 
-  /** Fixed by the entity type: undead and living dogs are separate registered types. */
   public boolean isUndead() {
     return this.undead;
   }
@@ -210,7 +193,6 @@ public class UnleashedDogEntity extends TameableEntity
     return this.curing;
   }
 
-  /** Lets {@link DogUndeadState} reach the protected {@code MobEntity} daylight check. */
   boolean isExposedToDaylight() {
     return this.isAffectedByDaylight();
   }
@@ -305,7 +287,6 @@ public class UnleashedDogEntity extends TameableEntity
     this.dataTracker.set(COMMAND, command.id());
   }
 
-  /** {@code jumping} is protected on {@code LivingEntity}, so only the entity can clear it. */
   void stopJumping() {
     this.jumping = false;
   }
@@ -521,12 +502,10 @@ public class UnleashedDogEntity extends TameableEntity
     return this.interactions.interact(player, hand);
   }
 
-  /** Lets {@link DogInteractions} reach the vanilla interaction it defers to. */
   ActionResult vanillaInteract(final PlayerEntity player, final Hand hand) {
     return super.interactMob(player, hand);
   }
 
-  /** Undead pets refuse breeding food: no love mode, and Instant Damage is what heals them. */
   @Override
   public boolean isBreedingItem(ItemStack stack) {
     return !this.undead && DogFoods.isBreedingItem(stack);
@@ -569,11 +548,6 @@ public class UnleashedDogEntity extends TameableEntity
     }
   }
 
-  /**
-   * Puppies are non-combatants until they grow up. Refusing to accept a target while {@code
-   * isBaby()} keeps {@code PounceAtTargetGoal} and {@code MeleeAttackGoal} inert (both require a
-   * target to start) and naturally restores adult combat AI the moment the dog stops being a baby.
-   */
   @Override
   public void setTarget(@Nullable final LivingEntity target) {
     if (target != null && this.isBaby()) {
@@ -624,7 +598,6 @@ public class UnleashedDogEntity extends TameableEntity
     return super.damage(source, amount);
   }
 
-  /** Lightning cannot harm what lightning raised: the ritual needs a storm, and storms restrike. */
   @Override
   public void onStruckByLightning(final ServerWorld world, final LightningEntity lightning) {
     if (this.undead) {

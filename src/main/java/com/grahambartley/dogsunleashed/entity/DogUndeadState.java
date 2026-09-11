@@ -5,20 +5,11 @@ import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributes;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * What being undead costs a dog: weaker stats than it had in life, and the vanilla zombie's
- * intolerance of daylight.
- *
- * <p>The undead multipliers compose over whatever the living baseline was, which for a cross-breed
- * is its genome rather than its preset. The genome itself is never rewritten, so curing restores
- * the original numbers exactly.
- */
 public final class DogUndeadState {
 
   public static final double MAX_HEALTH_MULTIPLIER = 0.5;
   public static final double ATTACK_DAMAGE_MULTIPLIER = 0.5;
 
-  /** Matches {@code ZombieEntity}, which burns for eight seconds per exposed tick. */
   public static final float DAYLIGHT_BURN_SECONDS = 8.0f;
 
   private final UnleashedDogEntity dog;
@@ -45,10 +36,6 @@ public final class DogUndeadState {
     return genome != null ? genome.attackDamage() : breed.attributes().attackDamage();
   }
 
-  /**
-   * Scales this dog's stats down to their undead values, or leaves a living dog alone. Idempotent,
-   * so every spawn and every load can call it without compounding.
-   */
   public void applyAttributeScaling() {
     if (!this.dog.isUndead()) {
       return;
@@ -61,11 +48,6 @@ public final class DogUndeadState {
     }
   }
 
-  /**
-   * Puts a freshly cured dog back on its living numbers. A cured dog is recreated from the undead
-   * dog's NBT, and vanilla persists attribute base values, so the undead scaling would otherwise
-   * survive the cure.
-   */
   public static void restoreLivingAttributes(final UnleashedDogEntity curedDog) {
     curedDog
         .getUndeadState()
@@ -86,7 +68,6 @@ public final class DogUndeadState {
     }
   }
 
-  /** Dog armour stands in for the helmet that spares a vanilla zombie. */
   private boolean isShelteredFromDaylight() {
     return !this.dog.getEquipmentHolder().getStack(DogEquipmentSlot.ARMOUR).isEmpty();
   }

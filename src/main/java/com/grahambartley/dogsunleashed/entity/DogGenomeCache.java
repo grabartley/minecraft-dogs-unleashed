@@ -5,11 +5,6 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.nbt.NbtCompound;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Keeps a dog's genome decoded. The genome rides the data tracker as raw NBT so both logical sides
- * see it, but decoding it on every read would be wasteful, so the decoded value is cached until the
- * tracked NBT changes underneath it.
- */
 public final class DogGenomeCache {
 
   private final UnleashedDogEntity dog;
@@ -30,7 +25,6 @@ public final class DogGenomeCache {
     return this.cached;
   }
 
-  /** Writes the genome through to the tracker and rebases the dog's attributes on its genes. */
   void apply(final DogGenome genome) {
     this.dog.setTrackedGenomeNbt(genome.toNbt());
     this.dog

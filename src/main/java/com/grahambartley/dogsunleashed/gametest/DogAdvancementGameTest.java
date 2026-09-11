@@ -21,14 +21,6 @@ import net.minecraft.test.TestContext;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
-/**
- * Gametest coverage for the advancement set (#73).
- *
- * <p>Uses {@code context.createMockCreativeServerPlayerInWorld()} for tests that need a real {@code
- * ServerPlayerEntity} (criteria triggers, advancement tracker queries). The older {@code
- * createMockPlayer(GameMode)} returns a {@code TestContext$1} mock that is NOT a {@code
- * ServerPlayerEntity}, so casting it crashes at runtime; see the gametest skill rule 4.
- */
 public final class DogAdvancementGameTest implements FabricGameTest {
   private static final List<String> ADVANCEMENT_IDS =
       List.of(
@@ -111,10 +103,6 @@ public final class DogAdvancementGameTest implements FabricGameTest {
     final AdvancementEntry sweetDreams = getAdvancement(context, "sweet_dreams");
     final AdvancementEntry foreverInOurHearts = getAdvancement(context, "forever_in_our_hearts");
 
-    // Place player and dog at the same spot so FetchReturnGoal's <3-block proximity check passes
-    // when tick() runs. The mock creative player is otherwise spawned at an arbitrary default
-    // position relative to the test structure, and the goal silently fails to fire its criterion
-    // when the dog is "too far away". See gametest skill rule 6 (control AI/position explicitly).
     final BlockPos absDogPos = context.getAbsolutePos(new BlockPos(1, 1, 0));
     player.refreshPositionAndAngles(absDogPos, 0.0f, 0.0f);
 

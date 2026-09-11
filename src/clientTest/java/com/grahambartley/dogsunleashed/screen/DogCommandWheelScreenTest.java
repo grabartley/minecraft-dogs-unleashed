@@ -31,8 +31,6 @@ class DogCommandWheelScreenTest {
   }
 
   static Stream<Arguments> sectorCenters() {
-    // Screen y grows downward, so clockwise from 12 o'clock: up, up-right, right, down-right,
-    // down, down-left, left, up-left.
     return Stream.of(
         Arguments.of("12 o'clock", 0, -70, 0),
         Arguments.of("1:30", 50, -50, 1),
@@ -53,8 +51,6 @@ class DogCommandWheelScreenTest {
   }
 
   static Stream<Arguments> sectorBoundaries() {
-    // Sector 0 spans -22.5 deg to +22.5 deg around 12 o'clock; points just inside each side of
-    // the boundary at radius 70.
     final double radius = 70;
     final double justInside0 = Math.toRadians(-90 + 22.0);
     final double justInside1 = Math.toRadians(-90 + 23.0);

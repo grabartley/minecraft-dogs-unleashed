@@ -14,18 +14,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-/**
- * Verifies that each {@link ModBlocks} field is added to the canonical {@link Registries#BLOCK}
- * under the expected {@code dogs-unleashed:*} identifier. Catches regressions where a field is
- * removed from {@code ModBlocks} or where its registration call is dropped without removing the
- * field, which would silently leave the field non-null but missing from the registry on a live
- * server.
- *
- * <p>Equivalent assertions for {@link ModEntities} and {@link ModItems} would require running
- * {@code EntityType.<clinit>} / {@code Items.<clinit>} on the unit-test classpath, which fails
- * verification under Yarn-mapped jars without the Loom production-runtime widening pass. Those
- * fields are exercised in the gametest suite instead.
- */
 @ExtendWith(MinecraftBootstrapExtension.class)
 class ModContentRegistrationTest {
 

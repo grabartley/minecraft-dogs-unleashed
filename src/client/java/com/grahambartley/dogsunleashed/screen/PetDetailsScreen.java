@@ -26,12 +26,6 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * The per-pet home screen, opened by clicking a dog in the Pet Manager: a large portrait on the
- * left, the record's details on the right, per-pet actions, and a small non-interactive preview of
- * the dog's direct family that links into the full {@link FamilyTreeScreen}. The preview reuses
- * {@link FamilyTreeLayout} with only this dog expanded, scaled to fit its box.
- */
 public class PetDetailsScreen extends Screen implements DogConnectionsListener {
 
   static final int PORTRAIT_SIZE = 96;

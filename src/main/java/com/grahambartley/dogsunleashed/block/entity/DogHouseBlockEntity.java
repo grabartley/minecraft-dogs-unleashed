@@ -90,7 +90,6 @@ public class DogHouseBlockEntity extends BlockEntity implements GeoBlockEntity, 
     return null;
   }
 
-  /** The renderer draws the occupant and the cushion colour from the client copy of this. */
   private void syncToClients() {
     if (this.world != null && !this.world.isClient) {
       this.world.updateListeners(this.pos, this.getCachedState(), this.getCachedState(), 3);
@@ -119,10 +118,6 @@ public class DogHouseBlockEntity extends BlockEntity implements GeoBlockEntity, 
     }
   }
 
-  /**
-   * The cushion colour travels on the item as a component, which is what carries it from the
-   * crafting recipe onto a placed house and back onto the house that drops when one is broken.
-   */
   @Override
   protected void addComponents(ComponentMap.Builder builder) {
     super.addComponents(builder);

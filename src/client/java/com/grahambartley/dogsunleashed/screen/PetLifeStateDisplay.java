@@ -4,7 +4,6 @@ import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
-/** How a pet's place in the death and resurrection cycle reads in the pet manager screens. */
 public final class PetLifeStateDisplay {
 
   public static final int UNDEAD_COLOR = 0x8FBC8F;
@@ -21,7 +20,6 @@ public final class PetLifeStateDisplay {
     };
   }
 
-  /** {@code null} for a plain living pet, which needs no status of its own. */
   public static @Nullable Text statusLabel(final PetLifeState lifeState) {
     return switch (lifeState) {
       case LIVING -> null;

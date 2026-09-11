@@ -9,11 +9,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoBlockRenderer;
 
-/**
- * Draws a dog house with the dye applied to its cushion alone. The house in the world and the icon
- * in the inventory are drawn by different renderers, and a cushion that took the dye in one place
- * but not the other would be a house that changes colour when it is picked up.
- */
 public class CushionTintedDogHouseRenderer extends GeoBlockRenderer<DogHouseBlockEntity> {
 
   public CushionTintedDogHouseRenderer() {

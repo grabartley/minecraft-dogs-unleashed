@@ -23,37 +23,11 @@ import net.minecraft.test.TestFunction;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 
-/**
- * Real-behavior coverage of the shared {@link
- * com.grahambartley.dogsunleashed.entity.fetch.AbstractFetchProjectileEntity} {@code onBlockHit}
- * lifecycle, run through every concrete projectile. Two branches are exercised:
- *
- * <ul>
- *   <li>Lands in open air against a surface: the air is replaced with the projectile's own {@code
- *       FetchItemType.landedBlock()} so a dog has something to retrieve.
- *   <li>Lands where the spot is obstructed (the point-blank-throw case, reproduced here by spawning
- *       the projectile inside a block): no block is placed and the fetch item drops as a
- *       retrievable {@link ItemEntity} via the {@code buildDropStack} hook.
- * </ul>
- *
- * <p>The frisbee additionally imprints its thrown color, onto the placed block via {@code
- * enrichLandedBlockEntity} and onto the dropped stack's {@code FRISBEE_COLOR} component via {@code
- * buildDropStack}.
- *
- * <p>These need a live {@code ServerWorld} (entity construction, registry-backed item/block
- * lookups, and projectile physics all touch class init that the JUnit classloader cannot complete),
- * so they live here rather than under {@code src/test/java}.
- */
 public final class FetchProjectileGameTest implements FabricGameTest {
 
   private static final BlockPos SURFACE = new BlockPos(1, 0, 1);
-  // Land case: drop from 4 blocks up at -0.5/tick (plus drag) settles onto SURFACE well within the
-  // 80-tick limit, so the placed block lands at LANDED. Tweaking a subclass getGravity() that slows
-  // the fall this much would need this geometry revisited.
   private static final BlockPos LAND_SPAWN = new BlockPos(1, 5, 1);
   private static final BlockPos LANDED = new BlockPos(1, 1, 1);
-  // Drop case: the projectile spawns inside this (stone-filled) cell so its landing position is
-  // obstructed, forcing the drop-as-item branch instead of placing a block inside solid geometry.
   private static final BlockPos BLOCKED_SPAWN = new BlockPos(1, 1, 1);
 
   private record FetchCase(
@@ -65,13 +39,11 @@ public final class FetchProjectileGameTest implements FabricGameTest {
           new FetchCase("stick", ModEntities.STICK_PROJECTILE, ModBlocks.STICK),
           new FetchCase("frisbee", ModEntities.FRISBEE_PROJECTILE, ModBlocks.FRISBEE));
 
-  /** One land-as-block case per fetch projectile, sharing the same throw-and-settle body. */
   @CustomTestProvider
   public Collection<TestFunction> landsAsItsOwnBlock() {
     return generatePerProjectile("landsasitsownblock", 80, this::landsAsItsOwnBlockBody);
   }
 
-  /** One drop-as-item case per fetch projectile, sharing the same blocked-landing body. */
   @CustomTestProvider
   public Collection<TestFunction> dropsItemWhenBlocked() {
     return generatePerProjectile("dropsitemwhenblocked", 40, this::dropsItemWhenBlockedBody);
@@ -182,8 +154,8 @@ public final class FetchProjectileGameTest implements FabricGameTest {
                     "fetchprojectilegametest." + behavior + "." + fetchCase.id(),
                     FabricGameTest.EMPTY_STRUCTURE,
                     tickLimit,
-                    /* setupTicks */ 0L,
-                    /* required */ true,
+                    0L,
+                    true,
                     context -> body.run(context, fetchCase)))
         .toList();
   }

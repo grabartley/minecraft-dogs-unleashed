@@ -33,7 +33,6 @@ public final class DogEquipmentHolder {
 
   private record PersistedSlot(DogEquipmentSlot slot, String nbtKey) {}
 
-  /** What a right-click with a held item does to the dog's equipment. */
   public enum DirectEquipOutcome {
     IGNORED,
     SHEAR_OFF_ARMOUR,

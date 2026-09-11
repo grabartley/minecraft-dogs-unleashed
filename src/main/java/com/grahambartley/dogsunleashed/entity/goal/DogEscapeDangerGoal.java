@@ -4,10 +4,6 @@ import com.grahambartley.dogsunleashed.entity.DogPanicPolicy;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import net.minecraft.entity.ai.goal.EscapeDangerGoal;
 
-/**
- * Vanilla panic behavior, gated by {@link DogPanicPolicy} so a dog commanded to Guard or Hunt stays
- * on its target instead of alternating between attacking and fleeing every time it is hit.
- */
 public class DogEscapeDangerGoal extends EscapeDangerGoal {
 
   private final UnleashedDogEntity dog;

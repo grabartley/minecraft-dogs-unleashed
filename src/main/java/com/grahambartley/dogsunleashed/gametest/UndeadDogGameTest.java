@@ -28,21 +28,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.GameRules;
 
-/**
- * What being undead costs a dog: it burns in open daylight, it dies for good, and it can be cured
- * back to its living self with Weakness and a Golden Apple.
- *
- * <p>The daylight tests pin midday, so they live in their own batch with the daylight cycle frozen
- * (gametest skill rule 3). Vanilla's daylight burn is a per-tick probability rather than a
- * certainty, so the burn test latches the first ignition it sees over a long window and retries
- * (rule 8); the tests that assert a dog is *safe* need no retry, since they must hold every tick.
- */
 public final class UndeadDogGameTest implements FabricGameTest {
 
   private static final String ARENA = "dogs-unleashed:dog_arena";
   private static final String DAYLIGHT_BATCH = "undead-daylight";
-  // Relative y1 is the template floor: entities stand at y2, and a dog placed at y1 is
-  // embedded in the floor, where no sky reaches it.
   private static final BlockPos REL_DOG = new BlockPos(3, 2, 3);
   private static final BlockPos REL_ROOF = new BlockPos(3, 4, 3);
   private static final int MIDDAY = 6000;
@@ -83,8 +72,6 @@ public final class UndeadDogGameTest implements FabricGameTest {
       skyAccess = true)
   public void anUndeadDogUnderShelterIsSafeFromDaylight(final TestContext context) {
     final UnleashedDogEntity dog = spawnUndeadDog(context);
-    // An explicit roof rather than the framework's, so this test and the burning one differ by
-    // exactly one thing: whether the sky can see the dog.
     context.setBlockState(REL_ROOF, Blocks.STONE);
 
     assertCatchesFire(
@@ -302,12 +289,6 @@ public final class UndeadDogGameTest implements FabricGameTest {
         });
   }
 
-  /**
-   * Watches a dog across the whole daylight window and reports whether it ever caught fire. Time is
-   * re-pinned every tick: the world clock is shared with every other batch, and vanilla's daylight
-   * burn is a per-tick roll, so a single pin in {@code @BeforeBatch} is not enough to keep midday
-   * in place for the whole window.
-   */
   private static void assertCatchesFire(
       final TestContext context,
       final UnleashedDogEntity dog,

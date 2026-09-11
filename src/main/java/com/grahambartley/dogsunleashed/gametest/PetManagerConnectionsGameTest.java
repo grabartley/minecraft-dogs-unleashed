@@ -14,21 +14,6 @@ import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.math.BlockPos;
 
-/**
- * Locks the contract of {@link PetManager#getDirectConnections} and {@link
- * PetManager#isConnectedToOwnedPet}, the graph queries behind the family tree. Each test builds its
- * own {@link PetManager} instance around a three-generation family so nothing leaks through the
- * world's persistent state:
- *
- * <pre>
- * grandma + grandpa -> mother;  mother + father -> puppyOne, puppyTwo
- * father + otherMate -> halfSibling;  stranger is unrelated
- * </pre>
- *
- * <p>This lives in the gametest suite for the same reason as {@code PetManagerFilterGameTest}:
- * constructing {@link PetData} needs the access-widened runtime classpath. No world ticking is
- * required, so each case runs in {@code EMPTY_STRUCTURE} and completes immediately.
- */
 public final class PetManagerConnectionsGameTest implements FabricGameTest {
 
   private static final UUID OWNER = UUID.nameUUIDFromBytes("connections-owner".getBytes());

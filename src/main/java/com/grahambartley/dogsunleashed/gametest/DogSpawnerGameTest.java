@@ -29,18 +29,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
 
-/**
- * Verifies the observable behavior of the cap-independent {@code DogSpawner}: every config and flag
- * gate that keeps it inert, its registration exactly once in the overworld spawner list (and
- * absence from other dimensions), untamed self-cap counting including the radius boundary, breed
- * candidate resolution from live biome registry entries (exact per-biome sets, per-breed and global
- * opt-outs), and the despawn-flag policy on dogs including its NBT round trip in both directions,
- * removal on taming, and absence on chunk-generation dogs. Tests that flip {@code SERVER_CONFIG}
- * mutate and restore it synchronously inside one test body; the server ticks tests on a single
- * thread, so no other test can observe the temporary value. End-to-end pack spawning is exercised
- * in manual QA because a real attempt places entities at uncontrolled world positions outside any
- * test structure.
- */
 public final class DogSpawnerGameTest implements FabricGameTest {
 
   private static final String ARENA = "dogs-unleashed:dog_arena";
@@ -149,9 +137,6 @@ public final class DogSpawnerGameTest implements FabricGameTest {
   @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
   public void untamedDogCountTracksSpawnsAndTaming(final TestContext context) {
     final BlockPos absCenter = context.getAbsolutePos(REL_ARENA_CENTER);
-    // Delta-based against a baseline so untamed dogs from neighboring test structures within the
-    // 64-block radius cannot fail this test; the body runs synchronously in one tick, so no other
-    // test can change the count between the baseline and the assertions.
     final int baseline = DogSpawner.countUntamedDogsNear(context.getWorld(), absCenter);
 
     final List<UnleashedDogEntity> untamed =
@@ -337,7 +322,6 @@ public final class DogSpawnerGameTest implements FabricGameTest {
     final NbtCompound nbt = new NbtCompound();
     original.writeCustomDataToNbt(nbt);
 
-    // The restored dog starts with the opposite flag to prove the read overrides it.
     final UnleashedDogEntity restored =
         DogTestHelper.spawnDog(context, data, new BlockPos(4, 2, 4));
     restored.setAiDisabled(true);

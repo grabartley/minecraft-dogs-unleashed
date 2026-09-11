@@ -137,9 +137,6 @@ public class FetchReturnGoal extends Goal {
     return FetchTypes.TENNIS_BALL;
   }
 
-  // getActiveFetchType always resolves to a non-null type (TENNIS_BALL fallback).
-  // The caller receives the same resolved instance used for both placement and message.
-
   private BlockPos findSafeDropPos(PlayerEntity player) {
     BlockPos playerPos = player.getBlockPos();
     BlockPos dogPos = this.dog.getBlockPos();

@@ -7,12 +7,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/**
- * Loads the world's Dogs Unleashed config as soon as its save session opens. Fabric bakes biome
- * modifications in the {@code MinecraftServer} constructor, before {@code
- * ServerLifecycleEvents.SERVER_STARTING} fires, so config-dependent spawn weights must already be
- * loaded by then. Both session factory methods construct the session directly, so both are hooked.
- */
 @Mixin(LevelStorage.class)
 public abstract class LevelStorageMixin {
 

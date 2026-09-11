@@ -28,7 +28,6 @@ import net.minecraft.world.RaycastContext;
 public final class DogGraveGameTest implements FabricGameTest {
 
   private static final String ARENA = "dogs-unleashed:dog_arena";
-  // Relative y1 is the template floor, so the grave stands on it at y2.
   private static final BlockPos REL_GRAVE = new BlockPos(3, 2, 3);
 
   @GameTest(templateName = ARENA)
@@ -145,10 +144,8 @@ public final class DogGraveGameTest implements FabricGameTest {
 
     final BlockState state = world.getBlockState(gravePos);
 
-    // Test that block requires a tool (pickaxe) to harvest
     context.assertTrue(state.isToolRequired(), "Grave should require a tool to harvest");
 
-    // Test that the block is in the pickaxe mineable tag
     final var player = context.createMockPlayer(GameMode.SURVIVAL);
     player.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.IRON_PICKAXE));
 
@@ -183,7 +180,6 @@ public final class DogGraveGameTest implements FabricGameTest {
           grave.setDogName(dogName);
           grave.setFlowerColor(flowerColor);
 
-          // Test getPickStack immediately (used for creative mode middle-click)
           final BlockState state = world.getBlockState(gravePos);
           final ItemStack stack = ModBlocks.DOG_GRAVE.getPickStack(world, gravePos, state);
 
@@ -212,7 +208,6 @@ public final class DogGraveGameTest implements FabricGameTest {
     context.runAtTick(
         10,
         () -> {
-          // Place block and set data directly (matches dog death spawn pattern)
           context.setBlockState(relGravePos, ModBlocks.DOG_GRAVE.getDefaultState());
           final BlockPos gravePos = context.getAbsolutePos(relGravePos);
 
@@ -226,7 +221,6 @@ public final class DogGraveGameTest implements FabricGameTest {
         15,
         () -> {
           final BlockPos gravePos = context.getAbsolutePos(relGravePos);
-          // Verify data persisted across ticks
           final DogGraveBlockEntity grave = (DogGraveBlockEntity) world.getBlockEntity(gravePos);
 
           context.assertTrue(dogUuid.equals(grave.getDogUuid()), "UUID should persist");
@@ -238,12 +232,6 @@ public final class DogGraveGameTest implements FabricGameTest {
         });
   }
 
-  /**
-   * The original hitbox bug: the headstone overflowed its block cell, and a raycast only tests a
-   * shape while the ray is inside that shape's own cell, so a level ray at the top of the stone
-   * sailed straight through it. The stone now stands inside one cell, so any ray that meets it
-   * hits.
-   */
   @GameTest(templateName = ARENA, tickLimit = 100)
   public void aRayAtHeadstoneTopHeightHitsTheGrave(final TestContext context) {
     context.setBlockState(REL_GRAVE, ModBlocks.DOG_GRAVE.getDefaultState());

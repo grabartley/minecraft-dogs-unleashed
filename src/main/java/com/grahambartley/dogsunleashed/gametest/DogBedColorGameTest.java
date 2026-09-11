@@ -32,12 +32,6 @@ public final class DogBedColorGameTest implements FabricGameTest {
     return bedBlockEntity;
   }
 
-  /**
-   * The loot table copies the colour off the block entity's component map, so a bed that never
-   * publishes the component drops undyed and the player silently loses the colour they dyed. This
-   * replaces the very stack the loot table produced rather than a hand-built one, so the whole
-   * round trip is under test rather than each half separately.
-   */
   @CustomTestProvider
   public List<TestFunction> breakingAndReplacingADyedBedKeepsThatColour() {
     return DROP_TEST_COLORS.stream()
@@ -84,10 +78,6 @@ public final class DogBedColorGameTest implements FabricGameTest {
         .toList();
   }
 
-  /**
-   * The crafting recipe stamps an explicit white component, so an undyed bed has to drop with that
-   * same component rather than none at all, or the two will not stack.
-   */
   @GameTest(templateName = ARENA, batchId = "dog-bed-colour", tickLimit = 40)
   public void anUndyedBedDropsAWhiteBed(final TestContext context) {
     context.setBlockState(REL_BED, ModBlocks.DOG_BED.getDefaultState());

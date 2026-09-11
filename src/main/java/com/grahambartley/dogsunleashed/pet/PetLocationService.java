@@ -36,21 +36,11 @@ public final class PetLocationService {
 
   private PetLocationService() {}
 
-  /**
-   * A teleport of at least this distance outranges FollowOwnerGoal, whose teleport only fires while
-   * the dog's chunk is still ticking near the owner. Beyond it, pets must be brought along
-   * explicitly via {@link #bringActivePetsToOwner}.
-   */
   public static boolean isLongDistanceTeleport(Vec3d from, Vec3d to) {
     return from.squaredDistanceTo(to)
         >= LONG_DISTANCE_TELEPORT_MIN_DISTANCE * LONG_DISTANCE_TELEPORT_MIN_DISTANCE;
   }
 
-  /**
-   * Brings every alive pet that is actively following its owner (not sitting, not sleeping in a
-   * bed) to a safe position beside the owner. Call after the owner relocates in a way pets cannot
-   * follow on their own: a dimension change or a long-distance teleport within one world.
-   */
   public static void bringActivePetsToOwner(ServerPlayerEntity player) {
     if (player.isDisconnected() || player.isRemoved()) {
       return;
@@ -113,12 +103,6 @@ public final class PetLocationService {
     locateAndSummon(server, petData, player, true, dog -> !dog.isRemoved());
   }
 
-  /**
-   * Locates the pet, chunk-loading its last known position with a ticket and retrying while the
-   * entity streams in asynchronously, then summons it if {@code shouldSummon} allows. Explicit
-   * summons force placement and report a locate failure to the player; automatic follows only log
-   * it.
-   */
   private static void locateAndSummon(
       MinecraftServer server,
       PetData petData,
@@ -211,12 +195,6 @@ public final class PetLocationService {
     }
   }
 
-  /**
-   * Force placement is for explicit summons (Pet Manager, commands), which must always deliver the
-   * dog: when nothing nearby is safe, the owner's own position is the destination and the owner
-   * deals with the surroundings. Automatic follows pass false so a teleport into hazardous terrain
-   * leaves the dog safely where it was.
-   */
   private static void summonDog(
       UnleashedDogEntity dog, PetData petData, ServerPlayerEntity player, boolean forcePlacement) {
     final ServerWorld playerWorld = player.getServerWorld();
@@ -234,14 +212,8 @@ public final class PetLocationService {
 
     dog.wakeUp();
     if (forcePlacement) {
-      // An explicit summon overrides whatever the dog was told before: it should follow its owner
-      // out of the recall. Automatic follows only move dogs already in a following command.
       dog.getCommandController().apply(DogCommand.FOLLOW);
     }
-    // Always relocate by recreating the entity, even within one world. In-place teleports of a
-    // dog freshly streamed in from a ticket-loaded far chunk leave its tracker entry stale:
-    // clients receive the spawn at the old position and never the move, so the dog is invisible
-    // at the destination until relog. A fresh spawn carries the correct position by construction.
     dog.teleportToWorld(playerWorld, summonPos);
 
     petData.setDimension(playerWorld.getRegistryKey().getValue().toString());
@@ -257,13 +229,6 @@ public final class PetLocationService {
         forcePlacement);
   }
 
-  /**
-   * Returns null when nothing near the center is safe, e.g. the owner teleported into solid
-   * terrain. Summoning must be skipped in that case: any position in range would suffocate the dog.
-   * Candidates are validated through vanilla's respawn placement rules, so partial-height ground
-   * cover (snow layers, slabs, paths, farmland) counts as valid footing and the dog stands at the
-   * precise height of the block's collision shape.
-   */
   @Nullable
   private static Vec3d findSafeSummonPosition(
       ServerWorld world, BlockPos center, UnleashedDogEntity dog) {
@@ -281,15 +246,8 @@ public final class PetLocationService {
     return null;
   }
 
-  /**
-   * Walks down through passable blocks so a flying or falling owner still gets pets placed on the
-   * ground beneath them. A buried owner has no passable column below, keeps the original center,
-   * and fails the safe-base checks so the summon is skipped.
-   */
   private static BlockPos snapToGround(ServerWorld world, BlockPos center) {
     if (!isPassable(world.getBlockState(center))) {
-      // An embedded owner (teleported into terrain) gets no descent: walking down from inside a
-      // block would tunnel through the surrounding solid into unrelated caves or gaps below.
       return center;
     }
 

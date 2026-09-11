@@ -24,11 +24,6 @@ class DogGraveBlockTest {
     return state.getOutlineShape(EmptyBlockView.INSTANCE, BlockPos.ORIGIN);
   }
 
-  /**
-   * A raycast only tests a block's shape while the ray is inside that block's own cell, so a shape
-   * that stopped short of the cell top left the rest of the headstone unreachable, and one that
-   * overflowed the cell could never be hit above the cell line at all.
-   */
   @ParameterizedTest(name = "facing {0}, the hitbox spans the full height of its cell")
   @EnumSource(
       value = Direction.class,

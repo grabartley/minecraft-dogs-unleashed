@@ -10,14 +10,6 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * The short buff a Dog Treat grants a tamed dog.
- *
- * <p>The modifiers are added with {@code addTemporaryModifier} so vanilla never serialises them
- * onto the entity. {@link UnleashedDogEntity} persists the remaining duration instead and
- * re-applies on load, which keeps a single owner of the buff lifetime and means a crash mid-buff
- * can never leave a permanent modifier welded to the dog.
- */
 public final class DogTreatBuff {
 
   public static final int DURATION_SECONDS = 60;
@@ -47,10 +39,6 @@ public final class DogTreatBuff {
         EntityAttributeModifier.Operation.ADD_VALUE);
   }
 
-  /**
-   * Applies the buff, replacing any modifier already present so a re-feed refreshes rather than
-   * stacks.
-   */
   public static void apply(final LivingEntity dog) {
     replace(
         dog.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED), movementSpeedModifier());

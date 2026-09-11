@@ -20,31 +20,18 @@ import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Raises a deceased pet as its undead self. The pet record is the canonical identity, so the new
- * dog is rebuilt from it rather than from anything the dead entity left behind: name, breed, coat,
- * eye colour, collar, lineage, and genome all come back intact.
- */
 public final class DogResurrection {
 
   private static final int RITUAL_PARTICLE_COUNT = 40;
   private static final double RITUAL_PARTICLE_SPREAD = 0.6;
   private static final double RITUAL_PARTICLE_SPEED = 0.15;
 
-  // Matches what a held Totem of Undying grants in vanilla, minus Regeneration, which the dog's
-  // own undead typing refuses. Fire Resistance is the load-bearing one: the ritual needs a
-  // thunderstorm, and a storm keeps striking after the dog is up, so a freshly raised half-health
-  // pet would otherwise risk burning to permanent loss at its own grave.
   private static final int TOTEM_FIRE_RESISTANCE_TICKS = 800;
   private static final int TOTEM_ABSORPTION_TICKS = 100;
   private static final int TOTEM_ABSORPTION_AMPLIFIER = 1;
 
   private DogResurrection() {}
 
-  /**
-   * Whether this grave is ready to give its pet back: it must hold a totem, and the pet it belongs
-   * to must be merely deceased rather than lost while undead.
-   */
   public static boolean canResurrect(final ServerWorld world, final DogGraveBlockEntity grave) {
     return resurrectablePet(world, grave) != null;
   }
@@ -58,10 +45,6 @@ public final class DogResurrection {
     return petData != null && petData.getLifeState().isResurrectable() ? petData : null;
   }
 
-  /**
-   * @return whether the ritual fired; a grave with no totem, no pet record, or a permanently lost
-   *     pet consumes nothing and changes nothing
-   */
   public static boolean resurrect(
       final ServerWorld world, final BlockPos gravePos, final DogGraveBlockEntity grave) {
     final PetData petData = resurrectablePet(world, grave);
@@ -139,7 +122,6 @@ public final class DogResurrection {
             StatusEffects.ABSORPTION, TOTEM_ABSORPTION_TICKS, TOTEM_ABSORPTION_AMPLIFIER));
   }
 
-  /** The rod is spent along with the totem and the grave, rather than left hanging over nothing. */
   private static void consumeRodAbove(final ServerWorld world, final BlockPos gravePos) {
     if (world.getBlockState(gravePos.up()).isOf(Blocks.LIGHTNING_ROD)) {
       world.removeBlock(gravePos.up(), false);

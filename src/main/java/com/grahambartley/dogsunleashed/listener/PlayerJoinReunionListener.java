@@ -20,8 +20,6 @@ public final class PlayerJoinReunionListener {
     ServerPlayConnectionEvents.JOIN.register(
         (handler, sender, server) -> {
           final UUID playerId = handler.getPlayer().getUuid();
-          // Deferred a tick so the join player's surrounding chunks and entity tracking are live,
-          // otherwise the nearby-dog query can miss dogs that have not finished loading yet.
           DogsUnleashed.runNextTick(() -> celebrateNearbyDogs(server, playerId));
         });
   }

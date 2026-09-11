@@ -18,17 +18,6 @@ import net.minecraft.world.GameRules;
 
 public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
-  /**
-   * Per-batch setup. Tests in the same batch run IN PARALLEL in different regions of the same
-   * world, so any two tests that pin world time-of-day to different values race each other and
-   * corrupt {@code AutoSleepGoal} / {@code SleepInBedGoal} evaluations across the entire batch. The
-   * time-pinning tests therefore each live in their own batch ({@code sleep-stay-asleep}, {@code
-   * sleep-wake-at-sunrise}, {@code sleep-suppress}, {@code sleep-resleep}) and the time-agnostic
-   * flag tests share the {@code sleep-flags} batch. Each batch shares the same setup: freeze the
-   * daylight cycle (so {@code setTimeOfDay} actually pins time, since TestServer does NOT default
-   * it off) and clear the JVM-global maps mutated by gameplay. The teardown restores defaults so
-   * other batches aren't affected. Gametest skill rules 3 and 5.
-   */
   private static void prepareSleepBatch(final ServerWorld world) {
     world.getGameRules().get(GameRules.DO_DAYLIGHT_CYCLE).set(false, world.getServer());
     DogPlaySession.clearActivePlaySessions();
@@ -169,18 +158,6 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
         });
   }
 
-  /**
-   * Verifies that once a dog starts sleeping in its bed, the {@code SLEEPING_IN_BED} flag survives
-   * across multiple ticks. {@code startSleepingInBed} intentionally clears {@code
-   * COMMANDED_TO_SLEEP} (the command is satisfied as soon as the dog reaches the bed), so this test
-   * asserts that transition immediately and then tracks only the persistent sleeping flag.
-   *
-   * <p>The polling pattern is intentional: instead of asserting "the flag is true at exactly tick
-   * 25", we assert "the flag stays true for every tick from 11 to {@code tickLimit}". That mirrors
-   * how the production contract is observed in-game and decouples the test from intra-tick
-   * scheduling races between {@code runAtTick} callbacks and goal selector evaluation. Gametest
-   * skill rule 9.
-   */
   @GameTest(
       templateName = "dogs-unleashed:dog_arena",
       batchId = "sleep-stay-asleep",
@@ -194,13 +171,6 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
     final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relBedPos);
     husky.setTamed(true, true);
-    // This test asserts the SLEEPING_IN_BED DataTracker contract over a multi-tick window: once
-    // set via startSleepingInBed, it stays set absent an explicit wakeUp / damage / day-time
-    // transition. None of those should occur in this batch (daylight cycle is frozen at night),
-    // so the contract under test is the flag itself, not the goal selector. Disabling AI removes
-    // the entire goal-selector race surface and makes this test deterministic. The sister tests
-    // {@code commandedSleepAutoWakesAtSunrise} and {@code manualNightWakeDogAutoSleepsNextNight}
-    // genuinely need AI because they test goal-driven transitions. Gametest skill rule 6.
     husky.setAiDisabled(true);
 
     context.runAtTick(
@@ -230,16 +200,6 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
         });
   }
 
-  /**
-   * Verifies a commanded sleeping dog stays anchored to its bed across many ticks. The dog bed has
-   * a 0.25-tall collision shape, so although {@code startSleepingInBed} positions the dog at {@code
-   * bedY + 0.1}, per-tick collision resolution pushes the entity up out of the bed's solid box
-   * (settling near the top of the block above). The real invariant we care about is that the dog
-   * does not wander off the bed's X/Z footprint, hence the tight {@code dxz < 0.05} check. The Y
-   * range is intentionally permissive (just enough to confirm the dog hasn't fallen out of the
-   * world or flown away) because the exact resting height depends on entity dimensions and step
-   * height, not on sleep behavior.
-   */
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "sleep-flags", tickLimit = 200)
   public void commandedSleepDogStaysInPositionAcrossMultipleTicks(final TestContext context) {
     final BlockPos relBedPos = new BlockPos(0, 1, 0);
@@ -296,24 +256,11 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
         50,
         () -> {
           husky.damage(world.getDamageSources().generic(), 0.5f);
-          // Assert immediately, in the same tick as damage. On the next server tick AutoSleepGoal
-          // can re-fire whenever night + assigned bed + no suppression all hold, re-putting the
-          // dog to sleep and masking the wakeUp() contract under test. Production users see
-          // persistent wake because the right-click flow also calls markManuallyWoken (which sets
-          // suppression); damage on its own intentionally does not.
           context.assertTrue(!husky.isSleepingInBed(), "Dog should NOT be sleeping after damage");
           context.complete();
         });
   }
 
-  /**
-   * Verifies the auto-wake-at-sunrise transition: a sleeping dog wakes within a small tick window
-   * after world time crosses from night to day. The production contract is "shortly after sunrise",
-   * not "at exactly tick N+5", so the test polls {@code isSleepingInBed()} every tick after the day
-   * pin and completes the moment it flips. This decouples the assertion from the intra-tick
-   * scheduling of {@code runAtTick} callbacks vs. goal selector evaluation, which previously made
-   * this test irreducibly flaky. Gametest skill rule 8 / rule 9.
-   */
   @GameTest(
       templateName = "dogs-unleashed:dog_arena",
       batchId = "sleep-wake-at-sunrise",
@@ -327,11 +274,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
     final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relBedPos);
     husky.setTamed(true, true);
-    husky.setInvulnerable(true); // see note on sister test re: in-bed fall damage triggering wakeUp
-    // See note on sister test {@code manualNightWakeDogAutoSleepsNextNight}: SitGoal (priority 2)
-    // is unconditionally startable for an ownerless tamed dog, so it preempts SleepInBedGoal /
-    // AutoSleepGoal (priorities 3/4) and the goal-driven wake-at-sunrise transition never fires.
-    // Production dogs always have an owner. Gametest skill rule 6.
+    husky.setInvulnerable(true);
     @SuppressWarnings("removal")
     final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
     husky.setOwnerUuid(owner.getUuid());
@@ -355,9 +298,6 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
           armedForWake.set(true);
         });
 
-    // Scheduled once at the top level (see note on the sister test re: NPE when nested in
-    // runAtTick). After sunrise the {@code armedForWake} gate lets the polling complete the test
-    // the moment the wake propagates.
     context.runAtEveryTick(
         () -> {
           if (!armedForWake.get()) return;
@@ -366,7 +306,6 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
           }
         });
 
-    // If the wake didn't propagate by the last tick, surface a meaningful failure.
     context.runAtTick(
         199,
         () -> {
@@ -387,8 +326,6 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
     final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relBedPos);
     husky.setTamed(true, true);
-    // See sister tests: ownerless tamed dogs trigger SitGoal preemption. Give an owner so the goal
-    // hierarchy matches production. Gametest skill rule 6.
     @SuppressWarnings("removal")
     final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
     husky.setOwnerUuid(owner.getUuid());
@@ -436,16 +373,6 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
         });
   }
 
-  /**
-   * Verifies the full suppression cycle: manual wake at night sets suppression, suppression clears
-   * after sunrise, and AutoSleepGoal re-fires the next night to put the dog back to sleep.
-   *
-   * <p>The "next-night auto-sleep" half is observed via a tick-by-tick poll inside the night window
-   * rather than a single assertion at a fixed tick. AutoSleepGoal's start/move/sleep loop needs an
-   * indeterminate number of ticks (depends on goal selector priority and navigation), and locking
-   * the assertion to a single tick previously made this test flaky. The polling pattern follows the
-   * gametest skill's rule 8 / rule 9.
-   */
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "sleep-resleep", tickLimit = 600)
   public void manualNightWakeDogAutoSleepsNextNight(final TestContext context) {
     final BlockPos relBedPos = new BlockPos(0, 1, 0);
@@ -456,19 +383,11 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
     final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relBedPos);
     husky.setTamed(true, true);
-    husky.setInvulnerable(true); // see note on sister test re: in-bed fall damage triggering wakeUp
-    // Give the dog an owner. Without an owner, vanilla {@code SitGoal.canStart} unconditionally
-    // returns true for any tamed on-ground dog, and SitGoal (priority 2) outranks AutoSleepGoal
-    // (priority 4), so once AI is re-enabled at tick 130 SitGoal preempts MOVE and AutoSleepGoal
-    // never gets to fire. A real production dog always has an owner. Gametest skill rule 6.
+    husky.setInvulnerable(true);
     @SuppressWarnings("removal")
     final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
     husky.setOwnerUuid(owner.getUuid());
     final AtomicBoolean armedForAutoSleep = new AtomicBoolean(false);
-    // Latches true the first time the dog is observed sleeping after AutoSleepGoal is armed. The
-    // test contract is "AutoSleepGoal fires within the window", not "the dog is still sleeping at
-    // the exact moment we check the final task" - SleepInBedGoal.stop() can briefly clear the flag
-    // between {@code complete()} firing and the {@code addInstantFinalTask} assertion running.
     final AtomicBoolean hasAutoSlept = new AtomicBoolean(false);
 
     context.runAtTick(
@@ -481,12 +400,6 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
           husky.getSleepController().markManuallyWoken();
           husky.wakeUp();
           context.assertTrue(!husky.isSleepingInBed(), "Dog should be awake after manual wake");
-          // Freeze the dog in place between tick 10 and tick 130 so it can't wander out of range,
-          // pick up anger, get a target, etc. We re-enable AI at tick 130 with the dog anchored at
-          // the bed; from there AutoSleepGoal is the only sleep-related goal whose preconditions
-          // can be true, so its start() is exercised deterministically. The suppression /
-          // suppression-clearing assertions at ticks 50 and 90 are flag-only checks that don't
-          // need AI running.
           husky.setAiDisabled(true);
         });
 
@@ -511,10 +424,6 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
         130,
         () -> {
           pinNight(world);
-          // Anchor at bed, reset transient AI/anger state, re-enable AI. AutoSleepGoal is now the
-          // only goal whose canStart can return true (night + tamed + has-bed + in-range +
-          // not-sleeping + not-commanded + not-sitting + not-suppressed), so the goal selector
-          // picks it on the next server tick.
           husky.refreshPositionAndAngles(
               absBedPos.getX() + 0.5, absBedPos.getY(), absBedPos.getZ() + 0.5, 0.0f, 0.0f);
           husky.setVelocity(0, 0, 0);
@@ -526,10 +435,6 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
           armedForAutoSleep.set(true);
         });
 
-    // Scheduled once at the top level (see note on the sister test re: NPE when nested in
-    // runAtTick). After tick 130 the gate lets the polling latch the first observed sleep
-    // transition; the test stays running until the final tick check so any goal-cascade
-    // wake-and-resleep cycles don't matter, only "has the goal converted the dog at least once".
     context.runAtEveryTick(
         () -> {
           if (!armedForAutoSleep.get()) return;
@@ -538,7 +443,6 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
           }
         });
 
-    // Final tick: assert the latch is set (the goal fired) and complete.
     context.runAtTick(
         599,
         () -> {
@@ -550,12 +454,6 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
         });
   }
 
-  /**
-   * Verifies that after a commanded sleep cycle ({@code commandToSleep} then {@code
-   * startSleepingInBed}), the dog is asleep with the command already cleared (the satisfied-command
-   * contract), and that {@code wakeUp} subsequently clears the sleeping flag and keeps the command
-   * cleared.
-   */
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "sleep-flags", tickLimit = 200)
   public void wakeUpFromBedClearsSleepingFlag(final TestContext context) {
     final BlockPos relBedPos = new BlockPos(0, 1, 0);
@@ -565,10 +463,6 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
     final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relBedPos);
     husky.setTamed(true, true);
-    // This test exercises the SLEEPING_IN_BED / COMMANDED_TO_SLEEP DataTracker contract across the
-    // commandToSleep -> startSleepingInBed -> wakeUp transitions. The state is mutated by direct
-    // entity calls, not by goals; disabling AI removes the only window in which other goals (e.g.
-    // UniversalAngerGoal causing damage-driven wakeUp) could mutate the same flags mid-test.
     husky.setAiDisabled(true);
 
     context.runAtTick(
@@ -595,10 +489,6 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
         });
   }
 
-  /**
-   * Documents the {@code COMMANDED_TO_SLEEP} transition contract: {@code commandToSleep} sets it,
-   * and {@code startSleepingInBed} clears it the moment the dog reaches the bed.
-   */
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "sleep-flags", tickLimit = 100)
   public void commandToSleepSetsThenClearsOnArrival(final TestContext context) {
     final BlockPos relBedPos = new BlockPos(0, 1, 0);
@@ -630,12 +520,10 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
         });
   }
 
-  /** Pins world time deep into the night band so auto-sleep/auto-wake logic sees a stable night. */
   private static void pinNight(final ServerWorld world) {
     world.setTimeOfDay(15000);
   }
 
-  /** Pins world time deep into the day band so suppression and auto-sleep see a stable day. */
   private static void pinDay(final ServerWorld world) {
     world.setTimeOfDay(1000);
   }

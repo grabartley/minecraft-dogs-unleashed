@@ -13,15 +13,6 @@ import net.minecraft.test.TestContext;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 
-/**
- * Contract coverage for {@link PetRegistrar}, the single path that creates the {@link PetData}
- * behind a tamed dog, plus the inherited-owner breeding branch that goes through it. A puppy bred
- * while the feeding player is unresolvable used to be tamed with no record at all, which
- * permanently hid it from the Pet Manager, summons, and cross-dimension follows.
- *
- * <p>AI is disabled throughout: these are record-creation contracts, not behavior, so the goal
- * selector must not get a chance to move dogs mid-assertion (gametest skill rule 6).
- */
 public final class PetRegistrarGameTest implements FabricGameTest {
 
   private static final BlockPos PARENT_POS = new BlockPos(1, 2, 1);
@@ -122,11 +113,6 @@ public final class PetRegistrarGameTest implements FabricGameTest {
     context.complete();
   }
 
-  /**
-   * Mirrors the production path where {@code getLovingPlayer()} returns null: both parents are
-   * tamed and owned, but nobody is in breeding range, so {@code createChild} falls through to the
-   * inherited-owner branch.
-   */
   private static UnleashedDogEntity breedWithoutLovingPlayer(
       final TestContext context, final UUID ownerUuid) {
     final ServerWorld world = context.getWorld();

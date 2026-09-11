@@ -4,12 +4,6 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.EnumSet;
 import net.minecraft.entity.ai.goal.Goal;
 
-/**
- * Keeps a puppy trailing the parent it was bred from for as long as that parent is alive and
- * loaded. The parent is resolved by UUID each time the goal evaluates, so a dead, despawned, or
- * unloaded parent simply drops the puppy back to its normal wandering. The goal only runs while the
- * dog is a baby, so it ends on its own once the puppy grows up.
- */
 public class FollowParentDogGoal extends Goal {
 
   private static final double STOP_DISTANCE = 3.0;

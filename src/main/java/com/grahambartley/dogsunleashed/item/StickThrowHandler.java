@@ -23,8 +23,6 @@ public final class StickThrowHandler {
       return TypedActionResult.pass(itemStack);
     }
 
-    // The server gate stays authoritative via ACTIVE_PLAY_SESSIONS; the client mirrors it through
-    // synced tracked data so dedicated-server throws still predict (arm swing, stack decrement).
     final boolean isPlayModePartner =
         world.isClient
             ? DogPlaySession.isAnyNearbyDogInPlayModeFor(player)

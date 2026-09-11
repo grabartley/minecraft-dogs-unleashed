@@ -20,24 +20,6 @@ import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameMode;
 
-/**
- * Real-behavior coverage of the {@code StickThrowHandler} play-mode gate (#179). The handler is the
- * mod's only {@link UseItemCallback}; before #179 every non-sneaking stick right-click launched a
- * {@link StickProjectileEntity}. Now it only throws when the player is the play-mode partner of a
- * tamed dog ({@code DogPlaySession.isAnyDogInPlayModeFor}).
- *
- * <p>Tests fire the real {@code UseItemCallback.EVENT} invoker rather than calling the handler
- * method directly, so they also assert the callback stays registered: deleting the {@code
- * register()} wiring would flip the throw case from CONSUME to PASS and fail here.
- *
- * <p>These need a live {@code ServerWorld}: {@code Items.STICK}, {@code
- * ModEntities.STICK_PROJECTILE} construction, {@code world.spawnEntity}, and the JVM-global
- * play-session map all touch class init the JUnit classloader cannot complete, so this lives here
- * rather than under {@code src/test/java}.
- *
- * <p>The play-session map is JVM-global, so the batch resets it before and after to avoid leaking a
- * session into a sibling test (gametest skill rule 5).
- */
 public final class StickThrowHandlerGameTest implements FabricGameTest {
 
   private static final String BATCH = "stick-throw";
@@ -79,8 +61,6 @@ public final class StickThrowHandlerGameTest implements FabricGameTest {
 
     final TypedActionResult<ItemStack> result = fireUse(context, player);
 
-    // Server-side success carries swingHand=false (world.isClient), which maps to CONSUME, not
-    // SUCCESS; SUCCESS is the client-only swing variant.
     context.assertTrue(
         result.getResult() == ActionResult.CONSUME,
         "Right-click with a stick in play mode should consume the throw, was "
@@ -129,7 +109,6 @@ public final class StickThrowHandlerGameTest implements FabricGameTest {
     context.complete();
   }
 
-  /** Spawns a tamed-dog play partner for the player so {@code isAnyDogInPlayModeFor} is true. */
   private void startPlayModeWithDog(final TestContext context, final PlayerEntity player) {
     context
         .spawnEntity(ModEntities.HUSKY, PLAYER_POS)
@@ -137,18 +116,11 @@ public final class StickThrowHandlerGameTest implements FabricGameTest {
         .startPlayMode(player, FetchTypes.STICK);
   }
 
-  /**
-   * Runs the real {@code UseItemCallback} chain, the same entry point production right-clicks hit.
-   */
   private TypedActionResult<ItemStack> fireUse(
       final TestContext context, final PlayerEntity player) {
     return UseItemCallback.EVENT.invoker().interact(player, context.getWorld(), Hand.MAIN_HAND);
   }
 
-  /**
-   * Survival mock player positioned inside the structure (so a thrown projectile lands in the test
-   * box) with a single stick in the main hand.
-   */
   private PlayerEntity spawnStickHolder(final TestContext context) {
     final PlayerEntity player = context.createMockPlayer(GameMode.SURVIVAL);
     final BlockPos abs = context.getAbsolutePos(PLAYER_POS);

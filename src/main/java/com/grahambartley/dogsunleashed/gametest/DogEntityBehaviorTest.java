@@ -16,11 +16,6 @@ import net.minecraft.test.TestFunction;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 
-/**
- * Behavioral gametests fanned out across every breed via {@link CustomTestProvider}. Each generator
- * produces one {@link TestFunction} per breed in {@link DogTestData#getAllBreeds()}; adding a sixth
- * breed automatically extends every test below.
- */
 public final class DogEntityBehaviorTest implements FabricGameTest {
 
   @CustomTestProvider

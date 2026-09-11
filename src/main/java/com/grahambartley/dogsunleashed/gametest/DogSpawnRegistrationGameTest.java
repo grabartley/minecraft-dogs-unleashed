@@ -14,15 +14,6 @@ import net.minecraft.test.TestFunction;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.SpawnSettings;
 
-/**
- * Verifies the spawn entries that {@code ModSpawns}' biome modification callback bakes into the
- * server's biome registry. The gametest server has no world config file, so {@code SERVER_CONFIG}
- * holds defaults (all multipliers at 100%), and every breed must appear in each of its configured
- * biomes with exactly its base weight and group sizes. This pins the acceptance criterion that
- * default multipliers leave baked spawn entries identical to pre-multiplier behavior, and catches
- * regressions in the bake-time config resolution (weight math, enableNaturalSpawning fold-in, and
- * the config-before-bake load ordering).
- */
 public final class DogSpawnRegistrationGameTest implements FabricGameTest {
 
   private static final int TICK_LIMIT = 20;

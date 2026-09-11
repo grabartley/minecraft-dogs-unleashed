@@ -17,10 +17,6 @@ import net.minecraft.util.math.BlockPos;
 
 public final class PetData {
 
-  // Keep in sync with UnleashedDogEntity.DEFAULT_COLLAR_COLOR_ID (DyeColor.RED), sourced directly
-  // from DyeColor so seeding a new pet record never class-loads the entity. UnleashedDogEntity is a
-  // MobEntity subclass that fails bytecode verification under the unit-test classpath, which would
-  // otherwise make PetData impossible to construct in plain JUnit tests.
   private static final int DEFAULT_COLLAR_COLOR_ID = DyeColor.RED.getId();
 
   private final UUID petId;
@@ -177,12 +173,6 @@ public final class PetData {
     return parentBId;
   }
 
-  /**
-   * Records parentage with set-once semantics: each slot is written only while empty, so lineage
-   * can never be rewritten once known. The same call seeds newly registered puppies and backfills
-   * records from before parentage was persisted (where the entity remembers at most one parent).
-   * Returns whether anything changed so callers can skip persisting an unchanged record.
-   */
   public boolean recordParents(final UUID parentAId, final UUID parentBId) {
     boolean changed = false;
     if (this.parentAId == null && parentAId != null) {
@@ -219,12 +209,6 @@ public final class PetData {
     return eyeColor != null ? eyeColor.ordinal() : UnleashedDogEntity.UNSET_VARIANT;
   }
 
-  /**
-   * Returns whether any field that {@code syncPetData} writes back differs from the supplied live
-   * values. Lets callers skip {@link PetManager#updatePet} (and its {@code markDirty()}) when a pet
-   * has not changed since the last sync. The arguments mirror the fields set by {@link #setHealth},
-   * {@link #setLastKnownPosition}, {@link #setDimension}, and {@link #syncAppearanceFrom}.
-   */
   public boolean differsFrom(
       final float health,
       final BlockPos pos,

@@ -12,8 +12,6 @@ final class PayloadTestFixtures {
 
   private PayloadTestFixtures() {}
 
-  // These payload codecs only use primitive and string buf operations, so no registry lookup is
-  // needed and a null registry is safe here.
   static RegistryByteBuf newBuf() {
     return new RegistryByteBuf(Unpooled.buffer(), null);
   }

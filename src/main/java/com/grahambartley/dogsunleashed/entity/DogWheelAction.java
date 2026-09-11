@@ -2,11 +2,6 @@ package com.grahambartley.dogsunleashed.entity;
 
 import org.jetbrains.annotations.Nullable;
 
-/**
- * The selectable sectors of the command wheel, in clockwise display order starting at 12 o'clock.
- * Most actions map to a persistent {@link DogCommand}; {@code GO_TO_BED} and {@code EQUIPMENT} are
- * one-shot actions that leave the active command unchanged.
- */
 public enum DogWheelAction {
   FOLLOW(0, DogCommand.FOLLOW, null),
   HEEL(1, DogCommand.HEEL, null),

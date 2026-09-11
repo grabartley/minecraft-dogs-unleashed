@@ -8,19 +8,10 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Rebuilds a dog as a brand new entity carrying its whole NBT across. Both the world transfer and
- * the undead conversions need this: an entity's type is fixed at construction, and an in-place
- * long-range teleport leaves stale tracker state that hides the dog until relog.
- */
 public final class DogRecreation {
 
   private DogRecreation() {}
 
-  /**
-   * @return the replacement dog, already spawned in {@code destination}, or {@code null} when the
-   *     entity type refused to create one
-   */
   static @Nullable UnleashedDogEntity recreateAs(
       final UnleashedDogEntity dog,
       final EntityType<?> type,
@@ -44,7 +35,6 @@ public final class DogRecreation {
     return newDog;
   }
 
-  /** The replacement reuses the original UUID, so any lingering twin would block its spawn. */
   private static void discardStaleTwin(
       final ServerWorld destination, final UnleashedDogEntity dog) {
     final Entity existing = destination.getEntity(dog.getUuid());

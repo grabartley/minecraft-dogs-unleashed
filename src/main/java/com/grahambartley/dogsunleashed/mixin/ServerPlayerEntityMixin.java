@@ -13,11 +13,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/**
- * Brings active pets along when their owner teleports a long distance within one world. No Fabric
- * event fires for same-world teleports; cross-world teleports are already handled by {@code
- * PlayerDimensionChangeListener} via {@code AFTER_PLAYER_CHANGE_WORLD}.
- */
 @Mixin(ServerPlayerEntity.class)
 public abstract class ServerPlayerEntityMixin {
 
@@ -67,8 +62,6 @@ public abstract class ServerPlayerEntityMixin {
       return;
     }
 
-    // Deferred a tick so the destination chunks the player is now loading are available for safe
-    // pet placement instead of teleporting dogs into still-unloaded terrain.
     DogsUnleashed.runNextTick(() -> PetLocationService.bringActivePetsToOwner(player));
   }
 }

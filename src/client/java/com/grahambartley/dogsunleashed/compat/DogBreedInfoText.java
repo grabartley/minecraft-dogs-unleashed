@@ -11,12 +11,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import net.minecraft.world.biome.Biome;
 
-/**
- * Builds the per-breed description lines shown on a spawn egg's recipe-viewer info page.
- *
- * <p>Every value is read back off {@link UnleashedDogBreed} so retuning a breed's biomes or
- * attributes updates the JEI and EMI pages without a matching lang edit.
- */
 public final class DogBreedInfoText {
 
   static final String BIOMES_KEY = "info.dogs-unleashed.spawn_egg.biomes";

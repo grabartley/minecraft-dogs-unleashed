@@ -13,20 +13,8 @@ import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 
-/**
- * The house model is two blocks on every axis, so each pose has to both scale for a two-block prop
- * and pull the model back by its own centre. Miss either and the house renders oversized and
- * hanging out of its slot.
- *
- * <p>The cushion is tinted here as well as in the world, so the slot icon shows the colour the
- * house will actually be once it is placed.
- */
 public class DogHouseItemRenderer implements BuiltinItemRendererRegistry.DynamicItemRenderer {
 
-  /**
-   * The model is authored centred on its footprint, so its middle sits at x=0, z=0 and one block
-   * up. Every pose below turns about that point rather than about the corner the model starts from.
-   */
   private static final double CENTRE_X = 0.0;
 
   private static final double CENTRE_Y = 1.0;
@@ -88,7 +76,6 @@ public class DogHouseItemRenderer implements BuiltinItemRendererRegistry.Dynamic
     matrices.pop();
   }
 
-  /** Poses the house about its own middle rather than about the corner its model starts from. */
   private static void centredPose(
       final MatrixStack matrices,
       final double x,

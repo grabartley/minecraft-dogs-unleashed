@@ -9,7 +9,6 @@ import net.minecraft.client.toast.SystemToast;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
-/** One-shot toast pointing first-time players at the unbound Pet Manager keybind. */
 public final class KeybindDiscoveryNudge {
 
   private static final long TOAST_DURATION_MS = 10_000L;
@@ -32,9 +31,6 @@ public final class KeybindDiscoveryNudge {
   }
 
   private static void onClientTick(final MinecraftClient client) {
-    // The initial resource reload is still running behind the splash overlay at CLIENT_STARTED,
-    // and the toast bakes its wrapped description at construction time, so building it any
-    // earlier would freeze the untranslated key into the toast.
     if (!nudgePending || client.getOverlay() != null) {
       return;
     }
@@ -45,8 +41,6 @@ public final class KeybindDiscoveryNudge {
   }
 
   private static void showToast(final MinecraftClient client) {
-    // SystemToast.show keeps the description on one line and lets it run off the screen edge;
-    // create wraps it and sizes the toast to fit.
     client
         .getToastManager()
         .add(

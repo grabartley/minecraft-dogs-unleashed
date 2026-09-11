@@ -30,17 +30,9 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.GameMode;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * The resurrection ritual end to end: a Totem of Undying installed on a grave, a lightning rod
- * above it, and a bolt that raises the pet as its undead self.
- *
- * <p>Resurrection is deferred one tick off the bolt's own entity-load event, so every assertion
- * runs well after the strike tick.
- */
 public final class ResurrectionRitualGameTest implements FabricGameTest {
 
   private static final String ARENA = "dogs-unleashed:dog_arena";
-  // Relative y1 is the template floor, so the ritual site is built one layer up.
   private static final BlockPos REL_GRAVE = new BlockPos(3, 2, 3);
   private static final BlockPos REL_ROD = new BlockPos(3, 3, 3);
   private static final BlockPos REL_DOG = new BlockPos(1, 2, 1);
@@ -90,10 +82,6 @@ public final class ResurrectionRitualGameTest implements FabricGameTest {
     context.complete();
   }
 
-  /**
-   * The ritual needs a rod on a grave that already holds its totem, so the grave must not swallow
-   * every right-click: only an empty hand takes the totem back.
-   */
   @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
   public void aGraveHoldingATotemStillAcceptsItsLightningRod(final TestContext context) {
     final PlayerEntity player = context.createMockPlayer(GameMode.SURVIVAL);
@@ -364,10 +352,6 @@ public final class ResurrectionRitualGameTest implements FabricGameTest {
     return grave;
   }
 
-  /**
-   * Builds the whole ritual site: a rod, a grave, and a deceased pet record whose appearance was
-   * captured off a real dog through the production {@code syncAppearanceFrom} path.
-   */
   private static PetData deceasedPetWithGrave(
       final TestContext context, final String name, final boolean withTotem) {
     final ServerWorld world = context.getWorld();

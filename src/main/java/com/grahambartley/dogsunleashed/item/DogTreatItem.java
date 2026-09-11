@@ -8,13 +8,6 @@ import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
-/**
- * A treat fed to a tamed dog for a short buff.
- *
- * <p>The feed interaction itself lives in {@code UnleashedDogEntity.interactMob} rather than {@code
- * useOnEntity}: vanilla dispatches {@code interactMob} first, and the dog's owner branch opens the
- * command wheel, so an item-side hook would never be reached for the one player allowed to feed.
- */
 public class DogTreatItem extends Item {
 
   public DogTreatItem(Settings settings) {

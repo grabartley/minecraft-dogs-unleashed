@@ -15,12 +15,6 @@ import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.EntityType;
 
-/**
- * Renders a pet record as a live 3D dog portrait at any size, falling back to a breed-colored
- * placeholder when the entity cannot be created (no world, unknown entity type). Portrait entities
- * are client-side throwaways cached per pet id; the owning screen must call {@link #clear()} when
- * it stops rendering (typically from {@code removed()}) so they get discarded.
- */
 public final class DogPortraitRenderer {
 
   private static final int BASE_SIZE = 48;

@@ -101,11 +101,6 @@ public final class DogSleepController {
     }
   }
 
-  /**
-   * A bed leaves the dog pointing wherever it was; a house turns it to face out of its own doorway,
-   * so the body yaw has to move too. The renderer draws off body yaw, and nothing else updates it
-   * once the dog stops walking.
-   */
   private void layDown(final BlockPos bedPos) {
     final DogSleepPose pose =
         DogSleepSpotAnchor.poseFor(this.dog.getWorld(), bedPos, this.dog.getYaw());
@@ -123,10 +118,6 @@ public final class DogSleepController {
     this.dog.getAmbienceEffects().releaseBirthWakeHearts();
   }
 
-  /**
-   * A dog that wakes in a dog house is rested. Unassigning clears the bed position before waking,
-   * so tearing the house down never pays out the buff.
-   */
   private void awardHouseComfort() {
     if (!this.dog.isSleepingInBed() || this.dog.getWorld().isClient) {
       return;

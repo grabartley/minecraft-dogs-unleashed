@@ -8,16 +8,6 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.world.ServerWorld;
 
-/**
- * Keeps each pet's recorded dimension and position in sync with its entity whenever the entity
- * loads or unloads. Pet lookups chunk-load the recorded position, so a record that goes stale (e.g.
- * the dog's chunk unloaded after it was moved) would leave the dog unfindable by summons and
- * follows until something happens to load its real chunk again.
- *
- * <p>Doubles as the retroactive backfill for tamed, owned dogs that have no pet record at all (dogs
- * bred through the inherited-owner path before that branch registered one). Those dogs heal the
- * next time their entity loads.
- */
 public final class PetLocationSyncListener {
 
   private PetLocationSyncListener() {}
@@ -41,8 +31,6 @@ public final class PetLocationSyncListener {
       return;
     }
 
-    // Records from before parentage was persisted heal here too, recovering whatever the entity
-    // still remembers (dogs bred before the second parent was captured know at most one).
     final boolean parentsBackfilled =
         petData.recordParents(
             dog.getLineage().getParentDogUuid(), dog.getLineage().getSecondParentDogUuid());

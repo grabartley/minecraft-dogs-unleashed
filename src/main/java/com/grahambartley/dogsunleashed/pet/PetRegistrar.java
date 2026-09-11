@@ -6,20 +6,10 @@ import java.util.UUID;
 import net.minecraft.server.world.ServerWorld;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Single entry point for creating the {@link PetData} record behind a tamed dog. Every path that
- * makes a dog tamed and owned (player taming, inherited-owner breeding, load-time backfill of dogs
- * tamed before this existed) goes through here so pet records stay consistent, and so a dog can
- * never end up tamed without a record.
- */
 public final class PetRegistrar {
 
   private PetRegistrar() {}
 
-  /**
-   * Registers a pet record for {@code dog} owned by {@code ownerUuid}, returning the existing
-   * record untouched when the dog already has one.
-   */
   public static @Nullable PetData registerPetFor(
       final UnleashedDogEntity dog, final @Nullable UUID ownerUuid) {
     if (ownerUuid == null || !(dog.getWorld() instanceof ServerWorld serverWorld)) {

@@ -33,7 +33,6 @@ public class DogsUnleashed implements ModInitializer {
 
   public static volatile DogsUnleashedConfig SERVER_CONFIG = DogsUnleashedConfig.defaults();
 
-  // Tasks deferred to the start of the next server tick to avoid portal-mechanics race conditions.
   private static final List<Runnable> pendingNextTick = new ArrayList<>();
 
   @Override
@@ -88,11 +87,6 @@ public class DogsUnleashed implements ModInitializer {
     pendingNextTick.add(task);
   }
 
-  /**
-   * Clears the JVM-global session maps when the server stops so a subsequent integrated server
-   * start (a singleplayer world load in the same JVM) begins with empty session state instead of
-   * inheriting stale player/dog UUID pairs from the previous world. See #176.
-   */
   private static void clearJvmGlobalSessionState(MinecraftServer server) {
     DogPlaySession.clearActivePlaySessions();
     DogBedBlock.clearPendingAssignments();

@@ -31,10 +31,6 @@ class DogHouseBlockTest {
     assertEquals(ModBlocks.DOG_BED.getHardness(), ModBlocks.DOG_HOUSE.getHardness(), 0.0f);
   }
 
-  /**
-   * Clicking the roof, or any far corner, has to reach the same block entity as clicking the
-   * doorway, or most of the house would silently do nothing.
-   */
   @ParameterizedTest(name = "{0} resolves to the cell carrying the block entity")
   @EnumSource(DogHousePart.class)
   @DisplayName("every cell resolves to the origin, so the whole house is interactive")

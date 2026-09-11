@@ -18,11 +18,6 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.random.Random;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * The golden apple cure, mirroring the zombie villager: weaken the dog, feed it a Golden Apple, and
- * it converts back to its living self after a timer. The dog is recreated at the living entity type
- * on completion, so its identity survives the swap intact.
- */
 public final class DogCuring {
 
   public static final int MIN_CONVERSION_TICKS = 3600;
@@ -64,7 +59,6 @@ public final class DogCuring {
     this.curerId = curerId;
   }
 
-  /** A cure needs an undead dog that is already weakened and is not mid-conversion already. */
   public boolean canStart(final ItemStack heldStack) {
     return this.dog.isUndead()
         && !this.isConverting()
@@ -99,11 +93,6 @@ public final class DogCuring {
     }
   }
 
-  /**
-   * Writes the living body back onto the pet record. The record's max health is only ever set at
-   * registration and at each conversion, so without this a cured pet would keep advertising the
-   * halved max health it had while undead.
-   */
   private static void recordTheCure(final ServerWorld world, final UnleashedDogEntity cured) {
     final PetManager petManager = PetManager.get(world.getServer());
     petManager.markPetCured(cured.getUuid());

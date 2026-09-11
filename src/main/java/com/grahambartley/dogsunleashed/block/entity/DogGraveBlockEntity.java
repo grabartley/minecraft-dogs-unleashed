@@ -75,7 +75,6 @@ public class DogGraveBlockEntity extends BlockEntity implements GeoBlockEntity {
     return this.hasTotem;
   }
 
-  /** Remembered so the resurrection advancement lands on whoever set the ritual up. */
   public UUID getTotemInstallerId() {
     return this.totemInstallerId;
   }

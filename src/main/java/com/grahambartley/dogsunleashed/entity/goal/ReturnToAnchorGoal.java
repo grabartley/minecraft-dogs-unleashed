@@ -5,11 +5,6 @@ import java.util.EnumSet;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.util.math.BlockPos;
 
-/**
- * Leash for anchored commands (Stay, Guard): when the dog drifts beyond the anchor radius it walks
- * back until comfortably inside. Registered at the same priority as the follow goals; the command
- * gates keep them mutually exclusive.
- */
 public class ReturnToAnchorGoal extends Goal {
 
   private static final double MOVE_SPEED = 1.0;

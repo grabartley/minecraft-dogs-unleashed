@@ -10,8 +10,6 @@ public final class OwnerNameResolver {
 
   private OwnerNameResolver() {}
 
-  // Empty when the owner has never been seen by this server's profile cache; the client renders
-  // its own unknown-owner fallback so the server never has to localize.
   public static String resolve(final MinecraftServer server, final UUID ownerId) {
     final ServerPlayerEntity onlineOwner = server.getPlayerManager().getPlayer(ownerId);
     if (onlineOwner != null) {

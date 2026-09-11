@@ -11,17 +11,8 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Fires the resurrection ritual: lightning striking a lightning rod that stands on a grave holding
- * a Totem of Undying. Hooking entity load rather than the weather tick catches every lightning
- * bolt, so a Channeling trident works through the same path as a thunderstorm.
- */
 public final class ResurrectionRitualListener {
 
-  /**
-   * The bolt entity lands on the rod's column but not always on its exact block, so the rod is
-   * looked for one block either side of the strike as well.
-   */
   private static final int[] ROD_SEARCH_Y_OFFSETS = {0, -1, 1};
 
   private ResurrectionRitualListener() {}
@@ -44,10 +35,7 @@ public final class ResurrectionRitualListener {
       return;
     }
 
-    // The ritual takes the strike: a live bolt would otherwise set the grave site alight and raise
-    // the pet directly into the fire. Cosmetic keeps the flash and the thunder and drops the harm.
     bolt.setCosmetic(true);
-    // Deferred so the dog is not spawned from inside the bolt's own load event.
     DogsUnleashed.runNextTick(() -> resurrectAt(world, gravePos));
   }
 

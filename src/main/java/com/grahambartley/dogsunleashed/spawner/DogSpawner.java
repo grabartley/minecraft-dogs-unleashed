@@ -23,18 +23,6 @@ import net.minecraft.world.Heightmap;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.spawner.SpecialSpawner;
 
-/**
- * Cap-independent dog spawner, modeled on vanilla {@code CatSpawner}. Vanilla passive spawning is
- * gated by the shared CREATURE mob cap, which stays permanently saturated in explored terrain (and
- * on servers where other mods fill it), so dogs effectively only spawn at chunk generation. This
- * spawner ticks from {@code ServerWorld.tickSpawners} outside that cap, periodically spawning one
- * wild pack near a random player in a matching biome. It is gated by {@code
- * capIndependentSpawningEnabled} (on by default, opt-out), re-checks the config every attempt (no
- * restart needed), respects {@code doMobSpawning} and the spawn-animals flag, validates positions
- * with the same spawn predicate as natural spawning, and enforces its own conservative cap on
- * nearby untamed dogs. Dogs it spawns are flagged for far-distance despawn via {@link
- * UnleashedDogEntity#canImmediatelyDespawn} so the world never fills up monotonically.
- */
 public class DogSpawner implements SpecialSpawner {
 
   static final int MIN_COOLDOWN_TICKS = 1200;
@@ -87,9 +75,6 @@ public class DogSpawner implements SpecialSpawner {
     if (candidates.isEmpty()) {
       return 0;
     }
-    // The multipliers scale how often an attempt proceeds: at 100% every attempt does (like
-    // CatSpawner), below 100% attempts are skipped proportionally, and above 100% the extra boost
-    // is already reflected in the weighted breed pick and the baked vanilla pool weights.
     final int totalBase = totalBaseWeight(candidates);
     final int totalEffective = totalEffectiveWeight(candidates, config);
     if (totalEffective < totalBase && random.nextInt(totalBase) >= totalEffective) {
@@ -137,10 +122,6 @@ public class DogSpawner implements SpecialSpawner {
     return spawned;
   }
 
-  // The helpers below are public so gametests can assert the spawner's observable decisions
-  // (candidate resolution, weighting, cap counting) against a live world without spawning packs
-  // at uncontrolled world positions. Production code calls them from spawn() exclusively.
-
   public static List<UnleashedDogBreed> spawnableBreedsIn(
       final RegistryEntry<Biome> biome, final DogsUnleashedConfig config) {
     final List<UnleashedDogBreed> matching = new ArrayList<>();
@@ -179,10 +160,6 @@ public class DogSpawner implements SpecialSpawner {
     return total;
   }
 
-  /**
-   * Picks a breed from a non-empty candidate list by effective spawn weight. The roll must be in
-   * {@code [0, totalEffectiveWeight(candidates, config))}.
-   */
   public static UnleashedDogBreed pickWeighted(
       final List<UnleashedDogBreed> candidates, final DogsUnleashedConfig config, final int roll) {
     int remaining = roll;

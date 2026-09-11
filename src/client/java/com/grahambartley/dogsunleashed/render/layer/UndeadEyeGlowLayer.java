@@ -11,11 +11,6 @@ import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 
-/**
- * Makes an undead dog's eyes glow in the dark: the model is re-rendered fullbright through a
- * texture that is transparent everywhere except the pupils, the same trick vanilla uses for spider
- * eyes. The eyelid geometry still occludes the glow, so a sleeping undead dog's eyes go dark.
- */
 public class UndeadEyeGlowLayer extends GeoRenderLayer<UnleashedDogEntity> {
 
   public UndeadEyeGlowLayer(final GeoRenderer<UnleashedDogEntity> renderer) {

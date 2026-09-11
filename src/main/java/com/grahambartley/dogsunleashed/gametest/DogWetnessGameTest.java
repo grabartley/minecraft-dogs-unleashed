@@ -16,11 +16,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.biome.BiomeKeys;
 
-/**
- * Weather is world state, so every test here pins rain for the whole batch and only the {@code
- * skyAccess = true} tests can actually be rained on: the framework roofs every other structure with
- * barrier blocks, which is also what keeps this batch's rain from reaching dogs in other batches.
- */
 public final class DogWetnessGameTest implements FabricGameTest {
 
   private static final String BATCH = "dog-wetness";
@@ -114,11 +109,6 @@ public final class DogWetnessGameTest implements FabricGameTest {
         });
   }
 
-  /**
-   * The roofed structure keeps the batch's rain off this dog, so the only thing that can wet it is
-   * the water it is stood in. The water sits in a walled basin so that draining the source block
-   * cannot leave flowing water behind to keep the dog wet.
-   */
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = DRY_TICK_LIMIT)
   public void dogShakesAfterClimbingOutOfWater(final TestContext context) {
     for (final Direction side : Direction.Type.HORIZONTAL) {
@@ -154,10 +144,6 @@ public final class DogWetnessGameTest implements FabricGameTest {
         });
   }
 
-  /**
-   * Sitting suppresses the shake, and an owner keeps vanilla {@code SitGoal} from putting the dog
-   * into that pose on its own, so every test here spawns a stationary owned dog.
-   */
   private static UnleashedDogEntity spawnStationaryDog(final TestContext context) {
     final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
     final BlockPos absoluteOwnerPos = context.getAbsolutePos(OWNER_POS);

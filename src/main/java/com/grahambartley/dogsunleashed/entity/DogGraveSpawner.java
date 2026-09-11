@@ -56,8 +56,6 @@ public final class DogGraveSpawner {
 
   static @Nullable BlockPos findValidGravePosition(
       final ServerWorld world, final BlockPos center, final @Nullable BlockPos bedPosToAvoid) {
-    // Two passes so an air block anywhere in range always beats a merely replaceable one nearer
-    // the death position.
     for (final Vec3i offset : SEARCH_OFFSETS) {
       final BlockPos testPos = center.add(offset);
       if (testPos.equals(bedPosToAvoid)) {

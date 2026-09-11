@@ -52,8 +52,6 @@ public final class DogsUnleashedConfigScreen extends Screen {
   public DogsUnleashedConfigScreen(@Nullable Screen parent) {
     super(Text.translatable("screen.dogs-unleashed.settings.title"));
     this.parent = parent;
-    // SERVER_CONFIG keeps the last joined server's values after disconnect, so outside a world we
-    // show defaults rather than another server's settings.
     final DogsUnleashedConfig current =
         resolveAccess() == EditAccess.NO_WORLD
             ? DogsUnleashedConfig.defaults()
@@ -381,7 +379,6 @@ public final class DogsUnleashedConfigScreen extends Screen {
         player != null && player.hasPermissionLevel(ServerConfigService.OP_PERMISSION_LEVEL));
   }
 
-  /** Whether this client may edit the server config, and why not when it may not. */
   public enum EditAccess {
     EDITABLE("", ""),
     READ_ONLY(
@@ -539,8 +536,6 @@ public final class DogsUnleashedConfigScreen extends Screen {
 
     @Override
     protected void appendClickableNarrations(
-        final net.minecraft.client.gui.screen.narration.NarrationMessageBuilder builder) {
-      // Decorative header — narration is not interactive.
-    }
+        final net.minecraft.client.gui.screen.narration.NarrationMessageBuilder builder) {}
   }
 }

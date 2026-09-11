@@ -9,19 +9,10 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import software.bernie.geckolib.renderer.GeoItemRenderer;
 
-/**
- * The whistle reads best close to side-on, so every pose keeps the mouthpiece roughly across the
- * view rather than using the three-quarter angle the ball and frisbee use.
- */
 public class DogWhistleItemRenderer implements BuiltinItemRendererRegistry.DynamicItemRenderer {
 
   private static final float HELD_SCALE = 0.34f;
 
-  /**
-   * Built on first render, not in the constructor: {@link GeoItemRenderer} resolves the block
-   * entity render dispatcher from the running client, which is not populated yet while client
-   * initializers are running.
-   */
   private GeoItemRenderer<DogWhistleItem> renderer;
 
   @Override
