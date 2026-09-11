@@ -12,17 +12,29 @@ public final class DogHouseShape {
 
   private static final int CELL = 16;
   private static final int HOUSE_SIZE = 2 * CELL;
+  private static final int WALL = 2;
+  private static final int FLOOR_TOP = 2;
+  private static final int WALL_TOP = 18;
+  private static final int DOORWAY_TOP = 15;
+  private static final int DOORWAY_MIN_X = 6;
+  private static final int DOORWAY_MAX_X = 26;
 
   private record ShellBox(
       double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {}
 
-  private static final ShellBox FLOOR = new ShellBox(0, 0, 0, HOUSE_SIZE, 2, HOUSE_SIZE);
-  private static final ShellBox LEFT_WALL = new ShellBox(0, 2, 0, 2, 18, HOUSE_SIZE);
-  private static final ShellBox RIGHT_WALL = new ShellBox(30, 2, 0, HOUSE_SIZE, 18, HOUSE_SIZE);
-  private static final ShellBox BACK_WALL = new ShellBox(2, 2, 30, 30, 18, HOUSE_SIZE);
-  private static final ShellBox LEFT_DOOR_POST = new ShellBox(2, 2, 0, 6, 15, 2);
-  private static final ShellBox RIGHT_DOOR_POST = new ShellBox(26, 2, 0, 30, 15, 2);
-  private static final ShellBox DOOR_LINTEL = new ShellBox(2, 15, 0, 30, 18, 2);
+  private static final ShellBox FLOOR = new ShellBox(0, 0, 0, HOUSE_SIZE, FLOOR_TOP, HOUSE_SIZE);
+  private static final ShellBox LEFT_WALL =
+      new ShellBox(0, FLOOR_TOP, 0, WALL, WALL_TOP, HOUSE_SIZE);
+  private static final ShellBox RIGHT_WALL =
+      new ShellBox(HOUSE_SIZE - WALL, FLOOR_TOP, 0, HOUSE_SIZE, WALL_TOP, HOUSE_SIZE);
+  private static final ShellBox BACK_WALL =
+      new ShellBox(WALL, FLOOR_TOP, HOUSE_SIZE - WALL, HOUSE_SIZE - WALL, WALL_TOP, HOUSE_SIZE);
+  private static final ShellBox LEFT_DOOR_POST =
+      new ShellBox(WALL, FLOOR_TOP, 0, DOORWAY_MIN_X, DOORWAY_TOP, WALL);
+  private static final ShellBox RIGHT_DOOR_POST =
+      new ShellBox(DOORWAY_MAX_X, FLOOR_TOP, 0, HOUSE_SIZE - WALL, DOORWAY_TOP, WALL);
+  private static final ShellBox DOOR_LINTEL =
+      new ShellBox(WALL, DOORWAY_TOP, 0, HOUSE_SIZE - WALL, WALL_TOP, WALL);
 
   private static final List<ShellBox> SHELL =
       List.of(

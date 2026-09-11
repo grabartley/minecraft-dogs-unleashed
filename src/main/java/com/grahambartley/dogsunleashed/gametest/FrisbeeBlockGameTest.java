@@ -16,13 +16,12 @@ public final class FrisbeeBlockGameTest implements FabricGameTest {
   private static final BlockPos UNSUPPORTED_POS = new BlockPos(3, 3, 3);
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
-  public void anUnsupportedFrisbeeStaysWhereItIsPut(TestContext context) {
+  public void anUnsupportedFrisbeeStaysWhereItIsPut(final TestContext context) {
     final BlockPos below = UNSUPPORTED_POS.down();
-    context.setBlockState(below, Blocks.AIR);
-    context.setBlockState(UNSUPPORTED_POS, ModBlocks.FRISBEE.getDefaultState());
     context.assertTrue(
         context.getBlockState(below).isAir(),
-        "nothing may hold the frisbee up, or this test proves nothing");
+        "the arena must leave air under " + UNSUPPORTED_POS + ", or this test proves nothing");
+    context.setBlockState(UNSUPPORTED_POS, ModBlocks.FRISBEE.getDefaultState());
 
     context.runAtTick(
         SETTLE_TICK,
@@ -36,9 +35,10 @@ public final class FrisbeeBlockGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
-  public void anUnsupportedSandBlockFallsInTheSameSpot(TestContext context) {
-    final BlockPos below = UNSUPPORTED_POS.down();
-    context.setBlockState(below, Blocks.AIR);
+  public void anUnsupportedSandBlockFallsInTheSameSpot(final TestContext context) {
+    context.assertTrue(
+        context.getBlockState(UNSUPPORTED_POS.down()).isAir(),
+        "the arena must leave air under " + UNSUPPORTED_POS + ", or this control proves nothing");
     context.setBlockState(UNSUPPORTED_POS, Blocks.SAND);
 
     context.runAtTick(
