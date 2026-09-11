@@ -6,6 +6,7 @@ import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
 import com.grahambartley.dogsunleashed.block.entity.DogBedBlockEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
+import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
 import java.util.List;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.item.ItemStack;
@@ -37,14 +38,12 @@ public final class DogBedColorGameTest implements FabricGameTest {
     return DROP_TEST_COLORS.stream()
         .map(
             color ->
-                new TestFunction(
+                GeneratedGameTest.of(
                     "dog-bed-drops",
                     "dogbedcolorgametest.breakingandreplacingadyedbedkeepsthatcolour."
                         + color.getName(),
                     ARENA,
                     40,
-                    0L,
-                    true,
                     context -> {
                       final ServerPlayerEntity player =
                           DogTestHelper.mockPlayerStandingClearInArena(context);

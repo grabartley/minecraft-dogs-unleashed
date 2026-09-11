@@ -11,16 +11,22 @@ import net.minecraft.util.shape.VoxelShapes;
 public final class DogHouseShape {
 
   private static final int CELL = 16;
+  private static final int HOUSE_SIZE = 2 * CELL;
 
-  private static final double[][] SHELL = {
-    {0, 0, 0, 32, 2, 32},
-    {0, 2, 0, 2, 18, 32},
-    {30, 2, 0, 32, 18, 32},
-    {2, 2, 30, 30, 18, 32},
-    {2, 2, 0, 6, 15, 2},
-    {26, 2, 0, 30, 15, 2},
-    {2, 15, 0, 30, 18, 2},
-  };
+  private record ShellBox(
+      double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {}
+
+  private static final ShellBox FLOOR = new ShellBox(0, 0, 0, HOUSE_SIZE, 2, HOUSE_SIZE);
+  private static final ShellBox LEFT_WALL = new ShellBox(0, 2, 0, 2, 18, HOUSE_SIZE);
+  private static final ShellBox RIGHT_WALL = new ShellBox(30, 2, 0, HOUSE_SIZE, 18, HOUSE_SIZE);
+  private static final ShellBox BACK_WALL = new ShellBox(2, 2, 30, 30, 18, HOUSE_SIZE);
+  private static final ShellBox LEFT_DOOR_POST = new ShellBox(2, 2, 0, 6, 15, 2);
+  private static final ShellBox RIGHT_DOOR_POST = new ShellBox(26, 2, 0, 30, 15, 2);
+  private static final ShellBox DOOR_LINTEL = new ShellBox(2, 15, 0, 30, 18, 2);
+
+  private static final List<ShellBox> SHELL =
+      List.of(
+          FLOOR, LEFT_WALL, RIGHT_WALL, BACK_WALL, LEFT_DOOR_POST, RIGHT_DOOR_POST, DOOR_LINTEL);
 
   private static final Map<DogHousePart, Map<Direction, VoxelShape>> SHAPES = buildShapes();
 
@@ -51,25 +57,25 @@ public final class DogHouseShape {
   }
 
   private static VoxelShape sliceCell(final DogHousePart part) {
-    final int minU = part.right() * CELL;
-    final int minW = part.back() * CELL;
+    final int cellMinX = part.right() * CELL;
+    final int cellMinZ = part.back() * CELL;
     final List<VoxelShape> boxes = new ArrayList<>();
-    for (final double[] box : SHELL) {
-      final double u0 = Math.max(box[0], minU);
-      final double u1 = Math.min(box[3], minU + (double) CELL);
-      final double w0 = Math.max(box[2], minW);
-      final double w1 = Math.min(box[5], minW + (double) CELL);
-      if (u0 >= u1 || w0 >= w1) {
+    for (final ShellBox box : SHELL) {
+      final double minX = Math.max(box.minX(), cellMinX);
+      final double maxX = Math.min(box.maxX(), cellMinX + (double) CELL);
+      final double minZ = Math.max(box.minZ(), cellMinZ);
+      final double maxZ = Math.min(box.maxZ(), cellMinZ + (double) CELL);
+      if (minX >= maxX || minZ >= maxZ) {
         continue;
       }
       boxes.add(
           VoxelShapes.cuboid(
-              (u0 - minU) / CELL,
-              box[1] / CELL,
-              (w0 - minW) / CELL,
-              (u1 - minU) / CELL,
-              Math.min(box[4], CELL) / CELL,
-              (w1 - minW) / CELL));
+              (minX - cellMinX) / CELL,
+              box.minY() / CELL,
+              (minZ - cellMinZ) / CELL,
+              (maxX - cellMinX) / CELL,
+              Math.min(box.maxY(), CELL) / CELL,
+              (maxZ - cellMinZ) / CELL));
     }
     return boxes.stream().reduce(VoxelShapes.empty(), VoxelShapes::union).simplify();
   }

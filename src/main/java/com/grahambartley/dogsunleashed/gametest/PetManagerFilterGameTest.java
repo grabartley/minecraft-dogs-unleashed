@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
 import com.grahambartley.dogsunleashed.pet.PetAliveFilter;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
@@ -76,13 +77,11 @@ public final class PetManagerFilterGameTest implements FabricGameTest {
     return FILTER_CASES.stream()
         .map(
             testCase ->
-                new TestFunction(
+                GeneratedGameTest.of(
                     "defaultBatch",
                     "petmanagerfiltergametest.getpetsbyownerfiltered." + testCase.name(),
                     FabricGameTest.EMPTY_STRUCTURE,
                     20,
-                    0L,
-                    true,
                     ctx -> assertFilterCase(ctx, testCase)))
         .toList();
   }
@@ -90,21 +89,17 @@ public final class PetManagerFilterGameTest implements FabricGameTest {
   @CustomTestProvider
   public List<TestFunction> unknownOwnerCases() {
     return List.of(
-        new TestFunction(
+        GeneratedGameTest.of(
             "defaultBatch",
             "petmanagerfiltergametest.unknownowner.noFilters",
             FabricGameTest.EMPTY_STRUCTURE,
             20,
-            0L,
-            true,
             ctx -> assertUnknownOwnerEmpty(ctx, null, PetAliveFilter.ALL)),
-        new TestFunction(
+        GeneratedGameTest.of(
             "defaultBatch",
             "petmanagerfiltergametest.unknownowner.withBreedAndAliveFilter",
             FabricGameTest.EMPTY_STRUCTURE,
             20,
-            0L,
-            true,
             ctx -> assertUnknownOwnerEmpty(ctx, UnleashedDogBreed.HUSKY, PetAliveFilter.ALIVE)));
   }
 
@@ -121,14 +116,12 @@ public final class PetManagerFilterGameTest implements FabricGameTest {
     return LOCALE_SEARCH_CASES.stream()
         .map(
             testCase ->
-                new TestFunction(
+                GeneratedGameTest.of(
                     "defaultBatch",
                     "petmanagerfiltergametest.localeneutralsearch."
                         + testCase.searchQuery().toLowerCase(Locale.ROOT),
                     FabricGameTest.EMPTY_STRUCTURE,
                     20,
-                    0L,
-                    true,
                     ctx -> assertLocaleNeutralCase(ctx, testCase)))
         .toList();
   }

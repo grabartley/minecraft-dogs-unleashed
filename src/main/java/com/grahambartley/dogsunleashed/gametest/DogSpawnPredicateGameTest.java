@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModBlockTags;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
+import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
 import java.util.List;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.Block;
@@ -36,13 +37,11 @@ public final class DogSpawnPredicateGameTest implements FabricGameTest {
     return TAG_CASES.stream()
         .map(
             surfaceCase ->
-                new TestFunction(
+                GeneratedGameTest.of(
                     "defaultBatch",
                     "dogspawnpredicatetest.tagmembership." + surfaceId(surfaceCase),
                     FabricGameTest.EMPTY_STRUCTURE,
                     TICK_LIMIT,
-                    0L,
-                    true,
                     ctx -> testTagMembership(ctx, surfaceCase)))
         .toList();
   }
@@ -67,13 +66,11 @@ public final class DogSpawnPredicateGameTest implements FabricGameTest {
     return DogTestData.getAllBreeds().stream()
         .map(
             data ->
-                new TestFunction(
+                GeneratedGameTest.of(
                     "defaultBatch",
                     "dogspawnpredicatetest." + behavior + "." + data.breed().serializedId(),
                     ARENA,
                     TICK_LIMIT,
-                    0L,
-                    true,
                     ctx -> testSpawnPredicate(ctx, data, surfaceCase)))
         .toList();
   }
