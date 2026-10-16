@@ -113,7 +113,7 @@ public class AutoSleepGoal extends Goal {
       return !this.shouldWake(world);
     }
 
-    return this.shouldSleep(world);
+    return !this.dog.getSleepController().isAutoSleepSuppressed() && this.shouldSleep(world);
   }
 
   @Override
@@ -141,11 +141,6 @@ public class AutoSleepGoal extends Goal {
   @Override
   public void tick() {
     if (this.targetBedPos == null) {
-      return;
-    }
-
-    if (this.dog.getSleepController().isAutoSleepSuppressed()) {
-      this.dog.getNavigation().stop();
       return;
     }
 

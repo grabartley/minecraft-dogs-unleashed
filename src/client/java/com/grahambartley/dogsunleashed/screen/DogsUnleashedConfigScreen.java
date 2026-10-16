@@ -24,14 +24,10 @@ import org.jetbrains.annotations.Nullable;
 public final class DogsUnleashedConfigScreen extends Screen {
   private static final int CONTENT_WIDTH = 220;
   private static final int ROW_HEIGHT = 24;
-  private static final int SECTION_GAP = 16;
   private static final int WIDGET_WIDTH = 200;
   private static final int WIDGET_HEIGHT = 20;
-  private static final int BUTTON_ROW_HEIGHT = 20;
   private static final int DONE_CANCEL_WIDTH = 97;
   private static final int DONE_CANCEL_GAP = 6;
-  private static final int TITLE_Y = 16;
-  private static final int BANNER_Y = 30;
   private static final int BANNER_COLOR = 0xFFAA00;
   private static final int HINT_COLOR = 0xBBBBBB;
 
@@ -73,136 +69,116 @@ public final class DogsUnleashedConfigScreen extends Screen {
   @Override
   protected void init() {
     final boolean canEdit = resolveAccess() == EditAccess.EDITABLE;
+    final ConfigScreenLayout layout = ConfigScreenLayout.of(this.height, !canEdit);
+    final DogsUnleashedConfigList list =
+        new DogsUnleashedConfigList(this.client, this.width, layout, ROW_HEIGHT, CONTENT_WIDTH);
 
-    final int left = (this.width - CONTENT_WIDTH) / 2;
-    int y = BANNER_Y + (canEdit ? 24 : 36);
+    list.addRow(sectionHeader("screen.dogs-unleashed.settings.gameplay"));
+    list.addRow(
+        booleanRow(
+            canEdit,
+            "screen.dogs-unleashed.settings.spawn",
+            "screen.dogs-unleashed.settings.spawn.tooltip",
+            this.enableNaturalSpawning,
+            value -> this.enableNaturalSpawning = value));
+    list.addRow(
+        booleanRow(
+            canEdit,
+            "screen.dogs-unleashed.settings.graves",
+            "screen.dogs-unleashed.settings.graves.tooltip",
+            this.gravesEnabled,
+            value -> this.gravesEnabled = value));
+    list.addRow(
+        booleanRow(
+            canEdit,
+            "screen.dogs-unleashed.settings.dropleashonplay",
+            "screen.dogs-unleashed.settings.dropleashonplay.tooltip",
+            this.dropLeashOnPlayMode,
+            value -> this.dropLeashOnPlayMode = value));
+    list.addRow(
+        booleanRow(
+            canEdit,
+            "screen.dogs-unleashed.settings.shownames",
+            "screen.dogs-unleashed.settings.shownames.tooltip",
+            this.showDogNames,
+            value -> this.showDogNames = value));
 
-    y = addSectionHeader("screen.dogs-unleashed.settings.gameplay", y);
-    addBooleanRow(
-        left,
-        y,
-        canEdit,
-        "screen.dogs-unleashed.settings.spawn",
-        "screen.dogs-unleashed.settings.spawn.tooltip",
-        this.enableNaturalSpawning,
-        value -> this.enableNaturalSpawning = value);
-    y += ROW_HEIGHT;
-    addBooleanRow(
-        left,
-        y,
-        canEdit,
-        "screen.dogs-unleashed.settings.graves",
-        "screen.dogs-unleashed.settings.graves.tooltip",
-        this.gravesEnabled,
-        value -> this.gravesEnabled = value);
-    y += ROW_HEIGHT;
-    addBooleanRow(
-        left,
-        y,
-        canEdit,
-        "screen.dogs-unleashed.settings.dropleashonplay",
-        "screen.dogs-unleashed.settings.dropleashonplay.tooltip",
-        this.dropLeashOnPlayMode,
-        value -> this.dropLeashOnPlayMode = value);
-    y += ROW_HEIGHT;
-    addBooleanRow(
-        left,
-        y,
-        canEdit,
-        "screen.dogs-unleashed.settings.shownames",
-        "screen.dogs-unleashed.settings.shownames.tooltip",
-        this.showDogNames,
-        value -> this.showDogNames = value);
-    y += ROW_HEIGHT + SECTION_GAP;
-
-    y = addSectionHeader("screen.dogs-unleashed.settings.spawning", y);
-    addPercentSliderRow(
-        left,
-        y,
-        canEdit,
-        Text.translatable("screen.dogs-unleashed.settings.spawnrate"),
-        Text.translatable("screen.dogs-unleashed.settings.spawnrate.tooltip"),
-        this.spawnRateMultiplierPercent,
-        value -> this.spawnRateMultiplierPercent = value);
-    y += ROW_HEIGHT;
+    list.addRow(sectionHeader("screen.dogs-unleashed.settings.spawning"));
+    list.addRow(
+        percentSliderRow(
+            canEdit,
+            Text.translatable("screen.dogs-unleashed.settings.spawnrate"),
+            Text.translatable("screen.dogs-unleashed.settings.spawnrate.tooltip"),
+            this.spawnRateMultiplierPercent,
+            value -> this.spawnRateMultiplierPercent = value));
     for (final UnleashedDogBreed breed : UnleashedDogBreed.values()) {
       if (!breed.isNaturallySpawning()) {
         continue;
       }
-      addPercentSliderRow(
-          left,
-          y,
-          canEdit,
-          Text.translatable(
-              "screen.dogs-unleashed.settings.spawnrate.breed",
-              Text.translatable(breed.translationKey())),
-          Text.translatable("screen.dogs-unleashed.settings.spawnrate.breed.tooltip"),
-          this.breedSpawnRateMultipliersPercent.get(breed.serializedId()),
-          value -> this.breedSpawnRateMultipliersPercent.put(breed.serializedId(), value));
-      y += ROW_HEIGHT;
+      list.addRow(
+          percentSliderRow(
+              canEdit,
+              Text.translatable(
+                  "screen.dogs-unleashed.settings.spawnrate.breed",
+                  Text.translatable(breed.translationKey())),
+              Text.translatable("screen.dogs-unleashed.settings.spawnrate.breed.tooltip"),
+              this.breedSpawnRateMultipliersPercent.get(breed.serializedId()),
+              value -> this.breedSpawnRateMultipliersPercent.put(breed.serializedId(), value)));
     }
-    addBooleanRow(
-        left,
-        y,
-        canEdit,
-        "screen.dogs-unleashed.settings.capindependentspawning",
-        "screen.dogs-unleashed.settings.capindependentspawning.tooltip",
-        this.capIndependentSpawningEnabled,
-        value -> this.capIndependentSpawningEnabled = value);
-    y += ROW_HEIGHT + SECTION_GAP;
+    list.addRow(
+        booleanRow(
+            canEdit,
+            "screen.dogs-unleashed.settings.capindependentspawning",
+            "screen.dogs-unleashed.settings.capindependentspawning.tooltip",
+            this.capIndependentSpawningEnabled,
+            value -> this.capIndependentSpawningEnabled = value));
 
-    y = addSectionHeader("screen.dogs-unleashed.settings.sleep", y);
-    addBooleanRow(
-        left,
-        y,
-        canEdit,
-        "screen.dogs-unleashed.settings.autosleep",
-        "screen.dogs-unleashed.settings.autosleep.tooltip",
-        this.autoSleepEnabled,
-        value -> this.autoSleepEnabled = value);
-    y += ROW_HEIGHT;
-    addIntSliderRow(
-        left,
-        y,
-        canEdit,
-        "screen.dogs-unleashed.settings.autosleeprange",
-        "screen.dogs-unleashed.settings.autosleeprange.tooltip",
-        DogsUnleashedConfig.AUTO_SLEEP_RANGE_MIN,
-        DogsUnleashedConfig.AUTO_SLEEP_RANGE_MAX,
-        this.autoSleepRangeBlocks,
-        value -> this.autoSleepRangeBlocks = value);
-    y += ROW_HEIGHT + SECTION_GAP;
+    list.addRow(sectionHeader("screen.dogs-unleashed.settings.sleep"));
+    list.addRow(
+        booleanRow(
+            canEdit,
+            "screen.dogs-unleashed.settings.autosleep",
+            "screen.dogs-unleashed.settings.autosleep.tooltip",
+            this.autoSleepEnabled,
+            value -> this.autoSleepEnabled = value));
+    list.addRow(
+        intSliderRow(
+            canEdit,
+            "screen.dogs-unleashed.settings.autosleeprange",
+            "screen.dogs-unleashed.settings.autosleeprange.tooltip",
+            DogsUnleashedConfig.AUTO_SLEEP_RANGE_MIN,
+            DogsUnleashedConfig.AUTO_SLEEP_RANGE_MAX,
+            this.autoSleepRangeBlocks,
+            value -> this.autoSleepRangeBlocks = value));
 
-    y = addSectionHeader("screen.dogs-unleashed.settings.sounds", y);
-    addFloatSliderRow(
-        left,
-        y,
-        canEdit,
-        "screen.dogs-unleashed.settings.barkvolume",
-        "screen.dogs-unleashed.settings.barkvolume.tooltip",
-        DogsUnleashedConfig.VOLUME_MIN,
-        DogsUnleashedConfig.VOLUME_MAX,
-        this.barkVolume,
-        value -> this.barkVolume = value);
-    y += ROW_HEIGHT;
-    addFloatSliderRow(
-        left,
-        y,
-        canEdit,
-        "screen.dogs-unleashed.settings.howlvolume",
-        "screen.dogs-unleashed.settings.howlvolume.tooltip",
-        DogsUnleashedConfig.VOLUME_MIN,
-        DogsUnleashedConfig.VOLUME_MAX,
-        this.howlVolume,
-        value -> this.howlVolume = value);
-    y += ROW_HEIGHT + SECTION_GAP;
+    list.addRow(sectionHeader("screen.dogs-unleashed.settings.sounds"));
+    list.addRow(
+        floatSliderRow(
+            canEdit,
+            "screen.dogs-unleashed.settings.barkvolume",
+            "screen.dogs-unleashed.settings.barkvolume.tooltip",
+            DogsUnleashedConfig.VOLUME_MIN,
+            DogsUnleashedConfig.VOLUME_MAX,
+            this.barkVolume,
+            value -> this.barkVolume = value));
+    list.addRow(
+        floatSliderRow(
+            canEdit,
+            "screen.dogs-unleashed.settings.howlvolume",
+            "screen.dogs-unleashed.settings.howlvolume.tooltip",
+            DogsUnleashedConfig.VOLUME_MIN,
+            DogsUnleashedConfig.VOLUME_MAX,
+            this.howlVolume,
+            value -> this.howlVolume = value));
+    addDrawableChild(list);
 
     final int doneLeft = (this.width - (DONE_CANCEL_WIDTH * 2 + DONE_CANCEL_GAP)) / 2;
     final int cancelLeft = doneLeft + DONE_CANCEL_WIDTH + DONE_CANCEL_GAP;
     final ButtonWidget doneButton =
         ButtonWidget.builder(
                 Text.translatable("screen.dogs-unleashed.settings.done"), button -> saveAndClose())
-            .dimensions(doneLeft, y, DONE_CANCEL_WIDTH, BUTTON_ROW_HEIGHT)
+            .dimensions(
+                doneLeft, layout.buttonsY(), DONE_CANCEL_WIDTH, ConfigScreenLayout.BUTTON_HEIGHT)
             .build();
     doneButton.active = canEdit;
     addDrawableChild(doneButton);
@@ -210,21 +186,16 @@ public final class DogsUnleashedConfigScreen extends Screen {
     addDrawableChild(
         ButtonWidget.builder(
                 Text.translatable("screen.dogs-unleashed.settings.cancel"), button -> close())
-            .dimensions(cancelLeft, y, DONE_CANCEL_WIDTH, BUTTON_ROW_HEIGHT)
+            .dimensions(
+                cancelLeft, layout.buttonsY(), DONE_CANCEL_WIDTH, ConfigScreenLayout.BUTTON_HEIGHT)
             .build());
   }
 
-  private int addSectionHeader(final String key, final int y) {
-    final SectionHeaderWidget header =
-        new SectionHeaderWidget(
-            (this.width - CONTENT_WIDTH) / 2, y, CONTENT_WIDTH, 12, Text.translatable(key), this);
-    addDrawableChild(header);
-    return y + 14;
+  private ClickableWidget sectionHeader(final String key) {
+    return new SectionHeaderWidget(0, 0, CONTENT_WIDTH, 12, Text.translatable(key), this);
   }
 
-  private void addBooleanRow(
-      final int left,
-      final int y,
+  private static ClickableWidget booleanRow(
       final boolean canEdit,
       final String labelKey,
       final String tooltipKey,
@@ -233,20 +204,16 @@ public final class DogsUnleashedConfigScreen extends Screen {
     final CyclingButtonWidget<Boolean> widget =
         CyclingButtonWidget.onOffBuilder(initial)
             .build(
-                left + (CONTENT_WIDTH - WIDGET_WIDTH) / 2,
-                y,
+                0,
+                0,
                 WIDGET_WIDTH,
                 WIDGET_HEIGHT,
                 Text.translatable(labelKey),
                 (button, value) -> sink.accept(value));
-    widget.setTooltip(Tooltip.of(Text.translatable(tooltipKey)));
-    widget.active = canEdit;
-    addDrawableChild(widget);
+    return withTooltip(widget, Text.translatable(tooltipKey), canEdit);
   }
 
-  private void addIntSliderRow(
-      final int left,
-      final int y,
+  private static ClickableWidget intSliderRow(
       final boolean canEdit,
       final String labelKey,
       final String tooltipKey,
@@ -256,8 +223,8 @@ public final class DogsUnleashedConfigScreen extends Screen {
       final Consumer<Integer> sink) {
     final IntSliderWidget widget =
         new IntSliderWidget(
-            left + (CONTENT_WIDTH - WIDGET_WIDTH) / 2,
-            y,
+            0,
+            0,
             WIDGET_WIDTH,
             WIDGET_HEIGHT,
             Text.translatable(labelKey),
@@ -266,14 +233,10 @@ public final class DogsUnleashedConfigScreen extends Screen {
             max,
             initial,
             sink);
-    widget.setTooltip(Tooltip.of(Text.translatable(tooltipKey)));
-    widget.active = canEdit;
-    addDrawableChild(widget);
+    return withTooltip(widget, Text.translatable(tooltipKey), canEdit);
   }
 
-  private void addPercentSliderRow(
-      final int left,
-      final int y,
+  private static ClickableWidget percentSliderRow(
       final boolean canEdit,
       final Text label,
       final Text tooltip,
@@ -281,8 +244,8 @@ public final class DogsUnleashedConfigScreen extends Screen {
       final Consumer<Integer> sink) {
     final IntSliderWidget widget =
         new IntSliderWidget(
-            left + (CONTENT_WIDTH - WIDGET_WIDTH) / 2,
-            y,
+            0,
+            0,
             WIDGET_WIDTH,
             WIDGET_HEIGHT,
             label,
@@ -291,14 +254,10 @@ public final class DogsUnleashedConfigScreen extends Screen {
             DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MAX,
             initial,
             sink);
-    widget.setTooltip(Tooltip.of(tooltip));
-    widget.active = canEdit;
-    addDrawableChild(widget);
+    return withTooltip(widget, tooltip, canEdit);
   }
 
-  private void addFloatSliderRow(
-      final int left,
-      final int y,
+  private static ClickableWidget floatSliderRow(
       final boolean canEdit,
       final String labelKey,
       final String tooltipKey,
@@ -307,19 +266,15 @@ public final class DogsUnleashedConfigScreen extends Screen {
       final float initial,
       final Consumer<Float> sink) {
     final FloatSliderWidget widget =
-        new FloatSliderWidget(
-            left + (CONTENT_WIDTH - WIDGET_WIDTH) / 2,
-            y,
-            WIDGET_WIDTH,
-            WIDGET_HEIGHT,
-            labelKey,
-            min,
-            max,
-            initial,
-            sink);
-    widget.setTooltip(Tooltip.of(Text.translatable(tooltipKey)));
+        new FloatSliderWidget(0, 0, WIDGET_WIDTH, WIDGET_HEIGHT, labelKey, min, max, initial, sink);
+    return withTooltip(widget, Text.translatable(tooltipKey), canEdit);
+  }
+
+  private static ClickableWidget withTooltip(
+      final ClickableWidget widget, final Text tooltip, final boolean canEdit) {
+    widget.setTooltip(Tooltip.of(tooltip));
     widget.active = canEdit;
-    addDrawableChild(widget);
+    return widget;
   }
 
   private void saveAndClose() {
@@ -354,20 +309,20 @@ public final class DogsUnleashedConfigScreen extends Screen {
       final DrawContext context, final int mouseX, final int mouseY, final float delta) {
     super.render(context, mouseX, mouseY, delta);
     context.drawCenteredTextWithShadow(
-        this.textRenderer, this.title, this.width / 2, TITLE_Y, 0xFFFFFF);
+        this.textRenderer, this.title, this.width / 2, ConfigScreenLayout.TITLE_Y, 0xFFFFFF);
     final EditAccess access = resolveAccess();
     if (access != EditAccess.EDITABLE) {
       context.drawCenteredTextWithShadow(
           this.textRenderer,
           Text.translatable(access.bannerKey()),
           this.width / 2,
-          BANNER_Y,
+          ConfigScreenLayout.BANNER_Y,
           BANNER_COLOR);
       context.drawCenteredTextWithShadow(
           this.textRenderer,
           Text.translatable(access.hintKey()),
           this.width / 2,
-          BANNER_Y + 12,
+          ConfigScreenLayout.BANNER_Y + ConfigScreenLayout.BANNER_LINE_HEIGHT,
           HINT_COLOR);
     }
   }
