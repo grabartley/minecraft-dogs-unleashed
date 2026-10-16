@@ -23,6 +23,10 @@ public final class ModKeyBindings {
     ClientTickEvents.END_CLIENT_TICK.register(ModKeyBindings::onClientTick);
   }
 
+  public static boolean isOpenPetManagerKeyBound() {
+    return openPetManagerKey != null && !openPetManagerKey.isUnbound();
+  }
+
   private static void onClientTick(MinecraftClient client) {
     while (openPetManagerKey.wasPressed()) {
       if (client.currentScreen == null) {

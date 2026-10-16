@@ -48,8 +48,7 @@ public class AutoSleepGoal extends Goal {
       return false;
     }
 
-    final World world = this.dog.getWorld();
-    if (!this.shouldSleep(world)) {
+    if (!this.dog.getSleepController().canSleepNow()) {
       return false;
     }
 
@@ -64,17 +63,6 @@ public class AutoSleepGoal extends Goal {
     }
 
     return true;
-  }
-
-  private boolean shouldSleep(World world) {
-    if (DogSleepWindow.isWokenByWeather(world, this.dog.isUndead())) {
-      return false;
-    }
-    return DogSleepWindow.isSleepTime(world.getTimeOfDay(), this.dog.isBaby(), this.dog.isUndead());
-  }
-
-  private boolean shouldWake(World world) {
-    return !this.shouldSleep(world);
   }
 
   private boolean isValidBed(BlockPos pos) {
@@ -107,13 +95,12 @@ public class AutoSleepGoal extends Goal {
       return false;
     }
 
-    final World world = this.dog.getWorld();
-
     if (this.dog.isSleepingInBed()) {
-      return !this.shouldWake(world);
+      return this.dog.getSleepController().canSleepNow();
     }
 
-    return !this.dog.getSleepController().isAutoSleepSuppressed() && this.shouldSleep(world);
+    return !this.dog.getSleepController().isAutoSleepSuppressed()
+        && this.dog.getSleepController().canSleepNow();
   }
 
   @Override

@@ -89,4 +89,20 @@ class DogCommandWheelScreenTest {
         Arguments.of("mid ring", 0, -(INNER + OUTER) / 2),
         Arguments.of("at outer detection radius", 0, -OUTER));
   }
+
+  static Stream<Arguments> hubIndexCases() {
+    return Stream.of(
+        Arguments.of("nothing hovered or rejected", -1, -1, -1),
+        Arguments.of("hover wins over nothing", 3, -1, 3),
+        Arguments.of("a rejected key press shows when nothing is hovered", -1, 7, 7),
+        Arguments.of("hovering a sector replaces the rejected hint", 2, 7, 2));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("hubIndexCases")
+  @DisplayName("the hub explains a rejected action until the player hovers another sector")
+  void hubShowsHoveredThenRejectedAction(
+      final String label, final int hovered, final int rejected, final int expected) {
+    assertEquals(expected, DogCommandWheelScreen.hubIndex(hovered, rejected));
+  }
 }

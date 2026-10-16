@@ -36,7 +36,7 @@ public enum UnleashedDogBreed {
       new Attributes(25.0, 0.30, 5.0),
       new Voice(true, null),
       true,
-      new RenderTransforms(1.3f, 0.5f, 0.0f)),
+      new RenderTransforms(1.3f, 0.5f, 0.0f, 1.31f)),
   DACHSHUND(
       "dachshund",
       "mouth",
@@ -50,7 +50,7 @@ public enum UnleashedDogBreed {
       new Attributes(10.0, 0.25, 2.0),
       new Voice(false, () -> ModSounds.DACHSHUND_BARK),
       false,
-      new RenderTransforms(1.3f, 0.75f, 180.0f)),
+      new RenderTransforms(1.3f, 0.75f, 180.0f, 0.57f)),
   BEAGLE(
       "beagle",
       "snout",
@@ -72,7 +72,7 @@ public enum UnleashedDogBreed {
       new Attributes(17.0, 0.29, 3.0),
       new Voice(false, () -> ModSounds.BEAGLE_BARK),
       false,
-      new RenderTransforms(1.5f, 0.75f, 0.0f)),
+      new RenderTransforms(1.5f, 0.75f, 0.0f, 0.88f)),
   GOLDEN_RETRIEVER(
       "goldenretriever",
       "snout",
@@ -86,7 +86,7 @@ public enum UnleashedDogBreed {
       new Attributes(24.0, 0.30, 4.0),
       new Voice(false, () -> ModSounds.GOLDEN_RETRIEVER_BARK),
       false,
-      new RenderTransforms(1.7f, 0.85f, 0.0f)),
+      new RenderTransforms(1.7f, 0.85f, 0.0f, 1.31f)),
   SHIBA_INU(
       "shibainu",
       "snout",
@@ -100,7 +100,7 @@ public enum UnleashedDogBreed {
       new Attributes(18.0, 0.32, 3.5),
       new Voice(false, () -> ModSounds.SHIBA_INU_BARK),
       false,
-      new RenderTransforms(1.5f, 0.75f, 0.0f)),
+      new RenderTransforms(1.5f, 0.75f, 0.0f, 0.88f)),
   CROSS_BREED(
       "crossbreed",
       "snout",
@@ -114,7 +114,7 @@ public enum UnleashedDogBreed {
       new Attributes(18.0, 0.29, 3.5),
       new Voice(false, null),
       false,
-      new RenderTransforms(1.5f, 0.75f, 0.0f));
+      new RenderTransforms(1.5f, 0.75f, 0.0f, 0.88f));
 
   public static final UnleashedDogBreed FALLBACK_RIG = HUSKY;
 
@@ -256,5 +256,6 @@ public enum UnleashedDogBreed {
 
   public record Voice(boolean howls, @Nullable Supplier<SoundEvent> barkSound) {}
 
-  public record RenderTransforms(float adultScale, float babyScale, float bodyYawOffsetDegrees) {}
+  public record RenderTransforms(
+      float adultScale, float babyScale, float bodyYawOffsetDegrees, float portraitHeight) {}
 }

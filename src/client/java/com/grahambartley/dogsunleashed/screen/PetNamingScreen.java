@@ -1,6 +1,5 @@
 package com.grahambartley.dogsunleashed.screen;
 
-import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.network.ModNetworkingClient;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,14 +18,16 @@ public class PetNamingScreen extends Screen {
   static final int NAME_MAX_LENGTH = 32;
 
   private final UUID petId;
-  private final UnleashedDogBreed breed;
+  private final Text breedName;
+  private final boolean bornPuppy;
   private final String suggestedName;
   private TextFieldWidget nameField;
 
-  public PetNamingScreen(UUID petId, UnleashedDogBreed breed, String suggestedName) {
+  public PetNamingScreen(UUID petId, Text breedName, boolean bornPuppy, String suggestedName) {
     super(Text.translatable("screen.dogs-unleashed.pet_naming.title"));
     this.petId = petId;
-    this.breed = breed;
+    this.breedName = breedName;
+    this.bornPuppy = bornPuppy;
     this.suggestedName = suggestedName;
   }
 
@@ -80,7 +81,7 @@ public class PetNamingScreen extends Screen {
 
     context.drawCenteredTextWithShadow(
         this.textRenderer,
-        Text.translatable("screen.dogs-unleashed.pet_naming.header", getBreedDisplayName()),
+        Text.translatable(headerKey(this.bornPuppy), this.breedName),
         centerX,
         centerY - 70,
         0xFFFFFF);
@@ -93,8 +94,10 @@ public class PetNamingScreen extends Screen {
         0xAAAAAA);
   }
 
-  private String getBreedDisplayName() {
-    return Text.translatable(breed.translationKey()).getString();
+  static String headerKey(final boolean bornPuppy) {
+    return bornPuppy
+        ? "screen.dogs-unleashed.pet_naming.header_newborn"
+        : "screen.dogs-unleashed.pet_naming.header";
   }
 
   @Override

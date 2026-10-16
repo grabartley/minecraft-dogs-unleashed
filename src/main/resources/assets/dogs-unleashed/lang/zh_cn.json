@@ -27,6 +27,7 @@
   "block.dogs-unleashed.dog_bed.unassigned": "%s不再分配到这张床",
   "block.dogs-unleashed.dog_bed.sleep_command": "%s要去睡觉了",
   "block.dogs-unleashed.dog_bed.wake_command": "%s正在醒来",
+  "message.dogs-unleashed.not_sleepy": "%s 现在还不困",
   "block.dogs-unleashed.dog_bed.no_dog_nearby": "附近没有驯服的狗",
 
   "block.dogs-unleashed.dog_grave": "狗坟墓",
@@ -74,6 +75,7 @@
 
   "screen.dogs-unleashed.pet_naming.title": "给你的新朋友起个名字吧！",
   "screen.dogs-unleashed.pet_naming.header": "你刚刚驯服了一只%s！",
+  "screen.dogs-unleashed.pet_naming.header_newborn": "家里来了一只新的小狗：%s！",
   "screen.dogs-unleashed.pet_naming.prompt": "你想给它起什么名字？",
   "screen.dogs-unleashed.pet_naming.name_field": "宠物名称",
   "screen.dogs-unleashed.pet_naming.confirm": "欢迎回家！🐕",

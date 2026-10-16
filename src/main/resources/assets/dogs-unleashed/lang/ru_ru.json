@@ -27,6 +27,7 @@
   "block.dogs-unleashed.dog_bed.unassigned": "%s больше не привязан к этой лежанке",
   "block.dogs-unleashed.dog_bed.sleep_command": "%s идёт спать",
   "block.dogs-unleashed.dog_bed.wake_command": "%s просыпается",
+  "message.dogs-unleashed.not_sleepy": "%s сейчас не хочет спать",
   "block.dogs-unleashed.dog_bed.no_dog_nearby": "Поблизости нет приручённой собаки",
 
   "block.dogs-unleashed.dog_grave": "Собачья могила",
@@ -74,6 +75,7 @@
 
   "screen.dogs-unleashed.pet_naming.title": "Назовите нового друга!",
   "screen.dogs-unleashed.pet_naming.header": "Вы только что приручили: %s!",
+  "screen.dogs-unleashed.pet_naming.header_newborn": "В семье новый щенок: %s!",
   "screen.dogs-unleashed.pet_naming.prompt": "Как вы хотите его назвать?",
   "screen.dogs-unleashed.pet_naming.name_field": "Имя питомца",
   "screen.dogs-unleashed.pet_naming.confirm": "Добро пожаловать домой! 🐕",

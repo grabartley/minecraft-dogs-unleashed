@@ -246,22 +246,23 @@ class UnleashedDogBreedTest {
 
   static Stream<Arguments> expectedRenderTransforms() {
     return Stream.of(
-        Arguments.of(UnleashedDogBreed.HUSKY, 1.3f, 0.5f, 0.0f),
-        Arguments.of(UnleashedDogBreed.DACHSHUND, 1.3f, 0.75f, 180.0f),
-        Arguments.of(UnleashedDogBreed.BEAGLE, 1.5f, 0.75f, 0.0f),
-        Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, 1.7f, 0.85f, 0.0f),
-        Arguments.of(UnleashedDogBreed.SHIBA_INU, 1.5f, 0.75f, 0.0f),
-        Arguments.of(UnleashedDogBreed.CROSS_BREED, 1.5f, 0.75f, 0.0f));
+        Arguments.of(UnleashedDogBreed.HUSKY, 1.3f, 0.5f, 0.0f, 1.31f),
+        Arguments.of(UnleashedDogBreed.DACHSHUND, 1.3f, 0.75f, 180.0f, 0.57f),
+        Arguments.of(UnleashedDogBreed.BEAGLE, 1.5f, 0.75f, 0.0f, 0.88f),
+        Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, 1.7f, 0.85f, 0.0f, 1.31f),
+        Arguments.of(UnleashedDogBreed.SHIBA_INU, 1.5f, 0.75f, 0.0f, 0.88f),
+        Arguments.of(UnleashedDogBreed.CROSS_BREED, 1.5f, 0.75f, 0.0f, 0.88f));
   }
 
-  @ParameterizedTest(name = "{0} render transforms = (adult={1}, baby={2}, yaw={3})")
+  @ParameterizedTest(name = "{0} render transforms = (adult={1}, baby={2}, yaw={3}, portrait={4})")
   @MethodSource("expectedRenderTransforms")
   @DisplayName("each breed exposes its documented render transforms")
   void breedRenderTransformsMatchDocumentedValues(
       final UnleashedDogBreed breed,
       final float expectedAdultScale,
       final float expectedBabyScale,
-      final float expectedBodyYawOffsetDegrees) {
+      final float expectedBodyYawOffsetDegrees,
+      final float expectedPortraitHeight) {
     final UnleashedDogBreed.RenderTransforms transforms = breed.renderTransforms();
     assertEquals(expectedAdultScale, transforms.adultScale(), 0.001f, breed + " adult scale");
     assertEquals(expectedBabyScale, transforms.babyScale(), 0.001f, breed + " baby scale");
@@ -270,6 +271,8 @@ class UnleashedDogBreedTest {
         transforms.bodyYawOffsetDegrees(),
         0.001f,
         breed + " body yaw offset");
+    assertEquals(
+        expectedPortraitHeight, transforms.portraitHeight(), 0.001f, breed + " portrait height");
   }
 
   @ParameterizedTest

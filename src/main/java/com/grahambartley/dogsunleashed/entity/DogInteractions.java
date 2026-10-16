@@ -69,6 +69,14 @@ public final class DogInteractions {
   }
 
   public void tame(final @Nullable PlayerEntity player) {
+    this.becomeOwnedBy(player, false);
+  }
+
+  public void adoptNewborn(final @Nullable PlayerEntity player) {
+    this.becomeOwnedBy(player, true);
+  }
+
+  private void becomeOwnedBy(final @Nullable PlayerEntity player, final boolean bornPuppy) {
     if (player == null) {
       return;
     }
@@ -80,8 +88,7 @@ public final class DogInteractions {
 
     final PetData petData = PetRegistrar.registerPetFor(this.dog, player.getUuid());
     if (petData != null && player instanceof ServerPlayerEntity serverPlayer) {
-      ModNetworking.sendOpenNamingScreen(
-          serverPlayer, this.dog.getUuid(), this.dog.getBreed(), petData.getName());
+      ModNetworking.sendOpenNamingScreen(serverPlayer, this.dog, bornPuppy, petData.getName());
     }
   }
 

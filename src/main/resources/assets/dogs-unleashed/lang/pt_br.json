@@ -27,6 +27,7 @@
   "block.dogs-unleashed.dog_bed.unassigned": "%s não está mais atribuído a esta cama",
   "block.dogs-unleashed.dog_bed.sleep_command": "%s está indo dormir",
   "block.dogs-unleashed.dog_bed.wake_command": "%s está acordando",
+  "message.dogs-unleashed.not_sleepy": "%s não está com sono agora",
   "block.dogs-unleashed.dog_bed.no_dog_nearby": "Nenhum cachorro domesticado por perto",
 
   "block.dogs-unleashed.dog_grave": "Túmulo de cachorro",
@@ -74,6 +75,7 @@
 
   "screen.dogs-unleashed.pet_naming.title": "Dê um nome ao seu novo amigo!",
   "screen.dogs-unleashed.pet_naming.header": "Você acabou de domesticar um %s!",
+  "screen.dogs-unleashed.pet_naming.header_newborn": "Um novo filhote na família: %s!",
   "screen.dogs-unleashed.pet_naming.prompt": "Que nome você gostaria de dar a ele?",
   "screen.dogs-unleashed.pet_naming.name_field": "Nome do pet",
   "screen.dogs-unleashed.pet_naming.confirm": "Bem-vindo ao lar! 🐕",

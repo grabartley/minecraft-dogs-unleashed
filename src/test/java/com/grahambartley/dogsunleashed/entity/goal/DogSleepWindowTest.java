@@ -1,9 +1,11 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.OptionalLong;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -92,5 +94,65 @@ class DogSleepWindowTest {
       final long end,
       final boolean expected) {
     assertEquals(expected, DogSleepWindow.isWithinWindow(timeOfDay, start, end));
+  }
+
+  static Stream<Arguments> windowEndCases() {
+    final long day = DogSleepWindow.DAY_LENGTH_TICKS;
+    return Stream.of(
+        Arguments.of("adult at midnight", MIDNIGHT, false, false, DogSleepWindow.SUNRISE_TICK),
+        Arguments.of(
+            "adult at midnight on day three",
+            2 * day + MIDNIGHT,
+            false,
+            false,
+            2 * day + DogSleepWindow.SUNRISE_TICK),
+        Arguments.of(
+            "puppy before adult bedtime",
+            PUPPY_BEDTIME,
+            true,
+            false,
+            DogSleepWindow.PUPPY_SLEEP_END_TICK),
+        Arguments.of(
+            "undead adult at midday", MIDDAY, false, true, DogSleepWindow.NIGHT_START_TICK),
+        Arguments.of(
+            "undead adult after sunrise", DAWN, false, true, day + DogSleepWindow.NIGHT_START_TICK),
+        Arguments.of(
+            "undead puppy in the morning",
+            100L,
+            true,
+            true,
+            DogSleepWindow.PUPPY_SLEEP_START_TICK));
+  }
+
+  @ParameterizedTest(name = "{0} sleeps until world tick {4}")
+  @MethodSource("windowEndCases")
+  @DisplayName("the current sleep window ends where that dog's schedule next wakes it")
+  void currentSleepWindowEndsAtTheNextWakeTick(
+      final String label,
+      final long worldTime,
+      final boolean baby,
+      final boolean undead,
+      final long expectedEnd) {
+    assertEquals(
+        OptionalLong.of(expectedEnd),
+        DogSleepWindow.currentSleepWindowEnd(worldTime, baby, undead));
+    assertTrue(DogSleepWindow.isSleepTime(expectedEnd - 1, baby, undead));
+    assertFalse(DogSleepWindow.isSleepTime(expectedEnd, baby, undead));
+  }
+
+  static Stream<Arguments> awakeCases() {
+    return Stream.of(
+        Arguments.of("adult at midday", MIDDAY, false, false),
+        Arguments.of("puppy in the morning", 100L, true, false),
+        Arguments.of("undead adult at midnight", MIDNIGHT, false, true));
+  }
+
+  @ParameterizedTest(name = "{0} has no current sleep window")
+  @MethodSource("awakeCases")
+  @DisplayName("a dog outside its sleep window has no window to end")
+  void awakeDogHasNoSleepWindowEnd(
+      final String label, final long worldTime, final boolean baby, final boolean undead) {
+    assertEquals(
+        OptionalLong.empty(), DogSleepWindow.currentSleepWindowEnd(worldTime, baby, undead));
   }
 }

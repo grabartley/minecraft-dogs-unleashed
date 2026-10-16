@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.network.handler;
 
 import com.grahambartley.dogsunleashed.entity.DogCommand;
+import com.grahambartley.dogsunleashed.entity.DogSleepController;
 import com.grahambartley.dogsunleashed.entity.DogWheelAction;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.network.payload.SelectWheelActionPayload;
@@ -55,9 +56,11 @@ public final class WheelActionNetworkHandler {
         if (bedPos == null) {
           return;
         }
-        dog.getSleepController().commandToSleep(bedPos);
-        player.sendMessage(
-            Text.translatable("block.dogs-unleashed.dog_bed.sleep_command", dogName), true);
+        final String replyKey =
+            dog.getSleepController().commandToSleep(bedPos)
+                ? "block.dogs-unleashed.dog_bed.sleep_command"
+                : DogSleepController.NOT_SLEEPY_MESSAGE_KEY;
+        player.sendMessage(Text.translatable(replyKey, dogName), true);
       }
       case EQUIPMENT -> player.openHandledScreen(dog);
       default -> {}

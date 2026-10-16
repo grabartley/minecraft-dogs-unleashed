@@ -1,9 +1,11 @@
 package com.grahambartley.dogsunleashed.block.entity;
 
 import com.grahambartley.dogsunleashed.ModBlockEntities;
+import com.grahambartley.dogsunleashed.ModComponents;
 import java.util.UUID;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.component.ComponentMap;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
@@ -127,6 +129,33 @@ public class DogGraveBlockEntity extends BlockEntity implements GeoBlockEntity {
     this.hasTotem = nbt.getBoolean(NBT_HAS_TOTEM);
     this.totemInstallerId =
         nbt.containsUuid(NBT_TOTEM_INSTALLER_ID) ? nbt.getUuid(NBT_TOTEM_INSTALLER_ID) : null;
+  }
+
+  @Override
+  protected void readComponents(final BlockEntity.ComponentsAccess components) {
+    super.readComponents(components);
+    this.dogUuid = components.get(ModComponents.DOG_GRAVE_UUID);
+    this.dogName = components.getOrDefault(ModComponents.DOG_GRAVE_NAME, "");
+    this.flowerColor = components.getOrDefault(ModComponents.DOG_GRAVE_FLOWER_COLOR, DyeColor.RED);
+  }
+
+  @Override
+  protected void addComponents(final ComponentMap.Builder builder) {
+    super.addComponents(builder);
+    if (this.dogUuid != null) {
+      builder.add(ModComponents.DOG_GRAVE_UUID, this.dogUuid);
+    }
+    if (!this.dogName.isEmpty()) {
+      builder.add(ModComponents.DOG_GRAVE_NAME, this.dogName);
+    }
+    builder.add(ModComponents.DOG_GRAVE_FLOWER_COLOR, this.flowerColor);
+  }
+
+  @Override
+  public void removeFromCopiedStackNbt(final NbtCompound nbt) {
+    nbt.remove(NBT_DOG_UUID);
+    nbt.remove(NBT_DOG_NAME);
+    nbt.remove(NBT_FLOWER_COLOR);
   }
 
   @Override

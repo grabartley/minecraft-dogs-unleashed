@@ -90,11 +90,12 @@ public final class DogLeashGameTest implements FabricGameTest {
         });
   }
 
-  @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = INTERACT_BATCH, tickLimit = 40)
+  @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = SLEEP_BATCH, tickLimit = 40)
   public void attachingLeashCancelsCommandedSleep(final TestContext context) {
     final ServerPlayerEntity owner = spawnOwnerAt(context, OWNER_POS);
     final UnleashedDogEntity dog = DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS);
     dog.setAiDisabled(true);
+    context.setTime((int) NIGHT_TICK);
     dog.getSleepController().commandToSleep(context.getAbsolutePos(BED_POS));
     context.assertTrue(
         dog.isCommandedToSleep(), "The dog should be en route to bed before the leash attaches");

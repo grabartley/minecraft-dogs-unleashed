@@ -27,6 +27,7 @@
   "block.dogs-unleashed.dog_bed.unassigned": "%s ist diesem Bett nicht mehr zugewiesen",
   "block.dogs-unleashed.dog_bed.sleep_command": "%s geht schlafen",
   "block.dogs-unleashed.dog_bed.wake_command": "%s wacht auf",
+  "message.dogs-unleashed.not_sleepy": "%s ist gerade nicht müde",
   "block.dogs-unleashed.dog_bed.no_dog_nearby": "Kein gezähmter Hund in der Nähe",
 
   "block.dogs-unleashed.dog_grave": "Hundegrab",
@@ -74,6 +75,7 @@
 
   "screen.dogs-unleashed.pet_naming.title": "Benenne deinen neuen Freund!",
   "screen.dogs-unleashed.pet_naming.header": "Du hast gerade einen %s gezähmt!",
+  "screen.dogs-unleashed.pet_naming.header_newborn": "Ein neuer Welpe in der Familie: %s!",
   "screen.dogs-unleashed.pet_naming.prompt": "Wie möchtest du ihn nennen?",
   "screen.dogs-unleashed.pet_naming.name_field": "Haustiername",
   "screen.dogs-unleashed.pet_naming.confirm": "Willkommen zu Hause! 🐕",
