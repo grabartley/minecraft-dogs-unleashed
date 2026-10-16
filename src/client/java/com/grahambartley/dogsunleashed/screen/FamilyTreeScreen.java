@@ -26,6 +26,7 @@ public class FamilyTreeScreen extends Screen implements DogConnectionsListener {
   static final int NODE_WIDTH = 64;
   static final int NODE_HEIGHT = 72;
   static final int PANEL_WIDTH = 124;
+  private static final int PANEL_CONTENT_WIDTH = PANEL_WIDTH - 12;
   static final double MIN_ZOOM = 0.4;
   static final double MAX_ZOOM = 2.5;
   static final int MAX_VISIBLE_NODES = 64;
@@ -90,14 +91,14 @@ public class FamilyTreeScreen extends Screen implements DogConnectionsListener {
             ButtonWidget.builder(
                     Text.translatable("screen.dogs-unleashed.family_tree.expand"),
                     button -> toggleSelectedExpansion())
-                .dimensions(panelX(this.width) + 6, this.height - 56, PANEL_WIDTH - 12, 20)
+                .dimensions(panelX(this.width) + 6, this.height - 56, PANEL_CONTENT_WIDTH, 20)
                 .build());
     focusButton =
         addDrawableChild(
             ButtonWidget.builder(
                     Text.translatable("screen.dogs-unleashed.family_tree.focus"),
                     button -> refocusOnSelected())
-                .dimensions(panelX(this.width) + 6, this.height - 30, PANEL_WIDTH - 12, 20)
+                .dimensions(panelX(this.width) + 6, this.height - 30, PANEL_CONTENT_WIDTH, 20)
                 .build());
 
     requestConnections(focusId);
@@ -409,20 +410,12 @@ public class FamilyTreeScreen extends Screen implements DogConnectionsListener {
 
     final int textX = x + 6;
     int textY = 10;
-    context.drawText(
-        this.textRenderer,
-        TextEllipsis.fit(dog.pet().name(), PANEL_WIDTH - 12, this.textRenderer::getWidth),
-        textX,
-        textY,
-        0xFFFFFF,
-        true);
+    context.drawText(this.textRenderer, fitToPanel(dog.pet().name()), textX, textY, 0xFFFFFF, true);
     textY += 14;
     context.drawText(
         this.textRenderer,
-        TextEllipsis.fit(
-            DogBreedNames.displayName(dog.pet().breed(), dog.pet().composition()).getString(),
-            PANEL_WIDTH - 12,
-            this.textRenderer::getWidth),
+        fitToPanel(
+            DogBreedNames.displayName(dog.pet().breed(), dog.pet().composition()).getString()),
         textX,
         textY,
         0xAAAAAA,
@@ -434,10 +427,8 @@ public class FamilyTreeScreen extends Screen implements DogConnectionsListener {
             : dog.ownerName();
     context.drawText(
         this.textRenderer,
-        TextEllipsis.fit(
-            Text.translatable("screen.dogs-unleashed.family_tree.owner", ownerName).getString(),
-            PANEL_WIDTH - 12,
-            this.textRenderer::getWidth),
+        fitToPanel(
+            Text.translatable("screen.dogs-unleashed.family_tree.owner", ownerName).getString()),
         textX,
         textY,
         0xAAAAAA,
@@ -671,5 +662,9 @@ public class FamilyTreeScreen extends Screen implements DogConnectionsListener {
       }
     }
     return null;
+  }
+
+  private String fitToPanel(final String text) {
+    return TextEllipsis.fit(text, PANEL_CONTENT_WIDTH, this.textRenderer::getWidth);
   }
 }

@@ -2,10 +2,9 @@ package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModEntities;
-import com.grahambartley.dogsunleashed.block.DogBedBlock;
-import com.grahambartley.dogsunleashed.entity.DogPlaySession;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.goal.DogSleepWindow;
+import com.grahambartley.dogsunleashed.gametest.util.SleepBatchFixture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -15,83 +14,70 @@ import net.minecraft.test.BeforeBatch;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.GameRules;
 
 public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
   private static final long NIGHT_TIME = 15000;
 
-  static void prepareSleepBatch(final ServerWorld world) {
-    world.getGameRules().get(GameRules.DO_DAYLIGHT_CYCLE).set(false, world.getServer());
-    DogPlaySession.clearActivePlaySessions();
-    DogBedBlock.clearPendingAssignments();
-  }
-
-  static void teardownSleepBatch(final ServerWorld world) {
-    world.getGameRules().get(GameRules.DO_DAYLIGHT_CYCLE).set(true, world.getServer());
-    DogPlaySession.clearActivePlaySessions();
-    DogBedBlock.clearPendingAssignments();
-  }
-
   @BeforeBatch(batchId = "sleep-flags")
   public void beforeFlagsBatch(final ServerWorld world) {
-    prepareSleepBatch(world);
+    SleepBatchFixture.prepare(world);
     pinNight(world);
   }
 
   @AfterBatch(batchId = "sleep-flags")
   public void afterFlagsBatch(final ServerWorld world) {
-    teardownSleepBatch(world);
+    SleepBatchFixture.teardown(world);
   }
 
   @BeforeBatch(batchId = "sleep-stay-asleep")
   public void beforeStayAsleepBatch(final ServerWorld world) {
-    prepareSleepBatch(world);
+    SleepBatchFixture.prepare(world);
   }
 
   @AfterBatch(batchId = "sleep-stay-asleep")
   public void afterStayAsleepBatch(final ServerWorld world) {
-    teardownSleepBatch(world);
+    SleepBatchFixture.teardown(world);
   }
 
   @BeforeBatch(batchId = "sleep-wake-at-sunrise")
   public void beforeWakeAtSunriseBatch(final ServerWorld world) {
-    prepareSleepBatch(world);
+    SleepBatchFixture.prepare(world);
   }
 
   @AfterBatch(batchId = "sleep-wake-at-sunrise")
   public void afterWakeAtSunriseBatch(final ServerWorld world) {
-    teardownSleepBatch(world);
+    SleepBatchFixture.teardown(world);
   }
 
   @BeforeBatch(batchId = "sleep-suppress")
   public void beforeSuppressBatch(final ServerWorld world) {
-    prepareSleepBatch(world);
+    SleepBatchFixture.prepare(world);
   }
 
   @AfterBatch(batchId = "sleep-suppress")
   public void afterSuppressBatch(final ServerWorld world) {
-    teardownSleepBatch(world);
+    SleepBatchFixture.teardown(world);
   }
 
   @BeforeBatch(batchId = "sleep-refuse-daylight")
   public void beforeRefuseDaylightBatch(final ServerWorld world) {
-    prepareSleepBatch(world);
+    SleepBatchFixture.prepare(world);
   }
 
   @AfterBatch(batchId = "sleep-refuse-daylight")
   public void afterRefuseDaylightBatch(final ServerWorld world) {
-    teardownSleepBatch(world);
+    SleepBatchFixture.teardown(world);
   }
 
   @BeforeBatch(batchId = "sleep-resleep")
   public void beforeResleepBatch(final ServerWorld world) {
-    prepareSleepBatch(world);
+    SleepBatchFixture.prepare(world);
   }
 
   @AfterBatch(batchId = "sleep-resleep")
   public void afterResleepBatch(final ServerWorld world) {
-    teardownSleepBatch(world);
+    SleepBatchFixture.teardown(world);
   }
 
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "sleep-flags", tickLimit = 200)

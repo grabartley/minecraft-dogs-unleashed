@@ -20,7 +20,9 @@ class TextEllipsisTest {
         Arguments.of("fits with room", "Husky", 20, "Husky"),
         Arguments.of("too long", "Golden Retriever-Husky Mix", 12, "Golden Re..."),
         Arguments.of("cut lands on a space", "Golden Retriever", 10, "Golden..."),
-        Arguments.of("only room for the ellipsis", "Beagle", 3, "..."));
+        Arguments.of("only room for the ellipsis", "Beagle", 3, "..."),
+        Arguments.of("no room even for the ellipsis", "Beagle", 2, ""),
+        Arguments.of("never splits an emoji", "Rex\uD83D\uDC36Buddy", 6, "Rex..."));
   }
 
   @ParameterizedTest(name = "{0}")
@@ -30,6 +32,6 @@ class TextEllipsisTest {
       final String label, final String text, final int maxWidth, final String expected) {
     final String fitted = TextEllipsis.fit(text, maxWidth, ONE_PER_CHAR);
     assertEquals(expected, fitted);
-    assertTrue(fitted.length() <= Math.max(maxWidth, TextEllipsis.ELLIPSIS.length()));
+    assertTrue(fitted.length() <= maxWidth);
   }
 }

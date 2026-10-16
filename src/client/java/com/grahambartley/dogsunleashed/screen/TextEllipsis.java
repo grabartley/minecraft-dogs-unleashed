@@ -13,9 +13,12 @@ final class TextEllipsis {
       return text;
     }
     final int budget = maxWidth - width.applyAsInt(ELLIPSIS);
+    if (budget < 0) {
+      return "";
+    }
     int end = text.length();
     while (end > 0 && width.applyAsInt(text.substring(0, end)) > budget) {
-      end--;
+      end = text.offsetByCodePoints(end, -1);
     }
     return text.substring(0, end).stripTrailing() + ELLIPSIS;
   }

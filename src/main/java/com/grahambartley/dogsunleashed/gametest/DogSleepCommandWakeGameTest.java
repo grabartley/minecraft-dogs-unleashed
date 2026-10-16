@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gametest.util.SleepBatchFixture;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.EntityType;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -27,32 +28,32 @@ public final class DogSleepCommandWakeGameTest implements FabricGameTest {
 
   @BeforeBatch(batchId = ADULT_BATCH)
   public void beforeAdultBatch(final ServerWorld world) {
-    DogSleepBehaviorGameTest.prepareSleepBatch(world);
+    SleepBatchFixture.prepare(world);
   }
 
   @AfterBatch(batchId = ADULT_BATCH)
   public void afterAdultBatch(final ServerWorld world) {
-    DogSleepBehaviorGameTest.teardownSleepBatch(world);
+    SleepBatchFixture.teardown(world);
   }
 
   @BeforeBatch(batchId = UNDEAD_BATCH)
   public void beforeUndeadBatch(final ServerWorld world) {
-    DogSleepBehaviorGameTest.prepareSleepBatch(world);
+    SleepBatchFixture.prepare(world);
   }
 
   @AfterBatch(batchId = UNDEAD_BATCH)
   public void afterUndeadBatch(final ServerWorld world) {
-    DogSleepBehaviorGameTest.teardownSleepBatch(world);
+    SleepBatchFixture.teardown(world);
   }
 
   @BeforeBatch(batchId = PUPPY_BATCH)
   public void beforePuppyBatch(final ServerWorld world) {
-    DogSleepBehaviorGameTest.prepareSleepBatch(world);
+    SleepBatchFixture.prepare(world);
   }
 
   @AfterBatch(batchId = PUPPY_BATCH)
   public void afterPuppyBatch(final ServerWorld world) {
-    DogSleepBehaviorGameTest.teardownSleepBatch(world);
+    SleepBatchFixture.teardown(world);
   }
 
   @GameTest(templateName = ARENA, batchId = ADULT_BATCH, tickLimit = TICK_LIMIT)

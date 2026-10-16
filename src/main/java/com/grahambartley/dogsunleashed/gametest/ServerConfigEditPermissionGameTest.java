@@ -11,7 +11,9 @@ import net.minecraft.test.TestContext;
 
 public final class ServerConfigEditPermissionGameTest implements FabricGameTest {
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 20)
+  private static final String ARENA = "dogs-unleashed:dog_arena";
+
+  @GameTest(templateName = ARENA, tickLimit = 20)
   public void operatorCanEditSettings(final TestContext context) {
     final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
     final OperatorList operators = player.getServer().getPlayerManager().getOpList();
@@ -27,7 +29,7 @@ public final class ServerConfigEditPermissionGameTest implements FabricGameTest 
     context.complete();
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 20)
+  @GameTest(templateName = ARENA, tickLimit = 20)
   public void nonOperatorWhoIsNotHostCannotEditSettings(final TestContext context) {
     final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
     context.assertFalse(
@@ -39,7 +41,7 @@ public final class ServerConfigEditPermissionGameTest implements FabricGameTest 
     context.complete();
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 20)
+  @GameTest(templateName = ARENA, tickLimit = 20)
   public void nonOperatorWithNoLocalServerCannotEditSettings(final TestContext context) {
     final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
     context.assertFalse(

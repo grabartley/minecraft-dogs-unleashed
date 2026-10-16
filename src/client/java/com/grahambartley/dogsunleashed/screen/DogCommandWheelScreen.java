@@ -110,6 +110,9 @@ public class DogCommandWheelScreen extends Screen {
 
     this.renderRing(context, innerRadius, outerRadius, hoveredIndex);
     this.renderIcons(context, innerRadius, outerRadius);
+    if (hoveredIndex >= 0) {
+      this.rejectedIndex = -1;
+    }
     this.renderHubText(context, hubIndex(hoveredIndex, this.rejectedIndex));
   }
 
