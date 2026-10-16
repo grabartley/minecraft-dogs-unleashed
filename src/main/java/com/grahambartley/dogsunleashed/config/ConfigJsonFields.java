@@ -31,29 +31,11 @@ final class ConfigJsonFields {
   }
 
   int readInt(final String key, final int fallback) {
-    if (!root.has(key)) {
-      return fallback;
-    }
-    final JsonElement element = root.get(key);
-    final OptionalDouble number = finiteNumber(element);
-    if (number.isPresent()) {
-      return (int) number.getAsDouble();
-    }
-    warnInvalid(key, element, "a number", fallback);
-    return fallback;
+    return (int) readNumber(key, fallback);
   }
 
   float readFloat(final String key, final float fallback) {
-    if (!root.has(key)) {
-      return fallback;
-    }
-    final JsonElement element = root.get(key);
-    final OptionalDouble number = finiteNumber(element);
-    if (number.isPresent()) {
-      return (float) number.getAsDouble();
-    }
-    warnInvalid(key, element, "a number", fallback);
-    return fallback;
+    return (float) readNumber(key, fallback);
   }
 
   Map<String, Integer> readIntMap(final String key) {
@@ -75,6 +57,19 @@ final class ConfigJsonFields {
       }
     }
     return values;
+  }
+
+  private double readNumber(final String key, final double fallback) {
+    if (!root.has(key)) {
+      return fallback;
+    }
+    final JsonElement element = root.get(key);
+    final OptionalDouble number = finiteNumber(element);
+    if (number.isPresent()) {
+      return number.getAsDouble();
+    }
+    warnInvalid(key, element, "a number", fallback);
+    return fallback;
   }
 
   private static OptionalDouble finiteNumber(final JsonElement element) {

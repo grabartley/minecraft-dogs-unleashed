@@ -16,11 +16,7 @@ record OggVorbisInfo(int channels, int sampleRate, long totalSamples) {
   static OggVorbisInfo read(final Path file) throws IOException {
     final ByteBuffer bytes =
         ByteBuffer.wrap(Files.readAllBytes(file)).order(ByteOrder.LITTLE_ENDIAN);
-    if (!startsWithCapturePattern(bytes, 0)) {
-      throw new IOException(file + " is not an Ogg file");
-    }
-    final int segmentCount = Byte.toUnsignedInt(bytes.get(SEGMENT_COUNT_OFFSET));
-    final int packet = PAGE_HEADER_LENGTH + segmentCount;
+    final int packet = PAGE_HEADER_LENGTH + segmentCount(bytes, 0);
     if (bytes.get(packet) != 1
         || !"vorbis".equals(new String(bytes.array(), packet + 1, 6, StandardCharsets.US_ASCII))) {
       throw new IOException(file + " does not start with a Vorbis identification header");
@@ -36,20 +32,27 @@ record OggVorbisInfo(int channels, int sampleRate, long totalSamples) {
   }
 
   private static int lastPageStart(final ByteBuffer bytes) throws IOException {
-    for (int offset = bytes.limit() - PAGE_HEADER_LENGTH; offset >= 0; offset--) {
-      if (startsWithCapturePattern(bytes, offset)) {
-        return offset;
+    int page = 0;
+    while (true) {
+      final int segments = segmentCount(bytes, page);
+      int bodyLength = 0;
+      for (int i = 0; i < segments; i++) {
+        bodyLength += Byte.toUnsignedInt(bytes.get(page + PAGE_HEADER_LENGTH + i));
       }
+      final int next = page + PAGE_HEADER_LENGTH + segments + bodyLength;
+      if (next >= bytes.limit()) {
+        return page;
+      }
+      page = next;
     }
-    throw new IOException("no Ogg page found");
   }
 
-  private static boolean startsWithCapturePattern(final ByteBuffer bytes, final int offset) {
+  private static int segmentCount(final ByteBuffer bytes, final int page) throws IOException {
     for (int i = 0; i < CAPTURE_PATTERN.length; i++) {
-      if (bytes.get(offset + i) != CAPTURE_PATTERN[i]) {
-        return false;
+      if (bytes.get(page + i) != CAPTURE_PATTERN[i]) {
+        throw new IOException("no Ogg page at byte " + page);
       }
     }
-    return true;
+    return Byte.toUnsignedInt(bytes.get(page + SEGMENT_COUNT_OFFSET));
   }
 }

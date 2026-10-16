@@ -35,6 +35,7 @@ public final class FetchProjectileGameTest implements FabricGameTest {
   private static final String ARENA = "dogs-unleashed:dog_arena";
   private static final BlockPos POOL = new BlockPos(3, 2, 3);
   private static final BlockPos POOL_SPAWN = new BlockPos(3, 4, 3);
+  private static final int LANDED_TICK = 30;
 
   private record FetchCase(
       String id, EntityType<? extends ThrownEntity> projectile, Block landedBlock) {}
@@ -59,6 +60,12 @@ public final class FetchProjectileGameTest implements FabricGameTest {
   public Collection<TestFunction> keepsWaterSourceWhenLandingInPool() {
     return generatePerProjectile(
         "keepswatersourcewhenlandinginpool", ARENA, 60, this::keepsWaterSourceBody);
+  }
+
+  @CustomTestProvider
+  public Collection<TestFunction> keepsLavaSourceWhenLandingInPool() {
+    return generatePerProjectile(
+        "keepslavasourcewhenlandinginpool", ARENA, 60, this::keepsLavaSourceBody);
   }
 
   private void landsAsItsOwnBlockBody(final TestContext context, final FetchCase fetchCase) {
@@ -92,13 +99,7 @@ public final class FetchProjectileGameTest implements FabricGameTest {
   }
 
   private void keepsWaterSourceBody(final TestContext context, final FetchCase fetchCase) {
-    for (final Direction side : Direction.Type.HORIZONTAL) {
-      context.setBlockState(POOL.offset(side), Blocks.STONE);
-    }
-    context.setBlockState(POOL, Blocks.WATER);
-
-    final Entity thrown = context.spawnEntity(fetchCase.projectile(), POOL_SPAWN);
-    thrown.setVelocity(0, -0.5, 0);
+    throwIntoPool(context, fetchCase, Blocks.WATER);
 
     final Item expectedItem = FetchTypes.forEntityType(fetchCase.projectile()).item();
     context.addInstantFinalTask(
@@ -111,6 +112,31 @@ public final class FetchProjectileGameTest implements FabricGameTest {
               droppedItemCount(context, expectedItem) >= 1,
               fetchCase.id() + " landing in a pool should drop a retrievable item");
         });
+  }
+
+  private void keepsLavaSourceBody(final TestContext context, final FetchCase fetchCase) {
+    throwIntoPool(context, fetchCase, Blocks.LAVA);
+
+    context.runAtTick(
+        LANDED_TICK,
+        () -> {
+          context.checkBlockState(
+              POOL,
+              state -> state.getFluidState().isOf(Fluids.LAVA),
+              () -> fetchCase.id() + " landing in lava must leave the lava source in place");
+          context.complete();
+        });
+  }
+
+  private static void throwIntoPool(
+      final TestContext context, final FetchCase fetchCase, final Block fluid) {
+    for (final Direction side : Direction.Type.HORIZONTAL) {
+      context.setBlockState(POOL.offset(side), Blocks.STONE);
+    }
+    context.setBlockState(POOL, fluid);
+
+    final Entity thrown = context.spawnEntity(fetchCase.projectile(), POOL_SPAWN);
+    thrown.setVelocity(0, -0.5, 0);
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 80)
