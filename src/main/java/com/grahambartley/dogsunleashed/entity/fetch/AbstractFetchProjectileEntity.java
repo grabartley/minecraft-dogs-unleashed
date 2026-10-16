@@ -50,7 +50,7 @@ public abstract class AbstractFetchProjectileEntity extends ThrownEntity
     BlockState stateAtPos = this.getWorld().getBlockState(landPos);
     FetchItemType fetchItemType = this.getFetchItemType();
 
-    if (stateAtPos.isAir() || stateAtPos.isReplaceable()) {
+    if (canLandIn(stateAtPos)) {
       this.getWorld().setBlockState(landPos, fetchItemType.landedBlock().getDefaultState());
       this.enrichLandedBlockEntity(landPos);
       FetchProjectileEntity.notifyPlayingDogsOfLandedFetchItem(this, landPos);
@@ -63,6 +63,10 @@ public abstract class AbstractFetchProjectileEntity extends ThrownEntity
     }
 
     this.discard();
+  }
+
+  private static boolean canLandIn(final BlockState state) {
+    return state.getFluidState().isEmpty() && (state.isAir() || state.isReplaceable());
   }
 
   protected void enrichLandedBlockEntity(BlockPos landPos) {}

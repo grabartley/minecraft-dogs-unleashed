@@ -19,6 +19,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class DogsUnleashedConfigTest {
 
@@ -157,6 +158,77 @@ class DogsUnleashedConfigTest {
     assertEquals(32, loaded.autoSleepRangeBlocks());
     assertEquals(1.5f, loaded.howlVolume());
     assertTrue(loaded.showDogNames());
+  }
+
+  static Stream<Arguments> invalidFieldCases() {
+    return Stream.of(
+        Arguments.of("spawnRateMultiplierPercent", "\"abc\""),
+        Arguments.of("autoSleepRangeBlocks", "\"abc\""),
+        Arguments.of("barkVolume", "\"abc\""),
+        Arguments.of("howlVolume", "\"abc\""),
+        Arguments.of("autoSleepRangeBlocks", "{\"blocks\": 16}"),
+        Arguments.of("spawnRateMultiplierPercent", "[50]"),
+        Arguments.of("gravesEnabled", "\"yes\""),
+        Arguments.of("showDogNames", "1"),
+        Arguments.of("enableNaturalSpawning", "{}"),
+        Arguments.of("breedSpawnRateMultipliersPercent", "{\"beagle\": \"high\"}"),
+        Arguments.of("breedSpawnRateMultipliersPercent", "[]"));
+  }
+
+  @ParameterizedTest(name = "{0}={1} falls back to the default")
+  @MethodSource("invalidFieldCases")
+  @DisplayName("load() falls back per field on a wrong JSON type and keeps the valid fields")
+  void loadFallsBackPerFieldOnWrongType(final String key, final String jsonValue)
+      throws IOException {
+    final Path path = tempDir.resolve("invalid.json");
+    Files.writeString(
+        path,
+        "{\"howlVolume\": 0.75, \"autoSleepEnabled\": false, \"" + key + "\": " + jsonValue + "}",
+        StandardCharsets.UTF_8);
+
+    final DogsUnleashedConfig loaded = DogsUnleashedConfig.load(path);
+    final DogsUnleashedConfig expected =
+        DogsUnleashedConfig.defaults()
+            .withHowlVolume(
+                key.equals("howlVolume") ? DogsUnleashedConfig.DEFAULT_HOWL_VOLUME : 0.75f)
+            .withAutoSleepEnabled(false);
+    assertEquals(expected, loaded);
+    assertTrue(Files.exists(path), "a file with a bad field is not malformed and stays in place");
+  }
+
+  @ParameterizedTest(name = "root [{0}]")
+  @ValueSource(strings = {"[1, 2]", "\"text\"", "42", "", "null"})
+  @DisplayName("load() returns defaults for a top-level value that is not an object")
+  void loadReturnsDefaultsForNonObjectRoot(final String json) throws IOException {
+    final Path path = tempDir.resolve("root.json");
+    Files.writeString(path, json, StandardCharsets.UTF_8);
+    assertEquals(DogsUnleashedConfig.defaults(), DogsUnleashedConfig.load(path));
+  }
+
+  @Test
+  @DisplayName("loadOrCreate() writes the defaults when the file is missing")
+  void loadOrCreateWritesDefaultsWhenMissing() {
+    final Path path = tempDir.resolve("world").resolve("dogs-unleashed.json");
+
+    assertEquals(DogsUnleashedConfig.defaults(), DogsUnleashedConfig.loadOrCreate(path));
+    assertTrue(Files.exists(path), "missing config should be created with defaults");
+    assertEquals(DogsUnleashedConfig.defaults(), DogsUnleashedConfig.load(path));
+  }
+
+  @Test
+  @DisplayName("loadOrCreate() reads an existing file without overwriting it")
+  void loadOrCreateReadsExistingFile() throws IOException {
+    final Path path = tempDir.resolve("existing.json");
+    Files.writeString(path, "{\"gravesEnabled\": false}", StandardCharsets.UTF_8);
+
+    assertFalse(DogsUnleashedConfig.loadOrCreate(path).gravesEnabled());
+    assertEquals("{\"gravesEnabled\": false}", Files.readString(path, StandardCharsets.UTF_8));
+  }
+
+  @Test
+  @DisplayName("loadOrCreate() returns defaults for a null path")
+  void loadOrCreateNullPathReturnsDefaults() {
+    assertEquals(DogsUnleashedConfig.defaults(), DogsUnleashedConfig.loadOrCreate(null));
   }
 
   static Stream<Arguments> autoSleepRangeClampCases() {

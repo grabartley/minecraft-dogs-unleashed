@@ -16,6 +16,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.projectile.thrown.ThrownEntity;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.item.Item;
 import net.minecraft.test.CustomTestProvider;
 import net.minecraft.test.GameTest;
@@ -23,6 +24,7 @@ import net.minecraft.test.TestContext;
 import net.minecraft.test.TestFunction;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 
 public final class FetchProjectileGameTest implements FabricGameTest {
 
@@ -30,6 +32,10 @@ public final class FetchProjectileGameTest implements FabricGameTest {
   private static final BlockPos LAND_SPAWN = new BlockPos(1, 5, 1);
   private static final BlockPos LANDED = new BlockPos(1, 1, 1);
   private static final BlockPos BLOCKED_SPAWN = new BlockPos(1, 1, 1);
+  private static final String ARENA = "dogs-unleashed:dog_arena";
+  private static final BlockPos POOL = new BlockPos(3, 2, 3);
+  private static final BlockPos POOL_SPAWN = new BlockPos(3, 4, 3);
+  private static final int LANDED_TICK = 30;
 
   private record FetchCase(
       String id, EntityType<? extends ThrownEntity> projectile, Block landedBlock) {}
@@ -48,6 +54,18 @@ public final class FetchProjectileGameTest implements FabricGameTest {
   @CustomTestProvider
   public Collection<TestFunction> dropsItemWhenBlocked() {
     return generatePerProjectile("dropsitemwhenblocked", 40, this::dropsItemWhenBlockedBody);
+  }
+
+  @CustomTestProvider
+  public Collection<TestFunction> keepsWaterSourceWhenLandingInPool() {
+    return generatePerProjectile(
+        "keepswatersourcewhenlandinginpool", ARENA, 60, this::keepsWaterSourceBody);
+  }
+
+  @CustomTestProvider
+  public Collection<TestFunction> keepsLavaSourceWhenLandingInPool() {
+    return generatePerProjectile(
+        "keepslavasourcewhenlandinginpool", ARENA, 60, this::keepsLavaSourceBody);
   }
 
   private void landsAsItsOwnBlockBody(final TestContext context, final FetchCase fetchCase) {
@@ -78,6 +96,47 @@ public final class FetchProjectileGameTest implements FabricGameTest {
                   + " throw should drop a retrievable item, not place a block");
           context.complete();
         });
+  }
+
+  private void keepsWaterSourceBody(final TestContext context, final FetchCase fetchCase) {
+    throwIntoPool(context, fetchCase, Blocks.WATER);
+
+    final Item expectedItem = FetchTypes.forEntityType(fetchCase.projectile()).item();
+    context.addInstantFinalTask(
+        () -> {
+          context.checkBlockState(
+              POOL,
+              state -> state.getFluidState().isOf(Fluids.WATER),
+              () -> fetchCase.id() + " landing in a pool must leave the water source in place");
+          context.assertTrue(
+              droppedItemCount(context, expectedItem) >= 1,
+              fetchCase.id() + " landing in a pool should drop a retrievable item");
+        });
+  }
+
+  private void keepsLavaSourceBody(final TestContext context, final FetchCase fetchCase) {
+    throwIntoPool(context, fetchCase, Blocks.LAVA);
+
+    context.runAtTick(
+        LANDED_TICK,
+        () -> {
+          context.checkBlockState(
+              POOL,
+              state -> state.getFluidState().isOf(Fluids.LAVA),
+              () -> fetchCase.id() + " landing in lava must leave the lava source in place");
+          context.complete();
+        });
+  }
+
+  private static void throwIntoPool(
+      final TestContext context, final FetchCase fetchCase, final Block fluid) {
+    for (final Direction side : Direction.Type.HORIZONTAL) {
+      context.setBlockState(POOL.offset(side), Blocks.STONE);
+    }
+    context.setBlockState(POOL, fluid);
+
+    final Entity thrown = context.spawnEntity(fetchCase.projectile(), POOL_SPAWN);
+    thrown.setVelocity(0, -0.5, 0);
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 80)
@@ -147,13 +206,21 @@ public final class FetchProjectileGameTest implements FabricGameTest {
 
   private Collection<TestFunction> generatePerProjectile(
       final String behavior, final int tickLimit, final PerProjectileBody body) {
+    return generatePerProjectile(behavior, FabricGameTest.EMPTY_STRUCTURE, tickLimit, body);
+  }
+
+  private Collection<TestFunction> generatePerProjectile(
+      final String behavior,
+      final String template,
+      final int tickLimit,
+      final PerProjectileBody body) {
     return FETCH_CASES.stream()
         .map(
             fetchCase ->
                 GeneratedGameTest.of(
                     "defaultBatch",
                     "fetchprojectilegametest." + behavior + "." + fetchCase.id(),
-                    FabricGameTest.EMPTY_STRUCTURE,
+                    template,
                     tickLimit,
                     context -> body.run(context, fetchCase)))
         .toList();

@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -284,12 +285,15 @@ public record DogsUnleashedConfig(
       return defaults();
     }
     try {
-      final JsonObject root = GSON.fromJson(json, JsonObject.class);
-      if (root == null) {
+      final JsonElement root = JsonParser.parseString(json);
+      if (root.isJsonNull()) {
         return defaults();
       }
-      return fromJson(root);
-    } catch (JsonParseException | IllegalStateException ex) {
+      if (!root.isJsonObject()) {
+        throw new JsonParseException("top level is not a JSON object");
+      }
+      return fromJson(root.getAsJsonObject());
+    } catch (JsonParseException ex) {
       backupBrokenFile(path);
       LOGGER.warn(
           "Malformed Dogs Unleashed config at {} backed up and defaults loaded: {}",
@@ -297,6 +301,15 @@ public record DogsUnleashedConfig(
           ex.getMessage());
       return defaults();
     }
+  }
+
+  public static DogsUnleashedConfig loadOrCreate(Path path) {
+    if (path != null && !Files.exists(path)) {
+      final DogsUnleashedConfig defaults = defaults();
+      save(path, defaults);
+      return defaults;
+    }
+    return load(path);
   }
 
   public static boolean save(Path path, DogsUnleashedConfig config) {
@@ -319,63 +332,38 @@ public record DogsUnleashedConfig(
 
   static DogsUnleashedConfig fromJson(JsonObject root) {
     final DogsUnleashedConfig defaults = defaults();
+    final ConfigJsonFields fields = new ConfigJsonFields(root);
     final boolean enableNaturalSpawning =
-        root.has(KEY_ENABLE_NATURAL_SPAWNING)
-            ? root.get(KEY_ENABLE_NATURAL_SPAWNING).getAsBoolean()
-            : defaults.enableNaturalSpawning;
+        fields.readBoolean(KEY_ENABLE_NATURAL_SPAWNING, defaults.enableNaturalSpawning);
     final boolean capIndependentSpawningEnabled =
-        root.has(KEY_CAP_INDEPENDENT_SPAWNING_ENABLED)
-            ? root.get(KEY_CAP_INDEPENDENT_SPAWNING_ENABLED).getAsBoolean()
-            : defaults.capIndependentSpawningEnabled;
-    final boolean gravesEnabled =
-        root.has(KEY_GRAVES_ENABLED)
-            ? root.get(KEY_GRAVES_ENABLED).getAsBoolean()
-            : defaults.gravesEnabled;
+        fields.readBoolean(
+            KEY_CAP_INDEPENDENT_SPAWNING_ENABLED, defaults.capIndependentSpawningEnabled);
+    final boolean gravesEnabled = fields.readBoolean(KEY_GRAVES_ENABLED, defaults.gravesEnabled);
     final boolean dropLeashOnPlayMode =
-        root.has(KEY_DROP_LEASH_ON_PLAY_MODE)
-            ? root.get(KEY_DROP_LEASH_ON_PLAY_MODE).getAsBoolean()
-            : defaults.dropLeashOnPlayMode;
+        fields.readBoolean(KEY_DROP_LEASH_ON_PLAY_MODE, defaults.dropLeashOnPlayMode);
     final boolean autoSleepEnabled =
-        root.has(KEY_AUTO_SLEEP_ENABLED)
-            ? root.get(KEY_AUTO_SLEEP_ENABLED).getAsBoolean()
-            : defaults.autoSleepEnabled;
-    final boolean showDogNames =
-        root.has(KEY_SHOW_DOG_NAMES)
-            ? root.get(KEY_SHOW_DOG_NAMES).getAsBoolean()
-            : defaults.showDogNames;
+        fields.readBoolean(KEY_AUTO_SLEEP_ENABLED, defaults.autoSleepEnabled);
+    final boolean showDogNames = fields.readBoolean(KEY_SHOW_DOG_NAMES, defaults.showDogNames);
 
     final int rawSpawnRate =
-        root.has(KEY_SPAWN_RATE_MULTIPLIER_PERCENT)
-            ? root.get(KEY_SPAWN_RATE_MULTIPLIER_PERCENT).getAsInt()
-            : defaults.spawnRateMultiplierPercent;
+        fields.readInt(KEY_SPAWN_RATE_MULTIPLIER_PERCENT, defaults.spawnRateMultiplierPercent);
     warnIfClampedInt(
         KEY_SPAWN_RATE_MULTIPLIER_PERCENT,
         rawSpawnRate,
         SPAWN_RATE_MULTIPLIER_MIN,
         SPAWN_RATE_MULTIPLIER_MAX);
 
-    final Map<String, Integer> rawBreedRates = new LinkedHashMap<>();
-    if (root.has(KEY_BREED_SPAWN_RATE_MULTIPLIERS_PERCENT)
-        && root.get(KEY_BREED_SPAWN_RATE_MULTIPLIERS_PERCENT).isJsonObject()) {
-      for (final Map.Entry<String, JsonElement> entry :
-          root.getAsJsonObject(KEY_BREED_SPAWN_RATE_MULTIPLIERS_PERCENT).entrySet()) {
-        rawBreedRates.put(entry.getKey(), entry.getValue().getAsInt());
-      }
-    }
+    final Map<String, Integer> rawBreedRates =
+        fields.readIntMap(KEY_BREED_SPAWN_RATE_MULTIPLIERS_PERCENT);
 
-    final int rawRange =
-        root.has(KEY_AUTO_SLEEP_RANGE_BLOCKS)
-            ? root.get(KEY_AUTO_SLEEP_RANGE_BLOCKS).getAsInt()
-            : defaults.autoSleepRangeBlocks;
+    final int rawRange = fields.readInt(KEY_AUTO_SLEEP_RANGE_BLOCKS, defaults.autoSleepRangeBlocks);
     warnIfClampedInt(
         KEY_AUTO_SLEEP_RANGE_BLOCKS, rawRange, AUTO_SLEEP_RANGE_MIN, AUTO_SLEEP_RANGE_MAX);
 
-    final float rawBark =
-        root.has(KEY_BARK_VOLUME) ? root.get(KEY_BARK_VOLUME).getAsFloat() : defaults.barkVolume;
+    final float rawBark = fields.readFloat(KEY_BARK_VOLUME, defaults.barkVolume);
     warnIfClampedFloat(KEY_BARK_VOLUME, rawBark, VOLUME_MIN, VOLUME_MAX);
 
-    final float rawHowl =
-        root.has(KEY_HOWL_VOLUME) ? root.get(KEY_HOWL_VOLUME).getAsFloat() : defaults.howlVolume;
+    final float rawHowl = fields.readFloat(KEY_HOWL_VOLUME, defaults.howlVolume);
     warnIfClampedFloat(KEY_HOWL_VOLUME, rawHowl, VOLUME_MIN, VOLUME_MAX);
 
     return new DogsUnleashedConfig(

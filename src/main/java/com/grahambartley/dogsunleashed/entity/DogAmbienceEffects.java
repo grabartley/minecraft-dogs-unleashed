@@ -20,10 +20,8 @@ public final class DogAmbienceEffects {
   private static final int SHAKE_PARTICLE_START_TICK = 10;
   private static final double POSITION_CENTER_OFFSET = 0.5;
   private static final int SHAKE_PARTICLE_COUNT = 20;
-  private static final double SHAKE_PARTICLE_HORIZONTAL_OFFSET_RANGE = 0.5;
-  private static final double SHAKE_PARTICLE_VERTICAL_OFFSET_RANGE = 0.5;
-  private static final double SHAKE_PARTICLE_HORIZONTAL_VELOCITY_RANGE = 0.3;
-  private static final double SHAKE_PARTICLE_VERTICAL_VELOCITY_RANGE = 0.1;
+  private static final double SHAKE_PARTICLE_HEIGHT = 0.75;
+  private static final double SHAKE_PARTICLE_SPREAD = 0.25;
   private static final double SHAKE_PARTICLE_SPEED = 0.1;
   private static final int REUNION_COOLDOWN_TICKS = 60 * MINECRAFT_TICK_RATE;
   private static final int REUNION_HEART_PARTICLE_MIN_COUNT = 4;
@@ -177,28 +175,16 @@ public final class DogAmbienceEffects {
     if (!(this.dog.getWorld() instanceof ServerWorld serverWorld)) {
       return;
     }
-    for (int i = 0; i < SHAKE_PARTICLE_COUNT; i++) {
-      final double offsetX =
-          (this.dog.getRandom().nextDouble() - POSITION_CENTER_OFFSET)
-              * SHAKE_PARTICLE_HORIZONTAL_OFFSET_RANGE;
-      final double offsetY =
-          this.dog.getRandom().nextDouble() * SHAKE_PARTICLE_VERTICAL_OFFSET_RANGE;
-      final double offsetZ =
-          (this.dog.getRandom().nextDouble() - POSITION_CENTER_OFFSET)
-              * SHAKE_PARTICLE_HORIZONTAL_OFFSET_RANGE;
-      serverWorld.spawnParticles(
-          ParticleTypes.SPLASH,
-          this.dog.getX() + offsetX,
-          this.dog.getY() + offsetY + POSITION_CENTER_OFFSET,
-          this.dog.getZ() + offsetZ,
-          1,
-          (this.dog.getRandom().nextDouble() - POSITION_CENTER_OFFSET)
-              * SHAKE_PARTICLE_HORIZONTAL_VELOCITY_RANGE,
-          this.dog.getRandom().nextDouble() * SHAKE_PARTICLE_VERTICAL_VELOCITY_RANGE,
-          (this.dog.getRandom().nextDouble() - POSITION_CENTER_OFFSET)
-              * SHAKE_PARTICLE_HORIZONTAL_VELOCITY_RANGE,
-          SHAKE_PARTICLE_SPEED);
-    }
+    serverWorld.spawnParticles(
+        ParticleTypes.SPLASH,
+        this.dog.getX(),
+        this.dog.getY() + SHAKE_PARTICLE_HEIGHT,
+        this.dog.getZ(),
+        SHAKE_PARTICLE_COUNT,
+        SHAKE_PARTICLE_SPREAD,
+        SHAKE_PARTICLE_SPREAD,
+        SHAKE_PARTICLE_SPREAD,
+        SHAKE_PARTICLE_SPEED);
   }
 
   private void spawnHeartParticles(final ServerWorld serverWorld) {
