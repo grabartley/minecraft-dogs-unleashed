@@ -19,7 +19,7 @@
 
 # Dogs Unleashed
 
-Dogs Unleashed adds five dog breeds to Minecraft. Each one has its own look, coats, bark and home biome, and is fully
+Dogs Unleashed adds five dog breeds to Minecraft. Each one has its own look, coats, voice and home biome, and is fully
 animated. You can tame them, give them commands, play fetch, put them to bed, and raise families of them.
 
 > **Alpha:** Dogs Unleashed is in alpha and we would love your feedback.
@@ -35,7 +35,7 @@ animated. You can tame them, give them commands, play fetch, put them to bed, an
 | **Golden Retriever** | Beaches                                   | 1, the classic golden     |
 | **Shiba Inu**        | Cherry groves                             | 3: red, black and sesame  |
 
-Each breed has its own size, health, speed and bite. Some coats are rarer than others.
+Breeds differ in size, health, speed and bite. Some coats are rarer than others.
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/main/docs/all%20huskies.png" alt="Husky coat variants" width="800">
@@ -64,31 +64,31 @@ Each breed has its own size, health, speed and bite. Some coats are rarer than o
 ## What you can do
 
 - **Give real commands.** Right-click your dog to open a command wheel: Follow, Heel, Stay, Sit, Hunt, Guard, Free Roam
-and Go to Bed. Hunting dogs leave your other pets, villagers and golems alone.
+and Go to Bed. Hunting dogs leave your other pets, villagers and golems alone, but name your farm animals to keep them safe.
 - **Play fetch.** Throw a stick, a tennis ball or a frisbee. Your dog chases it, picks it up and brings it back to you.
 - **Give them a bed.** Craft a dog bed or a dog house in any colour and assign it. Your dog goes to bed by itself at
 night.
-- **Kit them out.** Put wolf armour on them, dye their collar, and feed them treats for a short speed and damage boost.
-- **Never lose them.** Your dogs follow you through portals. Bind a dog whistle to call one from anywhere, or open the
+- **Kit them out.** Open their gear from the command wheel. Put wolf armour on them, dye their collar, and feed them treats for a short speed and damage boost.
+- **Never lose them.** Your dogs follow you through portals, unless they are sitting, staying or guarding. Bind a dog whistle to call one from anywhere, or open the
 Pet Manager to see and summon your whole pack.
-- **Raise a family.** Any two tamed dogs can have puppies, and mixed parents give a mixed breed puppy. Every dog has a
+- **Raise a family.** Any two living tamed dogs can have puppies, and mixed parents give a mixed breed puppy. Every dog has a
 family tree you can explore.
-- **Bring them back.** A dog that dies leaves a grave. With a totem, a lightning rod and a storm, it comes back as an
-undead dog that burns in daylight. Cure it the same way you cure a zombie villager.
+- **Bring them back.** A tamed dog that dies leaves a grave. Put a totem in it and a lightning rod above it, then wait
+for a storm. Your dog comes back undead and burns in daylight unless it has shade or armour. Cure it the same way you
+cure a zombie villager. If it dies while undead, it is gone for good.
 - **Little touches.** Huskies howl at the full moon, dogs tilt their heads at food, and they shake off after rain or a
 swim. There is also an advancement tab to work through.
 
 ## Install
 
-1. Put Dogs Unleashed, [Fabric API](https://modrinth.com/mod/fabric-api) and [GeckoLib](https://modrinth.com/mod/geckolib)
+1. Install Fabric Loader, then put Dogs Unleashed, [Fabric API](https://modrinth.com/mod/fabric-api) and [GeckoLib](https://modrinth.com/mod/geckolib)
 in your `mods` folder.
 2. Load a world and find a dog in its home biome.
 3. Tame it with meat or a bone, and give it a name.
 
-There is nothing to set up. Dogs Unleashed works in singleplayer and on servers, on Minecraft `1.21.1`.
-
-The Pet Manager has no key by default, so it never takes a key you already use. Set one under
-`Controls > Dogs Unleashed`.
+Dogs Unleashed works in singleplayer and on servers, on Minecraft `1.21.1`. The only thing to set up is the Pet Manager
+key. It has no key by default, so it never takes one you already use. Set it under `Options > Controls > Key Binds`, in
+the Dogs Unleashed section.
 
 ## Settings
 
@@ -104,7 +104,7 @@ only operators can.
 | Spawn Rate                | 100%    | How often dogs spawn, from 0% to 500%. Needs a world restart.                     |
 | Spawn Rate (per breed)    | 100%    | The same, for one breed. Needs a world restart.                                   |
 | Cap-Independent Spawner   | On      | Lets small packs of wild dogs spawn near you even in well-explored areas.         |
-| Dog Graves on Death       | On      | Off makes a dog drop its items instead of leaving a grave.                        |
+| Dog Graves on Death       | On      | Whether a tamed dog leaves a grave when it dies. Its gear drops either way.                        |
 | Drop Leash on Play Mode   | On      | Off keeps the lead on, and fetch waits until you take it off.                     |
 | Show Dog Names            | On      | Shows or hides name tags above dogs.                                              |
 | Auto-Sleep at Night       | On      | Whether dogs go to bed by themselves.                                             |
@@ -117,7 +117,7 @@ only operators can.
 <details>
 <summary><b>Commands</b></summary>
 
-Every command needs operator permission.
+Every subcommand needs operator permission.
 
 ```
 /dogsunleashed status
@@ -138,7 +138,8 @@ Every command needs operator permission.
 /dogsunleashed find <petId>
 ```
 
-`list`, `summon` and `find` let operators look up and call back any player's dogs.
+The breed ids are `husky`, `dachshund`, `beagle`, `goldenretriever` and `shibainu`. `list`, `summon` and `find` let
+operators look up and call back any player's dogs.
 
 </details>
 
