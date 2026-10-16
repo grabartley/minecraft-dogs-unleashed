@@ -418,7 +418,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
           pinNight(world);
           context.assertTrue(husky.isSleepingInBed(), "Dog should auto-sleep in its bed at night");
           husky.getCommandController().apply(DogCommand.HEEL);
-          context.assertTrue(!husky.isSleepingInBed(), "The command should wake the dog");
+          context.assertFalse(husky.isSleepingInBed(), "The command should wake the dog");
         });
 
     context.runAtTick(

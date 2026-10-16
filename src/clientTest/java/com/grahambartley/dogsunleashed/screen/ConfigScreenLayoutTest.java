@@ -8,11 +8,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class ConfigScreenLayoutTest {
-
-  private static final int TITLE_BOTTOM = 25;
-  private static final int BANNER_HINT_BOTTOM = 51;
 
   static Stream<Arguments> screens() {
     return Stream.of(240, 270, 360, 480, 540, 1080)
@@ -35,7 +33,7 @@ class ConfigScreenLayoutTest {
   void listFitsBetweenHeaderAndButtons(final int height, final boolean showsBanner) {
     final ConfigScreenLayout layout = ConfigScreenLayout.of(height, showsBanner);
 
-    assertTrue(layout.listTop() > (showsBanner ? BANNER_HINT_BOTTOM : TITLE_BOTTOM));
+    assertTrue(layout.listTop() > ConfigScreenLayout.headerBottom(showsBanner));
     assertTrue(layout.listBottom() <= layout.buttonsY());
     assertTrue(layout.listHeight() > 0);
   }
@@ -52,15 +50,11 @@ class ConfigScreenLayoutTest {
   }
 
   @ParameterizedTest(name = "banner {0}")
-  @MethodSource("bannerStates")
+  @ValueSource(booleans = {false, true})
   @DisplayName("the list grows with the screen so taller windows show more rows")
   void listGrowsWithScreenHeight(final boolean showsBanner) {
     assertTrue(
         ConfigScreenLayout.of(540, showsBanner).listHeight()
             > ConfigScreenLayout.of(270, showsBanner).listHeight());
-  }
-
-  static Stream<Boolean> bannerStates() {
-    return Stream.of(false, true);
   }
 }
