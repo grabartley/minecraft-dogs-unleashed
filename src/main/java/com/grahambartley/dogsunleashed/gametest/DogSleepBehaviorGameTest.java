@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.gametest;
 import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
+import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.DogPlaySession;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -67,6 +68,16 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
   @AfterBatch(batchId = "sleep-suppress")
   public void afterSuppressBatch(final ServerWorld world) {
+    teardownSleepBatch(world);
+  }
+
+  @BeforeBatch(batchId = "sleep-command-wake")
+  public void beforeCommandWakeBatch(final ServerWorld world) {
+    prepareSleepBatch(world);
+  }
+
+  @AfterBatch(batchId = "sleep-command-wake")
+  public void afterCommandWakeBatch(final ServerWorld world) {
     teardownSleepBatch(world);
   }
 
@@ -369,6 +380,59 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
           context.assertTrue(
               !husky.getSleepController().isAutoSleepSuppressed(),
               "Suppression should clear after sunrise");
+          context.complete();
+        });
+  }
+
+  @GameTest(
+      templateName = "dogs-unleashed:dog_arena",
+      batchId = "sleep-command-wake",
+      tickLimit = 200)
+  public void commandWakeAtNightLetsAutoSleptDogLeaveItsBed(final TestContext context) {
+    final BlockPos relBedPos = new BlockPos(0, 1, 0);
+    final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
+    final ServerWorld world = context.getWorld();
+
+    context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
+
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relBedPos);
+    husky.setTamed(true, true);
+    husky.setInvulnerable(true);
+    @SuppressWarnings("removal")
+    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    husky.setOwnerUuid(owner.getUuid());
+    final BlockPos absOwnerPos = context.getAbsolutePos(new BlockPos(5, 2, 5));
+    owner.refreshPositionAndAngles(
+        absOwnerPos.getX() + 0.5, absOwnerPos.getY(), absOwnerPos.getZ() + 0.5, 0.0f, 0.0f);
+
+    context.runAtTick(
+        5,
+        () -> {
+          pinNight(world);
+          husky.setAssignedBedPos(absBedPos);
+        });
+
+    context.runAtTick(
+        60,
+        () -> {
+          pinNight(world);
+          context.assertTrue(husky.isSleepingInBed(), "Dog should auto-sleep in its bed at night");
+          husky.getCommandController().apply(DogCommand.HEEL);
+          context.assertTrue(!husky.isSleepingInBed(), "The command should wake the dog");
+        });
+
+    context.runAtTick(
+        160,
+        () -> {
+          pinNight(world);
+          final double distanceFromBed =
+              Math.sqrt(husky.getBlockPos().getSquaredDistance(absBedPos));
+          context.assertTrue(
+              distanceFromBed > 2.0,
+              "A dog woken at night should follow its new command instead of staying on the bed,"
+                  + " but it is "
+                  + String.format("%.1f", distanceFromBed)
+                  + " blocks from the bed");
           context.complete();
         });
   }
