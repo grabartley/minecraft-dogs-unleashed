@@ -7,6 +7,7 @@ import com.grahambartley.dogsunleashed.network.ModNetworkingClient;
 import com.grahambartley.dogsunleashed.network.payload.OpenCommandWheelPayload;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.UUID;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.BufferBuilder;
@@ -54,6 +55,7 @@ public class DogCommandWheelScreen extends Screen {
   private final String dogName;
   private final ItemStack[] icons;
   private DogCommand currentCommand;
+  private int rejectedIndex = -1;
 
   public DogCommandWheelScreen(final OpenCommandWheelPayload payload) {
     super(Text.translatable("screen.dogs-unleashed.command_wheel.title"));
@@ -108,7 +110,7 @@ public class DogCommandWheelScreen extends Screen {
 
     this.renderRing(context, innerRadius, outerRadius, hoveredIndex);
     this.renderIcons(context, innerRadius, outerRadius);
-    this.renderHubText(context, hoveredIndex);
+    this.renderHubText(context, hubIndex(hoveredIndex, this.rejectedIndex));
   }
 
   private void renderRing(
@@ -215,11 +217,20 @@ public class DogCommandWheelScreen extends Screen {
     }
   }
 
-  private void renderHubText(final DrawContext context, final int hoveredIndex) {
+  static int hubIndex(final int hoveredIndex, final int rejectedIndex) {
+    return hoveredIndex >= 0 ? hoveredIndex : rejectedIndex;
+  }
+
+  public static boolean isOpenFor(final int entityId) {
+    return MinecraftClient.getInstance().currentScreen instanceof DogCommandWheelScreen wheel
+        && wheel.dogEntityId == entityId;
+  }
+
+  private void renderHubText(final DrawContext context, final int actionIndex) {
     final int centerX = this.width / 2;
     final int centerY = this.height / 2;
-    if (hoveredIndex >= 0) {
-      final DogWheelAction action = ACTIONS[hoveredIndex];
+    if (actionIndex >= 0) {
+      final DogWheelAction action = ACTIONS[actionIndex];
       if (this.isDisabled(action)) {
         context.drawCenteredTextWithShadow(
             this.textRenderer,
@@ -258,7 +269,7 @@ public class DogCommandWheelScreen extends Screen {
     }
     final int index = this.hoveredSector(mouseX, mouseY);
     if (index >= 0) {
-      this.selectAction(ACTIONS[index]);
+      this.selectAction(index);
     } else {
       this.close();
     }
@@ -269,14 +280,16 @@ public class DogCommandWheelScreen extends Screen {
   public boolean keyPressed(final int keyCode, final int scanCode, final int modifiers) {
     final int index = keyCode - GLFW.GLFW_KEY_1;
     if (index >= 0 && index < ACTIONS.length) {
-      this.selectAction(ACTIONS[index]);
+      this.selectAction(index);
       return true;
     }
     return super.keyPressed(keyCode, scanCode, modifiers);
   }
 
-  private void selectAction(final DogWheelAction action) {
+  private void selectAction(final int index) {
+    final DogWheelAction action = ACTIONS[index];
     if (this.isDisabled(action)) {
+      this.rejectedIndex = index;
       return;
     }
     if (action.command() != null && action.command() == this.currentCommand) {

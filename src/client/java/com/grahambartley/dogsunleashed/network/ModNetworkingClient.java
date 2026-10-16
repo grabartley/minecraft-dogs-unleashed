@@ -17,6 +17,7 @@ import com.grahambartley.dogsunleashed.network.payload.SyncDogConnectionsPayload
 import com.grahambartley.dogsunleashed.network.payload.SyncPetManagerStatePayload;
 import com.grahambartley.dogsunleashed.network.payload.SyncPetsPayload;
 import com.grahambartley.dogsunleashed.pet.PetAliveFilter;
+import com.grahambartley.dogsunleashed.screen.DogBreedNames;
 import com.grahambartley.dogsunleashed.screen.DogCommandWheelScreen;
 import com.grahambartley.dogsunleashed.screen.DogInspectScreen;
 import com.grahambartley.dogsunleashed.screen.PetManagerScreen;
@@ -86,7 +87,10 @@ public final class ModNetworkingClient {
               MinecraftClient.getInstance()
                   .setScreen(
                       new PetNamingScreen(
-                          payload.petId(), payload.breed(), payload.suggestedName()));
+                          payload.petId(),
+                          DogBreedNames.displayName(payload.breed(), payload.composition()),
+                          payload.bornPuppy(),
+                          payload.suggestedName()));
             });
   }
 

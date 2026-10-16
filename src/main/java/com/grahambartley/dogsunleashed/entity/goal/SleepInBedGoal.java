@@ -62,14 +62,10 @@ public class SleepInBedGoal extends Goal {
       return false;
     }
 
-    if (this.dog.isSleepingInBed()) {
-      final World world = this.dog.getWorld();
-      return DogSleepWindow.isSleepTime(
-              world.getTimeOfDay(), this.dog.isBaby(), this.dog.isUndead())
-          && !DogSleepWindow.isWokenByWeather(world, this.dog.isUndead());
+    if (!this.dog.getSleepController().canSleepNow()) {
+      return false;
     }
-
-    return this.dog.isCommandedToSleep();
+    return this.dog.isSleepingInBed() || this.dog.isCommandedToSleep();
   }
 
   @Override

@@ -7,6 +7,7 @@ import com.grahambartley.dogsunleashed.model.DogModel;
 import com.grahambartley.dogsunleashed.render.layer.DogCarryFetchItemLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogCollarLayer;
 import com.grahambartley.dogsunleashed.render.layer.UndeadEyeGlowLayer;
+import com.grahambartley.dogsunleashed.screen.DogCommandWheelScreen;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
@@ -31,7 +32,9 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
 
   @Override
   public boolean hasLabel(UnleashedDogEntity animatable) {
-    return DogsUnleashed.SERVER_CONFIG.showDogNames() && super.hasLabel(animatable);
+    return DogsUnleashed.SERVER_CONFIG.showDogNames()
+        && !DogCommandWheelScreen.isOpenFor(animatable.getId())
+        && super.hasLabel(animatable);
   }
 
   @Override

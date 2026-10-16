@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.screen;
 
+import com.grahambartley.dogsunleashed.ModKeyBindings;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.network.ModNetworkingClient;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
@@ -145,10 +146,15 @@ public class PetManagerScreen extends Screen {
         Tooltip.of(Text.translatable("screen.dogs-unleashed.pet_manager.settings_tooltip")));
     addDrawableChild(settingsButton);
 
-    keybindHintText = Text.translatable("screen.dogs-unleashed.pet_manager.keybind_hint");
-    keybindHintWidth = this.textRenderer.getWidth(keybindHintText);
-    keybindHintX = centerX - keybindHintWidth / 2;
-    keybindHintY = keybindHintY(this.height);
+    keybindHintText =
+        ModKeyBindings.isOpenPetManagerKeyBound()
+            ? null
+            : Text.translatable("screen.dogs-unleashed.pet_manager.keybind_hint");
+    if (keybindHintText != null) {
+      keybindHintWidth = this.textRenderer.getWidth(keybindHintText);
+      keybindHintX = centerX - keybindHintWidth / 2;
+      keybindHintY = keybindHintY(this.height);
+    }
 
     setInitialFocus(searchField);
     setFocused(searchField);

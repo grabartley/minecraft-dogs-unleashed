@@ -48,6 +48,7 @@
       "com.grahambartley.dogsunleashed.gametest.DogBedColorGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogHouseGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogSleepBehaviorGameTest",
+      "com.grahambartley.dogsunleashed.gametest.DogSleepCommandWakeGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogGraveGameTest",
       "com.grahambartley.dogsunleashed.gametest.PetManagerFilterGameTest",
       "com.grahambartley.dogsunleashed.gametest.FetchProjectileGameTest",
@@ -68,7 +69,8 @@
       "com.grahambartley.dogsunleashed.gametest.PetManagerConnectionsGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogWetnessGameTest",
       "com.grahambartley.dogsunleashed.gametest.ResurrectionRitualGameTest",
-      "com.grahambartley.dogsunleashed.gametest.UndeadDogGameTest"
+      "com.grahambartley.dogsunleashed.gametest.UndeadDogGameTest",
+      "com.grahambartley.dogsunleashed.gametest.ServerConfigEditPermissionGameTest"
     ]
   },
   "mixins": [

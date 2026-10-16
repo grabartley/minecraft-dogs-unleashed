@@ -5,42 +5,28 @@ import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.advancement.DogSleptInBedCriterion;
 import com.grahambartley.dogsunleashed.block.DogSleepPose;
 import com.grahambartley.dogsunleashed.block.DogSleepSpotAnchor;
+import com.grahambartley.dogsunleashed.entity.goal.DogSleepWindow;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 public final class DogSleepController {
 
-  static final long DAY_LENGTH_TICKS = 24000;
-  static final long NIGHT_START_TICK = 13000;
+  public static final String NOT_SLEEPY_MESSAGE_KEY = "message.dogs-unleashed.not_sleepy";
 
+  private static final long NOT_SUPPRESSED = Long.MIN_VALUE;
   private static final double POSITION_CENTER_OFFSET = 0.5;
   private static final double SLEEP_POSITION_Y_OFFSET = 0.1;
   private static final double BED_APPROACH_SPEED = 1.0;
 
   private final UnleashedDogEntity dog;
 
-  private int manuallyWokenAge = -1;
-  private boolean manuallyWokenAtNight = false;
+  private long autoSleepSuppressedFrom = NOT_SUPPRESSED;
+  private long autoSleepSuppressedUntil = NOT_SUPPRESSED;
 
   DogSleepController(final UnleashedDogEntity dog) {
     this.dog = dog;
-  }
-
-  public static long timeOfDay(final long worldTime) {
-    return worldTime % DAY_LENGTH_TICKS;
-  }
-
-  public static boolean isNight(final long timeOfDay) {
-    return timeOfDay >= NIGHT_START_TICK;
-  }
-
-  public static boolean shouldKeepAutoSleepSuppressed(
-      final int elapsed, final long currentTimeOfDay) {
-    if (elapsed >= DAY_LENGTH_TICKS) {
-      return false;
-    }
-    return isNight(currentTimeOfDay);
   }
 
   public void clearAssignedBed() {
@@ -48,14 +34,19 @@ public final class DogSleepController {
     this.wakeUp();
   }
 
-  public void commandToSleep(final BlockPos bedPos) {
-    if (!this.dog.isTamed()) {
-      return;
+  public boolean canSleepNow() {
+    final World world = this.dog.getWorld();
+    return DogSleepWindow.isSleepTime(world.getTimeOfDay(), this.dog.isBaby(), this.dog.isUndead())
+        && !DogSleepWindow.isWokenByWeather(world, this.dog.isUndead());
+  }
+
+  public boolean commandToSleep(final BlockPos bedPos) {
+    if (!this.dog.isTamed() || !this.canSleepNow()) {
+      return false;
     }
     this.dog.setAssignedBedPos(bedPos);
     this.dog.getCommandController().demoteSitToFollow();
-    this.manuallyWokenAge = -1;
-    this.manuallyWokenAtNight = false;
+    this.autoSleepSuppressedUntil = NOT_SUPPRESSED;
     this.dog.setCommandedToSleep(true);
     this.dog
         .getNavigation()
@@ -64,28 +55,20 @@ public final class DogSleepController {
             bedPos.getY(),
             bedPos.getZ() + POSITION_CENTER_OFFSET,
             BED_APPROACH_SPEED);
+    return true;
   }
 
   public void markManuallyWoken() {
-    this.manuallyWokenAge = this.dog.age;
-    this.manuallyWokenAtNight = isNight(timeOfDay(this.dog.getWorld().getTimeOfDay()));
+    final long now = this.dog.getWorld().getTimeOfDay();
+    this.autoSleepSuppressedFrom = now;
+    this.autoSleepSuppressedUntil =
+        DogSleepWindow.currentSleepWindowEnd(now, this.dog.isBaby(), this.dog.isUndead())
+            .orElse(NOT_SUPPRESSED);
   }
 
   public boolean isAutoSleepSuppressed() {
-    if (!this.manuallyWokenAtNight) {
-      return false;
-    }
-
-    final int elapsed = this.dog.age - this.manuallyWokenAge;
-    final long currentTimeOfDay = timeOfDay(this.dog.getWorld().getTimeOfDay());
-
-    if (!shouldKeepAutoSleepSuppressed(elapsed, currentTimeOfDay)) {
-      this.manuallyWokenAtNight = false;
-      this.manuallyWokenAge = -1;
-      return false;
-    }
-
-    return true;
+    final long now = this.dog.getWorld().getTimeOfDay();
+    return now >= this.autoSleepSuppressedFrom && now < this.autoSleepSuppressedUntil;
   }
 
   public void startSleepingInBed(final BlockPos bedPos) {

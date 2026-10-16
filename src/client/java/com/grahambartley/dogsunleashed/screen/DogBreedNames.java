@@ -5,13 +5,14 @@ import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import java.util.List;
 import net.minecraft.text.Text;
 
-final class DogBreedNames {
+public final class DogBreedNames {
 
   private static final String MIX_NAME_KEY = "entity.dogs-unleashed.crossbreed.mix";
 
   private DogBreedNames() {}
 
-  static Text displayName(final UnleashedDogBreed breed, final List<BreedShare> composition) {
+  public static Text displayName(
+      final UnleashedDogBreed breed, final List<BreedShare> composition) {
     if (breed != UnleashedDogBreed.CROSS_BREED) {
       return Text.translatable(breed.translationKey());
     }

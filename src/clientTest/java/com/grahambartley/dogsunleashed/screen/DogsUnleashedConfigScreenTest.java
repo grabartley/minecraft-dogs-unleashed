@@ -19,20 +19,17 @@ class DogsUnleashedConfigScreenTest {
   static Stream<Arguments> accessCases() {
     return Stream.of(
         Arguments.of("title screen, no player", false, false, EditAccess.NO_WORLD),
-        Arguments.of("title screen, stale op flag", false, true, EditAccess.NO_WORLD),
-        Arguments.of("in world without op", true, false, EditAccess.READ_ONLY),
-        Arguments.of("in world with op", true, true, EditAccess.EDITABLE));
+        Arguments.of("title screen, stale edit flag", false, true, EditAccess.NO_WORLD),
+        Arguments.of("in world without edit permission", true, false, EditAccess.READ_ONLY),
+        Arguments.of("in world with edit permission", true, true, EditAccess.EDITABLE));
   }
 
   @ParameterizedTest(name = "{0} resolves to {3}")
   @MethodSource("accessCases")
-  @DisplayName("edit access is resolved from world membership and operator permission")
+  @DisplayName("edit access is resolved from world membership and edit permission")
   void resolvesAccess(
-      final String label,
-      final boolean inWorld,
-      final boolean hasOperatorPermission,
-      final EditAccess expected) {
-    assertEquals(expected, EditAccess.resolve(inWorld, hasOperatorPermission));
+      final String label, final boolean inWorld, final boolean canEdit, final EditAccess expected) {
+    assertEquals(expected, EditAccess.resolve(inWorld, canEdit));
   }
 
   @ParameterizedTest(name = "{0} carries banner text")

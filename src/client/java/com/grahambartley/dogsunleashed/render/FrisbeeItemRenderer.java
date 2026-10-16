@@ -42,7 +42,7 @@ public class FrisbeeItemRenderer implements BuiltinItemRendererRegistry.DynamicI
 
     switch (mode) {
       case GUI -> {
-        ItemRenderTransforms.applyDisplayPose(matrices, 0.5, 0.45, 0.0, 25.0f, 45.0f, 0.45f);
+        ItemRenderTransforms.applyDisplayPose(matrices, 0.5, 0.35, 0.0, 70.0f, 45.0f, 0.9f);
       }
       case GROUND -> ItemRenderTransforms.applyGroundPose(matrices, 0.5, 0.18, 0.5, 0.28f);
       case FIXED -> {

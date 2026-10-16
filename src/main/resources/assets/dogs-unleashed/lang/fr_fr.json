@@ -27,6 +27,7 @@
   "block.dogs-unleashed.dog_bed.unassigned": "%s n'est plus assigné à ce panier",
   "block.dogs-unleashed.dog_bed.sleep_command": "%s va dormir",
   "block.dogs-unleashed.dog_bed.wake_command": "%s se réveille",
+  "message.dogs-unleashed.not_sleepy": "%s n'a pas sommeil pour l'instant",
   "block.dogs-unleashed.dog_bed.no_dog_nearby": "Aucun chien apprivoisé à proximité",
 
   "block.dogs-unleashed.dog_grave": "Tombe de chien",
@@ -74,6 +75,7 @@
 
   "screen.dogs-unleashed.pet_naming.title": "Nommez votre nouvel ami !",
   "screen.dogs-unleashed.pet_naming.header": "Vous venez d'apprivoiser un %s !",
+  "screen.dogs-unleashed.pet_naming.header_newborn": "Un nouveau chiot dans la famille : %s !",
   "screen.dogs-unleashed.pet_naming.prompt": "Quel nom souhaitez-vous lui donner ?",
   "screen.dogs-unleashed.pet_naming.name_field": "Nom de l'animal",
   "screen.dogs-unleashed.pet_naming.confirm": "Bienvenue à la maison ! 🐕",

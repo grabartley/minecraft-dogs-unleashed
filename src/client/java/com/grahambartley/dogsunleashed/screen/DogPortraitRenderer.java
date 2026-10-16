@@ -17,9 +17,8 @@ import net.minecraft.entity.EntityType;
 
 public final class DogPortraitRenderer {
 
-  private static final int BASE_SIZE = 48;
-  private static final int BASE_SHADOW_SIZE = 22;
-  private static final float BASE_SCALE = 0.35f;
+  private static final float PORTRAIT_FILL = 0.84f;
+  private static final float MODEL_DEPTH_BELOW_ORIGIN = 0.12f;
   private static final float FULL_COLOR = 1.0f;
   private static final int DECEASED_OVERLAY_COLOR = 0x889A9A9A;
 
@@ -39,6 +38,7 @@ public final class DogPortraitRenderer {
       drawMissingPortraitPlaceholder(context, textRenderer, pet, x, y, size);
       return;
     }
+    final float portraitHeight = entity.getRigSourceBreed().renderTransforms().portraitHeight();
     context.setShaderColor(FULL_COLOR, FULL_COLOR, FULL_COLOR, FULL_COLOR);
     InventoryScreen.drawEntity(
         context,
@@ -46,8 +46,8 @@ public final class DogPortraitRenderer {
         y,
         x + size,
         y + size,
-        Math.max(1, Math.round(BASE_SHADOW_SIZE * (size / (float) BASE_SIZE))),
-        BASE_SCALE,
+        portraitRenderSize(size, portraitHeight),
+        pivotOffset(portraitHeight, entity.getHeight()),
         mouseX,
         mouseY,
         entity);
@@ -55,6 +55,14 @@ public final class DogPortraitRenderer {
       context.fill(RenderLayer.getGuiOverlay(), x, y, x + size, y + size, DECEASED_OVERLAY_COLOR);
     }
     context.setShaderColor(FULL_COLOR, FULL_COLOR, FULL_COLOR, FULL_COLOR);
+  }
+
+  static int portraitRenderSize(final int boxSize, final float portraitHeight) {
+    return Math.max(1, Math.round(boxSize * PORTRAIT_FILL / portraitHeight));
+  }
+
+  static float pivotOffset(final float portraitHeight, final float hitboxHeight) {
+    return (portraitHeight - hitboxHeight) / 2.0f - MODEL_DEPTH_BELOW_ORIGIN;
   }
 
   public void clear() {

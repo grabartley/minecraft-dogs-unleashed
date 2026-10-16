@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
+import java.util.OptionalLong;
 import net.minecraft.world.World;
 
 public final class DogSleepWindow {
@@ -19,10 +20,27 @@ public final class DogSleepWindow {
       final long worldTime, final boolean baby, final boolean undead) {
     final long timeOfDay = Math.floorMod(worldTime, DAY_LENGTH_TICKS);
     final boolean livingSleepTime =
-        baby
-            ? isWithinWindow(timeOfDay, PUPPY_SLEEP_START_TICK, PUPPY_SLEEP_END_TICK)
-            : isWithinWindow(timeOfDay, NIGHT_START_TICK, SUNRISE_TICK);
+        isWithinWindow(timeOfDay, livingSleepStart(baby), livingSleepEnd(baby));
     return undead ? !livingSleepTime : livingSleepTime;
+  }
+
+  public static OptionalLong currentSleepWindowEnd(
+      final long worldTime, final boolean baby, final boolean undead) {
+    if (!isSleepTime(worldTime, baby, undead)) {
+      return OptionalLong.empty();
+    }
+    final long windowEndTimeOfDay = undead ? livingSleepStart(baby) : livingSleepEnd(baby);
+    final long timeOfDay = Math.floorMod(worldTime, DAY_LENGTH_TICKS);
+    return OptionalLong.of(
+        worldTime + Math.floorMod(windowEndTimeOfDay - timeOfDay, DAY_LENGTH_TICKS));
+  }
+
+  private static long livingSleepStart(final boolean baby) {
+    return baby ? PUPPY_SLEEP_START_TICK : NIGHT_START_TICK;
+  }
+
+  private static long livingSleepEnd(final boolean baby) {
+    return baby ? PUPPY_SLEEP_END_TICK : SUNRISE_TICK;
   }
 
   public static boolean isWokenByWeather(final World world, final boolean undead) {

@@ -411,7 +411,7 @@ public class FamilyTreeScreen extends Screen implements DogConnectionsListener {
     int textY = 10;
     context.drawText(
         this.textRenderer,
-        this.textRenderer.trimToWidth(dog.pet().name(), PANEL_WIDTH - 12),
+        TextEllipsis.fit(dog.pet().name(), PANEL_WIDTH - 12, this.textRenderer::getWidth),
         textX,
         textY,
         0xFFFFFF,
@@ -419,7 +419,10 @@ public class FamilyTreeScreen extends Screen implements DogConnectionsListener {
     textY += 14;
     context.drawText(
         this.textRenderer,
-        DogBreedNames.displayName(dog.pet().breed(), dog.pet().composition()),
+        TextEllipsis.fit(
+            DogBreedNames.displayName(dog.pet().breed(), dog.pet().composition()).getString(),
+            PANEL_WIDTH - 12,
+            this.textRenderer::getWidth),
         textX,
         textY,
         0xAAAAAA,
@@ -431,9 +434,10 @@ public class FamilyTreeScreen extends Screen implements DogConnectionsListener {
             : dog.ownerName();
     context.drawText(
         this.textRenderer,
-        this.textRenderer.trimToWidth(
+        TextEllipsis.fit(
             Text.translatable("screen.dogs-unleashed.family_tree.owner", ownerName).getString(),
-            PANEL_WIDTH - 12),
+            PANEL_WIDTH - 12,
+            this.textRenderer::getWidth),
         textX,
         textY,
         0xAAAAAA,

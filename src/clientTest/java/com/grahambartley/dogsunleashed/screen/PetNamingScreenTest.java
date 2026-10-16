@@ -53,4 +53,17 @@ class PetNamingScreenTest {
   void nameMaxLengthIs32() {
     assertEquals(32, PetNamingScreen.NAME_MAX_LENGTH);
   }
+
+  @ParameterizedTest(name = "bornPuppy={0} uses {1}")
+  @MethodSource("headerKeys")
+  @DisplayName("a bred puppy is welcomed as a newborn while a tamed dog keeps the tamed header")
+  void headerMatchesHowTheDogJoined(final boolean bornPuppy, final String expectedKey) {
+    assertEquals(expectedKey, PetNamingScreen.headerKey(bornPuppy));
+  }
+
+  static Stream<Arguments> headerKeys() {
+    return Stream.of(
+        Arguments.of(false, "screen.dogs-unleashed.pet_naming.header"),
+        Arguments.of(true, "screen.dogs-unleashed.pet_naming.header_newborn"));
+  }
 }

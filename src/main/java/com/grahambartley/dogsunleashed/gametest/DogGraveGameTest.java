@@ -4,14 +4,18 @@ import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.block.entity.DogGraveBlockEntity;
+import java.util.List;
 import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
@@ -20,6 +24,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
@@ -300,5 +305,94 @@ public final class DogGraveGameTest implements FabricGameTest {
           context.expectEntityAround(EntityType.ITEM, REL_GRAVE, 3.0);
           context.complete();
         });
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 40)
+  public void survivalPickaxeBreakDropsOneGraveCarryingItsData(final TestContext context) {
+    final UUID dogUuid = UUID.randomUUID();
+    placeNamedGrave(context, dogUuid, "Biscuit", DyeColor.PINK);
+
+    breakGraveAsSurvivalPlayer(context, new ItemStack(Items.IRON_PICKAXE));
+
+    context.runAtTick(
+        10,
+        () -> {
+          final List<ItemStack> graves = droppedGraves(context);
+          context.assertTrue(
+              graves.size() == 1, "A pickaxe should drop exactly one grave, got " + graves.size());
+          final ItemStack grave = graves.get(0);
+          context.assertTrue(
+              dogUuid.equals(grave.get(ModComponents.DOG_GRAVE_UUID)), "UUID should drop");
+          context.assertTrue(
+              "Biscuit".equals(grave.get(ModComponents.DOG_GRAVE_NAME)), "Name should drop");
+          context.assertTrue(
+              DyeColor.PINK == grave.get(ModComponents.DOG_GRAVE_FLOWER_COLOR),
+              "Flower color should drop");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 40)
+  public void survivalBareHandBreakDropsNoGrave(final TestContext context) {
+    placeNamedGrave(context, UUID.randomUUID(), "Biscuit", DyeColor.PINK);
+
+    breakGraveAsSurvivalPlayer(context, ItemStack.EMPTY);
+
+    context.runAtTick(
+        10,
+        () -> {
+          context.assertTrue(
+              droppedGraves(context).isEmpty(), "Breaking a grave by hand should drop nothing");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 40)
+  public void placingAGraveItemRestoresItsData(final TestContext context) {
+    final UUID dogUuid = UUID.randomUUID();
+    final ItemStack stack = new ItemStack(ModItems.DOG_GRAVE);
+    stack.set(ModComponents.DOG_GRAVE_UUID, dogUuid);
+    stack.set(ModComponents.DOG_GRAVE_NAME, "Biscuit");
+    stack.set(ModComponents.DOG_GRAVE_FLOWER_COLOR, DyeColor.PINK);
+
+    final PlayerEntity player = context.createMockPlayer(GameMode.SURVIVAL);
+    player.setStackInHand(Hand.MAIN_HAND, stack);
+
+    context.useStackOnBlock(player, stack, REL_GRAVE.down(), Direction.UP);
+
+    final DogGraveBlockEntity grave = context.getBlockEntity(REL_GRAVE);
+    context.assertTrue(dogUuid.equals(grave.getDogUuid()), "UUID should be restored");
+    context.assertTrue("Biscuit".equals(grave.getDogName()), "Name should be restored");
+    context.assertTrue(DyeColor.PINK == grave.getFlowerColor(), "Flower color should be restored");
+    context.complete();
+  }
+
+  private static void placeNamedGrave(
+      final TestContext context, final UUID dogUuid, final String name, final DyeColor flower) {
+    context.setBlockState(REL_GRAVE, ModBlocks.DOG_GRAVE.getDefaultState());
+    final DogGraveBlockEntity grave = context.getBlockEntity(REL_GRAVE);
+    grave.setDogUuid(dogUuid);
+    grave.setDogName(name);
+    grave.setFlowerColor(flower);
+  }
+
+  private static void breakGraveAsSurvivalPlayer(final TestContext context, final ItemStack tool) {
+    @SuppressWarnings("removal")
+    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+    player.changeGameMode(GameMode.SURVIVAL);
+    player.setStackInHand(Hand.MAIN_HAND, tool);
+    player.interactionManager.tryBreakBlock(context.getAbsolutePos(REL_GRAVE));
+  }
+
+  private static List<ItemStack> droppedGraves(final TestContext context) {
+    return context
+        .getWorld()
+        .getEntitiesByType(
+            EntityType.ITEM,
+            new Box(context.getAbsolutePos(REL_GRAVE)).expand(3.0),
+            item -> item.getStack().isOf(ModItems.DOG_GRAVE))
+        .stream()
+        .map(ItemEntity::getStack)
+        .toList();
   }
 }

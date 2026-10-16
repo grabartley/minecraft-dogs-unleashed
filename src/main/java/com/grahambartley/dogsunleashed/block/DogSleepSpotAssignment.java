@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.block;
 
 import com.grahambartley.dogsunleashed.block.entity.AssignedDogHolder;
+import com.grahambartley.dogsunleashed.entity.DogSleepController;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetManager;
@@ -71,8 +72,11 @@ public final class DogSleepSpotAssignment {
           dog.wakeUp();
           player.sendMessage(Text.translatable(messageKeyRoot + ".wake_command", dogName), true);
         } else {
-          dog.getSleepController().commandToSleep(pos);
-          player.sendMessage(Text.translatable(messageKeyRoot + ".sleep_command", dogName), true);
+          final String replyKey =
+              dog.getSleepController().commandToSleep(pos)
+                  ? messageKeyRoot + ".sleep_command"
+                  : DogSleepController.NOT_SLEEPY_MESSAGE_KEY;
+          player.sendMessage(Text.translatable(replyKey, dogName), true);
         }
         return ActionResult.SUCCESS;
       }

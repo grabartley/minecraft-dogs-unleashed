@@ -4,7 +4,7 @@ import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.EditServerConfigC2SPayload;
-import com.grahambartley.dogsunleashed.server.ServerConfigService;
+import com.grahambartley.dogsunleashed.server.ServerConfigEditPermission;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -328,10 +328,11 @@ public final class DogsUnleashedConfigScreen extends Screen {
   }
 
   private static EditAccess resolveAccess() {
-    final ClientPlayerEntity player = MinecraftClient.getInstance().player;
+    final MinecraftClient client = MinecraftClient.getInstance();
+    final ClientPlayerEntity player = client.player;
     return EditAccess.resolve(
         player != null,
-        player != null && player.hasPermissionLevel(ServerConfigService.OP_PERMISSION_LEVEL));
+        player != null && ServerConfigEditPermission.canEdit(player, client.getServer()));
   }
 
   public enum EditAccess {
@@ -351,11 +352,11 @@ public final class DogsUnleashedConfigScreen extends Screen {
       this.hintKey = hintKey;
     }
 
-    public static EditAccess resolve(final boolean inWorld, final boolean hasOperatorPermission) {
+    public static EditAccess resolve(final boolean inWorld, final boolean canEdit) {
       if (!inWorld) {
         return NO_WORLD;
       }
-      return hasOperatorPermission ? EDITABLE : READ_ONLY;
+      return canEdit ? EDITABLE : READ_ONLY;
     }
 
     public String bannerKey() {

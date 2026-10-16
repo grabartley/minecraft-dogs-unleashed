@@ -3,9 +3,9 @@ package com.grahambartley.dogsunleashed.gametest;
 import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
-import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.DogPlaySession;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.goal.DogSleepWindow;
 import java.util.concurrent.atomic.AtomicBoolean;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -19,13 +19,15 @@ import net.minecraft.world.GameRules;
 
 public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
-  private static void prepareSleepBatch(final ServerWorld world) {
+  private static final long NIGHT_TIME = 15000;
+
+  static void prepareSleepBatch(final ServerWorld world) {
     world.getGameRules().get(GameRules.DO_DAYLIGHT_CYCLE).set(false, world.getServer());
     DogPlaySession.clearActivePlaySessions();
     DogBedBlock.clearPendingAssignments();
   }
 
-  private static void teardownSleepBatch(final ServerWorld world) {
+  static void teardownSleepBatch(final ServerWorld world) {
     world.getGameRules().get(GameRules.DO_DAYLIGHT_CYCLE).set(true, world.getServer());
     DogPlaySession.clearActivePlaySessions();
     DogBedBlock.clearPendingAssignments();
@@ -34,6 +36,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
   @BeforeBatch(batchId = "sleep-flags")
   public void beforeFlagsBatch(final ServerWorld world) {
     prepareSleepBatch(world);
+    pinNight(world);
   }
 
   @AfterBatch(batchId = "sleep-flags")
@@ -71,13 +74,13 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
     teardownSleepBatch(world);
   }
 
-  @BeforeBatch(batchId = "sleep-command-wake")
-  public void beforeCommandWakeBatch(final ServerWorld world) {
+  @BeforeBatch(batchId = "sleep-refuse-daylight")
+  public void beforeRefuseDaylightBatch(final ServerWorld world) {
     prepareSleepBatch(world);
   }
 
-  @AfterBatch(batchId = "sleep-command-wake")
-  public void afterCommandWakeBatch(final ServerWorld world) {
+  @AfterBatch(batchId = "sleep-refuse-daylight")
+  public void afterRefuseDaylightBatch(final ServerWorld world) {
     teardownSleepBatch(world);
   }
 
@@ -386,53 +389,39 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
   @GameTest(
       templateName = "dogs-unleashed:dog_arena",
-      batchId = "sleep-command-wake",
-      tickLimit = 200)
-  public void commandWakeAtNightLetsAutoSleptDogLeaveItsBed(final TestContext context) {
+      batchId = "sleep-refuse-daylight",
+      tickLimit = 100)
+  public void goToBedInDaylightIsRefusedAndTheDogNeverLiesDown(final TestContext context) {
     final BlockPos relBedPos = new BlockPos(0, 1, 0);
     final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
     final ServerWorld world = context.getWorld();
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relBedPos);
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(2, 1, 2));
     husky.setTamed(true, true);
-    husky.setInvulnerable(true);
     @SuppressWarnings("removal")
     final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
     husky.setOwnerUuid(owner.getUuid());
-    final BlockPos absOwnerPos = context.getAbsolutePos(new BlockPos(5, 2, 5));
-    owner.refreshPositionAndAngles(
-        absOwnerPos.getX() + 0.5, absOwnerPos.getY(), absOwnerPos.getZ() + 0.5, 0.0f, 0.0f);
 
     context.runAtTick(
         5,
         () -> {
-          pinNight(world);
+          pinDay(world);
           husky.setAssignedBedPos(absBedPos);
+          context.assertFalse(
+              husky.getSleepController().commandToSleep(absBedPos),
+              "Go to Bed must be refused outside the dog's sleep time");
+          context.assertFalse(
+              husky.isCommandedToSleep(),
+              "A refused Go to Bed must not leave the dog heading to bed");
         });
 
     context.runAtTick(
-        60,
+        90,
         () -> {
-          pinNight(world);
-          context.assertTrue(husky.isSleepingInBed(), "Dog should auto-sleep in its bed at night");
-          husky.getCommandController().apply(DogCommand.HEEL);
-          context.assertFalse(husky.isSleepingInBed(), "The command should wake the dog");
-        });
-
-    context.runAtTick(
-        160,
-        () -> {
-          pinNight(world);
-          final double distanceFromBed =
-              Math.sqrt(husky.getBlockPos().getSquaredDistance(absBedPos));
-          context.assertTrue(
-              distanceFromBed > 2.0,
-              "A dog woken at night should follow its new command instead of staying on the bed,"
-                  + " but it is "
-                  + String.format("%.1f", distanceFromBed)
-                  + " blocks from the bed");
+          context.assertFalse(
+              husky.isSleepingInBed(), "A dog told to sleep in daylight must never lie down");
           context.complete();
         });
   }
@@ -477,17 +466,9 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
         });
 
     context.runAtTick(
-        90,
-        () -> {
-          pinDay(world);
-          context.assertTrue(
-              !husky.getSleepController().isAutoSleepSuppressed(), "Suppression clears at sunrise");
-        });
-
-    context.runAtTick(
         130,
         () -> {
-          pinNight(world);
+          world.setTimeOfDay(DogSleepWindow.DAY_LENGTH_TICKS + NIGHT_TIME);
           husky.refreshPositionAndAngles(
               absBedPos.getX() + 0.5, absBedPos.getY(), absBedPos.getZ() + 0.5, 0.0f, 0.0f);
           husky.setVelocity(0, 0, 0);
@@ -585,7 +566,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
   }
 
   private static void pinNight(final ServerWorld world) {
-    world.setTimeOfDay(15000);
+    world.setTimeOfDay(NIGHT_TIME);
   }
 
   private static void pinDay(final ServerWorld world) {

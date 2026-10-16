@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.network.handler;
 
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.EditServerConfigC2SPayload;
+import com.grahambartley.dogsunleashed.server.ServerConfigEditPermission;
 import com.grahambartley.dogsunleashed.server.ServerConfigService;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -16,7 +17,7 @@ public final class ServerConfigNetworkHandler {
         .getServer()
         .execute(
             () -> {
-              if (!player.hasPermissionLevel(ServerConfigService.OP_PERMISSION_LEVEL)) {
+              if (!ServerConfigEditPermission.canEdit(player, player.getServer())) {
                 ServerConfigService.sendTo(player);
                 return;
               }

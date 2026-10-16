@@ -1,6 +1,5 @@
 package com.grahambartley.dogsunleashed.network;
 
-import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.EditServerConfigC2SPayload;
@@ -93,10 +92,18 @@ public final class ModNetworking {
 
   public static void sendOpenNamingScreen(
       final ServerPlayerEntity player,
-      final UUID petId,
-      final UnleashedDogBreed breed,
+      final UnleashedDogEntity dog,
+      final boolean bornPuppy,
       final String suggestedName) {
-    ServerPlayNetworking.send(player, new OpenNamingScreenPayload(petId, breed, suggestedName));
+    final DogGenome genome = dog.getGenome();
+    ServerPlayNetworking.send(
+        player,
+        new OpenNamingScreenPayload(
+            dog.getUuid(),
+            dog.getBreed(),
+            genome != null ? genome.composition() : List.of(),
+            bornPuppy,
+            suggestedName));
   }
 
   public static void sendOpenDogInspect(
