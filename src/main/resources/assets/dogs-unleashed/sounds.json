@@ -1,11 +1,13 @@
 {
   "entity.beagle.bark": {
+    "subtitle": "subtitles.dogs-unleashed.beagle.bark",
     "sounds": [
       "dogs-unleashed:entity/beagle/bark1",
       "dogs-unleashed:entity/beagle/bark2"
     ]
   },
   "entity.dachshund.bark": {
+    "subtitle": "subtitles.dogs-unleashed.dachshund.bark",
     "sounds": [
       "dogs-unleashed:entity/dachshund/bark1",
       "dogs-unleashed:entity/dachshund/bark2",
@@ -24,6 +26,7 @@
     ]
   },
   "entity.goldenretriever.bark": {
+    "subtitle": "subtitles.dogs-unleashed.goldenretriever.bark",
     "sounds": [
       "dogs-unleashed:entity/goldenretriever/bark1",
       "dogs-unleashed:entity/goldenretriever/bark2",
@@ -33,11 +36,13 @@
     ]
   },
   "entity.shibainu.bark": {
+    "subtitle": "subtitles.dogs-unleashed.shibainu.bark",
     "sounds": [
       "dogs-unleashed:entity/shibainu/bark1"
     ]
   },
   "entity.husky.howl": {
+    "subtitle": "subtitles.dogs-unleashed.husky.howl",
     "sounds": [
       "dogs-unleashed:entity/husky/howl1"
     ]

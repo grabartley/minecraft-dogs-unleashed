@@ -38,7 +38,7 @@ public final class ServerConfigService {
 
   private static void loadFromPath(final Path worldRoot) {
     final ConfigPaths paths = new ConfigPaths(worldRoot);
-    DogsUnleashed.SERVER_CONFIG = DogsUnleashedConfig.load(paths.getServerConfigPath());
+    DogsUnleashed.SERVER_CONFIG = DogsUnleashedConfig.loadOrCreate(paths.getServerConfigPath());
     LOGGER.info(
         "Dogs Unleashed server config loaded for {}: spawn={}, spawnrate={}%, breeds={}, "
             + "capindependentspawning={}",

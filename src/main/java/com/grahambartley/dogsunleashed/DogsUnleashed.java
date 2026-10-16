@@ -14,9 +14,8 @@ import com.grahambartley.dogsunleashed.listener.PlayerDimensionChangeListener;
 import com.grahambartley.dogsunleashed.listener.PlayerJoinReunionListener;
 import com.grahambartley.dogsunleashed.listener.ResurrectionRitualListener;
 import com.grahambartley.dogsunleashed.network.ModNetworking;
+import com.grahambartley.dogsunleashed.server.NextTickQueue;
 import com.grahambartley.dogsunleashed.server.ServerConfigService;
-import java.util.ArrayList;
-import java.util.List;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -33,7 +32,7 @@ public class DogsUnleashed implements ModInitializer {
 
   public static volatile DogsUnleashedConfig SERVER_CONFIG = DogsUnleashedConfig.defaults();
 
-  private static final List<Runnable> pendingNextTick = new ArrayList<>();
+  private static final NextTickQueue NEXT_TICK_QUEUE = new NextTickQueue();
 
   @Override
   public void onInitialize() {
@@ -69,26 +68,18 @@ public class DogsUnleashed implements ModInitializer {
     CommandRegistrationCallback.EVENT.register(
         (dispatcher, registryAccess, environment) -> DogsUnleashedCommand.register(dispatcher));
 
-    ServerTickEvents.START_SERVER_TICK.register(
-        (MinecraftServer server) -> {
-          if (!pendingNextTick.isEmpty()) {
-            final List<Runnable> tasks = new ArrayList<>(pendingNextTick);
-            pendingNextTick.clear();
-            for (final Runnable task : tasks) {
-              task.run();
-            }
-          }
-        });
+    ServerTickEvents.START_SERVER_TICK.register(server -> NEXT_TICK_QUEUE.runPending());
 
     log.info("Dogs Unleashed loaded successfully");
   }
 
   public static void runNextTick(Runnable task) {
-    pendingNextTick.add(task);
+    NEXT_TICK_QUEUE.enqueue(task);
   }
 
   private static void clearJvmGlobalSessionState(MinecraftServer server) {
     DogPlaySession.clearActivePlaySessions();
     DogBedBlock.clearPendingAssignments();
+    NEXT_TICK_QUEUE.clear();
   }
 }
