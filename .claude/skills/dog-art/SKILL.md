@@ -25,8 +25,12 @@ exports: `geo/<breed>.geo.json`, `textures/entity/<breed>_<coat>.png`, `animatio
 Blockbench projects live outside the repo in `~/blockbench/<breed>/<breed>.bbmodel`, one folder per
 rig, and that is where every rig change is made.
 
-The `bbmodel` MCP edits those projects headless and exports geometry with Blockbench's own Bedrock
-codec, so the workflow is:
+Anything three-dimensional or advanced is done in Blockbench: new cubes, moved pivots, fur bones,
+tufts, planes, rotations, animation poses, and judging a shape by eye. The `bbmodel` MCP edits
+those projects headless and exports geometry with Blockbench's own Bedrock codec, and its
+`bbmodel_render` and `bbmodel_contact_sheet` draw with Blockbench's renderer, which is the
+authority on how a rig looks. The script in this skill never writes geometry; it measures,
+maps, checks and diffs the exports. The workflow is:
 
 1. `bbmodel_info` on the project, then `bbmodel_edit` with a batch of operations. Coordinates are
    Blockbench's: x is mirrored against the geo file, rotations are degrees applied Z, Y, X.
@@ -49,8 +53,8 @@ ever committed. `.gitignore` refuses them.
 
 | Command | What it answers | Speed |
 |---|---|---|
-| `render geo png out --view left` | What the rig and texture look like from one angle | 0.2 s |
-| `turntable geo png out` | Left, three-quarter, front and top in one strip | 0.5 s |
+| `render geo png out --view left` | A quick textured look at an export from one angle, with no engine download | 0.2 s |
+| `turntable geo png out` | Left, three-quarter, front and top in one strip, for before and after pairs | 0.5 s |
 | `faces geo png --profile rig.json` | Which texture pixels are the snout top, the left ear, the belly | instant |
 | `uvmap geo png out --profile rig.json` | The same, drawn over the sheet in a colour per rig slot | instant |
 | `palette png` | Every colour, grouped by hue, sorted by tone, with counts | instant |
@@ -85,8 +89,11 @@ Views: `front`, `front34`, `left`, `right`, `back`, `back34`, `top`, or `--yaw` 
    `item-sprite` palette-mapped format (`x=#RRGGBB` lines, then one character per texel, `.` for
    transparent, space to leave a texel alone). Rig edits go through `bbmodel_edit` on the project.
    Commit the PNG and the exported geo, never the block text or the project.
-4. **Look at it.** `turntable` on every edit, then `render --view left --pitch 0` for the silhouette
-   alone. Open the PNG. Reading JSON or block text is not looking.
+4. **Look at it.** `bbmodel_contact_sheet` on the project for any rig change, `turntable` on the
+   export for texture edits and before-and-after pairs, then `render --view left --pitch 0` for
+   the silhouette alone. Open the PNG. Reading JSON or block text is not looking. The first
+   `bbmodel_render` on a machine downloads Blockbench's render engine (about 130 MB), so say so
+   before triggering it.
 5. **Check it.** `check` for holes, stray paint and off-sheet faces, `diff` against `main` for
    anything that must not change:
    ```bash
