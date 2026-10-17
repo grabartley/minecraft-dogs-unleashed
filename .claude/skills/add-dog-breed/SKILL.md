@@ -25,6 +25,8 @@ spawn egg item, no coat table, and no assets of its own.
 
 ## Prerequisites
 
+Author and review every asset below with the `dog-art` skill: it renders the rig headless, maps
+every texture face to its rig profile slot and checks the sheet before the game is launched.
 Ensure you have these assets ready. Client-only assets live under
 `src/client/resources/assets/dogs-unleashed/`:
 - `geo/{breed_id}.geo.json` - GeckoLib model file
