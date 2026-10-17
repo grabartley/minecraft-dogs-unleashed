@@ -5,7 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.stream.Stream;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,16 +22,23 @@ class VitalityCadenceTest {
 
   static Stream<Arguments> durations() {
     return Stream.of(
-        Arguments.of("no effect starts a fresh cycle", VitalityCadence.NO_EFFECT, 50),
-        Arguments.of("plenty left changes nothing", 45, VitalityCadence.NO_CHANGE),
-        Arguments.of("low on time extends by a whole heal interval", 30, 80),
-        Arguments.of("nearly gone extends by a whole heal interval", 11, 61));
+        Arguments.of("no effect starts a fresh cycle", OptionalInt.empty(), OptionalInt.of(50)),
+        Arguments.of("plenty left changes nothing", OptionalInt.of(45), OptionalInt.empty()),
+        Arguments.of(
+            "low on time extends by a whole heal interval", OptionalInt.of(30), OptionalInt.of(80)),
+        Arguments.of(
+            "nearly gone extends by a whole heal interval", OptionalInt.of(11), OptionalInt.of(61)),
+        Arguments.of(
+            "an infinite effect is left alone",
+            OptionalInt.of(StatusEffectInstance.INFINITE),
+            OptionalInt.empty()));
   }
 
   @ParameterizedTest(name = "{0}")
   @MethodSource("durations")
   @DisplayName("chooses the duration to apply from what is left")
-  void choosesDuration(final String label, final int remaining, final int expected) {
+  void choosesDuration(
+      final String label, final OptionalInt remaining, final OptionalInt expected) {
     assertEquals(expected, VitalityCadence.durationToApply(remaining));
   }
 
@@ -49,22 +58,20 @@ class VitalityCadenceTest {
 
   private static List<Integer> simulateHeals() {
     final List<Integer> healTicks = new ArrayList<>();
-    int remaining = VitalityCadence.NO_EFFECT;
+    OptionalInt remaining = OptionalInt.empty();
     for (int tick = 0; tick < SIMULATED_TICKS; tick++) {
       if (tick % CHECK_EVERY_TICKS == 0) {
-        final int applied = VitalityCadence.durationToApply(remaining);
-        if (applied != VitalityCadence.NO_CHANGE) {
+        final OptionalInt applied = VitalityCadence.durationToApply(remaining);
+        if (applied.isPresent()) {
           remaining = applied;
         }
       }
-      if (remaining > 0) {
-        if (remaining % VANILLA_REGENERATION_ONE_INTERVAL == 0) {
+      if (remaining.isPresent()) {
+        final int left = remaining.getAsInt();
+        if (left % VANILLA_REGENERATION_ONE_INTERVAL == 0) {
           healTicks.add(tick);
         }
-        remaining--;
-        if (remaining == 0) {
-          remaining = VitalityCadence.NO_EFFECT;
-        }
+        remaining = left > 1 ? OptionalInt.of(left - 1) : OptionalInt.empty();
       }
     }
     return healTicks;

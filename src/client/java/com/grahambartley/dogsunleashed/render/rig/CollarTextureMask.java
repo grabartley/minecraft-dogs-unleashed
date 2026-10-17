@@ -6,9 +6,22 @@ import java.util.Optional;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public record CollarTextureMask(int width, int height, boolean[] paintedTexels)
-    implements CollarBandLocator.CollarMask {
+public final class CollarTextureMask implements CollarBandLocator.CollarMask {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(CollarTextureMask.class);
+
+  private final int width;
+  private final int height;
+  private final boolean[] paintedTexels;
+
+  private CollarTextureMask(final int width, final int height, final boolean[] paintedTexels) {
+    this.width = width;
+    this.height = height;
+    this.paintedTexels = paintedTexels;
+  }
 
   public static Optional<CollarTextureMask> load(
       final ResourceManager resources, final Identifier texture) {
@@ -27,9 +40,21 @@ public record CollarTextureMask(int width, int height, boolean[] paintedTexels)
                 return Optional.of(
                     new CollarTextureMask(image.getWidth(), image.getHeight(), painted));
               } catch (final IOException exception) {
+                LOGGER.warn(
+                    "Could not read collar texture {}, pendants will not show", texture, exception);
                 return Optional.empty();
               }
             });
+  }
+
+  @Override
+  public int width() {
+    return this.width;
+  }
+
+  @Override
+  public int height() {
+    return this.height;
   }
 
   @Override

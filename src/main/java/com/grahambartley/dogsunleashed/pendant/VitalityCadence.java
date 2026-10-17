@@ -1,21 +1,22 @@
 package com.grahambartley.dogsunleashed.pendant;
 
+import java.util.OptionalInt;
+
 public final class VitalityCadence {
 
   public static final int HEAL_INTERVAL_TICKS = 50;
   public static final int REFRESH_BELOW_TICKS = 30;
-  public static final int NO_EFFECT = -1;
-  public static final int NO_CHANGE = -1;
 
   private VitalityCadence() {}
 
-  public static int durationToApply(final int remainingTicks) {
-    if (remainingTicks == NO_EFFECT) {
-      return HEAL_INTERVAL_TICKS;
+  public static OptionalInt durationToApply(final OptionalInt remainingTicks) {
+    if (remainingTicks.isEmpty()) {
+      return OptionalInt.of(HEAL_INTERVAL_TICKS);
     }
-    if (remainingTicks <= REFRESH_BELOW_TICKS) {
-      return remainingTicks + HEAL_INTERVAL_TICKS;
+    final int remaining = remainingTicks.getAsInt();
+    if (remaining < 0 || remaining > REFRESH_BELOW_TICKS) {
+      return OptionalInt.empty();
     }
-    return NO_CHANGE;
+    return OptionalInt.of(remaining + HEAL_INTERVAL_TICKS);
   }
 }

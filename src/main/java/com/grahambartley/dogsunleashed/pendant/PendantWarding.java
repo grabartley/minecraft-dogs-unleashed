@@ -16,18 +16,26 @@ public final class PendantWarding {
 
   private PendantWarding() {}
 
+  public static boolean isWarded(final MobEntity mob, final LivingEntity target) {
+    return !mob.getWorld()
+        .getEntitiesByClass(
+            UnleashedDogEntity.class,
+            mob.getBoundingBox().expand(WARD_RADIUS),
+            dog -> wardsAgainst(dog, mob) && (dog == target || dog.isOwner(target)))
+        .isEmpty();
+  }
+
   public static void scan(final ServerWorld world) {
     for (final UnleashedDogEntity dog :
         world.getEntitiesByType(
             TypeFilter.instanceOf(UnleashedDogEntity.class), PendantWarding::wearsWard)) {
-      final PendantType ward = dog.getPendants().worn();
-      final LivingEntity owner = dog.getOwner();
       for (final MobEntity mob :
           world.getEntitiesByClass(
               MobEntity.class,
               dog.getBoundingBox().expand(WARD_RADIUS),
-              mob -> mob.getType().isIn(ward.wardedMobs()))) {
-        if (isTargeting(mob, dog) || (owner != null && isTargeting(mob, owner))) {
+              mob -> wardsAgainst(dog, mob))) {
+        final LivingEntity target = currentTarget(mob);
+        if (target != null && (target == dog || dog.isOwner(target))) {
           clearTarget(mob);
         }
       }
@@ -39,13 +47,19 @@ public final class PendantWarding {
     return worn != null && worn.family() == PendantFamily.WARDING && dog.isAlive();
   }
 
-  private static boolean isTargeting(final MobEntity mob, final LivingEntity entity) {
-    return mob.getTarget() == entity
-        || (mob.getBrain().hasMemoryModule(MemoryModuleType.ATTACK_TARGET)
-            && mob.getBrain()
-                .getOptionalRegisteredMemory(MemoryModuleType.ATTACK_TARGET)
-                .filter(target -> target == entity)
-                .isPresent());
+  private static boolean wardsAgainst(final UnleashedDogEntity dog, final MobEntity mob) {
+    return wearsWard(dog)
+        && mob.getType().isIn(dog.getPendants().worn().wardedMobs())
+        && mob.squaredDistanceTo(dog) <= WARD_RADIUS * WARD_RADIUS;
+  }
+
+  private static LivingEntity currentTarget(final MobEntity mob) {
+    if (mob.getTarget() != null) {
+      return mob.getTarget();
+    }
+    return mob.getBrain().hasMemoryModule(MemoryModuleType.ATTACK_TARGET)
+        ? mob.getBrain().getOptionalRegisteredMemory(MemoryModuleType.ATTACK_TARGET).orElse(null)
+        : null;
   }
 
   private static void clearTarget(final MobEntity mob) {

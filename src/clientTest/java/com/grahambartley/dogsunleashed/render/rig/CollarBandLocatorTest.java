@@ -67,6 +67,73 @@ class CollarBandLocatorTest {
   }
 
   @Test
+  @DisplayName("the charm sits on the middle of the neck even when the paint is off to one side")
+  void centresOnTheNeckNotThePaint() {
+    final CubeGeometry.Face front = face("neck", -0.5f, -1.0f, -0.1f, 0.3f);
+    final Mask band = new Mask(Set.of(texel(0, 2)));
+
+    final CollarBandLocator.CollarSpot spot =
+        CollarBandLocator.locate(List.of(front), MOUTH_AT_NEGATIVE_Z, band).orElseThrow();
+
+    assertEquals(0.1f, spot.point().x, EPSILON);
+    assertEquals(-0.5f, spot.point().z, EPSILON);
+  }
+
+  @Test
+  @DisplayName("centring a point on a turned face keeps it on that face")
+  void centringStaysOnATurnedFace() {
+    final CubeGeometry.Face turned =
+        new CubeGeometry.Face(
+            "neck",
+            new Vector3f[] {
+              new Vector3f(-1, 1, -1),
+              new Vector3f(1, 1, 0),
+              new Vector3f(1, 0, 0),
+              new Vector3f(-1, 0, -1)
+            },
+            new float[] {0, 1, 1, 0},
+            new float[] {0, 0, 1, 1},
+            new Vector3f(0.4472f, 0, -0.8944f));
+
+    final Vector3f centred =
+        CollarBandLocator.centredAcross(turned, new Vector3f(-0.5f, 0.5f, -0.75f));
+
+    assertEquals(0.0f, centred.x, EPSILON);
+    assertEquals(0.5f, centred.y, EPSILON);
+    assertEquals(-0.5f, centred.z, EPSILON);
+  }
+
+  @Test
+  @DisplayName("collar paint under a neck tipped forward counts as the front")
+  void tippedNeckUndersideIsTheFront() {
+    final RestPose tippedForward =
+        new RestPose(
+            List.of(
+                new RestPose.Joint(new Vector3f(), new Vector3f((float) (Math.PI / 2.0), 0, 0))));
+    final CubeGeometry.Face underside =
+        new CubeGeometry.Face(
+            "neck",
+            new Vector3f[] {
+              new Vector3f(-0.1f, 0, 0.5f),
+              new Vector3f(0.1f, 0, 0.5f),
+              new Vector3f(0.1f, 0, -0.5f),
+              new Vector3f(-0.1f, 0, -0.5f)
+            },
+            new float[] {0, 1, 1, 0},
+            new float[] {0, 0, 1, 1},
+            new Vector3f(0, -1, 0),
+            tippedForward);
+    final Mask band = new Mask(Set.of(texel(1, 1)));
+
+    final CollarBandLocator.CollarSpot spot =
+        CollarBandLocator.locate(List.of(underside), MOUTH_AT_NEGATIVE_Z, band).orElseThrow();
+
+    assertEquals("neck", spot.boneName());
+    assertEquals(0.0f, spot.point().x, EPSILON);
+    assertEquals(0.0f, spot.point().y, EPSILON);
+  }
+
+  @Test
   @DisplayName("collar paint on faces turned away from the front is ignored")
   void ignoresBackFaces() {
     final CubeGeometry.Face front = face("neck", -0.5f, -1.0f, -0.1f, 0.1f);

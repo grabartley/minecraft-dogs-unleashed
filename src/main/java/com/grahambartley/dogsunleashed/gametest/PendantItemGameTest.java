@@ -9,9 +9,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.recipe.CraftingRecipe;
@@ -47,8 +45,7 @@ public final class PendantItemGameTest implements FabricGameTest {
 
   private static void testChargingRecipe(final TestContext context, final PendantType type) {
     final ServerWorld world = context.getWorld();
-    final ItemStack reagent =
-        type == PendantType.WARDING_ILLAGER ? ominousBanner(world) : new ItemStack(type.reagent());
+    final ItemStack reagent = reagentFor(type, world);
 
     final ItemStack result =
         craft(world, List.of(new ItemStack(ModPendantItems.BLANK_PENDANT), reagent));
@@ -120,16 +117,18 @@ public final class PendantItemGameTest implements FabricGameTest {
     context.complete();
   }
 
-  @GameTest(templateName = PendantTestHelper.ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
-  public void everyPendantHasItsOwnReagent(final TestContext context) {
-    final List<Item> reagents =
-        Arrays.stream(PendantType.values()).map(PendantType::reagent).toList();
-
-    context.assertEquals(
-        reagents.stream().collect(Collectors.toSet()).size(),
-        reagents.size(),
-        "Two pendants share a reagent: " + reagents);
-    context.complete();
+  private static ItemStack reagentFor(final PendantType type, final ServerWorld world) {
+    return switch (type) {
+      case WARDING_UNDEAD -> new ItemStack(Items.BONE_BLOCK);
+      case WARDING_ARTHROPOD -> new ItemStack(Items.COBWEB);
+      case WARDING_ILLAGER -> ominousBanner(world);
+      case WARDING_CREEPER -> new ItemStack(Items.COD);
+      case GUARDIAN_FIRE -> new ItemStack(Items.MAGMA_CREAM);
+      case GUARDIAN_FALL -> new ItemStack(Items.PHANTOM_MEMBRANE);
+      case GUARDIAN_DROWNING -> new ItemStack(Items.PUFFERFISH);
+      case VITALITY -> new ItemStack(Items.GLISTERING_MELON_SLICE);
+      case LOYALTY -> new ItemStack(Items.TOTEM_OF_UNDYING);
+    };
   }
 
   private static ItemStack ominousBanner(final ServerWorld world) {

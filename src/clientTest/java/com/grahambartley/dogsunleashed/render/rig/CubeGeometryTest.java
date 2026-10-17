@@ -78,7 +78,7 @@ class CubeGeometryTest {
                 0,
                 false));
 
-    final CubeGeometry.Bounds bounds = CubeGeometry.boundsOf(bone);
+    final CubeGeometry.Bounds bounds = CubeGeometry.posedBoundsOf(bone);
 
     assertClose(new Vector3f(0, 0, 0), bounds.min());
     assertClose(new Vector3f(0.125f, 0, 0.25f), bounds.max());
@@ -88,7 +88,7 @@ class CubeGeometryTest {
   @DisplayName("a bone with no cubes has empty bounds")
   void boneWithoutCubesIsEmpty() {
     assertTrue(
-        CubeGeometry.boundsOf(new GeoBone(null, "group", false, 0.0, false, false)).isEmpty());
+        CubeGeometry.posedBoundsOf(new GeoBone(null, "group", false, 0.0, false, false)).isEmpty());
   }
 
   private static void assertClose(final Vector3f expected, final Vector3f actual) {

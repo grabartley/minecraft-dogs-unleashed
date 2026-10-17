@@ -15,10 +15,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.FleeEntityGoal;
 import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.test.CustomTestProvider;
 import net.minecraft.test.GameTest;
@@ -30,6 +33,9 @@ import net.minecraft.util.math.Vec3d;
 public final class PendantWardingGameTest implements FabricGameTest {
 
   private static final String BATCH = "pendant-warding";
+  private static final String LIVE_BATCH = "pendant-warding-live";
+  private static final int LIVE_TICK_LIMIT = 260;
+  private static final int LIVE_ASSERT_TICK = 240;
   private static final int TICK_LIMIT = 40;
   private static final int AFTER_TWO_SCANS = 25;
   private static final int FLEE_TICK_LIMIT = 220;
@@ -63,6 +69,64 @@ public final class PendantWardingGameTest implements FabricGameTest {
                     TICK_LIMIT,
                     context -> testWardClearsTarget(context, type, false)))
         .toList();
+  }
+
+  @CustomTestProvider
+  public Collection<TestFunction> wardKeepsALiveMobOffTheDogAndOwner() {
+    return wards()
+        .flatMap(
+            type ->
+                Stream.of(true, false)
+                    .map(
+                        worn ->
+                            GeneratedGameTest.of(
+                                LIVE_BATCH,
+                                "pendantwardinggametest.live."
+                                    + type.id()
+                                    + (worn ? ".warded" : ".unwarded"),
+                                ARENA,
+                                LIVE_TICK_LIMIT,
+                                context -> testLiveMob(context, type, worn))))
+        .toList();
+  }
+
+  private static void testLiveMob(
+      final TestContext context, final PendantType ward, final boolean worn) {
+    final ServerPlayerEntity owner = PendantTestHelper.survivalOwnerAt(context, OWNER_POS);
+    final UnleashedDogEntity dog =
+        PendantTestHelper.dogWearing(context, worn ? ward : null, owner, DOG_POS);
+    final MobEntity mob = context.spawnEntity(liveAttacker(ward), MOB_POS);
+    mob.setPersistent();
+    mob.equipStack(EquipmentSlot.HEAD, new ItemStack(Items.LEATHER_HELMET));
+    final AtomicBoolean targetedThem = new AtomicBoolean(false);
+
+    context.runAtEveryTick(
+        () -> {
+          if (mob.getTarget() == owner || mob.getTarget() == dog) {
+            targetedThem.set(true);
+          }
+        });
+    context.runAtTick(
+        LIVE_ASSERT_TICK,
+        () -> {
+          context.assertTrue(
+              targetedThem.get() != worn,
+              ward.id()
+                  + (worn ? " should stop a live " : " control: an unwarded live ")
+                  + mob.getType().getUntranslatedName()
+                  + (worn ? " ever targeting its dog or owner" : " should target the owner"));
+          context.complete();
+        });
+  }
+
+  private static EntityType<? extends MobEntity> liveAttacker(final PendantType type) {
+    return switch (type) {
+      case WARDING_UNDEAD -> EntityType.ZOMBIE;
+      case WARDING_ARTHROPOD -> EntityType.CAVE_SPIDER;
+      case WARDING_ILLAGER -> EntityType.VINDICATOR;
+      case WARDING_CREEPER -> EntityType.CREEPER;
+      default -> throw new IllegalArgumentException(type.id());
+    };
   }
 
   private static Stream<PendantType> wards() {
@@ -171,10 +235,12 @@ public final class PendantWardingGameTest implements FabricGameTest {
     final ServerPlayerEntity owner = PendantTestHelper.survivalOwnerAt(context, OWNER_POS);
     final UnleashedDogEntity dog =
         PendantTestHelper.dogWearing(context, PendantType.WARDING_UNDEAD, owner, DOG_POS);
-    final MobEntity zombie = targetingMob(context, EntityType.ZOMBIE, owner);
+    final MobEntity zombie = context.spawnEntity(EntityType.ZOMBIE, MOB_POS);
+    zombie.setAiDisabled(true);
     zombie.setNoGravity(true);
     final Vec3d far = dog.getPos().add(OUT_OF_RANGE_BLOCKS, 0.0, 0.0);
     zombie.refreshPositionAndAngles(far.x, far.y, far.z, 0.0f, 0.0f);
+    zombie.setTarget(owner);
 
     context.runAtTick(
         AFTER_TWO_SCANS,

@@ -25,17 +25,18 @@ public final class CubeGeometry {
     return new Vector3f(point).sub(pivot).rotate(rotation).add(pivot);
   }
 
-  public static Bounds boundsOf(final GeoBone bone) {
+  public static Bounds posedBoundsOf(final GeoBone bone) {
     final Bounds bounds = new Bounds();
     for (final Face face : facesOf(bone)) {
       for (final Vector3f corner : face.corners()) {
-        bounds.include(corner);
+        bounds.include(face.pose().point(corner));
       }
     }
     return bounds;
   }
 
   public static List<Face> facesOf(final GeoBone bone) {
+    final RestPose pose = RestPose.of(bone);
     final List<Face> faces = new ArrayList<>();
     for (final GeoCube cube : bone.getCubes()) {
       final Vector3f pivot =
@@ -61,14 +62,28 @@ public final class CubeGeometry {
         }
         final Vector3f normal =
             rotateAroundPivot(new Vector3f(quad.normal()), new Vector3f(), rotation).normalize();
-        faces.add(new Face(bone.getName(), corners, us, vs, normal));
+        faces.add(new Face(bone.getName(), corners, us, vs, normal, pose));
       }
     }
     return faces;
   }
 
   public record Face(
-      String boneName, Vector3f[] corners, float[] us, float[] vs, Vector3f normal) {}
+      String boneName, Vector3f[] corners, float[] us, float[] vs, Vector3f normal, RestPose pose) {
+
+    public Face(
+        final String boneName,
+        final Vector3f[] corners,
+        final float[] us,
+        final float[] vs,
+        final Vector3f normal) {
+      this(boneName, corners, us, vs, normal, RestPose.NONE);
+    }
+
+    public Vector3f posedNormal() {
+      return this.pose.direction(this.normal);
+    }
+  }
 
   public static final class Bounds {
     private final Vector3f min = new Vector3f(Float.POSITIVE_INFINITY);

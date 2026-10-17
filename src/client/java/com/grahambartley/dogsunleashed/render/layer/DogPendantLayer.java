@@ -16,6 +16,7 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
+import org.joml.Quaternionf;
 import software.bernie.geckolib.cache.GeckoLibCache;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
@@ -30,8 +31,27 @@ public class DogPendantLayer extends GeoRenderLayer<UnleashedDogEntity> {
 
   private final Map<BakedGeoModel, Optional<CollarSpot>> spots = new WeakHashMap<>();
 
+  private Optional<CollarSpot> frameSpot = Optional.empty();
+
   public DogPendantLayer(final GeoRenderer<UnleashedDogEntity> renderer) {
     super(renderer);
+  }
+
+  @Override
+  public void preRender(
+      final MatrixStack poseStack,
+      final UnleashedDogEntity animatable,
+      final BakedGeoModel bakedModel,
+      final RenderLayer renderType,
+      final VertexConsumerProvider bufferSource,
+      final VertexConsumer buffer,
+      final float partialTick,
+      final int packedLight,
+      final int packedOverlay) {
+    this.frameSpot =
+        animatable.getPendants().worn() == null || animatable.isInvisible()
+            ? Optional.empty()
+            : this.spots.computeIfAbsent(bakedModel, model -> locate(model, animatable));
   }
 
   @Override
@@ -45,21 +65,19 @@ public class DogPendantLayer extends GeoRenderLayer<UnleashedDogEntity> {
       final float partialTick,
       final int packedLight,
       final int packedOverlay) {
+    final Optional<CollarSpot> spot = this.frameSpot;
     final PendantType pendant = animatable.getPendants().worn();
-    if (pendant == null || animatable.isInvisible()) {
+    if (spot.isEmpty() || pendant == null || !bone.getName().equals(spot.get().boneName())) {
       return;
     }
-    final BakedGeoModel dogModel =
-        this.getGeoModel().getBakedModel(this.getGeoModel().getModelResource(animatable));
-    final Optional<CollarSpot> spot =
-        this.spots.computeIfAbsent(dogModel, model -> locate(model, animatable));
     final PendantCharm charm = PendantCharm.of(pendant.family());
     final BakedGeoModel charmModel = GeckoLibCache.getBakedModels().get(charm.model());
-    if (spot.isEmpty() || charmModel == null || !bone.getName().equals(spot.get().boneName())) {
+    if (charmModel == null) {
       return;
     }
     poseStack.push();
     poseStack.translate(spot.get().point().x, spot.get().point().y, spot.get().point().z);
+    poseStack.multiply(new Quaternionf(spot.get().restRotation()).conjugate());
     if (!spot.get().facesNegativeZ()) {
       poseStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180.0f));
     }

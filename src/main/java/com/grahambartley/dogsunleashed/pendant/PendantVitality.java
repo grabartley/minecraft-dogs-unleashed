@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.pendant;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.item.pendant.PendantType;
+import java.util.OptionalInt;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -23,13 +24,13 @@ public final class PendantVitality {
         continue;
       }
       final StatusEffectInstance current = player.getStatusEffect(StatusEffects.REGENERATION);
-      final int duration =
-          VitalityCadence.durationToApply(
-              current == null ? VitalityCadence.NO_EFFECT : current.getDuration());
-      if (duration != VitalityCadence.NO_CHANGE) {
-        player.addStatusEffect(
-            new StatusEffectInstance(StatusEffects.REGENERATION, duration, 0, false, false, true));
-      }
+      VitalityCadence.durationToApply(
+              current == null ? OptionalInt.empty() : OptionalInt.of(current.getDuration()))
+          .ifPresent(
+              duration ->
+                  player.addStatusEffect(
+                      new StatusEffectInstance(
+                          StatusEffects.REGENERATION, duration, 0, false, false, true)));
     }
   }
 

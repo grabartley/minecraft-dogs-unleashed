@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.entity;
 
 import com.grahambartley.dogsunleashed.item.pendant.PendantItem;
 import com.grahambartley.dogsunleashed.item.pendant.PendantType;
+import net.minecraft.entity.EntityStatuses;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
@@ -12,7 +13,6 @@ import org.jetbrains.annotations.Nullable;
 
 public final class DogPendants {
 
-  static final byte TOTEM_STATUS = 35;
   private static final int LOYALTY_REGENERATION_TICKS = 900;
   private static final int LOYALTY_ABSORPTION_TICKS = 100;
   private static final int LOYALTY_FIRE_RESISTANCE_TICKS = 800;
@@ -63,6 +63,6 @@ public final class DogPendants {
         new StatusEffectInstance(StatusEffects.ABSORPTION, LOYALTY_ABSORPTION_TICKS, 1));
     this.dog.addStatusEffect(
         new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, LOYALTY_FIRE_RESISTANCE_TICKS, 0));
-    this.dog.getWorld().sendEntityStatus(this.dog, TOTEM_STATUS);
+    this.dog.getWorld().sendEntityStatus(this.dog, EntityStatuses.USE_TOTEM_OF_UNDYING);
   }
 }
