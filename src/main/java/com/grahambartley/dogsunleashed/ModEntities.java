@@ -94,6 +94,7 @@ public class ModEntities {
                 (type, world) -> new UnleashedDogEntity(type, world, breed, undead),
                 SpawnGroup.CREATURE)
             .dimensions(breed.dimensions().width(), breed.dimensions().height())
+            .maxTrackingRange(EntityType.WOLF.getMaxTrackDistance())
             .build(id.toString()));
   }
 

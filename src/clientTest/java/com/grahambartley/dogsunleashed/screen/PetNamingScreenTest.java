@@ -3,9 +3,17 @@ package com.grahambartley.dogsunleashed.screen;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.navigation.GuiNavigationType;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.text.Text;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -65,5 +73,46 @@ class PetNamingScreenTest {
     return Stream.of(
         Arguments.of(false, "screen.dogs-unleashed.pet_naming.header"),
         Arguments.of(true, "screen.dogs-unleashed.pet_naming.header_newborn"));
+  }
+
+  @Test
+  @DisplayName("the field starts with the suggested name")
+  void firstInitShowsSuggestedName() {
+    final MinecraftClient client = client();
+    final PetNamingScreen screen = newScreen();
+    screen.init(client, 400, 300);
+
+    assertEquals("Biscuit", nameField(screen).getText());
+  }
+
+  @Test
+  @DisplayName("a typed name survives the window being resized")
+  void typedNameSurvivesResize() {
+    final MinecraftClient client = client();
+    final PetNamingScreen screen = newScreen();
+    screen.init(client, 400, 300);
+    nameField(screen).setText("Sir Barksalot");
+
+    screen.resize(client, 640, 360);
+
+    assertEquals("Sir Barksalot", nameField(screen).getText());
+  }
+
+  private static PetNamingScreen newScreen() {
+    return new PetNamingScreen(UUID.randomUUID(), Text.literal("Husky"), false, "Biscuit");
+  }
+
+  private static MinecraftClient client() {
+    final MinecraftClient client = mock(MinecraftClient.class, RETURNS_DEEP_STUBS);
+    when(client.getNavigationType()).thenReturn(GuiNavigationType.MOUSE);
+    return client;
+  }
+
+  private static TextFieldWidget nameField(final PetNamingScreen screen) {
+    return screen.children().stream()
+        .filter(TextFieldWidget.class::isInstance)
+        .map(TextFieldWidget.class::cast)
+        .findFirst()
+        .orElseThrow();
   }
 }
