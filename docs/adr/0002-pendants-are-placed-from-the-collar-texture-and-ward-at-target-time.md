@@ -21,7 +21,7 @@ Owner-facing effects, warding and vitality, are resolved per world tick from the
 
 ## Consequences
 
-A new breed gets a correctly placed charm as soon as it has a collar overlay, with no code change. The cost is that the collar texture is now load-bearing: a breed with no collar paint on a front-facing face shows no charm. A broken collar texture is logged as a warning, not an error.
+A new breed gets a correctly placed charm as soon as it has a collar overlay, with no code change. The cost is that the collar texture is now load-bearing: a breed with no collar paint on a front-facing face shows no charm. A missing or unreadable collar texture is logged as a warning, not an error.
 
 The `setTarget` hook runs a small entity search each time any mob takes a non-null target. That happens when targets change, not every tick, so the cost is small, but it is paid by every mob in the world.
 
