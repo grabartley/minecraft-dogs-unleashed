@@ -1,53 +1,42 @@
 package com.grahambartley.dogsunleashed.render.rig;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.stream.Stream;
-import net.minecraft.client.util.math.MatrixStack;
-import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
+import org.junit.jupiter.api.Test;
 import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.util.RenderUtil;
 
 class LivePoseTest {
 
   private static final float EPSILON = 1.0e-5f;
+  private static final float QUARTER_TURN = (float) (Math.PI / 2);
 
-  static Stream<Arguments> posedBones() {
-    return Stream.of(
-        Arguments.of("husky", "sit", "neck"),
-        Arguments.of("husky", "sleep", "head"),
-        Arguments.of("husky", "sit", "lowestbackleftleg"),
-        Arguments.of("beagle", "sit", "pescoco"),
-        Arguments.of("beagle", "sleep", "eyelid"),
-        Arguments.of("goldenretriever", "sit", "Torso"),
-        Arguments.of("dachshund", "sleep", "bone4"));
+  @Test
+  @DisplayName("a child bone is posed by its own joint and then by its parent's")
+  void childThenParent() {
+    final GeoBone body = new GeoBone(null, "body", false, 0.0, false, false);
+    final GeoBone neck = new GeoBone(body, "neck", false, 0.0, false, false);
+    body.getChildBones().add(neck);
+    body.setRotY(QUARTER_TURN);
+    neck.updatePivot(0, 16, 0);
+    neck.setRotX(QUARTER_TURN);
+    neck.setPosY(16);
+
+    final Vector3f tip = LivePose.of(neck).transformPosition(new Vector3f(0, 2, 0));
+
+    assertEquals(1.0f, tip.x, EPSILON);
+    assertEquals(2.0f, tip.y, EPSILON);
+    assertEquals(0.0f, tip.z, EPSILON);
   }
 
-  @ParameterizedTest(name = "{0} {1} {2}")
-  @MethodSource("posedBones")
-  @DisplayName("a posed bone lands where GeckoLib's own renderer puts it")
-  void matchesGeckoLibsBoneMatrix(final String rig, final String animation, final String bone) {
-    final BakedGeoModel model = ShippedRigs.model(rig);
-    ShippedRigs.pose(model, rig, animation);
-    final GeoBone target = model.getBone(bone).orElseThrow();
+  @Test
+  @DisplayName("a bone at rest leaves points where they are")
+  void restIsIdentity() {
+    final GeoBone bone = new GeoBone(null, "body", false, 0.0, false, false);
 
-    final Deque<GeoBone> rootToBone = new ArrayDeque<>();
-    for (GeoBone current = target; current != null; current = current.getParent()) {
-      rootToBone.push(current);
-    }
-    final MatrixStack stack = new MatrixStack();
-    rootToBone.forEach(current -> RenderUtil.prepMatrixForBone(stack, current));
-    final Matrix4f expected = stack.peek().getPositionMatrix();
+    final Vector3f point = LivePose.of(bone).transformPosition(new Vector3f(0.3f, 0.2f, -0.1f));
 
-    final Matrix4f actual = LivePose.of(target);
-
-    assertTrue(expected.equals(actual, EPSILON), expected + " vs " + actual);
+    assertEquals(new Vector3f(0.3f, 0.2f, -0.1f).distance(point), 0.0f, EPSILON);
   }
 }

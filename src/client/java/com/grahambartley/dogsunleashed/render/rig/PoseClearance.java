@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import net.minecraft.client.util.math.MatrixStack;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
@@ -11,13 +12,13 @@ import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.cache.object.GeoCube;
 import software.bernie.geckolib.cache.object.GeoQuad;
 import software.bernie.geckolib.cache.object.GeoVertex;
+import software.bernie.geckolib.util.RenderUtil;
 
 public final class PoseClearance {
 
   static final float CLEARANCE = 0.1f / 16.0f;
   static final int MAX_STEPS = 8;
 
-  private static final float MODEL_UNITS_PER_BLOCK = 16.0f;
   private static final float DEGENERATE = 1.0e-9f;
 
   public record Box(Matrix4f modelToLocal, Vector3f min, Vector3f max) {
@@ -52,7 +53,7 @@ public final class PoseClearance {
 
   public static List<Box> liveBoxesOf(final BakedGeoModel model, final Set<String> boneNames) {
     final List<Box> boxes = new ArrayList<>();
-    collectBoxes(model.topLevelBones(), boneNames, boxes);
+    collectBoxes(new MatrixStack(), model.topLevelBones(), boneNames, boxes);
     return boxes;
   }
 
@@ -78,24 +79,29 @@ public final class PoseClearance {
   }
 
   private static void collectBoxes(
-      final List<GeoBone> bones, final Set<String> boneNames, final List<Box> out) {
+      final MatrixStack stack,
+      final List<GeoBone> bones,
+      final Set<String> boneNames,
+      final List<Box> out) {
     for (final GeoBone bone : bones) {
       if (bone.isHidden()) {
         continue;
       }
+      stack.push();
+      RenderUtil.prepMatrixForBone(stack, bone);
       if (boneNames.contains(bone.getName())) {
-        final Matrix4f boneToModel = LivePose.of(bone);
         for (final GeoCube cube : bone.getCubes()) {
-          boxOf(boneToModel, cube).ifPresent(out::add);
+          boxOf(stack, cube).ifPresent(out::add);
         }
       }
       if (!bone.isHidingChildren()) {
-        collectBoxes(bone.getChildBones(), boneNames, out);
+        collectBoxes(stack, bone.getChildBones(), boneNames, out);
       }
+      stack.pop();
     }
   }
 
-  static Optional<Box> boxOf(final Matrix4f boneToModel, final GeoCube cube) {
+  static Optional<Box> boxOf(final MatrixStack boneStack, final GeoCube cube) {
     final Vector3f min = new Vector3f(Float.POSITIVE_INFINITY);
     final Vector3f max = new Vector3f(Float.NEGATIVE_INFINITY);
     for (final GeoQuad quad : cube.quads()) {
@@ -110,16 +116,12 @@ public final class PoseClearance {
     if (min.x > max.x) {
       return Optional.empty();
     }
-    final float pivotX = (float) cube.pivot().x / MODEL_UNITS_PER_BLOCK;
-    final float pivotY = (float) cube.pivot().y / MODEL_UNITS_PER_BLOCK;
-    final float pivotZ = (float) cube.pivot().z / MODEL_UNITS_PER_BLOCK;
-    final Matrix4f cubeToModel =
-        new Matrix4f(boneToModel)
-            .translate(pivotX, pivotY, pivotZ)
-            .rotateZ((float) cube.rotation().z)
-            .rotateY((float) cube.rotation().y)
-            .rotateX((float) cube.rotation().x)
-            .translate(-pivotX, -pivotY, -pivotZ);
+    boneStack.push();
+    RenderUtil.translateToPivotPoint(boneStack, cube);
+    RenderUtil.rotateMatrixAroundCube(boneStack, cube);
+    RenderUtil.translateAwayFromPivotPoint(boneStack, cube);
+    final Matrix4f cubeToModel = new Matrix4f(boneStack.peek().getPositionMatrix());
+    boneStack.pop();
     if (Math.abs(cubeToModel.determinant()) < DEGENERATE) {
       return Optional.empty();
     }

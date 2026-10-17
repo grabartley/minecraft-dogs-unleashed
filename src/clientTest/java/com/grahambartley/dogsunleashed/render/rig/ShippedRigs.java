@@ -47,17 +47,17 @@ final class ShippedRigs {
     for (final BoneAnimation boneAnimation : animation.boneAnimations()) {
       final GeoBone bone = model.getBone(boneAnimation.boneName()).orElseThrow();
       final KeyframeStack<Keyframe<MathValue>> rotation = boneAnimation.rotationKeyFrames();
-      bone.setRotX(firstFrame(rotation.xKeyframes(), 0) + bone.getInitialSnapshot().getRotX());
-      bone.setRotY(firstFrame(rotation.yKeyframes(), 0) + bone.getInitialSnapshot().getRotY());
-      bone.setRotZ(firstFrame(rotation.zKeyframes(), 0) + bone.getInitialSnapshot().getRotZ());
+      bone.setRotX(heldFrame(rotation.xKeyframes(), 0) + bone.getInitialSnapshot().getRotX());
+      bone.setRotY(heldFrame(rotation.yKeyframes(), 0) + bone.getInitialSnapshot().getRotY());
+      bone.setRotZ(heldFrame(rotation.zKeyframes(), 0) + bone.getInitialSnapshot().getRotZ());
       final KeyframeStack<Keyframe<MathValue>> position = boneAnimation.positionKeyFrames();
-      bone.setPosX(firstFrame(position.xKeyframes(), 0));
-      bone.setPosY(firstFrame(position.yKeyframes(), 0));
-      bone.setPosZ(firstFrame(position.zKeyframes(), 0));
+      bone.setPosX(heldFrame(position.xKeyframes(), 0));
+      bone.setPosY(heldFrame(position.yKeyframes(), 0));
+      bone.setPosZ(heldFrame(position.zKeyframes(), 0));
       final KeyframeStack<Keyframe<MathValue>> scale = boneAnimation.scaleKeyFrames();
-      bone.setScaleX(firstFrame(scale.xKeyframes(), 1));
-      bone.setScaleY(firstFrame(scale.yKeyframes(), 1));
-      bone.setScaleZ(firstFrame(scale.zKeyframes(), 1));
+      bone.setScaleX(heldFrame(scale.xKeyframes(), 1));
+      bone.setScaleY(heldFrame(scale.yKeyframes(), 1));
+      bone.setScaleZ(heldFrame(scale.zKeyframes(), 1));
     }
   }
 
@@ -85,8 +85,8 @@ final class ShippedRigs {
     }
   }
 
-  private static float firstFrame(final List<Keyframe<MathValue>> frames, final float none) {
-    return frames.isEmpty() ? none : (float) frames.get(0).endValue().get();
+  private static float heldFrame(final List<Keyframe<MathValue>> frames, final float none) {
+    return frames.isEmpty() ? none : (float) frames.get(frames.size() - 1).endValue().get();
   }
 
   private static void saveRestPose(final List<GeoBone> bones) {

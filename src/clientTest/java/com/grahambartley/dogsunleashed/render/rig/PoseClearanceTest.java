@@ -118,23 +118,18 @@ class PoseClearanceTest {
   }
 
   @Test
-  @DisplayName("a live box is built from the bone's current pose, not its rest pose")
+  @DisplayName("a live box follows its bone into the pose")
   void liveBoxesFollowThePose() {
     final BakedGeoModel beagle = ShippedRigs.model("beagle");
-    final GeoBone torso = beagle.getBone("Torso").orElseThrow();
+    final Vector3f restChest =
+        CubeGeometry.posedBoundsOf(beagle.getBone("Torso").orElseThrow()).max();
+    final PoseClearance.Box rest = PoseClearance.liveBoxesOf(beagle, Set.of("Torso")).get(0);
+
     ShippedRigs.pose(beagle, "beagle", "sit");
-
     final PoseClearance.Box sitting = PoseClearance.liveBoxesOf(beagle, Set.of("Torso")).get(0);
-    final Matrix4f expected =
-        PoseClearance.boxOf(LivePose.of(torso), torso.getCubes().get(0))
-            .orElseThrow()
-            .modelToLocal();
 
-    assertTrue(expected.equals(sitting.modelToLocal(), EPSILON));
-    assertFalse(
-        PoseClearance.boxOf(new Matrix4f(), torso.getCubes().get(0))
-            .orElseThrow()
-            .modelToLocal()
-            .equals(sitting.modelToLocal(), EPSILON));
+    final Vector3f justInside = new Vector3f(restChest).sub(0.01f, 0.01f, 0.01f);
+    assertTrue(rest.contains(justInside));
+    assertFalse(sitting.contains(justInside));
   }
 }

@@ -34,7 +34,6 @@
     ],
     "fabric-gametest": [
       "com.grahambartley.dogsunleashed.gametest.DogAdvancementGameTest",
-      "com.grahambartley.dogsunleashed.gametest.RecipeUnlockGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogCombatBehaviorGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogCommandGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogEquipmentGameTest",
@@ -78,7 +77,8 @@
       "com.grahambartley.dogsunleashed.gametest.PendantGuardianGameTest",
       "com.grahambartley.dogsunleashed.gametest.PendantLoyaltyGameTest",
       "com.grahambartley.dogsunleashed.gametest.PendantWardingGameTest",
-      "com.grahambartley.dogsunleashed.gametest.PendantVitalityGameTest"
+      "com.grahambartley.dogsunleashed.gametest.PendantVitalityGameTest",
+      "com.grahambartley.dogsunleashed.gametest.RecipeUnlockGameTest"
     ]
   },
   "mixins": [

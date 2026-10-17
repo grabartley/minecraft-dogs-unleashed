@@ -38,7 +38,7 @@ class CharmMountTest {
     final Vector3f push =
         CharmMount.clearanceInBone(
             PoseClearance.liveBoxesOf(dog, sides.body()),
-            PoseClearance.liveBoxesOf(dog, sides.head()),
+            () -> PoseClearance.liveBoxesOf(dog, sides.head()),
             boneToModel,
             charmToBone,
             charm,
@@ -124,10 +124,10 @@ class CharmMountTest {
 
     final Vector3f clear =
         CharmMount.clearanceInBone(
-            List.of(chest), List.of(), new Matrix4f(), new Matrix4f(), charm, true);
+            List.of(chest), List::of, new Matrix4f(), new Matrix4f(), charm, true);
     final Vector3f refused =
         CharmMount.clearanceInBone(
-            List.of(chest), List.of(chin), new Matrix4f(), new Matrix4f(), charm, true);
+            List.of(chest), () -> List.of(chin), new Matrix4f(), new Matrix4f(), charm, true);
 
     assertTrue(clear.z < -0.45f, "without a head in the way it comes out of the chest: " + clear);
     assertEquals(0.0f, refused.length(), EPSILON);

@@ -19,7 +19,7 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 import org.joml.Vector3f;
 import software.bernie.geckolib.cache.GeckoLibCache;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
@@ -31,7 +31,7 @@ public class DogPendantLayer extends GeoRenderLayer<UnleashedDogEntity> {
 
   private static final int OPAQUE = 0xFF000000;
 
-  private record Mount(CollarSpot spot, CharmMount.Sides sides, Matrix4f charmToBone) {}
+  private record Mount(CollarSpot spot, CharmMount.Sides sides, Matrix4fc charmToBone) {}
 
   private final Map<BakedGeoModel, Optional<Mount>> mounts = new MapMaker().weakKeys().makeMap();
   private final Map<BakedGeoModel, CubeGeometry.Bounds> charmBounds =
@@ -88,7 +88,7 @@ public class DogPendantLayer extends GeoRenderLayer<UnleashedDogEntity> {
     final Vector3f clearance =
         CharmMount.clearanceInBone(
             PoseClearance.liveBoxesOf(this.frameModel, mount.get().sides().body()),
-            PoseClearance.liveBoxesOf(this.frameModel, mount.get().sides().head()),
+            () -> PoseClearance.liveBoxesOf(this.frameModel, mount.get().sides().head()),
             LivePose.of(bone),
             mount.get().charmToBone(),
             this.charmBounds.computeIfAbsent(charmModel, DogPendantLayer::boundsOf),
@@ -131,7 +131,7 @@ public class DogPendantLayer extends GeoRenderLayer<UnleashedDogEntity> {
   private static Optional<Mount> mount(
       final BakedGeoModel model, final UnleashedDogEntity animatable) {
     final String mouthBone = animatable.getRigSourceBreed().mouthAnchorBoneName();
-    return locate(model, animatable)
+    return locate(model, animatable, mouthBone)
         .map(
             spot ->
                 new Mount(
@@ -141,15 +141,12 @@ public class DogPendantLayer extends GeoRenderLayer<UnleashedDogEntity> {
   }
 
   private static Optional<CollarSpot> locate(
-      final BakedGeoModel model, final UnleashedDogEntity animatable) {
+      final BakedGeoModel model, final UnleashedDogEntity animatable, final String mouthBone) {
     final Identifier collarTexture =
         Identifier.of(
             DogsUnleashed.MOD_ID,
             "textures/entity/" + animatable.getRigSourceBreed().serializedId() + "_collar.png");
     return CollarTextureMask.load(MinecraftClient.getInstance().getResourceManager(), collarTexture)
-        .flatMap(
-            mask ->
-                CollarBandLocator.locate(
-                    model, animatable.getRigSourceBreed().mouthAnchorBoneName(), mask));
+        .flatMap(mask -> CollarBandLocator.locate(model, mouthBone, mask));
   }
 }

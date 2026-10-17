@@ -8,9 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
 import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
@@ -45,9 +47,9 @@ public final class CharmMount {
 
   public static Vector3f clearanceInBone(
       final List<PoseClearance.Box> body,
-      final List<PoseClearance.Box> head,
-      final Matrix4f boneToModel,
-      final Matrix4f charmToBone,
+      final Supplier<List<PoseClearance.Box>> head,
+      final Matrix4fc boneToModel,
+      final Matrix4fc charmToBone,
       final CubeGeometry.Bounds charmBounds,
       final boolean facesNegativeZ) {
     final Matrix4f charmToModel = new Matrix4f(boneToModel).mul(charmToBone);
@@ -57,7 +59,7 @@ public final class CharmMount {
     }
     final Vector3f forward = new Vector3f(0.0f, 0.0f, facesNegativeZ ? -1.0f : 1.0f);
     final float pushed = PoseClearance.pushOut(body, samples, forward);
-    if (pushed == 0.0f || buriedAfter(head, samples, new Vector3f(forward).mul(pushed))) {
+    if (pushed == 0.0f || buriedAfter(head.get(), samples, new Vector3f(forward).mul(pushed))) {
       return new Vector3f();
     }
     return new Matrix4f(boneToModel).invert().transformDirection(forward.mul(pushed));

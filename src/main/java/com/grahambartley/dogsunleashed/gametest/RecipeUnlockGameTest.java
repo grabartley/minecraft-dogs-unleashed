@@ -33,7 +33,7 @@ public final class RecipeUnlockGameTest implements FabricGameTest {
   private static final Identifier BLANK_PENDANT_RECIPE =
       Identifier.of(DogsUnleashed.MOD_ID, "blank_pendant");
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH)
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = TICK_LIMIT)
   public void everyModRecipeHasAnUnlockAdvancement(final TestContext context) {
     final MinecraftServer server = context.getWorld().getServer();
     final Set<Identifier> unlocked =
@@ -54,17 +54,21 @@ public final class RecipeUnlockGameTest implements FabricGameTest {
     context.complete();
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH)
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = TICK_LIMIT)
   public void holdingABlankPendantUnlocksEveryPendantRecipe(final TestContext context) {
     final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+    final List<Identifier> pendants =
+        Arrays.stream(PendantType.values())
+            .map(type -> Identifier.of(DogsUnleashed.MOD_ID, type.itemId()))
+            .toList();
+    context.assertTrue(
+        pendants.stream().noneMatch(id -> hasRecipe(player, id)),
+        "Pendant recipes should start locked");
 
     pickUp(player, ModPendantItems.BLANK_PENDANT);
 
     final List<Identifier> missing =
-        Arrays.stream(PendantType.values())
-            .map(type -> Identifier.of(DogsUnleashed.MOD_ID, type.itemId()))
-            .filter(id -> !hasRecipe(player, id))
-            .toList();
+        pendants.stream().filter(id -> !hasRecipe(player, id)).toList();
     context.assertTrue(missing.isEmpty(), "Blank Pendant left these recipes locked: " + missing);
     context.complete();
   }

@@ -18,11 +18,9 @@
       "dither": 0.1
     },
     "bezel": {
-      "light": "#5A534C",
+      "light": "#4A4540",
       "base": "#4A4540",
-      "speck": "#403B36",
-      "edge": "#3A3530",
-      "dither": 0.1
+      "edge": "#4A4540"
     }
   },
   "cubes": {
