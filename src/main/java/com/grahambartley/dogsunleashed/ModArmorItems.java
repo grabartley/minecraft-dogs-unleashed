@@ -4,12 +4,14 @@ import com.grahambartley.dogsunleashed.item.armor.DogArmorTier;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Optional;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.block.cauldron.CauldronBehavior;
 import net.minecraft.item.AnimalArmorItem;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroups;
+import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
@@ -41,6 +43,17 @@ public final class ModArmorItems {
 
   public static AnimalArmorItem of(final DogArmorTier tier) {
     return ARMOR.get(tier);
+  }
+
+  public static Optional<DogArmorTier> tierOf(final ItemStack stack) {
+    return ARMOR.entrySet().stream()
+        .filter(entry -> stack.isOf(entry.getValue()))
+        .map(Map.Entry::getKey)
+        .findFirst();
+  }
+
+  public static boolean isDogArmour(final ItemStack stack) {
+    return tierOf(stack).isPresent();
   }
 
   public static void initialize() {

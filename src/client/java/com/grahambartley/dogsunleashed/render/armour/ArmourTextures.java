@@ -73,14 +73,21 @@ public final class ArmourTextures {
       final Painter painter) {
     final int width = (int) model.properties().textureWidth();
     final int height = (int) model.properties().textureHeight();
-    final int[] argb = painter.paint(torsoCubes(model, breed), width, height);
+    return upload(
+        Identifier.of(MOD_ID, "armour/" + breed.serializedId() + "/" + name),
+        painter.paint(torsoCubes(model, breed), width, height),
+        width,
+        height);
+  }
+
+  static Identifier upload(
+      final Identifier id, final int[] argb, final int width, final int height) {
     final NativeImage image = new NativeImage(NativeImage.Format.RGBA, width, height, true);
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
         image.setColor(x, y, abgr(argb[y * width + x]));
       }
     }
-    final Identifier id = Identifier.of(MOD_ID, "armour/" + breed.serializedId() + "/" + name);
     MinecraftClient.getInstance()
         .getTextureManager()
         .registerTexture(id, new NativeImageBackedTexture(image));

@@ -22,15 +22,18 @@ import com.grahambartley.dogsunleashed.render.TennisBallProjectileRenderer;
 import com.grahambartley.dogsunleashed.render.armour.ArmourLook;
 import com.grahambartley.dogsunleashed.render.coat.UndeadCoatTextureReloader;
 import com.grahambartley.dogsunleashed.render.coat.UndeadCoatTextures;
+import com.grahambartley.dogsunleashed.render.layer.WolfDogArmourFeatureRenderer;
 import com.grahambartley.dogsunleashed.screen.DogEquipmentScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
+import net.minecraft.client.render.entity.WolfEntityRenderer;
 import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.resource.ResourceType;
 
@@ -77,6 +80,14 @@ public class DogsUnleashedClient implements ClientModInitializer {
     BuiltinItemRendererRegistry.INSTANCE.register(ModItems.FRISBEE, new FrisbeeItemRenderer());
     BuiltinItemRendererRegistry.INSTANCE.register(
         ModItems.DOG_WHISTLE, new DogWhistleItemRenderer());
+
+    LivingEntityFeatureRendererRegistrationCallback.EVENT.register(
+        (entityType, renderer, helper, context) -> {
+          if (renderer instanceof WolfEntityRenderer wolfRenderer) {
+            helper.register(
+                new WolfDogArmourFeatureRenderer(wolfRenderer, context.getModelLoader()));
+          }
+        });
 
     HandledScreens.register(ModScreenHandlers.DOG_EQUIPMENT, DogEquipmentScreen::new);
 

@@ -25,4 +25,4 @@ A new breed gets armour that fits by naming its torso bones, with no new art. Th
 
 The cost is that the armour is one texel per model unit on each breed's own atlas, so the detail available is whatever that breed's UV layout gives. The patterns are designed for that density. Dyes and cracks cost one extra draw each for the bones that wear armour.
 
-Vanilla wolves still render our armour with the vanilla renderer, which uses one texture for every modded canine armour material, and vanilla wolves only accept `minecraft:wolf_armor` by right-click. Our tiers on vanilla wolves are left to a separate change.
+Vanilla wolves wear our tiers too, with the same look. Vanilla's wolf armour renderer only knows one texture per canine armour material, so it skips our tiers and a separate wolf layer draws them instead, painted by the same painter onto the body and mane of vanilla's wolf armour model. Vanilla wolves only take `minecraft:wolf_armor` by right-click and only count that item as armour, so a mixin lets them take, mend and shed our tiers and hands every hit to the same armour code our dogs use.

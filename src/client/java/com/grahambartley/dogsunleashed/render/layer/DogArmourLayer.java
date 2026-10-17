@@ -14,7 +14,6 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.component.type.DyedColorComponent;
-import net.minecraft.entity.passive.Cracks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
@@ -64,7 +63,7 @@ public class DogArmourLayer extends GeoRenderLayer<UnleashedDogEntity> {
     final ArmourLook look = ArmourLook.of(worn);
     final boolean trimDyed = ArmourLook.trimIsDyed(look, worn);
     final boolean hasDyeLayer = look.fillIsDyed() || trimDyed;
-    final int level = crackLevel(worn);
+    final int level = ArmourLook.crackLevel(worn);
     return new Frame(
         breed,
         ArmourClearance.inflationFor(model, breed),
@@ -74,15 +73,6 @@ public class DogArmourLayer extends GeoRenderLayer<UnleashedDogEntity> {
             : null,
         DyedColorComponent.getColor(worn, ArmourLook.UNDYED_LEATHER),
         level == 0 ? null : ArmourTextures.cracks(model, breed, level));
-  }
-
-  private static int crackLevel(final ItemStack worn) {
-    return switch (Cracks.WOLF_ARMOR.getCrackLevel(worn)) {
-      case NONE -> 0;
-      case LOW -> 1;
-      case MEDIUM -> 2;
-      case HIGH -> 3;
-    };
   }
 
   @Override

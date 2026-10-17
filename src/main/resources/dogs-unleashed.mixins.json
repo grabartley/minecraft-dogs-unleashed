@@ -6,7 +6,8 @@
 		"LevelStorageMixin",
 		"MobEntityMixin",
 		"ServerPlayerEntityMixin",
-		"ServerWorldSpawnersAccessor"
+		"ServerWorldSpawnersAccessor",
+		"WolfEntityMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
