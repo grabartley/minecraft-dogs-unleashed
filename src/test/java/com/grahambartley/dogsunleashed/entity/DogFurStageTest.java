@@ -21,6 +21,7 @@ class DogFurStageTest {
 
   static Stream<Arguments> ladder() {
     return Stream.of(
+        Arguments.of(DogFurStage.BOTCHED, 0, false, false, DogFurStage.TRIMMED),
         Arguments.of(DogFurStage.TRIMMED, 0, false, false, DogFurStage.NATURAL),
         Arguments.of(DogFurStage.NATURAL, 5, false, true, DogFurStage.SHAGGY),
         Arguments.of(DogFurStage.SHAGGY, 12, false, true, DogFurStage.OVERGROWN),
@@ -51,7 +52,7 @@ class DogFurStageTest {
   }
 
   @ParameterizedTest(name = "ordinal {0}")
-  @CsvSource({"-1", "4", "99"})
+  @CsvSource({"-1", "5", "99"})
   @DisplayName("an unknown ordinal falls back to the natural coat")
   void unknownOrdinalIsNatural(final int ordinal) {
     assertEquals(DogFurStage.NATURAL, DogFurStage.fromOrdinal(ordinal));

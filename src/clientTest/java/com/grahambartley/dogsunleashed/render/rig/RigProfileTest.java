@@ -60,7 +60,7 @@ class RigProfileTest {
     assertEquals(
         Optional.of(Identifier.of("dogs-unleashed", "textures/entity/fur/x_trimmed.png")),
         PROFILE.overlay(Overlay.TRIMMED));
-    assertTrue(PROFILE.overlay(Overlay.SCUFFED).isEmpty());
+    assertTrue(PROFILE.overlay(Overlay.BOTCHED).isEmpty());
   }
 
   @ParameterizedTest(name = "{0}")

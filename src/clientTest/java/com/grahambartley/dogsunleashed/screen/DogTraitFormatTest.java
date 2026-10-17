@@ -124,11 +124,4 @@ class DogTraitFormatTest {
       final List<UnleashedDogBreed> expected) {
     assertEquals(expected, DogTraitFormat.mixNameBreeds(composition));
   }
-
-  @ParameterizedTest(name = "scuffed={0}")
-  @CsvSource({"false, Shaggy", "true, Shaggy (Bad Hair Day)"})
-  @DisplayName("the fur row adds the bad hair day note only when the coat is scuffed")
-  void formatFur(final boolean scuffed, final String expected) {
-    assertEquals(expected, DogTraitFormat.formatFur("Shaggy", "Bad Hair Day", scuffed));
-  }
 }

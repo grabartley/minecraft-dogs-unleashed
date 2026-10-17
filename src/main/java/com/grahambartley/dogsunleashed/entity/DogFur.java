@@ -61,10 +61,6 @@ public final class DogFur {
     return DogFurStage.fromOrdinal(this.dog.getTrackedFurStage());
   }
 
-  public boolean isScuffed() {
-    return this.dog.isTrackedFurScuffed();
-  }
-
   public int ticksInStage() {
     return this.ticksInStage;
   }
@@ -73,8 +69,8 @@ public final class DogFur {
     return DogFurRules.profileFor(this.dog.getBreed(), this.dog.getGenome());
   }
 
-  public void setStage(final DogFurStage stage, final boolean scuffed) {
-    this.dog.setTrackedFur(stage.ordinal(), scuffed);
+  public void setStage(final DogFurStage stage) {
+    this.dog.setTrackedFurStage(stage.ordinal());
     this.ticksInStage = 0;
     this.syncSpeedModifier();
   }
@@ -97,7 +93,7 @@ public final class DogFur {
     }
     this.ticksInStage++;
     if (this.ticksInStage >= budget.getAsInt()) {
-      this.setStage(stage.next(), false);
+      this.setStage(stage.next());
     }
   }
 
@@ -107,8 +103,7 @@ public final class DogFur {
     }
     this.setStage(
         DogFurRules.spawnStage(
-            this.dog.getRandom().nextInt(DogFurRules.PERCENT), this.profile().maxStage()),
-        false);
+            this.dog.getRandom().nextInt(DogFurRules.PERCENT), this.profile().maxStage()));
   }
 
   @Nullable
@@ -131,7 +126,7 @@ public final class DogFur {
             DogsUnleashed.SERVER_CONFIG.badHairDayChanceMultiplierPercent(),
             this.dog.getRandom().nextInt(DogFurRules.PERCENT));
     final int yield = DogFurRules.shearYield(from, this.profile().shearYieldPerStage(), botched);
-    this.setStage(DogFurStage.TRIMMED, botched);
+    this.setStage(botched ? DogFurStage.BOTCHED : DogFurStage.TRIMMED);
     shears.damage(1, player, LivingEntity.getSlotForHand(hand));
     this.dog.dropStack(new ItemStack(ModItems.DOG_FUR, yield), 1.0f);
     this.dog
@@ -163,7 +158,6 @@ public final class DogFur {
   void writeNbt(final NbtCompound nbt) {
     nbt.putInt(ModNbtKeys.FUR_STAGE, this.stage().ordinal());
     nbt.putInt(ModNbtKeys.FUR_TICKS_IN_STAGE, this.ticksInStage);
-    nbt.putBoolean(ModNbtKeys.FUR_SCUFFED, this.isScuffed());
   }
 
   void readNbt(final NbtCompound nbt) {
@@ -171,9 +165,7 @@ public final class DogFur {
       this.syncSpeedModifier();
       return;
     }
-    this.setStage(
-        DogFurStage.fromOrdinal(nbt.getInt(ModNbtKeys.FUR_STAGE)),
-        nbt.getBoolean(ModNbtKeys.FUR_SCUFFED));
+    this.setStage(DogFurStage.fromOrdinal(nbt.getInt(ModNbtKeys.FUR_STAGE)));
     this.ticksInStage = Math.max(0, nbt.getInt(ModNbtKeys.FUR_TICKS_IN_STAGE));
   }
 

@@ -11,6 +11,7 @@ public final class DogFurRules {
   public static final int PERCENT = 100;
   public static final int SPAWN_NATURAL_PERCENT = 70;
   public static final int SPAWN_SHAGGY_PERCENT = 25;
+  public static final int BOTCHED_YIELD_MULTIPLIER = 2;
 
   private DogFurRules() {}
 
@@ -63,7 +64,7 @@ public final class DogFurRules {
   public static int shearYield(
       final DogFurStage shearedFrom, final int yieldPerStage, final boolean botched) {
     final int full = shearedFrom.stagesAbove(DogFurStage.TRIMMED) * yieldPerStage;
-    return botched ? Math.max(1, full / 2) : full;
+    return botched ? full * BOTCHED_YIELD_MULTIPLIER : full;
   }
 
   public static DogFurStage spawnStage(final int rollPercent, final DogFurStage maxStage) {

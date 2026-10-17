@@ -46,14 +46,7 @@ final class DogTraitFormat {
   }
 
   static String furLine(final PetSyncData pet) {
-    return formatFur(
-        Text.translatable(DogFurStage.fromOrdinal(pet.furStage()).translationKey()).getString(),
-        Text.translatable("fur.dogs-unleashed.scuffed").getString(),
-        pet.furScuffed());
-  }
-
-  static String formatFur(final String stageName, final String scuffedNote, final boolean scuffed) {
-    return scuffed ? stageName + " (" + scuffedNote + ")" : stageName;
+    return Text.translatable(DogFurStage.fromOrdinal(pet.furStage()).translationKey()).getString();
   }
 
   static String formatRarity(final String rarityName, final int chancePercent) {

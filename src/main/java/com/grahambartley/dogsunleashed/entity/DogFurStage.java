@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.entity;
 import java.util.Locale;
 
 public enum DogFurStage {
+  BOTCHED(0),
   TRIMMED(0),
   NATURAL(5),
   SHAGGY(12),
@@ -25,7 +26,7 @@ public enum DogFurStage {
   }
 
   public boolean canBeTrimmed() {
-    return this != TRIMMED;
+    return this.ordinal() > TRIMMED.ordinal();
   }
 
   public DogFurStage next() {

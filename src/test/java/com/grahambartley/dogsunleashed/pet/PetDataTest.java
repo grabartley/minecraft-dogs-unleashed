@@ -36,7 +36,6 @@ class PetDataTest {
   private static final int BASE_COAT = UnleashedDogEntity.UNSET_VARIANT;
   private static final int BASE_EYE = UnleashedDogEntity.UNSET_VARIANT;
   private static final int BASE_FUR = DogFurStage.NATURAL.ordinal();
-  private static final boolean BASE_SCUFFED = false;
 
   private static int baseCollar() {
     return DyeColor.RED.getId();
@@ -67,12 +66,10 @@ class PetDataTest {
       final int collar,
       final int coat,
       final int eye,
-      final int fur,
-      final boolean scuffed) {
+      final int fur) {
     assertTrue(
         baselinePet()
-            .differsFrom(
-                health, pos, dimension, new PortraitLook(baby, collar, coat, eye, fur, scuffed)),
+            .differsFrom(health, pos, dimension, new PortraitLook(baby, collar, coat, eye, fur)),
         "expected differsFrom to flag a change in " + changedField);
   }
 
@@ -87,8 +84,7 @@ class PetDataTest {
             baseCollar(),
             BASE_COAT,
             BASE_EYE,
-            BASE_FUR,
-            BASE_SCUFFED),
+            BASE_FUR),
         Arguments.of(
             "position",
             BASE_HEALTH,
@@ -98,8 +94,7 @@ class PetDataTest {
             baseCollar(),
             BASE_COAT,
             BASE_EYE,
-            BASE_FUR,
-            BASE_SCUFFED),
+            BASE_FUR),
         Arguments.of(
             "dimension",
             BASE_HEALTH,
@@ -109,8 +104,7 @@ class PetDataTest {
             baseCollar(),
             BASE_COAT,
             BASE_EYE,
-            BASE_FUR,
-            BASE_SCUFFED),
+            BASE_FUR),
         Arguments.of(
             "dimension going null",
             BASE_HEALTH,
@@ -120,8 +114,7 @@ class PetDataTest {
             baseCollar(),
             BASE_COAT,
             BASE_EYE,
-            BASE_FUR,
-            BASE_SCUFFED),
+            BASE_FUR),
         Arguments.of(
             "baby",
             BASE_HEALTH,
@@ -131,8 +124,7 @@ class PetDataTest {
             baseCollar(),
             BASE_COAT,
             BASE_EYE,
-            BASE_FUR,
-            BASE_SCUFFED),
+            BASE_FUR),
         Arguments.of(
             "collarColor",
             BASE_HEALTH,
@@ -142,8 +134,7 @@ class PetDataTest {
             baseCollar() + 1,
             BASE_COAT,
             BASE_EYE,
-            BASE_FUR,
-            BASE_SCUFFED),
+            BASE_FUR),
         Arguments.of(
             "coatVariant",
             BASE_HEALTH,
@@ -153,8 +144,7 @@ class PetDataTest {
             baseCollar(),
             BASE_COAT + 1,
             BASE_EYE,
-            BASE_FUR,
-            BASE_SCUFFED),
+            BASE_FUR),
         Arguments.of(
             "huskyEyeVariant",
             BASE_HEALTH,
@@ -164,8 +154,7 @@ class PetDataTest {
             baseCollar(),
             BASE_COAT,
             BASE_EYE + 1,
-            BASE_FUR,
-            BASE_SCUFFED),
+            BASE_FUR),
         Arguments.of(
             "furStage",
             BASE_HEALTH,
@@ -175,19 +164,7 @@ class PetDataTest {
             baseCollar(),
             BASE_COAT,
             BASE_EYE,
-            DogFurStage.OVERGROWN.ordinal(),
-            BASE_SCUFFED),
-        Arguments.of(
-            "furScuffed",
-            BASE_HEALTH,
-            BASE_POS,
-            BASE_DIM,
-            BASE_BABY,
-            baseCollar(),
-            BASE_COAT,
-            BASE_EYE,
-            BASE_FUR,
-            !BASE_SCUFFED));
+            DogFurStage.OVERGROWN.ordinal()));
   }
 
   @ParameterizedTest(name = "differsFrom is false when the position is an equal {0}")
@@ -200,8 +177,7 @@ class PetDataTest {
                 BASE_HEALTH,
                 equalPos,
                 BASE_DIM,
-                new PortraitLook(
-                    BASE_BABY, baseCollar(), BASE_COAT, BASE_EYE, BASE_FUR, BASE_SCUFFED)),
+                new PortraitLook(BASE_BABY, baseCollar(), BASE_COAT, BASE_EYE, BASE_FUR)),
         "expected differsFrom to report no change for an unchanged pet (" + label + ")");
   }
 
@@ -212,29 +188,25 @@ class PetDataTest {
   }
 
   @Test
-  @DisplayName("the portrait fur stage and scuffed flag survive a save and reload")
+  @DisplayName("the portrait fur stage survives a save and reload")
   void portraitFurRoundTrips() {
     final NbtCompound nbt = baselinePet().toNbt();
-    nbt.putInt(ModNbtKeys.PORTRAIT_FUR_STAGE, DogFurStage.OVERGROWN.ordinal());
-    nbt.putBoolean(ModNbtKeys.PORTRAIT_FUR_SCUFFED, true);
+    nbt.putInt(ModNbtKeys.PORTRAIT_FUR_STAGE, DogFurStage.BOTCHED.ordinal());
 
     final PetData reloaded = PetData.fromNbt(PetData.fromNbt(nbt).toNbt());
 
-    assertEquals(DogFurStage.OVERGROWN.ordinal(), reloaded.getFurStage());
-    assertTrue(reloaded.isFurScuffed());
+    assertEquals(DogFurStage.BOTCHED.ordinal(), reloaded.getFurStage());
   }
 
   @Test
-  @DisplayName("a pet saved before fur growth existed loads with a natural, unscuffed coat")
+  @DisplayName("a pet saved before fur growth existed loads with a natural coat")
   void legacyPetHasNaturalFur() {
     final NbtCompound nbt = baselinePet().toNbt();
     nbt.remove(ModNbtKeys.PORTRAIT_FUR_STAGE);
-    nbt.remove(ModNbtKeys.PORTRAIT_FUR_SCUFFED);
 
     final PetData reloaded = PetData.fromNbt(nbt);
 
     assertEquals(DogFurStage.NATURAL.ordinal(), reloaded.getFurStage());
-    assertFalse(reloaded.isFurScuffed());
   }
 
   private static final UUID PARENT_A = UUID.nameUUIDFromBytes("parent-a".getBytes());

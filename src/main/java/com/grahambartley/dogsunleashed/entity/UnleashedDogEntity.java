@@ -89,7 +89,6 @@ public class UnleashedDogEntity extends TameableEntity
 
   private static final TrackedData<Integer> COMMAND = data(INTEGER);
   private static final TrackedData<Integer> FUR_STAGE = data(INTEGER);
-  private static final TrackedData<Boolean> FUR_SCUFFED = data(BOOLEAN);
 
   private static <T> TrackedData<T> data(final TrackedDataHandler<T> handler) {
     return DataTracker.registerData(UnleashedDogEntity.class, handler);
@@ -284,7 +283,6 @@ public class UnleashedDogEntity extends TameableEntity
     builder.add(HOWLING, false);
     builder.add(GENOME, new NbtCompound());
     builder.add(FUR_STAGE, DogFurStage.NATURAL.ordinal());
-    builder.add(FUR_SCUFFED, false);
   }
 
   public DogCommand getCommand() {
@@ -335,13 +333,8 @@ public class UnleashedDogEntity extends TameableEntity
     return this.dataTracker.get(FUR_STAGE);
   }
 
-  boolean isTrackedFurScuffed() {
-    return this.dataTracker.get(FUR_SCUFFED);
-  }
-
-  void setTrackedFur(final int stageOrdinal, final boolean scuffed) {
+  void setTrackedFurStage(final int stageOrdinal) {
     this.dataTracker.set(FUR_STAGE, stageOrdinal);
-    this.dataTracker.set(FUR_SCUFFED, scuffed);
   }
 
   public DogPendants getPendants() {

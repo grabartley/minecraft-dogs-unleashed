@@ -36,9 +36,7 @@ public class DogFurOverlayLayer extends GeoRenderLayer<UnleashedDogEntity> {
     }
     for (final Identifier overlay :
         FurLook.overlays(
-            RigProfiles.of(animatable.getRigSourceBreed()),
-            animatable.getFur().stage(),
-            animatable.getFur().isScuffed())) {
+            RigProfiles.of(animatable.getRigSourceBreed()), animatable.getFur().stage())) {
       final RenderLayer layer = RenderLayer.getEntityTranslucent(overlay);
       this.getRenderer()
           .reRender(

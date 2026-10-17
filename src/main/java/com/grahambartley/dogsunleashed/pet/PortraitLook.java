@@ -3,12 +3,7 @@ package com.grahambartley.dogsunleashed.pet;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 
 public record PortraitLook(
-    boolean baby,
-    int collarColor,
-    int coatVariant,
-    int huskyEyeVariant,
-    int furStage,
-    boolean furScuffed) {
+    boolean baby, int collarColor, int coatVariant, int huskyEyeVariant, int furStage) {
 
   public static PortraitLook of(final UnleashedDogEntity dog) {
     return new PortraitLook(
@@ -16,7 +11,6 @@ public record PortraitLook(
         dog.getCollarColor().getId(),
         PetData.coatVariantOf(dog),
         PetData.huskyEyeVariantOf(dog),
-        dog.getFur().stage().ordinal(),
-        dog.getFur().isScuffed());
+        dog.getFur().stage().ordinal());
   }
 }

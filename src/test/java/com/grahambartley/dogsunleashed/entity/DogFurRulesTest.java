@@ -112,11 +112,11 @@ class DogFurRulesTest {
     "NATURAL, 2, false, 2",
     "SHAGGY, 2, false, 4",
     "OVERGROWN, 2, false, 6",
-    "OVERGROWN, 2, true, 3",
-    "NATURAL, 1, true, 1",
-    "SHAGGY, 1, true, 1"
+    "OVERGROWN, 2, true, 12",
+    "NATURAL, 1, true, 2",
+    "SHAGGY, 1, true, 4"
   })
-  @DisplayName("yield is per stage removed, halved on a botch and never below one")
+  @DisplayName("yield is per stage removed down to a clean trim, doubled on a botch")
   void shearYield(
       final DogFurStage from, final int perStage, final boolean botched, final int expected) {
     assertEquals(expected, DogFurRules.shearYield(from, perStage, botched));

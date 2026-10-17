@@ -28,7 +28,7 @@ public record RigProfile(Map<Slot, Set<String>> bones, Map<Overlay, Identifier> 
 
   public enum Overlay {
     TRIMMED,
-    SCUFFED;
+    BOTCHED;
 
     String key() {
       return this.name().toLowerCase(Locale.ROOT) + "_overlay";

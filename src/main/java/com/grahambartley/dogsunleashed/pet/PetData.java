@@ -34,7 +34,6 @@ public final class PetData {
   private int coatVariant;
   private int huskyEyeVariant;
   private int furStage;
-  private boolean furScuffed;
   private UUID parentAId;
   private UUID parentBId;
   private List<BreedShare> composition;
@@ -157,10 +156,6 @@ public final class PetData {
     return furStage;
   }
 
-  public boolean isFurScuffed() {
-    return furScuffed;
-  }
-
   public List<BreedShare> getComposition() {
     return composition;
   }
@@ -204,7 +199,6 @@ public final class PetData {
     this.coatVariant = coatVariantOf(dog);
     this.huskyEyeVariant = huskyEyeVariantOf(dog);
     this.furStage = dog.getFur().stage().ordinal();
-    this.furScuffed = dog.getFur().isScuffed();
     this.movementSpeed = (float) dog.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
     this.attackDamage = (float) dog.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
     final DogGenome dogGenome = dog.getGenome();
@@ -224,7 +218,7 @@ public final class PetData {
   }
 
   public PortraitLook portraitLook() {
-    return new PortraitLook(baby, collarColor, coatVariant, huskyEyeVariant, furStage, furScuffed);
+    return new PortraitLook(baby, collarColor, coatVariant, huskyEyeVariant, furStage);
   }
 
   public boolean differsFrom(
@@ -253,7 +247,6 @@ public final class PetData {
     nbt.putInt(ModNbtKeys.PORTRAIT_COAT_VARIANT, coatVariant);
     nbt.putInt(ModNbtKeys.PORTRAIT_HUSKY_EYE, huskyEyeVariant);
     nbt.putInt(ModNbtKeys.PORTRAIT_FUR_STAGE, furStage);
-    nbt.putBoolean(ModNbtKeys.PORTRAIT_FUR_SCUFFED, furScuffed);
     nbt.putFloat(ModNbtKeys.MOVEMENT_SPEED, movementSpeed);
     nbt.putFloat(ModNbtKeys.ATTACK_DAMAGE, attackDamage);
     if (!composition.isEmpty()) {
@@ -307,7 +300,6 @@ public final class PetData {
     if (nbt.contains(ModNbtKeys.PORTRAIT_FUR_STAGE, NbtElement.NUMBER_TYPE)) {
       pet.furStage = DogFurStage.fromOrdinal(nbt.getInt(ModNbtKeys.PORTRAIT_FUR_STAGE)).ordinal();
     }
-    pet.furScuffed = nbt.getBoolean(ModNbtKeys.PORTRAIT_FUR_SCUFFED);
     if (nbt.contains(ModNbtKeys.MOVEMENT_SPEED, NbtElement.NUMBER_TYPE)) {
       pet.movementSpeed = nbt.getFloat(ModNbtKeys.MOVEMENT_SPEED);
     }

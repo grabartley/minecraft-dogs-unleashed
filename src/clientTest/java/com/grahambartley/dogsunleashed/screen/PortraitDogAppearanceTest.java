@@ -252,7 +252,6 @@ class PortraitDogAppearanceTest {
             base.coatVariant(),
             base.huskyEyeVariant(),
             base.furStage(),
-            base.furScuffed(),
             base.movementSpeed(),
             base.attackDamage(),
             base.composition());
@@ -290,15 +289,14 @@ class PortraitDogAppearanceTest {
         collarColorId,
         coatVariant,
         eyeVariant,
-        1,
-        false,
+        DogFurStage.NATURAL.ordinal(),
         MOVEMENT_SPEED,
         ATTACK_DAMAGE,
         composition);
   }
 
   @Test
-  @DisplayName("the portrait dog is given the pet's fur stage and scuffed flag")
+  @DisplayName("the portrait dog is given the pet's fur stage")
   void nbtCarriesFur() {
     final PetSyncData base = pet(UnleashedDogBreed.HUSKY, List.of());
     final PetSyncData overgrown =
@@ -318,7 +316,6 @@ class PortraitDogAppearanceTest {
             base.coatVariant(),
             base.huskyEyeVariant(),
             DogFurStage.OVERGROWN.ordinal(),
-            true,
             base.movementSpeed(),
             base.attackDamage(),
             base.composition());
@@ -326,6 +323,5 @@ class PortraitDogAppearanceTest {
     final NbtCompound nbt = PortraitDogAppearance.of(overgrown).toNbt();
 
     assertEquals(DogFurStage.OVERGROWN.ordinal(), nbt.getInt(ModNbtKeys.FUR_STAGE));
-    assertTrue(nbt.getBoolean(ModNbtKeys.FUR_SCUFFED));
   }
 }

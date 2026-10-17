@@ -68,7 +68,7 @@ public final class DogFurGameTest implements FabricGameTest {
 
   private static void testGrows(final TestContext context, final DogTestData data) {
     final UnleashedDogEntity dog = wildAdult(context, data);
-    seed(dog, DogFurStage.NATURAL, false, ticksPerStage(dog) - TICKS_BEFORE_DUE);
+    seed(dog, DogFurStage.NATURAL, ticksPerStage(dog) - TICKS_BEFORE_DUE);
 
     tick(dog, TICKS_RUN);
 
@@ -91,7 +91,7 @@ public final class DogFurGameTest implements FabricGameTest {
   private static void testStopsAtMax(final TestContext context, final DogTestData data) {
     final UnleashedDogEntity dog = wildAdult(context, data);
     final DogFurStage max = dog.getFur().profile().maxStage();
-    seed(dog, max, false, ticksPerStage(dog) - TICKS_BEFORE_DUE);
+    seed(dog, max, ticksPerStage(dog) - TICKS_BEFORE_DUE);
 
     tick(dog, TICKS_RUN);
 
@@ -104,7 +104,7 @@ public final class DogFurGameTest implements FabricGameTest {
   public void aPuppyKeepsItsCoat(final TestContext context) {
     final UnleashedDogEntity puppy = wildAdult(context, DogTestData.HUSKY);
     puppy.setBaby(true);
-    seed(puppy, DogFurStage.NATURAL, false, ticksPerStage(puppy) - TICKS_BEFORE_DUE);
+    seed(puppy, DogFurStage.NATURAL, ticksPerStage(puppy) - TICKS_BEFORE_DUE);
 
     tick(puppy, TICKS_RUN);
 
@@ -115,7 +115,7 @@ public final class DogFurGameTest implements FabricGameTest {
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
   public void disabledFurGrowthFreezesTheCoat(final TestContext context) {
     final UnleashedDogEntity dog = wildAdult(context, DogTestData.HUSKY);
-    seed(dog, DogFurStage.NATURAL, false, ticksPerStage(dog) - TICKS_BEFORE_DUE);
+    seed(dog, DogFurStage.NATURAL, ticksPerStage(dog) - TICKS_BEFORE_DUE);
 
     withConfig(config -> config.withFurGrowthEnabled(false), () -> tick(dog, TICKS_RUN));
 
@@ -126,14 +126,14 @@ public final class DogFurGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
-  public void aBotchedTrimGrowsOutOnTheNextStage(final TestContext context) {
+  public void aBotchedTrimGrowsOutIntoATrimmedCoat(final TestContext context) {
     final UnleashedDogEntity dog = wildAdult(context, DogTestData.HUSKY);
-    seed(dog, DogFurStage.TRIMMED, true, ticksPerStage(dog) - TICKS_BEFORE_DUE);
+    seed(dog, DogFurStage.BOTCHED, ticksPerStage(dog) - TICKS_BEFORE_DUE);
 
     tick(dog, TICKS_RUN);
 
-    context.assertTrue(dog.getFur().stage() == DogFurStage.NATURAL, "The coat grows back");
-    context.assertFalse(dog.getFur().isScuffed(), "The bad haircut grows out with it");
+    context.assertTrue(
+        dog.getFur().stage() == DogFurStage.TRIMMED, "A bad haircut grows out into a trim");
     context.complete();
   }
 
@@ -146,7 +146,7 @@ public final class DogFurGameTest implements FabricGameTest {
     final ServerPlayerEntity owner = PendantTestHelper.survivalOwnerAt(context, OWNER_POS);
     final UnleashedDogEntity dog = ownedDog(context, data, owner);
     final DogFurStage max = dog.getFur().profile().maxStage();
-    seed(dog, max, false, 0);
+    seed(dog, max, 0);
     owner.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.SHEARS));
 
     withConfig(
@@ -154,7 +154,6 @@ public final class DogFurGameTest implements FabricGameTest {
         () -> dog.interactMob(owner, Hand.MAIN_HAND));
 
     context.assertTrue(dog.getFur().stage() == DogFurStage.TRIMMED, "The coat is trimmed");
-    context.assertFalse(dog.getFur().isScuffed(), "A clean trim leaves no bad haircut");
     context.assertEquals(
         owner.getStackInHand(Hand.MAIN_HAND).getDamage(), 1, "The shears wear by one");
     context.assertEquals(
@@ -165,19 +164,20 @@ public final class DogFurGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
-  public void aBotchedTrimHalvesTheFurAndEarnsBadHairDay(final TestContext context) {
+  public void aBotchedTrimDoublesTheFurAndEarnsBadHairDay(final TestContext context) {
     final ServerPlayerEntity owner = PendantTestHelper.survivalOwnerAt(context, OWNER_POS);
     final UnleashedDogEntity dog = ownedDog(context, DogTestData.HUSKY, owner);
-    seed(dog, DogFurStage.OVERGROWN, false, 0);
+    seed(dog, DogFurStage.OVERGROWN, 0);
     owner.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.SHEARS));
 
     withConfig(
         config -> config.withBadHairDayChanceMultiplierPercent(CERTAIN_BOTCH),
         () -> dog.interactMob(owner, Hand.MAIN_HAND));
 
-    context.assertTrue(dog.getFur().isScuffed(), "A botched trim leaves a bad haircut");
+    context.assertTrue(
+        dog.getFur().stage() == DogFurStage.BOTCHED, "A botched trim cuts below a clean trim");
     context.assertEquals(
-        droppedFur(context), 3, "A botch halves the six fur an overgrown husky gives");
+        droppedFur(context), 12, "A botch doubles the six fur an overgrown husky gives");
     final AdvancementEntry badHairDay =
         context
             .getWorld()
@@ -198,7 +198,7 @@ public final class DogFurGameTest implements FabricGameTest {
     final EntityAttributeInstance speed =
         dog.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED);
     final double base = speed.getBaseValue();
-    seed(dog, DogFurStage.OVERGROWN, false, 0);
+    seed(dog, DogFurStage.OVERGROWN, 0);
 
     context.assertTrue(
         speed.hasModifier(DogFur.OVERGROWN_SPEED_MODIFIER_ID), "Overgrown dogs are slowed");
@@ -219,14 +219,23 @@ public final class DogFurGameTest implements FabricGameTest {
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
   public void trimmingAnAlreadyTrimmedCoatDoesNothing(final TestContext context) {
+    assertCannotTrimAgain(context, DogFurStage.TRIMMED);
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void trimmingABotchedCoatDoesNothing(final TestContext context) {
+    assertCannotTrimAgain(context, DogFurStage.BOTCHED);
+  }
+
+  private static void assertCannotTrimAgain(final TestContext context, final DogFurStage stage) {
     final ServerPlayerEntity owner = PendantTestHelper.survivalOwnerAt(context, OWNER_POS);
     final UnleashedDogEntity dog = ownedDog(context, DogTestData.HUSKY, owner);
-    seed(dog, DogFurStage.TRIMMED, false, 0);
+    seed(dog, stage, 0);
     owner.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.SHEARS));
 
     dog.interactMob(owner, Hand.MAIN_HAND);
 
-    assertUntouched(context, dog, owner, DogFurStage.TRIMMED);
+    assertUntouched(context, dog, owner, stage);
   }
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
@@ -234,7 +243,7 @@ public final class DogFurGameTest implements FabricGameTest {
     final ServerPlayerEntity owner = PendantTestHelper.survivalOwnerAt(context, OWNER_POS);
     final UnleashedDogEntity puppy = ownedDog(context, DogTestData.HUSKY, owner);
     puppy.setBaby(true);
-    seed(puppy, DogFurStage.SHAGGY, false, 0);
+    seed(puppy, DogFurStage.SHAGGY, 0);
     owner.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.SHEARS));
 
     puppy.interactMob(owner, Hand.MAIN_HAND);
@@ -248,7 +257,7 @@ public final class DogFurGameTest implements FabricGameTest {
     final ServerPlayerEntity stranger =
         PendantTestHelper.survivalOwnerAt(context, new BlockPos(2, 2, 3));
     final UnleashedDogEntity dog = ownedDog(context, DogTestData.HUSKY, owner);
-    seed(dog, DogFurStage.SHAGGY, false, 0);
+    seed(dog, DogFurStage.SHAGGY, 0);
     stranger.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.SHEARS));
 
     dog.interactMob(stranger, Hand.MAIN_HAND);
@@ -262,7 +271,7 @@ public final class DogFurGameTest implements FabricGameTest {
     final UnleashedDogEntity dog = ownedDog(context, DogTestData.HUSKY, owner);
     dog.getEquipmentHolder()
         .setStack(DogEquipmentSlot.ARMOUR, new ItemStack(ModArmorItems.of(DogArmorTier.IRON)));
-    seed(dog, DogFurStage.SHAGGY, false, 0);
+    seed(dog, DogFurStage.SHAGGY, 0);
     owner.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.SHEARS));
 
     dog.interactMob(owner, Hand.MAIN_HAND);
@@ -275,7 +284,7 @@ public final class DogFurGameTest implements FabricGameTest {
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
   public void theCoatSurvivesASaveAndReload(final TestContext context) {
     final UnleashedDogEntity dog = wildAdult(context, DogTestData.HUSKY);
-    seed(dog, DogFurStage.OVERGROWN, false, 1234);
+    seed(dog, DogFurStage.OVERGROWN, 1234);
     final NbtCompound saved = new NbtCompound();
     dog.writeCustomDataToNbt(saved);
 
@@ -319,14 +328,10 @@ public final class DogFurGameTest implements FabricGameTest {
   }
 
   private static void seed(
-      final UnleashedDogEntity dog,
-      final DogFurStage stage,
-      final boolean scuffed,
-      final int ticksInStage) {
+      final UnleashedDogEntity dog, final DogFurStage stage, final int ticksInStage) {
     final NbtCompound nbt = new NbtCompound();
     dog.writeCustomDataToNbt(nbt);
     nbt.putInt(ModNbtKeys.FUR_STAGE, stage.ordinal());
-    nbt.putBoolean(ModNbtKeys.FUR_SCUFFED, scuffed);
     nbt.putInt(ModNbtKeys.FUR_TICKS_IN_STAGE, ticksInStage);
     dog.readCustomDataFromNbt(nbt);
   }

@@ -24,15 +24,13 @@ public final class FurLook {
     return true;
   }
 
-  public static List<Identifier> overlays(
-      final RigProfile profile, final DogFurStage stage, final boolean scuffed) {
-    if (stage != DogFurStage.TRIMMED) {
-      return List.of();
-    }
-    return Stream.of(
-            profile.overlay(Overlay.TRIMMED),
-            scuffed ? profile.overlay(Overlay.SCUFFED) : Optional.<Identifier>empty())
-        .flatMap(Optional::stream)
-        .toList();
+  public static List<Identifier> overlays(final RigProfile profile, final DogFurStage stage) {
+    final Stream<Overlay> layers =
+        switch (stage) {
+          case BOTCHED -> Stream.of(Overlay.TRIMMED, Overlay.BOTCHED);
+          case TRIMMED -> Stream.of(Overlay.TRIMMED);
+          default -> Stream.empty();
+        };
+    return layers.map(profile::overlay).flatMap(Optional::stream).toList();
   }
 }

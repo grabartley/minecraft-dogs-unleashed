@@ -17,7 +17,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 class FurLookTest {
 
   private static final Identifier TRIMMED = Identifier.of("dogs-unleashed", "trimmed.png");
-  private static final Identifier SCUFFED = Identifier.of("dogs-unleashed", "scuffed.png");
+  private static final Identifier BOTCHED = Identifier.of("dogs-unleashed", "botched.png");
   private static final RigProfile PROFILE =
       new RigProfile(
           Map.of(
@@ -27,7 +27,7 @@ class FurLookTest {
               Set.of("shag"),
               Slot.FUR_OVERGROWN,
               Set.of("mop")),
-          Map.of(Overlay.TRIMMED, TRIMMED, Overlay.SCUFFED, SCUFFED));
+          Map.of(Overlay.TRIMMED, TRIMMED, Overlay.BOTCHED, BOTCHED));
 
   @ParameterizedTest(name = "{0} at {1} shows={2}")
   @CsvSource({
@@ -46,25 +46,18 @@ class FurLookTest {
     assertEquals(expected, FurLook.shows(PROFILE, bone, stage));
   }
 
-  @ParameterizedTest(name = "{0} scuffed={1}")
-  @CsvSource({
-    "TRIMMED, false, 1",
-    "TRIMMED, true, 2",
-    "NATURAL, true, 0",
-    "SHAGGY, false, 0",
-    "OVERGROWN, false, 0"
-  })
-  @DisplayName("only a trimmed coat gets overlays, with the scuffed one on top after a botch")
-  void overlaysOnlyWhenTrimmed(final DogFurStage stage, final boolean scuffed, final int count) {
-    final List<Identifier> overlays = FurLook.overlays(PROFILE, stage, scuffed);
-    assertEquals(List.of(TRIMMED, SCUFFED).subList(0, count), overlays);
+  @ParameterizedTest(name = "{0} draws {1} overlays")
+  @CsvSource({"BOTCHED, 2", "TRIMMED, 1", "NATURAL, 0", "SHAGGY, 0", "OVERGROWN, 0"})
+  @DisplayName("a trimmed coat gets the trim overlay, and a botched one the botch on top")
+  void overlaysOnlyWhenTrimmed(final DogFurStage stage, final int count) {
+    assertEquals(List.of(TRIMMED, BOTCHED).subList(0, count), FurLook.overlays(PROFILE, stage));
   }
 
   @ParameterizedTest(name = "{0}")
-  @CsvSource({"TRIMMED", "NATURAL", "SHAGGY", "OVERGROWN"})
+  @CsvSource({"BOTCHED", "TRIMMED", "NATURAL", "SHAGGY", "OVERGROWN"})
   @DisplayName("a rig with no fur art draws exactly what it draws today")
   void noArtChangesNothing(final DogFurStage stage) {
     assertEquals(true, FurLook.shows(RigProfile.EMPTY, "any", stage));
-    assertEquals(List.of(), FurLook.overlays(RigProfile.EMPTY, stage, true));
+    assertEquals(List.of(), FurLook.overlays(RigProfile.EMPTY, stage));
   }
 }
