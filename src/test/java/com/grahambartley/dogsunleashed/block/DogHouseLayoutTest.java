@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.block;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
@@ -80,6 +81,36 @@ class DogHouseLayoutTest {
     assertEquals(midX + facing.getOffsetX() * towardDoor, anchor.x, 1.0e-9, "x");
     assertEquals(midZ + facing.getOffsetZ() * towardDoor, anchor.z, 1.0e-9, "z");
     assertEquals(ORIGIN.getY(), anchor.y, 1.0e-9, "an occupant lies on the floor");
+  }
+
+  @ParameterizedTest(name = "facing {0}")
+  @EnumSource(
+      value = Direction.class,
+      names = {"NORTH", "SOUTH", "EAST", "WEST"})
+  @DisplayName("the doorstep is centred across the doorway in the row of cells in front of it")
+  void theDoorstepIsInFrontOfTheDoorway(final Direction facing) {
+    final Vec3d doorstep = DogHouseLayout.doorstep(ORIGIN, facing);
+    final Vec3d cushion = DogHouseLayout.cushionCentre(ORIGIN, facing);
+    final Direction right = facing.rotateYClockwise();
+    final BlockPos frontLeft =
+        ORIGIN.add(DogHouseLayout.offsetFromOrigin(DogHousePart.FRONT_LEFT_LOWER, facing));
+    final BlockPos frontRight =
+        ORIGIN.add(DogHouseLayout.offsetFromOrigin(DogHousePart.FRONT_RIGHT_LOWER, facing));
+    final double halfDog = 0.4;
+
+    assertEquals(
+        frontLeft.offset(facing),
+        BlockPos.ofFloored(doorstep.subtract(Vec3d.of(right.getVector()).multiply(halfDog))));
+    assertEquals(
+        frontRight.offset(facing),
+        BlockPos.ofFloored(doorstep.add(Vec3d.of(right.getVector()).multiply(halfDog))));
+    assertFalse(
+        DogHouseLayout.cellsOf(ORIGIN, facing)
+            .contains(
+                BlockPos.ofFloored(
+                    doorstep.subtract(Vec3d.of(facing.getVector()).multiply(halfDog)))),
+        "a dog-sized box on the doorstep should clear the front wall");
+    assertEquals(cushion.y, doorstep.y, 1.0e-9, "the doorstep is at floor level");
   }
 
   @ParameterizedTest(name = "facing {0}")

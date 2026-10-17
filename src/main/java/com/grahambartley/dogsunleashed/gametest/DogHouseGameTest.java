@@ -17,10 +17,12 @@ import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
 import com.grahambartley.dogsunleashed.gametest.util.SleepBatchFixture;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.MovementType;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -39,11 +41,11 @@ import net.minecraft.util.math.Vec3d;
 
 public final class DogHouseGameTest implements FabricGameTest {
 
-  private static final BlockPos REL_ORIGIN = new BlockPos(1, 1, 1);
+  private static final BlockPos REL_ORIGIN = new BlockPos(1, 2, 1);
   private static final Direction FACING = Direction.NORTH;
   private static final double ROOF_SLAB_TOP_IN_CELL = 6.0 / 16.0;
   private static final double CUSHION_TOP = 4.0 / 16.0;
-  private static final long NIGHT_TIME = 15000;
+  private static final double WALK_AWAY_DISTANCE = 1.5;
 
   @BeforeBatch(batchId = "dog-house")
   public void beforeBatch(final ServerWorld world) {
@@ -59,7 +61,7 @@ public final class DogHouseGameTest implements FabricGameTest {
   public void beforeNightBatch(final ServerWorld world) {
     SleepBatchFixture.prepare(world);
     DogSleepSpotAssignment.clearPendingAssignments();
-    world.setTimeOfDay(NIGHT_TIME);
+    SleepBatchFixture.pinNight(world);
   }
 
   @AfterBatch(batchId = "dog-house-night")
@@ -178,7 +180,11 @@ public final class DogHouseGameTest implements FabricGameTest {
     placeHouse(context);
     final BlockPos roofCell = rel(DogHousePart.FRONT_LEFT_UPPER);
     final ItemEntity dropped =
-        context.spawnItem(Items.OAK_PLANKS, roofCell.getX() + 0.2f, 3.5f, roofCell.getZ() + 0.5f);
+        context.spawnItem(
+            Items.OAK_PLANKS,
+            roofCell.getX() + 0.2f,
+            roofCell.getY() + 0.7f,
+            roofCell.getZ() + 0.5f);
     dropped.setVelocity(0, 0, 0);
 
     context.runAtTick(
@@ -195,6 +201,17 @@ public final class DogHouseGameTest implements FabricGameTest {
 
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-house-night", tickLimit = 200)
   public void aDogThatPutsItselfToBedLiesOnTheMiddleOfTheCushion(final TestContext context) {
+    assertSleepsOnTheCushionCentre(context, (dog, bed) -> {});
+  }
+
+  @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-house-night", tickLimit = 200)
+  public void aDogSentToBedLiesOnTheMiddleOfTheCushion(final TestContext context) {
+    assertSleepsOnTheCushionCentre(
+        context, (dog, bed) -> dog.getSleepController().commandToSleep(bed));
+  }
+
+  private static void assertSleepsOnTheCushionCentre(
+      final TestContext context, final BiConsumer<UnleashedDogEntity, BlockPos> sendToBed) {
     placeHouse(context);
     final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
     final UnleashedDogEntity dog =
@@ -204,11 +221,13 @@ public final class DogHouseGameTest implements FabricGameTest {
     dog.setInvulnerable(true);
     final BlockPos absOrigin = context.getAbsolutePos(REL_ORIGIN);
     dog.setAssignedBedPos(absOrigin);
+    sendToBed.accept(dog, absOrigin);
 
-    context.runAtTick(
-        180,
+    context.runAtEveryTick(
         () -> {
-          context.assertTrue(dog.isSleepingInBed(), "The dog should have put itself to bed");
+          if (!dog.isSleepingInBed()) {
+            return;
+          }
           final Vec3d cushion = DogHouseLayout.cushionCentre(absOrigin, FACING);
           final double offCentre = Math.hypot(dog.getX() - cushion.x, dog.getZ() - cushion.z);
           context.assertTrue(
@@ -221,6 +240,43 @@ public final class DogHouseGameTest implements FabricGameTest {
                   + (dog.getY() - absOrigin.getY()));
           context.complete();
         });
+  }
+
+  @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-house", tickLimit = 40)
+  public void aDogThatWakesInAHouseStepsOntoTheDoorstepAndCanWalkAway(final TestContext context) {
+    placeHouse(context);
+    final UnleashedDogEntity dog = sleepingDog(context, REL_ORIGIN);
+    dog.getSleepController().markManuallyWoken();
+    dog.wakeUp();
+
+    context.assertTrue(
+        context.getRelative(dog.getPos()).z < REL_ORIGIN.getZ(),
+        "A dog waking in a house should step out in front of the door");
+    context.assertTrue(
+        context.getWorld().isSpaceEmpty(dog, dog.getBoundingBox()),
+        "A dog on the doorstep should not be wedged in anything");
+    final double startX = dog.getX();
+    dog.move(MovementType.SELF, new Vec3d(WALK_AWAY_DISTANCE, 0.0, 0.0));
+    context.assertTrue(
+        dog.getX() - startX > WALK_AWAY_DISTANCE - 1.0e-6,
+        "A dog on the doorstep should be free to walk away, moved " + (dog.getX() - startX));
+    context.complete();
+  }
+
+  @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-house", tickLimit = 40)
+  public void aDogThatWakesInAHouseWithABlockedDoorstepStaysInside(final TestContext context) {
+    placeHouse(context);
+    context.setBlockState(REL_ORIGIN.offset(FACING), Blocks.STONE);
+    context.setBlockState(REL_ORIGIN.add(1, 0, 0).offset(FACING), Blocks.STONE);
+    final UnleashedDogEntity dog = sleepingDog(context, REL_ORIGIN);
+    final Vec3d asleepAt = dog.getPos();
+    dog.getSleepController().markManuallyWoken();
+    dog.wakeUp();
+
+    context.assertTrue(
+        dog.getPos().squaredDistanceTo(asleepAt) < 1.0e-6,
+        "A dog should not be pushed into a blocked doorstep when it wakes");
+    context.complete();
   }
 
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-house", tickLimit = 60)

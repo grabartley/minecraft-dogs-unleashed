@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
+import java.util.Arrays;
+import java.util.stream.Stream;
 import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
@@ -11,7 +13,9 @@ import net.minecraft.util.shape.VoxelShapes;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(MinecraftBootstrapExtension.class)
 class DogHouseShapeTest {
@@ -130,21 +134,20 @@ class DogHouseShapeTest {
         "the ceiling should start above the walls, not at the cell boundary");
   }
 
-  @ParameterizedTest(name = "facing {0}")
-  @EnumSource(
-      value = Direction.class,
-      names = {"NORTH", "SOUTH", "EAST", "WEST"})
+  static Stream<Arguments> roofCellsByFacing() {
+    return Arrays.stream(DogHousePart.values())
+        .filter(part -> part.up() == 1)
+        .flatMap(
+            part ->
+                Stream.of(Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST)
+                    .map(facing -> Arguments.of(part, facing)));
+  }
+
+  @ParameterizedTest(name = "{0} facing {1}")
+  @MethodSource("roofCellsByFacing")
   @DisplayName("every roof cell is solid, so a player can stand on the house")
-  void everyRoofCellIsSolid(final Direction facing) {
-    for (final DogHousePart part :
-        new DogHousePart[] {
-          DogHousePart.FRONT_LEFT_UPPER, DogHousePart.FRONT_RIGHT_UPPER,
-          DogHousePart.BACK_LEFT_UPPER, DogHousePart.BACK_RIGHT_UPPER
-        }) {
-      assertTrue(
-          blocks(DogHouseShape.collision(part, facing), probe(0.5, 0.25, 0.5, facing)),
-          part.asString() + " should carry the roof");
-    }
+  void everyRoofCellIsSolid(final DogHousePart part, final Direction facing) {
+    assertTrue(blocks(DogHouseShape.collision(part, facing), probe(0.5, 0.25, 0.5, facing)));
   }
 
   @ParameterizedTest(name = "facing {0}")

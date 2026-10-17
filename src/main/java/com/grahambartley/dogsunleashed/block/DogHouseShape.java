@@ -21,7 +21,9 @@ public final class DogHouseShape {
   private static final int ROOF_SLAB_TOP = 22;
   private static final int GABLE_STEPS = 8;
   private static final int GABLE_STEP_INSET = 2;
-  private static final double RIDGE_TOP = 30.6;
+  private static final int RIDGE_CAP_MIN_X = 15;
+  private static final double RIDGE_CAP_BASE = 29.6;
+  private static final double RIDGE_CAP_TOP = 30.6;
   private static final int CHIMNEY_MIN_X = 6;
   private static final int CHIMNEY_MIN_Z = 12;
   private static final int CHIMNEY_SIZE = 6;
@@ -56,6 +58,15 @@ public final class DogHouseShape {
           CHIMNEY_TOP,
           CHIMNEY_MIN_Z + CHIMNEY_SIZE);
 
+  private static final ShellBox RIDGE_CAP =
+      new ShellBox(
+          RIDGE_CAP_MIN_X,
+          RIDGE_CAP_BASE,
+          0,
+          HOUSE_SIZE - RIDGE_CAP_MIN_X,
+          RIDGE_CAP_TOP,
+          HOUSE_SIZE);
+
   private static final List<ShellBox> SHELL = buildShell();
 
   private static final Map<DogHousePart, Map<Direction, VoxelShape>> SHAPES = buildShapes();
@@ -74,12 +85,12 @@ public final class DogHouseShape {
                 RIGHT_DOOR_POST,
                 DOOR_LINTEL,
                 ROOF_SLAB,
+                RIDGE_CAP,
                 CHIMNEY));
     for (int step = 0; step < GABLE_STEPS; step++) {
       final int inset = 1 + step * GABLE_STEP_INSET;
       final int bottom = ROOF_SLAB_TOP + step;
-      final double top = step == GABLE_STEPS - 1 ? RIDGE_TOP : bottom + 1;
-      shell.add(new ShellBox(inset, bottom, 0, HOUSE_SIZE - inset, top, HOUSE_SIZE));
+      shell.add(new ShellBox(inset, bottom, 0, HOUSE_SIZE - inset, bottom + 1, HOUSE_SIZE));
     }
     return List.copyOf(shell);
   }

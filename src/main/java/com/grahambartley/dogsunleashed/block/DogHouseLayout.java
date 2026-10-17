@@ -9,6 +9,7 @@ import net.minecraft.util.math.Vec3d;
 public final class DogHouseLayout {
 
   private static final double CUSHION_TOWARD_DOOR = 2.0 / 16.0;
+  private static final double MIDDLE_TO_DOORSTEP = 1.5;
 
   private DogHouseLayout() {}
 
@@ -33,14 +34,24 @@ public final class DogHouseLayout {
   }
 
   public static Vec3d cushionCentre(final BlockPos origin, final Direction facing) {
+    return footprintMiddle(origin, facing).add(towardDoor(facing, CUSHION_TOWARD_DOOR));
+  }
+
+  public static Vec3d doorstep(final BlockPos origin, final Direction facing) {
+    return footprintMiddle(origin, facing).add(towardDoor(facing, MIDDLE_TO_DOORSTEP));
+  }
+
+  private static Vec3d footprintMiddle(final BlockPos origin, final Direction facing) {
     final Direction right = facing.rotateYClockwise();
     final Direction back = facing.getOpposite();
     return Vec3d.ofBottomCenter(origin)
         .add(
-            (right.getOffsetX() + back.getOffsetX()) * 0.5
-                + facing.getOffsetX() * CUSHION_TOWARD_DOOR,
+            (right.getOffsetX() + back.getOffsetX()) * 0.5,
             0.0,
-            (right.getOffsetZ() + back.getOffsetZ()) * 0.5
-                + facing.getOffsetZ() * CUSHION_TOWARD_DOOR);
+            (right.getOffsetZ() + back.getOffsetZ()) * 0.5);
+  }
+
+  private static Vec3d towardDoor(final Direction facing, final double distance) {
+    return new Vec3d(facing.getOffsetX() * distance, 0.0, facing.getOffsetZ() * distance);
   }
 }

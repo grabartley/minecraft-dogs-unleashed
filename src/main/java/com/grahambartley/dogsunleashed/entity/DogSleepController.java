@@ -94,10 +94,27 @@ public final class DogSleepController {
 
   void wakeUp() {
     awardHouseComfort();
+    stepOutOfBed();
     this.dog.setNoGravity(false);
     this.dog.setSleepingInBed(false);
     this.dog.setCommandedToSleep(false);
     this.dog.getAmbienceEffects().releaseBirthWakeHearts();
+  }
+
+  private void stepOutOfBed() {
+    if (!this.dog.isSleepingInBed() || this.dog.getWorld().isClient) {
+      return;
+    }
+    this.dog
+        .getAssignedBedPos()
+        .flatMap(pos -> DogSleepSpotAnchor.wakeSpotFor(this.dog.getWorld(), pos))
+        .filter(
+            spot ->
+                this.dog
+                    .getWorld()
+                    .isSpaceEmpty(
+                        this.dog, this.dog.getDimensions(this.dog.getPose()).getBoxAt(spot)))
+        .ifPresent(spot -> this.dog.refreshPositionAfterTeleport(spot));
   }
 
   private void awardHouseComfort() {

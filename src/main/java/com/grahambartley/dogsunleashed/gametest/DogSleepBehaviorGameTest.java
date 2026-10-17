@@ -17,12 +17,10 @@ import net.minecraft.util.math.BlockPos;
 
 public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
-  private static final long NIGHT_TIME = 15000;
-
   @BeforeBatch(batchId = "sleep-flags")
   public void beforeFlagsBatch(final ServerWorld world) {
     SleepBatchFixture.prepare(world);
-    pinNight(world);
+    SleepBatchFixture.pinNight(world);
   }
 
   @AfterBatch(batchId = "sleep-flags")
@@ -333,7 +331,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
     context.runAtTick(
         10,
         () -> {
-          pinNight(world);
+          SleepBatchFixture.pinNight(world);
           husky.setAssignedBedPos(absBedPos);
           husky.getSleepController().commandToSleep(absBedPos);
           husky.getSleepController().startSleepingInBed(absBedPos);
@@ -343,7 +341,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
     context.runAtTick(
         40,
         () -> {
-          pinNight(world);
+          SleepBatchFixture.pinNight(world);
           husky.getSleepController().markManuallyWoken();
           husky.wakeUp();
           context.assertTrue(!husky.isSleepingInBed(), "Dog should wake manually");
@@ -355,7 +353,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
     context.runAtTick(
         70,
         () -> {
-          pinNight(world);
+          SleepBatchFixture.pinNight(world);
           context.assertTrue(
               husky.getSleepController().isAutoSleepSuppressed(),
               "Suppression should hold for the remainder of night");
@@ -432,7 +430,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
     context.runAtTick(
         10,
         () -> {
-          pinNight(world);
+          SleepBatchFixture.pinNight(world);
           husky.setAssignedBedPos(absBedPos);
           husky.getSleepController().commandToSleep(absBedPos);
           husky.getSleepController().startSleepingInBed(absBedPos);
@@ -445,7 +443,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
     context.runAtTick(
         50,
         () -> {
-          pinNight(world);
+          SleepBatchFixture.pinNight(world);
           context.assertTrue(
               husky.getSleepController().isAutoSleepSuppressed(),
               "Suppression should still be active at night");
@@ -454,7 +452,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
     context.runAtTick(
         130,
         () -> {
-          world.setTimeOfDay(DogSleepWindow.DAY_LENGTH_TICKS + NIGHT_TIME);
+          world.setTimeOfDay(DogSleepWindow.DAY_LENGTH_TICKS + SleepBatchFixture.NIGHT_TIME);
           husky.refreshPositionAndAngles(
               absBedPos.getX() + 0.5, absBedPos.getY(), absBedPos.getZ() + 0.5, 0.0f, 0.0f);
           husky.setVelocity(0, 0, 0);
@@ -549,10 +547,6 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
               "startSleepingInBed should clear COMMANDED_TO_SLEEP on arrival");
           context.complete();
         });
-  }
-
-  private static void pinNight(final ServerWorld world) {
-    world.setTimeOfDay(NIGHT_TIME);
   }
 
   private static void pinDay(final ServerWorld world) {
