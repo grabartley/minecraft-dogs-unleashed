@@ -77,6 +77,9 @@ jobs:
           report_paths: |
             **/build/test-results/*/TEST-*.xml
             build/gametest-results.xml
+          check_name: |
+            JUnit Test Report
+            Gametest Report
           detailed_summary: true
           include_passed: true
 
