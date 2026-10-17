@@ -1,6 +1,6 @@
 package com.grahambartley.dogsunleashed.network;
 
-import com.grahambartley.dogsunleashed.DogsUnleashed;
+import com.grahambartley.dogsunleashed.config.SyncedServerConfig;
 import com.grahambartley.dogsunleashed.entity.DogWheelAction;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.SyncServerConfigS2CPayload;
@@ -23,6 +23,7 @@ import com.grahambartley.dogsunleashed.screen.DogInspectScreen;
 import com.grahambartley.dogsunleashed.screen.PetManagerScreen;
 import com.grahambartley.dogsunleashed.screen.PetNamingScreen;
 import java.util.UUID;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 
@@ -44,93 +45,63 @@ public final class ModNetworkingClient {
         SyncDogConnectionsPayload.ID, ModNetworkingClient::handleSyncDogConnections);
     ClientPlayNetworking.registerGlobalReceiver(
         OpenDogInspectPayload.ID, ModNetworkingClient::handleOpenDogInspect);
+    ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> SyncedServerConfig.reset());
   }
 
   private static void handleOpenDogInspect(
       OpenDogInspectPayload payload, ClientPlayNetworking.Context context) {
-    context
-        .client()
-        .execute(
-            () -> {
-              final MinecraftClient client = MinecraftClient.getInstance();
-              if (client.currentScreen != null || client.world == null) {
-                return;
-              }
-              client.setScreen(new DogInspectScreen(payload));
-            });
+    final MinecraftClient client = MinecraftClient.getInstance();
+    if (client.currentScreen != null || client.world == null) {
+      return;
+    }
+    client.setScreen(new DogInspectScreen(payload));
   }
 
   private static void handleSyncDogConnections(
       SyncDogConnectionsPayload payload, ClientPlayNetworking.Context context) {
-    context
-        .client()
-        .execute(
-            () -> {
-              if (MinecraftClient.getInstance().currentScreen
-                  instanceof DogConnectionsListener listener) {
-                listener.onDogConnections(payload);
-              }
-            });
+    if (MinecraftClient.getInstance().currentScreen instanceof DogConnectionsListener listener) {
+      listener.onDogConnections(payload);
+    }
   }
 
   private static void handleSyncServerConfig(
       SyncServerConfigS2CPayload payload, ClientPlayNetworking.Context context) {
-    context.client().execute(() -> DogsUnleashed.SERVER_CONFIG = payload.config());
+    SyncedServerConfig.apply(payload.config());
   }
 
   private static void handleOpenNamingScreen(
       OpenNamingScreenPayload payload, ClientPlayNetworking.Context context) {
-    context
-        .client()
-        .execute(
-            () -> {
-              MinecraftClient.getInstance()
-                  .setScreen(
-                      new PetNamingScreen(
-                          payload.petId(),
-                          DogBreedNames.displayName(payload.breed(), payload.composition()),
-                          payload.bornPuppy(),
-                          payload.suggestedName()));
-            });
+    MinecraftClient.getInstance()
+        .setScreen(
+            new PetNamingScreen(
+                payload.petId(),
+                DogBreedNames.displayName(payload.breed(), payload.composition()),
+                payload.bornPuppy(),
+                payload.suggestedName()));
   }
 
   private static void handleOpenCommandWheel(
       OpenCommandWheelPayload payload, ClientPlayNetworking.Context context) {
-    context
-        .client()
-        .execute(
-            () -> {
-              final MinecraftClient client = MinecraftClient.getInstance();
-              if (client.currentScreen != null || client.world == null) {
-                return;
-              }
-              client.setScreen(new DogCommandWheelScreen(payload));
-            });
+    final MinecraftClient client = MinecraftClient.getInstance();
+    if (client.currentScreen != null || client.world == null) {
+      return;
+    }
+    client.setScreen(new DogCommandWheelScreen(payload));
   }
 
   private static void handleSyncPets(
       SyncPetsPayload payload, ClientPlayNetworking.Context context) {
-    context
-        .client()
-        .execute(
-            () -> {
-              if (MinecraftClient.getInstance().currentScreen instanceof PetManagerScreen screen) {
-                screen.updatePetsList(payload.pets());
-              }
-            });
+    if (MinecraftClient.getInstance().currentScreen instanceof PetManagerScreen screen) {
+      screen.updatePetsList(payload.pets());
+    }
   }
 
   private static void handleSyncPetManagerState(
       SyncPetManagerStatePayload payload, ClientPlayNetworking.Context context) {
-    context
-        .client()
-        .execute(
-            () -> {
-              if (MinecraftClient.getInstance().currentScreen instanceof PetManagerScreen screen) {
-                screen.applySavedFilters(payload.breedFilter(), payload.aliveFilter());
-                screen.updatePetsList(payload.pets());
-              }
-            });
+    if (MinecraftClient.getInstance().currentScreen instanceof PetManagerScreen screen) {
+      screen.applySavedFilters(payload.breedFilter(), payload.aliveFilter());
+      screen.updatePetsList(payload.pets());
+    }
   }
 
   public static void sendSelectWheelAction(UUID dogId, DogWheelAction action) {

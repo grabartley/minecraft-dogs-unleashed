@@ -7,6 +7,7 @@ import com.grahambartley.dogsunleashed.entity.DogWheelAction;
 import java.util.UUID;
 import net.minecraft.network.RegistryByteBuf;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
@@ -21,5 +22,18 @@ class SelectWheelActionPayloadTest {
     final RegistryByteBuf buf = newBuf();
     SelectWheelActionPayload.CODEC.encode(buf, payload);
     assertEquals(payload, SelectWheelActionPayload.CODEC.decode(buf));
+  }
+
+  @Test
+  @DisplayName("the dog UUID travels as two raw longs in sixteen bytes")
+  void dogUuidTravelsAsSixteenRawBytes() {
+    final UUID dogId = UUID.fromString("0f8fad5b-d9cb-469f-a165-70867728950e");
+    final RegistryByteBuf buf = newBuf();
+    SelectWheelActionPayload.CODEC.encode(
+        buf, new SelectWheelActionPayload(dogId, DogWheelAction.SIT.id()));
+
+    assertEquals(dogId.getMostSignificantBits(), buf.readLong());
+    assertEquals(dogId.getLeastSignificantBits(), buf.readLong());
+    assertEquals(DogWheelAction.SIT.id(), buf.readVarInt());
   }
 }

@@ -20,24 +20,14 @@ class DogHouseShapeTest {
   private static final double PROBE = 0.03;
 
   private static VoxelShape probe(
-      final double x, final double y, final double z, final Direction facing) {
-    double px = x;
-    double pz = z;
-    for (int turn = 0; turn < quarterTurns(facing); turn++) {
-      final double rotatedX = 1 - pz;
-      pz = px;
-      px = rotatedX;
-    }
-    return VoxelShapes.cuboid(px - PROBE, y - PROBE, pz - PROBE, px + PROBE, y + PROBE, pz + PROBE);
-  }
-
-  private static int quarterTurns(final Direction facing) {
-    return switch (facing) {
-      case EAST -> 1;
-      case SOUTH -> 2;
-      case WEST -> 3;
-      default -> 0;
-    };
+      final double right, final double y, final double back, final Direction facing) {
+    final Direction rightward = facing.rotateYClockwise();
+    final Direction backward = facing.getOpposite();
+    final double x =
+        0.5 + (right - 0.5) * rightward.getOffsetX() + (back - 0.5) * backward.getOffsetX();
+    final double z =
+        0.5 + (right - 0.5) * rightward.getOffsetZ() + (back - 0.5) * backward.getOffsetZ();
+    return VoxelShapes.cuboid(x - PROBE, y - PROBE, z - PROBE, x + PROBE, y + PROBE, z + PROBE);
   }
 
   private static boolean blocks(final VoxelShape shell, final VoxelShape probe) {

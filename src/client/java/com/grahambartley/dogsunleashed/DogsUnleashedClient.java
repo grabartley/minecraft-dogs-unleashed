@@ -17,12 +17,16 @@ import com.grahambartley.dogsunleashed.render.StickProjectileRenderer;
 import com.grahambartley.dogsunleashed.render.TennisBallBlockEntityRenderer;
 import com.grahambartley.dogsunleashed.render.TennisBallItemRenderer;
 import com.grahambartley.dogsunleashed.render.TennisBallProjectileRenderer;
+import com.grahambartley.dogsunleashed.render.coat.UndeadCoatTextureReloader;
 import com.grahambartley.dogsunleashed.screen.DogEquipmentScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
+import net.minecraft.resource.ResourceType;
 
 public class DogsUnleashedClient implements ClientModInitializer {
   @Override
@@ -65,6 +69,10 @@ public class DogsUnleashedClient implements ClientModInitializer {
         ModItems.DOG_WHISTLE, new DogWhistleItemRenderer());
 
     HandledScreens.register(ModScreenHandlers.DOG_EQUIPMENT, DogEquipmentScreen::new);
+
+    ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES)
+        .registerReloadListener(
+            new UndeadCoatTextureReloader(() -> MinecraftClient.getInstance().getTextureManager()));
 
     ModKeyBindings.register();
     ModNetworkingClient.registerClientReceivers();

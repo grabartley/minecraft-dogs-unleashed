@@ -25,7 +25,7 @@ public record OpenCommandWheelPayload(
 
   private void write(final RegistryByteBuf buf) {
     buf.writeVarInt(this.entityId);
-    buf.writeString(this.dogId.toString());
+    buf.writeUuid(this.dogId);
     buf.writeVarInt(this.currentCommandId);
     buf.writeBoolean(this.hasBed);
     buf.writeString(this.dogName);
@@ -33,10 +33,6 @@ public record OpenCommandWheelPayload(
 
   private static OpenCommandWheelPayload read(final RegistryByteBuf buf) {
     return new OpenCommandWheelPayload(
-        buf.readVarInt(),
-        UUID.fromString(buf.readString()),
-        buf.readVarInt(),
-        buf.readBoolean(),
-        buf.readString());
+        buf.readVarInt(), buf.readUuid(), buf.readVarInt(), buf.readBoolean(), buf.readString());
   }
 }

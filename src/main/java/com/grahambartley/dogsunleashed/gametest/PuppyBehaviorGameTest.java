@@ -178,12 +178,7 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
         });
   }
 
-  @GameTest(
-      templateName = "dogs-unleashed:dog_arena",
-      batchId = "puppy-flags",
-      tickLimit = 300,
-      maxAttempts = 3,
-      requiredSuccesses = 1)
+  @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "puppy-flags", tickLimit = 300)
   public void puppyFollowsParent(final TestContext context) {
     final UnleashedDogEntity parent = context.spawnEntity(ModEntities.HUSKY, new BlockPos(2, 1, 2));
     parent.setAiDisabled(true);
@@ -215,9 +210,7 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
   @GameTest(
       templateName = "dogs-unleashed:dog_arena",
       batchId = "puppy-sleep-predusk",
-      tickLimit = 400,
-      maxAttempts = 3,
-      requiredSuccesses = 1)
+      tickLimit = 400)
   public void puppySleepsTwoHoursBeforeNight(final TestContext context) {
     assertAutoSleeps(context, TWO_HOURS_BEFORE_NIGHT_TICK, true);
   }
@@ -241,9 +234,7 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
   @GameTest(
       templateName = "dogs-unleashed:dog_arena",
       batchId = "puppy-sleep-postsunrise",
-      tickLimit = 400,
-      maxAttempts = 3,
-      requiredSuccesses = 1)
+      tickLimit = 400)
   public void puppySleepsPastSunrise(final TestContext context) {
     assertAutoSleeps(context, JUST_PAST_SUNRISE_TICK, true);
   }

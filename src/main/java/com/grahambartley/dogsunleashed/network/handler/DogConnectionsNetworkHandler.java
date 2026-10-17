@@ -26,26 +26,17 @@ public final class DogConnectionsNetworkHandler {
     final ServerPlayerEntity player = context.player();
     final ServerWorld world = player.getServerWorld();
 
-    world
-        .getServer()
-        .execute(
-            () -> {
-              final MinecraftServer server = world.getServer();
-              final PetManager petManager = PetManager.get(server);
-              final DirectConnections connections =
-                  petManager.getDirectConnections(payload.dogId());
-              if (connections == null) {
-                return;
-              }
-              final boolean requesterOwnsDog =
-                  connections.self().getOwnerId().equals(player.getUuid());
-              if (!requesterOwnsDog
-                  && !petManager.isConnectedToOwnedPet(player.getUuid(), payload.dogId())) {
-                return;
-              }
-              ServerPlayNetworking.send(
-                  player, buildConnectionsPayload(server, petManager, connections));
-            });
+    final MinecraftServer server = world.getServer();
+    final PetManager petManager = PetManager.get(server);
+    final DirectConnections connections = petManager.getDirectConnections(payload.dogId());
+    if (connections == null) {
+      return;
+    }
+    final boolean requesterOwnsDog = connections.self().getOwnerId().equals(player.getUuid());
+    if (!requesterOwnsDog && !petManager.isConnectedToOwnedPet(player.getUuid(), payload.dogId())) {
+      return;
+    }
+    ServerPlayNetworking.send(player, buildConnectionsPayload(server, petManager, connections));
   }
 
   private static SyncDogConnectionsPayload buildConnectionsPayload(

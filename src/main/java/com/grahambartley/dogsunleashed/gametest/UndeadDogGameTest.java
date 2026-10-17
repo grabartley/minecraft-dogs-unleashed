@@ -55,9 +55,7 @@ public final class UndeadDogGameTest implements FabricGameTest {
       templateName = ARENA,
       batchId = DAYLIGHT_BATCH,
       tickLimit = DAYLIGHT_TICK_LIMIT,
-      skyAccess = true,
-      maxAttempts = 3,
-      requiredSuccesses = 1)
+      skyAccess = true)
   public void anUndeadDogCaughtUnderTheOpenSkyBurns(final TestContext context) {
     final UnleashedDogEntity dog = spawnUndeadDog(context);
 

@@ -31,7 +31,7 @@ public record OpenNamingScreenPayload(
   }
 
   private void write(final RegistryByteBuf buf) {
-    buf.writeString(this.petId.toString());
+    buf.writeUuid(this.petId);
     buf.writeString(this.breed.serializedId());
     BreedShareCodec.writeList(buf, this.composition);
     buf.writeBoolean(this.bornPuppy);
@@ -40,7 +40,7 @@ public record OpenNamingScreenPayload(
 
   private static OpenNamingScreenPayload read(final RegistryByteBuf buf) {
     return new OpenNamingScreenPayload(
-        UUID.fromString(buf.readString()),
+        buf.readUuid(),
         UnleashedDogBreed.fromSerializedId(buf.readString()),
         BreedShareCodec.readList(buf),
         buf.readBoolean(),

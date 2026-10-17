@@ -10,6 +10,7 @@ import java.util.Map;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
+import net.minecraft.client.texture.TextureManager;
 import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
@@ -20,11 +21,13 @@ public final class UndeadCoatTextures {
 
   private UndeadCoatTextures() {}
 
-  public static void clear() {
-    final MinecraftClient client = MinecraftClient.getInstance();
-    if (client != null && client.getTextureManager() != null) {
-      CACHE.values().forEach(client.getTextureManager()::destroyTexture);
-    }
+  public static void clear(final TextureManager textureManager) {
+    CACHE.forEach(
+        (living, undead) -> {
+          if (!undead.equals(living)) {
+            textureManager.destroyTexture(undead);
+          }
+        });
     CACHE.clear();
   }
 

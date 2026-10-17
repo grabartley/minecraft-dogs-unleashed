@@ -241,12 +241,7 @@ public final class DogTreatGameTest implements FabricGameTest {
         });
   }
 
-  @GameTest(
-      templateName = ARENA,
-      batchId = BATCH,
-      tickLimit = TEMPT_TICK_LIMIT,
-      maxAttempts = 3,
-      requiredSuccesses = 1)
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TEMPT_TICK_LIMIT)
   public void aDogWalksTowardsAHeldTreat(final TestContext context) {
     final ServerPlayerEntity player = survivalOwnerAt(context, TEMPT_PLAYER_POS);
     final UnleashedDogEntity dog =
