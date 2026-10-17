@@ -2,25 +2,35 @@
 """Headless render, UV map and texture checks for GeckoLib dog rigs. Standard library only.
 
 Commands:
-  render     geo png out.png [--view front|left|right|back|top | --yaw D --pitch D] [--scale N] [--spin 180]
+  render     geo png out.png [--view front|front34|left|right|back|back34|top | --yaw D --pitch D] [--scale N] [--spin 180]
   turntable  geo png out.png [--views left,front34,front,top] [--scale N] [--spin 180]
   faces      geo png [--profile rig.json]
   uvmap      geo png out.png [--profile rig.json] [--zoom N]
   palette    png
-  check      geo png [--palette file]
-  diff       a.png b.png [out.png]
+  check      geo png [--profile rig.json] [--palette file|png] [--fail-unpainted] [--strict] [--verbose]
+  diff       a.png b.png [out.png] [--fail-on-change]
   patch      base.png block.txt out.png --at U V
+  tobbmodel  geo png out.bbmodel [--name N]   a Blockbench 5 project of the rig with the texture embedded
+  geocompare a.geo.json b.geo.json            numeric diff of two rigs, bone by bone and cube by cube
+
+Geometry follows GeckoLib 4.7's BakedModelFactory: x is mirrored, bone and cube x and y angles are
+negated, box UV sizes are floored, the first side patch is the model's +x face and the bottom face
+runs front to back. The model's -x is the dog's own left, so the left view looks at that side.
 """
 from __future__ import annotations
 
 import argparse
+import base64
 import json
 import math
+import re
 import struct
 import sys
+import uuid
 import zlib
 from collections import Counter, defaultdict
 
+HEX = re.compile(r"^#[0-9A-Fa-f]{6}$")
 SLOT_COLOURS = {
     "head": (255, 99, 71), "mouth": (255, 165, 0), "eyes": (255, 255, 0),
     "neck": (154, 205, 50), "torso": (60, 179, 113), "tail": (0, 206, 209),
@@ -31,8 +41,8 @@ SLOT_COLOURS = {
 }
 UNSLOTTED_COLOUR = (128, 128, 128)
 BACKGROUND = (58, 62, 70, 255)
-VIEWS = {"front": (0, 0), "left": (90, 0), "back": (180, 0), "right": (270, 0),
-         "top": (0, 89), "front34": (40, 18), "back34": (220, 18)}
+VIEWS = {"front": (0, 0), "left": (270, 0), "back": (180, 0), "right": (90, 0),
+         "top": (0, 89), "front34": (320, 18), "back34": (140, 18)}
 
 
 def read_png(path):
@@ -174,7 +184,6 @@ def model_pivot(pivot):
 
 
 FACES = ("west", "north", "east", "south", "up", "down")
-NORMALS = {"west": (-1, 0, 0), "east": (1, 0, 0), "north": (0, 0, -1), "south": (0, 0, 1), "up": (0, 1, 0), "down": (0, -1, 0)}
 
 
 def face_patches(cube, mirror):
@@ -182,12 +191,15 @@ def face_patches(cube, mirror):
     if isinstance(cube.get("uv"), dict):
         patches = {}
         for face, spec in cube["uv"].items():
+            if face not in FACES:
+                continue
             u, v = spec["uv"]
             w, h = spec.get("uv_size", (sx if face in ("north", "south", "up", "down") else sz, sy if face not in ("up", "down") else sz))
             patches[face] = (u, v, w, h)
         return patches
     u, v = cube["uv"]
-    first, third = ("east", "west") if mirror else ("west", "east")
+    sx, sy, sz = (math.floor(sx), math.floor(sy), math.floor(sz))
+    first, third = ("west", "east") if mirror else ("east", "west")
     return {
         first: (u, v + sz, sz, sy),
         "north": (u + sz, v + sz, sx, sy),
@@ -211,7 +223,7 @@ def face_corners(lo, hi, face):
         return [(x1, y1, z1), (x1, y1, z0), (x1, y0, z0), (x1, y0, z1)]
     if face == "up":
         return [(x1, y1, z1), (x0, y1, z1), (x0, y1, z0), (x1, y1, z0)]
-    return [(x1, y0, z0), (x0, y0, z0), (x0, y0, z1), (x1, y0, z1)]
+    return [(x1, y0, z1), (x1, y0, z0), (x0, y0, z0), (x0, y0, z1)]
 
 
 def cubes_of(geo_path, profile_path=None):
@@ -220,27 +232,28 @@ def cubes_of(geo_path, profile_path=None):
     result = []
     for bone in bone_list:
         chain = bone_chain(bones, bone["name"])
-        bone_mirror = any(b.get("mirror") for b in chain)
         for index, cube in enumerate(bone.get("cubes", [])):
             ox, oy, oz = cube["origin"]
             sx, sy, sz = cube["size"]
-            inflate = float(cube.get("inflate", 0))
+            inflate = float(cube.get("inflate", bone.get("inflate", 0)))
             lo = (-(ox + sx) - inflate, oy - inflate, oz - inflate)
             hi = (-ox + inflate, oy + sy + inflate, oz + sz + inflate)
             transforms = []
             if cube.get("rotation"):
-                pivot = cube.get("pivot", [ox + sx / 2, oy + sy / 2, oz + sz / 2])
-                transforms.append((rotation_matrix(cube["rotation"]), model_pivot(pivot)))
+                transforms.append((rotation_matrix(cube["rotation"]), model_pivot(cube.get("pivot", (0, 0, 0)))))
             for b in chain:
                 if b.get("rotation"):
                     transforms.append((rotation_matrix(b["rotation"]), model_pivot(b.get("pivot", (0, 0, 0)))))
-            mirror = bool(cube.get("mirror", bone_mirror))
+            mirror = cube.get("mirror") is True
+            patches = face_patches(cube, mirror)
             faces = []
             for face in FACES:
+                if face not in patches:
+                    continue
                 corners = face_corners(lo, hi, face)
                 for matrix, pivot in transforms:
                     corners = [apply(matrix, pivot, c) for c in corners]
-                faces.append((face, corners, face_patches(cube, mirror)[face]))
+                faces.append((face, corners, patches[face]))
             visual = tuple(round(s + 2 * inflate, 3) for s in (sx, sy, sz))
             result.append({
                 "bone": bone["name"], "index": index, "slot": slots.get(bone["name"]),
@@ -287,18 +300,22 @@ def render_view(cubes, texture, tex_w, tex_h, yaw, pitch, scale, margin=2):
     for cube in cubes:
         for face, corners, patch in cube["faces"]:
             pts = [(dot(c, right), dot(c, up), dot(c, toward)) for c in corners]
-            normal = normalize(cross(sub(corners[1], corners[0]), sub(corners[3], corners[0])))
-            projected.append((pts, patch, shade(normal)))
-    xs = [p[0] for pts, _, _ in projected for p in pts]
-    ys = [p[1] for pts, _, _ in projected for p in pts]
+            normal = normalize(cross(sub(corners[3], corners[0]), sub(corners[1], corners[0])))
+            projected.append((pts, patch, shade(normal), cube["mirror"], face))
+    xs = [p[0] for pts, _, _, _, _ in projected for p in pts]
+    ys = [p[1] for pts, _, _, _, _ in projected for p in pts]
     min_x, max_x, min_y, max_y = min(xs), max(xs), min(ys), max(ys)
     img_w = int(math.ceil((max_x - min_x + 2 * margin) * scale))
     img_h = int(math.ceil((max_y - min_y + 2 * margin) * scale))
     image = blank(img_w, img_h)
     depth = [[-1e9] * img_w for _ in range(img_h)]
-    for pts, (pu, pv, pw, ph), brightness in projected:
+    for pts, (pu, pv, pw, ph), brightness, mirror, face in projected:
         screen = [((x - min_x + margin) * scale, (max_y - y + margin) * scale, z) for x, y, z in pts]
-        uvs = [(pu, pv), (pu + pw, pv), (pu + pw, pv + ph), (pu, pv + ph)]
+        left, right = (pu + pw, pu) if mirror else (pu, pu + pw)
+        if face == "down":
+            uvs = [(left, pv), (left, pv + ph), (right, pv + ph), (right, pv)]
+        else:
+            uvs = [(left, pv), (right, pv), (right, pv + ph), (left, pv + ph)]
         for tri in ((0, 1, 2), (0, 2, 3)):
             raster_triangle(image, depth, [screen[i] for i in tri], [uvs[i] for i in tri], pixels, width, height, scale_u, scale_v, brightness)
     return img_w, img_h, image
@@ -349,7 +366,7 @@ def cmd_render(args):
     yaw, pitch = VIEWS.get(args.view, (args.yaw, args.pitch))
     w, h, image = render_view(cubes, texture, tex_w, tex_h, yaw + args.spin, pitch, args.scale)
     write_png(args.out, w, h, image)
-    print(f"wrote {args.out} {w}x{h} yaw={yaw} pitch={pitch}")
+    print(f"wrote {args.out} {w}x{h} yaw={yaw + args.spin} pitch={pitch}")
 
 
 def cmd_turntable(args):
@@ -491,7 +508,7 @@ def read_palette(path):
     if path.lower().endswith(".png"):
         return set(opaque_colours(read_png(path)[2]))
     with open(path) as handle:
-        return {parse_hex(tok) for line in handle for tok in line.split() if tok.startswith("#")}
+        return {parse_hex(tok) for line in handle for tok in line.split() if HEX.match(tok)}
 
 
 def parse_hex(token):
@@ -505,11 +522,13 @@ def cmd_check(args):
     scale_u, scale_v = width / tex_w, height / tex_h
     covered = [[False] * width for _ in range(height)]
     problems = 0
-    holes, unpainted = [], []
+    holes, unpainted, off_sheet = [], [], []
     for cube in cubes:
         for face, _, patch in cube["faces"]:
             x0, y0, x1, y1 = pixel_rect(patch, scale_u, scale_v)
             exact = exact_rect(patch, scale_u, scale_v)
+            if x0 < 0 or y0 < 0 or x1 > width or y1 > height:
+                off_sheet.append(f"{cube['bone']}[{cube['index']}].{face} px x{x0}-{x1} y{y0}-{y1}")
             total = clear = 0
             for y in range(max(y0, 0), min(y1, height)):
                 for x in range(max(x0, 0), min(x1, width)):
@@ -525,9 +544,11 @@ def cmd_check(args):
                 holes.append(f"{label}: {clear}/{total} clear")
     stray = sum(1 for y in range(height) for x in range(width) if pixels[y][x][3] >= 128 and not covered[y][x])
     densities = sorted(((c["size"][0] / c["visual"][0] * scale_u, i, c) for i, c in enumerate(cubes) if c["visual"][0] > 0), key=lambda e: e[0])
-    print(f"{args.png}: {len(cubes)} cubes, {len(holes)} faces with holes, {len(unpainted)} unpainted faces, {stray} stray texels")
+    print(f"{args.png}: {len(cubes)} cubes, {len(holes)} faces with holes, {len(unpainted)} unpainted faces, {stray} stray texels, {len(off_sheet)} faces off the sheet")
     for line in holes:
         print(f"  HOLE {line}")
+    for line in off_sheet:
+        print(f"  OFF-SHEET {line}")
     if args.verbose:
         for line in unpainted:
             print(f"  unpainted {line}")
@@ -538,7 +559,7 @@ def cmd_check(args):
             if density < median * 0.5 or density > median * 2:
                 print(f"  DENSITY {cube['bone']}[{cube['index']}] {density:.2f} px per unit")
     if args.strict:
-        problems += len(holes) + (stray > 0)
+        problems += (len(holes) > 0) + (stray > 0) + (len(off_sheet) > 0)
     if args.palette:
         allowed = read_palette(args.palette)
         drift = {rgb: n for rgb, n in opaque_colours(pixels).items() if rgb not in allowed}
@@ -565,7 +586,7 @@ def cmd_diff(args):
     out = blank(wa, ha)
     for y in range(ha):
         for x in range(wa):
-            if a[y][x] != b[y][x]:
+            if a[y][x] != b[y][x] and (a[y][x][3] or b[y][x][3]):
                 changed += 1
                 out[y][x] = (255, 0, 255, 255)
             else:
@@ -581,11 +602,13 @@ def parse_block(path):
     palette, rows = {".": None}, []
     with open(path) as handle:
         for raw in handle:
-            line = raw.rstrip("\n")
+            line = raw.rstrip("\r\n")
             if not line.strip() or line.lstrip().startswith("#"):
                 continue
             if "=" in line and len(line.split("=")[0].strip()) == 1:
                 key, value = [part.strip() for part in line.split("=", 1)]
+                if value and not HEX.match(value) and value.lower() not in ("transparent", "none"):
+                    raise SystemExit(f"{path}: palette entry {key!r} needs #RRGGBB or transparent, got {value!r}")
                 palette[key] = None if value.lower() in ("transparent", "none", "") else parse_hex(value)
             else:
                 rows.append(line)
@@ -611,6 +634,122 @@ def cmd_patch(args):
             written += 1
     write_png(args.out, width, height, pixels)
     print(f"wrote {args.out}: {written} texels at {u},{v} over {len(rows)} rows")
+
+
+def blockbench_rotation(rotation):
+    rx, ry, rz = rotation or (0, 0, 0)
+    return [-rx, -ry, rz]
+
+
+def blockbench_faces(cube, mirror):
+    patches = face_patches(cube, mirror)
+    faces = {}
+    for face, (u, v, w, h) in patches.items():
+        u0, u1 = (u + w, u) if mirror else (u, u + w)
+        v0, v1 = v, v + h
+        if face == "up":
+            u0, u1, v0, v1 = u1, u0, v1, v0
+        elif face == "down":
+            u0, u1 = u1, u0
+        faces[face] = {"uv": [u0, v0, u1, v1], "texture": 0}
+    return faces
+
+
+def cmd_tobbmodel(args):
+    tex_w, tex_h, bone_list, bones = load_geo(args.geo)
+    with open(args.geo) as handle:
+        description = json.load(handle)["minecraft:geometry"][0]["description"]
+    width, height, _ = read_png(args.png)
+    with open(args.png, "rb") as handle:
+        png_data = base64.b64encode(handle.read()).decode("ascii")
+    elements, groups, nodes = [], [], {}
+    for bone in bone_list:
+        gid = str(uuid.uuid4())
+        pivot = bone.get("pivot", (0, 0, 0))
+        groups.append({"name": bone["name"], "uuid": gid, "origin": list(model_pivot(pivot)), "rotation": blockbench_rotation(bone.get("rotation")),
+                       "export": True, "visibility": True, "mirror_uv": False, "reset": False, "color": 0, "autouv": 0, "shade": True, "locked": False})
+        nodes[bone["name"]] = {"uuid": gid, "isOpen": False, "children": []}
+        for index, cube in enumerate(bone.get("cubes", [])):
+            ox, oy, oz = cube["origin"]
+            sx, sy, sz = cube["size"]
+            mirror = cube.get("mirror") is True
+            element = {"name": f"{bone['name']}_{index}" if len(bone.get("cubes", [])) > 1 else bone["name"], "box_uv": True, "rescale": False, "locked": False,
+                       "light_emission": 0, "render_order": "default", "allow_mirror_modeling": True,
+                       "from": [-(ox + sx), oy, oz], "to": [-ox, oy + sy, oz + sz], "autouv": 0, "color": index % 8,
+                       "origin": list(model_pivot(cube["pivot"])) if cube.get("rotation") else [-(ox + sx / 2), oy + sy / 2, oz + sz / 2],
+                       "inflate": float(cube.get("inflate", bone.get("inflate", 0))), "uv_offset": list(cube["uv"]) if not isinstance(cube.get("uv"), dict) else [0, 0],
+                       "faces": blockbench_faces(cube, mirror), "type": "cube", "uuid": str(uuid.uuid4())}
+            if cube.get("rotation"):
+                element["rotation"] = blockbench_rotation(cube["rotation"])
+            if mirror:
+                element["mirror_uv"] = True
+            elements.append(element)
+            nodes[bone["name"]]["children"].append(element["uuid"])
+    outliner = []
+    for bone in bone_list:
+        node = nodes[bone["name"]]
+        parent = bone.get("parent")
+        (nodes[parent]["children"] if parent in nodes else outliner).append(node)
+    texture_name = args.png.rsplit("/", 1)[-1]
+    project = {
+        "meta": {"format_version": "5.0", "model_format": "geckolib_model", "box_uv": True},
+        "name": args.name or description.get("identifier", "geometry.rig").split(".")[-1],
+        "model_identifier": args.name or "",
+        "visible_box": [description.get("visible_bounds_width", 1), description.get("visible_bounds_height", 1), (description.get("visible_bounds_offset") or [0, 0, 0])[1]],
+        "resolution": {"width": tex_w, "height": tex_h},
+        "elements": elements, "groups": groups, "outliner": outliner,
+        "textures": [{"path": "", "name": texture_name, "folder": "", "namespace": "", "id": "0", "group": "", "width": width, "height": height,
+                      "uv_width": tex_w, "uv_height": tex_h, "particle": False, "use_as_default": False, "layers_enabled": False, "sync_to_project": "",
+                      "render_mode": "default", "render_sides": "auto", "frame_time": 1, "frame_order_type": "loop", "frame_order": "", "frame_interpolate": False,
+                      "visible": True, "internal": True, "saved": False, "uuid": str(uuid.uuid4()), "source": f"data:image/png;base64,{png_data}"}],
+        "variable_placeholders": "", "variable_placeholder_buttons": [], "timeline_setups": [], "unhandled_root_fields": {},
+    }
+    with open(args.out, "w") as handle:
+        json.dump(project, handle, indent="\t")
+    print(f"wrote {args.out}: {len(groups)} groups, {len(elements)} cubes, texture {texture_name}")
+
+
+def cmd_geocompare(args):
+    a_w, a_h, a_bones, _ = load_geo(args.a)
+    b_w, b_h, b_bones, _ = load_geo(args.b)
+    b_by_name = {bone["name"]: bone for bone in b_bones}
+    mismatches = []
+    if (a_w, a_h) != (b_w, b_h):
+        mismatches.append(f"texture size {a_w}x{a_h} vs {b_w}x{b_h}")
+    for bone in a_bones:
+        other = b_by_name.get(bone["name"])
+        if other is None:
+            mismatches.append(f"bone {bone['name']} missing")
+            continue
+        for key in ("pivot", "rotation"):
+            if not close(bone.get(key, [0, 0, 0]), other.get(key, [0, 0, 0]), args.tolerance):
+                mismatches.append(f"{bone['name']}.{key} {bone.get(key)} vs {other.get(key)}")
+        if (bone.get("parent") or None) != (other.get("parent") or None):
+            mismatches.append(f"{bone['name']}.parent {bone.get('parent')} vs {other.get('parent')}")
+        mine, theirs = bone.get("cubes", []), other.get("cubes", [])
+        if len(mine) != len(theirs):
+            mismatches.append(f"{bone['name']} has {len(mine)} cubes vs {len(theirs)}")
+        for index, (c1, c2) in enumerate(zip(mine, theirs)):
+            for key in ("origin", "size", "pivot", "rotation", "uv"):
+                if not close(c1.get(key, [0] * 3), c2.get(key, [0] * 3), args.tolerance):
+                    mismatches.append(f"{bone['name']}[{index}].{key} {c1.get(key)} vs {c2.get(key)}")
+            if abs(float(c1.get("inflate", 0)) - float(c2.get("inflate", 0))) > args.tolerance:
+                mismatches.append(f"{bone['name']}[{index}].inflate {c1.get('inflate')} vs {c2.get('inflate')}")
+            if bool(c1.get("mirror")) != bool(c2.get("mirror")):
+                mismatches.append(f"{bone['name']}[{index}].mirror {c1.get('mirror')} vs {c2.get('mirror')}")
+    extra = [name for name in b_by_name if name not in {bone["name"] for bone in a_bones}]
+    mismatches += [f"bone {name} only in {args.b}" for name in extra]
+    for line in mismatches:
+        print(f"  {line}")
+    print(f"{len(mismatches)} mismatches between {args.a} and {args.b}")
+    return 1 if mismatches else 0
+
+
+def close(a, b, tolerance):
+    if isinstance(a, dict) or isinstance(b, dict):
+        return a == b
+    a, b = list(a), list(b)
+    return len(a) == len(b) and all(abs(float(x) - float(y)) <= tolerance for x, y in zip(a, b))
 
 
 def main(argv=None):
@@ -678,6 +817,19 @@ def main(argv=None):
     p.add_argument("out")
     p.add_argument("--at", type=int, nargs=2, required=True)
     p.set_defaults(func=cmd_patch)
+
+    p = sub.add_parser("tobbmodel")
+    p.add_argument("geo")
+    p.add_argument("png")
+    p.add_argument("out")
+    p.add_argument("--name")
+    p.set_defaults(func=cmd_tobbmodel)
+
+    p = sub.add_parser("geocompare")
+    p.add_argument("a")
+    p.add_argument("b")
+    p.add_argument("--tolerance", type=float, default=1e-4)
+    p.set_defaults(func=cmd_geocompare)
 
     args = parser.parse_args(argv)
     return args.func(args) or 0

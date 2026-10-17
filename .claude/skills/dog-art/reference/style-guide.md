@@ -65,8 +65,16 @@ Rules that follow:
 
 ## Known Debt On Main
 
-Recorded so nobody treats it as the standard.
+Recorded so nobody treats it as the standard. Counts are from `check` with GeckoLib's floored UV.
 
-- `shibainu_*` sheets carry 399 painted texels no face reads.
-- `husky_*` sheets carry 6 stray texels and 10 unpainted faces.
-- `goldenretriever` has 92 unpainted faces, mostly shared tuft patches and hidden inner faces.
+| Sheet | Holes | Unpainted faces | Stray texels | Off the sheet |
+|---|---|---|---|---|
+| beagle_tri1 | 5 | 1 | 1 | 0 |
+| dachshund_red | 4 | 1 | 0 | 0 |
+| goldenretriever | 27 | 92 | 0 | 0 |
+| husky_blackwhite_blueblue | 2 | 10 | 0 | 0 |
+| shibainu_red | 20 | 46 | 399 | 4 |
+
+The golden retriever's unpainted faces are mostly shared tuft patches and hidden inner faces. The
+shiba inu's stray paint sits left of the torso patch and below the head patch, and its four
+off-sheet faces belong to the tail fluff cube at uv 96,109, which runs one row past a 128 sheet.
