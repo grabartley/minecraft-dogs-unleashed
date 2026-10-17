@@ -6,5 +6,40 @@
   ],
   "mouth": [
     "snout"
+  ],
+  "head": [
+    "head"
+  ],
+  "eyes": [
+    "olhos"
+  ],
+  "neck": [
+    "neck"
+  ],
+  "tail": [
+    "tail",
+    "bone"
+  ],
+  "ear_left": [
+    "leftear"
+  ],
+  "ear_right": [
+    "rightear"
+  ],
+  "leg_front_left": [
+    "frontleftleg",
+    "lowestfrontleftleg2"
+  ],
+  "leg_front_right": [
+    "frontrightleg",
+    "lowestfrontrightleg2"
+  ],
+  "leg_back_left": [
+    "backleftleg",
+    "lowestbackleftleg"
+  ],
+  "leg_back_right": [
+    "backrightleg",
+    "lowestbackrightleg"
   ]
 }
