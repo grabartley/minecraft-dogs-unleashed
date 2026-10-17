@@ -15,8 +15,8 @@ import org.junit.jupiter.params.provider.EnumSource;
 
 class WolfArmourCubesTest {
 
-  private static final int WIDTH = 64;
-  private static final int HEIGHT = 32;
+  private static final int WIDTH = WolfArmourCubes.TEXTURE_WIDTH;
+  private static final int HEIGHT = WolfArmourCubes.TEXTURE_HEIGHT;
   private static final int[] BODY_UV = {18, 14, 18 + 2 * 6 + 2 * 6, 14 + 6 + 9};
   private static final int[] MANE_UV = {21, 0, 21 + 2 * 7 + 2 * 8, 7 + 6};
 

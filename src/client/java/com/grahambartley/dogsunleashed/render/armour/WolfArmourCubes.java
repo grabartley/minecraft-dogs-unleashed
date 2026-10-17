@@ -13,6 +13,9 @@ import org.joml.Vector3f;
 
 public final class WolfArmourCubes {
 
+  public static final int TEXTURE_WIDTH = 64;
+  public static final int TEXTURE_HEIGHT = 32;
+
   static final Set<String> TORSO_PATHS = Set.of("/upper_body", "/body");
 
   private static final float MODEL_UNITS_PER_BLOCK = 16.0f;

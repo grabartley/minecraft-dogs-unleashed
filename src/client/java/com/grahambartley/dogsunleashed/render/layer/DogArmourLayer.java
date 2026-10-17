@@ -63,7 +63,7 @@ public class DogArmourLayer extends GeoRenderLayer<UnleashedDogEntity> {
     final ArmourLook look = ArmourLook.of(worn);
     final boolean trimDyed = ArmourLook.trimIsDyed(look, worn);
     final boolean hasDyeLayer = look.fillIsDyed() || trimDyed;
-    final int level = ArmourTextures.crackLevel(worn);
+    final int level = ArmourLook.crackLevel(worn);
     return new Frame(
         breed,
         ArmourClearance.inflationFor(model, breed),

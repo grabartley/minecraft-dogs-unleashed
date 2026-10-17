@@ -59,7 +59,6 @@ public final class WolfDogArmourGameTest implements FabricGameTest {
 
     context.assertTrue(
         wolf.getBodyArmor().isOf(ModArmorItems.of(tier)), tier.id() + " should be worn");
-    context.assertTrue(wolf.hasArmor(), "The wolf should count as armoured");
     context.assertEquals(owner.getStackInHand(Hand.MAIN_HAND).getCount(), 1, "One piece used");
     context.complete();
   }
@@ -99,6 +98,21 @@ public final class WolfDogArmourGameTest implements FabricGameTest {
         damaged - worn.getMaxDamage() / 8,
         tier.id() + " should mend by an eighth");
     context.assertEquals(owner.getStackInHand(Hand.MAIN_HAND).getCount(), 1, "One item used");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void anArmadilloScuteDoesNotMendDogArmour(final TestContext context) {
+    final ServerPlayerEntity owner = PendantTestHelper.survivalOwnerAt(context, OWNER_POS);
+    final WolfEntity wolf = armouredWolf(context, owner, DogArmorTier.IRON);
+    wolf.setInSittingPose(true);
+    wolf.getBodyArmor().setDamage(40);
+    owner.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.ARMADILLO_SCUTE, 2));
+
+    wolf.interactMob(owner, Hand.MAIN_HAND);
+
+    context.assertEquals(wolf.getBodyArmor().getDamage(), 40, "Only iron mends iron armour");
+    context.assertEquals(owner.getStackInHand(Hand.MAIN_HAND).getCount(), 2, "No scute used");
     context.complete();
   }
 

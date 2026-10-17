@@ -1,8 +1,8 @@
 package com.grahambartley.dogsunleashed.render.armour;
 
 import com.grahambartley.dogsunleashed.ModArmorItems;
-import com.grahambartley.dogsunleashed.item.armor.DogArmorTier;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.entity.passive.Cracks;
 import net.minecraft.item.ItemStack;
 
 public enum ArmourLook {
@@ -67,12 +67,16 @@ public enum ArmourLook {
   }
 
   public static ArmourLook of(final ItemStack stack) {
-    for (final DogArmorTier tier : DogArmorTier.values()) {
-      if (stack.isOf(ModArmorItems.of(tier))) {
-        return valueOf(tier.name());
-      }
-    }
-    return WOLF;
+    return ModArmorItems.tierOf(stack).map(tier -> valueOf(tier.name())).orElse(WOLF);
+  }
+
+  public static int crackLevel(final ItemStack worn) {
+    return switch (Cracks.WOLF_ARMOR.getCrackLevel(worn)) {
+      case NONE -> 0;
+      case LOW -> 1;
+      case MEDIUM -> 2;
+      case HIGH -> 3;
+    };
   }
 
   public static boolean trimIsDyed(final ArmourLook look, final ItemStack stack) {

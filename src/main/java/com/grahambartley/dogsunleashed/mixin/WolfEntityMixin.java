@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.mixin;
 
 import com.grahambartley.dogsunleashed.entity.WolfDogArmour;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -15,11 +16,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(WolfEntity.class)
 public abstract class WolfEntityMixin {
 
-  @Inject(method = "hasArmor", at = @At("RETURN"), cancellable = true)
-  private void dogsUnleashed$countDogArmour(final CallbackInfoReturnable<Boolean> cir) {
-    if (!cir.getReturnValueZ() && WolfDogArmour.wears((WolfEntity) (Object) this)) {
-      cir.setReturnValue(true);
-    }
+  @ModifyReturnValue(method = "shouldArmorAbsorbDamage", at = @At("RETURN"))
+  private boolean dogsUnleashed$dogArmourAbsorbs(
+      final boolean original, final DamageSource source) {
+    return original || WolfDogArmour.absorbs((WolfEntity) (Object) this, source);
   }
 
   @Inject(method = "applyDamage", at = @At("HEAD"), cancellable = true)
@@ -31,10 +31,9 @@ public abstract class WolfEntityMixin {
   }
 
   @Inject(method = "interactMob", at = @At("HEAD"), cancellable = true)
-  private void dogsUnleashed$equipOrMendDogArmour(
+  private void dogsUnleashed$equipMendOrShearDogArmour(
       final PlayerEntity player, final Hand hand, final CallbackInfoReturnable<ActionResult> cir) {
-    final ActionResult result =
-        WolfDogArmour.interact((WolfEntity) (Object) this, player, player.getStackInHand(hand));
+    final ActionResult result = WolfDogArmour.interact((WolfEntity) (Object) this, player, hand);
     if (result != null) {
       cir.setReturnValue(result);
     }

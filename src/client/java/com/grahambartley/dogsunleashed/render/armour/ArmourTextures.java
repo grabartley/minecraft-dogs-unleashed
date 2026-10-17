@@ -13,8 +13,6 @@ import java.util.Map;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
-import net.minecraft.entity.passive.Cracks;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
@@ -51,15 +49,6 @@ public final class ArmourTextures {
         breed,
         "cracks_" + level,
         (cubes, width, height) -> ArmourPainter.cracks(cubes, width, height, level));
-  }
-
-  public static int crackLevel(final ItemStack worn) {
-    return switch (Cracks.WOLF_ARMOR.getCrackLevel(worn)) {
-      case NONE -> 0;
-      case LOW -> 1;
-      case MEDIUM -> 2;
-      case HIGH -> 3;
-    };
   }
 
   @FunctionalInterface

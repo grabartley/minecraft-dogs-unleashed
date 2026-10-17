@@ -3,7 +3,6 @@ package com.grahambartley.dogsunleashed.render.layer;
 import com.grahambartley.dogsunleashed.entity.WolfDogArmour;
 import com.grahambartley.dogsunleashed.render.armour.ArmourLook;
 import com.grahambartley.dogsunleashed.render.armour.ArmourPainter;
-import com.grahambartley.dogsunleashed.render.armour.ArmourTextures;
 import com.grahambartley.dogsunleashed.render.armour.WolfArmourCubes;
 import com.grahambartley.dogsunleashed.render.armour.WolfArmourTextures;
 import net.minecraft.client.model.ModelPart;
@@ -24,8 +23,6 @@ import net.minecraft.util.Identifier;
 public class WolfDogArmourFeatureRenderer
     extends FeatureRenderer<WolfEntity, WolfEntityModel<WolfEntity>> {
 
-  private static final int TEXTURE_WIDTH = 64;
-  private static final int TEXTURE_HEIGHT = 32;
   private static final int OPAQUE_WHITE = 0xFFFFFFFF;
 
   private final WolfEntityModel<WolfEntity> model;
@@ -37,7 +34,10 @@ public class WolfDogArmourFeatureRenderer
     super(context);
     final ModelPart root = loader.getModelPart(EntityModelLayers.WOLF_ARMOR);
     this.textures =
-        new WolfArmourTextures(WolfArmourCubes.torso(root), TEXTURE_WIDTH, TEXTURE_HEIGHT);
+        new WolfArmourTextures(
+            WolfArmourCubes.torso(root),
+            WolfArmourCubes.TEXTURE_WIDTH,
+            WolfArmourCubes.TEXTURE_HEIGHT);
     this.model = new WolfEntityModel<>(root);
   }
 
@@ -77,7 +77,7 @@ public class WolfDogArmourFeatureRenderer
           DyedColorComponent.getColor(worn, ArmourLook.UNDYED_LEATHER),
           false);
     }
-    final int level = ArmourTextures.crackLevel(worn);
+    final int level = ArmourLook.crackLevel(worn);
     if (level > 0) {
       this.draw(matrices, vertexConsumers, light, this.textures.cracks(level), OPAQUE_WHITE, true);
     }
