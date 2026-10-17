@@ -4,6 +4,7 @@ import net.minecraft.entity.DamageUtil;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.Cracks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -22,14 +23,14 @@ public final class DogArmour {
   static final float REPAIR_FRACTION = 0.125f;
   private static final int CRACK_PARTICLE_COUNT = 20;
 
-  private final UnleashedDogEntity dog;
+  private final MobEntity wearer;
 
-  DogArmour(final UnleashedDogEntity dog) {
-    this.dog = dog;
+  DogArmour(final MobEntity wearer) {
+    this.wearer = wearer;
   }
 
   public ItemStack worn() {
-    return this.dog.getEquippedStack(EquipmentSlot.BODY);
+    return this.wearer.getEquippedStack(EquipmentSlot.BODY);
   }
 
   public boolean absorbs(final DamageSource source) {
@@ -46,16 +47,16 @@ public final class DogArmour {
     final int damageBefore = armour.getDamage();
     final int maxDamage = armour.getMaxDamage();
     final ItemStack shard = armour.copyWithCount(1);
-    armour.damage(wearFrom(source, amount), this.dog, EquipmentSlot.BODY);
+    armour.damage(wearFrom(source, amount), this.wearer, EquipmentSlot.BODY);
     if (Cracks.WOLF_ARMOR.getCrackLevel(damageBefore, maxDamage)
         != Cracks.WOLF_ARMOR.getCrackLevel(this.worn())) {
-      this.dog.playSoundIfNotSilent(SoundEvents.ITEM_WOLF_ARMOR_CRACK);
-      if (this.dog.getWorld() instanceof ServerWorld world) {
+      this.wearer.playSoundIfNotSilent(SoundEvents.ITEM_WOLF_ARMOR_CRACK);
+      if (this.wearer.getWorld() instanceof ServerWorld world) {
         world.spawnParticles(
             new ItemStackParticleEffect(ParticleTypes.ITEM, shard),
-            this.dog.getX(),
-            this.dog.getY() + 1.0,
-            this.dog.getZ(),
+            this.wearer.getX(),
+            this.wearer.getY() + 1.0,
+            this.wearer.getZ(),
             CRACK_PARTICLE_COUNT,
             0.2,
             0.1,
@@ -74,11 +75,11 @@ public final class DogArmour {
     }
     return MathHelper.ceil(
         DamageUtil.getDamageLeft(
-            this.dog,
+            this.wearer,
             amount,
             source,
-            this.dog.getArmor(),
-            (float) this.dog.getAttributeValue(EntityAttributes.GENERIC_ARMOR_TOUGHNESS)));
+            this.wearer.getArmor(),
+            (float) this.wearer.getAttributeValue(EntityAttributes.GENERIC_ARMOR_TOUGHNESS)));
   }
 
   @Nullable
@@ -90,7 +91,7 @@ public final class DogArmour {
     held.decrementUnlessCreative(1, player);
     armour.setDamage(
         Math.max(0, armour.getDamage() - (int) (armour.getMaxDamage() * REPAIR_FRACTION)));
-    this.dog.playSoundIfNotSilent(SoundEvents.ITEM_WOLF_ARMOR_REPAIR);
+    this.wearer.playSoundIfNotSilent(SoundEvents.ITEM_WOLF_ARMOR_REPAIR);
     return ActionResult.SUCCESS;
   }
 }

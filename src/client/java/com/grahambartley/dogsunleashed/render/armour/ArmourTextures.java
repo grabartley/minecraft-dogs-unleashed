@@ -13,6 +13,8 @@ import java.util.Map;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
+import net.minecraft.entity.passive.Cracks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
@@ -51,6 +53,15 @@ public final class ArmourTextures {
         (cubes, width, height) -> ArmourPainter.cracks(cubes, width, height, level));
   }
 
+  public static int crackLevel(final ItemStack worn) {
+    return switch (Cracks.WOLF_ARMOR.getCrackLevel(worn)) {
+      case NONE -> 0;
+      case LOW -> 1;
+      case MEDIUM -> 2;
+      case HIGH -> 3;
+    };
+  }
+
   @FunctionalInterface
   private interface Painter {
     int[] paint(List<List<CubeGeometry.Face>> cubes, int width, int height);
@@ -73,14 +84,21 @@ public final class ArmourTextures {
       final Painter painter) {
     final int width = (int) model.properties().textureWidth();
     final int height = (int) model.properties().textureHeight();
-    final int[] argb = painter.paint(torsoCubes(model, breed), width, height);
+    return upload(
+        Identifier.of(MOD_ID, "armour/" + breed.serializedId() + "/" + name),
+        painter.paint(torsoCubes(model, breed), width, height),
+        width,
+        height);
+  }
+
+  static Identifier upload(
+      final Identifier id, final int[] argb, final int width, final int height) {
     final NativeImage image = new NativeImage(NativeImage.Format.RGBA, width, height, true);
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
         image.setColor(x, y, abgr(argb[y * width + x]));
       }
     }
-    final Identifier id = Identifier.of(MOD_ID, "armour/" + breed.serializedId() + "/" + name);
     MinecraftClient.getInstance()
         .getTextureManager()
         .registerTexture(id, new NativeImageBackedTexture(image));

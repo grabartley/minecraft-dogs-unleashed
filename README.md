@@ -68,7 +68,7 @@ and Go to Bed. Hunting dogs leave your other pets, villagers and golems alone, b
 - **Play fetch.** Throw a stick, a tennis ball or a frisbee. Your dog chases it, picks it up and brings it back to you.
 - **Give them a bed.** Craft a dog bed or a dog house in any colour and assign it. Your dog goes to bed by itself at
 night.
-- **Kit them out.** Open their gear from the command wheel. Craft them armour from leather, iron, gold, diamond or netherite, or use wolf armour. It takes hits for them, cracks as it wears, and mends with its own material. Dye leather armour and their collar any colour, and feed them treats for a short speed and damage boost. Hang a pendant on their collar to keep a mob family away from you both, shield them from fire, falls or drowning, heal you while they're near, or save them from death once.
+- **Kit them out.** Open their gear from the command wheel. Craft them armour from leather, iron, gold, diamond or netherite, or use wolf armour. Your tamed wolves can wear it too. It takes hits for them, cracks as it wears, and mends with its own material. Dye leather armour and their collar any colour, and feed them treats for a short speed and damage boost. Hang a pendant on their collar to keep a mob family away from you both, shield them from fire, falls or drowning, heal you while they're near, or save them from death once.
 - **Never lose them.** Your dogs follow you through portals, unless they are sitting, staying or guarding. Bind a dog whistle to call one from anywhere, or open the
 Pet Manager to see and summon your whole pack.
 - **Raise a family.** Any two living tamed dogs can have puppies, and mixed parents give a mixed breed puppy. Every dog has a

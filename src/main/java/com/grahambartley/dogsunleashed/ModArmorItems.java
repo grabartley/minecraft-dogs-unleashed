@@ -10,6 +10,7 @@ import net.minecraft.item.AnimalArmorItem;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroups;
+import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
@@ -41,6 +42,10 @@ public final class ModArmorItems {
 
   public static AnimalArmorItem of(final DogArmorTier tier) {
     return ARMOR.get(tier);
+  }
+
+  public static boolean isDogArmour(final ItemStack stack) {
+    return ARMOR.values().stream().anyMatch(stack::isOf);
   }
 
   public static void initialize() {

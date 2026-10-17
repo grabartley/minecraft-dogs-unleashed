@@ -4,7 +4,8 @@
 	"compatibilityLevel": "JAVA_21",
 	"client": [
 		"GeoLeashCollarTintMixin",
-		"LeashCollarTintMixin"
+		"LeashCollarTintMixin",
+		"WolfArmorFeatureRendererMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
