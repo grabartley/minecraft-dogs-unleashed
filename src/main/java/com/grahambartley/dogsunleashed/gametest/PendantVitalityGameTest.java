@@ -21,7 +21,9 @@ public final class PendantVitalityGameTest implements FabricGameTest {
   private static final int SUPPRESSION_TICK_LIMIT = 160;
   private static final int AFTER_SPAWN_PROTECTION = 70;
   private static final int AFTER_TWO_CHECKS = 45;
-  private static final double OUT_OF_RANGE_BLOCKS = 12.0;
+  private static final String STRIP = "dogs-unleashed:teleport_arena";
+  private static final BlockPos STRIP_DOG_POS = new BlockPos(2, 2, 2);
+  private static final BlockPos STRIP_FAR_POS = new BlockPos(14, 2, 2);
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
   public void ownerNearAVitalityDogGetsRegenerationOne(final TestContext context) {
@@ -65,13 +67,10 @@ public final class PendantVitalityGameTest implements FabricGameTest {
         });
   }
 
-  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  @GameTest(templateName = STRIP, batchId = BATCH, tickLimit = TICK_LIMIT)
   public void vitalityDoesNotReachAnOwnerOutOfRange(final TestContext context) {
-    final ServerPlayerEntity owner = PendantTestHelper.survivalOwnerAt(context, OWNER_POS);
-    PendantTestHelper.dogWearing(context, PendantType.VITALITY, owner, DOG_POS);
-    owner.setNoGravity(true);
-    owner.refreshPositionAndAngles(
-        owner.getX() + OUT_OF_RANGE_BLOCKS, owner.getY(), owner.getZ(), 0.0f, 0.0f);
+    final ServerPlayerEntity owner = PendantTestHelper.survivalOwnerAt(context, STRIP_FAR_POS);
+    PendantTestHelper.dogWearing(context, PendantType.VITALITY, owner, STRIP_DOG_POS);
 
     context.runAtTick(
         AFTER_TWO_CHECKS,

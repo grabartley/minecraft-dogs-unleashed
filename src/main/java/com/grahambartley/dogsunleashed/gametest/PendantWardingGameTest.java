@@ -17,9 +17,11 @@ import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.ai.goal.FleeEntityGoal;
 import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.entity.mob.ZoglinEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -28,7 +30,6 @@ import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.test.TestFunction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 
 public final class PendantWardingGameTest implements FabricGameTest {
 
@@ -41,7 +42,10 @@ public final class PendantWardingGameTest implements FabricGameTest {
   private static final int FLEE_TICK_LIMIT = 220;
   private static final int FLEE_ASSERT_TICK = 200;
   private static final BlockPos MOB_POS = new BlockPos(1, 2, 1);
-  private static final double OUT_OF_RANGE_BLOCKS = 20.0;
+  private static final String STRIP = "dogs-unleashed:teleport_arena";
+  private static final BlockPos STRIP_DOG_POS = new BlockPos(2, 2, 2);
+  private static final BlockPos STRIP_OWNER_POS = new BlockPos(1, 2, 2);
+  private static final BlockPos STRIP_FAR_POS = new BlockPos(22, 2, 2);
 
   @CustomTestProvider
   public Collection<TestFunction> wardClearsTargetOnOwner() {
@@ -122,7 +126,7 @@ public final class PendantWardingGameTest implements FabricGameTest {
   private static EntityType<? extends MobEntity> liveAttacker(final PendantType type) {
     return switch (type) {
       case WARDING_UNDEAD -> EntityType.ZOMBIE;
-      case WARDING_ARTHROPOD -> EntityType.CAVE_SPIDER;
+      case WARDING_ARTHROPOD -> EntityType.SILVERFISH;
       case WARDING_ILLAGER -> EntityType.VINDICATOR;
       case WARDING_CREEPER -> EntityType.CREEPER;
       default -> throw new IllegalArgumentException(type.id());
@@ -147,15 +151,38 @@ public final class PendantWardingGameTest implements FabricGameTest {
   private static void testWardClearsTarget(
       final TestContext context, final PendantType ward, final boolean targetOwner) {
     final ServerPlayerEntity owner = PendantTestHelper.survivalOwnerAt(context, OWNER_POS);
-    final UnleashedDogEntity dog = PendantTestHelper.dogWearing(context, ward, owner, DOG_POS);
+    final UnleashedDogEntity dog = PendantTestHelper.dogWearing(context, null, owner, DOG_POS);
     final LivingEntity victim = targetOwner ? owner : dog;
     final MobEntity mob = targetingMob(context, familyMember(ward), victim);
+    PendantTestHelper.wear(dog, ward);
 
     context.runAtTick(
         AFTER_TWO_SCANS,
         () -> {
           context.assertTrue(
               mob.getTarget() == null, ward.id() + " should stop its family targeting " + victim);
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void wardMakesABrainMobForgetItsTarget(final TestContext context) {
+    final ServerPlayerEntity owner = PendantTestHelper.survivalOwnerAt(context, OWNER_POS);
+    final UnleashedDogEntity dog = PendantTestHelper.dogWearing(context, null, owner, DOG_POS);
+    final ZoglinEntity zoglin = context.spawnEntity(EntityType.ZOGLIN, MOB_POS);
+    zoglin.setAiDisabled(true);
+    zoglin.getBrain().remember(MemoryModuleType.ATTACK_TARGET, owner);
+    PendantTestHelper.wear(dog, PendantType.WARDING_UNDEAD);
+
+    context.runAtTick(
+        AFTER_TWO_SCANS,
+        () -> {
+          context.assertFalse(
+              zoglin
+                  .getBrain()
+                  .getOptionalRegisteredMemory(MemoryModuleType.ATTACK_TARGET)
+                  .isPresent(),
+              "An undead ward should make a zoglin forget it was attacking the owner");
           context.complete();
         });
   }
@@ -230,17 +257,11 @@ public final class PendantWardingGameTest implements FabricGameTest {
         });
   }
 
-  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  @GameTest(templateName = STRIP, batchId = BATCH, tickLimit = TICK_LIMIT)
   public void wardDoesNotReachBeyondItsRadius(final TestContext context) {
-    final ServerPlayerEntity owner = PendantTestHelper.survivalOwnerAt(context, OWNER_POS);
-    final UnleashedDogEntity dog =
-        PendantTestHelper.dogWearing(context, PendantType.WARDING_UNDEAD, owner, DOG_POS);
-    final MobEntity zombie = context.spawnEntity(EntityType.ZOMBIE, MOB_POS);
-    zombie.setAiDisabled(true);
-    zombie.setNoGravity(true);
-    final Vec3d far = dog.getPos().add(OUT_OF_RANGE_BLOCKS, 0.0, 0.0);
-    zombie.refreshPositionAndAngles(far.x, far.y, far.z, 0.0f, 0.0f);
-    zombie.setTarget(owner);
+    final ServerPlayerEntity owner = PendantTestHelper.survivalOwnerAt(context, STRIP_OWNER_POS);
+    PendantTestHelper.dogWearing(context, PendantType.WARDING_UNDEAD, owner, STRIP_DOG_POS);
+    final MobEntity zombie = targetingMob(context, EntityType.ZOMBIE, STRIP_FAR_POS, owner);
 
     context.runAtTick(
         AFTER_TWO_SCANS,
@@ -290,7 +311,15 @@ public final class PendantWardingGameTest implements FabricGameTest {
       final TestContext context,
       final EntityType<? extends MobEntity> type,
       final LivingEntity victim) {
-    final MobEntity mob = context.spawnEntity(type, MOB_POS);
+    return targetingMob(context, type, MOB_POS, victim);
+  }
+
+  private static MobEntity targetingMob(
+      final TestContext context,
+      final EntityType<? extends MobEntity> type,
+      final BlockPos pos,
+      final LivingEntity victim) {
+    final MobEntity mob = context.spawnEntity(type, pos);
     mob.setAiDisabled(true);
     mob.setTarget(victim);
     return mob;

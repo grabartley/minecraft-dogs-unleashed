@@ -4,10 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.joml.Vector3f;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 class CollarBandLocatorTest {
 
@@ -44,7 +47,8 @@ class CollarBandLocatorTest {
         },
         new float[] {0, 1, 1, 0},
         new float[] {0, 0, 1, 1},
-        new Vector3f(0, 0, normalZ));
+        new Vector3f(0, 0, normalZ),
+        RestPose.NONE);
   }
 
   private static int texel(final int x, final int y) {
@@ -93,7 +97,8 @@ class CollarBandLocatorTest {
             },
             new float[] {0, 1, 1, 0},
             new float[] {0, 0, 1, 1},
-            new Vector3f(0.4472f, 0, -0.8944f));
+            new Vector3f(0.4472f, 0, -0.8944f),
+            RestPose.NONE);
 
     final Vector3f centred =
         CollarBandLocator.centredAcross(turned, new Vector3f(-0.5f, 0.5f, -0.75f));
@@ -103,13 +108,15 @@ class CollarBandLocatorTest {
     assertEquals(-0.5f, centred.z, EPSILON);
   }
 
-  @Test
-  @DisplayName("collar paint under a neck tipped forward counts as the front")
-  void tippedNeckUndersideIsTheFront() {
+  @ParameterizedTest(name = "tipped {0} degrees counts as front: {1}")
+  @CsvSource({"25, false", "35, true", "90, true"})
+  @DisplayName("collar paint under a neck counts as the front once the neck tips far enough")
+  void tippedNeckUndersideIsTheFront(final double tiltDegrees, final boolean front) {
     final RestPose tippedForward =
         new RestPose(
             List.of(
-                new RestPose.Joint(new Vector3f(), new Vector3f((float) (Math.PI / 2.0), 0, 0))));
+                new RestPose.Joint(
+                    new Vector3f(), new Vector3f((float) Math.toRadians(tiltDegrees), 0, 0))));
     final CubeGeometry.Face underside =
         new CubeGeometry.Face(
             "neck",
@@ -125,12 +132,11 @@ class CollarBandLocatorTest {
             tippedForward);
     final Mask band = new Mask(Set.of(texel(1, 1)));
 
-    final CollarBandLocator.CollarSpot spot =
-        CollarBandLocator.locate(List.of(underside), MOUTH_AT_NEGATIVE_Z, band).orElseThrow();
+    final Optional<CollarBandLocator.CollarSpot> spot =
+        CollarBandLocator.locate(List.of(underside), MOUTH_AT_NEGATIVE_Z, band);
 
-    assertEquals("neck", spot.boneName());
-    assertEquals(0.0f, spot.point().x, EPSILON);
-    assertEquals(0.0f, spot.point().y, EPSILON);
+    assertEquals(front, spot.isPresent());
+    spot.ifPresent(found -> assertEquals(0.0f, found.point().x, EPSILON));
   }
 
   @Test

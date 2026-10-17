@@ -6,6 +6,9 @@ import java.util.List;
 import org.joml.Vector3f;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import software.bernie.geckolib.cache.object.GeoBone;
 
 class RestPoseTest {
 
@@ -60,6 +63,43 @@ class RestPoseTest {
     final Vector3f local = new Vector3f(0.2f, -0.9f, 0.4f).normalize();
 
     assertClose(local, pose.direction(local).rotate(pose.rotation().conjugate()));
+  }
+
+  @ParameterizedTest(name = "snapshot saved: {0}")
+  @ValueSource(booleans = {true, false})
+  @DisplayName("a bone's rest pose turns through the bone and then its parent")
+  void ofWalksTheBoneThenItsParent(final boolean snapshotSaved) {
+    final GeoBone body = bone(null, "body", 0, 0, 0, 0, QUARTER_TURN, 0);
+    final GeoBone neck = bone(body, "neck", 0, 16, 0, QUARTER_TURN, 0, 0);
+    if (snapshotSaved) {
+      body.saveInitialSnapshot();
+      neck.saveInitialSnapshot();
+      body.setRotY(0);
+      neck.setRotX(0);
+    }
+
+    final RestPose pose = RestPose.of(neck);
+
+    assertClose(new Vector3f(1, 1, 0), pose.point(new Vector3f(0, 2, 0)));
+  }
+
+  private static GeoBone bone(
+      final GeoBone parent,
+      final String name,
+      final float pivotX,
+      final float pivotY,
+      final float pivotZ,
+      final float rotX,
+      final float rotY,
+      final float rotZ) {
+    final GeoBone bone = new GeoBone(parent, name, false, 0.0, false, false);
+    bone.setPivotX(pivotX);
+    bone.setPivotY(pivotY);
+    bone.setPivotZ(pivotZ);
+    bone.setRotX(rotX);
+    bone.setRotY(rotY);
+    bone.setRotZ(rotZ);
+    return bone;
   }
 
   private static void assertClose(final Vector3f expected, final Vector3f actual) {

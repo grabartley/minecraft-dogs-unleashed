@@ -20,7 +20,8 @@ class QuadUvTest {
         },
         us,
         vs,
-        new Vector3f(0, 0, -1));
+        new Vector3f(0, 0, -1),
+        RestPose.NONE);
   }
 
   @Test

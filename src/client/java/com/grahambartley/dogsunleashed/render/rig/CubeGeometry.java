@@ -71,15 +71,6 @@ public final class CubeGeometry {
   public record Face(
       String boneName, Vector3f[] corners, float[] us, float[] vs, Vector3f normal, RestPose pose) {
 
-    public Face(
-        final String boneName,
-        final Vector3f[] corners,
-        final float[] us,
-        final float[] vs,
-        final Vector3f normal) {
-      this(boneName, corners, us, vs, normal, RestPose.NONE);
-    }
-
     public Vector3f posedNormal() {
       return this.pose.direction(this.normal);
     }
