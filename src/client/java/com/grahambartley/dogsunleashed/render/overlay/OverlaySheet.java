@@ -1,8 +1,6 @@
 package com.grahambartley.dogsunleashed.render.overlay;
 
 import com.grahambartley.dogsunleashed.render.rig.RigProfile.Slot;
-import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.util.math.Direction;
@@ -10,9 +8,28 @@ import net.minecraft.util.math.Direction;
 public final class OverlaySheet {
 
   public static final List<Slot> SLOTS =
-      Arrays.stream(Slot.values())
-          .filter(slot -> !EnumSet.of(Slot.FUR_SHAGGY, Slot.FUR_OVERGROWN).contains(slot))
-          .toList();
+      List.of(
+          Slot.TORSO,
+          Slot.MOUTH,
+          Slot.HEAD,
+          Slot.EYES,
+          Slot.NECK,
+          Slot.TAIL,
+          Slot.EAR_LEFT,
+          Slot.EAR_RIGHT,
+          Slot.LEG_FRONT_LEFT,
+          Slot.LEG_FRONT_RIGHT,
+          Slot.LEG_BACK_LEFT,
+          Slot.LEG_BACK_RIGHT);
+
+  public static final List<Direction> FACES =
+      List.of(
+          Direction.DOWN,
+          Direction.UP,
+          Direction.NORTH,
+          Direction.SOUTH,
+          Direction.WEST,
+          Direction.EAST);
 
   public static final int SLOT_SIZE = 48;
   public static final int SLOT_COLUMNS = 4;
@@ -35,7 +52,7 @@ public final class OverlaySheet {
     }
     final int squareX = (square % SLOT_COLUMNS) * SLOT_SIZE;
     final int squareY = (square / SLOT_COLUMNS) * SLOT_SIZE;
-    final int faceIndex = face.ordinal();
+    final int faceIndex = FACES.indexOf(face);
     return Optional.of(
         new Cell(
             squareX + (faceIndex % FACE_COLUMNS) * FACE_WIDTH,

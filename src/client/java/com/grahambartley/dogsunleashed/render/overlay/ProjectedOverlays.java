@@ -7,18 +7,12 @@ import com.grahambartley.dogsunleashed.render.rig.RigModels;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile;
 import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
 import com.grahambartley.dogsunleashed.render.rig.SlotRegions;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.texture.NativeImage;
-import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.client.texture.TextureManager;
-import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +39,7 @@ public final class ProjectedOverlays {
           RigModels::loaded,
           RigProfiles::of,
           SlotRegions.shared(),
-          ProjectedOverlays::readShipped,
+          PixelGridTextures::read,
           ProjectedOverlays::registerTexture);
 
   private final RigModels.Lookup models;
@@ -139,47 +133,18 @@ public final class ProjectedOverlays {
     final Optional<PixelGrid> override = this.images.read(texture);
     if (override.isEmpty() || !override.get().hasSize(atlasWidth, atlasHeight)) {
       LOGGER.warn(
-          "Rig {} override {} is missing or not {}x{}",
+          "Rig {} override {} is missing or not {}x{}, projecting the sheet instead",
           rig.serializedId(),
           texture,
           atlasWidth,
           atlasHeight);
-      return Optional.empty();
     }
     return override;
   }
 
-  private static Optional<PixelGrid> readShipped(final Identifier texture) {
-    final Optional<Resource> resource =
-        MinecraftClient.getInstance().getResourceManager().getResource(texture);
-    if (resource.isEmpty()) {
-      return Optional.empty();
-    }
-    try (InputStream in = resource.get().getInputStream();
-        NativeImage image = NativeImage.read(in)) {
-      final PixelGrid pixels = PixelGrid.blank(image.getWidth(), image.getHeight());
-      for (int y = 0; y < image.getHeight(); y++) {
-        for (int x = 0; x < image.getWidth(); x++) {
-          pixels.set(x, y, image.getColor(x, y));
-        }
-      }
-      return Optional.of(pixels);
-    } catch (final IOException exception) {
-      LOGGER.warn("Unreadable overlay texture {}: {}", texture, exception.getMessage());
-      return Optional.empty();
-    }
-  }
-
   private static Identifier registerTexture(
       final UnleashedDogBreed rig, final Identifier sheet, final PixelGrid pixels) {
-    final NativeImage image =
-        new NativeImage(NativeImage.Format.RGBA, pixels.width(), pixels.height(), false);
-    for (int y = 0; y < pixels.height(); y++) {
-      for (int x = 0; x < pixels.width(); x++) {
-        image.setColor(x, y, pixels.colourAt(x, y));
-      }
-    }
-    final Identifier id =
+    return PixelGridTextures.register(
         Identifier.of(
             MOD_ID,
             "sheet_overlay/"
@@ -187,10 +152,7 @@ public final class ProjectedOverlays {
                 + "/"
                 + sheet.getNamespace()
                 + "/"
-                + sheet.getPath());
-    MinecraftClient.getInstance()
-        .getTextureManager()
-        .registerTexture(id, new NativeImageBackedTexture(image));
-    return id;
+                + sheet.getPath()),
+        pixels);
   }
 }

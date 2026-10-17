@@ -113,12 +113,21 @@ public record RigProfile(
         continue;
       }
       final Map<Slot, Identifier> slots = new EnumMap<>(Slot.class);
-      for (final Slot slot : Slot.values()) {
-        if (bySlot.get(slot.key()) instanceof JsonPrimitive texture
-            && texture.isString()
-            && Identifier.tryParse(texture.getAsString()) instanceof Identifier textureId) {
-          slots.put(slot, textureId);
+      for (final Map.Entry<String, JsonElement> entry : bySlot.entrySet()) {
+        final Optional<Slot> slot = slotOf(entry.getKey());
+        final Identifier texture =
+            entry.getValue() instanceof JsonPrimitive value && value.isString()
+                ? Identifier.tryParse(value.getAsString())
+                : null;
+        if (slot.isEmpty() || texture == null) {
+          LOGGER.warn(
+              "Skipping {} override {} of sheet {}", entry.getKey(), entry.getValue(), sheetId);
+          continue;
         }
+        slots.put(slot.get(), texture);
+      }
+      if (slots.isEmpty()) {
+        continue;
       }
       sheets.put(sheetId, slots);
     }
@@ -141,6 +150,15 @@ public record RigProfile(
     }
     final double value = element.getAsDouble();
     return value == Math.rint(value);
+  }
+
+  private static Optional<Slot> slotOf(final String key) {
+    for (final Slot slot : Slot.values()) {
+      if (slot.key().equals(key)) {
+        return Optional.of(slot);
+      }
+    }
+    return Optional.empty();
   }
 
   public Set<String> bonesIn(final Slot slot) {

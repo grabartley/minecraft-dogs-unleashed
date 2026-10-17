@@ -8,14 +8,17 @@ import com.grahambartley.dogsunleashed.render.overlay.OverlaySheet.Cell;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile.Slot;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 import net.minecraft.util.math.Direction;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -27,23 +30,19 @@ class OverlaySheetTest {
   }
 
   @Test
-  @DisplayName("the sheet holds every body slot in enum order and leaves fur out")
+  @DisplayName("the sheet holds every slot except fur")
   void slotsAreTheBodySlots() {
     assertEquals(
-        List.of(
-            Slot.TORSO,
-            Slot.MOUTH,
-            Slot.HEAD,
-            Slot.EYES,
-            Slot.NECK,
-            Slot.TAIL,
-            Slot.EAR_LEFT,
-            Slot.EAR_RIGHT,
-            Slot.LEG_FRONT_LEFT,
-            Slot.LEG_FRONT_RIGHT,
-            Slot.LEG_BACK_LEFT,
-            Slot.LEG_BACK_RIGHT),
-        OverlaySheet.SLOTS);
+        EnumSet.complementOf(EnumSet.of(Slot.FUR_SHAGGY, Slot.FUR_OVERGROWN)),
+        EnumSet.copyOf(OverlaySheet.SLOTS));
+    assertEquals(OverlaySheet.SLOTS.size(), Set.copyOf(OverlaySheet.SLOTS).size());
+  }
+
+  @Test
+  @DisplayName("every face direction has exactly one cell in a square")
+  void facesCoverEveryDirectionOnce() {
+    assertEquals(EnumSet.allOf(Direction.class), EnumSet.copyOf(OverlaySheet.FACES));
+    assertEquals(Direction.values().length, OverlaySheet.FACES.size());
   }
 
   @Test
@@ -85,24 +84,22 @@ class OverlaySheetTest {
     }
   }
 
-  @Test
-  @DisplayName("the six faces of a square fill it in direction order, three across and two down")
-  void facesFillTheSquareInDirectionOrder() {
-    assertEquals(
-        Optional.of(new Cell(96, 0, 16, 24)), OverlaySheet.cellOf(Slot.HEAD, Direction.DOWN));
-    assertEquals(
-        Optional.of(new Cell(112, 0, 16, 24)), OverlaySheet.cellOf(Slot.HEAD, Direction.UP));
-    assertEquals(
-        Optional.of(new Cell(128, 0, 16, 24)), OverlaySheet.cellOf(Slot.HEAD, Direction.NORTH));
-    assertEquals(
-        Optional.of(new Cell(96, 24, 16, 24)), OverlaySheet.cellOf(Slot.HEAD, Direction.SOUTH));
-    assertEquals(
-        Optional.of(new Cell(112, 24, 16, 24)), OverlaySheet.cellOf(Slot.HEAD, Direction.WEST));
-    assertEquals(
-        Optional.of(new Cell(128, 24, 16, 24)), OverlaySheet.cellOf(Slot.HEAD, Direction.EAST));
-    assertEquals(
-        Optional.of(new Cell(0, 96, 16, 24)),
-        OverlaySheet.cellOf(Slot.LEG_FRONT_LEFT, Direction.DOWN));
+  @ParameterizedTest(name = "{0} {1} at ({2}, {3})")
+  @CsvSource({
+    "HEAD, DOWN, 96, 0",
+    "HEAD, UP, 112, 0",
+    "HEAD, NORTH, 128, 0",
+    "HEAD, SOUTH, 96, 24",
+    "HEAD, WEST, 112, 24",
+    "HEAD, EAST, 128, 24",
+    "TORSO, DOWN, 0, 0",
+    "LEG_FRONT_LEFT, DOWN, 0, 96",
+    "LEG_BACK_RIGHT, EAST, 176, 120"
+  })
+  @DisplayName("the six faces of a square fill it three across and two down in face order")
+  void facesFillTheSquareInFaceOrder(
+      final Slot slot, final Direction face, final int x, final int y) {
+    assertEquals(Optional.of(new Cell(x, y, 16, 24)), OverlaySheet.cellOf(slot, face));
   }
 
   @ParameterizedTest(name = "{0}")

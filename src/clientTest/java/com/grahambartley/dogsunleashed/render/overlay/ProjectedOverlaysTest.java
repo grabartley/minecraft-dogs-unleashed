@@ -45,7 +45,8 @@ class ProjectedOverlaysTest {
   @Test
   @DisplayName("a sheet is projected once per rig and then reused")
   void projectedOncePerRig() {
-    this.images.put(SHEET, filled(OverlaySheet.WIDTH, OverlaySheet.HEIGHT, SHEET_COLOUR));
+    this.images.put(
+        SHEET, PixelGrids.filled(OverlaySheet.WIDTH, OverlaySheet.HEIGHT, SHEET_COLOUR));
     final ProjectedOverlays overlays = overlays(shipped(), BUNDLED::profileOf);
 
     final Optional<Identifier> first = overlays.textureOf(UnleashedDogBreed.BEAGLE, SHEET);
@@ -61,7 +62,8 @@ class ProjectedOverlaysTest {
   @Test
   @DisplayName("each rig's projection is the size of that rig's own texture atlas")
   void projectionMatchesTheAtlas() {
-    this.images.put(SHEET, filled(OverlaySheet.WIDTH, OverlaySheet.HEIGHT, SHEET_COLOUR));
+    this.images.put(
+        SHEET, PixelGrids.filled(OverlaySheet.WIDTH, OverlaySheet.HEIGHT, SHEET_COLOUR));
     final ProjectedOverlays overlays = overlays(shipped(), BUNDLED::profileOf);
 
     overlays.textureOf(UnleashedDogBreed.HUSKY, SHEET);
@@ -86,7 +88,7 @@ class ProjectedOverlaysTest {
   @Test
   @DisplayName("a sheet of the wrong size draws nothing")
   void wrongSizedSheetDrawsNothing() {
-    this.images.put(SHEET, filled(64, 64, SHEET_COLOUR));
+    this.images.put(SHEET, PixelGrids.filled(64, 64, SHEET_COLOUR));
     final ProjectedOverlays overlays = overlays(shipped(), BUNDLED::profileOf);
 
     assertTrue(overlays.textureOf(UnleashedDogBreed.BEAGLE, SHEET).isEmpty());
@@ -96,7 +98,8 @@ class ProjectedOverlaysTest {
   @Test
   @DisplayName("a rig whose model has not loaded yet is projected later rather than cached empty")
   void unloadedModelIsNotCached() {
-    this.images.put(SHEET, filled(OverlaySheet.WIDTH, OverlaySheet.HEIGHT, SHEET_COLOUR));
+    this.images.put(
+        SHEET, PixelGrids.filled(OverlaySheet.WIDTH, OverlaySheet.HEIGHT, SHEET_COLOUR));
     final AtomicReference<Optional<BakedGeoModel>> model = new AtomicReference<>(Optional.empty());
     final ProjectedOverlays overlays = overlays(rig -> model.get(), BUNDLED::profileOf);
 
@@ -109,9 +112,11 @@ class ProjectedOverlaysTest {
   @Test
   @DisplayName("a profile override for a slot replaces only that slot, and only for its own sheet")
   void profileOverrideReplacesItsSlot() {
-    this.images.put(SHEET, filled(OverlaySheet.WIDTH, OverlaySheet.HEIGHT, SHEET_COLOUR));
-    this.images.put(OTHER, filled(OverlaySheet.WIDTH, OverlaySheet.HEIGHT, SHEET_COLOUR));
-    this.images.put(HEAD_OVERRIDE, filled(128, 128, OVERRIDE_COLOUR));
+    this.images.put(
+        SHEET, PixelGrids.filled(OverlaySheet.WIDTH, OverlaySheet.HEIGHT, SHEET_COLOUR));
+    this.images.put(
+        OTHER, PixelGrids.filled(OverlaySheet.WIDTH, OverlaySheet.HEIGHT, SHEET_COLOUR));
+    this.images.put(HEAD_OVERRIDE, PixelGrids.filled(128, 128, OVERRIDE_COLOUR));
     final RigProfile beagle = BUNDLED.profileOf(UnleashedDogBreed.BEAGLE);
     final RigProfile withOverride =
         new RigProfile(
@@ -157,7 +162,8 @@ class ProjectedOverlaysTest {
   @Test
   @DisplayName("clearing destroys every projected texture and projects again on the next ask")
   void clearDestroysAndReprojects() {
-    this.images.put(SHEET, filled(OverlaySheet.WIDTH, OverlaySheet.HEIGHT, SHEET_COLOUR));
+    this.images.put(
+        SHEET, PixelGrids.filled(OverlaySheet.WIDTH, OverlaySheet.HEIGHT, SHEET_COLOUR));
     final ProjectedOverlays overlays = overlays(shipped(), BUNDLED::profileOf);
     final TextureManager textures = mock(TextureManager.class);
     final Identifier projected = overlays.textureOf(UnleashedDogBreed.BEAGLE, SHEET).orElseThrow();
@@ -201,15 +207,5 @@ class ProjectedOverlaysTest {
       }
     }
     return sheet;
-  }
-
-  private static PixelGrid filled(final int width, final int height, final int colour) {
-    final PixelGrid grid = PixelGrid.blank(width, height);
-    for (int y = 0; y < height; y++) {
-      for (int x = 0; x < width; x++) {
-        grid.set(x, y, colour);
-      }
-    }
-    return grid;
   }
 }

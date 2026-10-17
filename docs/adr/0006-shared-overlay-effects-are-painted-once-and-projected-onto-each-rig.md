@@ -25,6 +25,6 @@ Code turns an effect on by registering its sheet with a condition on the dog. No
 
 An artist paints one sheet and every breed, including breeds added later, shows it. A breed that needs special treatment on one part gets an override without affecting the others.
 
-The projection knows nothing about how a face is oriented on the texture beyond its rectangle, so a mirrored face shows its cell mirrored. Two slots that share the same texels on a rig, such as ears that reuse one texture, show whichever slot comes later in the order above. Stretching a 16 by 24 cell over a face of a different shape distorts fine detail, so sheets should favour patterns that survive stretching, such as blotches and speckles, over shapes that need to stay round.
+The projection knows nothing about how a face is oriented on the texture beyond its rectangle, so a mirrored face shows its cell mirrored. Two slots that share the same texels on a rig, such as ears that reuse one texture, show whichever slot comes later in the order above. The same goes for faces within one slot, and for the eyes over the head wherever a rig paints them on the same texels. Stretching a 16 by 24 cell over a face of a different shape distorts fine detail, so sheets should favour patterns that survive stretching, such as blotches and speckles, over shapes that need to stay round.
 
 Armour keeps its own per-rig painter (ADR 0003), because it is drawn on an inflated copy of the torso rather than on the coat.

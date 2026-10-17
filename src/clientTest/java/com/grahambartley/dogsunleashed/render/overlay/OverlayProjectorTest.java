@@ -91,7 +91,10 @@ class OverlayProjectorTest {
             ATLAS,
             ATLAS,
             slot -> regions.getOrDefault(slot, List.of()),
-            slot -> slot == Slot.HEAD ? Optional.of(filled(ATLAS, ATLAS)) : Optional.empty());
+            slot ->
+                slot == Slot.HEAD
+                    ? Optional.of(PixelGrids.filled(ATLAS, ATLAS, OVERRIDE_COLOUR))
+                    : Optional.empty());
 
     assertEquals(OVERRIDE_COLOUR, projected.colourAt(1, 1));
     assertEquals(labelOf(Slot.TAIL, Direction.NORTH), projected.colourAt(11, 11));
@@ -109,7 +112,7 @@ class OverlayProjectorTest {
             ATLAS,
             ATLAS,
             regionsOn(Slot.HEAD, head),
-            slot -> Optional.of(filled(ATLAS * 2, ATLAS * 2)));
+            slot -> Optional.of(PixelGrids.filled(ATLAS * 2, ATLAS * 2, OVERRIDE_COLOUR)));
 
     assertEquals(labelOf(Slot.HEAD, Direction.EAST), projected.colourAt(0, 0));
   }
@@ -196,16 +199,6 @@ class OverlayProjectorTest {
 
   private static int labelOf(final Slot slot, final Direction face) {
     return 0xFF000000 | (slot.ordinal() << 8) | face.ordinal();
-  }
-
-  private static PixelGrid filled(final int width, final int height) {
-    final PixelGrid grid = PixelGrid.blank(width, height);
-    for (int y = 0; y < height; y++) {
-      for (int x = 0; x < width; x++) {
-        grid.set(x, y, OVERRIDE_COLOUR);
-      }
-    }
-    return grid;
   }
 
   private static Function<Slot, List<SlotRegion>> regionsOn(
