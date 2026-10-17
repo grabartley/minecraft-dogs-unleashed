@@ -141,6 +141,20 @@ class RigProfilesTest {
     }
   }
 
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("rigs")
+  @DisplayName("every sheet override a profile names is a texture that ships")
+  void profileSheetOverridesExist(final UnleashedDogBreed rig) {
+    BUNDLED.profileOf(rig).sheetOverrides().values().stream()
+        .flatMap(slots -> slots.values().stream())
+        .forEach(
+            id ->
+                assertNotNull(
+                    RigProfilesTest.class.getResource(
+                        "/assets/" + id.getNamespace() + "/" + id.getPath()),
+                    rig + " names a missing sheet override " + id));
+  }
+
   @Test
   @DisplayName("a rig without a profile file gets the empty profile")
   void missingProfileIsEmpty() {

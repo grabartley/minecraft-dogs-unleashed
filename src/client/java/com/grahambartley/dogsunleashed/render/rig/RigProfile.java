@@ -3,8 +3,10 @@ package com.grahambartley.dogsunleashed.render.rig;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -16,13 +18,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public record RigProfile(
-    Map<Slot, Set<String>> bones, Map<Overlay, Identifier> overlays, List<Texel> pupils) {
+    Map<Slot, Set<String>> bones,
+    Map<Overlay, Identifier> overlays,
+    List<Texel> pupils,
+    Map<Identifier, Map<Slot, Identifier>> sheetOverrides) {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RigProfile.class);
 
   private static final String PUPILS_KEY = "pupils";
+  private static final String SHEET_OVERRIDES_KEY = "sheet_overrides";
 
-  public static final RigProfile EMPTY = new RigProfile(Map.of(), Map.of(), List.of());
+  public static final RigProfile EMPTY = new RigProfile(Map.of(), Map.of(), List.of(), Map.of());
 
   public enum Slot {
     TORSO,
@@ -58,6 +64,11 @@ public record RigProfile(
     bones = Map.copyOf(bones);
     overlays = Map.copyOf(overlays);
     pupils = List.copyOf(pupils);
+    sheetOverrides =
+        sheetOverrides.entrySet().stream()
+            .collect(
+                Collectors.toUnmodifiableMap(
+                    Map.Entry::getKey, entry -> Map.copyOf(entry.getValue())));
   }
 
   public static RigProfile parse(final JsonObject json) {
@@ -83,7 +94,35 @@ public record RigProfile(
     } else if (json.has(PUPILS_KEY)) {
       LOGGER.warn("Ignoring pupils {}, expected a list of [x, y] pairs", json.get(PUPILS_KEY));
     }
-    return new RigProfile(bones, overlays, pupils);
+    return new RigProfile(bones, overlays, pupils, sheetOverridesOf(json));
+  }
+
+  private static Map<Identifier, Map<Slot, Identifier>> sheetOverridesOf(final JsonObject json) {
+    final Map<Identifier, Map<Slot, Identifier>> sheets = new HashMap<>();
+    if (!(json.get(SHEET_OVERRIDES_KEY) instanceof JsonObject bySheet)) {
+      if (json.has(SHEET_OVERRIDES_KEY)) {
+        LOGGER.warn(
+            "Ignoring sheet overrides {}, expected an object", json.get(SHEET_OVERRIDES_KEY));
+      }
+      return sheets;
+    }
+    for (final Map.Entry<String, JsonElement> sheet : bySheet.entrySet()) {
+      final Identifier sheetId = Identifier.tryParse(sheet.getKey());
+      if (sheetId == null || !(sheet.getValue() instanceof JsonObject bySlot)) {
+        LOGGER.warn("Skipping sheet override {}", sheet.getKey());
+        continue;
+      }
+      final Map<Slot, Identifier> slots = new EnumMap<>(Slot.class);
+      for (final Slot slot : Slot.values()) {
+        if (bySlot.get(slot.key()) instanceof JsonPrimitive texture
+            && texture.isString()
+            && Identifier.tryParse(texture.getAsString()) instanceof Identifier textureId) {
+          slots.put(slot, textureId);
+        }
+      }
+      sheets.put(sheetId, slots);
+    }
+    return sheets;
   }
 
   private static Optional<Texel> texelOf(final JsonElement element) {
@@ -110,6 +149,10 @@ public record RigProfile(
 
   public Optional<String> mouthBone() {
     return this.bonesIn(Slot.MOUTH).stream().findFirst();
+  }
+
+  public Optional<Identifier> sheetOverride(final Identifier sheet, final Slot slot) {
+    return Optional.ofNullable(this.sheetOverrides.getOrDefault(sheet, Map.of()).get(slot));
   }
 
   public Optional<Identifier> overlay(final Overlay overlay) {

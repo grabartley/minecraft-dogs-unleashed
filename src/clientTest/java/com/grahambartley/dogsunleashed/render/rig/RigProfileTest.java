@@ -15,6 +15,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class RigProfileTest {
 
@@ -113,5 +114,47 @@ class RigProfileTest {
   @DisplayName("the empty profile names no bones")
   void emptyProfileHasNoBones(final Slot slot) {
     assertTrue(RigProfile.EMPTY.bonesIn(slot).isEmpty());
+  }
+
+  @Test
+  @DisplayName("sheet overrides read per sheet and per slot")
+  void sheetOverridesRead() {
+    final Identifier sheet = Identifier.of("dogs-unleashed", "textures/entity/overlay/rot.png");
+    final Identifier head = Identifier.of("dogs-unleashed", "textures/entity/overlay/rot_head.png");
+    final RigProfile profile =
+        RigProfile.parse(
+            JsonParser.parseString(
+                    """
+                    {"sheet_overrides": {
+                      "dogs-unleashed:textures/entity/overlay/rot.png": {
+                        "head": "dogs-unleashed:textures/entity/overlay/rot_head.png"
+                      }
+                    }}
+                    """)
+                .getAsJsonObject());
+
+    assertEquals(Optional.of(head), profile.sheetOverride(sheet, Slot.HEAD));
+    assertTrue(profile.sheetOverride(sheet, Slot.TORSO).isEmpty());
+    assertTrue(
+        profile
+            .sheetOverride(Identifier.of("dogs-unleashed", "textures/other.png"), Slot.HEAD)
+            .isEmpty());
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(
+      strings = {
+        "{\"sheet_overrides\": \"rot\"}",
+        "{\"sheet_overrides\": {\"Not A Valid Id\": {\"head\": \"dogs-unleashed:x.png\"}}}",
+        "{\"sheet_overrides\": {\"dogs-unleashed:rot.png\": \"head\"}}",
+        "{\"sheet_overrides\": {\"dogs-unleashed:rot.png\": {\"head\": 7, \"nose\": \"dogs-unleashed:x.png\"}}}"
+      })
+  @DisplayName("malformed sheet overrides are ignored and the rest of the profile still reads")
+  void malformedSheetOverridesAreIgnored(final String json) {
+    final RigProfile profile = RigProfile.parse(JsonParser.parseString(json).getAsJsonObject());
+
+    for (final Slot slot : Slot.values()) {
+      assertTrue(profile.sheetOverride(Identifier.of("dogs-unleashed", "rot.png"), slot).isEmpty());
+    }
   }
 }
