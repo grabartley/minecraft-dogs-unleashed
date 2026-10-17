@@ -164,6 +164,10 @@ public enum UnleashedDogBreed {
     return "animations/" + this.serializedId + ".animation.json";
   }
 
+  public String geoPath() {
+    return "geo/" + this.serializedId + ".geo.json";
+  }
+
   public FetchCarryProfiles fetchCarryProfiles() {
     return this.fetchCarryProfiles;
   }

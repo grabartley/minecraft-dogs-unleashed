@@ -3,17 +3,26 @@ package com.grahambartley.dogsunleashed.render.rig;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import net.minecraft.util.Identifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public record RigProfile(Map<Slot, Set<String>> bones, Map<Overlay, Identifier> overlays) {
+public record RigProfile(
+    Map<Slot, Set<String>> bones, Map<Overlay, Identifier> overlays, List<Texel> pupils) {
 
-  public static final RigProfile EMPTY = new RigProfile(Map.of(), Map.of());
+  private static final Logger LOGGER = LoggerFactory.getLogger(RigProfile.class);
+
+  private static final String PUPILS_KEY = "pupils";
+
+  public static final RigProfile EMPTY = new RigProfile(Map.of(), Map.of(), List.of());
 
   public enum Slot {
     TORSO,
@@ -48,6 +57,7 @@ public record RigProfile(Map<Slot, Set<String>> bones, Map<Overlay, Identifier> 
   public RigProfile {
     bones = Map.copyOf(bones);
     overlays = Map.copyOf(overlays);
+    pupils = List.copyOf(pupils);
   }
 
   public static RigProfile parse(final JsonObject json) {
@@ -65,7 +75,33 @@ public record RigProfile(Map<Slot, Set<String>> bones, Map<Overlay, Identifier> 
         overlays.put(overlay, Identifier.of(json.get(overlay.key()).getAsString()));
       }
     }
-    return new RigProfile(bones, overlays);
+    final List<Texel> pupils = new ArrayList<>();
+    if (json.get(PUPILS_KEY) instanceof JsonArray texels) {
+      for (final JsonElement texel : texels) {
+        texelOf(texel).ifPresentOrElse(pupils::add, () -> LOGGER.warn("Skipping pupil {}", texel));
+      }
+    } else if (json.has(PUPILS_KEY)) {
+      LOGGER.warn("Ignoring pupils {}, expected a list of [x, y] pairs", json.get(PUPILS_KEY));
+    }
+    return new RigProfile(bones, overlays, pupils);
+  }
+
+  private static Optional<Texel> texelOf(final JsonElement element) {
+    if (element instanceof JsonArray xy
+        && xy.size() == 2
+        && isWholeNumber(xy.get(0))
+        && isWholeNumber(xy.get(1))) {
+      return Optional.of(new Texel(xy.get(0).getAsInt(), xy.get(1).getAsInt()));
+    }
+    return Optional.empty();
+  }
+
+  private static boolean isWholeNumber(final JsonElement element) {
+    if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isNumber()) {
+      return false;
+    }
+    final double value = element.getAsDouble();
+    return value == Math.rint(value);
   }
 
   public Set<String> bonesIn(final Slot slot) {

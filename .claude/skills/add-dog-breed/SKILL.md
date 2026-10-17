@@ -79,7 +79,11 @@ Shared assets live under `src/main/resources/assets/dogs-unleashed/`:
    right, not the viewer's. Add `fur_shaggy`, `fur_overgrown`, `trimmed_overlay` and
    `botched_overlay` once the breed's fur art exists. Never rename bones in the rig to fit a slot.
    `RigProfilesTest` checks every breed and fails when a slot is missing, names a bone the rig does
-   not have, or puts a left part on the right.
+   not have, or puts a left part on the right. Also add `pupils`: the two texels, as `[x, y]`
+   pairs, where the eyes are painted on the head's face texture. Undead dogs glow on exactly
+   those texels. `UndeadDogEyesTest` fails when a pupil is off the head or outside the `eyes`
+   slot. Add a couple of the breed's coats to its `TEXTURES_BY_RIG` so the pupils are also
+   checked against dark eye pixels in the art.
 8. **Breed filter**: `src/client/java/com/grahambartley/dogsunleashed/screen/PetManagerScreen.java` -
    new `BreedFilterOption` entry.
 9. **Language**: `src/main/resources/assets/dogs-unleashed/lang/en_us.json` - entity name, spawn

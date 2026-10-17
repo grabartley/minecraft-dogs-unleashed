@@ -58,6 +58,33 @@ class QuadUvTest {
   }
 
   @Test
+  @DisplayName("a point on the edge of the face's patch is not covered")
+  void edgeIsNotCovered() {
+    final CubeGeometry.Face face =
+        unitFace(new float[] {0, 0.5f, 0.5f, 0}, new float[] {0, 0, 0.5f, 0.5f});
+
+    assertFalse(QuadUv.covers(face, 0.5f, 0.25f));
+    assertFalse(QuadUv.covers(face, 0.25f, 0.0f));
+  }
+
+  @Test
+  @DisplayName("a span runs from the smallest to the largest coordinate in any order")
+  void spanRunsFromSmallestToLargest() {
+    assertEquals(new QuadUv.Span(0.25f, 0.75f), QuadUv.spanOf(new float[] {0.5f, 0.75f, 0.25f}));
+  }
+
+  @Test
+  @DisplayName("a span holds only values strictly between its ends")
+  void spanHoldsOnlyValuesStrictlyInside() {
+    final QuadUv.Span span = new QuadUv.Span(0.25f, 0.75f);
+
+    assertTrue(span.strictlyContains(0.5f));
+    assertFalse(span.strictlyContains(0.25f));
+    assertFalse(span.strictlyContains(0.75f));
+    assertFalse(span.strictlyContains(0.8f));
+  }
+
+  @Test
   @DisplayName("a face with no texture area maps nowhere")
   void degenerateFaceMapsNowhere() {
     final CubeGeometry.Face face =
