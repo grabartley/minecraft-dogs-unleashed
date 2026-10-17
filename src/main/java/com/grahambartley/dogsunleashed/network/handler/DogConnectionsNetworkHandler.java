@@ -15,7 +15,6 @@ import java.util.Set;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 
 public final class DogConnectionsNetworkHandler {
 
@@ -24,9 +23,7 @@ public final class DogConnectionsNetworkHandler {
   public static void handleRequestDogConnections(
       final RequestDogConnectionsPayload payload, final ServerPlayNetworking.Context context) {
     final ServerPlayerEntity player = context.player();
-    final ServerWorld world = player.getServerWorld();
-
-    final MinecraftServer server = world.getServer();
+    final MinecraftServer server = player.getServer();
     final PetManager petManager = PetManager.get(server);
     final DirectConnections connections = petManager.getDirectConnections(payload.dogId());
     if (connections == null) {

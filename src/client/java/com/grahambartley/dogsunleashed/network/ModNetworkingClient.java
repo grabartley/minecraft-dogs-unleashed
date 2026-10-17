@@ -50,7 +50,7 @@ public final class ModNetworkingClient {
 
   private static void handleOpenDogInspect(
       OpenDogInspectPayload payload, ClientPlayNetworking.Context context) {
-    final MinecraftClient client = MinecraftClient.getInstance();
+    final MinecraftClient client = context.client();
     if (client.currentScreen != null || client.world == null) {
       return;
     }
@@ -59,7 +59,7 @@ public final class ModNetworkingClient {
 
   private static void handleSyncDogConnections(
       SyncDogConnectionsPayload payload, ClientPlayNetworking.Context context) {
-    if (MinecraftClient.getInstance().currentScreen instanceof DogConnectionsListener listener) {
+    if (context.client().currentScreen instanceof DogConnectionsListener listener) {
       listener.onDogConnections(payload);
     }
   }
@@ -71,7 +71,8 @@ public final class ModNetworkingClient {
 
   private static void handleOpenNamingScreen(
       OpenNamingScreenPayload payload, ClientPlayNetworking.Context context) {
-    MinecraftClient.getInstance()
+    context
+        .client()
         .setScreen(
             new PetNamingScreen(
                 payload.petId(),
@@ -82,7 +83,7 @@ public final class ModNetworkingClient {
 
   private static void handleOpenCommandWheel(
       OpenCommandWheelPayload payload, ClientPlayNetworking.Context context) {
-    final MinecraftClient client = MinecraftClient.getInstance();
+    final MinecraftClient client = context.client();
     if (client.currentScreen != null || client.world == null) {
       return;
     }
@@ -91,14 +92,14 @@ public final class ModNetworkingClient {
 
   private static void handleSyncPets(
       SyncPetsPayload payload, ClientPlayNetworking.Context context) {
-    if (MinecraftClient.getInstance().currentScreen instanceof PetManagerScreen screen) {
+    if (context.client().currentScreen instanceof PetManagerScreen screen) {
       screen.updatePetsList(payload.pets());
     }
   }
 
   private static void handleSyncPetManagerState(
       SyncPetManagerStatePayload payload, ClientPlayNetworking.Context context) {
-    if (MinecraftClient.getInstance().currentScreen instanceof PetManagerScreen screen) {
+    if (context.client().currentScreen instanceof PetManagerScreen screen) {
       screen.applySavedFilters(payload.breedFilter(), payload.aliveFilter());
       screen.updatePetsList(payload.pets());
     }

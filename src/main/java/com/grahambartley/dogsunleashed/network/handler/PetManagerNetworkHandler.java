@@ -18,6 +18,7 @@ import com.grahambartley.dogsunleashed.pet.PetManager;
 import com.grahambartley.dogsunleashed.pet.PetManagerPreferencesState;
 import java.util.List;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
@@ -80,11 +81,10 @@ public final class PetManagerNetworkHandler {
   public static void handleRequestPets(
       final RequestPetsPayload payload, final ServerPlayNetworking.Context context) {
     final ServerPlayerEntity player = context.player();
-    final ServerWorld world = player.getServerWorld();
+    final MinecraftServer server = player.getServer();
 
-    final PetManager petManager = PetManager.get(world.getServer());
-    final PetManagerPreferencesState preferencesState =
-        PetManagerPreferencesState.get(world.getServer());
+    final PetManager petManager = PetManager.get(server);
+    final PetManagerPreferencesState preferencesState = PetManagerPreferencesState.get(server);
     preferencesState.setPreferences(player.getUuid(), payload.breedFilter(), payload.aliveFilter());
 
     final String clampedQuery =
@@ -94,26 +94,23 @@ public final class PetManagerNetworkHandler {
     final List<PetData> pets =
         petManager.getPetsByOwnerFiltered(
             player.getUuid(), payload.breedFilter(), payload.aliveFilter(), clampedQuery);
-    final List<PetSyncData> syncData =
-        PetSyncRefresher.refreshAndProject(world.getServer(), petManager, pets);
+    final List<PetSyncData> syncData = PetSyncRefresher.refreshAndProject(server, petManager, pets);
     ServerPlayNetworking.send(player, new SyncPetsPayload(syncData));
   }
 
   public static void handleRequestPetManagerState(
       final RequestPetManagerStatePayload payload, final ServerPlayNetworking.Context context) {
     final ServerPlayerEntity player = context.player();
-    final ServerWorld world = player.getServerWorld();
+    final MinecraftServer server = player.getServer();
 
-    final PetManagerPreferencesState preferencesState =
-        PetManagerPreferencesState.get(world.getServer());
+    final PetManagerPreferencesState preferencesState = PetManagerPreferencesState.get(server);
     final PetManagerPreferencesState.PetManagerPreferences preferences =
         preferencesState.getPreferences(player.getUuid());
-    final PetManager petManager = PetManager.get(world.getServer());
+    final PetManager petManager = PetManager.get(server);
     final List<PetData> pets =
         petManager.getPetsByOwnerFiltered(
             player.getUuid(), preferences.breedFilter(), preferences.aliveFilter(), "");
-    final List<PetSyncData> syncData =
-        PetSyncRefresher.refreshAndProject(world.getServer(), petManager, pets);
+    final List<PetSyncData> syncData = PetSyncRefresher.refreshAndProject(server, petManager, pets);
     ServerPlayNetworking.send(
         player,
         new SyncPetManagerStatePayload(

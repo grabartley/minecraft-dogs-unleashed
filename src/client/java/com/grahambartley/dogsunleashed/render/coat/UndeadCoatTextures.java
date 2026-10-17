@@ -5,40 +5,26 @@ import static com.grahambartley.dogsunleashed.DogsUnleashed.MOD_ID;
 import com.grahambartley.dogsunleashed.render.coat.UndeadDogEyes.EyePixel;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
-import net.minecraft.client.texture.TextureManager;
 import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 public final class UndeadCoatTextures {
 
-  private static final Map<Identifier, Identifier> CACHE = new HashMap<>();
+  private static final UndeadCoatTextureCache CACHE =
+      new UndeadCoatTextureCache(UndeadCoatTextures::decay);
 
   private UndeadCoatTextures() {}
 
-  public static void clear(final TextureManager textureManager) {
-    CACHE.forEach(
-        (living, undead) -> {
-          if (!undead.equals(living)) {
-            textureManager.destroyTexture(undead);
-          }
-        });
-    CACHE.clear();
+  public static UndeadCoatTextureCache cache() {
+    return CACHE;
   }
 
   public static Identifier undeadOf(final Identifier living, final UndeadDogEyes eyes) {
-    final Identifier cached = CACHE.get(living);
-    if (cached != null) {
-      return cached;
-    }
-    final Identifier undead = decay(living, eyes);
-    CACHE.put(living, undead != null ? undead : living);
-    return undead != null ? undead : living;
+    return CACHE.undeadOf(living, eyes);
   }
 
   private static @Nullable Identifier decay(final Identifier living, final UndeadDogEyes eyes) {

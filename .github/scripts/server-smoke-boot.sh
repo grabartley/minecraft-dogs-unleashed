@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -uo pipefail
+trap "" PIPE
 
 RUN_DIR="build/server-smoke"
 BOOT_TIMEOUT_SECONDS="${BOOT_TIMEOUT_SECONDS:-300}"
@@ -19,10 +20,20 @@ mkfifo "$console"
 server_pid=$!
 exec 3> "$console"
 
+kill_tree() {
+  local child
+  for child in $(pgrep -P "$1"); do
+    kill_tree "$child"
+  done
+  kill "$1" 2> /dev/null
+}
+
 fail() {
   echo "::error::$1"
   cat "$log"
-  kill "$server_pid" 2> /dev/null
+  echo "stop" >&3 2> /dev/null
+  sleep 5
+  kill_tree "$server_pid"
   exit 1
 }
 

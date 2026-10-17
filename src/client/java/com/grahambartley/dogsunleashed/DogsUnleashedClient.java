@@ -18,6 +18,7 @@ import com.grahambartley.dogsunleashed.render.TennisBallBlockEntityRenderer;
 import com.grahambartley.dogsunleashed.render.TennisBallItemRenderer;
 import com.grahambartley.dogsunleashed.render.TennisBallProjectileRenderer;
 import com.grahambartley.dogsunleashed.render.coat.UndeadCoatTextureReloader;
+import com.grahambartley.dogsunleashed.render.coat.UndeadCoatTextures;
 import com.grahambartley.dogsunleashed.screen.DogEquipmentScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
@@ -72,7 +73,9 @@ public class DogsUnleashedClient implements ClientModInitializer {
 
     ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES)
         .registerReloadListener(
-            new UndeadCoatTextureReloader(() -> MinecraftClient.getInstance().getTextureManager()));
+            new UndeadCoatTextureReloader(
+                UndeadCoatTextures.cache(),
+                () -> MinecraftClient.getInstance().getTextureManager()));
 
     ModKeyBindings.register();
     ModNetworkingClient.registerClientReceivers();

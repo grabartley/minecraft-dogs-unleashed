@@ -12,9 +12,12 @@ public final class UndeadCoatTextureReloader implements SimpleSynchronousResourc
 
   public static final Identifier ID = Identifier.of(MOD_ID, "undead_coat_textures");
 
+  private final UndeadCoatTextureCache cache;
   private final Supplier<TextureManager> textureManager;
 
-  public UndeadCoatTextureReloader(final Supplier<TextureManager> textureManager) {
+  public UndeadCoatTextureReloader(
+      final UndeadCoatTextureCache cache, final Supplier<TextureManager> textureManager) {
+    this.cache = cache;
     this.textureManager = textureManager;
   }
 
@@ -25,6 +28,6 @@ public final class UndeadCoatTextureReloader implements SimpleSynchronousResourc
 
   @Override
   public void reload(final ResourceManager manager) {
-    UndeadCoatTextures.clear(this.textureManager.get());
+    this.cache.clear(this.textureManager.get());
   }
 }
