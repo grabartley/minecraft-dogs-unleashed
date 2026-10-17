@@ -4,9 +4,9 @@ import com.grahambartley.dogsunleashed.DogsUnleashed;
 import java.util.UUID;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Uuids;
 
 public record RequestDogConnectionsPayload(UUID dogId) implements CustomPayload {
 
@@ -16,7 +16,7 @@ public record RequestDogConnectionsPayload(UUID dogId) implements CustomPayload 
       new CustomPayload.Id<>(PACKET_ID);
   public static final PacketCodec<RegistryByteBuf, RequestDogConnectionsPayload> CODEC =
       PacketCodec.tuple(
-          PacketCodecs.STRING.xmap(UUID::fromString, UUID::toString),
+          Uuids.PACKET_CODEC,
           RequestDogConnectionsPayload::dogId,
           RequestDogConnectionsPayload::new);
 

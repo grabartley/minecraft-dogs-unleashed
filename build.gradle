@@ -65,6 +65,12 @@ loom {
 			inherit gametest
 			name "Game Test Server"
 		}
+		serverSmoke {
+			server()
+			name "Server Smoke Boot"
+			runDir "build/server-smoke"
+			programArgs "--nogui"
+		}
 	}
 }
 
@@ -197,7 +203,6 @@ tasks.register("verifyMainSourceSideSafety") {
 			"com.grahambartley.dogsunleashed.screen.",
 			"com.grahambartley.dogsunleashed.mixin.client.",
 			"com.grahambartley.dogsunleashed.DogsUnleashedClient",
-			"com.grahambartley.dogsunleashed.DogsUnleashedDataGenerator",
 			"com.grahambartley.dogsunleashed.DogsUnleashedModMenu",
 			"com.grahambartley.dogsunleashed.ModKeyBindings",
 			"com.grahambartley.dogsunleashed.network.ModNetworkingClient"

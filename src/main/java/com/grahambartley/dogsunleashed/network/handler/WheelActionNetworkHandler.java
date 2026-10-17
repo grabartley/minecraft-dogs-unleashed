@@ -24,25 +24,20 @@ public final class WheelActionNetworkHandler {
       return;
     }
 
-    world
-        .getServer()
-        .execute(
-            () -> {
-              if (!(world.getEntity(payload.dogId()) instanceof UnleashedDogEntity dog)
-                  || !dog.isOwner(player)
-                  || !dog.isAlive()) {
-                return;
-              }
-              final String dogName = dog.getTamedName();
-              if (action.isOneShot()) {
-                runOneShotWheelAction(action, dog, player, dogName);
-                return;
-              }
-              final DogCommand command = action.command();
-              dog.getCommandController().apply(command);
-              dog.getCommandController().acknowledge();
-              player.sendMessage(Text.translatable(command.messageKey(), dogName), true);
-            });
+    if (!(world.getEntity(payload.dogId()) instanceof UnleashedDogEntity dog)
+        || !dog.isOwner(player)
+        || !dog.isAlive()) {
+      return;
+    }
+    final String dogName = dog.getTamedName();
+    if (action.isOneShot()) {
+      runOneShotWheelAction(action, dog, player, dogName);
+      return;
+    }
+    final DogCommand command = action.command();
+    dog.getCommandController().apply(command);
+    dog.getCommandController().acknowledge();
+    player.sendMessage(Text.translatable(command.messageKey(), dogName), true);
   }
 
   private static void runOneShotWheelAction(

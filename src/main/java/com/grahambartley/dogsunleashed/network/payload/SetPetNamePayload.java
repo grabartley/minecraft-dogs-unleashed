@@ -9,6 +9,7 @@ import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Uuids;
 
 public record SetPetNamePayload(UUID petId, String name) implements CustomPayload {
 
@@ -16,7 +17,7 @@ public record SetPetNamePayload(UUID petId, String name) implements CustomPayloa
   public static final CustomPayload.Id<SetPetNamePayload> ID = new CustomPayload.Id<>(PACKET_ID);
   public static final PacketCodec<RegistryByteBuf, SetPetNamePayload> CODEC =
       PacketCodec.tuple(
-          PacketCodecs.STRING.xmap(UUID::fromString, UUID::toString),
+          Uuids.PACKET_CODEC,
           SetPetNamePayload::petId,
           PacketCodecs.string(SET_PET_NAME_NAME_MAX_LENGTH),
           SetPetNamePayload::name,

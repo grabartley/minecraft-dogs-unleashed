@@ -1,5 +1,7 @@
 package com.grahambartley.dogsunleashed.network.payload;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
@@ -11,6 +13,11 @@ import net.minecraft.network.RegistryByteBuf;
 final class PayloadTestFixtures {
 
   private PayloadTestFixtures() {}
+
+  static void assertLeadingUuid(final RegistryByteBuf buf, final UUID expected) {
+    assertEquals(expected.getMostSignificantBits(), buf.readLong());
+    assertEquals(expected.getLeastSignificantBits(), buf.readLong());
+  }
 
   static RegistryByteBuf newBuf() {
     return new RegistryByteBuf(Unpooled.buffer(), null);

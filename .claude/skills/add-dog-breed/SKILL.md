@@ -25,7 +25,8 @@ spawn egg item, no coat table, and no assets of its own.
 
 ## Prerequisites
 
-Ensure you have these assets ready (all under `src/main/resources/assets/dogs-unleashed/`):
+Ensure you have these assets ready. Client-only assets live under
+`src/client/resources/assets/dogs-unleashed/`:
 - `geo/{breed_id}.geo.json` - GeckoLib model file
 - `animations/{breed_id}.animation.json` - GeckoLib animation file
 - `textures/entity/{breed_id}_{coat_prefix}.png` - one texture per coat variant, or a single
@@ -33,7 +34,10 @@ Ensure you have these assets ready (all under `src/main/resources/assets/dogs-un
   `DogModel`: base id, then `_{coatPrefix}` if the breed has coats, then `_{eyeSuffix}` if it has
   eye color variants)
 - `textures/entity/{breed_id}_collar.png` - collar overlay texture
+
+Shared assets live under `src/main/resources/assets/dogs-unleashed/`:
 - `sounds/` bark audio plus a `sounds.json` entry, unless the breed howls instead
+- `lang/en_us.json` entries and the spawn egg item model under `models/item/`
 
 `{breed_id}` is the lowercase serialized id with no separators (e.g. `goldenretriever`).
 

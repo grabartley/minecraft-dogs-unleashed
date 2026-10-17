@@ -7,6 +7,7 @@ import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Uuids;
 
 public record SelectWheelActionPayload(UUID dogId, int actionId) implements CustomPayload {
 
@@ -16,7 +17,7 @@ public record SelectWheelActionPayload(UUID dogId, int actionId) implements Cust
       new CustomPayload.Id<>(PACKET_ID);
   public static final PacketCodec<RegistryByteBuf, SelectWheelActionPayload> CODEC =
       PacketCodec.tuple(
-          PacketCodecs.STRING.xmap(UUID::fromString, UUID::toString),
+          Uuids.PACKET_CODEC,
           SelectWheelActionPayload::dogId,
           PacketCodecs.VAR_INT,
           SelectWheelActionPayload::actionId,

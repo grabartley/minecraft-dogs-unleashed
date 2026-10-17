@@ -1,6 +1,6 @@
 package com.grahambartley.dogsunleashed.render;
 
-import com.grahambartley.dogsunleashed.DogsUnleashed;
+import com.grahambartley.dogsunleashed.config.SyncedServerConfig;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.model.DogModel;
@@ -32,7 +32,7 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
 
   @Override
   public boolean hasLabel(UnleashedDogEntity animatable) {
-    return DogsUnleashed.SERVER_CONFIG.showDogNames()
+    return SyncedServerConfig.get().showDogNames()
         && !DogCommandWheelScreen.isOpenFor(animatable.getId())
         && super.hasLabel(animatable);
   }
