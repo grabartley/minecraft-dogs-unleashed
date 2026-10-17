@@ -7,7 +7,13 @@ import net.minecraft.world.GameRules;
 
 public final class SleepBatchFixture {
 
+  public static final long NIGHT_TIME = 15000;
+
   private SleepBatchFixture() {}
+
+  public static void pinNight(final ServerWorld world) {
+    world.setTimeOfDay(NIGHT_TIME);
+  }
 
   public static void prepare(final ServerWorld world) {
     world.getGameRules().get(GameRules.DO_DAYLIGHT_CYCLE).set(false, world.getServer());

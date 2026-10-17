@@ -58,7 +58,9 @@ Shared assets live under `src/main/resources/assets/dogs-unleashed/`:
    `EntityType<UnleashedDogEntity>` constant via `registerDog(breed)` plus a `getDogEntityType`
    switch case. Attribute registration is the existing `values()` loop; no further wiring.
 4. **Spawn egg**: `src/main/java/com/grahambartley/dogsunleashed/ModItems.java` plus
-   `src/main/resources/assets/dogs-unleashed/models/item/{breed_id}_spawn_egg.json`.
+   `src/main/resources/assets/dogs-unleashed/models/item/{breed_id}_spawn_egg.json`, parented to
+   vanilla's `minecraft:item/template_spawn_egg` with no `display` overrides, so it is held and
+   shown exactly like a vanilla spawn egg.
 5. **Coat variants** (skip if the breed has a single fixed texture):
    - `src/main/java/com/grahambartley/dogsunleashed/entity/variant/{BreedName}Coat.java`
      implementing `UnleashedDogCoat`

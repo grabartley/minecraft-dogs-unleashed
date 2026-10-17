@@ -1,8 +1,6 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
 import com.grahambartley.dogsunleashed.ModBlockTags;
-import com.grahambartley.dogsunleashed.block.DogSleepPose;
-import com.grahambartley.dogsunleashed.block.DogSleepSpotAnchor;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.EnumSet;
 import net.minecraft.block.BlockState;
@@ -95,13 +93,7 @@ public class SleepInBedGoal extends Goal {
     }
 
     if (this.dog.isSleepingInBed()) {
-      final DogSleepPose pose =
-          DogSleepSpotAnchor.poseFor(this.dog.getWorld(), this.targetBedPos, this.dog.getYaw());
-      this.dog.refreshPositionAndAngles(
-          pose.position().x, pose.position().y, pose.position().z, pose.yaw(), this.dog.getPitch());
-      this.dog.setBodyYaw(pose.yaw());
-      this.dog.setHeadYaw(pose.yaw());
-      this.dog.setVelocity(0, 0, 0);
+      this.dog.getSleepController().holdSleepPose(this.targetBedPos);
       return;
     }
 

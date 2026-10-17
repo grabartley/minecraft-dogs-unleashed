@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.block;
 
+import java.util.List;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -28,10 +29,19 @@ public final class DogSleepSpotAnchor {
         currentYaw);
   }
 
+  public static List<BlockPos> wakeCellsFor(final BlockView world, final BlockPos bedPos) {
+    final BlockState state = world.getBlockState(bedPos);
+    if (!(state.getBlock() instanceof DogHouseBlock)) {
+      return List.of();
+    }
+    return DogHouseLayout.wakeCells(
+        DogHouseBlock.originOf(state, bedPos), state.get(DogHouseBlock.FACING));
+  }
+
   private static DogSleepPose housePose(final BlockPos bedPos, final BlockState state) {
     final Direction facing = state.get(DogHouseBlock.FACING);
     final BlockPos origin = DogHouseBlock.originOf(state, bedPos);
-    final Vec3d centre = DogHouseLayout.occupantAnchor(origin, facing);
+    final Vec3d centre = DogHouseLayout.cushionCentre(origin, facing);
     final Vec3d onBedding = new Vec3d(centre.x, centre.y + HOUSE_BEDDING_TOP, centre.z);
     return new DogSleepPose(onBedding, facing.asRotation());
   }

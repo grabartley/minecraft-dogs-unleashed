@@ -38,10 +38,6 @@ public enum DogHousePart implements StringIdentifiable {
     return this.back;
   }
 
-  public boolean isLower() {
-    return this.up == 0;
-  }
-
   @Override
   public String asString() {
     return this.name;
