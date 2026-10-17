@@ -119,7 +119,9 @@ public final class DogEquipmentHolder {
     if (!previous.isEmpty()) {
       player.giveItemStack(previous);
     }
-    this.dog.playSoundIfNotSilent(SoundEvents.ITEM_ARMOR_EQUIP_GENERIC.value());
+    if (slot != DogEquipmentSlot.ARMOUR) {
+      this.dog.playSoundIfNotSilent(SoundEvents.ITEM_ARMOR_EQUIP_GENERIC.value());
+    }
     return ActionResult.SUCCESS;
   }
 
