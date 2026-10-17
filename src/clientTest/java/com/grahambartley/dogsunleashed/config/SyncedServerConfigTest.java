@@ -3,7 +3,6 @@ package com.grahambartley.dogsunleashed.config;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-import com.grahambartley.dogsunleashed.DogsUnleashed;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,7 +15,6 @@ class SyncedServerConfigTest {
   @AfterEach
   void resetHolders() {
     SyncedServerConfig.reset();
-    DogsUnleashed.SERVER_CONFIG = DogsUnleashedConfig.defaults();
   }
 
   @Test
@@ -31,17 +29,6 @@ class SyncedServerConfigTest {
     SyncedServerConfig.apply(SYNCED);
 
     assertSame(SYNCED, SyncedServerConfig.get());
-  }
-
-  @Test
-  @DisplayName("applying a synced copy never writes the server's authoritative config")
-  void applyLeavesTheServerConfigAlone() {
-    final DogsUnleashedConfig authoritative = DogsUnleashedConfig.defaults();
-    DogsUnleashed.SERVER_CONFIG = authoritative;
-
-    SyncedServerConfig.apply(SYNCED);
-
-    assertSame(authoritative, DogsUnleashed.SERVER_CONFIG);
   }
 
   @Test

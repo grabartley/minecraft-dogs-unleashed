@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.network.payload;
 
+import static com.grahambartley.dogsunleashed.network.payload.PayloadTestFixtures.assertLeadingUuid;
 import static com.grahambartley.dogsunleashed.network.payload.PayloadTestFixtures.newBuf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -32,8 +33,7 @@ class SelectWheelActionPayloadTest {
     SelectWheelActionPayload.CODEC.encode(
         buf, new SelectWheelActionPayload(dogId, DogWheelAction.SIT.id()));
 
-    assertEquals(dogId.getMostSignificantBits(), buf.readLong());
-    assertEquals(dogId.getLeastSignificantBits(), buf.readLong());
+    assertLeadingUuid(buf, dogId);
     assertEquals(DogWheelAction.SIT.id(), buf.readVarInt());
   }
 }

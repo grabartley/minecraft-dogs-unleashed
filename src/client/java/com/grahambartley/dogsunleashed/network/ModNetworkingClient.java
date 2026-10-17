@@ -23,7 +23,6 @@ import com.grahambartley.dogsunleashed.screen.DogInspectScreen;
 import com.grahambartley.dogsunleashed.screen.PetManagerScreen;
 import com.grahambartley.dogsunleashed.screen.PetNamingScreen;
 import java.util.UUID;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 
@@ -45,7 +44,6 @@ public final class ModNetworkingClient {
         SyncDogConnectionsPayload.ID, ModNetworkingClient::handleSyncDogConnections);
     ClientPlayNetworking.registerGlobalReceiver(
         OpenDogInspectPayload.ID, ModNetworkingClient::handleOpenDogInspect);
-    ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> SyncedServerConfig.reset());
   }
 
   private static void handleOpenDogInspect(

@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed;
 
+import com.grahambartley.dogsunleashed.config.SyncedServerConfig;
 import com.grahambartley.dogsunleashed.network.ModNetworkingClient;
 import com.grahambartley.dogsunleashed.render.DogBedBlockEntityRenderer;
 import com.grahambartley.dogsunleashed.render.DogBedItemRenderer;
@@ -79,6 +80,7 @@ public class DogsUnleashedClient implements ClientModInitializer {
 
     ModKeyBindings.register();
     ModNetworkingClient.registerClientReceivers();
+    SyncedServerConfig.resetOnDisconnect();
     KeybindDiscoveryNudge.register();
   }
 }

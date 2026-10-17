@@ -31,7 +31,7 @@ kill_tree() {
 fail() {
   echo "::error::$1"
   cat "$log"
-  echo "stop" >&3 2> /dev/null
+  echo "stop" 2> /dev/null >&3
   sleep 5
   kill_tree "$server_pid"
   exit 1

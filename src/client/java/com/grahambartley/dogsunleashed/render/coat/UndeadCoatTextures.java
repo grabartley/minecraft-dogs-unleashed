@@ -35,7 +35,7 @@ public final class UndeadCoatTextures {
     try {
       final NativeImage image = decayedImage(source.image(), eyes);
       final Identifier id =
-          Identifier.of(MOD_ID, "undead/" + Integer.toHexString(living.toString().hashCode()));
+          Identifier.of(MOD_ID, "undead/" + living.getNamespace() + "/" + living.getPath());
       MinecraftClient.getInstance()
           .getTextureManager()
           .registerTexture(id, new NativeImageBackedTexture(image));

@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.network.payload;
 
+import static com.grahambartley.dogsunleashed.network.payload.PayloadTestFixtures.assertLeadingUuid;
 import static com.grahambartley.dogsunleashed.network.payload.PayloadTestFixtures.newBuf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -27,8 +28,7 @@ class SummonPetPayloadTest {
     final RegistryByteBuf buf = newBuf();
     SummonPetPayload.CODEC.encode(buf, new SummonPetPayload(ID));
 
-    assertEquals(ID.getMostSignificantBits(), buf.readLong());
-    assertEquals(ID.getLeastSignificantBits(), buf.readLong());
+    assertLeadingUuid(buf, ID);
     assertEquals(0, buf.readableBytes());
   }
 }
