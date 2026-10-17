@@ -195,5 +195,26 @@
   "screen.dogs-unleashed.dog_equipment.slot.pendant.glyph": "P",
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic": "Cosmético",
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic.empty": "Aceita um acessório cosmético",
-  "screen.dogs-unleashed.dog_equipment.slot.cosmetic.glyph": "C"
+  "screen.dogs-unleashed.dog_equipment.slot.cosmetic.glyph": "C",
+
+  "item.dogs-unleashed.blank_pendant": "Pingente vazio",
+  "item.dogs-unleashed.warding_undead_pendant": "Pingente de proteção: mortos-vivos",
+  "item.dogs-unleashed.warding_undead_pendant.effect": "Mortos-vivos perto do seu cão deixam ele e você em paz",
+  "item.dogs-unleashed.warding_arthropod_pendant": "Pingente de proteção: artrópodes",
+  "item.dogs-unleashed.warding_arthropod_pendant.effect": "Aranhas e outros artrópodes perto do seu cão deixam ele e você em paz",
+  "item.dogs-unleashed.warding_illager_pendant": "Pingente de proteção: illagers",
+  "item.dogs-unleashed.warding_illager_pendant.effect": "Illagers, devastadores e bruxas perto do seu cão deixam ele e você em paz",
+  "item.dogs-unleashed.warding_creeper_pendant": "Pingente de proteção: creepers",
+  "item.dogs-unleashed.warding_creeper_pendant.effect": "Creepers perto do seu cão deixam ele e você em paz e se afastam dele",
+  "item.dogs-unleashed.guardian_fire_pendant": "Pingente guardião: fogo",
+  "item.dogs-unleashed.guardian_fire_pendant.effect": "Seu cão não pega fogo e fica seguro no fogo e na lava",
+  "item.dogs-unleashed.guardian_fall_pendant": "Pingente guardião: queda",
+  "item.dogs-unleashed.guardian_fall_pendant.effect": "Seu cão não sofre dano de queda",
+  "item.dogs-unleashed.guardian_drowning_pendant": "Pingente guardião: afogamento",
+  "item.dogs-unleashed.guardian_drowning_pendant.effect": "Seu cão respira debaixo d'água e nunca se afoga",
+  "item.dogs-unleashed.vitality_pendant": "Pingente da vitalidade",
+  "item.dogs-unleashed.vitality_pendant.effect": "Você se cura aos poucos perto do seu cão, a menos que tenha se ferido nos últimos 10 segundos",
+  "item.dogs-unleashed.loyalty_pendant": "Pingente da lealdade",
+  "item.dogs-unleashed.loyalty_pendant.effect": "Salva seu cão da morte uma vez e depois se quebra",
+  "item.dogs-unleashed.pendant.no_stacking": "Vários cães usando este pingente não acumulam o efeito"
 }

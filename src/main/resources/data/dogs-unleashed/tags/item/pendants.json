@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "dogs-unleashed:warding_undead_pendant",
+    "dogs-unleashed:warding_arthropod_pendant",
+    "dogs-unleashed:warding_illager_pendant",
+    "dogs-unleashed:warding_creeper_pendant",
+    "dogs-unleashed:guardian_fire_pendant",
+    "dogs-unleashed:guardian_fall_pendant",
+    "dogs-unleashed:guardian_drowning_pendant",
+    "dogs-unleashed:vitality_pendant",
+    "dogs-unleashed:loyalty_pendant"
+  ]
+}

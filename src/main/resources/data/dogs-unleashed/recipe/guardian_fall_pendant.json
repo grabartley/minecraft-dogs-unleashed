@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "pendant",
+  "ingredients": [
+    {
+      "item": "dogs-unleashed:blank_pendant"
+    },
+    {
+      "item": "minecraft:phantom_membrane"
+    }
+  ],
+  "result": {
+    "id": "dogs-unleashed:guardian_fall_pendant",
+    "count": 1
+  }
+}

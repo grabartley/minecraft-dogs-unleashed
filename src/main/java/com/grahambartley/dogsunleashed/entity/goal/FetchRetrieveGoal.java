@@ -36,7 +36,7 @@ public class FetchRetrieveGoal extends Goal {
         || this.dog.isLeashed()) {
       return false;
     }
-    if (this.dog.isCarryingFetchItem()) {
+    if (this.dog.getFetchCarry().isCarrying()) {
       return false;
     }
     BlockPos fetchItemPos = this.dog.getPlaySession().getActiveFetchBlockPos();
@@ -54,7 +54,7 @@ public class FetchRetrieveGoal extends Goal {
         || this.dog.isLeashed()) {
       return false;
     }
-    if (this.dog.isCarryingFetchItem()) {
+    if (this.dog.getFetchCarry().isCarrying()) {
       return false;
     }
     if (this.targetFetchItemPos == null) {
@@ -131,9 +131,9 @@ public class FetchRetrieveGoal extends Goal {
         ItemStack carriedStack = this.buildCarriedStack(fetchItemType, this.targetFetchItemPos);
         this.dog.getWorld().removeBlock(this.targetFetchItemPos, false);
         this.dog.getPlaySession().setActiveFetchBlockPos(null);
-        this.dog.setActiveFetchType(fetchItemType);
-        this.dog.setCarriedFetchItemStack(carriedStack);
-        this.dog.setCarryingFetchItem(true);
+        this.dog.getFetchCarry().setActiveType(fetchItemType);
+        this.dog.getFetchCarry().setCarriedStack(carriedStack);
+        this.dog.getFetchCarry().setCarrying(true);
       }
     } else {
       this.dog

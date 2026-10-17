@@ -37,7 +37,7 @@ public class FetchReturnGoal extends Goal {
 
   @Override
   public boolean canStart() {
-    if (!this.dog.isCarryingFetchItem()) {
+    if (!this.dog.getFetchCarry().isCarrying()) {
       return false;
     }
     Entity owner = this.dog.getOwner();
@@ -46,7 +46,7 @@ public class FetchReturnGoal extends Goal {
 
   @Override
   public boolean shouldContinue() {
-    if (!this.dog.isCarryingFetchItem()) {
+    if (!this.dog.getFetchCarry().isCarrying()) {
       return false;
     }
     Entity owner = this.dog.getOwner();
@@ -83,7 +83,7 @@ public class FetchReturnGoal extends Goal {
         FetchReturnedCriterion.INSTANCE.trigger(serverPlayer);
       }
 
-      this.dog.setCarryingFetchItem(false);
+      this.dog.getFetchCarry().setCarrying(false);
       this.dog.getPlaySession().setActiveFetchBlockPos(null);
     }
   }
@@ -97,7 +97,7 @@ public class FetchReturnGoal extends Goal {
     BlockPos dropPos = findSafeDropPos(player);
     if (dropPos != null) {
       this.dog.getWorld().setBlockState(dropPos, fetchItemType.landedBlock().getDefaultState());
-      ItemStack carried = this.dog.getCarriedFetchItemStack();
+      ItemStack carried = this.dog.getFetchCarry().carriedStack();
       if (!carried.isEmpty()) {
         BlockEntity be = this.dog.getWorld().getBlockEntity(dropPos);
         if (be instanceof FetchCarriedItemProvider provider) {
@@ -107,7 +107,7 @@ public class FetchReturnGoal extends Goal {
       return;
     }
 
-    ItemStack carried = this.dog.getCarriedFetchItemStack();
+    ItemStack carried = this.dog.getFetchCarry().carriedStack();
     ItemStack dropStack = carried.isEmpty() ? new ItemStack(fetchItemType.item()) : carried.copy();
     ItemEntity itemEntity =
         new ItemEntity(
@@ -120,7 +120,7 @@ public class FetchReturnGoal extends Goal {
   }
 
   private FetchItemType getActiveFetchType() {
-    FetchItemType fetchItemType = this.dog.getActiveFetchType();
+    FetchItemType fetchItemType = this.dog.getFetchCarry().activeType();
     if (fetchItemType != null) {
       return fetchItemType;
     }

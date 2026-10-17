@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "pendant",
+  "ingredients": [
+    {
+      "item": "dogs-unleashed:blank_pendant"
+    },
+    {
+      "item": "minecraft:pufferfish"
+    }
+  ],
+  "result": {
+    "id": "dogs-unleashed:guardian_drowning_pendant",
+    "count": 1
+  }
+}

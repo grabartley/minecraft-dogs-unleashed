@@ -195,5 +195,26 @@
   "screen.dogs-unleashed.dog_equipment.slot.pendant.glyph": "C",
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic": "Cosmético",
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic.empty": "Admite un accesorio cosmético",
-  "screen.dogs-unleashed.dog_equipment.slot.cosmetic.glyph": "O"
+  "screen.dogs-unleashed.dog_equipment.slot.cosmetic.glyph": "O",
+
+  "item.dogs-unleashed.blank_pendant": "Colgante vacío",
+  "item.dogs-unleashed.warding_undead_pendant": "Colgante de protección: no muertos",
+  "item.dogs-unleashed.warding_undead_pendant.effect": "Los no muertos cerca de tu perro os dejan en paz",
+  "item.dogs-unleashed.warding_arthropod_pendant": "Colgante de protección: artrópodos",
+  "item.dogs-unleashed.warding_arthropod_pendant.effect": "Las arañas y otros artrópodos cerca de tu perro os dejan en paz",
+  "item.dogs-unleashed.warding_illager_pendant": "Colgante de protección: illagers",
+  "item.dogs-unleashed.warding_illager_pendant.effect": "Los illagers, devastadores y brujas cerca de tu perro os dejan en paz",
+  "item.dogs-unleashed.warding_creeper_pendant": "Colgante de protección: creepers",
+  "item.dogs-unleashed.warding_creeper_pendant.effect": "Los creepers cerca de tu perro os dejan en paz y se alejan de él",
+  "item.dogs-unleashed.guardian_fire_pendant": "Colgante guardián: fuego",
+  "item.dogs-unleashed.guardian_fire_pendant.effect": "Tu perro no puede arder y está a salvo en fuego y lava",
+  "item.dogs-unleashed.guardian_fall_pendant": "Colgante guardián: caídas",
+  "item.dogs-unleashed.guardian_fall_pendant.effect": "Tu perro no recibe daño por caída",
+  "item.dogs-unleashed.guardian_drowning_pendant": "Colgante guardián: ahogamiento",
+  "item.dogs-unleashed.guardian_drowning_pendant.effect": "Tu perro respira bajo el agua y nunca se ahoga",
+  "item.dogs-unleashed.vitality_pendant": "Colgante de vitalidad",
+  "item.dogs-unleashed.vitality_pendant.effect": "Te curas poco a poco cerca de tu perro, salvo si te hirieron en los últimos 10 segundos",
+  "item.dogs-unleashed.loyalty_pendant": "Colgante de lealtad",
+  "item.dogs-unleashed.loyalty_pendant.effect": "Salva a tu perro de la muerte una vez y luego se rompe",
+  "item.dogs-unleashed.pendant.no_stacking": "Varios perros con este colgante no acumulan el efecto"
 }

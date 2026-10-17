@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "pendant",
+  "ingredients": [
+    {
+      "item": "dogs-unleashed:blank_pendant"
+    },
+    {
+      "fabric:type": "fabric:components",
+      "base": {
+        "item": "minecraft:white_banner"
+      },
+      "components": {
+        "minecraft:item_name": "{\"translate\":\"block.minecraft.ominous_banner\",\"color\":\"gold\"}"
+      }
+    }
+  ],
+  "result": {
+    "id": "dogs-unleashed:warding_illager_pendant",
+    "count": 1
+  }
+}

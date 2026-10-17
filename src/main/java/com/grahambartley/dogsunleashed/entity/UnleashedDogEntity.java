@@ -10,7 +10,6 @@ import static net.minecraft.entity.data.TrackedDataHandlerRegistry.OPTIONAL_UUID
 import static net.minecraft.entity.data.TrackedDataHandlerRegistry.STRING;
 
 import com.grahambartley.dogsunleashed.ModBlockTags;
-import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.entity.variant.DogCoats;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
@@ -81,9 +80,9 @@ public class UnleashedDogEntity extends TameableEntity
   private static final TrackedData<Boolean> SLEEPING_IN_BED = data(BOOLEAN);
   private static final TrackedData<Boolean> COMMANDED_TO_SLEEP = data(BOOLEAN);
   private static final TrackedData<Optional<BlockPos>> ASSIGNED_BED_POS = data(OPTIONAL_BLOCK_POS);
-  private static final TrackedData<Boolean> IS_CARRYING_FETCH_ITEM = data(BOOLEAN);
-  private static final TrackedData<String> ACTIVE_FETCH_TYPE_ID = data(STRING);
-  private static final TrackedData<ItemStack> CARRIED_FETCH_ITEM_STACK = data(ITEM_STACK);
+  static final TrackedData<Boolean> IS_CARRYING_FETCH_ITEM = data(BOOLEAN);
+  static final TrackedData<String> ACTIVE_FETCH_TYPE_ID = data(STRING);
+  static final TrackedData<ItemStack> CARRIED_FETCH_ITEM_STACK = data(ITEM_STACK);
   static final TrackedData<ItemStack> PENDANT_ITEM = data(ITEM_STACK);
   static final TrackedData<ItemStack> COSMETIC_ITEM = data(ITEM_STACK);
 
@@ -112,6 +111,8 @@ public class UnleashedDogEntity extends TameableEntity
   private final DogGenomeCache genomeCache = new DogGenomeCache(this);
   private final DogUndeadState undeadState = new DogUndeadState(this);
   private final DogCuring curing = new DogCuring(this);
+  private final DogPendants pendants = new DogPendants(this);
+  private final DogFetchCarry fetchCarry = new DogFetchCarry(this);
   private boolean spawnedByDogSpawner = false;
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -315,6 +316,14 @@ public class UnleashedDogEntity extends TameableEntity
     return this.lineage;
   }
 
+  public DogFetchCarry getFetchCarry() {
+    return this.fetchCarry;
+  }
+
+  public DogPendants getPendants() {
+    return this.pendants;
+  }
+
   public DogEquipmentHolder getEquipmentHolder() {
     return this.equipment;
   }
@@ -412,41 +421,6 @@ public class UnleashedDogEntity extends TameableEntity
 
   void setPlayPartnerPlayerUuid(final @Nullable UUID playerUuid) {
     this.dataTracker.set(PLAY_PARTNER_UUID, Optional.ofNullable(playerUuid));
-  }
-
-  String getActiveFetchTypeId() {
-    return this.dataTracker.get(ACTIVE_FETCH_TYPE_ID);
-  }
-
-  void setActiveFetchTypeId(final String activeFetchTypeId) {
-    this.dataTracker.set(ACTIVE_FETCH_TYPE_ID, activeFetchTypeId);
-  }
-
-  public @Nullable FetchItemType getActiveFetchType() {
-    return DogPlaySession.fetchTypeFromId(this.getActiveFetchTypeId());
-  }
-
-  public void setActiveFetchType(final @Nullable FetchItemType activeFetchType) {
-    this.setActiveFetchTypeId(DogPlaySession.fetchTypeIdOf(activeFetchType));
-  }
-
-  public boolean isCarryingFetchItem() {
-    return this.dataTracker.get(IS_CARRYING_FETCH_ITEM);
-  }
-
-  public void setCarryingFetchItem(boolean carrying) {
-    this.dataTracker.set(IS_CARRYING_FETCH_ITEM, carrying);
-    if (!carrying) {
-      this.dataTracker.set(CARRIED_FETCH_ITEM_STACK, ItemStack.EMPTY);
-    }
-  }
-
-  public ItemStack getCarriedFetchItemStack() {
-    return this.dataTracker.get(CARRIED_FETCH_ITEM_STACK);
-  }
-
-  public void setCarriedFetchItemStack(ItemStack stack) {
-    this.dataTracker.set(CARRIED_FETCH_ITEM_STACK, stack);
   }
 
   @Override
@@ -582,7 +556,24 @@ public class UnleashedDogEntity extends TameableEntity
       this.ambience.tickShakeOff();
       this.undeadState.tick();
       this.curing.tick();
+      this.pendants.tick();
     }
+  }
+
+  @Override
+  public boolean isFireImmune() {
+    return super.isFireImmune() || this.pendants.isFireImmune();
+  }
+
+  @Override
+  public boolean isInvulnerableTo(final DamageSource source) {
+    return super.isInvulnerableTo(source) || this.pendants.guardsAgainst(source);
+  }
+
+  @Override
+  protected void applyDamage(final DamageSource source, final float amount) {
+    super.applyDamage(source, amount);
+    this.pendants.saveIfFatal(source);
   }
 
   @Override

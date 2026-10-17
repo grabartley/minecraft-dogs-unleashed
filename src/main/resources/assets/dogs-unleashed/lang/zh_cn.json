@@ -195,5 +195,26 @@
   "screen.dogs-unleashed.dog_equipment.slot.pendant.glyph": "坠",
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic": "装饰",
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic.empty": "可放入装饰配件",
-  "screen.dogs-unleashed.dog_equipment.slot.cosmetic.glyph": "饰"
+  "screen.dogs-unleashed.dog_equipment.slot.cosmetic.glyph": "饰",
+
+  "item.dogs-unleashed.blank_pendant": "空白吊坠",
+  "item.dogs-unleashed.warding_undead_pendant": "守护吊坠：亡灵",
+  "item.dogs-unleashed.warding_undead_pendant.effect": "你的狗附近的亡灵生物不会攻击它和你",
+  "item.dogs-unleashed.warding_arthropod_pendant": "守护吊坠：节肢生物",
+  "item.dogs-unleashed.warding_arthropod_pendant.effect": "你的狗附近的蜘蛛和其他节肢生物不会攻击它和你",
+  "item.dogs-unleashed.warding_illager_pendant": "守护吊坠：灾厄村民",
+  "item.dogs-unleashed.warding_illager_pendant.effect": "你的狗附近的灾厄村民、劫掠兽和女巫不会攻击它和你",
+  "item.dogs-unleashed.warding_creeper_pendant": "守护吊坠：苦力怕",
+  "item.dogs-unleashed.warding_creeper_pendant.effect": "你的狗附近的苦力怕不会攻击它和你，并会远离它",
+  "item.dogs-unleashed.guardian_fire_pendant": "护卫吊坠：火焰",
+  "item.dogs-unleashed.guardian_fire_pendant.effect": "你的狗不会着火，在火焰和熔岩中也安全",
+  "item.dogs-unleashed.guardian_fall_pendant": "护卫吊坠：摔落",
+  "item.dogs-unleashed.guardian_fall_pendant.effect": "你的狗不会受到摔落伤害",
+  "item.dogs-unleashed.guardian_drowning_pendant": "护卫吊坠：溺水",
+  "item.dogs-unleashed.guardian_drowning_pendant.effect": "你的狗能在水下呼吸，永不溺水",
+  "item.dogs-unleashed.vitality_pendant": "活力吊坠",
+  "item.dogs-unleashed.vitality_pendant.effect": "在你的狗附近时你会缓慢回血，除非你在过去10秒内受过伤",
+  "item.dogs-unleashed.loyalty_pendant": "忠诚吊坠",
+  "item.dogs-unleashed.loyalty_pendant.effect": "救你的狗免于死亡一次，然后碎裂",
+  "item.dogs-unleashed.pendant.no_stacking": "多只狗佩戴此吊坠时效果不叠加"
 }

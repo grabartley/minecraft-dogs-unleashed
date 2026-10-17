@@ -195,5 +195,26 @@
   "screen.dogs-unleashed.dog_equipment.slot.pendant.glyph": "П",
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic": "Украшение",
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic.empty": "Принимает косметический аксессуар",
-  "screen.dogs-unleashed.dog_equipment.slot.cosmetic.glyph": "У"
+  "screen.dogs-unleashed.dog_equipment.slot.cosmetic.glyph": "У",
+
+  "item.dogs-unleashed.blank_pendant": "Пустой кулон",
+  "item.dogs-unleashed.warding_undead_pendant": "Кулон защиты: нежить",
+  "item.dogs-unleashed.warding_undead_pendant.effect": "Нежить рядом с вашей собакой не трогает ни её, ни вас",
+  "item.dogs-unleashed.warding_arthropod_pendant": "Кулон защиты: членистоногие",
+  "item.dogs-unleashed.warding_arthropod_pendant.effect": "Пауки и другие членистоногие рядом с вашей собакой не трогают ни её, ни вас",
+  "item.dogs-unleashed.warding_illager_pendant": "Кулон защиты: иллагеры",
+  "item.dogs-unleashed.warding_illager_pendant.effect": "Иллагеры, разорители и ведьмы рядом с вашей собакой не трогают ни её, ни вас",
+  "item.dogs-unleashed.warding_creeper_pendant": "Кулон защиты: криперы",
+  "item.dogs-unleashed.warding_creeper_pendant.effect": "Криперы рядом с вашей собакой не трогают ни её, ни вас и отходят от неё",
+  "item.dogs-unleashed.guardian_fire_pendant": "Кулон-хранитель: огонь",
+  "item.dogs-unleashed.guardian_fire_pendant.effect": "Ваша собака не горит и в безопасности в огне и лаве",
+  "item.dogs-unleashed.guardian_fall_pendant": "Кулон-хранитель: падение",
+  "item.dogs-unleashed.guardian_fall_pendant.effect": "Ваша собака не получает урона от падения",
+  "item.dogs-unleashed.guardian_drowning_pendant": "Кулон-хранитель: утопление",
+  "item.dogs-unleashed.guardian_drowning_pendant.effect": "Ваша собака дышит под водой и никогда не тонет",
+  "item.dogs-unleashed.vitality_pendant": "Кулон жизненной силы",
+  "item.dogs-unleashed.vitality_pendant.effect": "Вы медленно лечитесь рядом с собакой, если не получали урон последние 10 секунд",
+  "item.dogs-unleashed.loyalty_pendant": "Кулон верности",
+  "item.dogs-unleashed.loyalty_pendant.effect": "Один раз спасает вашу собаку от смерти и ломается",
+  "item.dogs-unleashed.pendant.no_stacking": "Эффект от нескольких собак с этим кулоном не складывается"
 }
