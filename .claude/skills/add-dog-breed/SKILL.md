@@ -82,7 +82,8 @@ Shared assets live under `src/main/resources/assets/dogs-unleashed/`:
    not have, or puts a left part on the right. Also add `pupils`: the two texels, as `[x, y]`
    pairs, where the eyes are painted on the head's face texture. Undead dogs glow on exactly
    those texels. `UndeadDogEyesTest` fails when a pupil is off the head or outside the `eyes`
-   slot.
+   slot. Add a couple of the breed's coats to its `TEXTURES_BY_RIG` so the pupils are also
+   checked against dark eye pixels in the art.
 8. **Breed filter**: `src/client/java/com/grahambartley/dogsunleashed/screen/PetManagerScreen.java` -
    new `BreedFilterOption` entry.
 9. **Language**: `src/main/resources/assets/dogs-unleashed/lang/en_us.json` - entity name, spawn

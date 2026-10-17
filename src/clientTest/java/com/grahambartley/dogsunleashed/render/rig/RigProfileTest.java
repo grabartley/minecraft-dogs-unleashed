@@ -58,11 +58,20 @@ class RigProfileTest {
     final RigProfile profile =
         RigProfile.parse(
             JsonParser.parseString(
-                    "{\"mouth\": [\"snout\"], \"pupils\": [[7], \"x\", [1, 2], [\"a\", 3], [4, 5]]}")
+                    "{\"mouth\": [\"snout\"], \"pupils\": [[7], \"x\", [1, 2], [\"a\", 3], [7.5, 47], [4, 5]]}")
                 .getAsJsonObject());
 
     assertEquals(List.of(new Texel(1, 2), new Texel(4, 5)), profile.pupils());
     assertEquals(Optional.of("snout"), profile.mouthBone());
+  }
+
+  @Test
+  @DisplayName("pupils that are not a list are ignored")
+  void pupilsThatAreNotAListAreIgnored() {
+    final RigProfile profile =
+        RigProfile.parse(JsonParser.parseString("{\"pupils\": \"7,47\"}").getAsJsonObject());
+
+    assertTrue(profile.pupils().isEmpty());
   }
 
   @Test

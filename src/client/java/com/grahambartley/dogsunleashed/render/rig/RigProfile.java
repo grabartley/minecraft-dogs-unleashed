@@ -80,6 +80,8 @@ public record RigProfile(
       for (final JsonElement texel : texels) {
         texelOf(texel).ifPresentOrElse(pupils::add, () -> LOGGER.warn("Skipping pupil {}", texel));
       }
+    } else if (json.has(PUPILS_KEY)) {
+      LOGGER.warn("Ignoring pupils {}, expected a list of [x, y] pairs", json.get(PUPILS_KEY));
     }
     return new RigProfile(bones, overlays, pupils);
   }
@@ -87,15 +89,19 @@ public record RigProfile(
   private static Optional<Texel> texelOf(final JsonElement element) {
     if (element instanceof JsonArray xy
         && xy.size() == 2
-        && isNumber(xy.get(0))
-        && isNumber(xy.get(1))) {
+        && isWholeNumber(xy.get(0))
+        && isWholeNumber(xy.get(1))) {
       return Optional.of(new Texel(xy.get(0).getAsInt(), xy.get(1).getAsInt()));
     }
     return Optional.empty();
   }
 
-  private static boolean isNumber(final JsonElement element) {
-    return element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber();
+  private static boolean isWholeNumber(final JsonElement element) {
+    if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isNumber()) {
+      return false;
+    }
+    final double value = element.getAsDouble();
+    return value == Math.rint(value);
   }
 
   public Set<String> bonesIn(final Slot slot) {

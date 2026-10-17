@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
+import net.minecraft.util.math.Direction;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -114,6 +115,29 @@ class SlotRegionsTest {
             .orElseThrow();
 
     assertEquals((int) model.properties().textureHeight(), bottom);
+  }
+
+  @Test
+  @DisplayName("a face with fractional UV edges covers every texel it touches")
+  void fractionalEdgesCoverEveryTouchedTexel() {
+    final CubeGeometry.Face face =
+        QuadUvTest.unitFace(
+            new float[] {3.7f / 64, 8.2f / 64, 8.2f / 64, 3.7f / 64},
+            new float[] {10.0f / 64, 10.0f / 64, 12.5f / 64, 12.5f / 64});
+
+    assertEquals(
+        Optional.of(new SlotRegion("neck", Direction.NORTH, 3, 10, 6, 3)),
+        SlotRegions.regionOf(face, 64, 64));
+  }
+
+  @Test
+  @DisplayName("a face with no texture area has no region")
+  void flatFaceHasNoRegion() {
+    final CubeGeometry.Face face =
+        QuadUvTest.unitFace(
+            new float[] {0.25f, 0.25f, 0.25f, 0.25f}, new float[] {0.0f, 0.0f, 0.5f, 0.5f});
+
+    assertTrue(SlotRegions.regionOf(face, 64, 64).isEmpty());
   }
 
   @Test
@@ -213,10 +237,10 @@ class SlotRegionsTest {
       final float height,
       final int atlasWidth,
       final int atlasHeight) {
-    final int x = Math.max(0, (int) Math.floor(u - 0.5f) + 1);
-    final int y = Math.max(0, (int) Math.floor(v - 0.5f) + 1);
-    final int right = Math.min(atlasWidth - 1, (int) Math.ceil(u + width - 0.5f) - 1);
-    final int bottom = Math.min(atlasHeight - 1, (int) Math.ceil(v + height - 0.5f) - 1);
+    final int x = Math.max(0, (int) u);
+    final int y = Math.max(0, (int) v);
+    final int right = Math.min(atlasWidth - 1, (int) (u + width) - 1);
+    final int bottom = Math.min(atlasHeight - 1, (int) (v + height) - 1);
     if (right >= x && bottom >= y) {
       faces.add(new Rect(x, y, right - x + 1, bottom - y + 1));
     }

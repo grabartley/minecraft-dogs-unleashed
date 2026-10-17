@@ -17,6 +17,9 @@ import com.grahambartley.dogsunleashed.render.rig.Texel;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -131,6 +134,41 @@ class UndeadDogEyesTest {
           luma <= PUPIL_MAX_LUMA,
           rig + " pupil " + pupil + " on " + texture + " reads bright fur (luma " + luma + ")");
     }
+  }
+
+  static Stream<Arguments> everyCoatTexture() throws IOException, URISyntaxException {
+    final Path folder =
+        Path.of(
+            UndeadDogEyesTest.class.getResource("/assets/dogs-unleashed/textures/entity").toURI());
+    try (Stream<Path> files = Files.list(folder)) {
+      final List<String> names =
+          files
+              .map(path -> path.getFileName().toString())
+              .filter(name -> name.endsWith(".png") && !name.endsWith("_collar.png"))
+              .map(name -> name.substring(0, name.length() - ".png".length()))
+              .toList();
+      return rigs()
+          .flatMap(
+              rig ->
+                  names.stream()
+                      .filter(
+                          name ->
+                              name.equals(rig.serializedId())
+                                  || name.startsWith(rig.serializedId() + "_"))
+                      .map(name -> Arguments.of(rig, name)));
+    }
+  }
+
+  @ParameterizedTest(name = "{0} eyes fit {1}")
+  @MethodSource("everyCoatTexture")
+  @DisplayName("every coat texture is the size of its rig's atlas, so its eyes are painted")
+  void everyCoatFitsItsRigAtlas(final UnleashedDogBreed rig, final String texture)
+      throws IOException {
+    final BufferedImage image = ImageIO.read(resource("textures/entity/" + texture + ".png"));
+
+    assertTrue(
+        eyesOf(rig).fits(image.getWidth(), image.getHeight()),
+        texture + " is " + image.getWidth() + "x" + image.getHeight());
   }
 
   @Test

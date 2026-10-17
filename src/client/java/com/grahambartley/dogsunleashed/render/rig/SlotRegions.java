@@ -19,6 +19,8 @@ public final class SlotRegions {
 
   public static final Identifier RELOADER_ID = Identifier.of(MOD_ID, "slot_regions");
 
+  private static final float TEXEL_SNAP = 1.0e-3f;
+
   private static final SlotRegions SHARED = new SlotRegions(RigModels::loaded, RigProfiles::of);
 
   private final RigModels.Lookup models;
@@ -91,10 +93,13 @@ public final class SlotRegions {
 
   private static int[] coveredTexels(final float[] uvs, final int atlasSize) {
     final QuadUv.Span span = QuadUv.spanOf(uvs);
-    final float min = span.min() * atlasSize - 0.5f;
-    final float max = span.max() * atlasSize - 0.5f;
-    return new int[] {
-      Math.max(0, (int) Math.floor(min) + 1), Math.min(atlasSize - 1, (int) Math.ceil(max) - 1)
-    };
+    final int first = (int) Math.floor(snapped(span.min() * atlasSize));
+    final int last = (int) Math.ceil(snapped(span.max() * atlasSize)) - 1;
+    return new int[] {Math.max(0, first), Math.min(atlasSize - 1, last)};
+  }
+
+  private static float snapped(final float texels) {
+    final float whole = Math.round(texels);
+    return Math.abs(texels - whole) < TEXEL_SNAP ? whole : texels;
   }
 }
