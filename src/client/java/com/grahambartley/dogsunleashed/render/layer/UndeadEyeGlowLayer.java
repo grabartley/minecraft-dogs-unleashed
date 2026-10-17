@@ -1,7 +1,7 @@
 package com.grahambartley.dogsunleashed.render.layer;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
-import com.grahambartley.dogsunleashed.render.coat.UndeadDogEyes;
+import com.grahambartley.dogsunleashed.render.coat.UndeadEyeGlows;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -32,7 +32,7 @@ public class UndeadEyeGlowLayer extends GeoRenderLayer<UnleashedDogEntity> {
       return;
     }
     final RenderLayer eyesRenderType =
-        RenderLayer.getEyes(UndeadDogEyes.of(animatable.getRigSourceBreed()).glowTexture());
+        RenderLayer.getEyes(UndeadEyeGlows.shared().glowTextureOf(animatable.getRigSourceBreed()));
     this.getRenderer()
         .reRender(
             bakedModel,

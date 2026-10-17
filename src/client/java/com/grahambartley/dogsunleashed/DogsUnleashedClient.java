@@ -22,8 +22,10 @@ import com.grahambartley.dogsunleashed.render.TennisBallItemRenderer;
 import com.grahambartley.dogsunleashed.render.TennisBallProjectileRenderer;
 import com.grahambartley.dogsunleashed.render.armour.ArmourLook;
 import com.grahambartley.dogsunleashed.render.coat.UndeadCoatTextures;
+import com.grahambartley.dogsunleashed.render.coat.UndeadEyeGlows;
 import com.grahambartley.dogsunleashed.render.layer.WolfDogArmourFeatureRenderer;
 import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
+import com.grahambartley.dogsunleashed.render.rig.SlotRegions;
 import com.grahambartley.dogsunleashed.screen.DogEquipmentScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
@@ -102,6 +104,13 @@ public class DogsUnleashedClient implements ClientModInitializer {
                     .clear(MinecraftClient.getInstance().getTextureManager())));
     resources.registerReloadListener(
         new CacheReloader(RigProfiles.RELOADER_ID, RigProfiles.shared()::clear));
+    resources.registerReloadListener(
+        new CacheReloader(SlotRegions.RELOADER_ID, SlotRegions.shared()::clear));
+    resources.registerReloadListener(
+        new CacheReloader(
+            UndeadEyeGlows.RELOADER_ID,
+            () ->
+                UndeadEyeGlows.shared().clear(MinecraftClient.getInstance().getTextureManager())));
 
     ModKeyBindings.register();
     ModNetworkingClient.registerClientReceivers();

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.google.gson.JsonParser;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile.Overlay;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile.Slot;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
@@ -26,6 +27,7 @@ class RigProfileTest {
                     "mouth": ["snout"],
                     "fur_shaggy": ["shag"],
                     "fur_overgrown": ["mop"],
+                    "pupils": [[7, 47], [10, 48]],
                     "trimmed_overlay": "dogs-unleashed:textures/entity/fur/x_trimmed.png"
                   }
                   """)
@@ -47,6 +49,13 @@ class RigProfileTest {
         RigProfile.parse(JsonParser.parseString("{\"torso\": [\"main\"]}").getAsJsonObject());
     assertTrue(torsoOnly.bonesIn(Slot.FUR_SHAGGY).isEmpty());
     assertTrue(torsoOnly.mouthBone().isEmpty());
+    assertTrue(torsoOnly.pupils().isEmpty());
+  }
+
+  @Test
+  @DisplayName("pupils read as texels in the order the profile lists them")
+  void pupilsReadAsTexels() {
+    assertEquals(List.of(new Texel(7, 47), new Texel(10, 48)), PROFILE.pupils());
   }
 
   @Test

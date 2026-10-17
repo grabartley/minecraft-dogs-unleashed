@@ -3,7 +3,9 @@ package com.grahambartley.dogsunleashed.render.rig;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -11,9 +13,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import net.minecraft.util.Identifier;
 
-public record RigProfile(Map<Slot, Set<String>> bones, Map<Overlay, Identifier> overlays) {
+public record RigProfile(
+    Map<Slot, Set<String>> bones, Map<Overlay, Identifier> overlays, List<Texel> pupils) {
 
-  public static final RigProfile EMPTY = new RigProfile(Map.of(), Map.of());
+  private static final String PUPILS_KEY = "pupils";
+
+  public static final RigProfile EMPTY = new RigProfile(Map.of(), Map.of(), List.of());
 
   public enum Slot {
     TORSO,
@@ -48,6 +53,7 @@ public record RigProfile(Map<Slot, Set<String>> bones, Map<Overlay, Identifier> 
   public RigProfile {
     bones = Map.copyOf(bones);
     overlays = Map.copyOf(overlays);
+    pupils = List.copyOf(pupils);
   }
 
   public static RigProfile parse(final JsonObject json) {
@@ -65,7 +71,14 @@ public record RigProfile(Map<Slot, Set<String>> bones, Map<Overlay, Identifier> 
         overlays.put(overlay, Identifier.of(json.get(overlay.key()).getAsString()));
       }
     }
-    return new RigProfile(bones, overlays);
+    final List<Texel> pupils = new ArrayList<>();
+    if (json.get(PUPILS_KEY) instanceof JsonArray texels) {
+      for (final JsonElement texel : texels) {
+        final JsonArray xy = texel.getAsJsonArray();
+        pupils.add(new Texel(xy.get(0).getAsInt(), xy.get(1).getAsInt()));
+      }
+    }
+    return new RigProfile(bones, overlays, pupils);
   }
 
   public Set<String> bonesIn(final Slot slot) {

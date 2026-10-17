@@ -12,6 +12,16 @@
   "eyes": [
     "eyelid"
   ],
+  "pupils": [
+    [
+      7,
+      47
+    ],
+    [
+      10,
+      47
+    ]
+  ],
   "neck": [
     "pescoco"
   ],

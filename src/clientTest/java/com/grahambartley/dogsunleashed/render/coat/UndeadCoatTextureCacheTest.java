@@ -33,7 +33,7 @@ class UndeadCoatTextureCacheTest {
   @Test
   @DisplayName("returns the generated undead texture for a living coat")
   void returnsTheGeneratedTexture() {
-    assertEquals(GENERATED, cacheDecayingTo(GENERATED).undeadOf(LIVING, UndeadDogEyes.BEAGLE));
+    assertEquals(GENERATED, cacheDecayingTo(GENERATED).undeadOf(LIVING, UndeadDogEyes.NONE));
   }
 
   @Test
@@ -41,8 +41,8 @@ class UndeadCoatTextureCacheTest {
   void decaysEachCoatOnce() {
     final UndeadCoatTextureCache cache = cacheDecayingTo(GENERATED);
 
-    cache.undeadOf(LIVING, UndeadDogEyes.BEAGLE);
-    cache.undeadOf(LIVING, UndeadDogEyes.BEAGLE);
+    cache.undeadOf(LIVING, UndeadDogEyes.NONE);
+    cache.undeadOf(LIVING, UndeadDogEyes.NONE);
 
     assertEquals(List.of(LIVING), this.decayCalls);
   }
@@ -50,14 +50,14 @@ class UndeadCoatTextureCacheTest {
   @Test
   @DisplayName("falls back to the living texture when the coat cannot be decayed")
   void fallsBackToLivingWhenDecayFails() {
-    assertEquals(LIVING, cacheDecayingTo(null).undeadOf(LIVING, UndeadDogEyes.BEAGLE));
+    assertEquals(LIVING, cacheDecayingTo(null).undeadOf(LIVING, UndeadDogEyes.NONE));
   }
 
   @Test
   @DisplayName("clearing frees each generated texture exactly once")
   void clearFreesGeneratedTextures() {
     final UndeadCoatTextureCache cache = cacheDecayingTo(GENERATED);
-    cache.undeadOf(LIVING, UndeadDogEyes.BEAGLE);
+    cache.undeadOf(LIVING, UndeadDogEyes.NONE);
     final TextureManager textureManager = mock(TextureManager.class);
 
     cache.clear(textureManager);
@@ -70,7 +70,7 @@ class UndeadCoatTextureCacheTest {
   @DisplayName("clearing never frees a living texture the cache passed through")
   void clearKeepsPassThroughLivingTexture() {
     final UndeadCoatTextureCache cache = cacheDecayingTo(null);
-    cache.undeadOf(LIVING, UndeadDogEyes.BEAGLE);
+    cache.undeadOf(LIVING, UndeadDogEyes.NONE);
     final TextureManager textureManager = mock(TextureManager.class);
 
     cache.clear(textureManager);
@@ -82,10 +82,10 @@ class UndeadCoatTextureCacheTest {
   @DisplayName("after clearing, the next lookup decays the coat again")
   void lookupAfterClearDecaysAgain() {
     final UndeadCoatTextureCache cache = cacheDecayingTo(GENERATED);
-    cache.undeadOf(LIVING, UndeadDogEyes.BEAGLE);
+    cache.undeadOf(LIVING, UndeadDogEyes.NONE);
 
     cache.clear(mock(TextureManager.class));
-    cache.undeadOf(LIVING, UndeadDogEyes.BEAGLE);
+    cache.undeadOf(LIVING, UndeadDogEyes.NONE);
 
     assertEquals(List.of(LIVING, LIVING), this.decayCalls);
   }
@@ -94,7 +94,7 @@ class UndeadCoatTextureCacheTest {
   @DisplayName("a second clear with nothing rebuilt frees nothing")
   void repeatedClearFreesNothingTwice() {
     final UndeadCoatTextureCache cache = cacheDecayingTo(GENERATED);
-    cache.undeadOf(LIVING, UndeadDogEyes.BEAGLE);
+    cache.undeadOf(LIVING, UndeadDogEyes.NONE);
     cache.clear(mock(TextureManager.class));
     final TextureManager textureManager = mock(TextureManager.class);
 

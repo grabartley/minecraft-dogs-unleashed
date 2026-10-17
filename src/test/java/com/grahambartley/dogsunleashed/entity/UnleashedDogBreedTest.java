@@ -282,6 +282,7 @@ class UnleashedDogBreedTest {
     final String id = breed.serializedId();
     assertEquals("entity.dogs-unleashed." + id, breed.translationKey());
     assertEquals("animations/" + id + ".animation.json", breed.animationPath());
+    assertEquals("geo/" + id + ".geo.json", breed.geoPath());
   }
 
   static Stream<Arguments> furProfiles() {

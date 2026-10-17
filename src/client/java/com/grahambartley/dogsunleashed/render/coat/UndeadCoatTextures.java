@@ -2,7 +2,7 @@ package com.grahambartley.dogsunleashed.render.coat;
 
 import static com.grahambartley.dogsunleashed.DogsUnleashed.MOD_ID;
 
-import com.grahambartley.dogsunleashed.render.coat.UndeadDogEyes.EyePixel;
+import com.grahambartley.dogsunleashed.render.rig.Texel;
 import java.io.IOException;
 import java.io.InputStream;
 import net.minecraft.client.MinecraftClient;
@@ -67,8 +67,8 @@ public final class UndeadCoatTextures {
             x, y, abgr(255, (decayed >> 16) & 0xFF, (decayed >> 8) & 0xFF, decayed & 0xFF));
       }
     }
-    if (width == eyes.atlasSize() && height == eyes.atlasSize()) {
-      for (final EyePixel pixel : eyes.pixels()) {
+    if (eyes.fits(width, height)) {
+      for (final Texel pixel : eyes.pupils()) {
         final int rgb = UndeadTextureTransform.EYE_RGB;
         image.setColor(
             pixel.x(), pixel.y(), abgr(255, (rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF));
