@@ -31,7 +31,7 @@ public final class DogSleepSpotAnchor {
   private static DogSleepPose housePose(final BlockPos bedPos, final BlockState state) {
     final Direction facing = state.get(DogHouseBlock.FACING);
     final BlockPos origin = DogHouseBlock.originOf(state, bedPos);
-    final Vec3d centre = DogHouseLayout.occupantAnchor(origin, facing);
+    final Vec3d centre = DogHouseLayout.cushionCentre(origin, facing);
     final Vec3d onBedding = new Vec3d(centre.x, centre.y + HOUSE_BEDDING_TOP, centre.z);
     return new DogSleepPose(onBedding, facing.asRotation());
   }

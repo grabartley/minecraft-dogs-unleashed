@@ -64,18 +64,21 @@ class DogHouseLayoutTest {
   @EnumSource(
       value = Direction.class,
       names = {"NORTH", "SOUTH", "EAST", "WEST"})
-  @DisplayName("an occupant lies at the middle of the footprint, not the middle of one cell")
-  void theOccupantAnchorIsTheMiddleOfTheFootprint(final Direction facing) {
-    final Vec3d anchor = DogHouseLayout.occupantAnchor(ORIGIN, facing);
+  @DisplayName("an occupant lies on the middle of the cushion, which sits 2 px toward the door")
+  void theCushionCentreMatchesTheModel(final Direction facing) {
+    final Vec3d anchor = DogHouseLayout.cushionCentre(ORIGIN, facing);
     final List<BlockPos> lower =
         DogHouseLayout.cellsOf(ORIGIN, facing).stream()
             .filter(c -> c.getY() == ORIGIN.getY())
             .toList();
-
     final double midX = (minOf(lower, BlockPos::getX) + maxOf(lower, BlockPos::getX) + 1) / 2.0;
     final double midZ = (minOf(lower, BlockPos::getZ) + maxOf(lower, BlockPos::getZ) + 1) / 2.0;
-    assertEquals(midX, anchor.x, 1.0e-9, "x");
-    assertEquals(midZ, anchor.z, 1.0e-9, "z");
+    final double cushionFrontToCentre = 14.0 / 16.0;
+    final double houseFrontToMiddle = 1.0;
+    final double towardDoor = houseFrontToMiddle - cushionFrontToCentre;
+
+    assertEquals(midX + facing.getOffsetX() * towardDoor, anchor.x, 1.0e-9, "x");
+    assertEquals(midZ + facing.getOffsetZ() * towardDoor, anchor.z, 1.0e-9, "z");
     assertEquals(ORIGIN.getY(), anchor.y, 1.0e-9, "an occupant lies on the floor");
   }
 

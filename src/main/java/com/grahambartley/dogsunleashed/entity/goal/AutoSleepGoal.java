@@ -132,13 +132,7 @@ public class AutoSleepGoal extends Goal {
     }
 
     if (this.dog.isSleepingInBed()) {
-      this.dog.refreshPositionAndAngles(
-          this.targetBedPos.getX() + 0.5,
-          this.targetBedPos.getY() + 0.1,
-          this.targetBedPos.getZ() + 0.5,
-          this.dog.getYaw(),
-          this.dog.getPitch());
-      this.dog.setVelocity(0, 0, 0);
+      this.dog.getSleepController().holdSleepPose(this.targetBedPos);
       return;
     }
 

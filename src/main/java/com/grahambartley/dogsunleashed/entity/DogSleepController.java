@@ -17,7 +17,6 @@ public final class DogSleepController {
 
   private static final long NOT_SUPPRESSED = Long.MIN_VALUE;
   private static final double POSITION_CENTER_OFFSET = 0.5;
-  private static final double SLEEP_POSITION_Y_OFFSET = 0.1;
   private static final double BED_APPROACH_SPEED = 1.0;
 
   private final UnleashedDogEntity dog;
@@ -74,8 +73,7 @@ public final class DogSleepController {
   public void startSleepingInBed(final BlockPos bedPos) {
     this.dog.setSleepingInBed(true);
     this.dog.setCommandedToSleep(false);
-    layDown(bedPos);
-    this.dog.setVelocity(0, 0, 0);
+    holdSleepPose(bedPos);
     this.dog.setNoGravity(true);
     this.dog.getNavigation().stop();
 
@@ -84,13 +82,14 @@ public final class DogSleepController {
     }
   }
 
-  private void layDown(final BlockPos bedPos) {
+  public void holdSleepPose(final BlockPos bedPos) {
     final DogSleepPose pose =
         DogSleepSpotAnchor.poseFor(this.dog.getWorld(), bedPos, this.dog.getYaw());
     this.dog.refreshPositionAndAngles(
         pose.position().x, pose.position().y, pose.position().z, pose.yaw(), this.dog.getPitch());
     this.dog.setBodyYaw(pose.yaw());
     this.dog.setHeadYaw(pose.yaw());
+    this.dog.setVelocity(0, 0, 0);
   }
 
   void wakeUp() {
