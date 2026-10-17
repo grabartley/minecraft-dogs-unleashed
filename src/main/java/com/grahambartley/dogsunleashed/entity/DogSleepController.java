@@ -95,12 +95,15 @@ public final class DogSleepController {
   }
 
   void wakeUp() {
-    this.wakeFrom(this.dog.getAssignedBedPos());
+    final Optional<BlockPos> bedPos = this.dog.getAssignedBedPos();
+    if (this.isSleepingOnServer()) {
+      bedPos.ifPresent(this::awardHouseComfort);
+    }
+    this.wakeFrom(bedPos);
   }
 
   private void wakeFrom(final Optional<BlockPos> bedPos) {
-    if (this.dog.isSleepingInBed() && !this.dog.getWorld().isClient) {
-      awardHouseComfort();
+    if (this.isSleepingOnServer()) {
       bedPos.ifPresent(this::stepOutOf);
     }
     this.dog.setNoGravity(false);
@@ -109,17 +112,20 @@ public final class DogSleepController {
     this.dog.getAmbienceEffects().releaseBirthWakeHearts();
   }
 
+  private boolean isSleepingOnServer() {
+    return this.dog.isSleepingInBed() && !this.dog.getWorld().isClient;
+  }
+
   private void stepOutOf(final BlockPos bedPos) {
     final World world = this.dog.getWorld();
     DogStandingSpot.firstSafe(world, this.dog, DogSleepSpotAnchor.wakeCellsFor(world, bedPos))
         .ifPresent(this.dog::refreshPositionAfterTeleport);
   }
 
-  private void awardHouseComfort() {
-    this.dog
-        .getAssignedBedPos()
-        .filter(pos -> this.dog.getWorld().getBlockState(pos).isOf(ModBlocks.DOG_HOUSE))
-        .ifPresent(pos -> this.dog.addStatusEffect(DogHouseComfort.wakeEffect()));
+  private void awardHouseComfort(final BlockPos bedPos) {
+    if (this.dog.getWorld().getBlockState(bedPos).isOf(ModBlocks.DOG_HOUSE)) {
+      this.dog.addStatusEffect(DogHouseComfort.wakeEffect());
+    }
   }
 
   void writeNbt(final NbtCompound nbt) {

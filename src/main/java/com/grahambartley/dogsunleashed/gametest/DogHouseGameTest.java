@@ -286,7 +286,34 @@ public final class DogHouseGameTest implements FabricGameTest {
     dog.getSleepController().markManuallyWoken();
     dog.wakeUp();
 
+    final List<BlockPos> frontCorners =
+        DogHouseLayout.wakeCells(REL_ORIGIN, FACING).subList(2, 4).stream()
+            .map(context::getAbsolutePos)
+            .toList();
+    context.assertTrue(
+        frontCorners.contains(dog.getBlockPos()),
+        "With the door blocked, a waking dog should step out at a front corner of the house");
     assertSteppedOut(context, dog);
+    context.complete();
+  }
+
+  @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-house", tickLimit = 40)
+  public void aDogThatWakesInAWalledInHouseStaysOnTheCushion(final TestContext context) {
+    placeHouse(context);
+    final BlockPos absOrigin = context.getAbsolutePos(REL_ORIGIN);
+    for (final BlockPos cell : DogHouseLayout.wakeCells(REL_ORIGIN, FACING)) {
+      context.setBlockState(cell, Blocks.STONE);
+      context.setBlockState(cell.up(), Blocks.STONE);
+    }
+    final UnleashedDogEntity dog = sleepingDog(context, REL_ORIGIN);
+    dog.getSleepController().markManuallyWoken();
+    dog.wakeUp();
+
+    final Vec3d cushion = DogHouseLayout.cushionCentre(absOrigin, FACING);
+    context.assertFalse(dog.isSleepingInBed(), "The dog should be awake");
+    context.assertTrue(
+        dog.getPos().squaredDistanceTo(cushion.add(0.0, CUSHION_TOP, 0.0)) < 1.0e-6,
+        "With nowhere to step out to, a waking dog should stay on the cushion");
     context.complete();
   }
 
