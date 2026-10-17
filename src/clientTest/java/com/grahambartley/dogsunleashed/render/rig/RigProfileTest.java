@@ -53,6 +53,19 @@ class RigProfileTest {
   }
 
   @Test
+  @DisplayName("a malformed pupil is skipped and the rest of the profile still reads")
+  void malformedPupilIsSkipped() {
+    final RigProfile profile =
+        RigProfile.parse(
+            JsonParser.parseString(
+                    "{\"mouth\": [\"snout\"], \"pupils\": [[7], \"x\", [1, 2], [\"a\", 3], [4, 5]]}")
+                .getAsJsonObject());
+
+    assertEquals(List.of(new Texel(1, 2), new Texel(4, 5)), profile.pupils());
+    assertEquals(Optional.of("snout"), profile.mouthBone());
+  }
+
+  @Test
   @DisplayName("pupils read as texels in the order the profile lists them")
   void pupilsReadAsTexels() {
     assertEquals(List.of(new Texel(7, 47), new Texel(10, 48)), PROFILE.pupils());

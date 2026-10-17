@@ -10,6 +10,11 @@ import software.bernie.geckolib.cache.object.BakedGeoModel;
 
 public final class RigModels {
 
+  @FunctionalInterface
+  public interface Lookup {
+    Optional<BakedGeoModel> modelOf(UnleashedDogBreed rig);
+  }
+
   private RigModels() {}
 
   public static Identifier idOf(final UnleashedDogBreed rig) {

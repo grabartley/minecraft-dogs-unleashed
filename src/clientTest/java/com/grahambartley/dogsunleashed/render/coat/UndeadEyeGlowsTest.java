@@ -2,10 +2,12 @@ package com.grahambartley.dogsunleashed.render.coat;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import com.grahambartley.dogsunleashed.render.rig.RigModels;
 import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
 import com.grahambartley.dogsunleashed.render.rig.ShippedRigs;
 import com.grahambartley.dogsunleashed.render.rig.SlotRegions;
@@ -13,13 +15,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 
 class UndeadEyeGlowsTest {
@@ -56,16 +57,30 @@ class UndeadEyeGlowsTest {
         glows.eyesOf(UnleashedDogBreed.HUSKY).pupils());
   }
 
-  @ParameterizedTest(name = "{0} glows like {1}")
-  @CsvSource({"CROSS_BREED, HUSKY", "BEAGLE, BEAGLE", "SHIBA_INU, SHIBA_INU"})
-  @DisplayName("a cross-breed with no rig of its own glows on the fallback rig")
-  void crossBreedUsesTheFallbackRig(
-      final UnleashedDogBreed source, final UnleashedDogBreed expected) {
-    final UndeadEyeGlows glows = glows(rig -> Optional.of(ShippedRigs.model(rig.serializedId())));
+  @ParameterizedTest(name = "{0}")
+  @EnumSource(
+      value = UnleashedDogBreed.class,
+      names = "CROSS_BREED",
+      mode = EnumSource.Mode.EXCLUDE)
+  @DisplayName("each rig registers its own glow texture with its own eyes")
+  void eachRigRegistersItsOwnGlow(final UnleashedDogBreed rig) {
+    final UndeadEyeGlows glows = glows(r -> Optional.of(ShippedRigs.model(r.serializedId())));
 
-    glows.glowTextureOf(source);
+    assertTrue(glows.glowTextureOf(rig).isPresent());
+    assertEquals(List.of(rig), this.registered);
+  }
 
-    assertEquals(List.of(expected), this.registered);
+  @Test
+  @DisplayName("no glow is registered while the rig's model has not loaded")
+  void noGlowWhileTheModelIsUnloaded() {
+    final AtomicReference<Optional<BakedGeoModel>> model = new AtomicReference<>(Optional.empty());
+    final UndeadEyeGlows glows = glows(rig -> model.get());
+
+    assertTrue(glows.glowTextureOf(UnleashedDogBreed.HUSKY).isEmpty());
+    model.set(Optional.of(ShippedRigs.model("husky")));
+
+    assertTrue(glows.glowTextureOf(UnleashedDogBreed.HUSKY).isPresent());
+    assertEquals(List.of(UnleashedDogBreed.HUSKY), this.registered);
   }
 
   @Test
@@ -73,8 +88,8 @@ class UndeadEyeGlowsTest {
   void glowTextureIsRegisteredOnce() {
     final UndeadEyeGlows glows = glows(rig -> Optional.of(ShippedRigs.model(rig.serializedId())));
 
-    final Identifier first = glows.glowTextureOf(UnleashedDogBreed.DACHSHUND);
-    final Identifier second = glows.glowTextureOf(UnleashedDogBreed.DACHSHUND);
+    final Optional<Identifier> first = glows.glowTextureOf(UnleashedDogBreed.DACHSHUND);
+    final Optional<Identifier> second = glows.glowTextureOf(UnleashedDogBreed.DACHSHUND);
 
     assertEquals(first, second);
     assertEquals(List.of(UnleashedDogBreed.DACHSHUND), this.registered);
@@ -85,7 +100,7 @@ class UndeadEyeGlowsTest {
   void clearDestroysGlowsAndForgetsEyes() {
     final UndeadEyeGlows glows = glows(rig -> Optional.of(ShippedRigs.model(rig.serializedId())));
     final TextureManager textures = mock(TextureManager.class);
-    final Identifier glow = glows.glowTextureOf(UnleashedDogBreed.BEAGLE);
+    final Identifier glow = glows.glowTextureOf(UnleashedDogBreed.BEAGLE).orElseThrow();
 
     glows.clear(textures);
     glows.glowTextureOf(UnleashedDogBreed.BEAGLE);
@@ -95,16 +110,16 @@ class UndeadEyeGlowsTest {
     assertEquals(List.of(UnleashedDogBreed.BEAGLE, UnleashedDogBreed.BEAGLE), this.modelLoads);
   }
 
-  private UndeadEyeGlows glows(final Function<UnleashedDogBreed, Optional<BakedGeoModel>> models) {
-    final Function<UnleashedDogBreed, Optional<BakedGeoModel>> counted =
+  private UndeadEyeGlows glows(final RigModels.Lookup models) {
+    final RigModels.Lookup counted =
         rig -> {
           this.modelLoads.add(rig);
-          return models.apply(rig);
+          return models.modelOf(rig);
         };
     return new UndeadEyeGlows(
         counted,
         rig -> BUNDLED.profileOf(rig).pupils(),
-        new SlotRegions(models::apply, BUNDLED::profileOf),
+        new SlotRegions(models, BUNDLED::profileOf),
         (rig, eyes) -> {
           this.registered.add(rig);
           return Identifier.of("dogs-unleashed", "undead_glow/" + rig.serializedId());

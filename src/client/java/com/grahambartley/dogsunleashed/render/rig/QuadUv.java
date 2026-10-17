@@ -29,17 +29,24 @@ public final class QuadUv {
     return Optional.of(new Vector3f(origin).add(alongFirst).add(alongSecond));
   }
 
-  public static boolean covers(final CubeGeometry.Face face, final float u, final float v) {
-    float minU = Float.POSITIVE_INFINITY;
-    float maxU = Float.NEGATIVE_INFINITY;
-    float minV = Float.POSITIVE_INFINITY;
-    float maxV = Float.NEGATIVE_INFINITY;
-    for (int i = 0; i < face.us().length; i++) {
-      minU = Math.min(minU, face.us()[i]);
-      maxU = Math.max(maxU, face.us()[i]);
-      minV = Math.min(minV, face.vs()[i]);
-      maxV = Math.max(maxV, face.vs()[i]);
+  public record Span(float min, float max) {
+
+    public boolean strictlyContains(final float value) {
+      return value > this.min && value < this.max;
     }
-    return u > minU && u < maxU && v > minV && v < maxV;
+  }
+
+  public static boolean covers(final CubeGeometry.Face face, final float u, final float v) {
+    return spanOf(face.us()).strictlyContains(u) && spanOf(face.vs()).strictlyContains(v);
+  }
+
+  public static Span spanOf(final float[] coordinates) {
+    float min = Float.POSITIVE_INFINITY;
+    float max = Float.NEGATIVE_INFINITY;
+    for (final float coordinate : coordinates) {
+      min = Math.min(min, coordinate);
+      max = Math.max(max, coordinate);
+    }
+    return new Span(min, max);
   }
 }

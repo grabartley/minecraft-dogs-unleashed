@@ -40,7 +40,7 @@ public final class UndeadEyeGlows {
           SlotRegions.shared(),
           UndeadEyeGlows::registerGlow);
 
-  private final Function<UnleashedDogBreed, Optional<BakedGeoModel>> models;
+  private final RigModels.Lookup models;
   private final Function<UnleashedDogBreed, List<Texel>> pupils;
   private final SlotRegions regions;
   private final Registrar registrar;
@@ -50,7 +50,7 @@ public final class UndeadEyeGlows {
       new EnumMap<>(UnleashedDogBreed.class);
 
   public UndeadEyeGlows(
-      final Function<UnleashedDogBreed, Optional<BakedGeoModel>> models,
+      final RigModels.Lookup models,
       final Function<UnleashedDogBreed, List<Texel>> pupils,
       final SlotRegions regions,
       final Registrar registrar) {
@@ -64,13 +64,12 @@ public final class UndeadEyeGlows {
     return SHARED;
   }
 
-  public synchronized UndeadDogEyes eyesOf(final UnleashedDogBreed rigSourceBreed) {
-    final UnleashedDogBreed rig = rigOf(rigSourceBreed);
+  public synchronized UndeadDogEyes eyesOf(final UnleashedDogBreed rig) {
     final UndeadDogEyes cached = this.eyesByRig.get(rig);
     if (cached != null) {
       return cached;
     }
-    final Optional<BakedGeoModel> model = this.models.apply(rig);
+    final Optional<BakedGeoModel> model = this.models.modelOf(rig);
     if (model.isEmpty()) {
       return UndeadDogEyes.NONE;
     }
@@ -88,15 +87,18 @@ public final class UndeadEyeGlows {
     return eyes;
   }
 
-  public synchronized Identifier glowTextureOf(final UnleashedDogBreed rigSourceBreed) {
-    final UnleashedDogBreed rig = rigOf(rigSourceBreed);
+  public synchronized Optional<Identifier> glowTextureOf(final UnleashedDogBreed rig) {
     final Identifier cached = this.glowByRig.get(rig);
     if (cached != null) {
-      return cached;
+      return Optional.of(cached);
     }
-    final Identifier glow = this.registrar.register(rig, this.eyesOf(rig));
+    final UndeadDogEyes eyes = this.eyesOf(rig);
+    if (UndeadDogEyes.NONE.equals(eyes)) {
+      return Optional.empty();
+    }
+    final Identifier glow = this.registrar.register(rig, eyes);
     this.glowByRig.put(rig, glow);
-    return glow;
+    return Optional.of(glow);
   }
 
   public synchronized void clear(final TextureManager textureManager) {
@@ -105,15 +107,9 @@ public final class UndeadEyeGlows {
     this.eyesByRig.clear();
   }
 
-  static UnleashedDogBreed rigOf(final UnleashedDogBreed rigSourceBreed) {
-    return rigSourceBreed == UnleashedDogBreed.CROSS_BREED
-        ? UnleashedDogBreed.FALLBACK_RIG
-        : rigSourceBreed;
-  }
-
   private static Identifier registerGlow(final UnleashedDogBreed rig, final UndeadDogEyes eyes) {
-    final int width = Math.max(1, eyes.atlasWidth());
-    final int height = Math.max(1, eyes.atlasHeight());
+    final int width = eyes.atlasWidth();
+    final int height = eyes.atlasHeight();
     final NativeImage image = new NativeImage(NativeImage.Format.RGBA, width, height, false);
     image.fillRect(0, 0, width, height, 0);
     for (final Texel pupil : eyes.pupils()) {

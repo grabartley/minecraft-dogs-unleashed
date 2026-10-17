@@ -12,9 +12,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import net.minecraft.util.Identifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public record RigProfile(
     Map<Slot, Set<String>> bones, Map<Overlay, Identifier> overlays, List<Texel> pupils) {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(RigProfile.class);
 
   private static final String PUPILS_KEY = "pupils";
 
@@ -74,11 +78,24 @@ public record RigProfile(
     final List<Texel> pupils = new ArrayList<>();
     if (json.get(PUPILS_KEY) instanceof JsonArray texels) {
       for (final JsonElement texel : texels) {
-        final JsonArray xy = texel.getAsJsonArray();
-        pupils.add(new Texel(xy.get(0).getAsInt(), xy.get(1).getAsInt()));
+        texelOf(texel).ifPresentOrElse(pupils::add, () -> LOGGER.warn("Skipping pupil {}", texel));
       }
     }
     return new RigProfile(bones, overlays, pupils);
+  }
+
+  private static Optional<Texel> texelOf(final JsonElement element) {
+    if (element instanceof JsonArray xy
+        && xy.size() == 2
+        && isNumber(xy.get(0))
+        && isNumber(xy.get(1))) {
+      return Optional.of(new Texel(xy.get(0).getAsInt(), xy.get(1).getAsInt()));
+    }
+    return Optional.empty();
+  }
+
+  private static boolean isNumber(final JsonElement element) {
+    return element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber();
   }
 
   public Set<String> bonesIn(final Slot slot) {

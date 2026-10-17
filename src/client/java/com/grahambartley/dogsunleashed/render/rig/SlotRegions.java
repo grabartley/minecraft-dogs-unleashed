@@ -19,19 +19,15 @@ public final class SlotRegions {
 
   public static final Identifier RELOADER_ID = Identifier.of(MOD_ID, "slot_regions");
 
-  @FunctionalInterface
-  public interface Models {
-    Optional<BakedGeoModel> modelOf(UnleashedDogBreed rig);
-  }
-
   private static final SlotRegions SHARED = new SlotRegions(RigModels::loaded, RigProfiles::of);
 
-  private final Models models;
+  private final RigModels.Lookup models;
   private final Function<UnleashedDogBreed, RigProfile> profiles;
   private final Map<UnleashedDogBreed, Map<Slot, List<SlotRegion>>> byRig =
       new EnumMap<>(UnleashedDogBreed.class);
 
-  public SlotRegions(final Models models, final Function<UnleashedDogBreed, RigProfile> profiles) {
+  public SlotRegions(
+      final RigModels.Lookup models, final Function<UnleashedDogBreed, RigProfile> profiles) {
     this.models = models;
     this.profiles = profiles;
   }
@@ -94,15 +90,11 @@ public final class SlotRegions {
   }
 
   private static int[] coveredTexels(final float[] uvs, final int atlasSize) {
-    float min = Float.POSITIVE_INFINITY;
-    float max = Float.NEGATIVE_INFINITY;
-    for (final float uv : uvs) {
-      min = Math.min(min, uv * atlasSize);
-      max = Math.max(max, uv * atlasSize);
-    }
+    final QuadUv.Span span = QuadUv.spanOf(uvs);
+    final float min = span.min() * atlasSize - 0.5f;
+    final float max = span.max() * atlasSize - 0.5f;
     return new int[] {
-      Math.max(0, (int) Math.ceil(min - 0.5f)),
-      Math.min(atlasSize - 1, (int) Math.floor(max - 0.5f))
+      Math.max(0, (int) Math.floor(min) + 1), Math.min(atlasSize - 1, (int) Math.ceil(max) - 1)
     };
   }
 }

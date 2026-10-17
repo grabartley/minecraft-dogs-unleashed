@@ -2,11 +2,13 @@ package com.grahambartley.dogsunleashed.render.layer;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.render.coat.UndeadEyeGlows;
+import java.util.Optional;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
@@ -31,8 +33,12 @@ public class UndeadEyeGlowLayer extends GeoRenderLayer<UnleashedDogEntity> {
     if (!animatable.isUndead()) {
       return;
     }
-    final RenderLayer eyesRenderType =
-        RenderLayer.getEyes(UndeadEyeGlows.shared().glowTextureOf(animatable.getRigSourceBreed()));
+    final Optional<Identifier> glow =
+        UndeadEyeGlows.shared().glowTextureOf(animatable.getRigSourceBreed());
+    if (glow.isEmpty()) {
+      return;
+    }
+    final RenderLayer eyesRenderType = RenderLayer.getEyes(glow.get());
     this.getRenderer()
         .reRender(
             bakedModel,

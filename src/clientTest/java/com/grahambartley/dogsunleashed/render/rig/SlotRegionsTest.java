@@ -84,6 +84,24 @@ class SlotRegionsTest {
   }
 
   @Test
+  @DisplayName("the beagle head's six faces cover the box UV laid out from its corner at 0, 40")
+  void beagleHeadFacesMatchTheirHandLaidOutBoxUv() {
+    final List<SlotRegion> head =
+        SlotRegions.of(
+            ShippedRigs.model("beagle"), BUNDLED.profileOf(UnleashedDogBreed.BEAGLE), Slot.HEAD);
+
+    assertEquals(
+        List.of(
+            new Rect(0, 46, 6, 6),
+            new Rect(6, 40, 6, 6),
+            new Rect(6, 46, 6, 6),
+            new Rect(12, 40, 6, 6),
+            new Rect(12, 46, 6, 6),
+            new Rect(18, 46, 6, 6)),
+        sorted(head.stream().map(r -> new Rect(r.x(), r.y(), r.width(), r.height())).toList()));
+  }
+
+  @Test
   @DisplayName("a face whose box UV runs past the atlas edge is cut back to the atlas")
   void facesPastTheAtlasEdgeAreClipped() {
     final RigProfile profile = BUNDLED.profileOf(UnleashedDogBreed.SHIBA_INU);
@@ -195,10 +213,10 @@ class SlotRegionsTest {
       final float height,
       final int atlasWidth,
       final int atlasHeight) {
-    final int x = Math.max(0, (int) Math.ceil(u - 0.5f));
-    final int y = Math.max(0, (int) Math.ceil(v - 0.5f));
-    final int right = Math.min(atlasWidth - 1, (int) Math.floor(u + width - 0.5f));
-    final int bottom = Math.min(atlasHeight - 1, (int) Math.floor(v + height - 0.5f));
+    final int x = Math.max(0, (int) Math.floor(u - 0.5f) + 1);
+    final int y = Math.max(0, (int) Math.floor(v - 0.5f) + 1);
+    final int right = Math.min(atlasWidth - 1, (int) Math.ceil(u + width - 0.5f) - 1);
+    final int bottom = Math.min(atlasHeight - 1, (int) Math.ceil(v + height - 0.5f) - 1);
     if (right >= x && bottom >= y) {
       faces.add(new Rect(x, y, right - x + 1, bottom - y + 1));
     }
