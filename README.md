@@ -182,7 +182,10 @@ arguments untranslated. Found a mistake in a translation?
 Dogs Unleashed is released under the [MIT License](LICENSE).
 
 The Dog Whistle sound is cut from [Soft whistle.ogg](https://commons.wikimedia.org/wiki/File:Soft_whistle.ogg) by
-stilgar, released into the public domain via pdsounds.org. Every other asset is original work.
+stilgar, released into the public domain via pdsounds.org. The dire wolf howl is made from
+[Cooper Creek solitary wolf howl](https://freesound.org/people/betchkal/sounds/500646/) by betchkal, and its barks
+from [Barking dog #1](https://bigsoundbank.com/barking-dog-s0916.html) by Joseph Sardin (BigSoundBank). Both are
+released under [CC0](https://creativecommons.org/publicdomain/zero/1.0/). Every other asset is original work.
 
 If you enjoy Dogs Unleashed, a star on GitHub or a coffee on Ko-fi helps a lot.
 
