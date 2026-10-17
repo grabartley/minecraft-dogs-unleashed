@@ -1,7 +1,7 @@
 package com.grahambartley.dogsunleashed.screen;
 
-import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
+import com.grahambartley.dogsunleashed.config.SyncedServerConfig;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.EditServerConfigC2SPayload;
 import com.grahambartley.dogsunleashed.server.ServerConfigEditPermission;
@@ -51,7 +51,7 @@ public final class DogsUnleashedConfigScreen extends Screen {
     final DogsUnleashedConfig current =
         resolveAccess() == EditAccess.NO_WORLD
             ? DogsUnleashedConfig.defaults()
-            : DogsUnleashed.SERVER_CONFIG;
+            : SyncedServerConfig.get();
     this.enableNaturalSpawning = current.enableNaturalSpawning();
     this.spawnRateMultiplierPercent = current.spawnRateMultiplierPercent();
     this.breedSpawnRateMultipliersPercent =

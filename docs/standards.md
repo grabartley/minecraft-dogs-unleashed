@@ -44,6 +44,7 @@ The canonical implementations are **Loot Lock** and **Dogs Unleashed**. Follow t
 
 - Any new behavioural code ships with unit tests in the same pull request. Documentation-only and configuration-only changes are exempt.
 - Gametests cover behaviour that only exists in a running world: block interactions, networking, persistence across reload, and anything involving more than one player.
+- Gametests do not use `maxAttempts` or `requiredSuccesses`. On Minecraft 1.21.1 the headless server that `runGametest` and CI use counts a failed first attempt as a failed run, even when a retry is queued, so these settings protect nothing. A test that flakes gets fixed, or tracked in its own issue.
 - Anything that moves items or grants rewards gets a test asserting **conservation**: the total in the world before equals the total after. Absence of an exception is not evidence of correctness.
 
 ## Compatibility

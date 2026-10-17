@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.network.payload;
 
+import static com.grahambartley.dogsunleashed.network.payload.PayloadTestFixtures.assertLeadingUuid;
 import static com.grahambartley.dogsunleashed.network.payload.PayloadTestFixtures.newBuf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -10,6 +11,7 @@ import java.util.UUID;
 import java.util.stream.Stream;
 import net.minecraft.network.RegistryByteBuf;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -44,5 +46,17 @@ class OpenNamingScreenPayloadTest {
     final RegistryByteBuf buf = newBuf();
     OpenNamingScreenPayload.CODEC.encode(buf, payload);
     assertEquals(payload, OpenNamingScreenPayload.CODEC.decode(buf));
+  }
+
+  @Test
+  @DisplayName("the pet UUID leads the payload as two raw longs")
+  void petUuidTravelsAsSixteenRawBytes() {
+    final UUID petId = UUID.fromString("0f8fad5b-d9cb-469f-a165-70867728950e");
+    final RegistryByteBuf buf = newBuf();
+    OpenNamingScreenPayload.CODEC.encode(
+        buf, new OpenNamingScreenPayload(petId, UnleashedDogBreed.HUSKY, List.of(), false, "Koda"));
+
+    assertLeadingUuid(buf, petId);
+    assertEquals(UnleashedDogBreed.HUSKY.serializedId(), buf.readString());
   }
 }

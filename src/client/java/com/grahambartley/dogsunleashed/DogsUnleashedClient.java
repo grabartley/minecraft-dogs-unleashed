@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed;
 
+import com.grahambartley.dogsunleashed.config.SyncedServerConfig;
 import com.grahambartley.dogsunleashed.network.ModNetworkingClient;
 import com.grahambartley.dogsunleashed.render.DogBedBlockEntityRenderer;
 import com.grahambartley.dogsunleashed.render.DogBedItemRenderer;
@@ -17,12 +18,17 @@ import com.grahambartley.dogsunleashed.render.StickProjectileRenderer;
 import com.grahambartley.dogsunleashed.render.TennisBallBlockEntityRenderer;
 import com.grahambartley.dogsunleashed.render.TennisBallItemRenderer;
 import com.grahambartley.dogsunleashed.render.TennisBallProjectileRenderer;
+import com.grahambartley.dogsunleashed.render.coat.UndeadCoatTextureReloader;
+import com.grahambartley.dogsunleashed.render.coat.UndeadCoatTextures;
 import com.grahambartley.dogsunleashed.screen.DogEquipmentScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
+import net.minecraft.resource.ResourceType;
 
 public class DogsUnleashedClient implements ClientModInitializer {
   @Override
@@ -66,8 +72,15 @@ public class DogsUnleashedClient implements ClientModInitializer {
 
     HandledScreens.register(ModScreenHandlers.DOG_EQUIPMENT, DogEquipmentScreen::new);
 
+    ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES)
+        .registerReloadListener(
+            new UndeadCoatTextureReloader(
+                UndeadCoatTextures.cache(),
+                () -> MinecraftClient.getInstance().getTextureManager()));
+
     ModKeyBindings.register();
     ModNetworkingClient.registerClientReceivers();
+    SyncedServerConfig.resetOnDisconnect();
     KeybindDiscoveryNudge.register();
   }
 }

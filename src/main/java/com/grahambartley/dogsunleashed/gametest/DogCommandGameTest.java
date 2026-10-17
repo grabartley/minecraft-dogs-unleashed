@@ -196,12 +196,7 @@ public final class DogCommandGameTest implements FabricGameTest {
     context.complete();
   }
 
-  @GameTest(
-      templateName = "dogs-unleashed:teleport_arena",
-      batchId = BATCH,
-      tickLimit = 120,
-      maxAttempts = 3,
-      requiredSuccesses = 1)
+  @GameTest(templateName = "dogs-unleashed:teleport_arena", batchId = BATCH, tickLimit = 120)
   public void stayDogHoldsPositionWhenOwnerIsFar(final TestContext context) {
     final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, new BlockPos(2, 2, 2));
@@ -221,12 +216,7 @@ public final class DogCommandGameTest implements FabricGameTest {
         });
   }
 
-  @GameTest(
-      templateName = "dogs-unleashed:teleport_arena",
-      batchId = BATCH,
-      tickLimit = 160,
-      maxAttempts = 3,
-      requiredSuccesses = 1)
+  @GameTest(templateName = "dogs-unleashed:teleport_arena", batchId = BATCH, tickLimit = 160)
   public void heelDogClosesToWithinHeelDistance(final TestContext context) {
     final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, new BlockPos(2, 2, 2));
@@ -245,12 +235,7 @@ public final class DogCommandGameTest implements FabricGameTest {
         });
   }
 
-  @GameTest(
-      templateName = "dogs-unleashed:teleport_arena",
-      batchId = BATCH,
-      tickLimit = 120,
-      maxAttempts = 3,
-      requiredSuccesses = 1)
+  @GameTest(templateName = "dogs-unleashed:teleport_arena", batchId = BATCH, tickLimit = 120)
   public void freeRoamDogDoesNotFollowOwner(final TestContext context) {
     final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, new BlockPos(2, 2, 2));
@@ -282,9 +267,7 @@ public final class DogCommandGameTest implements FabricGameTest {
   @GameTest(
       templateName = "dogs-unleashed:dog_arena",
       batchId = BATCH,
-      tickLimit = TARGET_TICK_LIMIT,
-      maxAttempts = 3,
-      requiredSuccesses = 1)
+      tickLimit = TARGET_TICK_LIMIT)
   public void huntDogTargetsNearbyHostile(final TestContext context) {
     final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, new BlockPos(1, 2, 1));
@@ -313,9 +296,7 @@ public final class DogCommandGameTest implements FabricGameTest {
   @GameTest(
       templateName = "dogs-unleashed:dog_arena",
       batchId = BATCH,
-      tickLimit = TARGET_TICK_LIMIT,
-      maxAttempts = 3,
-      requiredSuccesses = 1)
+      tickLimit = TARGET_TICK_LIMIT)
   public void huntDogTargetsUnnamedAnimal(final TestContext context) {
     final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, new BlockPos(1, 2, 1));
@@ -377,9 +358,7 @@ public final class DogCommandGameTest implements FabricGameTest {
   @GameTest(
       templateName = "dogs-unleashed:dog_arena",
       batchId = BATCH,
-      tickLimit = TARGET_TICK_LIMIT,
-      maxAttempts = 3,
-      requiredSuccesses = 1)
+      tickLimit = TARGET_TICK_LIMIT)
   public void guardDogTargetsHostileNearAnchor(final TestContext context) {
     final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, new BlockPos(1, 2, 1));

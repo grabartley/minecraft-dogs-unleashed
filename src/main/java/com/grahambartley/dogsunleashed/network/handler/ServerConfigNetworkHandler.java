@@ -13,15 +13,10 @@ public final class ServerConfigNetworkHandler {
   public static void handleEditServerConfig(
       final EditServerConfigC2SPayload payload, final ServerPlayNetworking.Context context) {
     final ServerPlayerEntity player = context.player();
-    player
-        .getServer()
-        .execute(
-            () -> {
-              if (!ServerConfigEditPermission.canEdit(player, player.getServer())) {
-                ServerConfigService.sendTo(player);
-                return;
-              }
-              ServerConfigService.update(player.getServer(), payload.config());
-            });
+    if (!ServerConfigEditPermission.canEdit(player, player.getServer())) {
+      ServerConfigService.sendTo(player);
+      return;
+    }
+    ServerConfigService.update(player.getServer(), payload.config());
   }
 }
