@@ -36,6 +36,7 @@ public class PetNamingScreen extends Screen {
     final int centerX = this.width / 2;
     final int centerY = this.height / 2;
 
+    final String currentName = nameField == null ? suggestedName : nameField.getText();
     nameField =
         new TextFieldWidget(
             this.textRenderer,
@@ -45,7 +46,7 @@ public class PetNamingScreen extends Screen {
             FIELD_HEIGHT,
             Text.translatable("screen.dogs-unleashed.pet_naming.name_field"));
     nameField.setMaxLength(NAME_MAX_LENGTH);
-    nameField.setText(suggestedName);
+    nameField.setText(currentName);
     addDrawableChild(nameField);
 
     addDrawableChild(

@@ -70,7 +70,8 @@
       "com.grahambartley.dogsunleashed.gametest.DogWetnessGameTest",
       "com.grahambartley.dogsunleashed.gametest.ResurrectionRitualGameTest",
       "com.grahambartley.dogsunleashed.gametest.UndeadDogGameTest",
-      "com.grahambartley.dogsunleashed.gametest.ServerConfigEditPermissionGameTest"
+      "com.grahambartley.dogsunleashed.gametest.ServerConfigEditPermissionGameTest",
+      "com.grahambartley.dogsunleashed.gametest.ModEntitiesGameTest"
     ]
   },
   "mixins": [
