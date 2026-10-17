@@ -29,6 +29,14 @@ class Patch(unittest.TestCase):
         self.assertEqual(pixels[1][0], (0, 0, 0, 0))
         self.assertEqual(pixels[3][1], (1, 2, 3, 255))
 
+    def test_a_keep_only_first_row_is_refused(self):
+        path = block("x=#FF0000\n  \nxx\n")
+        try:
+            with self.assertRaises(SystemExit):
+                checks.parse_block(path)
+        finally:
+            remove(path)
+
     def test_bad_palette_value_is_refused(self):
         path = block("x=purple\nx\n")
         try:

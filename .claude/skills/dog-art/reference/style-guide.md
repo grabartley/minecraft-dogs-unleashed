@@ -16,7 +16,7 @@ quoting it in an issue, and update this file when a breed changes.
 Density is `floor(size) / (size + 2 * inflate)` times the sheet scale, taken on the thinnest axis
 of each cube, because GeckoLib floors the size before laying out the patch. The high outliers are
 thin detail cubes and planes (paws, tufts, the husky's eye slab) that carry many texels across a
-sliver. The husky is the odd one out: native scale, no inflate trick, a fifth of the density. It
+sliver. The husky is the odd one out: native scale, no inflate trick, a third to a fifth of the density. It
 still reads well because its markings are large shapes. Match the breed you are painting on; do
 not mix densities inside one rig.
 

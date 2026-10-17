@@ -27,7 +27,7 @@ def hue_bucket(rgb):
 
 
 def opaque_colours(pixels):
-    return Counter((r, g, b) for row in pixels for r, g, b, a in row if a >= 26)
+    return Counter(px[:3] for row in pixels for px in row if opaque(px))
 
 
 def palette_ramps(pixels):
@@ -114,7 +114,7 @@ def diff_sheets(a, b):
                 out[y][x] = (255, 0, 255, 255)
             else:
                 r, g, bl, al = pa[y][x]
-                out[y][x] = (r // 3, g // 3, bl // 3, 255) if al >= 26 else BACKGROUND
+                out[y][x] = (r // 3, g // 3, bl // 3, 255) if opaque(pa[y][x]) else BACKGROUND
     return changed, out
 
 
@@ -126,7 +126,11 @@ def parse_block(path):
             if in_rows:
                 rows.append(line)
                 continue
-            if not line.strip() or line.lstrip().startswith("#"):
+            if not line.strip():
+                if line:
+                    raise SystemExit(f"{path}: a block cannot start with a keep-only row; paint the first row or move the block down")
+                continue
+            if line.lstrip().startswith("#"):
                 continue
             if "=" in line and len(line.split("=")[0].strip()) == 1:
                 key, value = [part.strip() for part in line.split("=", 1)]

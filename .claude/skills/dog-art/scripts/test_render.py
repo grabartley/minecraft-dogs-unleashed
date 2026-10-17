@@ -21,7 +21,6 @@ class Renderer(unittest.TestCase):
 
     def test_top_face_is_lit_and_underside_is_half(self):
         self.assertEqual(self.centre("top"), (255, 255, 255, 255))
-        lit, _, _ = render.camera(0, -89)
         _, cubes = bake.cubes_of(self.geo)
         w, h, image = render.render_view(cubes, pngio.read_png(self.sheet), 16, 16, 0, -89, 8)
         self.assertEqual(image[h // 2][w // 2], (127, 127, 127, 255))

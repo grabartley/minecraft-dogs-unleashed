@@ -98,7 +98,7 @@ Views: `front`, `front34`, `left`, `right`, `back`, `back34`, `top`, or `--yaw` 
    live in the project too: a mechanical recolour or marking fix is a `patch` block written in
    `$SCRATCH` (palette lines `x=#RRGGBB` or `x=transparent` first, then one character per texel,
    `.` for transparent, a space to leave a texel alone; once the first texel row starts every
-   following line is a row), applied to the PNG and put back into the project with
+   following line is a row, so the first row must paint something and `#` cannot be a palette key), applied to the PNG and put back into the project with
    `update_texture`; freehand painting happens in the Blockbench app on the
    same project (`blockbench_launch` opens it), then the PNG is read back out. Either way the
    texture is reviewed on the rig with `bbmodel_contact_sheet` before it ships. Commit the PNG and
