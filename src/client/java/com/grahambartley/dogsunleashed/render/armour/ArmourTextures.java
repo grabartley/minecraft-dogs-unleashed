@@ -109,7 +109,7 @@ public final class ArmourTextures {
       if (ArmourFit.torsoBones(breed).contains(bone.getName())) {
         final List<List<CubeGeometry.Face>> faces = CubeGeometry.facesByCube(bone);
         for (int i = 0; i < faces.size(); i++) {
-          if (ArmourFit.covers(breed, bone.getName(), i)) {
+          if (ArmourFit.covers(breed, bone.getName(), bone.getCubes().get(i))) {
             out.add(faces.get(i));
           }
         }

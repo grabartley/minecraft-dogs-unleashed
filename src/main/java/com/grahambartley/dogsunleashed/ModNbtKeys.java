@@ -18,6 +18,7 @@ public final class ModNbtKeys {
   public static final String PORTRAIT_COLLAR = "PortraitCollar";
   public static final String PORTRAIT_COAT_VARIANT = "portraitCoatVariant";
   public static final String PORTRAIT_HUSKY_EYE = "PortraitHuskyEye";
+  public static final String PORTRAIT_FUR_STAGE = "PortraitFurStage";
   public static final String PARENT_A_ID = "ParentAId";
   public static final String PARENT_B_ID = "ParentBId";
   public static final String COMPOSITION = "Composition";
@@ -35,6 +36,7 @@ public final class ModNbtKeys {
   public static final String GENOME_MOVEMENT_SPEED = "GenomeMovementSpeed";
   public static final String GENOME_ATTACK_DAMAGE = "GenomeAttackDamage";
   public static final String GENOME_VOICE_BREED = "GenomeVoiceBreed";
+  public static final String GENOME_FUR_GROWTH_RATE = "GenomeFurGrowthRate";
   public static final String COAT_VARIANT = "CoatVariant";
   public static final String EYE_COLOR_VARIANT = "EyeColorVariant";
   public static final String COLLAR_COLOR = "CollarColor";
@@ -61,6 +63,8 @@ public final class ModNbtKeys {
   public static final String COMMAND_ANCHOR_Z = "CommandAnchorZ";
   public static final String CURING_TICKS = "CuringTicks";
   public static final String CURING_PLAYER_ID = "CuringPlayerId";
+  public static final String FUR_STAGE = "FurStage";
+  public static final String FUR_TICKS_IN_STAGE = "FurTicksInStage";
 
   private ModNbtKeys() {}
 }

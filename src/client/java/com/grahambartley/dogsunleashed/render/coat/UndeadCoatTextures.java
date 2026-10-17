@@ -14,6 +14,8 @@ import org.jetbrains.annotations.Nullable;
 
 public final class UndeadCoatTextures {
 
+  public static final Identifier RELOADER_ID = Identifier.of(MOD_ID, "undead_coat_textures");
+
   private static final UndeadCoatTextureCache CACHE =
       new UndeadCoatTextureCache(UndeadCoatTextures::decay);
 

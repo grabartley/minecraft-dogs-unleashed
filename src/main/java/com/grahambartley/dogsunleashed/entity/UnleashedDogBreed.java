@@ -16,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
 public enum UnleashedDogBreed {
   HUSKY(
       "husky",
-      "snout",
       new FetchCarryProfiles(
           new CarryProfile(0.0, 0.0, 0.54f),
           new CarryProfile(0.0, 0.0, 0.40f),
@@ -36,10 +35,10 @@ public enum UnleashedDogBreed {
       new Attributes(25.0, 0.30, 5.0),
       new Voice(true, null),
       true,
-      new RenderTransforms(1.3f, 0.5f, 0.0f, 1.31f)),
+      new RenderTransforms(1.3f, 0.5f, 0.0f, 1.31f),
+      new FurProfile(DogFurStage.OVERGROWN, 48000, 2)),
   DACHSHUND(
       "dachshund",
-      "mouth",
       new FetchCarryProfiles(
           new CarryProfile(0.0, 0.0, 0.31f),
           new CarryProfile(0.0, 0.0, 0.32f),
@@ -50,10 +49,10 @@ public enum UnleashedDogBreed {
       new Attributes(10.0, 0.25, 2.0),
       new Voice(false, () -> ModSounds.DACHSHUND_BARK),
       false,
-      new RenderTransforms(1.3f, 0.75f, 180.0f, 0.57f)),
+      new RenderTransforms(1.3f, 0.75f, 180.0f, 0.57f),
+      new FurProfile(DogFurStage.SHAGGY, 72000, 1)),
   BEAGLE(
       "beagle",
-      "snout",
       new FetchCarryProfiles(
           new CarryProfile(0.0, 0.0, 0.36f),
           new CarryProfile(0.0, 0.0, 0.38f),
@@ -72,10 +71,10 @@ public enum UnleashedDogBreed {
       new Attributes(17.0, 0.29, 3.0),
       new Voice(false, () -> ModSounds.BEAGLE_BARK),
       false,
-      new RenderTransforms(1.5f, 0.75f, 0.0f, 0.88f)),
+      new RenderTransforms(1.5f, 0.75f, 0.0f, 0.88f),
+      new FurProfile(DogFurStage.SHAGGY, 72000, 1)),
   GOLDEN_RETRIEVER(
       "goldenretriever",
-      "snout",
       new FetchCarryProfiles(
           new CarryProfile(0.0, 0.0, 0.41f),
           new CarryProfile(0.0, 0.0, 0.40f),
@@ -86,10 +85,10 @@ public enum UnleashedDogBreed {
       new Attributes(24.0, 0.30, 4.0),
       new Voice(false, () -> ModSounds.GOLDEN_RETRIEVER_BARK),
       false,
-      new RenderTransforms(1.7f, 0.85f, 0.0f, 1.31f)),
+      new RenderTransforms(1.7f, 0.85f, 0.0f, 1.31f),
+      new FurProfile(DogFurStage.OVERGROWN, 48000, 2)),
   SHIBA_INU(
       "shibainu",
-      "snout",
       new FetchCarryProfiles(
           new CarryProfile(0.0, 0.0, 0.36f),
           new CarryProfile(0.0, 0.0, 0.38f),
@@ -100,10 +99,10 @@ public enum UnleashedDogBreed {
       new Attributes(18.0, 0.32, 3.5),
       new Voice(false, () -> ModSounds.SHIBA_INU_BARK),
       false,
-      new RenderTransforms(1.5f, 0.75f, 0.0f, 0.88f)),
+      new RenderTransforms(1.5f, 0.75f, 0.0f, 0.88f),
+      new FurProfile(DogFurStage.OVERGROWN, 60000, 2)),
   CROSS_BREED(
       "crossbreed",
-      "snout",
       new FetchCarryProfiles(
           new CarryProfile(0.0, 0.0, 0.36f),
           new CarryProfile(0.0, 0.0, 0.38f),
@@ -114,12 +113,12 @@ public enum UnleashedDogBreed {
       new Attributes(18.0, 0.29, 3.5),
       new Voice(false, null),
       false,
-      new RenderTransforms(1.5f, 0.75f, 0.0f, 0.88f));
+      new RenderTransforms(1.5f, 0.75f, 0.0f, 0.88f),
+      new FurProfile(DogFurStage.SHAGGY, 60000, 1));
 
   public static final UnleashedDogBreed FALLBACK_RIG = HUSKY;
 
   private final String serializedId;
-  private final String mouthAnchorBoneName;
   private final FetchCarryProfiles fetchCarryProfiles;
   private final SpawnEggColors spawnEggColors;
   private final Dimensions dimensions;
@@ -128,10 +127,10 @@ public enum UnleashedDogBreed {
   private final Voice voice;
   private final boolean hasEyeColorVariants;
   private final RenderTransforms renderTransforms;
+  private final FurProfile furProfile;
 
   UnleashedDogBreed(
       final String serializedId,
-      final String mouthAnchorBoneName,
       final FetchCarryProfiles fetchCarryProfiles,
       final SpawnEggColors spawnEggColors,
       final Dimensions dimensions,
@@ -139,9 +138,9 @@ public enum UnleashedDogBreed {
       final Attributes attributes,
       final Voice voice,
       final boolean hasEyeColorVariants,
-      final RenderTransforms renderTransforms) {
+      final RenderTransforms renderTransforms,
+      final FurProfile furProfile) {
     this.serializedId = serializedId;
-    this.mouthAnchorBoneName = mouthAnchorBoneName;
     this.fetchCarryProfiles = fetchCarryProfiles;
     this.spawnEggColors = spawnEggColors;
     this.dimensions = dimensions;
@@ -150,6 +149,7 @@ public enum UnleashedDogBreed {
     this.voice = voice;
     this.hasEyeColorVariants = hasEyeColorVariants;
     this.renderTransforms = renderTransforms;
+    this.furProfile = furProfile;
   }
 
   public String serializedId() {
@@ -162,10 +162,6 @@ public enum UnleashedDogBreed {
 
   public String animationPath() {
     return "animations/" + this.serializedId + ".animation.json";
-  }
-
-  public String mouthAnchorBoneName() {
-    return this.mouthAnchorBoneName;
   }
 
   public FetchCarryProfiles fetchCarryProfiles() {
@@ -217,6 +213,10 @@ public enum UnleashedDogBreed {
     return this.renderTransforms;
   }
 
+  public FurProfile furProfile() {
+    return this.furProfile;
+  }
+
   public DefaultAttributeContainer.Builder createAttributes() {
     return MobEntity.createMobAttributes()
         .add(EntityAttributes.GENERIC_MAX_HEALTH, this.attributes.maxHealth())
@@ -258,4 +258,6 @@ public enum UnleashedDogBreed {
 
   public record RenderTransforms(
       float adultScale, float babyScale, float bodyYawOffsetDegrees, float portraitHeight) {}
+
+  public record FurProfile(DogFurStage maxStage, int ticksPerStage, int shearYieldPerStage) {}
 }

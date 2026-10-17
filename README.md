@@ -69,6 +69,8 @@ and Go to Bed. Hunting dogs leave your other pets, villagers and golems alone, b
 - **Give them a bed.** Craft a dog bed or a dog house in any colour and assign it. Your dog goes to bed by itself at
 night.
 - **Kit them out.** Open their gear from the command wheel. Craft them armour from leather, iron, gold, diamond or netherite, or use wolf armour. Your tamed wolves can wear it too. It takes hits for them, cracks as it wears, and mends with its own material. Dye leather armour and their collar any colour, and feed them treats for a short speed and damage boost. Hang a pendant on their collar to keep a mob family away from you both, shield them from fire, falls or drowning, heal you while they're near, or save them from death once.
+- **Keep them groomed.** Coats grow out over time, and a long coat slows a dog down. Trim it with shears to collect dog fur. Go
+carefully, or your dog ends up with a bad hair day until it grows back.
 - **Never lose them.** Your dogs follow you through portals, unless they are sitting, staying or guarding. Bind a dog whistle to call one from anywhere, or open the
 Pet Manager to see and summon your whole pack.
 - **Raise a family.** Any two living tamed dogs can have puppies, and mixed parents give a mixed breed puppy. Every dog has a
@@ -111,6 +113,9 @@ only operators can.
 | Auto-Sleep Range (blocks) | 32      | How far from its bed a dog can be and still go to sleep, from 4 to 128.           |
 | Bark Volume               | 1.0     | How loud barks are, from 0.0 to 2.0.                                              |
 | Husky Howl Volume         | 1.5     | How loud howls are, from 0.0 to 2.0.                                              |
+| Fur Growth                | On      | Whether coats grow out. Off keeps every coat as it is. Shears still work.          |
+| Fur Growth Speed          | 100%    | How fast coats grow, from 0% to 500%.                                             |
+| Bad Haircut Chance        | 100%    | How often a trim goes wrong, from 0% to 500%. 0% means every trim is clean.       |
 
 </details>
 
@@ -132,6 +137,9 @@ Every subcommand needs operator permission.
 /dogsunleashed config autosleeprange <4..128>
 /dogsunleashed config barkvolume <0.0..2.0>
 /dogsunleashed config howlvolume <0.0..2.0>
+/dogsunleashed config furgrowth <true|false>
+/dogsunleashed config furgrowthrate <0..500>
+/dogsunleashed config badhairdaychance <0..500>
 /dogsunleashed config reset
 /dogsunleashed list <player>
 /dogsunleashed summon <player> <petId>

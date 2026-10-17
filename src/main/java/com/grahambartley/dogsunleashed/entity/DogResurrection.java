@@ -101,6 +101,7 @@ public final class DogResurrection {
     dog.getLineage().setParentDogUuid(petData.getParentAId());
     dog.getLineage().setSecondParentDogUuid(petData.getParentBId());
     dog.setBaby(petData.isBaby());
+    dog.getFur().setStage(DogFurStage.fromOrdinal(petData.getFurStage()));
     dog.setCustomName(Text.literal(petData.getName()));
     dog.setCustomNameVisible(true);
     dog.setOwnerUuid(petData.getOwnerId());

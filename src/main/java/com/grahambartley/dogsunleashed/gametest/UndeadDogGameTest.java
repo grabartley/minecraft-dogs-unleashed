@@ -10,6 +10,9 @@ import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import com.grahambartley.dogsunleashed.pet.PetManager;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -35,8 +38,11 @@ public final class UndeadDogGameTest implements FabricGameTest {
   private static final BlockPos REL_DOG = new BlockPos(3, 2, 3);
   private static final BlockPos REL_ROOF = new BlockPos(3, 4, 3);
   private static final int MIDDAY = 6000;
-  private static final int DAYLIGHT_TICK_LIMIT = 260;
-  private static final int DAYLIGHT_ASSERT_TICK = 250;
+  private static final int SKY_LIGHT_SETTLE_DEADLINE = 40;
+  private static final int DAYLIGHT_WATCH_TICKS = 200;
+  private static final int DAYLIGHT_TICK_LIMIT =
+      SKY_LIGHT_SETTLE_DEADLINE + DAYLIGHT_WATCH_TICKS + 20;
+  private static final long DAYLIGHT_ROLL_SEED = 0L;
   private static final int TICK_LIMIT = 100;
   private static final int WEAKNESS_DURATION_TICKS = 400;
 
@@ -57,10 +63,12 @@ public final class UndeadDogGameTest implements FabricGameTest {
       tickLimit = DAYLIGHT_TICK_LIMIT,
       skyAccess = true)
   public void anUndeadDogCaughtUnderTheOpenSkyBurns(final TestContext context) {
-    final UnleashedDogEntity dog = spawnUndeadDog(context);
-
     assertCatchesFire(
-        context, dog, true, "An undead dog under the open midday sky should catch fire");
+        context,
+        UndeadDogGameTest::spawnDaylightUndeadDog,
+        true,
+        true,
+        "An undead dog under the open midday sky should catch fire");
   }
 
   @GameTest(
@@ -69,11 +77,14 @@ public final class UndeadDogGameTest implements FabricGameTest {
       tickLimit = DAYLIGHT_TICK_LIMIT,
       skyAccess = true)
   public void anUndeadDogUnderShelterIsSafeFromDaylight(final TestContext context) {
-    final UnleashedDogEntity dog = spawnUndeadDog(context);
     context.setBlockState(REL_ROOF, Blocks.STONE);
 
     assertCatchesFire(
-        context, dog, false, "An undead dog with a roof over it must never catch fire");
+        context,
+        UndeadDogGameTest::spawnDaylightUndeadDog,
+        false,
+        false,
+        "An undead dog with a roof over it must never catch fire");
   }
 
   @GameTest(
@@ -82,12 +93,15 @@ public final class UndeadDogGameTest implements FabricGameTest {
       tickLimit = DAYLIGHT_TICK_LIMIT,
       skyAccess = true)
   public void anUndeadDogWearingArmourIsSafeFromDaylight(final TestContext context) {
-    final UnleashedDogEntity dog = spawnUndeadDog(context);
-    dog.getEquipmentHolder().setStack(DogEquipmentSlot.ARMOUR, new ItemStack(Items.WOLF_ARMOR));
-
     assertCatchesFire(
         context,
-        dog,
+        ctx -> {
+          final UnleashedDogEntity dog = spawnDaylightUndeadDog(ctx);
+          dog.getEquipmentHolder()
+              .setStack(DogEquipmentSlot.ARMOUR, new ItemStack(Items.WOLF_ARMOR));
+          return dog;
+        },
+        true,
         false,
         "Dog armour should spare an undead dog from daylight, as a helmet does");
   }
@@ -98,10 +112,12 @@ public final class UndeadDogGameTest implements FabricGameTest {
       tickLimit = DAYLIGHT_TICK_LIMIT,
       skyAccess = true)
   public void aLivingDogIsUntroubledByDaylight(final TestContext context) {
-    final UnleashedDogEntity dog = context.spawnEntity(ModEntities.HUSKY, REL_DOG);
-    dog.setAiDisabled(true);
-
-    assertCatchesFire(context, dog, false, "A living dog must never burn in daylight");
+    assertCatchesFire(
+        context,
+        ctx -> seeded(ctx.spawnEntity(ModEntities.HUSKY, REL_DOG)),
+        true,
+        false,
+        "A living dog must never burn in daylight");
   }
 
   @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
@@ -289,29 +305,56 @@ public final class UndeadDogGameTest implements FabricGameTest {
 
   private static void assertCatchesFire(
       final TestContext context,
-      final UnleashedDogEntity dog,
+      final Function<TestContext, UnleashedDogEntity> spawn,
+      final boolean skyVisible,
       final boolean expected,
       final String message) {
+    final AtomicReference<UnleashedDogEntity> dog = new AtomicReference<>();
+    final AtomicLong watchEndTick = new AtomicLong();
     final AtomicBoolean caughtFire = new AtomicBoolean(false);
-    final AtomicBoolean sawDaylight = new AtomicBoolean(false);
     context.runAtEveryTick(
         () -> {
-          context.getWorld().setTimeOfDay(MIDDAY);
-          if (context.getWorld().isDay()) {
-            sawDaylight.set(true);
+          final ServerWorld world = context.getWorld();
+          world.setTimeOfDay(MIDDAY);
+          if (dog.get() == null) {
+            if (skyVisibleAt(context, REL_DOG) != skyVisible
+                || skyVisibleAt(context, REL_DOG.up()) != skyVisible) {
+              context.assertTrue(
+                  context.getTick() < SKY_LIGHT_SETTLE_DEADLINE,
+                  "Sky light at the dog never settled to match the scene");
+              return;
+            }
+            final UnleashedDogEntity spawned = spawn.apply(context);
+            context.assertTrue(
+                world.isSkyVisible(BlockPos.ofFloored(spawned.getEyePos())) == skyVisible,
+                "The sky at the dog's eyes does not match the scene");
+            context.assertTrue(world.isDay(), "The daylight window never reached day");
+            dog.set(spawned);
+            watchEndTick.set(context.getTick() + DAYLIGHT_WATCH_TICKS);
+            return;
           }
-          if (dog.isOnFire()) {
+          if (dog.get().isOnFire()) {
             caughtFire.set(true);
           }
+          if (context.getTick() >= watchEndTick.get()) {
+            context.assertTrue(caughtFire.get() == expected, message);
+            context.complete();
+          }
         });
-    context.runAtTick(
-        DAYLIGHT_ASSERT_TICK,
-        () -> {
-          context.assertTrue(
-              sawDaylight.get(), "The daylight window never actually reached day; check the batch");
-          context.assertTrue(caughtFire.get() == expected, message);
-          context.complete();
-        });
+  }
+
+  private static boolean skyVisibleAt(final TestContext context, final BlockPos relative) {
+    return context.getWorld().isSkyVisible(context.getAbsolutePos(relative));
+  }
+
+  private static UnleashedDogEntity spawnDaylightUndeadDog(final TestContext context) {
+    return seeded(spawnUndeadDog(context));
+  }
+
+  private static UnleashedDogEntity seeded(final UnleashedDogEntity dog) {
+    dog.setAiDisabled(true);
+    dog.getRandom().setSeed(DAYLIGHT_ROLL_SEED);
+    return dog;
   }
 
   private static UnleashedDogEntity spawnUndeadDog(final TestContext context) {

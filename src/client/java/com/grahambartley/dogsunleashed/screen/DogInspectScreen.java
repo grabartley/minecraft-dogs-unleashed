@@ -14,7 +14,7 @@ import net.minecraft.text.Text;
 public class DogInspectScreen extends Screen {
 
   static final int CARD_WIDTH = 236;
-  static final int CARD_HEIGHT = 186;
+  static final int CARD_HEIGHT = 200;
   static final int CARD_PADDING = 10;
   static final int PORTRAIT_SIZE = 56;
   private static final int HEADER_LINE_HEIGHT = 12;
@@ -126,6 +126,14 @@ public class DogInspectScreen extends Screen {
             DogTraitFormat.formatRarity(
                 Text.translatable(rarity.translationKey()).getString(), rarityChance),
             rarity.colorArgb());
+    infoY =
+        drawInfoLine(
+            context,
+            infoX,
+            infoY,
+            "screen.dogs-unleashed.pet_details.fur",
+            DogTraitFormat.furLine(pet),
+            VALUE_COLOR);
 
     DogStatsPanel.drawForPet(context, this.textRenderer, pet, infoX, infoY, INFO_LABEL_WIDTH);
 

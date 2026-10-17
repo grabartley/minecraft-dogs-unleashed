@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.screen;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
@@ -78,6 +79,7 @@ class DogStatsPanelTest {
         0,
         0,
         0,
+        DogFurStage.NATURAL.ordinal(),
         movementSpeed,
         attackDamage,
         List.of());

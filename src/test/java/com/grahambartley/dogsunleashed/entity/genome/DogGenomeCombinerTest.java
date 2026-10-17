@@ -56,6 +56,8 @@ class DogGenomeCombinerTest {
         child.movementSpeed(), weightedStat(child, StatKind.MOVEMENT_SPEED), "movement speed");
     assertWithinEnvelope(
         child.attackDamage(), weightedStat(child, StatKind.ATTACK_DAMAGE), "attack damage");
+    assertWithinEnvelope(
+        child.furGrowthRate(), DogGenome.BASELINE_FUR_GROWTH_RATE, "fur growth rate");
   }
 
   @ParameterizedTest(name = "seed {0}")
@@ -70,6 +72,7 @@ class DogGenomeCombinerTest {
             21.0,
             0.295,
             4.0,
+            DogGenome.BASELINE_FUR_GROWTH_RATE,
             UnleashedDogBreed.DACHSHUND);
     final DogGenome child =
         DogGenomeCombiner.combine(
@@ -92,6 +95,7 @@ class DogGenomeCombinerTest {
             21.0,
             0.295,
             4.0,
+            DogGenome.BASELINE_FUR_GROWTH_RATE,
             UnleashedDogBreed.HUSKY);
     final DogGenome child =
         DogGenomeCombiner.combine(

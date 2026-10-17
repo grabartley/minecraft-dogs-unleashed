@@ -27,7 +27,7 @@ public final class InflatedCubes {
       final int packedOverlay,
       final int colour) {
     for (int index = 0; index < bone.getCubes().size(); index++) {
-      if (!ArmourFit.covers(breed, bone.getName(), index)) {
+      if (!ArmourFit.covers(breed, bone.getName(), bone.getCubes().get(index))) {
         continue;
       }
       final GeoCube cube = bone.getCubes().get(index);

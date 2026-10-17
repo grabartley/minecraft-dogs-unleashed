@@ -12,6 +12,7 @@ import software.bernie.geckolib.cache.object.GeoVertex;
 public final class CubeGeometry {
 
   private static final float MODEL_UNITS_PER_BLOCK = 16.0f;
+  static final float DETAIL_EXTENT = 0.7f / MODEL_UNITS_PER_BLOCK;
 
   private CubeGeometry() {}
 
@@ -37,6 +38,23 @@ public final class CubeGeometry {
 
   public static List<Face> facesOf(final GeoBone bone) {
     return facesByCube(bone).stream().flatMap(List::stream).toList();
+  }
+
+  public static boolean isDetail(final GeoCube cube) {
+    final Bounds bounds = new Bounds();
+    for (final GeoQuad quad : cube.quads()) {
+      if (quad == null) {
+        continue;
+      }
+      for (final GeoVertex vertex : quad.vertices()) {
+        bounds.include(vertex.position());
+      }
+    }
+    if (bounds.isEmpty()) {
+      return true;
+    }
+    final Vector3f extent = bounds.max().sub(bounds.min());
+    return Math.min(extent.x, Math.min(extent.y, extent.z)) < DETAIL_EXTENT;
   }
 
   public static List<List<Face>> facesByCube(final GeoBone bone) {

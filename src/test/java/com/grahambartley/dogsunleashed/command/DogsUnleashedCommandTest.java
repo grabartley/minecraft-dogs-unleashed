@@ -54,12 +54,15 @@ class DogsUnleashedCommandTest {
         Arguments.of(8, "command.dogs-unleashed.help.shownames"),
         Arguments.of(9, "command.dogs-unleashed.help.autosleep"),
         Arguments.of(10, "command.dogs-unleashed.help.autosleeprange"),
-        Arguments.of(11, "command.dogs-unleashed.help.barkvolume"),
-        Arguments.of(12, "command.dogs-unleashed.help.howlvolume"),
-        Arguments.of(13, "command.dogs-unleashed.help.reset"),
-        Arguments.of(14, "command.dogs-unleashed.help.list"),
-        Arguments.of(15, "command.dogs-unleashed.help.summon"),
-        Arguments.of(16, "command.dogs-unleashed.help.find"));
+        Arguments.of(11, "command.dogs-unleashed.help.furgrowth"),
+        Arguments.of(12, "command.dogs-unleashed.help.furgrowthrate"),
+        Arguments.of(13, "command.dogs-unleashed.help.badhairdaychance"),
+        Arguments.of(14, "command.dogs-unleashed.help.barkvolume"),
+        Arguments.of(15, "command.dogs-unleashed.help.howlvolume"),
+        Arguments.of(16, "command.dogs-unleashed.help.reset"),
+        Arguments.of(17, "command.dogs-unleashed.help.list"),
+        Arguments.of(18, "command.dogs-unleashed.help.summon"),
+        Arguments.of(19, "command.dogs-unleashed.help.find"));
   }
 
   @ParameterizedTest(name = "help line {0} -> {1}")
@@ -88,7 +91,10 @@ class DogsUnleashedCommandTest {
         Arguments.of(12, "command.dogs-unleashed.status.autosleep"),
         Arguments.of(13, "command.dogs-unleashed.status.autosleeprange"),
         Arguments.of(14, "command.dogs-unleashed.status.barkvolume"),
-        Arguments.of(15, "command.dogs-unleashed.status.howlvolume"));
+        Arguments.of(15, "command.dogs-unleashed.status.howlvolume"),
+        Arguments.of(16, "command.dogs-unleashed.status.furgrowth"),
+        Arguments.of(17, "command.dogs-unleashed.status.furgrowthrate"),
+        Arguments.of(18, "command.dogs-unleashed.status.badhairdaychance"));
   }
 
   @ParameterizedTest(name = "status line {0} -> {1}")
@@ -105,7 +111,20 @@ class DogsUnleashedCommandTest {
   void statusLinesCarryConfigValuesAsArguments() {
     final DogsUnleashedConfig config =
         new DogsUnleashedConfig(
-            true, 150, Map.of("beagle", 75), true, false, false, true, 32, 0.5f, 1.5f, false);
+            true,
+            150,
+            Map.of("beagle", 75),
+            true,
+            false,
+            false,
+            true,
+            32,
+            0.5f,
+            1.5f,
+            false,
+            false,
+            250,
+            7);
 
     final List<Text> lines = DogsUnleashedCommand.statusLines(config);
 
@@ -119,6 +138,9 @@ class DogsUnleashedCommandTest {
     assertEquals(32, translationArgs(lines.get(13))[0]);
     assertEquals("0.50", translationArgs(lines.get(14))[0]);
     assertEquals("1.50", translationArgs(lines.get(15))[0]);
+    assertEquals(false, translationArgs(lines.get(16))[0]);
+    assertEquals(250, translationArgs(lines.get(17))[0]);
+    assertEquals(7, translationArgs(lines.get(18))[0]);
   }
 
   static Stream<Arguments> breedStatusLineCases() {
@@ -137,7 +159,20 @@ class DogsUnleashedCommandTest {
       final int index, final String breedId, final int expectedPercent) {
     final DogsUnleashedConfig config =
         new DogsUnleashedConfig(
-            true, 150, Map.of("beagle", 75), true, false, false, true, 32, 0.5f, 1.5f, false);
+            true,
+            150,
+            Map.of("beagle", 75),
+            true,
+            false,
+            false,
+            true,
+            32,
+            0.5f,
+            1.5f,
+            false,
+            true,
+            100,
+            100);
 
     final List<Text> lines = DogsUnleashedCommand.statusLines(config);
 

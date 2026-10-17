@@ -11,6 +11,7 @@ import com.grahambartley.dogsunleashed.render.rig.CollarTextureMask;
 import com.grahambartley.dogsunleashed.render.rig.CubeGeometry;
 import com.grahambartley.dogsunleashed.render.rig.LivePose;
 import com.grahambartley.dogsunleashed.render.rig.PoseClearance;
+import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
 import java.util.Map;
 import java.util.Optional;
 import net.minecraft.client.MinecraftClient;
@@ -130,7 +131,11 @@ public class DogPendantLayer extends GeoRenderLayer<UnleashedDogEntity> {
 
   private static Optional<Mount> mount(
       final BakedGeoModel model, final UnleashedDogEntity animatable) {
-    final String mouthBone = animatable.getRigSourceBreed().mouthAnchorBoneName();
+    final Optional<String> mouth = RigProfiles.of(animatable.getRigSourceBreed()).mouthBone();
+    if (mouth.isEmpty()) {
+      return Optional.empty();
+    }
+    final String mouthBone = mouth.get();
     return locate(model, animatable, mouthBone)
         .map(
             spot ->

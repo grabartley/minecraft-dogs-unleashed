@@ -174,6 +174,14 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
             context,
             x,
             y,
+            "screen.dogs-unleashed.pet_details.fur",
+            DogTraitFormat.furLine(pet),
+            VALUE_COLOR);
+    y =
+        drawInfoLine(
+            context,
+            x,
+            y,
             "screen.dogs-unleashed.pet_details.owner",
             resolveOwnerName(),
             VALUE_COLOR);

@@ -1,0 +1,10 @@
+{
+  "torso": [
+    "main",
+    "frontchest",
+    "belly"
+  ],
+  "mouth": [
+    "snout"
+  ]
+}

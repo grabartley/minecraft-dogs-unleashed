@@ -77,7 +77,7 @@ public final class ArmourClearance {
         if (box.isEmpty()) {
           continue;
         }
-        if (ArmourFit.covers(breed, bone.getName(), i)) {
+        if (ArmourFit.covers(breed, bone.getName(), bone.getCubes().get(i))) {
           armour.add(box);
         } else if (!ArmourFit.torsoBones(breed).contains(bone.getName())) {
           others.add(box);

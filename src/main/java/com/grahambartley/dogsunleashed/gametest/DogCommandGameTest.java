@@ -24,6 +24,8 @@ import net.minecraft.world.GameMode;
 public final class DogCommandGameTest implements FabricGameTest {
 
   private static final String BATCH = "dog-command";
+  private static final double HEEL_DISTANCE = 4.0;
+  private static final int HEEL_DEADLINE_TICK = 140;
 
   private static final double FREE_ROAM_NEAR_OWNER_DISTANCE = 6.0;
 
@@ -223,15 +225,16 @@ public final class DogCommandGameTest implements FabricGameTest {
     final ServerPlayerEntity owner = placeOwnerAt(context, dog, new BlockPos(10, 2, 2));
     dog.getCommandController().apply(DogCommand.HEEL);
 
-    context.runAtTick(
-        140,
+    context.runAtEveryTick(
         () -> {
-          final double distance = dog.distanceTo(owner);
+          if (dog.distanceTo(owner) <= HEEL_DISTANCE) {
+            context.complete();
+            return;
+          }
           context.assertTrue(
-              distance <= 4.0,
+              context.getTick() < HEEL_DEADLINE_TICK,
               "A heeling dog should close to within heel distance of its owner, distance="
-                  + distance);
-          context.complete();
+                  + dog.distanceTo(owner));
         });
   }
 

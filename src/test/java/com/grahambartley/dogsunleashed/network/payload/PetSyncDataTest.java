@@ -54,6 +54,7 @@ class PetSyncDataTest {
             1,
             0,
             0,
+            0,
             0.3f,
             5.0f,
             List.of());

@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed;
 import com.grahambartley.dogsunleashed.config.SyncedServerConfig;
 import com.grahambartley.dogsunleashed.item.armor.DogArmorTier;
 import com.grahambartley.dogsunleashed.network.ModNetworkingClient;
+import com.grahambartley.dogsunleashed.render.CacheReloader;
 import com.grahambartley.dogsunleashed.render.DogBedBlockEntityRenderer;
 import com.grahambartley.dogsunleashed.render.DogBedItemRenderer;
 import com.grahambartley.dogsunleashed.render.DogGraveBlockEntityRenderer;
@@ -20,9 +21,9 @@ import com.grahambartley.dogsunleashed.render.TennisBallBlockEntityRenderer;
 import com.grahambartley.dogsunleashed.render.TennisBallItemRenderer;
 import com.grahambartley.dogsunleashed.render.TennisBallProjectileRenderer;
 import com.grahambartley.dogsunleashed.render.armour.ArmourLook;
-import com.grahambartley.dogsunleashed.render.coat.UndeadCoatTextureReloader;
 import com.grahambartley.dogsunleashed.render.coat.UndeadCoatTextures;
 import com.grahambartley.dogsunleashed.render.layer.WolfDogArmourFeatureRenderer;
+import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
 import com.grahambartley.dogsunleashed.screen.DogEquipmentScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
@@ -91,11 +92,16 @@ public class DogsUnleashedClient implements ClientModInitializer {
 
     HandledScreens.register(ModScreenHandlers.DOG_EQUIPMENT, DogEquipmentScreen::new);
 
-    ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES)
-        .registerReloadListener(
-            new UndeadCoatTextureReloader(
-                UndeadCoatTextures.cache(),
-                () -> MinecraftClient.getInstance().getTextureManager()));
+    final ResourceManagerHelper resources =
+        ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES);
+    resources.registerReloadListener(
+        new CacheReloader(
+            UndeadCoatTextures.RELOADER_ID,
+            () ->
+                UndeadCoatTextures.cache()
+                    .clear(MinecraftClient.getInstance().getTextureManager())));
+    resources.registerReloadListener(
+        new CacheReloader(RigProfiles.RELOADER_ID, RigProfiles.shared()::clear));
 
     ModKeyBindings.register();
     ModNetworkingClient.registerClientReceivers();

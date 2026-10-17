@@ -104,6 +104,7 @@ public final class DogInteractions {
                 () -> this.tryDyeCollar(player, itemStack),
                 () -> this.tryRepairArmour(player, itemStack),
                 () -> this.tryDirectEquip(player, hand, itemStack),
+                () -> this.tryTrimFur(player, hand, itemStack),
                 () -> this.tryAssignBedOrOpenWheel(player, itemStack)));
     if (handled != null) {
       return handled;
@@ -214,6 +215,14 @@ public final class DogInteractions {
       return null;
     }
     return this.dog.getEquipmentHolder().tryDirectEquip(player, hand, itemStack);
+  }
+
+  private @Nullable ActionResult tryTrimFur(
+      final PlayerEntity player, final Hand hand, final ItemStack itemStack) {
+    if (!this.isDirectOwnerInteraction(player)) {
+      return null;
+    }
+    return this.dog.getFur().tryTrim(player, hand, itemStack);
   }
 
   private @Nullable ActionResult tryAssignBedOrOpenWheel(

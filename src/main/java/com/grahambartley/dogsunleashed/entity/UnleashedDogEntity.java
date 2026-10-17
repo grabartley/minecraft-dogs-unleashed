@@ -14,8 +14,7 @@ import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.entity.variant.DogCoats;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
 import com.grahambartley.dogsunleashed.entity.variant.UnleashedDogCoat;
-import com.grahambartley.dogsunleashed.pet.PetData;
-import com.grahambartley.dogsunleashed.pet.PetManager;
+import com.grahambartley.dogsunleashed.pet.PetNames;
 import java.util.Optional;
 import java.util.UUID;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
@@ -41,7 +40,6 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Hand;
@@ -90,6 +88,7 @@ public class UnleashedDogEntity extends TameableEntity
   private static final TrackedData<Optional<UUID>> PLAY_PARTNER_UUID = data(OPTIONAL_UUID);
 
   private static final TrackedData<Integer> COMMAND = data(INTEGER);
+  private static final TrackedData<Integer> FUR_STAGE = data(INTEGER);
 
   private static <T> TrackedData<T> data(final TrackedDataHandler<T> handler) {
     return DataTracker.registerData(UnleashedDogEntity.class, handler);
@@ -115,6 +114,7 @@ public class UnleashedDogEntity extends TameableEntity
   private final DogPendants pendants = new DogPendants(this);
   private final DogArmour armour = new DogArmour(this);
   private final DogFetchCarry fetchCarry = new DogFetchCarry(this);
+  private final DogFur fur = new DogFur(this);
   private boolean spawnedByDogSpawner = false;
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -156,7 +156,9 @@ public class UnleashedDogEntity extends TameableEntity
       this.getAppearanceRoller().rollAppearance(spawnReason);
     }
     this.undeadState.applyAttributeScaling();
-    return super.initialize(world, difficulty, spawnReason, entityData);
+    final EntityData initialized = super.initialize(world, difficulty, spawnReason, entityData);
+    this.fur.rollSpawnStage(spawnReason);
+    return initialized;
   }
 
   public boolean isSpawnedByDogSpawner() {
@@ -280,6 +282,7 @@ public class UnleashedDogEntity extends TameableEntity
     builder.add(EYE_COLOR_VARIANT, 0);
     builder.add(HOWLING, false);
     builder.add(GENOME, new NbtCompound());
+    builder.add(FUR_STAGE, DogFurStage.NATURAL.ordinal());
   }
 
   public DogCommand getCommand() {
@@ -320,6 +323,18 @@ public class UnleashedDogEntity extends TameableEntity
 
   public DogFetchCarry getFetchCarry() {
     return this.fetchCarry;
+  }
+
+  public DogFur getFur() {
+    return this.fur;
+  }
+
+  int getTrackedFurStage() {
+    return this.dataTracker.get(FUR_STAGE);
+  }
+
+  void setTrackedFurStage(final int stageOrdinal) {
+    this.dataTracker.set(FUR_STAGE, stageOrdinal);
   }
 
   public DogPendants getPendants() {
@@ -496,14 +511,7 @@ public class UnleashedDogEntity extends TameableEntity
   }
 
   public String getTamedName() {
-    if (this.getWorld() instanceof ServerWorld serverWorld) {
-      final PetManager petManager = PetManager.get(serverWorld.getServer());
-      final PetData petData = petManager.getPetByEntityId(this.getUuid());
-      if (petData != null) {
-        return petData.getName();
-      }
-    }
-    return Text.translatable(this.getBreed().translationKey()).getString();
+    return PetNames.tamedNameOf(this);
   }
 
   @Override
@@ -559,6 +567,7 @@ public class UnleashedDogEntity extends TameableEntity
       this.undeadState.tick();
       this.curing.tick();
       this.pendants.tick();
+      this.fur.tick();
     }
   }
 

@@ -23,13 +23,13 @@ import software.bernie.geckolib.loading.object.BakedAnimations;
 import software.bernie.geckolib.loading.object.BakedModelFactory;
 import software.bernie.geckolib.loading.object.GeometryTree;
 
-final class ShippedRigs {
+public final class ShippedRigs {
 
   private static final String ASSETS = "/assets/dogs-unleashed/";
 
   private ShippedRigs() {}
 
-  static BakedGeoModel model(final String name) {
+  public static BakedGeoModel model(final String name) {
     final Model raw =
         KeyFramesAdapter.GEO_GSON.fromJson(json("geo/" + name + ".geo.json"), Model.class);
     final BakedGeoModel baked =
@@ -38,7 +38,7 @@ final class ShippedRigs {
     return baked;
   }
 
-  static void pose(final BakedGeoModel model, final String rig, final String animationName) {
+  public static void pose(final BakedGeoModel model, final String rig, final String animationName) {
     final BakedAnimations animations =
         KeyFramesAdapter.GEO_GSON.fromJson(
             json("animations/" + rig + ".animation.json").getAsJsonObject("animations"),

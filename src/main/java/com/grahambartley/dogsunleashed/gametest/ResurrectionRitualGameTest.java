@@ -49,6 +49,7 @@ public final class ResurrectionRitualGameTest implements FabricGameTest {
           18.0,
           0.29,
           4.0,
+          DogGenome.BASELINE_FUR_GROWTH_RATE,
           UnleashedDogBreed.BEAGLE);
 
   @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
