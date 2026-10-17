@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.block;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
@@ -64,19 +65,59 @@ class DogHouseLayoutTest {
   @EnumSource(
       value = Direction.class,
       names = {"NORTH", "SOUTH", "EAST", "WEST"})
-  @DisplayName("an occupant lies at the middle of the footprint, not the middle of one cell")
-  void theOccupantAnchorIsTheMiddleOfTheFootprint(final Direction facing) {
-    final Vec3d anchor = DogHouseLayout.occupantAnchor(ORIGIN, facing);
+  @DisplayName("an occupant lies on the middle of the cushion, which sits 2 px toward the door")
+  void theCushionCentreMatchesTheModel(final Direction facing) {
+    final Vec3d anchor = DogHouseLayout.cushionCentre(ORIGIN, facing);
     final List<BlockPos> lower =
         DogHouseLayout.cellsOf(ORIGIN, facing).stream()
             .filter(c -> c.getY() == ORIGIN.getY())
             .toList();
-
     final double midX = (minOf(lower, BlockPos::getX) + maxOf(lower, BlockPos::getX) + 1) / 2.0;
     final double midZ = (minOf(lower, BlockPos::getZ) + maxOf(lower, BlockPos::getZ) + 1) / 2.0;
-    assertEquals(midX, anchor.x, 1.0e-9, "x");
-    assertEquals(midZ, anchor.z, 1.0e-9, "z");
+    final double cushionFrontToCentre = 14.0 / 16.0;
+    final double houseFrontToMiddle = 1.0;
+    final double towardDoor = houseFrontToMiddle - cushionFrontToCentre;
+
+    assertEquals(midX + facing.getOffsetX() * towardDoor, anchor.x, 1.0e-9, "x");
+    assertEquals(midZ + facing.getOffsetZ() * towardDoor, anchor.z, 1.0e-9, "z");
     assertEquals(ORIGIN.getY(), anchor.y, 1.0e-9, "an occupant lies on the floor");
+  }
+
+  @ParameterizedTest(name = "facing {0}")
+  @EnumSource(
+      value = Direction.class,
+      names = {"NORTH", "SOUTH", "EAST", "WEST"})
+  @DisplayName("a waking dog tries the two cells in front of the door first")
+  void wakeCellsStartAtTheDoor(final Direction facing) {
+    final List<BlockPos> wakeCells = DogHouseLayout.wakeCells(ORIGIN, facing);
+    final BlockPos frontLeft =
+        ORIGIN.add(DogHouseLayout.offsetFromOrigin(DogHousePart.FRONT_LEFT_LOWER, facing));
+    final BlockPos frontRight =
+        ORIGIN.add(DogHouseLayout.offsetFromOrigin(DogHousePart.FRONT_RIGHT_LOWER, facing));
+
+    assertEquals(
+        Set.of(frontLeft.offset(facing), frontRight.offset(facing)),
+        Set.copyOf(wakeCells.subList(0, 2)));
+  }
+
+  @ParameterizedTest(name = "facing {0}")
+  @EnumSource(
+      value = Direction.class,
+      names = {"NORTH", "SOUTH", "EAST", "WEST"})
+  @DisplayName("the wake cells are every floor cell around the house and none inside it")
+  void wakeCellsRingTheHouse(final Direction facing) {
+    final List<BlockPos> wakeCells = DogHouseLayout.wakeCells(ORIGIN, facing);
+    final List<BlockPos> footprint = DogHouseLayout.cellsOf(ORIGIN, facing);
+    final int ringAroundTwoByTwo = 12;
+
+    assertEquals(ringAroundTwoByTwo, Set.copyOf(wakeCells).size());
+    for (final BlockPos cell : wakeCells) {
+      assertEquals(ORIGIN.getY(), cell.getY(), "wake cells sit on the floor of the house");
+      assertFalse(footprint.contains(cell), cell + " is inside the house");
+      assertTrue(
+          footprint.stream().anyMatch(inside -> touches(inside, cell)),
+          cell + " should touch the house");
+    }
   }
 
   @ParameterizedTest(name = "facing {0}")
@@ -109,5 +150,10 @@ class DogHouseLayoutTest {
   private static int maxOf(
       final List<BlockPos> cells, final java.util.function.ToIntFunction<BlockPos> axis) {
     return cells.stream().mapToInt(axis).max().orElseThrow();
+  }
+
+  private static boolean touches(final BlockPos a, final BlockPos b) {
+    return a.getY() == b.getY()
+        && Math.max(Math.abs(a.getX() - b.getX()), Math.abs(a.getZ() - b.getZ())) == 1;
   }
 }

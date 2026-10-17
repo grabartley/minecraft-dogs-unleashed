@@ -4,15 +4,18 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
+import java.util.Arrays;
+import java.util.stream.Stream;
 import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(MinecraftBootstrapExtension.class)
 class DogHouseShapeTest {
@@ -113,18 +116,62 @@ class DogHouseShapeTest {
         "the house needs a floor to lie on");
   }
 
-  @Test
-  @DisplayName("the roof leaves headroom, so an occupant is not suffocating in the ceiling")
-  void theRoofCellsLeaveHeadroom() {
-    for (final DogHousePart part : DogHousePart.values()) {
-      if (part.isLower()) {
-        continue;
-      }
-      assertFalse(
-          blocks(
-              DogHouseShape.collision(part, Direction.NORTH),
-              VoxelShapes.cuboid(0.4, 0.0, 0.4, 0.6, 0.3, 0.6)),
-          part.asString() + " is roof and must not crush the dog below it");
-    }
+  @ParameterizedTest(name = "facing {0}")
+  @EnumSource(
+      value = Direction.class,
+      names = {"NORTH", "SOUTH", "EAST", "WEST"})
+  @DisplayName("the interior keeps its headroom up to the ceiling")
+  void theInteriorKeepsItsHeadroom(final Direction facing) {
+    assertFalse(
+        blocks(
+            DogHouseShape.collision(DogHousePart.BACK_LEFT_LOWER, facing),
+            probe(0.5, 0.95, 0.5, facing)),
+        "the lower cell should be open right up to its top");
+    assertFalse(
+        blocks(
+            DogHouseShape.collision(DogHousePart.BACK_LEFT_UPPER, facing),
+            probe(0.5, 0.05, 0.5, facing)),
+        "the ceiling should start above the walls, not at the cell boundary");
+  }
+
+  static Stream<Arguments> roofCellsByFacing() {
+    return Arrays.stream(DogHousePart.values())
+        .filter(part -> part.up() == 1)
+        .flatMap(
+            part ->
+                Stream.of(Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST)
+                    .map(facing -> Arguments.of(part, facing)));
+  }
+
+  @ParameterizedTest(name = "{0} facing {1}")
+  @MethodSource("roofCellsByFacing")
+  @DisplayName("every roof cell is solid, so a player can stand on the house")
+  void everyRoofCellIsSolid(final DogHousePart part, final Direction facing) {
+    assertTrue(blocks(DogHouseShape.collision(part, facing), probe(0.5, 0.25, 0.5, facing)));
+  }
+
+  @ParameterizedTest(name = "facing {0}")
+  @EnumSource(
+      value = Direction.class,
+      names = {"NORTH", "SOUTH", "EAST", "WEST"})
+  @DisplayName("the roof rises to a ridge along the middle, matching the gable on the model")
+  void theRoofRisesToARidge(final Direction facing) {
+    final VoxelShape upperLeft = DogHouseShape.collision(DogHousePart.FRONT_LEFT_UPPER, facing);
+    assertTrue(blocks(upperLeft, probe(0.97, 0.85, 0.5, facing)), "the ridge should be solid");
+    assertFalse(
+        blocks(upperLeft, probe(0.1, 0.85, 0.5, facing)), "the eave should be below ridge height");
+  }
+
+  @ParameterizedTest(name = "facing {0}")
+  @EnumSource(
+      value = Direction.class,
+      names = {"NORTH", "SOUTH", "EAST", "WEST"})
+  @DisplayName("the chimney is solid on the left side of the roof")
+  void theChimneyIsSolid(final Direction facing) {
+    assertTrue(
+        blocks(
+            DogHouseShape.collision(DogHousePart.FRONT_LEFT_UPPER, facing),
+            probe(0.55, 0.95, 0.9, facing)),
+        "the chimney should block above the roof line");
   }
 }

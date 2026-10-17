@@ -6,7 +6,8 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
 import com.grahambartley.dogsunleashed.entity.variant.UnleashedDogCoat;
 import com.grahambartley.dogsunleashed.render.coat.UndeadCoatTextures;
-import com.grahambartley.dogsunleashed.render.coat.UndeadDogEyes;
+import com.grahambartley.dogsunleashed.render.coat.UndeadEyeGlows;
+import com.grahambartley.dogsunleashed.render.rig.RigModels;
 import net.minecraft.util.Identifier;
 import software.bernie.geckolib.model.GeoModel;
 
@@ -14,8 +15,7 @@ public class DogModel extends GeoModel<UnleashedDogEntity> {
 
   @Override
   public Identifier getModelResource(final UnleashedDogEntity animatable) {
-    return Identifier.of(
-        MOD_ID, "geo/" + animatable.getRigSourceBreed().serializedId() + ".geo.json");
+    return RigModels.idOf(animatable.getRigSourceBreed());
   }
 
   @Override
@@ -25,7 +25,8 @@ public class DogModel extends GeoModel<UnleashedDogEntity> {
     if (!animatable.isUndead()) {
       return living;
     }
-    return UndeadCoatTextures.undeadOf(living, UndeadDogEyes.of(animatable.getRigSourceBreed()));
+    return UndeadCoatTextures.undeadOf(
+        living, UndeadEyeGlows.shared().eyesOf(animatable.getRigSourceBreed()));
   }
 
   @Override

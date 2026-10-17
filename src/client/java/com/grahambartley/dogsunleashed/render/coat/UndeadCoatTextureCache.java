@@ -22,6 +22,9 @@ public final class UndeadCoatTextureCache {
   }
 
   public Identifier undeadOf(final Identifier living, final UndeadDogEyes eyes) {
+    if (UndeadDogEyes.NONE.equals(eyes)) {
+      return living;
+    }
     return this.undeadByLiving.computeIfAbsent(
         living,
         key -> {

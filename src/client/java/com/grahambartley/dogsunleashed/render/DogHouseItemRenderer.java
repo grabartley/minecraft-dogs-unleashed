@@ -15,11 +15,11 @@ import software.bernie.geckolib.cache.object.BakedGeoModel;
 
 public class DogHouseItemRenderer implements BuiltinItemRendererRegistry.DynamicItemRenderer {
 
-  private static final double CENTRE_X = 0.0;
+  private static final double ITEM_CENTRE = 0.5;
 
-  private static final double CENTRE_Y = 1.0;
+  private static final float HOUSE_TO_BLOCK_SCALE = 0.5f;
 
-  private static final double CENTRE_Z = 0.0;
+  private static final double HOUSE_HALF_HEIGHT = 1.0;
 
   private final CushionTintedDogHouseRenderer renderer;
   private final DogHouseBlockEntity dummyEntity;
@@ -42,17 +42,9 @@ public class DogHouseItemRenderer implements BuiltinItemRendererRegistry.Dynamic
     dummyEntity.setColor(stack.getOrDefault(ModComponents.DOG_HOUSE_COLOR, DyeColor.WHITE));
 
     matrices.push();
-
-    switch (mode) {
-      case GUI -> centredPose(matrices, 0.5, 0.52, 0.0, 25.0f, 200.0f, 0.27f);
-      case GROUND -> centredPose(matrices, 0.5, 0.3, 0.5, 0.0f, 0.0f, 0.20f);
-      case FIXED -> centredPose(matrices, 0.5, 0.5, 0.5, 0.0f, 0.0f, 0.26f);
-      case THIRD_PERSON_LEFT_HAND, THIRD_PERSON_RIGHT_HAND ->
-          centredPose(matrices, 0.5, 0.45, 0.5, 20.0f, 200.0f, 0.16f);
-      case FIRST_PERSON_LEFT_HAND -> centredPose(matrices, 0.45, 0.6, 0.4, 0.0f, 160.0f, 0.09f);
-      case FIRST_PERSON_RIGHT_HAND -> centredPose(matrices, 0.55, 0.6, 0.4, 0.0f, 200.0f, 0.09f);
-      default -> centredPose(matrices, 0.5, 0.3, 0.5, 0.0f, 0.0f, 0.20f);
-    }
+    matrices.translate(ITEM_CENTRE, ITEM_CENTRE, ITEM_CENTRE);
+    matrices.scale(HOUSE_TO_BLOCK_SCALE, HOUSE_TO_BLOCK_SCALE, HOUSE_TO_BLOCK_SCALE);
+    matrices.translate(0.0, -HOUSE_HALF_HEIGHT, 0.0);
 
     final BakedGeoModel bakedModel =
         renderer.getGeoModel().getBakedModel(renderer.getGeoModel().getModelResource(dummyEntity));
@@ -74,17 +66,5 @@ public class DogHouseItemRenderer implements BuiltinItemRendererRegistry.Dynamic
         0xFFFFFFFF);
 
     matrices.pop();
-  }
-
-  private static void centredPose(
-      final MatrixStack matrices,
-      final double x,
-      final double y,
-      final double z,
-      final float xRotation,
-      final float yRotation,
-      final float scale) {
-    ItemRenderTransforms.applyDisplayPose(matrices, x, y, z, xRotation, yRotation, scale);
-    matrices.translate(-CENTRE_X, -CENTRE_Y, -CENTRE_Z);
   }
 }
