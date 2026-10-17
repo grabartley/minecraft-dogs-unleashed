@@ -2,11 +2,11 @@ package com.grahambartley.dogsunleashed.pet;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
+import com.grahambartley.dogsunleashed.entity.DogStandingSpot;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.Comparator;
 import java.util.function.Predicate;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.Dismounting;
 import net.minecraft.entity.Entity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
@@ -232,18 +232,9 @@ public final class PetLocationService {
   @Nullable
   private static Vec3d findSafeSummonPosition(
       ServerWorld world, BlockPos center, UnleashedDogEntity dog) {
-    for (final BlockPos basePos : BlockPos.iterateOutwards(snapToGround(world, center), 2, 1, 2)) {
-      if (world.getFluidState(basePos).isStill()) {
-        continue;
-      }
-
-      final Vec3d standPos = Dismounting.findRespawnPos(dog.getType(), world, basePos, false);
-      if (standPos != null) {
-        return standPos;
-      }
-    }
-
-    return null;
+    return DogStandingSpot.firstSafe(
+            world, dog, BlockPos.iterateOutwards(snapToGround(world, center), 2, 1, 2))
+        .orElse(null);
   }
 
   private static BlockPos snapToGround(ServerWorld world, BlockPos center) {

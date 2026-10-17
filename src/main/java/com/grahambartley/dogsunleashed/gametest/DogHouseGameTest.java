@@ -41,11 +41,12 @@ import net.minecraft.util.math.Vec3d;
 
 public final class DogHouseGameTest implements FabricGameTest {
 
-  private static final BlockPos REL_ORIGIN = new BlockPos(1, 2, 1);
+  private static final BlockPos REL_ORIGIN = new BlockPos(2, 2, 2);
   private static final Direction FACING = Direction.NORTH;
   private static final double ROOF_SLAB_TOP_IN_CELL = 6.0 / 16.0;
   private static final double CUSHION_TOP = 4.0 / 16.0;
-  private static final double WALK_AWAY_DISTANCE = 1.5;
+  private static final double WALK_AWAY_DISTANCE = 1.0;
+  private static final double CARPET_HEIGHT = 1.0 / 16.0;
 
   @BeforeBatch(batchId = "dog-house")
   public void beforeBatch(final ServerWorld world) {
@@ -187,15 +188,16 @@ public final class DogHouseGameTest implements FabricGameTest {
             roofCell.getZ() + 0.5f);
     dropped.setVelocity(0, 0, 0);
 
-    context.runAtTick(
-        50,
+    context.runAtEveryTick(
         () -> {
-          final double restingY = context.getRelative(dropped.getPos()).y;
+          final double itemY = context.getRelative(dropped.getPos()).y;
           context.assertTrue(
-              dropped.isOnGround() && restingY > roofCell.getY() + ROOF_SLAB_TOP_IN_CELL,
-              "Something dropped on the roof should rest on it, not fall inside; rested at y="
-                  + restingY);
-          context.complete();
+              itemY > roofCell.getY() + ROOF_SLAB_TOP_IN_CELL,
+              "Something dropped on the roof should stay on it, not fall inside; fell to y="
+                  + itemY);
+          if (dropped.isOnGround()) {
+            context.complete();
+          }
         });
   }
 
@@ -243,40 +245,82 @@ public final class DogHouseGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-house", tickLimit = 40)
-  public void aDogThatWakesInAHouseStepsOntoTheDoorstepAndCanWalkAway(final TestContext context) {
+  public void aDogThatWakesInAHouseStepsOntoTheDoorstep(final TestContext context) {
     placeHouse(context);
     final UnleashedDogEntity dog = sleepingDog(context, REL_ORIGIN);
     dog.getSleepController().markManuallyWoken();
     dog.wakeUp();
 
+    assertSteppedOut(context, dog);
     context.assertTrue(
         context.getRelative(dog.getPos()).z < REL_ORIGIN.getZ(),
-        "A dog waking in a house should step out in front of the door");
-    context.assertTrue(
-        context.getWorld().isSpaceEmpty(dog, dog.getBoundingBox()),
-        "A dog on the doorstep should not be wedged in anything");
-    final double startX = dog.getX();
-    dog.move(MovementType.SELF, new Vec3d(WALK_AWAY_DISTANCE, 0.0, 0.0));
-    context.assertTrue(
-        dog.getX() - startX > WALK_AWAY_DISTANCE - 1.0e-6,
-        "A dog on the doorstep should be free to walk away, moved " + (dog.getX() - startX));
+        "With nothing in the way, a waking dog should step out in front of the door");
     context.complete();
   }
 
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-house", tickLimit = 40)
-  public void aDogThatWakesInAHouseWithABlockedDoorstepStaysInside(final TestContext context) {
+  public void aDogThatWakesInAHouseStepsOntoACarpetedDoorstep(final TestContext context) {
+    placeHouse(context);
+    context.setBlockState(REL_ORIGIN.offset(FACING), Blocks.RED_CARPET);
+    context.setBlockState(REL_ORIGIN.add(1, 0, 0).offset(FACING), Blocks.RED_CARPET);
+    final UnleashedDogEntity dog = sleepingDog(context, REL_ORIGIN);
+    dog.getSleepController().markManuallyWoken();
+    dog.wakeUp();
+
+    assertSteppedOut(context, dog);
+    context.assertTrue(
+        context.getRelative(dog.getPos()).z < REL_ORIGIN.getZ()
+            && Math.abs(context.getRelative(dog.getPos()).y - (REL_ORIGIN.getY() + CARPET_HEIGHT))
+                < 1.0e-6,
+        "A waking dog should stand on top of a carpet in front of the door, was at "
+            + context.getRelative(dog.getPos()));
+    context.complete();
+  }
+
+  @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-house", tickLimit = 40)
+  public void aDogThatWakesInAHouseWithABlockedDoorstepStepsOutBesideIt(final TestContext context) {
     placeHouse(context);
     context.setBlockState(REL_ORIGIN.offset(FACING), Blocks.STONE);
     context.setBlockState(REL_ORIGIN.add(1, 0, 0).offset(FACING), Blocks.STONE);
     final UnleashedDogEntity dog = sleepingDog(context, REL_ORIGIN);
-    final Vec3d asleepAt = dog.getPos();
     dog.getSleepController().markManuallyWoken();
     dog.wakeUp();
 
-    context.assertTrue(
-        dog.getPos().squaredDistanceTo(asleepAt) < 1.0e-6,
-        "A dog should not be pushed into a blocked doorstep when it wakes");
+    assertSteppedOut(context, dog);
     context.complete();
+  }
+
+  @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-house", tickLimit = 40)
+  public void unassigningASleepingDogStepsItOutOfTheHouse(final TestContext context) {
+    placeHouse(context);
+    final UnleashedDogEntity dog = sleepingDog(context, REL_ORIGIN);
+    dog.getSleepController().clearAssignedBed();
+
+    assertSteppedOut(context, dog);
+    context.complete();
+  }
+
+  private static void assertSteppedOut(final TestContext context, final UnleashedDogEntity dog) {
+    final BlockPos absOrigin = context.getAbsolutePos(REL_ORIGIN);
+    context.assertFalse(dog.isSleepingInBed(), "The dog should be awake");
+    context.assertFalse(
+        DogHouseLayout.cellsOf(absOrigin, FACING).contains(dog.getBlockPos()),
+        "A waking dog should end up outside the house, was at "
+            + context.getRelative(dog.getPos()));
+    context.assertTrue(
+        context.getWorld().isSpaceEmpty(dog, dog.getBoundingBox()),
+        "A dog that stepped out should not be wedged in anything");
+    final Vec3d middle = Vec3d.ofBottomCenter(absOrigin).add(0.5, 0.0, 0.5);
+    final Vec3d away =
+        new Vec3d(dog.getX() - middle.x, 0.0, dog.getZ() - middle.z)
+            .normalize()
+            .multiply(WALK_AWAY_DISTANCE);
+    final Vec3d start = dog.getPos();
+    dog.move(MovementType.SELF, away);
+    context.assertTrue(
+        dog.getPos().distanceTo(start) > WALK_AWAY_DISTANCE - 1.0e-6,
+        "A dog that stepped out should be free to walk away, moved "
+            + dog.getPos().distanceTo(start));
   }
 
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-house", tickLimit = 60)

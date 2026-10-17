@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.block;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -37,8 +38,25 @@ public final class DogHouseLayout {
     return footprintMiddle(origin, facing).add(towardDoor(facing, CUSHION_TOWARD_DOOR));
   }
 
-  public static Vec3d doorstep(final BlockPos origin, final Direction facing) {
-    return footprintMiddle(origin, facing).add(towardDoor(facing, MIDDLE_TO_DOORSTEP));
+  public static List<BlockPos> wakeCells(final BlockPos origin, final Direction facing) {
+    final List<BlockPos> footprint = cellsOf(origin, facing);
+    final Vec3d doorstep =
+        footprintMiddle(origin, facing).add(towardDoor(facing, MIDDLE_TO_DOORSTEP));
+    final List<BlockPos> ring = new ArrayList<>();
+    for (final BlockPos cell : footprint) {
+      if (cell.getY() != origin.getY()) {
+        continue;
+      }
+      for (final BlockPos neighbour : BlockPos.iterate(cell.add(-1, 0, -1), cell.add(1, 0, 1))) {
+        final BlockPos candidate = neighbour.toImmutable();
+        if (!footprint.contains(candidate) && !ring.contains(candidate)) {
+          ring.add(candidate);
+        }
+      }
+    }
+    ring.sort(
+        Comparator.comparingDouble(cell -> Vec3d.ofBottomCenter(cell).squaredDistanceTo(doorstep)));
+    return List.copyOf(ring);
   }
 
   private static Vec3d footprintMiddle(final BlockPos origin, final Direction facing) {

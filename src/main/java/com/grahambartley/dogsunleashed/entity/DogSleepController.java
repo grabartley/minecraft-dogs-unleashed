@@ -6,6 +6,7 @@ import com.grahambartley.dogsunleashed.advancement.DogSleptInBedCriterion;
 import com.grahambartley.dogsunleashed.block.DogSleepPose;
 import com.grahambartley.dogsunleashed.block.DogSleepSpotAnchor;
 import com.grahambartley.dogsunleashed.entity.goal.DogSleepWindow;
+import java.util.Optional;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
@@ -29,8 +30,9 @@ public final class DogSleepController {
   }
 
   public void clearAssignedBed() {
+    final Optional<BlockPos> leaving = this.dog.getAssignedBedPos();
     this.dog.setAssignedBedPos(null);
-    this.wakeUp();
+    this.wakeFrom(leaving);
   }
 
   public boolean canSleepNow() {
@@ -93,34 +95,27 @@ public final class DogSleepController {
   }
 
   void wakeUp() {
-    awardHouseComfort();
-    stepOutOfBed();
+    this.wakeFrom(this.dog.getAssignedBedPos());
+  }
+
+  private void wakeFrom(final Optional<BlockPos> bedPos) {
+    if (this.dog.isSleepingInBed() && !this.dog.getWorld().isClient) {
+      awardHouseComfort();
+      bedPos.ifPresent(this::stepOutOf);
+    }
     this.dog.setNoGravity(false);
     this.dog.setSleepingInBed(false);
     this.dog.setCommandedToSleep(false);
     this.dog.getAmbienceEffects().releaseBirthWakeHearts();
   }
 
-  private void stepOutOfBed() {
-    if (!this.dog.isSleepingInBed() || this.dog.getWorld().isClient) {
-      return;
-    }
-    this.dog
-        .getAssignedBedPos()
-        .flatMap(pos -> DogSleepSpotAnchor.wakeSpotFor(this.dog.getWorld(), pos))
-        .filter(
-            spot ->
-                this.dog
-                    .getWorld()
-                    .isSpaceEmpty(
-                        this.dog, this.dog.getDimensions(this.dog.getPose()).getBoxAt(spot)))
-        .ifPresent(spot -> this.dog.refreshPositionAfterTeleport(spot));
+  private void stepOutOf(final BlockPos bedPos) {
+    final World world = this.dog.getWorld();
+    DogStandingSpot.firstSafe(world, this.dog, DogSleepSpotAnchor.wakeCellsFor(world, bedPos))
+        .ifPresent(this.dog::refreshPositionAfterTeleport);
   }
 
   private void awardHouseComfort() {
-    if (!this.dog.isSleepingInBed() || this.dog.getWorld().isClient) {
-      return;
-    }
     this.dog
         .getAssignedBedPos()
         .filter(pos -> this.dog.getWorld().getBlockState(pos).isOf(ModBlocks.DOG_HOUSE))

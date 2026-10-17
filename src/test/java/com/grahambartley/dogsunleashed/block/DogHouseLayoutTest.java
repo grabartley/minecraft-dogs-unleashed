@@ -87,30 +87,37 @@ class DogHouseLayoutTest {
   @EnumSource(
       value = Direction.class,
       names = {"NORTH", "SOUTH", "EAST", "WEST"})
-  @DisplayName("the doorstep is centred across the doorway in the row of cells in front of it")
-  void theDoorstepIsInFrontOfTheDoorway(final Direction facing) {
-    final Vec3d doorstep = DogHouseLayout.doorstep(ORIGIN, facing);
-    final Vec3d cushion = DogHouseLayout.cushionCentre(ORIGIN, facing);
-    final Direction right = facing.rotateYClockwise();
+  @DisplayName("a waking dog tries the two cells in front of the door first")
+  void wakeCellsStartAtTheDoor(final Direction facing) {
+    final List<BlockPos> wakeCells = DogHouseLayout.wakeCells(ORIGIN, facing);
     final BlockPos frontLeft =
         ORIGIN.add(DogHouseLayout.offsetFromOrigin(DogHousePart.FRONT_LEFT_LOWER, facing));
     final BlockPos frontRight =
         ORIGIN.add(DogHouseLayout.offsetFromOrigin(DogHousePart.FRONT_RIGHT_LOWER, facing));
-    final double halfDog = 0.4;
 
     assertEquals(
-        frontLeft.offset(facing),
-        BlockPos.ofFloored(doorstep.subtract(Vec3d.of(right.getVector()).multiply(halfDog))));
-    assertEquals(
-        frontRight.offset(facing),
-        BlockPos.ofFloored(doorstep.add(Vec3d.of(right.getVector()).multiply(halfDog))));
-    assertFalse(
-        DogHouseLayout.cellsOf(ORIGIN, facing)
-            .contains(
-                BlockPos.ofFloored(
-                    doorstep.subtract(Vec3d.of(facing.getVector()).multiply(halfDog)))),
-        "a dog-sized box on the doorstep should clear the front wall");
-    assertEquals(cushion.y, doorstep.y, 1.0e-9, "the doorstep is at floor level");
+        Set.of(frontLeft.offset(facing), frontRight.offset(facing)),
+        Set.copyOf(wakeCells.subList(0, 2)));
+  }
+
+  @ParameterizedTest(name = "facing {0}")
+  @EnumSource(
+      value = Direction.class,
+      names = {"NORTH", "SOUTH", "EAST", "WEST"})
+  @DisplayName("the wake cells are every floor cell around the house and none inside it")
+  void wakeCellsRingTheHouse(final Direction facing) {
+    final List<BlockPos> wakeCells = DogHouseLayout.wakeCells(ORIGIN, facing);
+    final List<BlockPos> footprint = DogHouseLayout.cellsOf(ORIGIN, facing);
+    final int ringAroundTwoByTwo = 12;
+
+    assertEquals(ringAroundTwoByTwo, Set.copyOf(wakeCells).size());
+    for (final BlockPos cell : wakeCells) {
+      assertEquals(ORIGIN.getY(), cell.getY(), "wake cells sit on the floor of the house");
+      assertFalse(footprint.contains(cell), cell + " is inside the house");
+      assertTrue(
+          footprint.stream().anyMatch(inside -> touches(inside, cell)),
+          cell + " should touch the house");
+    }
   }
 
   @ParameterizedTest(name = "facing {0}")
@@ -143,5 +150,10 @@ class DogHouseLayoutTest {
   private static int maxOf(
       final List<BlockPos> cells, final java.util.function.ToIntFunction<BlockPos> axis) {
     return cells.stream().mapToInt(axis).max().orElseThrow();
+  }
+
+  private static boolean touches(final BlockPos a, final BlockPos b) {
+    return a.getY() == b.getY()
+        && Math.max(Math.abs(a.getX() - b.getX()), Math.abs(a.getZ() - b.getZ())) == 1;
   }
 }
