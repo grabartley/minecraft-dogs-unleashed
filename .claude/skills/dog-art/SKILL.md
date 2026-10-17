@@ -159,6 +159,13 @@ assumption that produced it: the reference is always the shipped asset on `main`
   they grow from so they follow every animation (ADR 0005), then list them in the profile.
 - Rigs do not share a skeleton, a UV layout or a texture sheet, and no change may introduce one
   (epic 413 rules that out). Cross-breed looks come from pigment and part swaps, not mesh blending.
+- A profile's `pupils` are two texels on the coat sheet, not bones: the painted pupils on the
+  head's face, where undead dogs glow. `faces` prints which face each one lands on and `uvmap`
+  outlines them in magenta. Moving the eyes in a repaint means moving these two texels with
+  them; `UndeadDogEyesTest` fails when a pupil leaves the head or misses the dark eye pixels.
+- In game, `SlotRegions` derives each slot's texel rectangles from the baked rig. That is the
+  authority for code that paints onto a slot; `faces` is the authoring view of the same thing,
+  and both read the same GeckoLib layout.
 - Collar textures are a single flat white tinted at render time. Overlays are translucent PNGs
   over the coat's own UV.
 - Several shipped faces are partly or fully transparent on purpose: eyelid and eye cubes are

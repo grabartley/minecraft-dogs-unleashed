@@ -28,7 +28,11 @@ def load_profile(path):
 
 
 def slots_by_bone(profile):
-    return {bone: slot for slot, bones in profile.items() if isinstance(bones, list) for bone in bones}
+    return {bone: slot for slot, bones in profile.items() if isinstance(bones, list) for bone in bones if isinstance(bone, str)}
+
+
+def pupils(profile):
+    return [tuple(texel) for texel in profile.get("pupils", [])]
 
 
 def hidden_bones(profile, asleep=False, fur_stage="natural"):

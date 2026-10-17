@@ -82,6 +82,12 @@ class GeometryFollowsGeckoLib(unittest.TestCase):
         corners, _ = faces_of(cube)["up"]
         self.assertTrue(all(abs(p[0] + 2) < 1e-6 and p[1] < -1.9 for p in corners))
 
+    def test_pupil_texels_are_not_bones(self):
+        profile = {"head": ["skull"], "eyes": ["lid"], "pupils": [[7, 47], [10, 47]]}
+        self.assertEqual(bake.slots_by_bone(profile), {"skull": "head", "lid": "eyes"})
+        self.assertEqual(bake.pupils(profile), [(7, 47), (10, 47)])
+        self.assertEqual(bake.pupils({}), [])
+
     def test_eyes_and_fur_bones_hide_like_the_client(self):
         profile = {"eyes": ["lid"], "fur_shaggy": ["tuft"], "fur_overgrown": ["mane"]}
         self.assertEqual(bake.hidden_bones(profile), {"lid", "tuft", "mane"})

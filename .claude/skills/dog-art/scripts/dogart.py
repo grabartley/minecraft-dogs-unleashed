@@ -70,11 +70,19 @@ def cmd_turntable(args):
     print(f"wrote {args.out} {w}x{h} views={args.views}")
 
 
+def pupil_faces(cubes, texel, scale_u, scale_v):
+    x, y = texel
+    return [f"{cube['bone']}[{cube['index']}].{face}" for cube in cubes for face, _, patch in cube["faces"]
+            if bake.inside(bake.exact_rect(patch, scale_u, scale_v), x + 0.5, y + 0.5)]
+
+
 def cmd_faces(args):
     tex_w, tex_h, cubes = rig(args, hide=False)
     width, height, _ = pngio.read_png(args.png)
     scale_u, scale_v = width / tex_w, height / tex_h
     print(f"texture {width}x{height} png, geo uv grid {tex_w}x{tex_h}, {scale_u:g} px per uv unit")
+    for texel in bake.pupils(profile_for(args)):
+        print(f"pupil px {texel[0]},{texel[1]} on {', '.join(pupil_faces(cubes, texel, scale_u, scale_v)) or 'no face'}")
     by_slot = defaultdict(list)
     for cube in cubes:
         by_slot[cube["slot"] or "(unslotted)"].append(cube)
@@ -113,8 +121,10 @@ def cmd_uvmap(args):
         for _, _, patch in cube["faces"]:
             x0, y0, x1, y1 = bake.pixel_rect(patch, scale_u, scale_v)
             outline(image, x0 * zoom, y0 * zoom, x1 * zoom - 1, y1 * zoom - 1, colour + (255,))
+    for x, y in bake.pupils(profile_for(args)):
+        outline(image, x * zoom, y * zoom, (x + 1) * zoom - 1, (y + 1) * zoom - 1, (255, 0, 255, 255))
     pngio.write_png(args.out, width * zoom, height * zoom, image)
-    print(f"wrote {args.out}")
+    print(f"wrote {args.out}, pupils outlined in #FF00FF")
     for slot, colour in sorted(legend.items()):
         print(f"  {slot:18} #{colour[0]:02X}{colour[1]:02X}{colour[2]:02X}")
 
