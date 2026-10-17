@@ -36,9 +36,14 @@ public final class CubeGeometry {
   }
 
   public static List<Face> facesOf(final GeoBone bone) {
+    return facesByCube(bone).stream().flatMap(List::stream).toList();
+  }
+
+  public static List<List<Face>> facesByCube(final GeoBone bone) {
     final RestPose pose = RestPose.of(bone);
-    final List<Face> faces = new ArrayList<>();
+    final List<List<Face>> cubes = new ArrayList<>();
     for (final GeoCube cube : bone.getCubes()) {
+      final List<Face> faces = new ArrayList<>();
       final Vector3f pivot =
           new Vector3f(
               (float) cube.pivot().x / MODEL_UNITS_PER_BLOCK,
@@ -64,8 +69,9 @@ public final class CubeGeometry {
             rotateAroundPivot(new Vector3f(quad.normal()), new Vector3f(), rotation).normalize();
         faces.add(new Face(bone.getName(), corners, us, vs, normal, pose));
       }
+      cubes.add(faces);
     }
-    return faces;
+    return cubes;
   }
 
   public record Face(
@@ -80,13 +86,22 @@ public final class CubeGeometry {
     private final Vector3f min = new Vector3f(Float.POSITIVE_INFINITY);
     private final Vector3f max = new Vector3f(Float.NEGATIVE_INFINITY);
 
-    void include(final Vector3f point) {
+    public void include(final Vector3f point) {
       this.min.min(point);
       this.max.max(point);
     }
 
     public boolean isEmpty() {
       return this.min.x > this.max.x;
+    }
+
+    public boolean contains(final Vector3f point) {
+      return point.x > this.min.x
+          && point.x < this.max.x
+          && point.y > this.min.y
+          && point.y < this.max.y
+          && point.z > this.min.z
+          && point.z < this.max.z;
     }
 
     public boolean containsXy(final float x, final float y) {

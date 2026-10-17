@@ -73,6 +73,7 @@
       "com.grahambartley.dogsunleashed.gametest.ServerConfigEditPermissionGameTest",
       "com.grahambartley.dogsunleashed.gametest.ModEntitiesGameTest",
       "com.grahambartley.dogsunleashed.gametest.PendantItemGameTest",
+      "com.grahambartley.dogsunleashed.gametest.DogArmourGameTest",
       "com.grahambartley.dogsunleashed.gametest.PendantGuardianGameTest",
       "com.grahambartley.dogsunleashed.gametest.PendantLoyaltyGameTest",
       "com.grahambartley.dogsunleashed.gametest.PendantWardingGameTest",

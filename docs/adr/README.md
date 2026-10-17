@@ -10,6 +10,7 @@ Shared engineering standards across all the mods in this family live in [`../sta
 |---|---|
 | [0001](0001-a-linter-forbids-comments-rather-than-a-formatter-stripping-them.md) | A linter forbids comments rather than a formatter stripping them |
 | [0002](0002-pendants-are-placed-from-the-collar-texture-and-ward-at-target-time.md) | Pendants are placed from the collar texture and ward at target time |
+| [0003](0003-dog-armour-is-painted-onto-each-breeds-own-torso-cubes.md) | Dog armour is painted onto each breed's own torso cubes |
 
 ## Writing A New Record
 

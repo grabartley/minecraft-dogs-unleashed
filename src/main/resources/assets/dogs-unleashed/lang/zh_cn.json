@@ -198,6 +198,11 @@
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic.glyph": "饰",
 
   "item.dogs-unleashed.blank_pendant": "空白吊坠",
+  "item.dogs-unleashed.leather_dog_armor": "皮革狗铠",
+  "item.dogs-unleashed.iron_dog_armor": "铁狗铠",
+  "item.dogs-unleashed.gold_dog_armor": "金狗铠",
+  "item.dogs-unleashed.diamond_dog_armor": "钻石狗铠",
+  "item.dogs-unleashed.netherite_dog_armor": "下界合金狗铠",
   "item.dogs-unleashed.warding_undead_pendant": "守护吊坠：亡灵",
   "item.dogs-unleashed.warding_undead_pendant.effect": "你的狗附近的亡灵生物不会攻击它和你",
   "item.dogs-unleashed.warding_arthropod_pendant": "守护吊坠：节肢生物",

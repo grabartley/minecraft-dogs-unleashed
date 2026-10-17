@@ -198,6 +198,11 @@
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic.glyph": "C",
 
   "item.dogs-unleashed.blank_pendant": "Pendentif vierge",
+  "item.dogs-unleashed.leather_dog_armor": "Armure de chien en cuir",
+  "item.dogs-unleashed.iron_dog_armor": "Armure de chien en fer",
+  "item.dogs-unleashed.gold_dog_armor": "Armure de chien en or",
+  "item.dogs-unleashed.diamond_dog_armor": "Armure de chien en diamant",
+  "item.dogs-unleashed.netherite_dog_armor": "Armure de chien en netherite",
   "item.dogs-unleashed.warding_undead_pendant": "Pendentif de protection : morts-vivants",
   "item.dogs-unleashed.warding_undead_pendant.effect": "Les morts-vivants proches de ton chien vous laissent tranquilles",
   "item.dogs-unleashed.warding_arthropod_pendant": "Pendentif de protection : arthropodes",

@@ -198,6 +198,11 @@
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic.glyph": "C",
 
   "item.dogs-unleashed.blank_pendant": "Pingente vazio",
+  "item.dogs-unleashed.leather_dog_armor": "Armadura de couro para cachorro",
+  "item.dogs-unleashed.iron_dog_armor": "Armadura de ferro para cachorro",
+  "item.dogs-unleashed.gold_dog_armor": "Armadura de ouro para cachorro",
+  "item.dogs-unleashed.diamond_dog_armor": "Armadura de diamante para cachorro",
+  "item.dogs-unleashed.netherite_dog_armor": "Armadura de netherita para cachorro",
   "item.dogs-unleashed.warding_undead_pendant": "Pingente de proteção: mortos-vivos",
   "item.dogs-unleashed.warding_undead_pendant.effect": "Mortos-vivos perto do seu cão deixam ele e você em paz",
   "item.dogs-unleashed.warding_arthropod_pendant": "Pingente de proteção: artrópodes",

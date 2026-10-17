@@ -2,9 +2,11 @@ package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModPendantItems;
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
+import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
 import com.grahambartley.dogsunleashed.gametest.util.PendantTestHelper;
 import com.grahambartley.dogsunleashed.item.pendant.PendantType;
+import com.grahambartley.dogsunleashed.screenhandler.DogEquipmentScreenHandler;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -17,6 +19,7 @@ import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.recipe.input.CraftingRecipeInput;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.CustomTestProvider;
 import net.minecraft.test.GameTest;
@@ -28,6 +31,37 @@ public final class PendantItemGameTest implements FabricGameTest {
 
   private static final String BATCH = "pendant-items";
   private static final int TICK_LIMIT = 20;
+
+  @CustomTestProvider
+  public Collection<TestFunction> equipmentScreenTakesEachPendant() {
+    return Arrays.stream(PendantType.values())
+        .map(
+            type ->
+                GeneratedGameTest.of(
+                    BATCH,
+                    "pendantitemgametest.screen." + type.id(),
+                    PendantTestHelper.ARENA,
+                    TICK_LIMIT,
+                    context -> testEquipmentScreen(context, type)))
+        .toList();
+  }
+
+  private static void testEquipmentScreen(final TestContext context, final PendantType type) {
+    final ServerPlayerEntity owner =
+        PendantTestHelper.survivalOwnerAt(context, PendantTestHelper.OWNER_POS);
+    final UnleashedDogEntity dog =
+        PendantTestHelper.dogWearing(context, null, owner, PendantTestHelper.DOG_POS);
+    owner.getInventory().setStack(0, new ItemStack(ModPendantItems.of(type)));
+    final DogEquipmentScreenHandler handler =
+        new DogEquipmentScreenHandler(1, owner.getInventory(), dog);
+
+    handler.quickMove(owner, DogEquipmentScreenHandler.DOG_SLOT_COUNT + 27);
+
+    context.assertTrue(
+        dog.getPendants().worn() == type,
+        "Shift-clicking " + type.id() + " in the equipment screen should hang it on the collar");
+    context.complete();
+  }
 
   @CustomTestProvider
   public Collection<TestFunction> chargingRecipeMakesEachPendant() {

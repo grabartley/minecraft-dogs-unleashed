@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed;
 
 import com.grahambartley.dogsunleashed.config.SyncedServerConfig;
+import com.grahambartley.dogsunleashed.item.armor.DogArmorTier;
 import com.grahambartley.dogsunleashed.network.ModNetworkingClient;
 import com.grahambartley.dogsunleashed.render.DogBedBlockEntityRenderer;
 import com.grahambartley.dogsunleashed.render.DogBedItemRenderer;
@@ -18,16 +19,19 @@ import com.grahambartley.dogsunleashed.render.StickProjectileRenderer;
 import com.grahambartley.dogsunleashed.render.TennisBallBlockEntityRenderer;
 import com.grahambartley.dogsunleashed.render.TennisBallItemRenderer;
 import com.grahambartley.dogsunleashed.render.TennisBallProjectileRenderer;
+import com.grahambartley.dogsunleashed.render.armour.ArmourLook;
 import com.grahambartley.dogsunleashed.render.coat.UndeadCoatTextureReloader;
 import com.grahambartley.dogsunleashed.render.coat.UndeadCoatTextures;
 import com.grahambartley.dogsunleashed.screen.DogEquipmentScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
+import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.resource.ResourceType;
 
 public class DogsUnleashedClient implements ClientModInitializer {
@@ -37,6 +41,10 @@ public class DogsUnleashedClient implements ClientModInitializer {
         ModEntities.TENNIS_BALL_PROJECTILE, TennisBallProjectileRenderer::new);
     EntityRendererRegistry.register(ModEntities.STICK_PROJECTILE, StickProjectileRenderer::new);
     EntityRendererRegistry.register(ModEntities.FRISBEE_PROJECTILE, FrisbeeProjectileRenderer::new);
+    ColorProviderRegistry.ITEM.register(
+        (stack, tintIndex) ->
+            tintIndex > 0 ? -1 : DyedColorComponent.getColor(stack, ArmourLook.UNDYED_LEATHER),
+        ModArmorItems.of(DogArmorTier.LEATHER));
     EntityRendererRegistry.register(ModEntities.HUSKY, DogRenderer::new);
     EntityRendererRegistry.register(ModEntities.DACHSHUND, DogRenderer::new);
     EntityRendererRegistry.register(ModEntities.BEAGLE, DogRenderer::new);
