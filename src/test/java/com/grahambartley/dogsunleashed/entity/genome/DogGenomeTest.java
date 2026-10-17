@@ -60,7 +60,14 @@ class DogGenomeTest {
   @DisplayName("the dominant breed is the largest share with id tie-breaking")
   void dominantBreedIsLargestShare(
       final String label, final List<BreedShare> composition, final UnleashedDogBreed expected) {
-    final DogGenome genome = new DogGenome(composition, 18.0, 0.29, 3.5, UnleashedDogBreed.HUSKY);
+    final DogGenome genome =
+        new DogGenome(
+            composition,
+            18.0,
+            0.29,
+            3.5,
+            DogGenome.BASELINE_FUR_GROWTH_RATE,
+            UnleashedDogBreed.HUSKY);
     assertEquals(expected, genome.dominantBreed());
   }
 
@@ -75,6 +82,7 @@ class DogGenomeTest {
             18.0,
             0.29,
             3.5,
+            DogGenome.BASELINE_FUR_GROWTH_RATE,
             UnleashedDogBreed.HUSKY);
     assertEquals(
         List.of(
@@ -87,7 +95,13 @@ class DogGenomeTest {
   @DisplayName("a genome survives an NBT round trip")
   void genomeSurvivesNbtRoundTrip() {
     final DogGenome genome =
-        new DogGenome(HALF_HUSKY_HALF_BEAGLE, 21.25, 0.301, 4.125, UnleashedDogBreed.HUSKY);
+        new DogGenome(
+            HALF_HUSKY_HALF_BEAGLE,
+            21.25,
+            0.301,
+            4.125,
+            DogGenome.BASELINE_FUR_GROWTH_RATE,
+            UnleashedDogBreed.HUSKY);
     assertEquals(genome, DogGenome.fromNbt(genome.toNbt()));
   }
 
@@ -101,10 +115,43 @@ class DogGenomeTest {
   @DisplayName("unknown breed keys in a stored composition are skipped")
   void unknownBreedKeysAreSkipped() {
     final DogGenome genome =
-        new DogGenome(HALF_HUSKY_HALF_BEAGLE, 21.0, 0.3, 4.0, UnleashedDogBreed.BEAGLE);
+        new DogGenome(
+            HALF_HUSKY_HALF_BEAGLE,
+            21.0,
+            0.3,
+            4.0,
+            DogGenome.BASELINE_FUR_GROWTH_RATE,
+            UnleashedDogBreed.BEAGLE);
     final NbtCompound nbt = genome.toNbt();
     nbt.getCompound(ModNbtKeys.GENOME_COMPOSITION).putFloat("labrador", 0.5f);
     assertEquals(HALF_HUSKY_HALF_BEAGLE, DogGenome.fromNbt(nbt).composition());
+  }
+
+  @Test
+  @DisplayName("a pure genome grows fur at the baseline rate")
+  void pureGenomeHasBaselineFurRate() {
+    assertEquals(
+        DogGenome.BASELINE_FUR_GROWTH_RATE,
+        DogGenome.pure(UnleashedDogBreed.HUSKY).furGrowthRate());
+  }
+
+  @Test
+  @DisplayName("the fur growth rate survives a round trip through NBT")
+  void furGrowthRateRoundTrips() {
+    final DogGenome genome =
+        new DogGenome(HALF_HUSKY_HALF_BEAGLE, 21.0, 0.3, 4.0, 1.04, UnleashedDogBreed.HUSKY);
+    assertEquals(1.04, DogGenome.fromNbt(genome.toNbt()).furGrowthRate(), 1.0e-9);
+  }
+
+  @Test
+  @DisplayName("a genome saved before fur growth existed loads at the baseline rate")
+  void legacyGenomeLoadsBaselineFurRate() {
+    final NbtCompound nbt =
+        new DogGenome(HALF_HUSKY_HALF_BEAGLE, 21.0, 0.3, 4.0, 1.04, UnleashedDogBreed.HUSKY)
+            .toNbt();
+    nbt.remove(ModNbtKeys.GENOME_FUR_GROWTH_RATE);
+    assertEquals(
+        DogGenome.BASELINE_FUR_GROWTH_RATE, DogGenome.fromNbt(nbt).furGrowthRate(), 1.0e-9);
   }
 
   @Test
@@ -118,6 +165,7 @@ class DogGenomeTest {
             18.0,
             0.3,
             3.5,
+            DogGenome.BASELINE_FUR_GROWTH_RATE,
             UnleashedDogBreed.HUSKY);
     final NbtCompound nbt = genome.toNbt();
     nbt.remove(ModNbtKeys.GENOME_VOICE_BREED);

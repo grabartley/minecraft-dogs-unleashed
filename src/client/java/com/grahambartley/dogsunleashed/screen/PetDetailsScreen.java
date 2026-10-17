@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.screen;
 
+import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.variant.DogCoats;
 import com.grahambartley.dogsunleashed.entity.variant.DogRarity;
 import com.grahambartley.dogsunleashed.entity.variant.DogRarityClassifier;
@@ -169,6 +170,18 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
             DogTraitFormat.formatRarity(
                 Text.translatable(rarity.translationKey()).getString(), rarityChance),
             rarity.colorArgb());
+    y =
+        drawInfoLine(
+            context,
+            x,
+            y,
+            "screen.dogs-unleashed.pet_details.fur",
+            DogTraitFormat.formatFur(
+                Text.translatable(DogFurStage.fromOrdinal(pet.furStage()).translationKey())
+                    .getString(),
+                Text.translatable("fur.dogs-unleashed.scuffed").getString(),
+                pet.furScuffed()),
+            VALUE_COLOR);
     y =
         drawInfoLine(
             context,

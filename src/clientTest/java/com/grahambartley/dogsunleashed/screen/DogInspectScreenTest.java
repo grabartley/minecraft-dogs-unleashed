@@ -45,7 +45,7 @@ class DogInspectScreenTest {
         DogInspectScreen.CARD_PADDING
             + DogInspectScreen.PORTRAIT_SIZE
             + 8
-            + 3 * 14
+            + 4 * 14
             + DogStatsPanel.totalHeight();
 
     assertTrue(

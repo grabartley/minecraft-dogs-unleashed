@@ -37,7 +37,10 @@ class ServerConfigPayloadsTest {
                 64,
                 0.5f,
                 0.25f,
-                false)));
+                false,
+                false,
+                250,
+                0)));
   }
 
   @ParameterizedTest(name = "{0}")

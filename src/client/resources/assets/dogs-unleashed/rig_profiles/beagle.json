@@ -1,0 +1,21 @@
+{
+  "torso": [
+    "Torso",
+    "bone"
+  ],
+  "neck": [
+    "pescoco"
+  ],
+  "head": [
+    "head"
+  ],
+  "tail": [
+    "rabo"
+  ],
+  "legs": [
+    "bone11",
+    "bone12",
+    "bone9",
+    "bone4"
+  ]
+}

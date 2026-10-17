@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import org.jetbrains.annotations.Nullable;
 
 public record DogGenome(
@@ -15,7 +16,10 @@ public record DogGenome(
     double maxHealth,
     double movementSpeed,
     double attackDamage,
+    double furGrowthRate,
     UnleashedDogBreed voiceBreed) {
+
+  public static final double BASELINE_FUR_GROWTH_RATE = 1.0;
 
   public DogGenome {
     composition = sortedComposition(composition);
@@ -32,6 +36,7 @@ public record DogGenome(
         attributes.maxHealth(),
         attributes.movementSpeed(),
         attributes.attackDamage(),
+        BASELINE_FUR_GROWTH_RATE,
         breed);
   }
 
@@ -63,6 +68,7 @@ public record DogGenome(
     nbt.putDouble(ModNbtKeys.GENOME_MAX_HEALTH, this.maxHealth);
     nbt.putDouble(ModNbtKeys.GENOME_MOVEMENT_SPEED, this.movementSpeed);
     nbt.putDouble(ModNbtKeys.GENOME_ATTACK_DAMAGE, this.attackDamage);
+    nbt.putDouble(ModNbtKeys.GENOME_FUR_GROWTH_RATE, this.furGrowthRate);
     nbt.putString(ModNbtKeys.GENOME_VOICE_BREED, this.voiceBreed.serializedId());
     return nbt;
   }
@@ -80,6 +86,9 @@ public record DogGenome(
         nbt.getDouble(ModNbtKeys.GENOME_MAX_HEALTH),
         nbt.getDouble(ModNbtKeys.GENOME_MOVEMENT_SPEED),
         nbt.getDouble(ModNbtKeys.GENOME_ATTACK_DAMAGE),
+        nbt.contains(ModNbtKeys.GENOME_FUR_GROWTH_RATE, NbtElement.NUMBER_TYPE)
+            ? nbt.getDouble(ModNbtKeys.GENOME_FUR_GROWTH_RATE)
+            : BASELINE_FUR_GROWTH_RATE,
         voiceBreed != null ? voiceBreed : dominantOf(composition));
   }
 

@@ -1,0 +1,19 @@
+{
+  "torso": [
+    "torso",
+    "bunda"
+  ],
+  "neck": [],
+  "head": [
+    "head"
+  ],
+  "tail": [
+    "tail"
+  ],
+  "legs": [
+    "back_leg_2",
+    "back_leg_3",
+    "front_leg_1",
+    "front_leg_2"
+  ]
+}

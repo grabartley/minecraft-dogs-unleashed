@@ -1,0 +1,21 @@
+{
+  "parent": "dogs-unleashed:best_friend",
+  "display": {
+    "icon": {
+      "id": "minecraft:shears"
+    },
+    "title": {
+      "translate": "advancements.dogs-unleashed.bad_hair_day.title"
+    },
+    "description": {
+      "translate": "advancements.dogs-unleashed.bad_hair_day.description"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "dog_shear_botched": {
+      "trigger": "dogs-unleashed:dog_shear_botched"
+    }
+  },
+  "requirements": [["dog_shear_botched"]]
+}

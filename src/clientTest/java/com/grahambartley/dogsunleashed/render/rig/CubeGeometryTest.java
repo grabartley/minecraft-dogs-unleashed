@@ -96,4 +96,24 @@ class CubeGeometryTest {
     assertEquals(expected.y, actual.y, EPSILON, "y of " + actual);
     assertEquals(expected.z, actual.z, EPSILON, "z of " + actual);
   }
+
+  static Stream<Arguments> detailCubes() {
+    return Stream.of(
+        Arguments.of("goldenretriever", "bone", 0, false),
+        Arguments.of("goldenretriever", "bone", 1, true),
+        Arguments.of("beagle", "bone11", 0, false),
+        Arguments.of("beagle", "bone10", 0, true),
+        Arguments.of("dachshund", "front_leg_1", 0, false),
+        Arguments.of("dachshund", "front_leg_1", 1, true),
+        Arguments.of("husky", "main", 0, false));
+  }
+
+  @ParameterizedTest(name = "{0} {1}#{2} detail={3}")
+  @MethodSource("detailCubes")
+  @DisplayName("tufts and paws on the shipped rigs are detail, bodies and legs are not")
+  void detailCubesOnShippedRigs(
+      final String rig, final String bone, final int cube, final boolean detail) {
+    final GeoBone geoBone = ShippedRigs.model(rig).getBone(bone).orElseThrow();
+    assertEquals(detail, CubeGeometry.isDetail(geoBone.getCubes().get(cube)));
+  }
 }

@@ -106,6 +106,40 @@ public final class DogsUnleashedCommand {
                                                 ctx,
                                                 IntegerArgumentType.getInteger(ctx, "blocks")))))
                     .then(
+                        CommandManager.literal("furgrowth")
+                            .then(
+                                CommandManager.argument("enabled", BoolArgumentType.bool())
+                                    .executes(
+                                        ctx ->
+                                            setFurGrowth(
+                                                ctx, BoolArgumentType.getBool(ctx, "enabled")))))
+                    .then(
+                        CommandManager.literal("furgrowthrate")
+                            .then(
+                                CommandManager.argument(
+                                        "percent",
+                                        IntegerArgumentType.integer(
+                                            DogsUnleashedConfig.FUR_MULTIPLIER_MIN,
+                                            DogsUnleashedConfig.FUR_MULTIPLIER_MAX))
+                                    .executes(
+                                        ctx ->
+                                            setFurGrowthRate(
+                                                ctx,
+                                                IntegerArgumentType.getInteger(ctx, "percent")))))
+                    .then(
+                        CommandManager.literal("badhairdaychance")
+                            .then(
+                                CommandManager.argument(
+                                        "percent",
+                                        IntegerArgumentType.integer(
+                                            DogsUnleashedConfig.FUR_MULTIPLIER_MIN,
+                                            DogsUnleashedConfig.FUR_MULTIPLIER_MAX))
+                                    .executes(
+                                        ctx ->
+                                            setBadHairDayChance(
+                                                ctx,
+                                                IntegerArgumentType.getInteger(ctx, "percent")))))
+                    .then(
                         CommandManager.literal("barkvolume")
                             .then(
                                 CommandManager.argument(
@@ -215,6 +249,15 @@ public final class DogsUnleashedCommand {
             "command.dogs-unleashed.help.autosleeprange",
             DogsUnleashedConfig.AUTO_SLEEP_RANGE_MIN,
             DogsUnleashedConfig.AUTO_SLEEP_RANGE_MAX),
+        Text.translatable("command.dogs-unleashed.help.furgrowth"),
+        Text.translatable(
+            "command.dogs-unleashed.help.furgrowthrate",
+            DogsUnleashedConfig.FUR_MULTIPLIER_MIN,
+            DogsUnleashedConfig.FUR_MULTIPLIER_MAX),
+        Text.translatable(
+            "command.dogs-unleashed.help.badhairdaychance",
+            DogsUnleashedConfig.FUR_MULTIPLIER_MIN,
+            DogsUnleashedConfig.FUR_MULTIPLIER_MAX),
         Text.translatable(
             "command.dogs-unleashed.help.barkvolume",
             DogsUnleashedConfig.VOLUME_MIN,
@@ -272,7 +315,14 @@ public final class DogsUnleashedCommand {
                 String.format(Locale.ROOT, "%.2f", config.barkVolume())),
             Text.translatable(
                 "command.dogs-unleashed.status.howlvolume",
-                String.format(Locale.ROOT, "%.2f", config.howlVolume()))));
+                String.format(Locale.ROOT, "%.2f", config.howlVolume())),
+            Text.translatable("command.dogs-unleashed.status.furgrowth", config.furGrowthEnabled()),
+            Text.translatable(
+                "command.dogs-unleashed.status.furgrowthrate",
+                config.furGrowthRateMultiplierPercent()),
+            Text.translatable(
+                "command.dogs-unleashed.status.badhairdaychance",
+                config.badHairDayChanceMultiplierPercent())));
     return lines;
   }
 
@@ -343,6 +393,36 @@ public final class DogsUnleashedCommand {
         DogsUnleashed.SERVER_CONFIG.withShowDogNames(value),
         "shownames",
         Boolean.toString(value),
+        false);
+  }
+
+  private static int setFurGrowth(
+      final CommandContext<ServerCommandSource> ctx, final boolean value) {
+    return applyUpdate(
+        ctx,
+        DogsUnleashed.SERVER_CONFIG.withFurGrowthEnabled(value),
+        "furgrowth",
+        Boolean.toString(value),
+        false);
+  }
+
+  private static int setFurGrowthRate(
+      final CommandContext<ServerCommandSource> ctx, final int value) {
+    return applyUpdate(
+        ctx,
+        DogsUnleashed.SERVER_CONFIG.withFurGrowthRateMultiplierPercent(value),
+        "furgrowthrate",
+        value + "%",
+        false);
+  }
+
+  private static int setBadHairDayChance(
+      final CommandContext<ServerCommandSource> ctx, final int value) {
+    return applyUpdate(
+        ctx,
+        DogsUnleashed.SERVER_CONFIG.withBadHairDayChanceMultiplierPercent(value),
+        "badhairdaychance",
+        value + "%",
         false);
   }
 

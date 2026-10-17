@@ -18,7 +18,9 @@ record PortraitDogAppearance(
     DyeColor collarColor,
     @Nullable DogGenome genome,
     int coatVariant,
-    int eyeColorVariant) {
+    int eyeColorVariant,
+    int furStage,
+    boolean furScuffed) {
 
   private static final int COLLAR_COLOR_COUNT = DyeColor.values().length;
 
@@ -33,7 +35,9 @@ record PortraitDogAppearance(
         pet.coatVariant(),
         pet.displayBreed().hasEyeColorVariants()
             ? pet.huskyEyeVariant()
-            : UnleashedDogEntity.UNSET_VARIANT);
+            : UnleashedDogEntity.UNSET_VARIANT,
+        pet.furStage(),
+        pet.furScuffed());
   }
 
   void applyTo(final UnleashedDogEntity dog) {
@@ -53,6 +57,8 @@ record PortraitDogAppearance(
     if (this.eyeColorVariant >= 0) {
       nbt.putInt(ModNbtKeys.EYE_COLOR_VARIANT, this.eyeColorVariant);
     }
+    nbt.putInt(ModNbtKeys.FUR_STAGE, this.furStage);
+    nbt.putBoolean(ModNbtKeys.FUR_SCUFFED, this.furScuffed);
     return nbt;
   }
 
@@ -65,6 +71,7 @@ record PortraitDogAppearance(
         pet.maxHealth(),
         pet.movementSpeed(),
         pet.attackDamage(),
+        DogGenome.BASELINE_FUR_GROWTH_RATE,
         DogGenome.dominantOf(pet.composition()));
   }
 }

@@ -28,7 +28,20 @@ class DogsUnleashedConfigTest {
   private static DogsUnleashedConfig configWithSpawnRates(
       final int globalPercent, final Map<String, Integer> breedPercents) {
     return new DogsUnleashedConfig(
-        true, globalPercent, breedPercents, false, true, true, true, 32, 1.0f, 1.5f, true);
+        true,
+        globalPercent,
+        breedPercents,
+        false,
+        true,
+        true,
+        true,
+        32,
+        1.0f,
+        1.5f,
+        true,
+        true,
+        100,
+        100);
   }
 
   @Test
@@ -73,6 +86,29 @@ class DogsUnleashedConfigTest {
     assertEquals(1.0f, defaults.barkVolume());
     assertEquals(1.5f, defaults.howlVolume());
     assertTrue(defaults.showDogNames());
+    assertTrue(defaults.furGrowthEnabled());
+    assertEquals(100, defaults.furGrowthRateMultiplierPercent());
+    assertEquals(100, defaults.badHairDayChanceMultiplierPercent());
+  }
+
+  static Stream<Arguments> furMultiplierClampCases() {
+    return Stream.of(
+        Arguments.of(-5, DogsUnleashedConfig.FUR_MULTIPLIER_MIN),
+        Arguments.of(0, 0),
+        Arguments.of(250, 250),
+        Arguments.of(500, 500),
+        Arguments.of(501, DogsUnleashedConfig.FUR_MULTIPLIER_MAX));
+  }
+
+  @ParameterizedTest(name = "{0} clamps to {1}")
+  @MethodSource("furMultiplierClampCases")
+  @DisplayName("constructor clamps both fur multipliers to [0, 500]")
+  void constructorClampsFurMultipliers(final int input, final int expected) {
+    final DogsUnleashedConfig config =
+        new DogsUnleashedConfig(
+            true, 100, Map.of(), false, true, true, true, 32, 1.0f, 1.5f, true, true, input, input);
+    assertEquals(expected, config.furGrowthRateMultiplierPercent());
+    assertEquals(expected, config.badHairDayChanceMultiplierPercent());
   }
 
   @ParameterizedTest(name = "{0} defaults to 100")
@@ -117,7 +153,10 @@ class DogsUnleashedConfigTest {
             64,
             0.5f,
             0.25f,
-            false);
+            false,
+            false,
+            250,
+            0);
     assertTrue(DogsUnleashedConfig.save(path, original));
     assertTrue(Files.exists(path));
     assertEquals(original, DogsUnleashedConfig.load(path));
@@ -251,7 +290,7 @@ class DogsUnleashedConfigTest {
   void constructorClampsAutoSleepRange(final int input, final int expected) {
     final DogsUnleashedConfig config =
         new DogsUnleashedConfig(
-            true, 100, Map.of(), false, true, true, true, input, 1.0f, 1.5f, true);
+            true, 100, Map.of(), false, true, true, true, input, 1.0f, 1.5f, true, true, 100, 100);
     assertEquals(expected, config.autoSleepRangeBlocks());
   }
 
@@ -272,7 +311,7 @@ class DogsUnleashedConfigTest {
   void constructorClampsVolumes(final float input, final float expected) {
     final DogsUnleashedConfig config =
         new DogsUnleashedConfig(
-            true, 100, Map.of(), false, true, true, true, 32, input, input, true);
+            true, 100, Map.of(), false, true, true, true, 32, input, input, true, true, 100, 100);
     assertEquals(expected, config.barkVolume());
     assertEquals(expected, config.howlVolume());
   }

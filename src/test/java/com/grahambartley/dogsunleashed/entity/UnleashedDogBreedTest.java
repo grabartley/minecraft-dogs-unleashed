@@ -293,4 +293,26 @@ class UnleashedDogBreedTest {
     assertEquals("entity.dogs-unleashed." + id, breed.translationKey());
     assertEquals("animations/" + id + ".animation.json", breed.animationPath());
   }
+
+  static Stream<Arguments> furProfiles() {
+    return Stream.of(
+        Arguments.of(UnleashedDogBreed.HUSKY, DogFurStage.OVERGROWN, 48000, 2),
+        Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, DogFurStage.OVERGROWN, 48000, 2),
+        Arguments.of(UnleashedDogBreed.SHIBA_INU, DogFurStage.OVERGROWN, 60000, 2),
+        Arguments.of(UnleashedDogBreed.BEAGLE, DogFurStage.SHAGGY, 72000, 1),
+        Arguments.of(UnleashedDogBreed.DACHSHUND, DogFurStage.SHAGGY, 72000, 1));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("furProfiles")
+  @DisplayName("each breed grows fur at the documented pace up to its documented cap")
+  void furProfilesMatchTheSpec(
+      final UnleashedDogBreed breed,
+      final DogFurStage maxStage,
+      final int ticksPerStage,
+      final int yieldPerStage) {
+    assertEquals(
+        new UnleashedDogBreed.FurProfile(maxStage, ticksPerStage, yieldPerStage),
+        breed.furProfile());
+  }
 }

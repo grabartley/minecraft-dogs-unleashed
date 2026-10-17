@@ -17,6 +17,8 @@ class CustomCriteriaTest {
         Arguments.of("FetchReturned", FetchReturnedCriterion.ID, "dogs-unleashed:fetch_returned"),
         Arguments.of("DogSleptInBed", DogSleptInBedCriterion.ID, "dogs-unleashed:dog_slept_in_bed"),
         Arguments.of(
+            "DogShearBotched", DogShearBotchedCriterion.ID, "dogs-unleashed:dog_shear_botched"),
+        Arguments.of(
             "PetResurrected", PetResurrectedCriterion.ID, "dogs-unleashed:pet_resurrected"),
         Arguments.of("PetCured", PetCuredCriterion.ID, "dogs-unleashed:pet_cured"));
   }

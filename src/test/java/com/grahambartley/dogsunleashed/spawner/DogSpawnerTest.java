@@ -20,7 +20,7 @@ class DogSpawnerTest {
 
   private static DogsUnleashedConfig configWithBreedRates(final Map<String, Integer> breedRates) {
     return new DogsUnleashedConfig(
-        true, 100, breedRates, true, true, true, true, 32, 1.0f, 1.5f, true);
+        true, 100, breedRates, true, true, true, true, 32, 1.0f, 1.5f, true, true, 100, 100);
   }
 
   @Test

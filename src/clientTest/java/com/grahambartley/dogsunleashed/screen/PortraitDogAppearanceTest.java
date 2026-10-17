@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.ModNbtKeys;
+import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
@@ -250,6 +251,8 @@ class PortraitDogAppearanceTest {
             base.collarColor(),
             base.coatVariant(),
             base.huskyEyeVariant(),
+            base.furStage(),
+            base.furScuffed(),
             base.movementSpeed(),
             base.attackDamage(),
             base.composition());
@@ -287,8 +290,42 @@ class PortraitDogAppearanceTest {
         collarColorId,
         coatVariant,
         eyeVariant,
+        1,
+        false,
         MOVEMENT_SPEED,
         ATTACK_DAMAGE,
         composition);
+  }
+
+  @Test
+  @DisplayName("the portrait dog is given the pet's fur stage and scuffed flag")
+  void nbtCarriesFur() {
+    final PetSyncData base = pet(UnleashedDogBreed.HUSKY, List.of());
+    final PetSyncData overgrown =
+        new PetSyncData(
+            base.petId(),
+            base.breed(),
+            base.name(),
+            base.health(),
+            base.maxHealth(),
+            base.posX(),
+            base.posY(),
+            base.posZ(),
+            base.dimension(),
+            base.lifeState(),
+            base.baby(),
+            base.collarColor(),
+            base.coatVariant(),
+            base.huskyEyeVariant(),
+            DogFurStage.OVERGROWN.ordinal(),
+            true,
+            base.movementSpeed(),
+            base.attackDamage(),
+            base.composition());
+
+    final NbtCompound nbt = PortraitDogAppearance.of(overgrown).toNbt();
+
+    assertEquals(DogFurStage.OVERGROWN.ordinal(), nbt.getInt(ModNbtKeys.FUR_STAGE));
+    assertTrue(nbt.getBoolean(ModNbtKeys.FUR_SCUFFED));
   }
 }

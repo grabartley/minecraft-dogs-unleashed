@@ -52,6 +52,12 @@ public class ModItems {
           Identifier.of(DogsUnleashed.MOD_ID, "dog_house"),
           new DogHouseItem(ModBlocks.DOG_HOUSE, new Item.Settings()));
 
+  public static final Item DOG_FUR =
+      Registry.register(
+          Registries.ITEM,
+          Identifier.of(DogsUnleashed.MOD_ID, "dog_fur"),
+          new Item(new Item.Settings()));
+
   public static final Item DOG_TREAT =
       Registry.register(
           Registries.ITEM,
@@ -130,6 +136,8 @@ public class ModItems {
         .register(entries -> entries.add(TENNIS_BALL));
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.FOOD_AND_DRINK)
         .register(entries -> entries.add(DOG_TREAT));
+    ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS)
+        .register(entries -> entries.add(DOG_FUR));
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS)
         .register(
             entries -> {

@@ -71,6 +71,9 @@ public final class ServerConfigPayloads {
     buf.writeFloat(config.barkVolume());
     buf.writeFloat(config.howlVolume());
     buf.writeBoolean(config.showDogNames());
+    buf.writeBoolean(config.furGrowthEnabled());
+    buf.writeVarInt(config.furGrowthRateMultiplierPercent());
+    buf.writeVarInt(config.badHairDayChanceMultiplierPercent());
   }
 
   private static DogsUnleashedConfig readConfig(final RegistryByteBuf buf) {
@@ -85,6 +88,9 @@ public final class ServerConfigPayloads {
         buf.readInt(),
         buf.readFloat(),
         buf.readFloat(),
-        buf.readBoolean());
+        buf.readBoolean(),
+        buf.readBoolean(),
+        buf.readVarInt(),
+        buf.readVarInt());
   }
 }

@@ -44,6 +44,8 @@ final class PayloadTestFixtures {
         1,
         2,
         0,
+        1,
+        false,
         0.29f,
         3.5f,
         composition);

@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
+import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
@@ -34,6 +35,8 @@ class PetDataTest {
   private static final boolean BASE_BABY = false;
   private static final int BASE_COAT = UnleashedDogEntity.UNSET_VARIANT;
   private static final int BASE_EYE = UnleashedDogEntity.UNSET_VARIANT;
+  private static final int BASE_FUR = DogFurStage.NATURAL.ordinal();
+  private static final boolean BASE_SCUFFED = false;
 
   private static int baseCollar() {
     return DyeColor.RED.getId();
@@ -63,9 +66,11 @@ class PetDataTest {
       final boolean baby,
       final int collar,
       final int coat,
-      final int eye) {
+      final int eye,
+      final int fur,
+      final boolean scuffed) {
     assertTrue(
-        baselinePet().differsFrom(health, pos, dimension, baby, collar, coat, eye),
+        baselinePet().differsFrom(health, pos, dimension, baby, collar, coat, eye, fur, scuffed),
         "expected differsFrom to flag a change in " + changedField);
   }
 
@@ -79,7 +84,9 @@ class PetDataTest {
             BASE_BABY,
             baseCollar(),
             BASE_COAT,
-            BASE_EYE),
+            BASE_EYE,
+            BASE_FUR,
+            BASE_SCUFFED),
         Arguments.of(
             "position",
             BASE_HEALTH,
@@ -88,7 +95,9 @@ class PetDataTest {
             BASE_BABY,
             baseCollar(),
             BASE_COAT,
-            BASE_EYE),
+            BASE_EYE,
+            BASE_FUR,
+            BASE_SCUFFED),
         Arguments.of(
             "dimension",
             BASE_HEALTH,
@@ -97,7 +106,9 @@ class PetDataTest {
             BASE_BABY,
             baseCollar(),
             BASE_COAT,
-            BASE_EYE),
+            BASE_EYE,
+            BASE_FUR,
+            BASE_SCUFFED),
         Arguments.of(
             "dimension going null",
             BASE_HEALTH,
@@ -106,9 +117,20 @@ class PetDataTest {
             BASE_BABY,
             baseCollar(),
             BASE_COAT,
-            BASE_EYE),
+            BASE_EYE,
+            BASE_FUR,
+            BASE_SCUFFED),
         Arguments.of(
-            "baby", BASE_HEALTH, BASE_POS, BASE_DIM, !BASE_BABY, baseCollar(), BASE_COAT, BASE_EYE),
+            "baby",
+            BASE_HEALTH,
+            BASE_POS,
+            BASE_DIM,
+            !BASE_BABY,
+            baseCollar(),
+            BASE_COAT,
+            BASE_EYE,
+            BASE_FUR,
+            BASE_SCUFFED),
         Arguments.of(
             "collarColor",
             BASE_HEALTH,
@@ -117,7 +139,9 @@ class PetDataTest {
             BASE_BABY,
             baseCollar() + 1,
             BASE_COAT,
-            BASE_EYE),
+            BASE_EYE,
+            BASE_FUR,
+            BASE_SCUFFED),
         Arguments.of(
             "coatVariant",
             BASE_HEALTH,
@@ -126,7 +150,9 @@ class PetDataTest {
             BASE_BABY,
             baseCollar(),
             BASE_COAT + 1,
-            BASE_EYE),
+            BASE_EYE,
+            BASE_FUR,
+            BASE_SCUFFED),
         Arguments.of(
             "huskyEyeVariant",
             BASE_HEALTH,
@@ -135,7 +161,31 @@ class PetDataTest {
             BASE_BABY,
             baseCollar(),
             BASE_COAT,
-            BASE_EYE + 1));
+            BASE_EYE + 1,
+            BASE_FUR,
+            BASE_SCUFFED),
+        Arguments.of(
+            "furStage",
+            BASE_HEALTH,
+            BASE_POS,
+            BASE_DIM,
+            BASE_BABY,
+            baseCollar(),
+            BASE_COAT,
+            BASE_EYE,
+            DogFurStage.OVERGROWN.ordinal(),
+            BASE_SCUFFED),
+        Arguments.of(
+            "furScuffed",
+            BASE_HEALTH,
+            BASE_POS,
+            BASE_DIM,
+            BASE_BABY,
+            baseCollar(),
+            BASE_COAT,
+            BASE_EYE,
+            BASE_FUR,
+            !BASE_SCUFFED));
   }
 
   @ParameterizedTest(name = "differsFrom is false when the position is an equal {0}")
@@ -145,7 +195,15 @@ class PetDataTest {
     assertFalse(
         baselinePet()
             .differsFrom(
-                BASE_HEALTH, equalPos, BASE_DIM, BASE_BABY, baseCollar(), BASE_COAT, BASE_EYE),
+                BASE_HEALTH,
+                equalPos,
+                BASE_DIM,
+                BASE_BABY,
+                baseCollar(),
+                BASE_COAT,
+                BASE_EYE,
+                BASE_FUR,
+                BASE_SCUFFED),
         "expected differsFrom to report no change for an unchanged pet (" + label + ")");
   }
 
@@ -153,6 +211,32 @@ class PetDataTest {
     return Stream.of(
         Arguments.of("same instance", BASE_POS),
         Arguments.of("equal-by-value instance", new BlockPos(10, 64, -20)));
+  }
+
+  @Test
+  @DisplayName("the portrait fur stage and scuffed flag survive a save and reload")
+  void portraitFurRoundTrips() {
+    final NbtCompound nbt = baselinePet().toNbt();
+    nbt.putInt(ModNbtKeys.PORTRAIT_FUR_STAGE, DogFurStage.OVERGROWN.ordinal());
+    nbt.putBoolean(ModNbtKeys.PORTRAIT_FUR_SCUFFED, true);
+
+    final PetData reloaded = PetData.fromNbt(PetData.fromNbt(nbt).toNbt());
+
+    assertEquals(DogFurStage.OVERGROWN.ordinal(), reloaded.getFurStage());
+    assertTrue(reloaded.isFurScuffed());
+  }
+
+  @Test
+  @DisplayName("a pet saved before fur growth existed loads with a natural, unscuffed coat")
+  void legacyPetHasNaturalFur() {
+    final NbtCompound nbt = baselinePet().toNbt();
+    nbt.remove(ModNbtKeys.PORTRAIT_FUR_STAGE);
+    nbt.remove(ModNbtKeys.PORTRAIT_FUR_SCUFFED);
+
+    final PetData reloaded = PetData.fromNbt(nbt);
+
+    assertEquals(DogFurStage.NATURAL.ordinal(), reloaded.getFurStage());
+    assertFalse(reloaded.isFurScuffed());
   }
 
   private static final UUID PARENT_A = UUID.nameUUIDFromBytes("parent-a".getBytes());
@@ -323,6 +407,7 @@ class PetDataTest {
             21.5,
             0.295,
             4.1,
+            DogGenome.BASELINE_FUR_GROWTH_RATE,
             UnleashedDogBreed.BEAGLE);
     final NbtCompound nbt = baselinePet().toNbt();
     nbt.put(ModNbtKeys.GENOME, genome.toNbt());

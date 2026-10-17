@@ -78,6 +78,8 @@ class DogStatsPanelTest {
         0,
         0,
         0,
+        1,
+        false,
         movementSpeed,
         attackDamage,
         List.of());

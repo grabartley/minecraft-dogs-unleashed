@@ -29,7 +29,15 @@ public final class PetSyncRefresher {
           final int newCoat = PetData.coatVariantOf(dog);
           final int newHuskyEye = PetData.huskyEyeVariantOf(dog);
           if (pet.differsFrom(
-              newHealth, newPos, newDim, newBaby, newCollar, newCoat, newHuskyEye)) {
+              newHealth,
+              newPos,
+              newDim,
+              newBaby,
+              newCollar,
+              newCoat,
+              newHuskyEye,
+              dog.getFur().stage().ordinal(),
+              dog.getFur().isScuffed())) {
             pet.setHealth(newHealth);
             pet.setLastKnownPosition(newPos);
             pet.setDimension(newDim);

@@ -44,6 +44,9 @@ public final class DogsUnleashedConfigScreen extends Screen {
   private float barkVolume;
   private float howlVolume;
   private boolean showDogNames;
+  private boolean furGrowthEnabled;
+  private int furGrowthRateMultiplierPercent;
+  private int badHairDayChanceMultiplierPercent;
 
   public DogsUnleashedConfigScreen(@Nullable Screen parent) {
     super(Text.translatable("screen.dogs-unleashed.settings.title"));
@@ -64,6 +67,9 @@ public final class DogsUnleashedConfigScreen extends Screen {
     this.barkVolume = current.barkVolume();
     this.howlVolume = current.howlVolume();
     this.showDogNames = current.showDogNames();
+    this.furGrowthEnabled = current.furGrowthEnabled();
+    this.furGrowthRateMultiplierPercent = current.furGrowthRateMultiplierPercent();
+    this.badHairDayChanceMultiplierPercent = current.badHairDayChanceMultiplierPercent();
   }
 
   @Override
@@ -150,6 +156,29 @@ public final class DogsUnleashedConfigScreen extends Screen {
             DogsUnleashedConfig.AUTO_SLEEP_RANGE_MAX,
             this.autoSleepRangeBlocks,
             value -> this.autoSleepRangeBlocks = value));
+
+    list.addRow(sectionHeader("screen.dogs-unleashed.settings.grooming"));
+    list.addRow(
+        booleanRow(
+            canEdit,
+            "screen.dogs-unleashed.settings.furgrowth",
+            "screen.dogs-unleashed.settings.furgrowth.tooltip",
+            this.furGrowthEnabled,
+            value -> this.furGrowthEnabled = value));
+    list.addRow(
+        percentSliderRow(
+            canEdit,
+            Text.translatable("screen.dogs-unleashed.settings.furgrowthrate"),
+            Text.translatable("screen.dogs-unleashed.settings.furgrowthrate.tooltip"),
+            this.furGrowthRateMultiplierPercent,
+            value -> this.furGrowthRateMultiplierPercent = value));
+    list.addRow(
+        percentSliderRow(
+            canEdit,
+            Text.translatable("screen.dogs-unleashed.settings.badhairdaychance"),
+            Text.translatable("screen.dogs-unleashed.settings.badhairdaychance.tooltip"),
+            this.badHairDayChanceMultiplierPercent,
+            value -> this.badHairDayChanceMultiplierPercent = value));
 
     list.addRow(sectionHeader("screen.dogs-unleashed.settings.sounds"));
     list.addRow(
@@ -294,7 +323,10 @@ public final class DogsUnleashedConfigScreen extends Screen {
             this.autoSleepRangeBlocks,
             this.barkVolume,
             this.howlVolume,
-            this.showDogNames);
+            this.showDogNames,
+            this.furGrowthEnabled,
+            this.furGrowthRateMultiplierPercent,
+            this.badHairDayChanceMultiplierPercent);
     ClientPlayNetworking.send(new EditServerConfigC2SPayload(updated));
     close();
   }

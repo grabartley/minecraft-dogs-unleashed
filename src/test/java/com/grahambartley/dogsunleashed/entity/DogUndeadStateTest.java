@@ -24,6 +24,7 @@ class DogUndeadStateTest {
           17.0,
           0.28,
           3.6,
+          DogGenome.BASELINE_FUR_GROWTH_RATE,
           UnleashedDogBreed.HUSKY);
 
   @ParameterizedTest(name = "{0} keeps its preset numbers when it has no genome")

@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.pet;
 
 import com.grahambartley.dogsunleashed.ModNbtKeys;
+import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
@@ -32,6 +33,8 @@ public final class PetData {
   private int collarColor;
   private int coatVariant;
   private int huskyEyeVariant;
+  private int furStage;
+  private boolean furScuffed;
   private UUID parentAId;
   private UUID parentBId;
   private List<BreedShare> composition;
@@ -62,6 +65,7 @@ public final class PetData {
     this.collarColor = DEFAULT_COLLAR_COLOR_ID;
     this.coatVariant = UnleashedDogEntity.UNSET_VARIANT;
     this.huskyEyeVariant = UnleashedDogEntity.UNSET_VARIANT;
+    this.furStage = DogFurStage.NATURAL.ordinal();
     this.composition = List.of();
   }
 
@@ -149,6 +153,14 @@ public final class PetData {
     return huskyEyeVariant;
   }
 
+  public int getFurStage() {
+    return furStage;
+  }
+
+  public boolean isFurScuffed() {
+    return furScuffed;
+  }
+
   public List<BreedShare> getComposition() {
     return composition;
   }
@@ -191,6 +203,8 @@ public final class PetData {
     this.collarColor = dog.getCollarColor().getId();
     this.coatVariant = coatVariantOf(dog);
     this.huskyEyeVariant = huskyEyeVariantOf(dog);
+    this.furStage = dog.getFur().stage().ordinal();
+    this.furScuffed = dog.getFur().isScuffed();
     this.movementSpeed = (float) dog.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
     this.attackDamage = (float) dog.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
     final DogGenome dogGenome = dog.getGenome();
@@ -216,14 +230,18 @@ public final class PetData {
       final boolean baby,
       final int collarColor,
       final int coatVariant,
-      final int huskyEyeVariant) {
+      final int huskyEyeVariant,
+      final int furStage,
+      final boolean furScuffed) {
     return Float.compare(this.health, health) != 0
         || !this.lastKnownPosition.equals(pos)
         || !Objects.equals(this.dimension, dimension)
         || this.baby != baby
         || this.collarColor != collarColor
         || this.coatVariant != coatVariant
-        || this.huskyEyeVariant != huskyEyeVariant;
+        || this.huskyEyeVariant != huskyEyeVariant
+        || this.furStage != furStage
+        || this.furScuffed != furScuffed;
   }
 
   public NbtCompound toNbt() {
@@ -243,6 +261,8 @@ public final class PetData {
     nbt.putInt(ModNbtKeys.PORTRAIT_COLLAR, collarColor);
     nbt.putInt(ModNbtKeys.PORTRAIT_COAT_VARIANT, coatVariant);
     nbt.putInt(ModNbtKeys.PORTRAIT_HUSKY_EYE, huskyEyeVariant);
+    nbt.putInt(ModNbtKeys.PORTRAIT_FUR_STAGE, furStage);
+    nbt.putBoolean(ModNbtKeys.PORTRAIT_FUR_SCUFFED, furScuffed);
     nbt.putFloat(ModNbtKeys.MOVEMENT_SPEED, movementSpeed);
     nbt.putFloat(ModNbtKeys.ATTACK_DAMAGE, attackDamage);
     if (!composition.isEmpty()) {
@@ -293,6 +313,10 @@ public final class PetData {
     if (nbt.contains(ModNbtKeys.PORTRAIT_HUSKY_EYE, NbtElement.NUMBER_TYPE)) {
       pet.huskyEyeVariant = nbt.getInt(ModNbtKeys.PORTRAIT_HUSKY_EYE);
     }
+    if (nbt.contains(ModNbtKeys.PORTRAIT_FUR_STAGE, NbtElement.NUMBER_TYPE)) {
+      pet.furStage = DogFurStage.fromOrdinal(nbt.getInt(ModNbtKeys.PORTRAIT_FUR_STAGE)).ordinal();
+    }
+    pet.furScuffed = nbt.getBoolean(ModNbtKeys.PORTRAIT_FUR_SCUFFED);
     if (nbt.contains(ModNbtKeys.MOVEMENT_SPEED, NbtElement.NUMBER_TYPE)) {
       pet.movementSpeed = nbt.getFloat(ModNbtKeys.MOVEMENT_SPEED);
     }

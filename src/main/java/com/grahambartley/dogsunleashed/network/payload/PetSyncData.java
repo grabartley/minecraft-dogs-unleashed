@@ -27,6 +27,8 @@ public record PetSyncData(
     int collarColor,
     int coatVariant,
     int huskyEyeVariant,
+    int furStage,
+    boolean furScuffed,
     float movementSpeed,
     float attackDamage,
     List<BreedShare> composition) {
@@ -50,6 +52,8 @@ public record PetSyncData(
         petData.getCollarColorId(),
         petData.getCoatVariant(),
         petData.getHuskyEyeVariant(),
+        petData.getFurStage(),
+        petData.isFurScuffed(),
         petData.getMovementSpeed(),
         petData.getAttackDamage(),
         petData.getComposition());
@@ -73,6 +77,8 @@ public record PetSyncData(
         dog.getCollarColor().getId(),
         PetData.coatVariantOf(dog),
         PetData.huskyEyeVariantOf(dog),
+        dog.getFur().stage().ordinal(),
+        dog.getFur().isScuffed(),
         (float) dog.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED),
         (float) dog.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE),
         genome != null ? genome.composition() : List.of());
@@ -108,6 +114,8 @@ public record PetSyncData(
     buf.writeInt(this.collarColor);
     buf.writeInt(this.coatVariant);
     buf.writeInt(this.huskyEyeVariant);
+    buf.writeVarInt(this.furStage);
+    buf.writeBoolean(this.furScuffed);
     buf.writeFloat(this.movementSpeed);
     buf.writeFloat(this.attackDamage);
     BreedShareCodec.writeList(buf, this.composition);
@@ -129,6 +137,8 @@ public record PetSyncData(
         buf.readInt(),
         buf.readInt(),
         buf.readInt(),
+        buf.readVarInt(),
+        buf.readBoolean(),
         buf.readFloat(),
         buf.readFloat(),
         BreedShareCodec.readList(buf));

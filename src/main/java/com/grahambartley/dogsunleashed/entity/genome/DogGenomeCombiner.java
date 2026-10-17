@@ -31,6 +31,7 @@ public final class DogGenomeCombiner {
         jitter(weightedStat(shares, attributes -> attributes.maxHealth()), random),
         jitter(weightedStat(shares, attributes -> attributes.movementSpeed()), random),
         jitter(weightedStat(shares, attributes -> attributes.attackDamage()), random),
+        jitter(DogGenome.BASELINE_FUR_GROWTH_RATE, random),
         voiceBreed);
   }
 

@@ -42,6 +42,10 @@ final class DogTraitFormat {
     return Math.round(percent) + "%";
   }
 
+  static String formatFur(final String stageName, final String scuffedNote, final boolean scuffed) {
+    return scuffed ? stageName + " (" + scuffedNote + ")" : stageName;
+  }
+
   static String formatRarity(final String rarityName, final int chancePercent) {
     if (chancePercent >= DogRarityClassifier.GUARANTEED_CHANCE_PERCENT) {
       return rarityName;
