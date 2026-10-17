@@ -33,7 +33,7 @@ public interface FetchProjectileEntity {
                     dog.getPlaySession().isInPlayMode()
                         && playerUuid.equals(dog.getPlayPartnerPlayerUuid()));
     for (UnleashedDogEntity dog : playingDogs) {
-      dog.setActiveFetchType(fetchProjectileEntity.getFetchItemType());
+      dog.getFetchCarry().setActiveType(fetchProjectileEntity.getFetchItemType());
       dog.getPlaySession().setActiveFetchBlockPos(fetchItemPos);
     }
   }

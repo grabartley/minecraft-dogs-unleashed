@@ -195,5 +195,26 @@
   "screen.dogs-unleashed.dog_equipment.slot.pendant.glyph": "A",
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic": "Zierde",
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic.empty": "Nimmt ein Schmuckstück auf",
-  "screen.dogs-unleashed.dog_equipment.slot.cosmetic.glyph": "Z"
+  "screen.dogs-unleashed.dog_equipment.slot.cosmetic.glyph": "Z",
+
+  "item.dogs-unleashed.blank_pendant": "Leerer Anhänger",
+  "item.dogs-unleashed.warding_undead_pendant": "Abwehranhänger: Untote",
+  "item.dogs-unleashed.warding_undead_pendant.effect": "Untote in der Nähe deines Hundes lassen ihn und dich in Ruhe",
+  "item.dogs-unleashed.warding_arthropod_pendant": "Abwehranhänger: Gliederfüßer",
+  "item.dogs-unleashed.warding_arthropod_pendant.effect": "Spinnen und andere Gliederfüßer in der Nähe deines Hundes lassen ihn und dich in Ruhe",
+  "item.dogs-unleashed.warding_illager_pendant": "Abwehranhänger: Illager",
+  "item.dogs-unleashed.warding_illager_pendant.effect": "Illager, Verwüster und Hexen in der Nähe deines Hundes lassen ihn und dich in Ruhe",
+  "item.dogs-unleashed.warding_creeper_pendant": "Abwehranhänger: Creeper",
+  "item.dogs-unleashed.warding_creeper_pendant.effect": "Creeper in der Nähe deines Hundes lassen ihn und dich in Ruhe und weichen zurück",
+  "item.dogs-unleashed.guardian_fire_pendant": "Schutzanhänger: Feuer",
+  "item.dogs-unleashed.guardian_fire_pendant.effect": "Dein Hund kann nicht brennen und ist in Feuer und Lava sicher",
+  "item.dogs-unleashed.guardian_fall_pendant": "Schutzanhänger: Fall",
+  "item.dogs-unleashed.guardian_fall_pendant.effect": "Dein Hund nimmt keinen Fallschaden",
+  "item.dogs-unleashed.guardian_drowning_pendant": "Schutzanhänger: Ertrinken",
+  "item.dogs-unleashed.guardian_drowning_pendant.effect": "Dein Hund atmet unter Wasser und ertrinkt nie",
+  "item.dogs-unleashed.vitality_pendant": "Anhänger der Lebenskraft",
+  "item.dogs-unleashed.vitality_pendant.effect": "Du heilst langsam in der Nähe deines Hundes, außer du wurdest in den letzten 10 Sekunden verletzt",
+  "item.dogs-unleashed.loyalty_pendant": "Anhänger der Treue",
+  "item.dogs-unleashed.loyalty_pendant.effect": "Rettet deinen Hund einmal vor dem Tod und zerbricht dann",
+  "item.dogs-unleashed.pendant.no_stacking": "Mehrere Hunde mit diesem Anhänger verstärken sich nicht"
 }

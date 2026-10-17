@@ -1,0 +1,28 @@
+{
+  "note": "pendant_loyalty worn charm, greyscale so the pendant tint gives it colour",
+  "geo": "src/client/resources/assets/dogs-unleashed/geo/pendant_loyalty.geo.json",
+  "seed": 20261017,
+  "materials": {
+    "charm": {
+      "light": "#FFFFFF",
+      "base": "#DADADA",
+      "speck": "#C4C4C4",
+      "edge": "#8E8E8E",
+      "dither": 0.12
+    },
+    "cord": {
+      "light": "#9A9590",
+      "base": "#7A746E",
+      "speck": "#6B655F",
+      "edge": "#4A4540",
+      "dither": 0.1
+    }
+  },
+  "cubes": {
+    "charm[0]": "cord",
+    "charm[1]": "charm",
+    "charm[2]": "charm",
+    "charm[3]": "charm"
+  },
+  "decals": []
+}

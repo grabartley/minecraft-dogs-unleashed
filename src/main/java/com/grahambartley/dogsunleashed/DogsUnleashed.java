@@ -9,6 +9,7 @@ import com.grahambartley.dogsunleashed.block.DogBedBlock;
 import com.grahambartley.dogsunleashed.command.DogsUnleashedCommand;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.entity.DogPlaySession;
+import com.grahambartley.dogsunleashed.listener.PendantEffectListener;
 import com.grahambartley.dogsunleashed.listener.PetLocationSyncListener;
 import com.grahambartley.dogsunleashed.listener.PlayerDimensionChangeListener;
 import com.grahambartley.dogsunleashed.listener.PlayerJoinReunionListener;
@@ -48,6 +49,7 @@ public class DogsUnleashed implements ModInitializer {
     ModBlockEntities.initialize();
     ModEntities.initialize();
     ModItems.initialize();
+    ModPendantItems.initialize();
     ModScreenHandlers.initialize();
     ModSpawns.initialize();
     ModNetworking.registerPayloads();
@@ -57,6 +59,7 @@ public class DogsUnleashed implements ModInitializer {
     PlayerJoinReunionListener.initialize();
     PetLocationSyncListener.initialize();
     ResurrectionRitualListener.initialize();
+    PendantEffectListener.initialize();
 
     ServerLifecycleEvents.SERVER_STARTING.register(ServerConfigService::loadFromWorld);
 

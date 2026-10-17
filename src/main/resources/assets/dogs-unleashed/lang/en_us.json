@@ -300,5 +300,26 @@
   "screen.dogs-unleashed.dog_equipment.slot.pendant.glyph": "P",
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic": "Cosmetic",
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic.empty": "Holds a cosmetic accessory",
-  "screen.dogs-unleashed.dog_equipment.slot.cosmetic.glyph": "C"
+  "screen.dogs-unleashed.dog_equipment.slot.cosmetic.glyph": "C",
+
+  "item.dogs-unleashed.blank_pendant": "Blank Pendant",
+  "item.dogs-unleashed.warding_undead_pendant": "Pendant of Warding: Undead",
+  "item.dogs-unleashed.warding_undead_pendant.effect": "Undead mobs near your dog leave it and you alone",
+  "item.dogs-unleashed.warding_arthropod_pendant": "Pendant of Warding: Arthropods",
+  "item.dogs-unleashed.warding_arthropod_pendant.effect": "Spiders and other arthropods near your dog leave it and you alone",
+  "item.dogs-unleashed.warding_illager_pendant": "Pendant of Warding: Illagers",
+  "item.dogs-unleashed.warding_illager_pendant.effect": "Illagers, ravagers and witches near your dog leave it and you alone",
+  "item.dogs-unleashed.warding_creeper_pendant": "Pendant of Warding: Creepers",
+  "item.dogs-unleashed.warding_creeper_pendant.effect": "Creepers near your dog leave it and you alone, and back away from it",
+  "item.dogs-unleashed.guardian_fire_pendant": "Guardian Pendant: Fire",
+  "item.dogs-unleashed.guardian_fire_pendant.effect": "Your dog cannot burn and is safe in fire and lava",
+  "item.dogs-unleashed.guardian_fall_pendant": "Guardian Pendant: Fall",
+  "item.dogs-unleashed.guardian_fall_pendant.effect": "Your dog takes no fall damage",
+  "item.dogs-unleashed.guardian_drowning_pendant": "Guardian Pendant: Drowning",
+  "item.dogs-unleashed.guardian_drowning_pendant.effect": "Your dog breathes underwater and never drowns",
+  "item.dogs-unleashed.vitality_pendant": "Pendant of Vitality",
+  "item.dogs-unleashed.vitality_pendant.effect": "You slowly heal while near your dog, unless you were hurt in the last 10 seconds",
+  "item.dogs-unleashed.loyalty_pendant": "Pendant of Loyalty",
+  "item.dogs-unleashed.loyalty_pendant.effect": "Saves your dog from death once, then breaks",
+  "item.dogs-unleashed.pendant.no_stacking": "Several dogs wearing this do not stack"
 }

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "pendant",
+  "ingredients": [
+    {
+      "item": "dogs-unleashed:blank_pendant"
+    },
+    {
+      "item": "minecraft:cod"
+    }
+  ],
+  "result": {
+    "id": "dogs-unleashed:warding_creeper_pendant",
+    "count": 1
+  }
+}

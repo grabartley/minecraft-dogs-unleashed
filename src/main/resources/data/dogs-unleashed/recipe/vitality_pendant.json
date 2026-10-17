@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "pendant",
+  "ingredients": [
+    {
+      "item": "dogs-unleashed:blank_pendant"
+    },
+    {
+      "item": "minecraft:glistering_melon_slice"
+    }
+  ],
+  "result": {
+    "id": "dogs-unleashed:vitality_pendant",
+    "count": 1
+  }
+}

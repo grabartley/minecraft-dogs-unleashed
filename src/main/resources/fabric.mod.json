@@ -71,7 +71,12 @@
       "com.grahambartley.dogsunleashed.gametest.ResurrectionRitualGameTest",
       "com.grahambartley.dogsunleashed.gametest.UndeadDogGameTest",
       "com.grahambartley.dogsunleashed.gametest.ServerConfigEditPermissionGameTest",
-      "com.grahambartley.dogsunleashed.gametest.ModEntitiesGameTest"
+      "com.grahambartley.dogsunleashed.gametest.ModEntitiesGameTest",
+      "com.grahambartley.dogsunleashed.gametest.PendantItemGameTest",
+      "com.grahambartley.dogsunleashed.gametest.PendantGuardianGameTest",
+      "com.grahambartley.dogsunleashed.gametest.PendantLoyaltyGameTest",
+      "com.grahambartley.dogsunleashed.gametest.PendantWardingGameTest",
+      "com.grahambartley.dogsunleashed.gametest.PendantVitalityGameTest"
     ]
   },
   "mixins": [

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "dogs-unleashed:item/guardian_fire_pendant"
+  }
+}

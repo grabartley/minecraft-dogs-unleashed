@@ -109,9 +109,9 @@ public final class DogAdvancementGameTest implements FabricGameTest {
     final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(1, 1, 0));
     husky.setTamed(true, true);
     husky.setOwnerUuid(player.getUuid());
-    husky.setCarryingFetchItem(true);
-    husky.setActiveFetchType(FetchTypes.TENNIS_BALL);
-    husky.setCarriedFetchItemStack(new ItemStack(ModItems.TENNIS_BALL));
+    husky.getFetchCarry().setCarrying(true);
+    husky.getFetchCarry().setActiveType(FetchTypes.TENNIS_BALL);
+    husky.getFetchCarry().setCarriedStack(new ItemStack(ModItems.TENNIS_BALL));
 
     HuskyHowledCriterion.INSTANCE.trigger(player);
     new FetchReturnGoal(husky).tick();

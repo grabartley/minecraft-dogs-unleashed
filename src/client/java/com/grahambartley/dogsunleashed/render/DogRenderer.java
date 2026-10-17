@@ -6,6 +6,7 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.model.DogModel;
 import com.grahambartley.dogsunleashed.render.layer.DogCarryFetchItemLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogCollarLayer;
+import com.grahambartley.dogsunleashed.render.layer.DogPendantLayer;
 import com.grahambartley.dogsunleashed.render.layer.UndeadEyeGlowLayer;
 import com.grahambartley.dogsunleashed.screen.DogCommandWheelScreen;
 import net.minecraft.client.render.VertexConsumer;
@@ -23,6 +24,7 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
     this.addRenderLayer(new DogCollarLayer(this));
     this.addRenderLayer(new DogCarryFetchItemLayer<>(this));
     this.addRenderLayer(new UndeadEyeGlowLayer(this));
+    this.addRenderLayer(new DogPendantLayer(this));
   }
 
   @Override

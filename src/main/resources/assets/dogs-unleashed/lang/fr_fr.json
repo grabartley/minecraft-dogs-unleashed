@@ -195,5 +195,26 @@
   "screen.dogs-unleashed.dog_equipment.slot.pendant.glyph": "P",
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic": "Cosmétique",
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic.empty": "Accepte un accessoire cosmétique",
-  "screen.dogs-unleashed.dog_equipment.slot.cosmetic.glyph": "C"
+  "screen.dogs-unleashed.dog_equipment.slot.cosmetic.glyph": "C",
+
+  "item.dogs-unleashed.blank_pendant": "Pendentif vierge",
+  "item.dogs-unleashed.warding_undead_pendant": "Pendentif de protection : morts-vivants",
+  "item.dogs-unleashed.warding_undead_pendant.effect": "Les morts-vivants proches de ton chien vous laissent tranquilles",
+  "item.dogs-unleashed.warding_arthropod_pendant": "Pendentif de protection : arthropodes",
+  "item.dogs-unleashed.warding_arthropod_pendant.effect": "Les araignées et autres arthropodes proches de ton chien vous laissent tranquilles",
+  "item.dogs-unleashed.warding_illager_pendant": "Pendentif de protection : illageois",
+  "item.dogs-unleashed.warding_illager_pendant.effect": "Les illageois, ravageurs et sorcières proches de ton chien vous laissent tranquilles",
+  "item.dogs-unleashed.warding_creeper_pendant": "Pendentif de protection : creepers",
+  "item.dogs-unleashed.warding_creeper_pendant.effect": "Les creepers proches de ton chien vous laissent tranquilles et s'éloignent de lui",
+  "item.dogs-unleashed.guardian_fire_pendant": "Pendentif gardien : feu",
+  "item.dogs-unleashed.guardian_fire_pendant.effect": "Ton chien ne peut pas brûler et ne craint ni le feu ni la lave",
+  "item.dogs-unleashed.guardian_fall_pendant": "Pendentif gardien : chute",
+  "item.dogs-unleashed.guardian_fall_pendant.effect": "Ton chien ne subit aucun dégât de chute",
+  "item.dogs-unleashed.guardian_drowning_pendant": "Pendentif gardien : noyade",
+  "item.dogs-unleashed.guardian_drowning_pendant.effect": "Ton chien respire sous l'eau et ne se noie jamais",
+  "item.dogs-unleashed.vitality_pendant": "Pendentif de vitalité",
+  "item.dogs-unleashed.vitality_pendant.effect": "Tu te soignes lentement près de ton chien, sauf si tu as été blessé ces 10 dernières secondes",
+  "item.dogs-unleashed.loyalty_pendant": "Pendentif de loyauté",
+  "item.dogs-unleashed.loyalty_pendant.effect": "Sauve ton chien de la mort une fois, puis se brise",
+  "item.dogs-unleashed.pendant.no_stacking": "Plusieurs chiens portant ce pendentif ne cumulent pas l'effet"
 }

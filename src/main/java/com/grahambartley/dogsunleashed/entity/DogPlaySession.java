@@ -112,7 +112,7 @@ public final class DogPlaySession {
     this.inPlayMode = true;
     this.dog.setPlayPartnerPlayerUuid(player.getUuid());
     this.activeFetchBlockPos = null;
-    this.dog.setActiveFetchType(fetchItemType);
+    this.dog.getFetchCarry().setActiveType(fetchItemType);
     this.dog.getCommandController().demoteSitToFollow();
   }
 
@@ -125,8 +125,8 @@ public final class DogPlaySession {
     this.inPlayMode = false;
     this.dog.setPlayPartnerPlayerUuid(null);
     this.activeFetchBlockPos = null;
-    this.dog.setActiveFetchType(null);
-    this.dog.setCarryingFetchItem(false);
+    this.dog.getFetchCarry().setActiveType(null);
+    this.dog.getFetchCarry().setCarrying(false);
   }
 
   void endOnRemoval(final RemovalReason reason) {
@@ -154,7 +154,7 @@ public final class DogPlaySession {
     final UUID partnerUuid = this.dog.getPlayPartnerPlayerUuid();
     return switch (fetchStatus(
         this.inPlayMode,
-        this.dog.isCarryingFetchItem(),
+        this.dog.getFetchCarry().isCarrying(),
         this.activeFetchBlockPos != null,
         partnerUuid != null)) {
       case IDLE -> false;
@@ -202,12 +202,12 @@ public final class DogPlaySession {
   }
 
   void writeNbt(final NbtCompound nbt) {
-    nbt.putBoolean(ModNbtKeys.CARRYING_BALL, this.dog.isCarryingFetchItem());
-    final String activeFetchTypeId = this.dog.getActiveFetchTypeId();
+    nbt.putBoolean(ModNbtKeys.CARRYING_BALL, this.dog.getFetchCarry().isCarrying());
+    final String activeFetchTypeId = this.dog.getFetchCarry().activeTypeId();
     if (!activeFetchTypeId.isEmpty()) {
       nbt.putString(ModNbtKeys.ACTIVE_FETCH_TYPE_ID, activeFetchTypeId);
     }
-    final ItemStack carried = this.dog.getCarriedFetchItemStack();
+    final ItemStack carried = this.dog.getFetchCarry().carriedStack();
     if (!carried.isEmpty()) {
       ItemStack.CODEC
           .encodeStart(this.dog.getWorld().getRegistryManager().getOps(NbtOps.INSTANCE), carried)
@@ -218,10 +218,10 @@ public final class DogPlaySession {
 
   void readNbt(final NbtCompound nbt) {
     if (nbt.contains(ModNbtKeys.CARRYING_BALL)) {
-      this.dog.setCarryingFetchItem(nbt.getBoolean(ModNbtKeys.CARRYING_BALL));
+      this.dog.getFetchCarry().setCarrying(nbt.getBoolean(ModNbtKeys.CARRYING_BALL));
     }
     if (nbt.contains(ModNbtKeys.ACTIVE_FETCH_TYPE_ID, NbtElement.STRING_TYPE)) {
-      this.dog.setActiveFetchTypeId(nbt.getString(ModNbtKeys.ACTIVE_FETCH_TYPE_ID));
+      this.dog.getFetchCarry().setActiveTypeId(nbt.getString(ModNbtKeys.ACTIVE_FETCH_TYPE_ID));
     }
     if (nbt.contains(ModNbtKeys.CARRIED_FETCH_ITEM_STACK)) {
       ItemStack.CODEC
@@ -229,7 +229,7 @@ public final class DogPlaySession {
               this.dog.getWorld().getRegistryManager().getOps(NbtOps.INSTANCE),
               nbt.get(ModNbtKeys.CARRIED_FETCH_ITEM_STACK))
           .result()
-          .ifPresent(this.dog::setCarriedFetchItemStack);
+          .ifPresent(this.dog.getFetchCarry()::setCarriedStack);
     }
   }
 }

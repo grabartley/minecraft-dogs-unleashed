@@ -52,18 +52,18 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
 
   @Override
   protected ItemStack getStackForBone(GeoBone bone, T animatable) {
-    if (animatable.isInvisible() || !animatable.isCarryingFetchItem()) {
+    if (animatable.isInvisible() || !animatable.getFetchCarry().isCarrying()) {
       return null;
     }
     if (!animatable.getRigSourceBreed().mouthAnchorBoneName().equals(bone.getName())) {
       return null;
     }
 
-    var fetchItemType = animatable.getActiveFetchType();
+    var fetchItemType = animatable.getFetchCarry().activeType();
     if (fetchItemType == null) {
       return null;
     }
-    ItemStack carried = animatable.getCarriedFetchItemStack();
+    ItemStack carried = animatable.getFetchCarry().carriedStack();
     return carried.isEmpty() ? new ItemStack(fetchItemType.item()) : carried.copy();
   }
 
@@ -77,7 +77,7 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
       float partialTick,
       int packedLight,
       int packedOverlay) {
-    FetchItemType fetchType = animatable.getActiveFetchType();
+    FetchItemType fetchType = animatable.getFetchCarry().activeType();
     if (fetchType == null) {
       return;
     }

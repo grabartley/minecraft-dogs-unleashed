@@ -78,13 +78,13 @@ public class FetchChaseGoal extends Goal {
 
   private void syncActiveFetchTypeFromTarget() {
     if (this.targetFetchProjectile instanceof FetchProjectileEntity fetchProjectileEntity) {
-      this.dog.setActiveFetchType(fetchProjectileEntity.getFetchItemType());
+      this.dog.getFetchCarry().setActiveType(fetchProjectileEntity.getFetchItemType());
       return;
     }
 
     FetchItemType fetchItemType = FetchTypes.forEntityType(this.targetFetchProjectile.getType());
     if (fetchItemType != null) {
-      this.dog.setActiveFetchType(fetchItemType);
+      this.dog.getFetchCarry().setActiveType(fetchItemType);
     }
   }
 
