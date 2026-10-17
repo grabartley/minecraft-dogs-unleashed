@@ -31,12 +31,9 @@ class RigProfilesTest {
   private static final RigProfiles BUNDLED = new RigProfiles(RigProfiles::openBundled);
 
   private static final List<UnleashedDogBreed> RIGS =
-      List.of(
-          UnleashedDogBreed.HUSKY,
-          UnleashedDogBreed.BEAGLE,
-          UnleashedDogBreed.DACHSHUND,
-          UnleashedDogBreed.SHIBA_INU,
-          UnleashedDogBreed.GOLDEN_RETRIEVER);
+      Arrays.stream(UnleashedDogBreed.values())
+          .filter(breed -> breed != UnleashedDogBreed.CROSS_BREED)
+          .toList();
 
   private static final Set<Slot> BODY_SLOTS =
       EnumSet.complementOf(EnumSet.of(Slot.FUR_SHAGGY, Slot.FUR_OVERGROWN));
@@ -66,14 +63,6 @@ class RigProfilesTest {
                 Stream.of(
                     Arguments.of(rig, Slot.LEG_FRONT_LEFT, Slot.LEG_BACK_LEFT),
                     Arguments.of(rig, Slot.LEG_FRONT_RIGHT, Slot.LEG_BACK_RIGHT)));
-  }
-
-  @ParameterizedTest(name = "{0}")
-  @MethodSource("rigs")
-  @DisplayName("every rig ships a profile with a torso and a mouth")
-  void everyRigHasAProfile(final UnleashedDogBreed rig) {
-    assertFalse(BUNDLED.profileOf(rig).bonesIn(Slot.TORSO).isEmpty());
-    assertTrue(BUNDLED.profileOf(rig).mouthBone().isPresent());
   }
 
   @ParameterizedTest(name = "{0}")
@@ -109,6 +98,7 @@ class RigProfilesTest {
             .sub(centerOf(model, profile.bonesIn(Slot.TORSO)))
             .setComponent(1, 0.0f)
             .normalize();
+    assertTrue(forward.isFinite(), rig + " has its head straight above its torso");
     final Vector3f leftward = new Vector3f(0.0f, 1.0f, 0.0f).cross(forward);
     final Vector3f middle = centerOf(model, profile.bonesIn(Slot.TORSO));
 

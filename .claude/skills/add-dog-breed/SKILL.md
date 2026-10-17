@@ -73,12 +73,13 @@ Shared assets live under `src/main/resources/assets/dogs-unleashed/`:
    names the rig's bones by role so armour, pendants, carried items and fur find them without any
    bone names in Java. Read the `.geo.json` and fill every body slot: `torso`, `mouth`, `head`,
    `eyes`, `neck`, `tail`, `ear_left`, `ear_right`, `leg_front_left`, `leg_front_right`,
-   `leg_back_left`, `leg_back_right`. A slot may list several bones; list a cube-less parent bone
+   `leg_back_left`, `leg_back_right`. A slot lists only the bones of its own part, so `head` is the
+   skull without the snout or ears. A slot may list several bones; list a cube-less parent bone
    together with the child bones that carry its cubes. Left and right are the dog's own left and
    right, not the viewer's. Add `fur_shaggy`, `fur_overgrown`, `trimmed_overlay` and
    `botched_overlay` once the breed's fur art exists. Never rename bones in the rig to fit a slot.
-   Add the breed to the rig lists in `RigProfilesTest`, which fails when a slot is missing, names
-   a bone the rig does not have, or puts a left part on the right.
+   `RigProfilesTest` checks every breed and fails when a slot is missing, names a bone the rig does
+   not have, or puts a left part on the right.
 8. **Breed filter**: `src/client/java/com/grahambartley/dogsunleashed/screen/PetManagerScreen.java` -
    new `BreedFilterOption` entry.
 9. **Language**: `src/main/resources/assets/dogs-unleashed/lang/en_us.json` - entity name, spawn
