@@ -5,5 +5,38 @@
   ],
   "mouth": [
     "snout"
+  ],
+  "head": [
+    "head",
+    "bone4",
+    "bone5"
+  ],
+  "eyes": [
+    "eyelid",
+    "eyelid2"
+  ],
+  "neck": [
+    "pescoco"
+  ],
+  "tail": [
+    "rabo"
+  ],
+  "ear_left": [
+    "EAR1"
+  ],
+  "ear_right": [
+    "EAR2"
+  ],
+  "leg_front_left": [
+    "frontleg1"
+  ],
+  "leg_front_right": [
+    "frontleg2"
+  ],
+  "leg_back_left": [
+    "bone3"
+  ],
+  "leg_back_right": [
+    "bone2"
   ]
 }

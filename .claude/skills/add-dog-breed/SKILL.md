@@ -34,6 +34,7 @@ Ensure you have these assets ready. Client-only assets live under
   `DogModel`: base id, then `_{coatPrefix}` if the breed has coats, then `_{eyeSuffix}` if it has
   eye color variants)
 - `textures/entity/{breed_id}_collar.png` - collar overlay texture
+- `rig_profiles/{breed_id}.json` - rig profile naming the rig's bones by role (see step 7)
 
 Shared assets live under `src/main/resources/assets/dogs-unleashed/`:
 - `sounds/` bark audio plus a `sounds.json` entry, unless the breed howls instead
@@ -44,7 +45,7 @@ Shared assets live under `src/main/resources/assets/dogs-unleashed/`:
 ## Files to Create/Modify
 
 1. **Breed preset**: `src/main/java/com/grahambartley/dogsunleashed/entity/UnleashedDogBreed.java`
-   - New enum constant carrying: serialized id, mouth anchor bone name, `FetchCarryProfiles`,
+   - New enum constant carrying: serialized id, `FetchCarryProfiles`,
      `SpawnEggColors`, `Dimensions`, `SpawnSettings` (or `null` for a non-spawnable breed; every
      `values()` consumer already filters through `isNaturallySpawning()`), `Attributes`, `Voice`
      (howl flag plus a lazy `() -> ModSounds.X_BARK` supplier; a `null` supplier means no bark,
@@ -68,15 +69,25 @@ Shared assets live under `src/main/resources/assets/dogs-unleashed/`:
 6. **Client registration**: `src/client/java/com/grahambartley/dogsunleashed/DogsUnleashedClient.java` -
    one `EntityRendererRegistry.register(ModEntities.{BREED}, DogRenderer::new)` line. Do NOT
    create model, renderer, or collar-layer classes.
-7. **Breed filter**: `src/client/java/com/grahambartley/dogsunleashed/screen/PetManagerScreen.java` -
+7. **Rig profile**: `src/client/resources/assets/dogs-unleashed/rig_profiles/{breed_id}.json` -
+   names the rig's bones by role so armour, pendants, carried items and fur find them without any
+   bone names in Java. Read the `.geo.json` and fill every body slot: `torso`, `mouth`, `head`,
+   `eyes`, `neck`, `tail`, `ear_left`, `ear_right`, `leg_front_left`, `leg_front_right`,
+   `leg_back_left`, `leg_back_right`. A slot may list several bones; list a cube-less parent bone
+   together with the child bones that carry its cubes. Left and right are the dog's own left and
+   right, not the viewer's. Add `fur_shaggy`, `fur_overgrown`, `trimmed_overlay` and
+   `botched_overlay` once the breed's fur art exists. Never rename bones in the rig to fit a slot.
+   Add the breed to the rig lists in `RigProfilesTest`, which fails when a slot is missing, names
+   a bone the rig does not have, or puts a left part on the right.
+8. **Breed filter**: `src/client/java/com/grahambartley/dogsunleashed/screen/PetManagerScreen.java` -
    new `BreedFilterOption` entry.
-8. **Language**: `src/main/resources/assets/dogs-unleashed/lang/en_us.json` - entity name, spawn
+9. **Language**: `src/main/resources/assets/dogs-unleashed/lang/en_us.json` - entity name, spawn
    egg name, and `coat.dogs-unleashed.{breed_id}.*` keys for every coat.
-9. **Test data**: `src/main/java/com/grahambartley/dogsunleashed/gametest/util/DogTestData.java` -
+10. **Test data**: `src/main/java/com/grahambartley/dogsunleashed/gametest/util/DogTestData.java` -
    new constant via `fromPreset` plus a `getAllBreeds()` entry. Every per-breed
    `@CustomTestProvider` generator across the gametest suite fans out to the new breed from this
    single list; no new gametest class and no `fabric.mod.json` change.
-10. **Unit tests**:
+11. **Unit tests**:
     - `UnleashedDogBreedTest` - extend the expected-value data providers (serialized id aliases,
       dimensions, attributes, voices, render transforms)
     - `DogCoatsTest` - extend `coatLookups` and `rollTables` when the breed has coats

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.google.gson.JsonParser;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile.Overlay;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile.Slot;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import net.minecraft.util.Identifier;
@@ -61,6 +62,19 @@ class RigProfileTest {
         Optional.of(Identifier.of("dogs-unleashed", "textures/entity/fur/x_trimmed.png")),
         PROFILE.overlay(Overlay.TRIMMED));
     assertTrue(PROFILE.overlay(Overlay.BOTCHED).isEmpty());
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @EnumSource(Slot.class)
+  @DisplayName("every slot reads its bones from its lower-case key")
+  void everySlotReadsItsKey(final Slot slot) {
+    final RigProfile profile =
+        RigProfile.parse(
+            JsonParser.parseString(
+                    "{\"" + slot.name().toLowerCase(Locale.ROOT) + "\": [\"a\", \"b\"]}")
+                .getAsJsonObject());
+
+    assertEquals(Set.of("a", "b"), profile.bonesIn(slot));
   }
 
   @ParameterizedTest(name = "{0}")

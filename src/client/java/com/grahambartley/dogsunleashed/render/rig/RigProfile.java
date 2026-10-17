@@ -18,6 +18,16 @@ public record RigProfile(Map<Slot, Set<String>> bones, Map<Overlay, Identifier> 
   public enum Slot {
     TORSO,
     MOUTH,
+    HEAD,
+    EYES,
+    NECK,
+    TAIL,
+    EAR_LEFT,
+    EAR_RIGHT,
+    LEG_FRONT_LEFT,
+    LEG_FRONT_RIGHT,
+    LEG_BACK_LEFT,
+    LEG_BACK_RIGHT,
     FUR_SHAGGY,
     FUR_OVERGROWN;
 

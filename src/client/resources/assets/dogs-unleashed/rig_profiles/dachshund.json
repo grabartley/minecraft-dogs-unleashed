@@ -5,5 +5,35 @@
   ],
   "mouth": [
     "mouth"
+  ],
+  "head": [
+    "head"
+  ],
+  "eyes": [
+    "eyelid"
+  ],
+  "neck": [
+    "bone4"
+  ],
+  "tail": [
+    "tail"
+  ],
+  "ear_left": [
+    "ear2"
+  ],
+  "ear_right": [
+    "ear1"
+  ],
+  "leg_front_left": [
+    "front_leg_1"
+  ],
+  "leg_front_right": [
+    "front_leg_2"
+  ],
+  "leg_back_left": [
+    "back_leg_3"
+  ],
+  "leg_back_right": [
+    "back_leg_2"
   ]
 }
