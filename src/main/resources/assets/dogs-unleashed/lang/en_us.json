@@ -303,6 +303,11 @@
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic.glyph": "C",
 
   "item.dogs-unleashed.blank_pendant": "Blank Pendant",
+  "item.dogs-unleashed.leather_dog_armor": "Leather Dog Armor",
+  "item.dogs-unleashed.iron_dog_armor": "Iron Dog Armor",
+  "item.dogs-unleashed.gold_dog_armor": "Gold Dog Armor",
+  "item.dogs-unleashed.diamond_dog_armor": "Diamond Dog Armor",
+  "item.dogs-unleashed.netherite_dog_armor": "Netherite Dog Armor",
   "item.dogs-unleashed.warding_undead_pendant": "Pendant of Warding: Undead",
   "item.dogs-unleashed.warding_undead_pendant.effect": "Undead mobs near your dog leave it and you alone",
   "item.dogs-unleashed.warding_arthropod_pendant": "Pendant of Warding: Arthropods",

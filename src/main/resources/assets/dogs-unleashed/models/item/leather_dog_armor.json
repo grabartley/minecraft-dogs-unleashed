@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "dogs-unleashed:item/leather_dog_armor",
+    "layer1": "dogs-unleashed:item/leather_dog_armor_overlay"
+  }
+}

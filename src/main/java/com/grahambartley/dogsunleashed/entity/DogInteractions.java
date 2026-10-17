@@ -102,6 +102,7 @@ public final class DogInteractions {
                 () -> this.tryFeedTreat(player, itemStack),
                 () -> this.tryHeal(player, itemStack),
                 () -> this.tryDyeCollar(player, itemStack),
+                () -> this.tryRepairArmour(player, itemStack),
                 () -> this.tryDirectEquip(player, hand, itemStack),
                 () -> this.tryAssignBedOrOpenWheel(player, itemStack)));
     if (handled != null) {
@@ -197,6 +198,14 @@ public final class DogInteractions {
     this.dog.setCollarColor(dyeItem.getColor());
     itemStack.decrementUnlessCreative(1, player);
     return ActionResult.SUCCESS;
+  }
+
+  private @Nullable ActionResult tryRepairArmour(
+      final PlayerEntity player, final ItemStack itemStack) {
+    if (!this.isDirectOwnerInteraction(player)) {
+      return null;
+    }
+    return this.dog.getArmour().tryRepair(player, itemStack);
   }
 
   private @Nullable ActionResult tryDirectEquip(

@@ -198,6 +198,11 @@
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic.glyph": "Z",
 
   "item.dogs-unleashed.blank_pendant": "Leerer Anhänger",
+  "item.dogs-unleashed.leather_dog_armor": "Lederhunderüstung",
+  "item.dogs-unleashed.iron_dog_armor": "Eiserne Hunderüstung",
+  "item.dogs-unleashed.gold_dog_armor": "Goldene Hunderüstung",
+  "item.dogs-unleashed.diamond_dog_armor": "Diamantene Hunderüstung",
+  "item.dogs-unleashed.netherite_dog_armor": "Netherit-Hunderüstung",
   "item.dogs-unleashed.warding_undead_pendant": "Abwehranhänger: Untote",
   "item.dogs-unleashed.warding_undead_pendant.effect": "Untote in der Nähe deines Hundes lassen ihn und dich in Ruhe",
   "item.dogs-unleashed.warding_arthropod_pendant": "Abwehranhänger: Gliederfüßer",

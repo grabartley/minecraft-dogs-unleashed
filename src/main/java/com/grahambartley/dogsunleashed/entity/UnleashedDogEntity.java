@@ -40,6 +40,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
@@ -112,6 +113,7 @@ public class UnleashedDogEntity extends TameableEntity
   private final DogUndeadState undeadState = new DogUndeadState(this);
   private final DogCuring curing = new DogCuring(this);
   private final DogPendants pendants = new DogPendants(this);
+  private final DogArmour armour = new DogArmour(this);
   private final DogFetchCarry fetchCarry = new DogFetchCarry(this);
   private boolean spawnedByDogSpawner = false;
 
@@ -570,10 +572,24 @@ public class UnleashedDogEntity extends TameableEntity
     return super.isInvulnerableTo(source) || this.pendants.guardsAgainst(source);
   }
 
+  public DogArmour getArmour() {
+    return this.armour;
+  }
+
   @Override
   protected void applyDamage(final DamageSource source, final float amount) {
+    if (this.armour.absorbs(source)) {
+      this.armour.takeHit(source, amount);
+      return;
+    }
     super.applyDamage(source, amount);
     this.pendants.saveIfFatal(source);
+  }
+
+  @Override
+  protected SoundEvent getHurtSound(final DamageSource source) {
+    final SoundEvent armourSound = this.armour.hurtSound(source);
+    return armourSound != null ? armourSound : super.getHurtSound(source);
   }
 
   @Override

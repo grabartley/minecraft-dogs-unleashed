@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "dog_armor",
+  "pattern": [
+    "XXX",
+    "XLX"
+  ],
+  "key": {
+    "X": {
+      "item": "minecraft:diamond"
+    },
+    "L": {
+      "item": "minecraft:leather"
+    }
+  },
+  "result": {
+    "id": "dogs-unleashed:diamond_dog_armor",
+    "count": 1
+  }
+}

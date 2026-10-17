@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.render.layer;
 
+import com.google.common.collect.MapMaker;
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.item.pendant.PendantType;
@@ -8,7 +9,6 @@ import com.grahambartley.dogsunleashed.render.rig.CollarBandLocator.CollarSpot;
 import com.grahambartley.dogsunleashed.render.rig.CollarTextureMask;
 import java.util.Map;
 import java.util.Optional;
-import java.util.WeakHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -29,7 +29,8 @@ public class DogPendantLayer extends GeoRenderLayer<UnleashedDogEntity> {
   private static final float CHARM_SCALE = 0.25f;
   private static final float CHARM_HALF_DEPTH = 0.5f / 16.0f;
 
-  private final Map<BakedGeoModel, Optional<CollarSpot>> spots = new WeakHashMap<>();
+  private final Map<BakedGeoModel, Optional<CollarSpot>> spots =
+      new MapMaker().weakKeys().makeMap();
 
   private Optional<CollarSpot> frameSpot = Optional.empty();
 

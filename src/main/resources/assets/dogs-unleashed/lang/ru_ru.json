@@ -198,6 +198,11 @@
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic.glyph": "У",
 
   "item.dogs-unleashed.blank_pendant": "Пустой кулон",
+  "item.dogs-unleashed.leather_dog_armor": "Кожаная броня для собаки",
+  "item.dogs-unleashed.iron_dog_armor": "Железная броня для собаки",
+  "item.dogs-unleashed.gold_dog_armor": "Золотая броня для собаки",
+  "item.dogs-unleashed.diamond_dog_armor": "Алмазная броня для собаки",
+  "item.dogs-unleashed.netherite_dog_armor": "Незеритовая броня для собаки",
   "item.dogs-unleashed.warding_undead_pendant": "Кулон защиты: нежить",
   "item.dogs-unleashed.warding_undead_pendant.effect": "Нежить рядом с вашей собакой не трогает ни её, ни вас",
   "item.dogs-unleashed.warding_arthropod_pendant": "Кулон защиты: членистоногие",
