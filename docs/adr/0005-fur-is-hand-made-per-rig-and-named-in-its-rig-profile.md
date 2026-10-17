@@ -15,11 +15,11 @@ Armour, pendants and fur also each kept their own table of bone names and cube n
 
 Fur is drawn by hand on each breed's own rig. The code only shows and hides it.
 
-Each rig has a profile at `assets/dogs-unleashed/rig_profiles/<rig>.json`. It names that rig's torso, neck, head, tail and leg bones, the bones of its shaggy and overgrown fur, and its trimmed and scuffed overlay textures. Code reads only the profile, so no bone names or cube numbers live in Java. Small detail cubes, such as paws and the golden's chest tufts, are told apart from body cubes by their size rather than by listing them.
+Each rig has a profile at `assets/dogs-unleashed/rig_profiles/<rig>.json`. It names that rig's torso and mouth bones, the bones of its shaggy and overgrown fur, and its trimmed and scuffed overlay textures. A profile only lists what its rig has, so the fur and overlay entries arrive with each breed's art. Code reads only the profile, so no bone names or cube numbers live in Java. Small detail cubes, such as paws and the golden's chest tufts, are told apart from body cubes by their size rather than by listing them.
 
 Fur bones are extra cubes in the rig, parented to its existing bones so they follow every animation. The renderer skips fur bones whose stage the dog has not reached, per dog and per frame, without changing the shared baked model. The trimmed and scuffed looks are translucent overlays drawn over the coat.
 
-Armour moved onto the same profile in this change. Its torso now comes from the profile, and it was checked to pick exactly the same cubes as the old table on every rig.
+Armour, pendants and carried items moved onto the same profile in this change. Armour takes its torso from the profile and was checked to pick exactly the same cubes as the old table on every rig. Pendants and carried items take the mouth from it.
 
 ## Consequences
 
