@@ -24,6 +24,7 @@ import com.grahambartley.dogsunleashed.render.armour.ArmourLook;
 import com.grahambartley.dogsunleashed.render.coat.UndeadCoatTextures;
 import com.grahambartley.dogsunleashed.render.coat.UndeadEyeGlows;
 import com.grahambartley.dogsunleashed.render.layer.WolfDogArmourFeatureRenderer;
+import com.grahambartley.dogsunleashed.render.overlay.ProjectedOverlays;
 import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
 import com.grahambartley.dogsunleashed.render.rig.SlotRegions;
 import com.grahambartley.dogsunleashed.screen.DogEquipmentScreen;
@@ -111,6 +112,12 @@ public class DogsUnleashedClient implements ClientModInitializer {
             UndeadEyeGlows.RELOADER_ID,
             () ->
                 UndeadEyeGlows.shared().clear(MinecraftClient.getInstance().getTextureManager())));
+    resources.registerReloadListener(
+        new CacheReloader(
+            ProjectedOverlays.RELOADER_ID,
+            () ->
+                ProjectedOverlays.shared()
+                    .clear(MinecraftClient.getInstance().getTextureManager())));
 
     ModKeyBindings.register();
     ModNetworkingClient.registerClientReceivers();

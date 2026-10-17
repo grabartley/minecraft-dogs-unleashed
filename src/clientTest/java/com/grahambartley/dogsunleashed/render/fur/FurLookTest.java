@@ -28,7 +28,8 @@ class FurLookTest {
               Slot.FUR_OVERGROWN,
               Set.of("mop")),
           Map.of(Overlay.TRIMMED, TRIMMED, Overlay.BOTCHED, BOTCHED),
-          List.of());
+          List.of(),
+          Map.of());
 
   @ParameterizedTest(name = "{0} at {1} shows={2}")
   @CsvSource({

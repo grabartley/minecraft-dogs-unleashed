@@ -11,6 +11,7 @@ import com.grahambartley.dogsunleashed.render.layer.DogCarryFetchItemLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogCollarLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogFurOverlayLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogPendantLayer;
+import com.grahambartley.dogsunleashed.render.layer.DogSheetOverlayLayer;
 import com.grahambartley.dogsunleashed.render.layer.UndeadEyeGlowLayer;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile;
 import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
@@ -36,6 +37,7 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
     this.addRenderLayer(new DogCarryFetchItemLayer<>(this));
     this.addRenderLayer(new UndeadEyeGlowLayer(this));
     this.addRenderLayer(new DogFurOverlayLayer(this));
+    this.addRenderLayer(new DogSheetOverlayLayer(this));
     this.addRenderLayer(new DogArmourLayer(this));
     this.addRenderLayer(new DogPendantLayer(this));
   }
