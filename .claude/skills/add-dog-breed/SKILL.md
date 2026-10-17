@@ -25,6 +25,11 @@ spawn egg item, no coat table, and no assets of its own.
 
 ## Prerequisites
 
+The rig starts as a Blockbench project in `~/blockbench/<breed_id>/<breed_id>.bbmodel`, edited
+with the `bbmodel` MCP and exported with `bbmodel_export_bedrock_geometry` to the geo path below.
+Author and review the geo, the coat and collar textures and the rig profile with the `dog-art`
+skill: it renders the rig headless, maps every texture face to its rig profile slot and checks the
+sheet before the game is launched. Commit the exports, never the project file.
 Ensure you have these assets ready. Client-only assets live under
 `src/client/resources/assets/dogs-unleashed/`:
 - `geo/{breed_id}.geo.json` - GeckoLib model file

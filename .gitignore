@@ -41,3 +41,4 @@ TODO.md
 .claude/tmp/
 .claude/worktrees/
 .codex/
+*.bbmodel

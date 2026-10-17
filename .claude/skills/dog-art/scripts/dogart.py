@@ -1,0 +1,304 @@
+#!/usr/bin/env python3
+"""Headless renders, UV maps, texture checks and Blockbench export for GeckoLib dog rigs. Standard library only.
+
+Commands:
+  render     geo png out.png [--view front|front34|left|right|back|back34|top | --yaw D --pitch D] [--scale N] [--spin 180] [--asleep] [--fur-stage natural|shaggy|overgrown]
+  turntable  geo png out.png [--views left,front34,front,top] [--scale N] [--spin 180] [--asleep] [--fur-stage ...]
+  faces      geo png [--profile rig.json]
+  uvmap      geo png out.png [--profile rig.json] [--zoom N]
+  palette    png
+  check      geo png [--profile rig.json] [--palette file|png] [--fail-unpainted] [--strict] [--verbose]
+  diff       a.png b.png [out.png] [--fail-on-change]
+  patch      base.png block.txt out.png --at U V
+  tobbmodel  geo png out.bbmodel [--name N]
+  geocompare a.geo.json b.geo.json [--tolerance T]
+
+The rig profile beside the geo (rig_profiles/<name>.json) is read by default. Bones in its eyes slot are
+the closed-eye overlays the sleep animation swings into place, so they are hidden unless --asleep, and
+fur bones follow --fur-stage the way FurLook does in the client.
+"""
+import argparse
+import os
+import sys
+from collections import defaultdict
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+import bake
+import bbmodel
+import checks
+import pngio
+import render
+
+SLOT_COLOURS = {
+    "head": (255, 99, 71), "mouth": (255, 165, 0), "eyes": (255, 255, 0),
+    "neck": (154, 205, 50), "torso": (60, 179, 113), "tail": (0, 206, 209),
+    "ear_left": (30, 144, 255), "ear_right": (138, 43, 226),
+    "leg_front_left": (255, 105, 180), "leg_front_right": (205, 92, 92),
+    "leg_back_left": (210, 180, 140), "leg_back_right": (176, 196, 222),
+    "fur_shaggy": (240, 230, 140), "fur_overgrown": (189, 183, 107),
+}
+UNSLOTTED_COLOUR = (128, 128, 128)
+
+
+def profile_for(args):
+    path = getattr(args, "profile", None) or bake.profile_path_for(args.geo)
+    return bake.load_profile(path)
+
+
+def rig(args, hide=True):
+    profile = profile_for(args)
+    hidden = bake.hidden_bones(profile, getattr(args, "asleep", False), getattr(args, "fur_stage", "natural")) if hide else ()
+    description, cubes = bake.cubes_of(args.geo, profile, hidden)
+    return description.get("texture_width", 64), description.get("texture_height", 64), cubes
+
+
+def cmd_render(args):
+    tex_w, tex_h, cubes = rig(args)
+    yaw, pitch = render.view_angles(args.view, args.spin) if args.view else (args.yaw + args.spin, args.pitch)
+    w, h, image = render.render_view(cubes, pngio.read_png(args.png), tex_w, tex_h, yaw, pitch, args.scale)
+    pngio.write_png(args.out, w, h, image)
+    print(f"wrote {args.out} {w}x{h} yaw={yaw} pitch={pitch}")
+
+
+def cmd_turntable(args):
+    tex_w, tex_h, cubes = rig(args)
+    texture = pngio.read_png(args.png)
+    panels = [render.render_view(cubes, texture, tex_w, tex_h, *render.view_angles(v, args.spin), args.scale) for v in args.views.split(",")]
+    w, h, image = render.strip(panels)
+    pngio.write_png(args.out, w, h, image)
+    print(f"wrote {args.out} {w}x{h} views={args.views}")
+
+
+def pupil_faces(cubes, texel, scale_u, scale_v):
+    x, y = texel
+    return [f"{cube['bone']}[{cube['index']}].{face}" for cube in cubes for face, _, patch in cube["faces"]
+            if bake.inside(bake.exact_rect(patch, scale_u, scale_v), x + 0.5, y + 0.5)]
+
+
+def cmd_faces(args):
+    tex_w, tex_h, cubes = rig(args, hide=False)
+    width, height, _ = pngio.read_png(args.png)
+    scale_u, scale_v = width / tex_w, height / tex_h
+    print(f"texture {width}x{height} png, geo uv grid {tex_w}x{tex_h}, {scale_u:g} px per uv unit")
+    for texel in bake.pupils(profile_for(args)):
+        print(f"pupil px {texel[0]},{texel[1]} on {', '.join(pupil_faces(cubes, texel, scale_u, scale_v)) or 'no face'}")
+    by_slot = defaultdict(list)
+    for cube in cubes:
+        by_slot[cube["slot"] or "(unslotted)"].append(cube)
+    for slot in sorted(by_slot, key=lambda s: (s == "(unslotted)", s)):
+        print(f"\n[{slot}]")
+        for cube in by_slot[slot]:
+            flags = (" mirror" if cube["mirror"] else "") + (" rotated" if cube["rotated"] else "")
+            print(f"  {cube['bone']}[{cube['index']}] size={fmt(cube['size'])} visual={fmt(cube['visual'])} inflate={cube['inflate']:g}{flags}")
+            for face, _, patch in cube["faces"]:
+                x0, y0, x1, y1 = bake.pixel_rect(patch, scale_u, scale_v)
+                print(f"      {face:5} px x{x0}-{x1} y{y0}-{y1} ({x1 - x0}x{y1 - y0})")
+
+
+def fmt(values):
+    return "x".join(f"{v:g}" for v in values)
+
+
+def cmd_uvmap(args):
+    tex_w, tex_h, cubes = rig(args, hide=False)
+    width, height, pixels = pngio.read_png(args.png)
+    scale_u, scale_v = width / tex_w, height / tex_h
+    zoom = args.zoom
+    image = pngio.blank(width * zoom, height * zoom, (40, 40, 44, 255))
+    for y in range(height):
+        for x in range(width):
+            r, g, b, a = pixels[y][x]
+            if a == 0:
+                continue
+            for dy in range(zoom):
+                for dx in range(zoom):
+                    image[y * zoom + dy][x * zoom + dx] = (r, g, b, 255)
+    legend = {}
+    for cube in cubes:
+        colour = SLOT_COLOURS.get(cube["slot"], UNSLOTTED_COLOUR)
+        legend[cube["slot"] or "(unslotted)"] = colour
+        for _, _, patch in cube["faces"]:
+            x0, y0, x1, y1 = bake.pixel_rect(patch, scale_u, scale_v)
+            outline(image, x0 * zoom, y0 * zoom, x1 * zoom - 1, y1 * zoom - 1, colour + (255,))
+    for x, y in bake.pupils(profile_for(args)):
+        outline(image, x * zoom, y * zoom, (x + 1) * zoom - 1, (y + 1) * zoom - 1, (255, 0, 255, 255))
+    pngio.write_png(args.out, width * zoom, height * zoom, image)
+    print(f"wrote {args.out}, pupils outlined in #FF00FF")
+    for slot, colour in sorted(legend.items()):
+        print(f"  {slot:18} #{colour[0]:02X}{colour[1]:02X}{colour[2]:02X}")
+
+
+def outline(image, x0, y0, x1, y1, colour):
+    h, w = len(image), len(image[0])
+    for x in range(max(x0, 0), min(x1, w - 1) + 1):
+        if 0 <= y0 < h:
+            image[y0][x] = colour
+        if 0 <= y1 < h:
+            image[y1][x] = colour
+    for y in range(max(y0, 0), min(y1, h - 1) + 1):
+        if 0 <= x0 < w:
+            image[y][x0] = colour
+        if 0 <= x1 < w:
+            image[y][x1] = colour
+
+
+def cmd_palette(args):
+    _, _, pixels = pngio.read_png(args.png)
+    ramps = checks.palette_ramps(pixels)
+    total = sum(count for entries in ramps.values() for _, count in entries)
+    print(f"{sum(len(e) for e in ramps.values())} colours over {total} opaque texels")
+    for bucket in sorted(ramps, key=lambda b: -sum(c for _, c in ramps[b])):
+        print(f"\n{bucket}: {len(ramps[bucket])} tones")
+        for (r, g, b), count in ramps[bucket]:
+            print(f"  #{r:02X}{g:02X}{b:02X} lum={checks.luminance((r, g, b)):5.1f} x{count}")
+
+
+def cmd_check(args):
+    tex_w, tex_h, cubes = rig(args, hide=False)
+    palette = checks.read_palette(args.palette) if args.palette else None
+    report = checks.check_sheet(cubes, tex_w, tex_h, pngio.read_png(args.png), palette)
+    print(f"{args.png}: {len(cubes)} cubes, {len(report['holes'])} faces with holes, {len(report['unpainted'])} unpainted faces, "
+          f"{report['stray']} stray texels, {len(report['off_sheet'])} faces off the sheet")
+    for line in report["holes"]:
+        print(f"  HOLE {line}")
+    for line in report["off_sheet"]:
+        print(f"  OFF-SHEET {line}")
+    if args.verbose or args.fail_unpainted:
+        for line in report["unpainted"]:
+            print(f"  UNPAINTED {line}")
+    if "median_density" in report:
+        lo, hi = report["density_range"]
+        print(f"  texel density median {report['median_density']:.2f} px per visible unit, range {lo:.2f} to {hi:.2f}")
+        for density, label in report["density"]:
+            print(f"  DENSITY {label} {density:.2f} px per unit")
+    if report["drift"]:
+        print(f"  DRIFT {len(report['drift'])} colours outside the palette:")
+        for (r, g, b), n in sorted(report["drift"].items(), key=lambda e: -e[1])[:20]:
+            print(f"    #{r:02X}{g:02X}{b:02X} x{n}")
+    groups = checks.problem_groups(report, args.strict, args.fail_unpainted)
+    print("OK" if not groups else f"FAIL ({groups} problem groups)")
+    return 1 if groups else 0
+
+
+def cmd_diff(args):
+    changed, image = checks.diff_sheets(pngio.read_png(args.a), pngio.read_png(args.b))
+    if args.out:
+        pngio.write_png(args.out, len(image[0]), len(image), image)
+    print(f"{changed} of {len(image) * len(image[0])} visible pixels differ")
+    return 1 if changed and args.fail_on_change else 0
+
+
+def cmd_patch(args):
+    width, height, pixels = pngio.read_png(args.base)
+    palette, rows = checks.parse_block(args.block)
+    written = checks.apply_block(pixels, width, height, palette, rows, args.at[0], args.at[1])
+    pngio.write_png(args.out, width, height, pixels)
+    print(f"wrote {args.out}: {written} texels at {args.at[0]},{args.at[1]} over {len(rows)} rows")
+
+
+def cmd_tobbmodel(args):
+    project = bbmodel.project_from_geo(args.geo, args.png, args.name)
+    bbmodel.write_project(project, args.out)
+    print(f"wrote {args.out}: {len(project['groups'])} groups, {len(project['elements'])} cubes, texture {project['textures'][0]['name']}")
+
+
+def cmd_geocompare(args):
+    mismatches = bbmodel.compare_geo(args.a, args.b, args.tolerance)
+    for line in mismatches:
+        print(f"  {line}")
+    print(f"{len(mismatches)} mismatches between {args.a} and {args.b}")
+    return 1 if mismatches else 0
+
+
+def add_rig_options(parser):
+    parser.add_argument("--profile", help="rig profile; defaults to rig_profiles/<name>.json beside the geo")
+    parser.add_argument("--asleep", action="store_true", help="show the eyes slot, as the sleep animation does")
+    parser.add_argument("--fur-stage", choices=bake.FUR_STAGES, default="natural")
+    parser.add_argument("--scale", type=float, default=8)
+    parser.add_argument("--spin", type=float, default=0, help="extra yaw, 180 for a rig that faces +z")
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    commands = parser.add_subparsers(dest="command", required=True)
+
+    p = commands.add_parser("render")
+    p.add_argument("geo")
+    p.add_argument("png")
+    p.add_argument("out")
+    p.add_argument("--view", choices=sorted(render.VIEWS))
+    p.add_argument("--yaw", type=float, default=320)
+    p.add_argument("--pitch", type=float, default=18)
+    add_rig_options(p)
+    p.set_defaults(func=cmd_render)
+
+    p = commands.add_parser("turntable")
+    p.add_argument("geo")
+    p.add_argument("png")
+    p.add_argument("out")
+    p.add_argument("--views", default="left,front34,front,top")
+    add_rig_options(p)
+    p.set_defaults(func=cmd_turntable)
+
+    p = commands.add_parser("faces")
+    p.add_argument("geo")
+    p.add_argument("png")
+    p.add_argument("--profile")
+    p.set_defaults(func=cmd_faces)
+
+    p = commands.add_parser("uvmap")
+    p.add_argument("geo")
+    p.add_argument("png")
+    p.add_argument("out")
+    p.add_argument("--profile")
+    p.add_argument("--zoom", type=int, default=4)
+    p.set_defaults(func=cmd_uvmap)
+
+    p = commands.add_parser("palette")
+    p.add_argument("png")
+    p.set_defaults(func=cmd_palette)
+
+    p = commands.add_parser("check")
+    p.add_argument("geo")
+    p.add_argument("png")
+    p.add_argument("--profile")
+    p.add_argument("--palette")
+    p.add_argument("--fail-unpainted", action="store_true")
+    p.add_argument("--strict", action="store_true", help="also fail on holes, stray texels and faces off the sheet")
+    p.add_argument("--verbose", action="store_true")
+    p.set_defaults(func=cmd_check)
+
+    p = commands.add_parser("diff")
+    p.add_argument("a")
+    p.add_argument("b")
+    p.add_argument("out", nargs="?")
+    p.add_argument("--fail-on-change", action="store_true")
+    p.set_defaults(func=cmd_diff)
+
+    p = commands.add_parser("patch")
+    p.add_argument("base")
+    p.add_argument("block")
+    p.add_argument("out")
+    p.add_argument("--at", type=int, nargs=2, required=True)
+    p.set_defaults(func=cmd_patch)
+
+    p = commands.add_parser("tobbmodel")
+    p.add_argument("geo")
+    p.add_argument("png")
+    p.add_argument("out")
+    p.add_argument("--name")
+    p.set_defaults(func=cmd_tobbmodel)
+
+    p = commands.add_parser("geocompare")
+    p.add_argument("a")
+    p.add_argument("b")
+    p.add_argument("--tolerance", type=float, default=1e-4)
+    p.set_defaults(func=cmd_geocompare)
+
+    args = parser.parse_args(argv)
+    return args.func(args) or 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
