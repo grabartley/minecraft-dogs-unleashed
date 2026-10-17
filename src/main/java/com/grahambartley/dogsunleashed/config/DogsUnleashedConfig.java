@@ -60,8 +60,10 @@ public record DogsUnleashedConfig(
   public static final boolean DEFAULT_FUR_GROWTH_ENABLED = true;
   public static final int DEFAULT_FUR_GROWTH_RATE_MULTIPLIER_PERCENT = 100;
   public static final int DEFAULT_BAD_HAIR_DAY_CHANCE_MULTIPLIER_PERCENT = 100;
-  public static final int FUR_MULTIPLIER_MIN = 0;
-  public static final int FUR_MULTIPLIER_MAX = 500;
+  public static final int FUR_GROWTH_RATE_MIN = 0;
+  public static final int FUR_GROWTH_RATE_MAX = 500;
+  public static final int BAD_HAIR_DAY_CHANCE_MIN = 0;
+  public static final int BAD_HAIR_DAY_CHANCE_MAX = 500;
 
   static final String KEY_ENABLE_NATURAL_SPAWNING = "enableNaturalSpawning";
   static final String KEY_SPAWN_RATE_MULTIPLIER_PERCENT = "spawnRateMultiplierPercent";
@@ -88,9 +90,10 @@ public record DogsUnleashedConfig(
     barkVolume = clampFloat(barkVolume, VOLUME_MIN, VOLUME_MAX);
     howlVolume = clampFloat(howlVolume, VOLUME_MIN, VOLUME_MAX);
     furGrowthRateMultiplierPercent =
-        clampInt(furGrowthRateMultiplierPercent, FUR_MULTIPLIER_MIN, FUR_MULTIPLIER_MAX);
+        clampInt(furGrowthRateMultiplierPercent, FUR_GROWTH_RATE_MIN, FUR_GROWTH_RATE_MAX);
     badHairDayChanceMultiplierPercent =
-        clampInt(badHairDayChanceMultiplierPercent, FUR_MULTIPLIER_MIN, FUR_MULTIPLIER_MAX);
+        clampInt(
+            badHairDayChanceMultiplierPercent, BAD_HAIR_DAY_CHANCE_MIN, BAD_HAIR_DAY_CHANCE_MAX);
   }
 
   public static DogsUnleashedConfig defaults() {
@@ -478,15 +481,18 @@ public record DogsUnleashedConfig(
         fields.readInt(
             KEY_FUR_GROWTH_RATE_MULTIPLIER_PERCENT, defaults.furGrowthRateMultiplierPercent);
     warnIfClampedInt(
-        KEY_FUR_GROWTH_RATE_MULTIPLIER_PERCENT, rawFurRate, FUR_MULTIPLIER_MIN, FUR_MULTIPLIER_MAX);
+        KEY_FUR_GROWTH_RATE_MULTIPLIER_PERCENT,
+        rawFurRate,
+        FUR_GROWTH_RATE_MIN,
+        FUR_GROWTH_RATE_MAX);
     final int rawBadHairDay =
         fields.readInt(
             KEY_BAD_HAIR_DAY_CHANCE_MULTIPLIER_PERCENT, defaults.badHairDayChanceMultiplierPercent);
     warnIfClampedInt(
         KEY_BAD_HAIR_DAY_CHANCE_MULTIPLIER_PERCENT,
         rawBadHairDay,
-        FUR_MULTIPLIER_MIN,
-        FUR_MULTIPLIER_MAX);
+        BAD_HAIR_DAY_CHANCE_MIN,
+        BAD_HAIR_DAY_CHANCE_MAX);
 
     return new DogsUnleashedConfig(
         enableNaturalSpawning,

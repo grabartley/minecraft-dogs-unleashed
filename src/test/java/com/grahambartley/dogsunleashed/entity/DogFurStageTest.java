@@ -1,8 +1,14 @@
 package com.grahambartley.dogsunleashed.entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Locale;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -77,9 +83,14 @@ class DogFurStageTest {
 
   @ParameterizedTest(name = "{0}")
   @EnumSource(DogFurStage.class)
-  @DisplayName("each stage has its own fur lang key")
-  void translationKey(final DogFurStage stage) {
-    assertEquals(
-        "fur.dogs-unleashed." + stage.name().toLowerCase(Locale.ROOT), stage.translationKey());
+  @DisplayName("each stage's name is translated in the English lang file")
+  void translationKeyIsTranslated(final DogFurStage stage) throws IOException {
+    try (InputStream in =
+        DogFurStageTest.class.getResourceAsStream("/assets/dogs-unleashed/lang/en_us.json")) {
+      final JsonObject lang =
+          JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8))
+              .getAsJsonObject();
+      assertTrue(lang.has(stage.translationKey()), stage.translationKey() + " is not translated");
+    }
   }
 }

@@ -3,19 +3,7 @@
     "Torso",
     "bone"
   ],
-  "neck": [
-    "pescoco"
-  ],
-  "head": [
-    "head"
-  ],
-  "tail": [
-    "rabo"
-  ],
-  "legs": [
-    "frontleg1",
-    "frontleg2",
-    "bone2",
-    "bone3"
+  "mouth": [
+    "snout"
   ]
 }

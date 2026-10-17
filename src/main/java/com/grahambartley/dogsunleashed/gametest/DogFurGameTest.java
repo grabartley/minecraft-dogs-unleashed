@@ -45,7 +45,7 @@ public final class DogFurGameTest implements FabricGameTest {
   private static final int TICKS_BEFORE_DUE = 3;
   private static final int TICKS_RUN = 10;
   private static final int NO_BOTCH = 0;
-  private static final int CERTAIN_BOTCH = DogsUnleashedConfig.FUR_MULTIPLIER_MAX;
+  private static final int CERTAIN_BOTCH = DogsUnleashedConfig.BAD_HAIR_DAY_CHANCE_MAX;
 
   private static Collection<TestFunction> perBreed(
       final String name, final BiConsumer<TestContext, DogTestData> body) {
@@ -177,9 +177,7 @@ public final class DogFurGameTest implements FabricGameTest {
 
     context.assertTrue(dog.getFur().isScuffed(), "A botched trim leaves a bad haircut");
     context.assertEquals(
-        droppedFur(context),
-        DogFurRules.shearYield(DogFurStage.OVERGROWN, 2, true),
-        "A botch halves the fur");
+        droppedFur(context), 3, "A botch halves the six fur an overgrown husky gives");
     final AdvancementEntry badHairDay =
         context
             .getWorld()

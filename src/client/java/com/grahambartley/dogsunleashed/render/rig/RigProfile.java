@@ -17,10 +17,7 @@ public record RigProfile(Map<Slot, Set<String>> bones, Map<Overlay, Identifier> 
 
   public enum Slot {
     TORSO,
-    NECK,
-    HEAD,
-    TAIL,
-    LEGS,
+    MOUTH,
     FUR_SHAGGY,
     FUR_OVERGROWN;
 
@@ -63,6 +60,10 @@ public record RigProfile(Map<Slot, Set<String>> bones, Map<Overlay, Identifier> 
 
   public Set<String> bonesIn(final Slot slot) {
     return this.bones.getOrDefault(slot, Set.of());
+  }
+
+  public Optional<String> mouthBone() {
+    return this.bonesIn(Slot.MOUTH).stream().findFirst();
   }
 
   public Optional<Identifier> overlay(final Overlay overlay) {

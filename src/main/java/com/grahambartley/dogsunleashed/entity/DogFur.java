@@ -18,7 +18,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ShearsItem;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.particle.ItemStackParticleEffect;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
@@ -32,6 +35,9 @@ public final class DogFur {
 
   public static final Identifier OVERGROWN_SPEED_MODIFIER_ID =
       Identifier.of(DogsUnleashed.MOD_ID, "overgrown_fur_movement_speed");
+
+  private static final int TRIM_PARTICLES = 12;
+  private static final double TRIM_PARTICLE_SPEED = 0.05;
 
   private final UnleashedDogEntity dog;
   private int ticksInStage;
@@ -133,6 +139,18 @@ public final class DogFur {
         .playSoundFromEntity(
             null, this.dog, SoundEvents.ENTITY_SHEEP_SHEAR, SoundCategory.PLAYERS, 1.0f, 1.0f);
     this.dog.emitGameEvent(GameEvent.SHEAR, player);
+    if (this.dog.getWorld() instanceof ServerWorld world) {
+      world.spawnParticles(
+          new ItemStackParticleEffect(ParticleTypes.ITEM, new ItemStack(ModItems.DOG_FUR)),
+          this.dog.getX(),
+          this.dog.getBodyY(0.6),
+          this.dog.getZ(),
+          TRIM_PARTICLES,
+          this.dog.getWidth() * 0.4,
+          this.dog.getHeight() * 0.3,
+          this.dog.getWidth() * 0.4,
+          TRIM_PARTICLE_SPEED);
+    }
     if (botched) {
       this.dog.playSoundIfNotSilent(SoundEvents.ENTITY_WOLF_WHINE);
       if (player instanceof ServerPlayerEntity serverPlayer) {

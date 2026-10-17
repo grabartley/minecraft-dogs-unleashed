@@ -22,7 +22,7 @@ class RigProfileTest {
                   """
                   {
                     "torso": ["Torso", "bone"],
-                    "head": ["head"],
+                    "mouth": ["snout"],
                     "fur_shaggy": ["shag"],
                     "fur_overgrown": ["mop"],
                     "trimmed_overlay": "dogs-unleashed:textures/entity/fur/x_trimmed.png"
@@ -34,7 +34,7 @@ class RigProfileTest {
   @DisplayName("each slot reads the bone names listed under its key")
   void slotsReadTheirBones() {
     assertEquals(Set.of("Torso", "bone"), PROFILE.bonesIn(Slot.TORSO));
-    assertEquals(Set.of("head"), PROFILE.bonesIn(Slot.HEAD));
+    assertEquals(Set.of("snout"), PROFILE.bonesIn(Slot.MOUTH));
     assertEquals(Set.of("shag"), PROFILE.bonesIn(Slot.FUR_SHAGGY));
     assertEquals(Set.of("mop"), PROFILE.bonesIn(Slot.FUR_OVERGROWN));
   }
@@ -42,7 +42,16 @@ class RigProfileTest {
   @Test
   @DisplayName("a slot the profile leaves out is empty")
   void missingSlotIsEmpty() {
-    assertTrue(PROFILE.bonesIn(Slot.TAIL).isEmpty());
+    final RigProfile torsoOnly =
+        RigProfile.parse(JsonParser.parseString("{\"torso\": [\"main\"]}").getAsJsonObject());
+    assertTrue(torsoOnly.bonesIn(Slot.FUR_SHAGGY).isEmpty());
+    assertTrue(torsoOnly.mouthBone().isEmpty());
+  }
+
+  @Test
+  @DisplayName("the mouth bone is the one bone named in the mouth slot")
+  void mouthBone() {
+    assertEquals(Optional.of("snout"), PROFILE.mouthBone());
   }
 
   @Test

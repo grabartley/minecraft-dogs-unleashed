@@ -93,11 +93,11 @@ class DogsUnleashedConfigTest {
 
   static Stream<Arguments> furMultiplierClampCases() {
     return Stream.of(
-        Arguments.of(-5, DogsUnleashedConfig.FUR_MULTIPLIER_MIN),
+        Arguments.of(-5, 0),
         Arguments.of(0, 0),
         Arguments.of(250, 250),
         Arguments.of(500, 500),
-        Arguments.of(501, DogsUnleashedConfig.FUR_MULTIPLIER_MAX));
+        Arguments.of(501, 500));
   }
 
   @ParameterizedTest(name = "{0} clamps to {1}")

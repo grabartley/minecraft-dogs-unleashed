@@ -223,25 +223,16 @@ public final class PetData {
     return eyeColor != null ? eyeColor.ordinal() : UnleashedDogEntity.UNSET_VARIANT;
   }
 
+  public PortraitLook portraitLook() {
+    return new PortraitLook(baby, collarColor, coatVariant, huskyEyeVariant, furStage, furScuffed);
+  }
+
   public boolean differsFrom(
-      final float health,
-      final BlockPos pos,
-      final String dimension,
-      final boolean baby,
-      final int collarColor,
-      final int coatVariant,
-      final int huskyEyeVariant,
-      final int furStage,
-      final boolean furScuffed) {
+      final float health, final BlockPos pos, final String dimension, final PortraitLook look) {
     return Float.compare(this.health, health) != 0
         || !this.lastKnownPosition.equals(pos)
         || !Objects.equals(this.dimension, dimension)
-        || this.baby != baby
-        || this.collarColor != collarColor
-        || this.coatVariant != coatVariant
-        || this.huskyEyeVariant != huskyEyeVariant
-        || this.furStage != furStage
-        || this.furScuffed != furScuffed;
+        || !this.portraitLook().equals(look);
   }
 
   public NbtCompound toNbt() {

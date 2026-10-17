@@ -119,8 +119,8 @@ public final class DogsUnleashedCommand {
                                 CommandManager.argument(
                                         "percent",
                                         IntegerArgumentType.integer(
-                                            DogsUnleashedConfig.FUR_MULTIPLIER_MIN,
-                                            DogsUnleashedConfig.FUR_MULTIPLIER_MAX))
+                                            DogsUnleashedConfig.FUR_GROWTH_RATE_MIN,
+                                            DogsUnleashedConfig.FUR_GROWTH_RATE_MAX))
                                     .executes(
                                         ctx ->
                                             setFurGrowthRate(
@@ -132,8 +132,8 @@ public final class DogsUnleashedCommand {
                                 CommandManager.argument(
                                         "percent",
                                         IntegerArgumentType.integer(
-                                            DogsUnleashedConfig.FUR_MULTIPLIER_MIN,
-                                            DogsUnleashedConfig.FUR_MULTIPLIER_MAX))
+                                            DogsUnleashedConfig.BAD_HAIR_DAY_CHANCE_MIN,
+                                            DogsUnleashedConfig.BAD_HAIR_DAY_CHANCE_MAX))
                                     .executes(
                                         ctx ->
                                             setBadHairDayChance(
@@ -252,12 +252,12 @@ public final class DogsUnleashedCommand {
         Text.translatable("command.dogs-unleashed.help.furgrowth"),
         Text.translatable(
             "command.dogs-unleashed.help.furgrowthrate",
-            DogsUnleashedConfig.FUR_MULTIPLIER_MIN,
-            DogsUnleashedConfig.FUR_MULTIPLIER_MAX),
+            DogsUnleashedConfig.FUR_GROWTH_RATE_MIN,
+            DogsUnleashedConfig.FUR_GROWTH_RATE_MAX),
         Text.translatable(
             "command.dogs-unleashed.help.badhairdaychance",
-            DogsUnleashedConfig.FUR_MULTIPLIER_MIN,
-            DogsUnleashedConfig.FUR_MULTIPLIER_MAX),
+            DogsUnleashedConfig.BAD_HAIR_DAY_CHANCE_MIN,
+            DogsUnleashedConfig.BAD_HAIR_DAY_CHANCE_MAX),
         Text.translatable(
             "command.dogs-unleashed.help.barkvolume",
             DogsUnleashedConfig.VOLUME_MIN,

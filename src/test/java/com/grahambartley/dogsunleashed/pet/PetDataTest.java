@@ -70,7 +70,9 @@ class PetDataTest {
       final int fur,
       final boolean scuffed) {
     assertTrue(
-        baselinePet().differsFrom(health, pos, dimension, baby, collar, coat, eye, fur, scuffed),
+        baselinePet()
+            .differsFrom(
+                health, pos, dimension, new PortraitLook(baby, collar, coat, eye, fur, scuffed)),
         "expected differsFrom to flag a change in " + changedField);
   }
 
@@ -198,12 +200,8 @@ class PetDataTest {
                 BASE_HEALTH,
                 equalPos,
                 BASE_DIM,
-                BASE_BABY,
-                baseCollar(),
-                BASE_COAT,
-                BASE_EYE,
-                BASE_FUR,
-                BASE_SCUFFED),
+                new PortraitLook(
+                    BASE_BABY, baseCollar(), BASE_COAT, BASE_EYE, BASE_FUR, BASE_SCUFFED)),
         "expected differsFrom to report no change for an unchanged pet (" + label + ")");
   }
 

@@ -5,6 +5,7 @@ import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLocationService;
 import com.grahambartley.dogsunleashed.pet.PetManager;
+import com.grahambartley.dogsunleashed.pet.PortraitLook;
 import java.util.List;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
@@ -24,20 +25,7 @@ public final class PetSyncRefresher {
           final BlockPos newPos = dog.getBlockPos();
           final String newDim =
               ((ServerWorld) dog.getWorld()).getRegistryKey().getValue().toString();
-          final boolean newBaby = dog.isBaby();
-          final int newCollar = dog.getCollarColor().getId();
-          final int newCoat = PetData.coatVariantOf(dog);
-          final int newHuskyEye = PetData.huskyEyeVariantOf(dog);
-          if (pet.differsFrom(
-              newHealth,
-              newPos,
-              newDim,
-              newBaby,
-              newCollar,
-              newCoat,
-              newHuskyEye,
-              dog.getFur().stage().ordinal(),
-              dog.getFur().isScuffed())) {
+          if (pet.differsFrom(newHealth, newPos, newDim, PortraitLook.of(dog))) {
             pet.setHealth(newHealth);
             pet.setLastKnownPosition(newPos);
             pet.setDimension(newDim);

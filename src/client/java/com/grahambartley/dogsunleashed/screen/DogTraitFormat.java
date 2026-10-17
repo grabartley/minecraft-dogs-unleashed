@@ -1,12 +1,15 @@
 package com.grahambartley.dogsunleashed.screen;
 
+import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.entity.variant.DogRarityClassifier;
+import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import net.minecraft.text.Text;
 
 final class DogTraitFormat {
 
@@ -40,6 +43,13 @@ final class DogTraitFormat {
       return "<1%";
     }
     return Math.round(percent) + "%";
+  }
+
+  static String furLine(final PetSyncData pet) {
+    return formatFur(
+        Text.translatable(DogFurStage.fromOrdinal(pet.furStage()).translationKey()).getString(),
+        Text.translatable("fur.dogs-unleashed.scuffed").getString(),
+        pet.furScuffed());
   }
 
   static String formatFur(final String stageName, final String scuffedNote, final boolean scuffed) {

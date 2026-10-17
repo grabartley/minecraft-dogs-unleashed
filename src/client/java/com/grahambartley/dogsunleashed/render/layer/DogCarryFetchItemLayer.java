@@ -12,6 +12,7 @@ import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
 import com.grahambartley.dogsunleashed.model.FrisbeeModel;
 import com.grahambartley.dogsunleashed.model.StickModel;
 import com.grahambartley.dogsunleashed.model.TennisBallModel;
+import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -55,7 +56,10 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
     if (animatable.isInvisible() || !animatable.getFetchCarry().isCarrying()) {
       return null;
     }
-    if (!animatable.getRigSourceBreed().mouthAnchorBoneName().equals(bone.getName())) {
+    if (!RigProfiles.of(animatable.getRigSourceBreed())
+        .mouthBone()
+        .filter(bone.getName()::equals)
+        .isPresent()) {
       return null;
     }
 

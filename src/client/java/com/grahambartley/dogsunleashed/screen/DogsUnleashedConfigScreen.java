@@ -115,6 +115,8 @@ public final class DogsUnleashedConfigScreen extends Screen {
             canEdit,
             Text.translatable("screen.dogs-unleashed.settings.spawnrate"),
             Text.translatable("screen.dogs-unleashed.settings.spawnrate.tooltip"),
+            DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MIN,
+            DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MAX,
             this.spawnRateMultiplierPercent,
             value -> this.spawnRateMultiplierPercent = value));
     for (final UnleashedDogBreed breed : UnleashedDogBreed.values()) {
@@ -128,6 +130,8 @@ public final class DogsUnleashedConfigScreen extends Screen {
                   "screen.dogs-unleashed.settings.spawnrate.breed",
                   Text.translatable(breed.translationKey())),
               Text.translatable("screen.dogs-unleashed.settings.spawnrate.breed.tooltip"),
+              DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MIN,
+              DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MAX,
               this.breedSpawnRateMultipliersPercent.get(breed.serializedId()),
               value -> this.breedSpawnRateMultipliersPercent.put(breed.serializedId(), value)));
     }
@@ -170,6 +174,8 @@ public final class DogsUnleashedConfigScreen extends Screen {
             canEdit,
             Text.translatable("screen.dogs-unleashed.settings.furgrowthrate"),
             Text.translatable("screen.dogs-unleashed.settings.furgrowthrate.tooltip"),
+            DogsUnleashedConfig.FUR_GROWTH_RATE_MIN,
+            DogsUnleashedConfig.FUR_GROWTH_RATE_MAX,
             this.furGrowthRateMultiplierPercent,
             value -> this.furGrowthRateMultiplierPercent = value));
     list.addRow(
@@ -177,6 +183,8 @@ public final class DogsUnleashedConfigScreen extends Screen {
             canEdit,
             Text.translatable("screen.dogs-unleashed.settings.badhairdaychance"),
             Text.translatable("screen.dogs-unleashed.settings.badhairdaychance.tooltip"),
+            DogsUnleashedConfig.BAD_HAIR_DAY_CHANCE_MIN,
+            DogsUnleashedConfig.BAD_HAIR_DAY_CHANCE_MAX,
             this.badHairDayChanceMultiplierPercent,
             value -> this.badHairDayChanceMultiplierPercent = value));
 
@@ -269,20 +277,12 @@ public final class DogsUnleashedConfigScreen extends Screen {
       final boolean canEdit,
       final Text label,
       final Text tooltip,
+      final int min,
+      final int max,
       final int initial,
       final Consumer<Integer> sink) {
     final IntSliderWidget widget =
-        new IntSliderWidget(
-            0,
-            0,
-            WIDGET_WIDTH,
-            WIDGET_HEIGHT,
-            label,
-            "%",
-            DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MIN,
-            DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MAX,
-            initial,
-            sink);
+        new IntSliderWidget(0, 0, WIDGET_WIDTH, WIDGET_HEIGHT, label, "%", min, max, initial, sink);
     return withTooltip(widget, tooltip, canEdit);
   }
 

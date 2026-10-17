@@ -1,6 +1,5 @@
 package com.grahambartley.dogsunleashed.screen;
 
-import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.variant.DogCoats;
 import com.grahambartley.dogsunleashed.entity.variant.DogRarity;
 import com.grahambartley.dogsunleashed.entity.variant.DogRarityClassifier;
@@ -133,11 +132,7 @@ public class DogInspectScreen extends Screen {
             infoX,
             infoY,
             "screen.dogs-unleashed.pet_details.fur",
-            DogTraitFormat.formatFur(
-                Text.translatable(DogFurStage.fromOrdinal(pet.furStage()).translationKey())
-                    .getString(),
-                Text.translatable("fur.dogs-unleashed.scuffed").getString(),
-                pet.furScuffed()),
+            DogTraitFormat.furLine(pet),
             VALUE_COLOR);
 
     DogStatsPanel.drawForPet(context, this.textRenderer, pet, infoX, infoY, INFO_LABEL_WIDTH);

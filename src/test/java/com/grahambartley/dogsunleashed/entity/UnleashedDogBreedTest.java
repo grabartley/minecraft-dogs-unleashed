@@ -1,7 +1,6 @@
 package com.grahambartley.dogsunleashed.entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -63,15 +62,6 @@ class UnleashedDogBreedTest {
 
   static Stream<Arguments> nullableUnknownInputs() {
     return Stream.of(Arguments.of("???"), Arguments.of(""), Arguments.of((Object) null));
-  }
-
-  @ParameterizedTest
-  @EnumSource(UnleashedDogBreed.class)
-  @DisplayName("every breed declares a non-empty mouth-anchor bone name")
-  void everyBreedDeclaresMouthAnchorBoneName(final UnleashedDogBreed breed) {
-    final String anchor = breed.mouthAnchorBoneName();
-    assertNotNull(anchor, "mouth anchor for " + breed);
-    assertFalse(anchor.isEmpty(), "mouth anchor for " + breed + " must be non-empty");
   }
 
   @ParameterizedTest

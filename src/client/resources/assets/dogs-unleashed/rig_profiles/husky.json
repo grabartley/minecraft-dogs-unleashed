@@ -4,20 +4,7 @@
     "frontchest",
     "belly"
   ],
-  "neck": [
-    "neck"
-  ],
-  "head": [
-    "head"
-  ],
-  "tail": [
-    "tail",
-    "bone"
-  ],
-  "legs": [
-    "backleftleg",
-    "backrightleg",
-    "frontleftleg",
-    "frontrightleg"
+  "mouth": [
+    "snout"
   ]
 }

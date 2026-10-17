@@ -16,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
 public enum UnleashedDogBreed {
   HUSKY(
       "husky",
-      "snout",
       new FetchCarryProfiles(
           new CarryProfile(0.0, 0.0, 0.54f),
           new CarryProfile(0.0, 0.0, 0.40f),
@@ -40,7 +39,6 @@ public enum UnleashedDogBreed {
       new FurProfile(DogFurStage.OVERGROWN, 48000, 2)),
   DACHSHUND(
       "dachshund",
-      "mouth",
       new FetchCarryProfiles(
           new CarryProfile(0.0, 0.0, 0.31f),
           new CarryProfile(0.0, 0.0, 0.32f),
@@ -55,7 +53,6 @@ public enum UnleashedDogBreed {
       new FurProfile(DogFurStage.SHAGGY, 72000, 1)),
   BEAGLE(
       "beagle",
-      "snout",
       new FetchCarryProfiles(
           new CarryProfile(0.0, 0.0, 0.36f),
           new CarryProfile(0.0, 0.0, 0.38f),
@@ -78,7 +75,6 @@ public enum UnleashedDogBreed {
       new FurProfile(DogFurStage.SHAGGY, 72000, 1)),
   GOLDEN_RETRIEVER(
       "goldenretriever",
-      "snout",
       new FetchCarryProfiles(
           new CarryProfile(0.0, 0.0, 0.41f),
           new CarryProfile(0.0, 0.0, 0.40f),
@@ -93,7 +89,6 @@ public enum UnleashedDogBreed {
       new FurProfile(DogFurStage.OVERGROWN, 48000, 2)),
   SHIBA_INU(
       "shibainu",
-      "snout",
       new FetchCarryProfiles(
           new CarryProfile(0.0, 0.0, 0.36f),
           new CarryProfile(0.0, 0.0, 0.38f),
@@ -108,7 +103,6 @@ public enum UnleashedDogBreed {
       new FurProfile(DogFurStage.OVERGROWN, 60000, 2)),
   CROSS_BREED(
       "crossbreed",
-      "snout",
       new FetchCarryProfiles(
           new CarryProfile(0.0, 0.0, 0.36f),
           new CarryProfile(0.0, 0.0, 0.38f),
@@ -125,7 +119,6 @@ public enum UnleashedDogBreed {
   public static final UnleashedDogBreed FALLBACK_RIG = HUSKY;
 
   private final String serializedId;
-  private final String mouthAnchorBoneName;
   private final FetchCarryProfiles fetchCarryProfiles;
   private final SpawnEggColors spawnEggColors;
   private final Dimensions dimensions;
@@ -138,7 +131,6 @@ public enum UnleashedDogBreed {
 
   UnleashedDogBreed(
       final String serializedId,
-      final String mouthAnchorBoneName,
       final FetchCarryProfiles fetchCarryProfiles,
       final SpawnEggColors spawnEggColors,
       final Dimensions dimensions,
@@ -149,7 +141,6 @@ public enum UnleashedDogBreed {
       final RenderTransforms renderTransforms,
       final FurProfile furProfile) {
     this.serializedId = serializedId;
-    this.mouthAnchorBoneName = mouthAnchorBoneName;
     this.fetchCarryProfiles = fetchCarryProfiles;
     this.spawnEggColors = spawnEggColors;
     this.dimensions = dimensions;
@@ -171,10 +162,6 @@ public enum UnleashedDogBreed {
 
   public String animationPath() {
     return "animations/" + this.serializedId + ".animation.json";
-  }
-
-  public String mouthAnchorBoneName() {
-    return this.mouthAnchorBoneName;
   }
 
   public FetchCarryProfiles fetchCarryProfiles() {

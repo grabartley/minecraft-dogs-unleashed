@@ -7,7 +7,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.item.ShearsItem;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.screen.ScreenHandler;
@@ -92,7 +92,7 @@ public final class DogEquipmentHolder {
       final PlayerEntity player, final Hand hand, final ItemStack heldStack) {
     final DogEquipmentSlot targetSlot = DogEquipmentSlot.directEquipSlotFor(heldStack);
     return switch (directEquipOutcome(
-        heldStack.isOf(Items.SHEARS),
+        heldStack.getItem() instanceof ShearsItem,
         !this.getStack(DogEquipmentSlot.ARMOUR).isEmpty(),
         targetSlot)) {
       case IGNORED -> null;

@@ -8,7 +8,7 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.item.ShearsItem;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -49,7 +49,7 @@ public final class WolfDogArmour {
     if (!wears(wolf)) {
       return null;
     }
-    if (held.isOf(Items.SHEARS)) {
+    if (held.getItem() instanceof ShearsItem) {
       return shear(wolf, player, hand, held);
     }
     return new DogArmour(wolf).tryRepair(player, held);

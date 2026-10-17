@@ -27,9 +27,10 @@ class RigProfilesTest {
   @EnumSource(
       value = UnleashedDogBreed.class,
       names = {"HUSKY", "BEAGLE", "DACHSHUND", "SHIBA_INU", "GOLDEN_RETRIEVER"})
-  @DisplayName("every rig ships a profile with a torso")
+  @DisplayName("every rig ships a profile with a torso and a mouth")
   void everyRigHasAProfile(final UnleashedDogBreed rig) {
     assertFalse(BUNDLED.profileOf(rig).bonesIn(Slot.TORSO).isEmpty());
+    assertTrue(BUNDLED.profileOf(rig).mouthBone().isPresent());
   }
 
   @ParameterizedTest(name = "{0}")
