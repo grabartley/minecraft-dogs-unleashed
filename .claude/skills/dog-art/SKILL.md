@@ -85,10 +85,14 @@ Views: `front`, `front34`, `left`, `right`, `back`, `back34`, `top`, or `--yaw` 
 2. **Read the rig first.** `faces --profile` gives the exact pixel rectangle of every face, grouped
    by rig profile slot, and `uvmap` draws it. Never guess where the snout is on the sheet. The
    sheet can be a different size from the geo's `texture_width`; `faces` prints the scale.
-3. **Author as text.** Texture edits are `patch` blocks written in `$SCRATCH`, in the
-   `item-sprite` palette-mapped format (`x=#RRGGBB` lines, then one character per texel, `.` for
-   transparent, space to leave a texel alone). Rig edits go through `bbmodel_edit` on the project.
-   Commit the PNG and the exported geo, never the block text or the project.
+3. **Author in the project.** Rig edits go through `bbmodel_edit`. Textures beyond a flat sprite
+   live in the project too: a mechanical recolour or marking fix is a `patch` block written in
+   `$SCRATCH`, in the `item-sprite` palette-mapped format (`x=#RRGGBB` lines, then one character
+   per texel, `.` for transparent, space to leave a texel alone), applied to the PNG and put back
+   into the project with `update_texture`; freehand painting happens in the Blockbench app on the
+   same project (`blockbench_launch` opens it), then the PNG is read back out. Either way the
+   texture is reviewed on the rig with `bbmodel_contact_sheet` before it ships. Commit the PNG and
+   the exported geo, never the block text or the project.
 4. **Look at it.** `bbmodel_contact_sheet` on the project for any rig change, `turntable` on the
    export for texture edits and before-and-after pairs, then `render --view left --pitch 0` for
    the silhouette alone. Open the PNG. Reading JSON or block text is not looking. The first
