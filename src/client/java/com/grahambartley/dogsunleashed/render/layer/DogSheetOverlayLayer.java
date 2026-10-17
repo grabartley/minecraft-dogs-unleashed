@@ -16,11 +16,7 @@ public class DogSheetOverlayLayer extends TranslucentOverlayLayer {
 
   @Override
   protected List<Identifier> overlaysOf(final UnleashedDogEntity dog) {
-    final List<Identifier> sheets = OverlayEffects.dogs().activeOn(dog);
-    if (sheets.isEmpty()) {
-      return List.of();
-    }
-    return sheets.stream()
+    return OverlayEffects.dogs().activeOn(dog).stream()
         .map(sheet -> ProjectedOverlays.shared().textureOf(dog.getRigSourceBreed(), sheet))
         .flatMap(Optional::stream)
         .toList();

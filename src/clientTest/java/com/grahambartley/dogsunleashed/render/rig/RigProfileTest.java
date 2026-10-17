@@ -147,7 +147,8 @@ class RigProfileTest {
         "{\"sheet_overrides\": \"rot\"}",
         "{\"sheet_overrides\": {\"Not A Valid Id\": {\"head\": \"dogs-unleashed:x.png\"}}}",
         "{\"sheet_overrides\": {\"dogs-unleashed:rot.png\": \"head\"}}",
-        "{\"sheet_overrides\": {\"dogs-unleashed:rot.png\": {\"head\": 7, \"nose\": \"dogs-unleashed:x.png\"}}}"
+        "{\"sheet_overrides\": {\"dogs-unleashed:rot.png\": {\"head\": 7, \"nose\": \"dogs-unleashed:x.png\"}}}",
+        "{\"sheet_overrides\": {\"dogs-unleashed:rot.png\": {\"fur_shaggy\": \"dogs-unleashed:x.png\"}}}"
       })
   @DisplayName("malformed sheet overrides are ignored and the rest of the profile still reads")
   void malformedSheetOverridesAreIgnored(final String json) {

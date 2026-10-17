@@ -21,8 +21,7 @@ public final class OverlayProjector {
       final Function<Slot, Optional<PixelGrid>> overrides) {
     final PixelGrid projected = PixelGrid.blank(atlasWidth, atlasHeight);
     for (final Slot slot : OverlaySheet.SLOTS) {
-      final Optional<PixelGrid> override =
-          overrides.apply(slot).filter(image -> image.hasSize(atlasWidth, atlasHeight));
+      final Optional<PixelGrid> override = overrides.apply(slot);
       for (final SlotRegion region : regions.apply(slot)) {
         if (override.isPresent()) {
           copy(override.get(), region, projected);

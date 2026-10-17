@@ -139,6 +139,7 @@ public final class ProjectedOverlays {
           texture,
           atlasWidth,
           atlasHeight);
+      return Optional.empty();
     }
     return override;
   }

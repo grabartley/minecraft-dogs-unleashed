@@ -139,6 +139,30 @@ class ProjectedOverlaysTest {
   }
 
   @Test
+  @DisplayName("an override of the wrong size falls back to the projected sheet")
+  void wrongSizedOverrideFallsBack() {
+    this.images.put(
+        SHEET, PixelGrids.filled(OverlaySheet.WIDTH, OverlaySheet.HEIGHT, SHEET_COLOUR));
+    this.images.put(HEAD_OVERRIDE, PixelGrids.filled(64, 64, OVERRIDE_COLOUR));
+    final RigProfile beagle = BUNDLED.profileOf(UnleashedDogBreed.BEAGLE);
+    final RigProfile withOverride =
+        new RigProfile(
+            beagle.bones(),
+            beagle.overlays(),
+            beagle.pupils(),
+            Map.of(SHEET, Map.of(Slot.HEAD, HEAD_OVERRIDE)));
+    final ProjectedOverlays overlays = overlays(shipped(), rig -> withOverride);
+    final SlotRegion head =
+        new SlotRegions(shipped(), rig -> withOverride)
+            .regionsOf(UnleashedDogBreed.BEAGLE, Slot.HEAD)
+            .get(0);
+
+    overlays.textureOf(UnleashedDogBreed.BEAGLE, SHEET);
+
+    assertEquals(SHEET_COLOUR, this.registered.get(0).colourAt(head.x(), head.y()));
+  }
+
+  @Test
   @DisplayName("an override that is missing falls back to the projected sheet")
   void missingOverrideFallsBack() {
     this.images.put(SHEET, labelledHeadSheet());

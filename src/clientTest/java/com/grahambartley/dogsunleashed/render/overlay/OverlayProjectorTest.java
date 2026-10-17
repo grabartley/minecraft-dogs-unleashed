@@ -136,23 +136,6 @@ class OverlayProjectorTest {
   }
 
   @Test
-  @DisplayName("an override that does not match the atlas size is ignored")
-  void wrongSizedOverrideIsIgnored() {
-    final SlotRegion head = new SlotRegion("head", Direction.EAST, 0, 0, 2, 2);
-
-    final PixelGrid projected =
-        OverlayProjector.project(
-            labelledSheet(),
-            ATLAS,
-            ATLAS,
-            UnaryOperator.identity(),
-            regionsOn(Slot.HEAD, head),
-            slot -> Optional.of(PixelGrids.filled(ATLAS * 2, ATLAS * 2, OVERRIDE_COLOUR)));
-
-    assertEquals(labelOf(Slot.HEAD, Direction.EAST), projected.colourAt(0, 0));
-  }
-
-  @Test
   @DisplayName("a region running off the atlas edge is clipped rather than failing")
   void regionOffTheEdgeIsClipped() {
     final SlotRegion region = new SlotRegion("head", Direction.UP, ATLAS - 1, ATLAS - 1, 4, 4);

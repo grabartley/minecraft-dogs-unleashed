@@ -49,6 +49,10 @@ public record RigProfile(
     String key() {
       return this.name().toLowerCase(Locale.ROOT);
     }
+
+    public boolean isFur() {
+      return this == FUR_SHAGGY || this == FUR_OVERGROWN;
+    }
   }
 
   public enum Overlay {
@@ -119,7 +123,7 @@ public record RigProfile(
             entry.getValue() instanceof JsonPrimitive value && value.isString()
                 ? Identifier.tryParse(value.getAsString())
                 : null;
-        if (slot.isEmpty() || texture == null) {
+        if (slot.isEmpty() || slot.get().isFur() || texture == null) {
           LOGGER.warn(
               "Skipping {} override {} of sheet {}", entry.getKey(), entry.getValue(), sheetId);
           continue;
