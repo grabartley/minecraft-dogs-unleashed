@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_blank_pendant": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "dogs-unleashed:blank_pendant"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "dogs-unleashed:guardian_fall_pendant"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_blank_pendant",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "dogs-unleashed:guardian_fall_pendant"
+    ]
+  }
+}
