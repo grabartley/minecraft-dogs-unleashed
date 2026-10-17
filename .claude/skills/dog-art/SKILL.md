@@ -53,7 +53,7 @@ ever committed. `.gitignore` refuses them.
 
 | Command | What it answers | Speed |
 |---|---|---|
-| `render geo png out --view left` | A quick textured look at an export from one angle, with no engine download | 0.2 s |
+| `render geo png out --view left [--asleep] [--fur-stage shaggy]` | A quick textured look at an export from one angle, with no engine download | 0.2 s |
 | `turntable geo png out` | Left, three-quarter, front and top in one strip, for before and after pairs | 0.5 s |
 | `faces geo png --profile rig.json` | Which texture pixels are the snout top, the left ear, the belly | instant |
 | `uvmap geo png out --profile rig.json` | The same, drawn over the sheet in a colour per rig slot | instant |
@@ -64,16 +64,25 @@ ever committed. `.gitignore` refuses them.
 | `tobbmodel geo png out.bbmodel` | A Blockbench project of a shipped rig with its texture embedded | instant |
 | `geocompare a.geo.json b.geo.json` | Bone-by-bone, cube-by-cube numeric diff of two rigs | instant |
 
-It needs nothing but the system Python. The geometry follows GeckoLib 4.7's `BakedModelFactory`
-exactly: x mirrored, bone and cube x and y angles negated, box UV sizes floored, the first side
-patch on the model's +x face, the bottom face laid out front to back, mirrored cubes swapping their
-side patches and flipping every face. `scripts/test_dogart.py` pins each of those against values
-read by hand from the GeckoLib source, and `geocompare` against the MCP export proves the same
-conventions on the real rigs. Run the tests with:
+It needs nothing but the system Python, and it is split by concern: `pngio.py`, `bake.py`,
+`render.py`, `checks.py`, `bbmodel.py`, each with its own `test_*.py`, and `dogart.py` as the
+command line. The geometry follows GeckoLib 4.7's `BakedModelFactory` exactly: x mirrored, bone
+and cube x and y angles negated, box UV sizes floored, the first side patch on the model's +x
+face, the bottom face laid out front to back, mirrored cubes swapping their side patches and
+flipping every face, texels drawn when alpha reaches the cutout threshold of 26. `test_bake.py`
+pins each of those per corner against values read from the GeckoLib source, `test_bbmodel.py`
+pins the project face layout against what the MCP writes, and `geocompare` against the MCP
+export proves the same conventions on the real rigs. Run the tests with:
 
 ```bash
-python3 -m unittest discover -s .claude/skills/dog-art/scripts -p "test_dogart.py"
+python3 -m unittest discover -s .claude/skills/dog-art/scripts -p "test_*.py"
 ```
+
+The rig profile beside the geo is read automatically. Its `eyes` bones are the closed-eye
+overlays that every awake animation parks inside the body and only `sleep` swings over the eyes,
+so renders hide them unless `--asleep`. Fur bones follow `--fur-stage` the way `FurLook` does in
+the client. Blockbench's renderer knows none of this: a contact sheet of the project shows the
+closed eyes, because it draws the rest pose with every bone.
 
 Views: `front`, `front34`, `left`, `right`, `back`, `back34`, `top`, or `--yaw` and `--pitch`.
 `left` is the dog's own left. The dachshund rig faces the other way (its body yaw offset is 180 in
@@ -87,9 +96,10 @@ Views: `front`, `front34`, `left`, `right`, `back`, `back34`, `top`, or `--yaw` 
    sheet can be a different size from the geo's `texture_width`; `faces` prints the scale.
 3. **Author in the project.** Rig edits go through `bbmodel_edit`. Textures beyond a flat sprite
    live in the project too: a mechanical recolour or marking fix is a `patch` block written in
-   `$SCRATCH`, in the `item-sprite` palette-mapped format (`x=#RRGGBB` lines, then one character
-   per texel, `.` for transparent, space to leave a texel alone), applied to the PNG and put back
-   into the project with `update_texture`; freehand painting happens in the Blockbench app on the
+   `$SCRATCH` (palette lines `x=#RRGGBB` or `x=transparent` first, then one character per texel,
+   `.` for transparent, a space to leave a texel alone; once the first texel row starts every
+   following line is a row), applied to the PNG and put back into the project with
+   `update_texture`; freehand painting happens in the Blockbench app on the
    same project (`blockbench_launch` opens it), then the PNG is read back out. Either way the
    texture is reviewed on the rig with `bbmodel_contact_sheet` before it ships. Commit the PNG and
    the exported geo, never the block text or the project.
@@ -131,13 +141,14 @@ assumption that produced it: the reference is always the shipped asset on `main`
   the same way. Blockbench and the game mirror x, so the first side patch of a box UV is the dog's
   right flank and the third is its left. The renderer draws that mirrored frame, so a mark painted
   into the left ear's patch shows on the dog's left in its output and in game.
-- Sheets are 128x128 at about 5 texels per visible unit for the beagle, golden retriever and shiba
-  inu, 128x128 at 2.5 for the dachshund, and 64x64 at 1 for the husky. New art matches the breed
-  it sits on. A new breed uses 128x128 at 5.
+- Sheets are 128x128 for the beagle, dachshund, golden retriever and shiba inu and 64x64 for the
+  husky. Texel density on the thinnest axis of a cube sits at a median of 2.5 for the beagle and
+  dachshund, 4 for the shiba inu, 5 for the golden retriever and about 1 for the husky. New art
+  matches the breed it sits on. A new breed uses 128x128 at 4 to 5.
 - That density comes from the rig idiom: cubes are authored large with a big negative `inflate`.
-  The beagle head is an 8-unit cube with inflate -3, so it draws 2 units wide with 8 texels across
-  it, 4 per unit. The husky is native scale with no inflate trick. The small rigs are 6 to 10
-  units tall and scaled up by `RenderTransforms` in `UnleashedDogBreed`. Keep the idiom when adding
+  The shiba inu head is an 8-unit cube with inflate -3, so it draws 2 units wide with 8 texels
+  across it, 4 per unit. The husky is native scale with no inflate trick. The small rigs are 6 to
+  10 units tall and scaled up by `RenderTransforms` in `UnleashedDogBreed`. Keep the idiom when adding
   cubes to a rig; a cube with no inflate on a small rig lands at a fraction of the texel density and
   looks blurry beside its neighbours. `check` flags that as `DENSITY`.
 - Zero-width cubes are flat planes and the artist uses them: the shiba inu carries six `fur`
@@ -162,8 +173,9 @@ the proportions of every shipped breed.
 
 ## Known Limits
 
-- Rest pose only. Animation files are not read, so a pose-dependent clip (an ear through a cheek
-  when sitting) only shows in game or in `bbmodel_render` with a clip.
+- Rest pose only, with the eyes and fur slots hidden the way the client does. Animation files are
+  not read, so a pose-dependent clip (an ear through a cheek when sitting) only shows in game or
+  in `bbmodel_render` with a clip.
 - Face brightness is the block ramp, not entity lighting. Judge tone relationships, not absolute
   brightness.
 - `tobbmodel` carries geometry and one texture, not animations. The artist's own project is the
