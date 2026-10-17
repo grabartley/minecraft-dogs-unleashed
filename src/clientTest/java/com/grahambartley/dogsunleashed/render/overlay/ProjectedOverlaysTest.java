@@ -14,6 +14,7 @@ import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
 import com.grahambartley.dogsunleashed.render.rig.ShippedRigs;
 import com.grahambartley.dogsunleashed.render.rig.SlotRegion;
 import com.grahambartley.dogsunleashed.render.rig.SlotRegions;
+import com.grahambartley.dogsunleashed.render.rig.Texel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -157,6 +158,48 @@ class ProjectedOverlaysTest {
     overlays.textureOf(UnleashedDogBreed.BEAGLE, SHEET);
 
     assertEquals(SHEET_COLOUR, this.registered.get(0).colourAt(head.x(), head.y()));
+  }
+
+  @Test
+  @DisplayName("a rig the renderer turns around takes its front from the sheet's front cell")
+  void turnedRigTakesItsFrontFromTheFrontCell() {
+    final PixelGrid sheet =
+        PixelGrids.filled(OverlaySheet.WIDTH, OverlaySheet.HEIGHT, SHEET_COLOUR);
+    final Cell back = OverlaySheet.cellOf(Slot.HEAD, Direction.SOUTH).orElseThrow();
+    for (int y = back.y(); y < back.y() + back.height(); y++) {
+      for (int x = back.x(); x < back.x() + back.width(); x++) {
+        sheet.set(x, y, OVERRIDE_COLOUR);
+      }
+    }
+    this.images.put(SHEET, sheet);
+    final ProjectedOverlays overlays = overlays(shipped(), BUNDLED::profileOf);
+    final SlotRegions regions = new SlotRegions(shipped(), BUNDLED::profileOf);
+
+    overlays.textureOf(UnleashedDogBreed.DACHSHUND, SHEET);
+    overlays.textureOf(UnleashedDogBreed.HUSKY, SHEET);
+
+    final SlotRegion dachshundModelNorth = northHeadRegion(regions, UnleashedDogBreed.DACHSHUND);
+    final SlotRegion huskyModelNorth = northHeadRegion(regions, UnleashedDogBreed.HUSKY);
+    assertEquals(
+        OVERRIDE_COLOUR,
+        this.registered.get(0).colourAt(dachshundModelNorth.x(), dachshundModelNorth.y()));
+    assertEquals(
+        SHEET_COLOUR, this.registered.get(1).colourAt(huskyModelNorth.x(), huskyModelNorth.y()));
+  }
+
+  private static SlotRegion northHeadRegion(
+      final SlotRegions regions, final UnleashedDogBreed rig) {
+    final List<SlotRegion> head = regions.regionsOf(rig, Slot.HEAD);
+    return head.stream()
+        .filter(region -> region.face() == Direction.NORTH)
+        .filter(
+            region ->
+                head.stream()
+                    .noneMatch(
+                        other ->
+                            other != region && other.contains(new Texel(region.x(), region.y()))))
+        .findFirst()
+        .orElseThrow();
   }
 
   @Test

@@ -117,6 +117,7 @@ public final class ProjectedOverlays {
             pixels.get(),
             atlasWidth,
             atlasHeight,
+            ModelFacing.turnedBy(rig.renderTransforms().bodyYawOffsetDegrees()),
             slot -> this.regions.regionsOf(rig, slot),
             slot ->
                 profile

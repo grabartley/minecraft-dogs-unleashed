@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import net.minecraft.util.math.Direction;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,13 +35,35 @@ class OverlayProjectorTest {
 
     final PixelGrid projected =
         OverlayProjector.project(
-            labelledSheet(), ATLAS, ATLAS, regionsOn(Slot.HEAD, region), slot -> Optional.empty());
+            labelledSheet(),
+            ATLAS,
+            ATLAS,
+            UnaryOperator.identity(),
+            regionsOn(Slot.HEAD, region),
+            slot -> Optional.empty());
 
     for (int y = 6; y < 8; y++) {
       for (int x = 4; x < 7; x++) {
         assertEquals(labelOf(Slot.HEAD, face), projected.colourAt(x, y));
       }
     }
+  }
+
+  @Test
+  @DisplayName("a turned rig takes each face from the cell of the side it is drawn on")
+  void turnedRigUsesTheTurnedCell() {
+    final SlotRegion region = new SlotRegion("head", Direction.NORTH, 0, 0, 2, 2);
+
+    final PixelGrid projected =
+        OverlayProjector.project(
+            labelledSheet(),
+            ATLAS,
+            ATLAS,
+            ModelFacing.turnedBy(180.0f),
+            regionsOn(Slot.HEAD, region),
+            slot -> Optional.empty());
+
+    assertEquals(labelOf(Slot.HEAD, Direction.SOUTH), projected.colourAt(0, 0));
   }
 
   @Test
@@ -56,7 +79,12 @@ class OverlayProjectorTest {
 
     final PixelGrid projected =
         OverlayProjector.project(
-            sheet, 32, 48, regionsOn(Slot.TORSO, region), slot -> Optional.empty());
+            sheet,
+            32,
+            48,
+            UnaryOperator.identity(),
+            regionsOn(Slot.TORSO, region),
+            slot -> Optional.empty());
 
     assertEquals(1, projected.colourAt(0, 0));
     assertEquals(2, projected.colourAt(31, 0));
@@ -71,7 +99,12 @@ class OverlayProjectorTest {
 
     final PixelGrid projected =
         OverlayProjector.project(
-            labelledSheet(), ATLAS, ATLAS, regionsOn(Slot.HEAD, region), slot -> Optional.empty());
+            labelledSheet(),
+            ATLAS,
+            ATLAS,
+            UnaryOperator.identity(),
+            regionsOn(Slot.HEAD, region),
+            slot -> Optional.empty());
 
     assertEquals(0, projected.colourAt(2, 2));
     assertEquals(0, projected.colourAt(ATLAS - 1, ATLAS - 1));
@@ -90,6 +123,7 @@ class OverlayProjectorTest {
             labelledSheet(),
             ATLAS,
             ATLAS,
+            UnaryOperator.identity(),
             slot -> regions.getOrDefault(slot, List.of()),
             slot ->
                 slot == Slot.HEAD
@@ -111,6 +145,7 @@ class OverlayProjectorTest {
             labelledSheet(),
             ATLAS,
             ATLAS,
+            UnaryOperator.identity(),
             regionsOn(Slot.HEAD, head),
             slot -> Optional.of(PixelGrids.filled(ATLAS * 2, ATLAS * 2, OVERRIDE_COLOUR)));
 
@@ -124,7 +159,12 @@ class OverlayProjectorTest {
 
     final PixelGrid projected =
         OverlayProjector.project(
-            labelledSheet(), ATLAS, ATLAS, regionsOn(Slot.HEAD, region), slot -> Optional.empty());
+            labelledSheet(),
+            ATLAS,
+            ATLAS,
+            UnaryOperator.identity(),
+            regionsOn(Slot.HEAD, region),
+            slot -> Optional.empty());
 
     assertEquals(labelOf(Slot.HEAD, Direction.UP), projected.colourAt(ATLAS - 1, ATLAS - 1));
   }
@@ -149,6 +189,7 @@ class OverlayProjectorTest {
             labelledSheet(),
             width,
             height,
+            UnaryOperator.identity(),
             slot -> regions.regionsOf(rig, slot),
             slot -> Optional.empty());
 

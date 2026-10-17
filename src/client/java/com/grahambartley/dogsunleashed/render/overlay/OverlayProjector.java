@@ -5,6 +5,8 @@ import com.grahambartley.dogsunleashed.render.rig.SlotRegion;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
+import net.minecraft.util.math.Direction;
 
 public final class OverlayProjector {
 
@@ -14,6 +16,7 @@ public final class OverlayProjector {
       final PixelGrid sheet,
       final int atlasWidth,
       final int atlasHeight,
+      final UnaryOperator<Direction> facing,
       final Function<Slot, List<SlotRegion>> regions,
       final Function<Slot, Optional<PixelGrid>> overrides) {
     final PixelGrid projected = PixelGrid.blank(atlasWidth, atlasHeight);
@@ -24,7 +27,7 @@ public final class OverlayProjector {
         if (override.isPresent()) {
           copy(override.get(), region, projected);
         } else {
-          resample(sheet, slot, region, projected);
+          resample(sheet, slot, facing.apply(region.face()), region, projected);
         }
       }
     }
@@ -36,8 +39,12 @@ public final class OverlayProjector {
   }
 
   private static void resample(
-      final PixelGrid sheet, final Slot slot, final SlotRegion region, final PixelGrid into) {
-    OverlaySheet.cellOf(slot, region.face())
+      final PixelGrid sheet,
+      final Slot slot,
+      final Direction face,
+      final SlotRegion region,
+      final PixelGrid into) {
+    OverlaySheet.cellOf(slot, face)
         .ifPresent(
             cell ->
                 forEachTexel(
