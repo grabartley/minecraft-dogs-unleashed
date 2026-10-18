@@ -18,6 +18,7 @@ Shared engineering standards across all the mods in this family live in [`../sta
 | [0008](0008-dire-wolf-riding-lives-in-a-mount-base-class-and-high-jumps-widen-pathfinding.md) | Dire wolf riding lives in a mount base class, and high jumps widen pathfinding |
 | [0009](0009-new-per-dog-state-is-a-component-not-an-entity-field.md) | New per-dog state is a component, not an entity field |
 | [0010](0010-wild-packs-spawn-through-every-path-with-the-leader-bringing-the-pack.md) | Wild packs spawn through every path, with the leader bringing the pack |
+| [0011](0011-eyelids-hide-in-the-head-and-close-to-one-pose-per-rig.md) | Eyelids hide in the head and close to one pose per rig |
 
 ## Writing A New Record
 

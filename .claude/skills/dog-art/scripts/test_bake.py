@@ -1,13 +1,14 @@
+import json
 import unittest
 
 import bake
-from testutil import remove, write_geo
+from testutil import remove, temp_path, write_geo
 
 
-def bake_one(cube, bone=None, profile=None, hidden=()):
+def bake_one(cube, bone=None, profile=None, hidden=(), poses=None):
     path = write_geo([cube], bone)
     try:
-        _, cubes = bake.cubes_of(path, profile, hidden)
+        _, cubes = bake.cubes_of(path, profile, hidden, poses)
     finally:
         remove(path)
     return cubes
@@ -94,6 +95,28 @@ class GeometryFollowsGeckoLib(unittest.TestCase):
         self.assertEqual(bake.hidden_bones(profile, asleep=True, fur_stage="shaggy"), {"mane"})
         self.assertEqual(bake.hidden_bones(profile, asleep=True, fur_stage="overgrown"), set())
         self.assertEqual(bake_one({"origin": [0, 0, 0], "size": [1, 1, 1], "uv": [0, 0]}, hidden={"b"}), [])
+
+    def test_a_pose_scales_about_the_pivot_then_moves_in_the_parent_frame(self):
+        cube = bake_one({"origin": [0, 0, 0], "size": [2, 2, 2], "uv": [0, 0]}, {"pivot": [1, 1, 1]},
+                        poses={"b": {"scale": [2, 2, 2], "position": [1, 0.5, 0]}})[0]
+        corners = [c for _, face, _ in cube["faces"] for c in face]
+        lo = tuple(round(min(c[i] for c in corners), 6) for i in range(3))
+        hi = tuple(round(max(c[i] for c in corners), 6) for i in range(3))
+        self.assertEqual((lo, hi), ((-4, -0.5, -1), (0, 3.5, 3)))
+
+    def test_closed_eyes_are_the_poses_the_sleep_clip_holds(self):
+        path = temp_path(".animation.json")
+        with open(path, "w") as handle:
+            json.dump({"animations": {"sleep": {"bones": {
+                "lid": {"position": {"0.0": {"vector": [0, 0, 0]}, "1.0": {"vector": [0, 0, -0.5]}}, "scale": [2, 2, 2]},
+                "tail": {"position": [0, 1, 0]}}}}}, handle)
+        try:
+            self.assertEqual(bake.closed_eyes({"eyes": ["lid"]}, path),
+                             {"lid": {"position": [0, 0, -0.5], "scale": [2, 2, 2]}})
+            self.assertEqual(bake.closed_eyes({"eyes": ["lid"]}, path, clip="idle"), {})
+            self.assertEqual(bake.closed_eyes({"eyes": ["lid"]}, None), {})
+        finally:
+            remove(path)
 
     def test_density_uses_floored_sizes_and_the_thinnest_axis(self):
         cube = bake_one({"origin": [0, 0, 0], "size": [5.8, 4, 5], "uv": [0, 0]})[0]

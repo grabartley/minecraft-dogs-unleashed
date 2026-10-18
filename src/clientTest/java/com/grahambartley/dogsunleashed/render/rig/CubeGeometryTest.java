@@ -108,6 +108,16 @@ class CubeGeometryTest {
         Arguments.of("husky", "main", 0, false));
   }
 
+  @Test
+  @DisplayName("a cube's local bounds are its inflated box in blocks with x mirrored")
+  void localBoundsAreTheInflatedBox() {
+    final GeoCube head =
+        ShippedRigs.model("beagle").getBone("head").orElseThrow().getCubes().get(0);
+    final CubeGeometry.Bounds bounds = CubeGeometry.localBoundsOf(head);
+    assertClose(new Vector3f(-1.1f, 4.8f, -5.2f).div(16.0f), bounds.min());
+    assertClose(new Vector3f(1.1f, 7.0f, -3.0f).div(16.0f), bounds.max());
+  }
+
   @ParameterizedTest(name = "{0} {1}#{2} detail={3}")
   @MethodSource("detailCubes")
   @DisplayName("tufts and paws on the shipped rigs are detail, bodies and legs are not")

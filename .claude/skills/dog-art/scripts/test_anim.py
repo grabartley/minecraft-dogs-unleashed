@@ -67,5 +67,57 @@ class AnimationExport(unittest.TestCase):
         self.assertAlmostEqual(anim.catmull_rom(0, 1, 2, 3, 0.5), 1.5)
 
 
+class AnimationImport(unittest.TestCase):
+    def geckolib(self):
+        return {"animations": {
+            "idle": {"loop": True, "animation_length": 2.0, "bones": {
+                "tail": {"rotation": {"0.0": {"vector": [10, 20, 30]}, "1.0": [0, 0, 5]},
+                         "position": {"vector": [1, 2, 3]},
+                         "scale": {"0.5": {"post": [1.1, 1.2, 1.3], "lerp_mode": "catmullrom"}}},
+                "missing": {"position": [0, 1, 0]}}},
+            "sleep": {"loop": "hold_on_last_frame", "bones": {}}}}
+
+    def target(self, version="5.0"):
+        return {"meta": {"format_version": version}, "groups": [{"name": "tail", "uuid": "id"}]}
+
+    def test_round_trips_through_export(self):
+        target = self.target()
+        anim.import_animations(target, self.geckolib())
+        tail = anim.export_animations(target)["animations"]["idle"]["bones"]["tail"]
+        self.assertEqual(tail["rotation"], {"0.0": {"vector": [10, 20, 30]}, "1.0": {"vector": [0, 0, 5]}})
+        self.assertEqual(tail["position"], {"0.0": {"vector": [1, 2, 3]}})
+
+    def test_v5_projects_store_rotation_x_y_and_position_x_flipped(self):
+        target = self.target()
+        anim.import_animations(target, self.geckolib())
+        keys = target["animations"][0]["animators"]["id"]["keyframes"]
+        stored = {(k["channel"], k["time"]): k["data_points"][0] for k in keys}
+        self.assertEqual(stored[("rotation", 0.0)], {"x": "-10", "y": "-20", "z": "30"})
+        self.assertEqual(stored[("position", 0.0)], {"x": "-1", "y": "2", "z": "3"})
+        self.assertEqual(stored[("scale", 0.5)], {"x": "1.1", "y": "1.2", "z": "1.3"})
+
+    def test_keeps_catmullrom_and_loop_modes(self):
+        target = self.target()
+        anim.import_animations(target, self.geckolib())
+        idle, sleep = target["animations"]
+        scale = [k for k in idle["animators"]["id"]["keyframes"] if k["channel"] == "scale"]
+        self.assertEqual(scale[0]["interpolation"], "catmullrom")
+        self.assertEqual(anim.import_animations(self.target(), self.geckolib())[1], ["idle tail"])
+        self.assertEqual((idle["loop"], idle["length"]), ("loop", 2.0))
+        self.assertEqual(sleep["loop"], "hold")
+
+    def test_reports_bones_the_project_lacks(self):
+        self.assertEqual(anim.import_animations(self.target(), self.geckolib())[0], ["missing"])
+
+    def test_keeps_existing_clips_unless_told_to_replace_them(self):
+        target = self.target()
+        target["animations"] = [{"name": "walk"}]
+        with self.assertRaises(ValueError):
+            anim.import_animations(target, self.geckolib())
+        self.assertEqual(target["animations"], [{"name": "walk"}])
+        anim.import_animations(target, self.geckolib(), replace=True)
+        self.assertEqual([clip["name"] for clip in target["animations"]], ["idle", "sleep"])
+
+
 if __name__ == "__main__":
     unittest.main()

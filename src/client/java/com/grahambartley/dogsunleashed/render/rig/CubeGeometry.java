@@ -40,7 +40,7 @@ public final class CubeGeometry {
     return facesByCube(bone).stream().flatMap(List::stream).toList();
   }
 
-  public static boolean isDetail(final GeoCube cube) {
+  public static Bounds localBoundsOf(final GeoCube cube) {
     final Bounds bounds = new Bounds();
     for (final GeoQuad quad : cube.quads()) {
       if (quad == null) {
@@ -50,6 +50,11 @@ public final class CubeGeometry {
         bounds.include(vertex.position());
       }
     }
+    return bounds;
+  }
+
+  public static boolean isDetail(final GeoCube cube) {
+    final Bounds bounds = localBoundsOf(cube);
     if (bounds.isEmpty()) {
       return true;
     }

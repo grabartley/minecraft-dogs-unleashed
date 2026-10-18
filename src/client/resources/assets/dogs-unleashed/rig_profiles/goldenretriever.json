@@ -10,8 +10,8 @@
     "head"
   ],
   "eyes": [
-    "bone4",
-    "bone5"
+    "eyelid_left",
+    "eyelid_right"
   ],
   "pupils": [
     [

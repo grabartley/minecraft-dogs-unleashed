@@ -28,6 +28,18 @@ class Renderer(unittest.TestCase):
     def test_front_view_sees_the_north_face_at_its_ramp(self):
         self.assertEqual(self.centre("front"), (204, 204, 204, 255))
 
+    def test_a_frame_fixes_the_canvas_whatever_else_is_drawn(self):
+        _, small = bake.cubes_of(self.geo)
+        big_geo = write_geo([{"origin": [-6, 0, -2], "size": [12, 4, 4], "uv": [0, 0]}], texture=16)
+        try:
+            _, big = bake.cubes_of(big_geo)
+            sheet = pngio.read_png(self.sheet)
+            framed = render.render_view(big, sheet, 16, 16, *render.view_angles("front"), 8, frame=small)
+            alone = render.render_view(small, sheet, 16, 16, *render.view_angles("front"), 8)
+            self.assertEqual(framed[:2], alone[:2])
+        finally:
+            remove(big_geo)
+
     def test_unknown_view_is_a_clear_error(self):
         with self.assertRaises(SystemExit):
             render.view_angles("behind")

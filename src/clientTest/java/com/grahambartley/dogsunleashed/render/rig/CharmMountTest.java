@@ -52,10 +52,11 @@ class CharmMountTest {
     "beagle, snout, sit",
     "shibainu, snout, sit",
     "goldenretriever, snout, sit",
-    "dachshund, mouth, sit"
+    "dachshund, mouth, sit",
+    "dachshund, mouth, sleep"
   })
-  @DisplayName("a charm the sitting body covers comes forward until the chest no longer hides it")
-  void sittingBodyPushesTheCharmClear(final String rig, final String mouth, final String pose) {
+  @DisplayName("a charm the body covers comes forward until the body no longer hides it")
+  void coveringBodyPushesTheCharmClear(final String rig, final String mouth, final String pose) {
     final Vector3f push = place(rig, mouth, pose);
 
     assertTrue(push.length() > 0.0f, rig + " should have needed a push");
@@ -74,8 +75,7 @@ class CharmMountTest {
     "beagle, snout, sleep",
     "shibainu, snout, sleep",
     "goldenretriever, snout, sleep",
-    "husky, snout, sleep",
-    "dachshund, mouth, sleep"
+    "husky, snout, sleep"
   })
   @DisplayName("a charm the body does not cover stays exactly where the collar puts it")
   void uncoveredCharmDoesNotMove(final String rig, final String mouth, final String pose) {

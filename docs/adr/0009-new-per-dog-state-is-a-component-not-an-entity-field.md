@@ -1,4 +1,4 @@
-# ADR 0009: New per-dog state is a component, not an entity field
+# ADR 0011: New per-dog state is a component, not an entity field
 
 - **Status:** Accepted
 - **Date:** 2026-10-18

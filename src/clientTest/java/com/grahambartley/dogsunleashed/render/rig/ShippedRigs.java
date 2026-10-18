@@ -10,19 +10,27 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Predicate;
+import java.util.stream.IntStream;
 import javax.imageio.ImageIO;
+import net.minecraft.client.util.math.MatrixStack;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import software.bernie.geckolib.animation.Animation;
 import software.bernie.geckolib.animation.keyframe.BoneAnimation;
 import software.bernie.geckolib.animation.keyframe.Keyframe;
 import software.bernie.geckolib.animation.keyframe.KeyframeStack;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
+import software.bernie.geckolib.cache.object.GeoCube;
 import software.bernie.geckolib.loading.json.raw.Model;
 import software.bernie.geckolib.loading.json.typeadapter.KeyFramesAdapter;
 import software.bernie.geckolib.loading.math.MathValue;
 import software.bernie.geckolib.loading.object.BakedAnimations;
 import software.bernie.geckolib.loading.object.BakedModelFactory;
 import software.bernie.geckolib.loading.object.GeometryTree;
+import software.bernie.geckolib.util.RenderUtil;
 
 public final class ShippedRigs {
 
@@ -42,13 +50,48 @@ public final class ShippedRigs {
     return baked;
   }
 
-  public static void pose(final BakedGeoModel model, final String rig, final String animationName) {
+  public static Animation animation(final String rig, final String animationName) {
     final BakedAnimations animations =
         KeyFramesAdapter.GEO_GSON.fromJson(
             json("animations/" + rig + ".animation.json").getAsJsonObject("animations"),
             BakedAnimations.class);
-    final Animation animation = animations.getAnimation(animationName);
-    for (final BoneAnimation boneAnimation : animation.boneAnimations()) {
+    return animations.getAnimation(animationName);
+  }
+
+  public static BoneAnimation boneAnimation(final Animation animation, final String bone) {
+    return Arrays.stream(animation.boneAnimations())
+        .filter(candidate -> candidate.boneName().equals(bone))
+        .findFirst()
+        .orElse(null);
+  }
+
+  public static List<Vector3f> keyframeValues(final KeyframeStack<Keyframe<MathValue>> stack) {
+    final List<Keyframe<MathValue>> xs = stack.xKeyframes();
+    final List<Keyframe<MathValue>> ys = stack.yKeyframes();
+    final List<Keyframe<MathValue>> zs = stack.zKeyframes();
+    return IntStream.range(0, xs.size())
+        .mapToObj(
+            i ->
+                new Vector3f(
+                    (float) xs.get(i).endValue().get(),
+                    (float) ys.get(i).endValue().get(),
+                    (float) zs.get(i).endValue().get()))
+        .toList();
+  }
+
+  public static void pose(final BakedGeoModel model, final String rig, final String animationName) {
+    pose(model, rig, animationName, name -> true);
+  }
+
+  public static void pose(
+      final BakedGeoModel model,
+      final String rig,
+      final String animationName,
+      final Predicate<String> bones) {
+    for (final BoneAnimation boneAnimation : animation(rig, animationName).boneAnimations()) {
+      if (!bones.test(boneAnimation.boneName())) {
+        continue;
+      }
       final GeoBone bone = model.getBone(boneAnimation.boneName()).orElseThrow();
       final KeyframeStack<Keyframe<MathValue>> rotation = boneAnimation.rotationKeyFrames();
       bone.setRotX(heldFrame(rotation.xKeyframes(), 0) + bone.getInitialSnapshot().getRotX());
@@ -63,6 +106,24 @@ public final class ShippedRigs {
       bone.setScaleY(heldFrame(scale.yKeyframes(), 1));
       bone.setScaleZ(heldFrame(scale.zKeyframes(), 1));
     }
+  }
+
+  public static List<Vector3f> liveCorners(final GeoBone bone, final GeoCube cube) {
+    final Matrix4f pose = liveMatrix(bone, cube);
+    return Arrays.stream(cube.quads())
+        .filter(Objects::nonNull)
+        .flatMap(quad -> Arrays.stream(quad.vertices()))
+        .map(vertex -> pose.transformPosition(new Vector3f(vertex.position())))
+        .toList();
+  }
+
+  public static Matrix4f liveMatrix(final GeoBone bone, final GeoCube cube) {
+    final MatrixStack stack = new MatrixStack();
+    stack.peek().getPositionMatrix().set(LivePose.of(bone));
+    RenderUtil.translateToPivotPoint(stack, cube);
+    RenderUtil.rotateMatrixAroundCube(stack, cube);
+    RenderUtil.translateAwayFromPivotPoint(stack, cube);
+    return new Matrix4f(stack.peek().getPositionMatrix());
   }
 
   public static List<String> animatedBones(final String path, final String animationName) {

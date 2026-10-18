@@ -168,17 +168,19 @@
 					]
 				},
 				{
-					"name": "eyelid",
-					"pivot": [0, 8, 0],
+					"name": "eyelid_right",
+					"parent": "head",
+					"pivot": [0, 5.8, -4],
 					"cubes": [
-						{"origin": [-3, 3.8, -7.1], "size": [5, 5, 5], "inflate": -2, "uv": [96, 83]}
+						{"origin": [-2.5, 3.3, -6.5], "size": [5, 5, 5], "inflate": -2, "uv": [96, 83]}
 					]
 				},
 				{
-					"name": "eyelid2",
-					"pivot": [1, 8, 0],
+					"name": "eyelid_left",
+					"parent": "head",
+					"pivot": [0, 5.8, -4],
 					"cubes": [
-						{"origin": [-2, 3.8, -7.1], "size": [5, 5, 5], "inflate": -2, "uv": [96, 83], "mirror": true}
+						{"origin": [-2.5, 3.3, -6.5], "size": [5, 5, 5], "inflate": -2, "uv": [96, 83], "mirror": true}
 					]
 				}
 			]

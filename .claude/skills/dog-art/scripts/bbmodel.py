@@ -4,6 +4,7 @@ import math
 import os
 import uuid
 
+import layout
 from bake import face_patches, load_geo, model_pivot
 from pngio import read_png
 
@@ -127,7 +128,7 @@ def close(a, b, tolerance):
     return len(a) == len(b) and all(abs(float(x) - float(y)) <= tolerance for x, y in zip(a, b))
 
 
-def tidy_numbers(node, places=4):
+def tidy_numbers(node, places=5):
     if isinstance(node, float):
         rounded = round(node, places)
         return int(rounded) if rounded == int(rounded) and abs(rounded) < 1e15 else rounded
@@ -138,8 +139,26 @@ def tidy_numbers(node, places=4):
     return node
 
 
-def tidy_geo(in_path, out_path, places=4):
+def tidy_geo(in_path, out_path, places=5, identifier=None):
     with open(in_path) as handle:
-        geometry = json.load(handle)
+        geometry = tidy_numbers(json.load(handle), places)
+    if identifier:
+        for entry in geometry.get("minecraft:geometry", []):
+            entry["description"]["identifier"] = identifier
+    text = layout.text_like(out_path, geometry, layout.geo_text, default_newline="")
     with open(out_path, "w") as handle:
-        json.dump(tidy_numbers(geometry, places), handle, indent="\t")
+        handle.write(text)
+
+
+def write_textures(project_path, out_dir, only=None):
+    with open(project_path) as handle:
+        textures = json.load(handle).get("textures", [])
+    written = []
+    for texture in textures:
+        name = texture["name"] if texture["name"].endswith(".png") else texture["name"] + ".png"
+        if only and name not in only and name[:-4] not in only:
+            continue
+        with open(os.path.join(out_dir, name), "wb") as handle:
+            handle.write(base64.b64decode(texture["source"].split(",", 1)[1]))
+        written.append(name)
+    return written

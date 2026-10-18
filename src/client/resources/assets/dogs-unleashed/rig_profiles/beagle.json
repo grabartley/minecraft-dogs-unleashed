@@ -10,7 +10,7 @@
     "head"
   ],
   "eyes": [
-    "eyelid"
+    "eyelid_left", "eyelid_right"
   ],
   "pupils": [
     [

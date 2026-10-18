@@ -1,4 +1,7 @@
+import base64
 import json
+import os
+import tempfile
 import unittest
 
 import bbmodel
@@ -68,6 +71,38 @@ class TidyGeo(unittest.TestCase):
         self.assertEqual(cube["size"], [8, 7, 8])
         self.assertEqual(cube["origin"], [-4.27, 0.2, 3.4])
         self.assertEqual(cube["inflate"], -3.27)
+
+    def test_the_identifier_can_be_kept_from_the_shipped_file(self):
+        noisy = write_geo([{"origin": [0, 0, 0], "size": [1, 1, 1], "uv": [0, 0]}])
+        out = temp_path(".geo.json")
+        try:
+            bbmodel.tidy_geo(noisy, out, identifier="geometry.unknown")
+            with open(out) as handle:
+                description = json.load(handle)["minecraft:geometry"][0]["description"]
+        finally:
+            remove(noisy, out)
+        self.assertEqual(description["identifier"], "geometry.unknown")
+
+
+class WriteTextures(unittest.TestCase):
+    def test_embedded_textures_are_written_back_as_their_png_files(self):
+        sheet = write_sheet(4, 4)
+        project = temp_path(".bbmodel")
+        out_dir = tempfile.mkdtemp()
+        try:
+            with open(sheet, "rb") as handle:
+                png = handle.read()
+            with open(project, "w") as handle:
+                json.dump({"textures": [{"name": "coat_a.png", "source": "data:image/png;base64," + base64.b64encode(png).decode()},
+                                        {"name": "coat_b", "source": "data:image/png;base64," + base64.b64encode(png).decode()}]}, handle)
+            written = bbmodel.write_textures(project, out_dir, ["coat_b"])
+            with open(os.path.join(out_dir, "coat_b.png"), "rb") as handle:
+                copy = handle.read()
+        finally:
+            remove(sheet, project, os.path.join(out_dir, "coat_b.png"))
+            os.rmdir(out_dir)
+        self.assertEqual(written, ["coat_b.png"])
+        self.assertEqual(copy, png)
 
 
 if __name__ == "__main__":

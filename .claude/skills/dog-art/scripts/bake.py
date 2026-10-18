@@ -2,6 +2,8 @@ import json
 import math
 import os
 
+import anim
+
 FACES = ("west", "north", "east", "south", "up", "down")
 FUR_STAGES = ("natural", "shaggy", "overgrown")
 
@@ -117,7 +119,42 @@ def face_uvs(face, patch, mirror):
     return [(left, v), (right, v), (right, v + h), (left, v + h)]
 
 
-def cubes_of(geo_path, profile=None, hidden=()):
+def animation_path_for(geo_path):
+    name = os.path.basename(geo_path).split(".")[0]
+    candidate = os.path.join(os.path.dirname(geo_path), "..", "animations", f"{name}.animation.json")
+    return os.path.normpath(candidate) if os.path.exists(candidate) else None
+
+
+def closed_eyes(profile, animation_path, clip="sleep"):
+    if not animation_path:
+        return {}
+    with open(animation_path) as handle:
+        bones = json.load(handle)["animations"].get(clip, {}).get("bones", {})
+    poses = {}
+    for bone in profile.get("eyes", []):
+        channels = bones.get(bone, {})
+        pose = {channel: anim.track_keys(channels[channel])[-1][1] for channel in ("position", "scale") if channel in channels}
+        if pose:
+            poses[bone] = pose
+    return poses
+
+
+def bone_transforms(bone, pose):
+    pivot = model_pivot(bone.get("pivot", (0, 0, 0)))
+    steps = []
+    if "scale" in pose:
+        sx, sy, sz = pose["scale"]
+        steps.append(lambda p, c=pivot: (c[0] + (p[0] - c[0]) * sx, c[1] + (p[1] - c[1]) * sy, c[2] + (p[2] - c[2]) * sz))
+    if bone.get("rotation"):
+        steps.append(lambda p, m=rotation_matrix(bone["rotation"]), c=pivot: apply(m, c, p))
+    if "position" in pose:
+        ox, oy, oz = pose["position"]
+        steps.append(lambda p: (p[0] - ox, p[1] + oy, p[2] + oz))
+    return steps
+
+
+def cubes_of(geo_path, profile=None, hidden=(), poses=None):
+    poses = poses or {}
     description, bone_list, bones = load_geo(geo_path)
     slots = slots_by_bone(profile or {})
     result = []
@@ -133,17 +170,16 @@ def cubes_of(geo_path, profile=None, hidden=()):
             hi = (-ox + inflate, oy + sy + inflate, oz + sz + inflate)
             transforms = []
             if cube.get("rotation"):
-                transforms.append((rotation_matrix(cube["rotation"]), model_pivot(cube.get("pivot", (0, 0, 0)))))
+                transforms.append(lambda p, m=rotation_matrix(cube["rotation"]), c=model_pivot(cube.get("pivot", (0, 0, 0))): apply(m, c, p))
             for b in chain:
-                if b.get("rotation"):
-                    transforms.append((rotation_matrix(b["rotation"]), model_pivot(b.get("pivot", (0, 0, 0)))))
+                transforms.extend(bone_transforms(b, poses.get(b["name"], {})))
             mirror = cube.get("mirror") is True
             patches = face_patches(cube, mirror)
             faces = []
             for face in FACES:
                 corners = face_corners(lo, hi, face)
-                for matrix, pivot in transforms:
-                    corners = [apply(matrix, pivot, c) for c in corners]
+                for transform in transforms:
+                    corners = [transform(c) for c in corners]
                 faces.append((face, corners, patches[face]))
             result.append({
                 "bone": bone["name"], "index": index, "slot": slots.get(bone["name"]),
