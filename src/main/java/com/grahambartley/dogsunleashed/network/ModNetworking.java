@@ -89,7 +89,7 @@ public final class ModNetworking {
             dog.getId(),
             dog.getUuid(),
             dog.getCommand().id(),
-            dog.getAssignedBedPos().isPresent(),
+            dog.getSleepController().getAssignedBedPos().isPresent(),
             PetNames.tamedNameOf(dog),
             Objects.requireNonNullElse(dog.getRiding().refusalKey(player), "")));
   }

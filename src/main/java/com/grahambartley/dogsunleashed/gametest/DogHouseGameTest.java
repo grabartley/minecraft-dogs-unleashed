@@ -96,7 +96,7 @@ public final class DogHouseGameTest implements FabricGameTest {
     dog.setAiDisabled(true);
 
     final BlockPos absBed = context.getAbsolutePos(relBed);
-    dog.setAssignedBedPos(absBed);
+    dog.getSleepController().setAssignedBedPos(absBed);
     dog.getSleepController().startSleepingInBed(absBed);
     return dog;
   }
@@ -222,12 +222,12 @@ public final class DogHouseGameTest implements FabricGameTest {
     dog.setOwnerUuid(owner.getUuid());
     dog.setInvulnerable(true);
     final BlockPos absOrigin = context.getAbsolutePos(REL_ORIGIN);
-    dog.setAssignedBedPos(absOrigin);
+    dog.getSleepController().setAssignedBedPos(absOrigin);
     sendToBed.accept(dog, absOrigin);
 
     context.runAtEveryTick(
         () -> {
-          if (!dog.isSleepingInBed()) {
+          if (!dog.getSleepController().isSleepingInBed()) {
             return;
           }
           final Vec3d cushion = DogHouseLayout.cushionCentre(absOrigin, FACING);
@@ -310,7 +310,7 @@ public final class DogHouseGameTest implements FabricGameTest {
     dog.wakeUp();
 
     final Vec3d cushion = DogHouseLayout.cushionCentre(absOrigin, FACING);
-    context.assertFalse(dog.isSleepingInBed(), "The dog should be awake");
+    context.assertFalse(dog.getSleepController().isSleepingInBed(), "The dog should be awake");
     context.assertTrue(
         dog.getPos().squaredDistanceTo(cushion.add(0.0, CUSHION_TOP, 0.0)) < 1.0e-6,
         "With nowhere to step out to, a waking dog should stay on the cushion");
@@ -329,7 +329,7 @@ public final class DogHouseGameTest implements FabricGameTest {
 
   private static void assertSteppedOut(final TestContext context, final UnleashedDogEntity dog) {
     final BlockPos absOrigin = context.getAbsolutePos(REL_ORIGIN);
-    context.assertFalse(dog.isSleepingInBed(), "The dog should be awake");
+    context.assertFalse(dog.getSleepController().isSleepingInBed(), "The dog should be awake");
     context.assertFalse(
         DogHouseLayout.cellsOf(absOrigin, FACING).contains(dog.getBlockPos()),
         "A waking dog should end up outside the house, was at "
@@ -358,7 +358,9 @@ public final class DogHouseGameTest implements FabricGameTest {
         10,
         () -> {
           final UnleashedDogEntity dog = sleepingDog(context, REL_ORIGIN);
-          context.assertTrue(dog.isSleepingInBed(), "A dog must be able to sleep in a dog house");
+          context.assertTrue(
+              dog.getSleepController().isSleepingInBed(),
+              "A dog must be able to sleep in a dog house");
           context.complete();
         });
   }
@@ -416,7 +418,7 @@ public final class DogHouseGameTest implements FabricGameTest {
         30,
         () -> {
           context.assertTrue(
-              !occupant.get().isSleepingInBed(),
+              !occupant.get().getSleepController().isSleepingInBed(),
               "Losing the house should wake the dog that was sleeping in it");
           context.assertTrue(
               !occupant.get().hasStatusEffect(StatusEffects.REGENERATION),

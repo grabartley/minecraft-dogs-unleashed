@@ -57,7 +57,9 @@ public class FetchTemptGoal extends TemptGoal {
     }
 
     if (this.dog.getPlaySession().isInPlayMode()
-        && this.closestPlayer.getUuid().equals(this.dog.getPlayPartnerPlayerUuid())) {
+        && this.closestPlayer
+            .getUuid()
+            .equals(this.dog.getPlaySession().getPlayPartnerPlayerUuid())) {
       return true;
     }
 

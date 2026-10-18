@@ -11,6 +11,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 public final class DogSleepController {
 
@@ -30,8 +31,8 @@ public final class DogSleepController {
   }
 
   public void clearAssignedBed() {
-    final Optional<BlockPos> leaving = this.dog.getAssignedBedPos();
-    this.dog.setAssignedBedPos(null);
+    final Optional<BlockPos> leaving = this.getAssignedBedPos();
+    this.setAssignedBedPos(null);
     this.wakeFrom(leaving);
   }
 
@@ -45,10 +46,10 @@ public final class DogSleepController {
     if (!this.dog.isTamed() || !this.canSleepNow()) {
       return false;
     }
-    this.dog.setAssignedBedPos(bedPos);
+    this.setAssignedBedPos(bedPos);
     this.dog.getCommandController().demoteSitToFollow();
     this.autoSleepSuppressedUntil = NOT_SUPPRESSED;
-    this.dog.setCommandedToSleep(true);
+    this.dog.getDataTracker().set(UnleashedDogEntity.COMMANDED_TO_SLEEP, true);
     this.dog
         .getNavigation()
         .startMovingTo(
@@ -73,8 +74,8 @@ public final class DogSleepController {
   }
 
   public void startSleepingInBed(final BlockPos bedPos) {
-    this.dog.setSleepingInBed(true);
-    this.dog.setCommandedToSleep(false);
+    this.dog.getDataTracker().set(UnleashedDogEntity.SLEEPING_IN_BED, true);
+    this.dog.getDataTracker().set(UnleashedDogEntity.COMMANDED_TO_SLEEP, false);
     holdSleepPose(bedPos);
     this.dog.setNoGravity(true);
     this.dog.getNavigation().stop();
@@ -95,7 +96,7 @@ public final class DogSleepController {
   }
 
   void wakeUp() {
-    final Optional<BlockPos> bedPos = this.dog.getAssignedBedPos();
+    final Optional<BlockPos> bedPos = this.getAssignedBedPos();
     if (this.isSleepingOnServer()) {
       bedPos.ifPresent(this::awardHouseComfort);
     }
@@ -107,13 +108,13 @@ public final class DogSleepController {
       bedPos.ifPresent(this::stepOutOf);
     }
     this.dog.setNoGravity(false);
-    this.dog.setSleepingInBed(false);
-    this.dog.setCommandedToSleep(false);
+    this.dog.getDataTracker().set(UnleashedDogEntity.SLEEPING_IN_BED, false);
+    this.dog.getDataTracker().set(UnleashedDogEntity.COMMANDED_TO_SLEEP, false);
     this.dog.getAmbienceEffects().releaseBirthWakeHearts();
   }
 
   private boolean isSleepingOnServer() {
-    return this.dog.isSleepingInBed() && !this.dog.getWorld().isClient;
+    return this.isSleepingInBed() && !this.dog.getWorld().isClient;
   }
 
   private void stepOutOf(final BlockPos bedPos) {
@@ -129,8 +130,9 @@ public final class DogSleepController {
   }
 
   void writeNbt(final NbtCompound nbt) {
-    nbt.putBoolean(ModNbtKeys.SLEEPING_IN_BED, this.dog.isSleepingInBed());
+    nbt.putBoolean(ModNbtKeys.SLEEPING_IN_BED, this.isSleepingInBed());
     this.dog
+        .getSleepController()
         .getAssignedBedPos()
         .ifPresent(
             pos -> {
@@ -142,16 +144,34 @@ public final class DogSleepController {
 
   void readNbt(final NbtCompound nbt) {
     if (nbt.contains(ModNbtKeys.SLEEPING_IN_BED)) {
-      this.dog.setSleepingInBed(nbt.getBoolean(ModNbtKeys.SLEEPING_IN_BED));
+      this.dog
+          .getDataTracker()
+          .set(UnleashedDogEntity.SLEEPING_IN_BED, nbt.getBoolean(ModNbtKeys.SLEEPING_IN_BED));
     }
     if (nbt.contains(ModNbtKeys.BED_POS_X)
         && nbt.contains(ModNbtKeys.BED_POS_Y)
         && nbt.contains(ModNbtKeys.BED_POS_Z)) {
-      this.dog.setAssignedBedPos(
+      this.setAssignedBedPos(
           new BlockPos(
               nbt.getInt(ModNbtKeys.BED_POS_X),
               nbt.getInt(ModNbtKeys.BED_POS_Y),
               nbt.getInt(ModNbtKeys.BED_POS_Z)));
     }
+  }
+
+  public boolean isSleepingInBed() {
+    return this.dog.getDataTracker().get(UnleashedDogEntity.SLEEPING_IN_BED);
+  }
+
+  public Optional<BlockPos> getAssignedBedPos() {
+    return this.dog.getDataTracker().get(UnleashedDogEntity.ASSIGNED_BED_POS);
+  }
+
+  public void setAssignedBedPos(final @Nullable BlockPos pos) {
+    this.dog.getDataTracker().set(UnleashedDogEntity.ASSIGNED_BED_POS, Optional.ofNullable(pos));
+  }
+
+  public boolean isCommandedToSleep() {
+    return this.dog.getDataTracker().get(UnleashedDogEntity.COMMANDED_TO_SLEEP);
   }
 }

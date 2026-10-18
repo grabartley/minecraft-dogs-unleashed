@@ -263,7 +263,7 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
         10,
         () -> {
           world.setTimeOfDay(pinnedTime);
-          dog.setAssignedBedPos(absBedPos);
+          dog.getSleepController().setAssignedBedPos(absBedPos);
           context.assertTrue(dog.isBaby() == baby, "Subject age must match the test expectation");
           anchorOnBed(dog, absBedPos);
           armed.set(true);
@@ -271,7 +271,7 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
 
     context.runAtEveryTick(
         () -> {
-          if (armed.get() && dog.isSleepingInBed()) {
+          if (armed.get() && dog.getSleepController().isSleepingInBed()) {
             hasSlept.set(true);
           }
         });
@@ -308,7 +308,7 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
         10,
         () -> {
           world.setTimeOfDay(pinnedTime);
-          dog.setAssignedBedPos(absBedPos);
+          dog.getSleepController().setAssignedBedPos(absBedPos);
           anchorOnBed(dog, absBedPos);
           armed.set(true);
         });
@@ -317,7 +317,8 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
         () -> {
           if (armed.get()) {
             context.assertTrue(
-                !dog.isSleepingInBed(), "Dog should stay awake on its bed at time " + pinnedTime);
+                !dog.getSleepController().isSleepingInBed(),
+                "Dog should stay awake on its bed at time " + pinnedTime);
           }
         });
 

@@ -38,6 +38,7 @@
       "com.grahambartley.dogsunleashed.gametest.DireWolfJumpGameTest",
       "com.grahambartley.dogsunleashed.gametest.DireWolfPackGameTest",
       "com.grahambartley.dogsunleashed.gametest.DireWolfTrustGameTest",
+      "com.grahambartley.dogsunleashed.gametest.DogEntityNbtGameTest",
       "com.grahambartley.dogsunleashed.gametest.PackGuardGoalGameTest",
       "com.grahambartley.dogsunleashed.gametest.DireWolfGrudgeGameTest",
       "com.grahambartley.dogsunleashed.gametest.DireWolfRidingGameTest",

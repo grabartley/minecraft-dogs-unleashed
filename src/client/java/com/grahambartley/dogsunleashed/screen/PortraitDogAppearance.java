@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.screen;
 
 import com.grahambartley.dogsunleashed.ModNbtKeys;
+import com.grahambartley.dogsunleashed.entity.DogCollar;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
@@ -40,7 +41,7 @@ record PortraitDogAppearance(
 
   void applyTo(final UnleashedDogEntity dog) {
     dog.setBaby(this.baby);
-    dog.setCollarColor(this.collarColor);
+    dog.getComponents().get(DogCollar.class).setColor(this.collarColor);
     dog.readCustomDataFromNbt(this.toNbt());
   }
 
