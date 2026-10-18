@@ -118,16 +118,23 @@ public record DogsUnleashedConfig(
         DireWolfSettings.DEFAULTS);
   }
 
+  public double spawnRate(final String breedSerializedId) {
+    return spawnRateMultiplierPercent * breedSpawnRatePercent(breedSerializedId) / 10000.0;
+  }
+
   public int effectiveSpawnWeight(final int baseWeight, final String breedSerializedId) {
-    final int breedPercent =
-        breedSpawnRateMultipliersPercent.getOrDefault(
-            breedSerializedId, DEFAULT_SPAWN_RATE_MULTIPLIER_PERCENT);
+    final int breedPercent = breedSpawnRatePercent(breedSerializedId);
     if (spawnRateMultiplierPercent == 0 || breedPercent == 0) {
       return 0;
     }
     final long scaled =
         Math.round(baseWeight * spawnRateMultiplierPercent * breedPercent / 10000.0);
     return (int) Math.max(1L, scaled);
+  }
+
+  private int breedSpawnRatePercent(final String breedSerializedId) {
+    return breedSpawnRateMultipliersPercent.getOrDefault(
+        breedSerializedId, DEFAULT_SPAWN_RATE_MULTIPLIER_PERCENT);
   }
 
   public DogsUnleashedConfig withEnableNaturalSpawning(boolean value) {

@@ -162,12 +162,13 @@ public class UnleashedDogEntity extends DogMountEntity
       this.getAppearanceRoller().rollAppearance(spawnReason);
     }
     this.undeadState.applyAttributeScaling();
-    final EntityData packData = this.growth.joinPack(spawnReason, entityData);
-    this.pack.joinFrom(packData);
+    final EntityData packData = this.pack.join(spawnReason, entityData);
+    this.growth.joinPack(packData);
     final EntityData initialized = super.initialize(world, difficulty, spawnReason, packData);
     this.growth.settleInPack();
     this.growth.refresh();
     this.fur.rollSpawnStage(spawnReason);
+    WildPackFounding.bringPack(world, this, spawnReason, entityData, packData);
     return initialized;
   }
 
