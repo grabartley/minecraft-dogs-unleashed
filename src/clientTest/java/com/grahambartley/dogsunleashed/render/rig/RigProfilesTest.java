@@ -10,13 +10,17 @@ import com.grahambartley.dogsunleashed.render.rig.RigProfile.Overlay;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile.Slot;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+import net.minecraft.util.math.Direction;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.junit.jupiter.api.DisplayName;
@@ -31,6 +35,10 @@ import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.cache.object.GeoCube;
 
 class RigProfilesTest {
+
+  private static final float INSET = 0.5f / 16.0f / 16.0f;
+
+  private static final float TOUCHING = -0.001f / 16.0f;
 
   private static final RigProfiles BUNDLED = new RigProfiles(RigProfiles::openBundled);
 
@@ -208,10 +216,48 @@ class RigProfilesTest {
             bone.getParent().getCubes().stream()
                 .anyMatch(
                     head ->
-                        encloses(head, ShippedRigs.liveMatrix(bone.getParent(), head), corners)),
+                        sidesOutside(
+                                head,
+                                ShippedRigs.liveMatrix(bone.getParent(), head),
+                                corners,
+                                INSET)
+                            .isEmpty()),
             rig + " " + lid + " pokes out of " + bone.getParent().getName() + " at rest");
       }
     }
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("rigs")
+  @DisplayName("closed eyelids only step out of the front of the head, so the rest keeps its fur")
+  void closedEyelidsOnlyStepOutOfTheFrontOfTheHead(final UnleashedDogBreed rig) {
+    final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
+    final RigProfile profile = BUNDLED.profileOf(rig);
+    final Direction front = faceOfThePupils(model, profile);
+    ShippedRigs.pose(model, rig.serializedId(), "sleep", profile.bonesIn(Slot.EYES)::contains);
+    final List<String> past = new ArrayList<>();
+    for (final String lid : profile.bonesIn(Slot.EYES)) {
+      final GeoBone bone = model.getBone(lid).orElseThrow();
+      assertNotNull(bone.getParent(), rig + " " + lid + " has no parent");
+      for (final GeoCube cube : bone.getCubes()) {
+        final List<Vector3f> corners = ShippedRigs.liveCorners(bone, cube);
+        final List<Map<Direction, Float>> outside =
+            bone.getParent().getCubes().stream()
+                .map(
+                    head ->
+                        sidesOutside(
+                            head,
+                            ShippedRigs.liveMatrix(bone.getParent(), head),
+                            corners,
+                            TOUCHING))
+                .peek(sides -> sides.remove(front))
+                .toList();
+        if (outside.stream().noneMatch(Map::isEmpty)) {
+          past.add(lid + " " + outside);
+        }
+      }
+    }
+    assertTrue(past.isEmpty(), rig + " closes eyelids past the head: " + past);
   }
 
   @ParameterizedTest(name = "{0}")
@@ -319,21 +365,45 @@ class RigProfilesTest {
     return a.distance(b) < 1.0e-4f;
   }
 
-  private static boolean encloses(
-      final GeoCube head, final Matrix4f pose, final List<Vector3f> corners) {
+  private static Map<Direction, Float> sidesOutside(
+      final GeoCube head, final Matrix4f pose, final List<Vector3f> corners, final float margin) {
     final CubeGeometry.Bounds box = CubeGeometry.localBoundsOf(head);
     final Matrix4f toHead = new Matrix4f(pose).invert();
-    final float margin = 0.5f / 16.0f / 16.0f;
-    return corners.stream()
-        .map(corner -> toHead.transformPosition(new Vector3f(corner)))
-        .allMatch(
-            local ->
-                local.x > box.min().x + margin
-                    && local.y > box.min().y + margin
-                    && local.z > box.min().z + margin
-                    && local.x < box.max().x - margin
-                    && local.y < box.max().y - margin
-                    && local.z < box.max().z - margin);
+    final Map<Direction, Float> outside = new EnumMap<>(Direction.class);
+    for (final Vector3f corner : corners) {
+      final Vector3f local = toHead.transformPosition(new Vector3f(corner));
+      final Vector3f below = new Vector3f(box.min()).sub(local);
+      final Vector3f above = new Vector3f(local).sub(box.max());
+      record(outside, Direction.WEST, below.x, margin);
+      record(outside, Direction.DOWN, below.y, margin);
+      record(outside, Direction.NORTH, below.z, margin);
+      record(outside, Direction.EAST, above.x, margin);
+      record(outside, Direction.UP, above.y, margin);
+      record(outside, Direction.SOUTH, above.z, margin);
+    }
+    return outside;
+  }
+
+  private static void record(
+      final Map<Direction, Float> outside,
+      final Direction side,
+      final float overshoot,
+      final float margin) {
+    if (overshoot > -margin) {
+      outside.merge(side, overshoot * 16.0f, Math::max);
+    }
+  }
+
+  private static Direction faceOfThePupils(final BakedGeoModel model, final RigProfile profile) {
+    final List<SlotRegion> head = SlotRegions.of(model, profile, Slot.HEAD);
+    final Set<Direction> faces = new HashSet<>();
+    for (final Texel pupil : profile.pupils()) {
+      head.stream()
+          .filter(region -> region.contains(pupil))
+          .forEach(region -> faces.add(region.face()));
+    }
+    assertEquals(1, faces.size(), "the pupils should sit on one head face, not " + faces);
+    return faces.iterator().next();
   }
 
   private static void collect(final Iterable<GeoBone> bones, final Set<String> into) {

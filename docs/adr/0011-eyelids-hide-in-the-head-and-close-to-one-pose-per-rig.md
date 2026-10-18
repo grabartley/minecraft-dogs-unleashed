@@ -13,18 +13,20 @@ Any later clip that closes the eyes, such as a wink, closed eyes while being pet
 
 Every rig sets up its eyelids the same way:
 
-- The lid bones are children of the head and are listed under `eyes` in the rig profile. Paired lids are `eyelid_left` and `eyelid_right`. A rig whose two lids are one cube calls it `eyelids`.
+- Each eye has its own lid, `eyelid_left` and `eyelid_right`. Both are children of the head and are listed under `eyes` in the rig profile.
 - At rest the lids sit inside the head, so the eyes are open. A clip that does not close the eyes needs no lid keys.
-- Closed is one pose per rig: a position offset, plus a scale where a lid is parked smaller than it shows. Every clip that closes the eyes uses that pose. `sleep` holds it and `idle` blinks to it once a loop. A clip may still pose the lids some other way on purpose, as the dire wolf's `growl` tilts them into a scowl.
+- Closed is one pose per rig: a position offset, plus a scale where a lid is parked at a different size than it shows. Every clip that closes the eyes uses that pose. `sleep` holds it and `idle` blinks to it once a loop. A clip may still pose the lids some other way on purpose, as the dire wolf's `growl` tilts them into a scowl.
+- A closed lid stays inside the head everywhere except its front, which lies on the face over its eye. It may touch the edge of the head but never reach past it.
+- Closing changes only the eyes. On every coat the closed lid covers both painted pupils, and wherever it differs from the face behind it, that texel is within two texels of a pupil. Each coat paints its own closed eye on the lid.
 
-The five older rigs were moved onto this setup without changing how they look asleep. Each closed pose was worked out from the old sleep poses with GeckoLib's own bone transforms, so the closed lids land where they did before, with the same texels. Lids that fit inside the head are parked at its centre. The beagle's lid is as big as its head, so it is parked at half size and scaled back up to close.
+The beagle and dachshund used to close with one face-sized lid whose art repainted the whole face, so a blink changed the forehead and the top and sides of the head. They now have a small lid per eye, lined up with the head's texel grid and painted with each coat's own closed-eye texels from the old art. The golden retriever and shiba inu lids poked past the top and side of the head when closed, and now stop at its edge. The dire wolf already met every rule.
 
 ## Consequences
 
-Any clip can close the eyes by keying the lids to the rig's closed pose, with no per-clip parking values. `RigProfilesTest` fails when a lid is not a head child, pokes out of the head at rest, or blinks to a different pose than it sleeps in. `UndeadDogEyesTest` fails when the closed lids miss the painted pupils.
+Any clip can close the eyes by keying the lids to the rig's closed pose, with no per-clip parking values, and a wink only needs to key one lid. `RigProfilesTest` fails when a lid is not a head child, pokes out of the head at rest, closes past the head anywhere but the front, or blinks to a different pose than it sleeps in. `UndeadDogEyesTest` fails when, on any coat, the closed lids miss a pupil or change anything but the eyes.
 
 Short idle loops were repeated whole to about four seconds so a blink comes once every few seconds rather than every second. The rest of the idle motion is unchanged.
 
-The beagle and dachshund keep a single cube for both lids, because splitting it would need new texture space on every coat. Those two rigs cannot wink one eye until that art exists.
+Sleeping beagles, dachshunds, golden retrievers and shiba inus look slightly different from before: only their eyes are closed, and the rest of the face keeps its own fur.
 
-The beagle and dachshund closed poses include a scale, so their blink grows the lid out of the head over a tick rather than only sliding it. At blink speed this cannot be seen, but a slow eye close on those two rigs would show it.
+The beagle and dachshund lids are parked larger than they show and shrink as they close. At blink speed this cannot be seen, but a slow eye close on those two rigs would show it.

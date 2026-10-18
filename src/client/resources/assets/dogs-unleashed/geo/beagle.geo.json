@@ -12,14 +12,6 @@
 			},
 			"bones": [
 				{
-					"name": "eyelids",
-					"parent": "head",
-					"pivot": [0, 5.9, -4.1],
-					"cubes": [
-						{"origin": [-3, 2.9, -7.1], "size": [6, 6, 6], "inflate": -2.45, "uv": [1, 71]}
-					]
-				},
-				{
 					"name": "Torso",
 					"pivot": [0, 3.1, 0],
 					"cubes": [
@@ -53,6 +45,22 @@
 					"pivot": [0, 3.85, -3.15],
 					"cubes": [
 						{"origin": [-3, 2.9, -7.1], "size": [6, 6, 6], "inflate": -1.9, "uv": [0, 40]}
+					]
+				},
+				{
+					"name": "eyelid_right",
+					"parent": "head",
+					"pivot": [0, 5.9, -4.1],
+					"cubes": [
+						{"origin": [-1, 4.9, -4.6], "size": [2, 2, 1], "inflate": -0.5, "uv": [1, 71]}
+					]
+				},
+				{
+					"name": "eyelid_left",
+					"parent": "head",
+					"pivot": [0, 5.9, -4.1],
+					"cubes": [
+						{"origin": [-1, 4.9, -4.6], "size": [2, 2, 1], "inflate": -0.5, "uv": [7, 71]}
 					]
 				},
 				{

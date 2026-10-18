@@ -51,7 +51,7 @@ def shade(normal):
     return (abs(nx) * 0.6 + abs(nz) * 0.8 + vertical) / weight
 
 
-def render_view(cubes, texture, tex_w, tex_h, yaw, pitch, scale, margin=2):
+def render_view(cubes, texture, tex_w, tex_h, yaw, pitch, scale, margin=2, frame=None):
     width, height, pixels = texture
     scale_u, scale_v = width / tex_w, height / tex_h
     right, up, toward = camera(yaw, pitch)
@@ -60,8 +60,9 @@ def render_view(cubes, texture, tex_w, tex_h, yaw, pitch, scale, margin=2):
         for face, corners, patch in cube["faces"]:
             pts = [(dot(c, right), dot(c, up), dot(c, toward)) for c in corners]
             projected.append((pts, face_uvs(face, patch, cube["mirror"]), shade(face_normal(corners))))
-    xs = [p[0] for pts, _, _ in projected for p in pts]
-    ys = [p[1] for pts, _, _ in projected for p in pts]
+    framing = [corners for cube in (cubes if frame is None else frame) for _, corners, _ in cube["faces"]]
+    xs = [dot(c, right) for corners in framing for c in corners]
+    ys = [dot(c, up) for corners in framing for c in corners]
     min_x, max_x, min_y, max_y = min(xs), max(xs), min(ys), max(ys)
     img_w = int(math.ceil((max_x - min_x + 2 * margin) * scale))
     img_h = int(math.ceil((max_y - min_y + 2 * margin) * scale))

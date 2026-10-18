@@ -12,13 +12,14 @@ Commands:
   patch      base.png block.txt out.png --at U V
   tobbmodel  geo png out.bbmodel [--name N]
   geocompare a.geo.json b.geo.json [--tolerance T]
-  animexport project.bbmodel out.animation.json [--step S]
+  animexport project.bbmodel out.animation.json [--step S] [--bones a,b [--drop c]]
   animimport project.bbmodel in.animation.json out.bbmodel [--replace]
-  tidygeo    in.geo.json out.geo.json [--places N]
+  tidygeo    in.geo.json out.geo.json [--places N] [--identifier ID]
+  textures   project.bbmodel out_dir [--only name ...]
 
 The rig profile beside the geo (rig_profiles/<name>.json) is read by default. Bones in its eyes slot are
-the eyelids, hidden inside the head at rest. --asleep moves them to the pose the sleep clip holds them in, and
-fur bones follow --fur-stage the way FurLook does in the client.
+the eyelids, hidden inside the head at rest. --asleep moves them to the pose the sleep clip holds them in and
+keeps the open render's frame, so an open and an --asleep render diff pixel for pixel. Fur bones follow --fur-stage the way FurLook does in the client.
 """
 import argparse
 import json
@@ -32,6 +33,7 @@ import anim
 import bake
 import bbmodel
 import checks
+import layout
 import pngio
 import render
 
@@ -66,8 +68,9 @@ def rig(args, hide=True):
 
 def cmd_render(args):
     tex_w, tex_h, cubes = rig(args)
+    frame = rig(argparse.Namespace(**{**vars(args), "asleep": False}))[2] if args.asleep else None
     yaw, pitch = render.view_angles(args.view, args.spin) if args.view else (args.yaw + args.spin, args.pitch)
-    w, h, image = render.render_view(cubes, pngio.read_png(args.png), tex_w, tex_h, yaw, pitch, args.scale)
+    w, h, image = render.render_view(cubes, pngio.read_png(args.png), tex_w, tex_h, yaw, pitch, args.scale, frame=frame)
     pngio.write_png(args.out, w, h, image)
     print(f"wrote {args.out} {w}x{h} yaw={yaw} pitch={pitch}")
 
@@ -223,15 +226,26 @@ def cmd_geocompare(args):
 
 
 def cmd_tidygeo(args):
-    bbmodel.tidy_geo(args.input, args.out, args.places)
+    bbmodel.tidy_geo(args.input, args.out, args.places, args.identifier)
     print(f"wrote {args.out}: numbers rounded to {args.places} places")
 
 
 def cmd_animexport(args):
     exported = anim.export_animations(anim.load_project(args.project), args.step)
+    if args.bones:
+        bones = args.bones.split(",")
+        with open(args.out) as handle:
+            exported = layout.splice_tracks(json.load(handle), exported, bones, args.drop.split(",") if args.drop else ())
+        print(f"spliced {', '.join(bones)} into {args.out}")
+    text = layout.text_like(args.out, exported, layout.animation_text)
     with open(args.out, "w") as handle:
-        json.dump(exported, handle, indent="\t")
+        handle.write(text)
     print(f"wrote {args.out}: {', '.join(exported['animations'])}")
+
+
+def cmd_textures(args):
+    for name in bbmodel.write_textures(args.project, args.out_dir, args.only):
+        print(f"wrote {os.path.join(args.out_dir, name)}")
 
 
 def cmd_animimport(args):
@@ -339,14 +353,23 @@ def main(argv=None):
     p = commands.add_parser("tidygeo")
     p.add_argument("input")
     p.add_argument("out")
-    p.add_argument("--places", type=int, default=4)
+    p.add_argument("--places", type=int, default=5)
+    p.add_argument("--identifier", help="geometry identifier to write, such as the shipped file's own")
     p.set_defaults(func=cmd_tidygeo)
 
     p = commands.add_parser("animexport")
     p.add_argument("project")
     p.add_argument("out")
     p.add_argument("--step", type=float, default=0.05, help="seconds between baked keys for catmullrom channels")
+    p.add_argument("--bones", help="comma-separated bones whose tracks replace the ones in the existing out file; every other track stays")
+    p.add_argument("--drop", help="comma-separated bones to remove from the existing out file, such as renamed ones")
     p.set_defaults(func=cmd_animexport)
+
+    p = commands.add_parser("textures")
+    p.add_argument("project")
+    p.add_argument("out_dir")
+    p.add_argument("--only", nargs="*", help="texture names to write; every texture by default")
+    p.set_defaults(func=cmd_textures)
 
     p = commands.add_parser("animimport")
     p.add_argument("project")
