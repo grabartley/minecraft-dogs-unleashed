@@ -1,18 +1,13 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
+import com.grahambartley.dogsunleashed.ModItemTags;
 import com.grahambartley.dogsunleashed.entity.DogTrustRules;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.Comparator;
 import java.util.EnumSet;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.AxeItem;
-import net.minecraft.item.BowItem;
-import net.minecraft.item.CrossbowItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.MaceItem;
-import net.minecraft.item.SwordItem;
-import net.minecraft.item.TridentItem;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,24 +17,21 @@ public class PackGuardGoal extends Goal {
   private static final double BLOCKING_GAP = 2.0;
   private static final double GUARD_SPEED = 1.2;
   private static final double PUP_SEARCH_RANGE = 16.0;
+  private static final int REPATH_TICKS = 10;
 
   private final UnleashedDogEntity dog;
   private @Nullable PlayerEntity intruder;
   private @Nullable UnleashedDogEntity pup;
   private int guardTicks;
+  private int repathCooldown;
 
   public PackGuardGoal(final UnleashedDogEntity dog) {
     this.dog = dog;
     this.setControls(EnumSet.of(Control.MOVE, Control.LOOK));
   }
 
-  public static boolean isWeapon(final Item item) {
-    return item instanceof SwordItem
-        || item instanceof AxeItem
-        || item instanceof TridentItem
-        || item instanceof BowItem
-        || item instanceof CrossbowItem
-        || item instanceof MaceItem;
+  public static boolean isWeapon(final ItemStack stack) {
+    return stack.isIn(ModItemTags.PACK_WEAPONS);
   }
 
   @Override
@@ -63,6 +55,7 @@ public class PackGuardGoal extends Goal {
   @Override
   public void start() {
     this.guardTicks = GUARD_TICKS;
+    this.repathCooldown = 0;
     this.dog.getGrowl().warn();
     for (final UnleashedDogEntity packPup : this.dog.getPack().pupsWithin(PUP_SEARCH_RANGE)) {
       packPup.getTrust().spook(this.intruder);
@@ -82,6 +75,10 @@ public class PackGuardGoal extends Goal {
   public void tick() {
     this.guardTicks--;
     this.dog.getLookControl().lookAt(this.intruder, 30.0f, 30.0f);
+    if (--this.repathCooldown > 0) {
+      return;
+    }
+    this.repathCooldown = this.getTickCount(REPATH_TICKS);
     final Vec3d toIntruder = this.intruder.getPos().subtract(this.pup.getPos());
     if (toIntruder.lengthSquared() > 0.0) {
       final Vec3d between = this.pup.getPos().add(toIntruder.normalize().multiply(BLOCKING_GAP));
@@ -104,7 +101,7 @@ public class PackGuardGoal extends Goal {
                 DogTrustRules.provokes(
                     player.isSneaking(),
                     player.isSprinting(),
-                    isWeapon(player.getMainHandStack().getItem()),
+                    isWeapon(player.getMainHandStack()),
                     player.distanceTo(candidate)))
         .min(Comparator.comparingDouble(player -> player.distanceTo(candidate)))
         .orElse(null);

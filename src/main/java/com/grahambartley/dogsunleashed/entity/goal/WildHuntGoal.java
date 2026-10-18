@@ -7,6 +7,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 public class WildHuntGoal extends OwnTargetGoal<LivingEntity> {
 
@@ -42,12 +43,18 @@ public class WildHuntGoal extends OwnTargetGoal<LivingEntity> {
   }
 
   static boolean isPenned(final LivingEntity target) {
+    final World world = target.getWorld();
     final BlockPos center = target.getBlockPos();
+    return PenMemory.of(world)
+        .isPenned(center.asLong(), world.getTime(), () -> scanForPen(world, center));
+  }
+
+  private static boolean scanForPen(final World world, final BlockPos center) {
     for (final BlockPos pos :
         BlockPos.iterate(
             center.add(-WildPackRules.PEN_RANGE, -1, -WildPackRules.PEN_RANGE),
             center.add(WildPackRules.PEN_RANGE, 1, WildPackRules.PEN_RANGE))) {
-      final BlockState state = target.getWorld().getBlockState(pos);
+      final BlockState state = world.getBlockState(pos);
       if (state.isIn(BlockTags.FENCES)
           || state.isIn(BlockTags.FENCE_GATES)
           || state.isIn(BlockTags.WALLS)) {
