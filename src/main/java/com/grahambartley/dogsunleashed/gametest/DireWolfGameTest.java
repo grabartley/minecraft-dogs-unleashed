@@ -1,20 +1,26 @@
 package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
+import com.grahambartley.dogsunleashed.ModArmorItems;
 import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
+import com.grahambartley.dogsunleashed.ModPendantItems;
 import com.grahambartley.dogsunleashed.block.DogSleepSpotAssignment;
 import com.grahambartley.dogsunleashed.entity.DireWolfGrowthStage;
+import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.DogGrowthRules;
 import com.grahambartley.dogsunleashed.entity.DogTraits;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.variant.DireWolfCoat;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
+import com.grahambartley.dogsunleashed.item.armor.DogArmorTier;
+import com.grahambartley.dogsunleashed.item.pendant.PendantType;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import com.grahambartley.dogsunleashed.pet.PetManager;
+import com.grahambartley.dogsunleashed.screenhandler.DogEquipmentScreenHandler;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -43,6 +49,7 @@ public final class DireWolfGameTest implements FabricGameTest {
   private static final String ARENA = "dogs-unleashed:dog_arena";
   private static final BlockPos REL_WOLF = new BlockPos(3, 2, 3);
   private static final int PACK_SIZE = 10;
+  private static final int FIRST_HOTBAR_SLOT_INDEX = DogEquipmentScreenHandler.DOG_SLOT_COUNT + 27;
 
   @GameTest(templateName = ARENA, tickLimit = 40)
   public void aYearlingGrowsIntoAnAdultWhenItsTwentyMinutesAreUp(final TestContext context) {
@@ -324,6 +331,40 @@ public final class DireWolfGameTest implements FabricGameTest {
             true,
             context -> assertBreeding(context, DogTestData.DIRE_WOLF, true)));
     return tests;
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 20)
+  public void anAlphaWearsArmourAndAPendantFromTheEquipmentScreen(final TestContext context) {
+    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    owner.changeGameMode(GameMode.SURVIVAL);
+    final UnleashedDogEntity wolf = spawnOwnedPrime(context, owner);
+    wolf.getGrowth().setStage(DireWolfGrowthStage.ALPHA);
+    final ItemStack armour = new ItemStack(ModArmorItems.of(DogArmorTier.IRON));
+    final ItemStack pendant = new ItemStack(ModPendantItems.of(PendantType.WARDING_UNDEAD));
+    owner.getInventory().setStack(0, armour.copy());
+    owner.getInventory().setStack(1, pendant.copy());
+    final DogEquipmentScreenHandler handler =
+        new DogEquipmentScreenHandler(1, owner.getInventory(), wolf);
+
+    handler.quickMove(owner, FIRST_HOTBAR_SLOT_INDEX);
+    handler.quickMove(owner, FIRST_HOTBAR_SLOT_INDEX + 1);
+
+    context.assertTrue(
+        wolf.getEquipmentHolder().getStack(DogEquipmentSlot.ARMOUR).isOf(armour.getItem()),
+        "An alpha should wear dog armour");
+    context.assertTrue(
+        wolf.getEquipmentHolder().getStack(DogEquipmentSlot.PENDANT).isOf(pendant.getItem()),
+        "An alpha should wear a pendant");
+    context.runAtTick(
+        2,
+        () -> {
+          wolf.damage(context.getWorld().getDamageSources().generic(), 4.0f);
+          context.assertTrue(
+              wolf.getHealth() == wolf.getMaxHealth(), "The armour should take the hit");
+          context.assertTrue(
+              wolf.getArmour().worn().getDamage() > 0, "The armour should wear from the hit");
+          context.complete();
+        });
   }
 
   @GameTest(templateName = ARENA, tickLimit = 20)
