@@ -135,6 +135,22 @@ public final class WildPackFoundingGameTest implements FabricGameTest {
     context.complete();
   }
 
+  @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
+  public void vanillaPlacesOnePackLeaderPerChunkButNormalGroupsForOtherBreeds(
+      final TestContext context) {
+    final UnleashedDogEntity wolf = spawnLeader(context);
+    final UnleashedDogEntity husky =
+        DogTestHelper.spawnDog(context, DogTestData.HUSKY, new BlockPos(1, 2, 1));
+    husky.setAiDisabled(true);
+    context.assertTrue(
+        wolf.getLimitPerChunk() == 1,
+        "Vanilla spawning should place one pack leader per chunk, not " + wolf.getLimitPerChunk());
+    context.assertTrue(
+        husky.getLimitPerChunk() == 4,
+        "Other breeds keep vanilla's limit of 4 per chunk, not " + husky.getLimitPerChunk());
+    context.complete();
+  }
+
   private static void assertLeaderBringsWholePack(
       final TestContext context, final SpawnReason reason) {
     coverFloor(context, Blocks.GRASS_BLOCK);

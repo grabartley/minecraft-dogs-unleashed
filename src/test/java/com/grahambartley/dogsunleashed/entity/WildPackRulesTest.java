@@ -182,4 +182,21 @@ class WildPackRulesTest {
       final int packSize, final int freeSpots, final int expected) {
     assertEquals(expected, WildPackRules.membersToPlace(packSize, freeSpots));
   }
+
+  static Stream<Arguments> stepCases() {
+    return Stream.of(
+        Arguments.of(64, 64, true),
+        Arguments.of(64, 66, true),
+        Arguments.of(64, 62, true),
+        Arguments.of(64, 67, false),
+        Arguments.of(64, 61, false));
+  }
+
+  @ParameterizedTest(name = "leader at y {0}, spot at y {1} -> {2}")
+  @MethodSource("stepCases")
+  @DisplayName("a pack member only spawns within a short step up or down from its leader")
+  void withinPackStepLimitsTheHeightGap(
+      final int leaderY, final int spotY, final boolean expected) {
+    assertEquals(expected, WildPackRules.withinPackStep(leaderY, spotY));
+  }
 }

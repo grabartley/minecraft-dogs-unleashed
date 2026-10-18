@@ -28,8 +28,9 @@ public final class WildPackFounding {
     if (!breed.nature().livesInPacks() || !DogPack.isWildSpawn(reason)) {
       return true;
     }
+    final int needed = settings().smallestPack() - 1;
     return WildPackRules.hasRoomForPack(
-        freeSpots(type, world, reason, leaderPos).size(), settings().smallestPack());
+        freeSpots(type, world, reason, leaderPos, needed).size(), settings().smallestPack());
   }
 
   static void bringPack(
@@ -46,7 +47,8 @@ public final class WildPackFounding {
     final EntityType<? extends UnleashedDogEntity> type =
         ModEntities.getDogEntityType(leader.getBreed());
     final Random random = leader.getRandom();
-    final List<BlockPos> spots = freeSpots(type, world, reason, leader.getBlockPos());
+    final List<BlockPos> spots =
+        freeSpots(type, world, reason, leader.getBlockPos(), Integer.MAX_VALUE);
     Util.shuffle(spots, random);
     final DireWolfSettings settings = settings();
     final int packSize =
@@ -70,11 +72,16 @@ public final class WildPackFounding {
       final EntityType<? extends UnleashedDogEntity> type,
       final ServerWorldAccess world,
       final SpawnReason reason,
-      final BlockPos leaderPos) {
+      final BlockPos leaderPos,
+      final int enough) {
     final List<BlockPos> spots = new ArrayList<>();
     for (final BlockPos column : WildPackRules.spreadColumns(leaderPos)) {
+      if (spots.size() >= enough) {
+        break;
+      }
       final BlockPos spot = world.getTopPosition(SpawnRestriction.getHeightmapType(type), column);
-      if (SpawnRestriction.isSpawnPosAllowed(type, world, spot)
+      if (WildPackRules.withinPackStep(leaderPos.getY(), spot.getY())
+          && SpawnRestriction.isSpawnPosAllowed(type, world, spot)
           && UnleashedDogEntity.canSpawn(type, world, reason, spot, world.getRandom())
           && world.isSpaceEmpty(
               type.getSpawnBox(spot.getX() + 0.5, spot.getY(), spot.getZ() + 0.5))) {

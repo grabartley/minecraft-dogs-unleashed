@@ -172,6 +172,11 @@ public class UnleashedDogEntity extends DogMountEntity
     return initialized;
   }
 
+  @Override
+  public int getLimitPerChunk() {
+    return this.breed.nature().livesInPacks() ? 1 : super.getLimitPerChunk();
+  }
+
   public boolean isSpawnedByDogSpawner() {
     return this.spawnedByDogSpawner;
   }

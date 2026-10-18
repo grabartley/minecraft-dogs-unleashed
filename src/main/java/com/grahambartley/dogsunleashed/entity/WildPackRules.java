@@ -16,6 +16,7 @@ public final class WildPackRules {
   public static final int HUNT_COOLDOWN_TICKS = 2 * 60 * 20;
   public static final int THREAT_MEMORY_TICKS = 30 * 20;
   public static final int PACK_SPREAD_BLOCKS = 3;
+  public static final int PACK_STEP_BLOCKS = 2;
 
   private WildPackRules() {}
 
@@ -31,6 +32,10 @@ public final class WildPackRules {
       }
     }
     return columns;
+  }
+
+  public static boolean withinPackStep(final int leaderY, final int spotY) {
+    return Math.abs(spotY - leaderY) <= PACK_STEP_BLOCKS;
   }
 
   public static boolean hasRoomForPack(final int freeSpots, final int smallestPack) {
