@@ -155,24 +155,20 @@ public class DogInspectScreen extends Screen {
       case BUILDING ->
           DogStatsPanel.drawTrustRow(
               context, this.textRenderer, data.trust().trust(), x, y, INFO_LABEL_WIDTH);
-      case TOO_WILD ->
-          context.drawText(
-              this.textRenderer,
-              Text.translatable("screen.dogs-unleashed.dog_inspect.too_wild"),
-              x,
-              y,
-              WILD_COLOR,
-              true);
-      case SHUNNED ->
-          context.drawText(
-              this.textRenderer,
-              Text.translatable("screen.dogs-unleashed.dog_inspect.shunned"),
-              x,
-              y,
-              WILD_COLOR,
-              true);
+      case TOO_WILD -> this.drawWildLine(context, "too_wild", x, y);
+      case SHUNNED -> this.drawWildLine(context, "shunned", x, y);
       case NONE -> {}
     }
+  }
+
+  private void drawWildLine(final DrawContext context, final String key, final int x, final int y) {
+    context.drawText(
+        this.textRenderer,
+        Text.translatable("screen.dogs-unleashed.dog_inspect." + key),
+        x,
+        y,
+        WILD_COLOR,
+        true);
   }
 
   private String displayName() {

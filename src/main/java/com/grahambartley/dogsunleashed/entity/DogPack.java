@@ -94,9 +94,6 @@ public final class DogPack {
         && isValidThreat(player)
         && this.dog.getWorld() instanceof ServerWorld world) {
       WildPackGrudges.get(world.getServer()).record(this.packId, player.getUuid());
-      for (final UnleashedDogEntity packmate : this.packmatesWithin(WildPackRules.GRUDGE_RANGE)) {
-        packmate.getTrust().forget(player);
-      }
     }
     this.rallyAgainst(attacker);
   }
@@ -138,10 +135,13 @@ public final class DogPack {
   }
 
   public boolean isThreat(final @Nullable Entity entity) {
+    return this.remembersThreat(entity) || this.bearsGrudgeAgainst(entity);
+  }
+
+  private boolean remembersThreat(final @Nullable Entity entity) {
     return entity != null
-            && entity.getUuid().equals(this.threatId)
-            && WildPackRules.remembersThreat(this.dog.getWorld().getTime(), this.threatUntil)
-        || this.bearsGrudgeAgainst(entity);
+        && entity.getUuid().equals(this.threatId)
+        && WildPackRules.remembersThreat(this.dog.getWorld().getTime(), this.threatUntil);
   }
 
   void writeNbt(final NbtCompound nbt) {

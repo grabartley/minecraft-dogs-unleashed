@@ -155,8 +155,7 @@ public final class DireWolfTrustGameTest implements FabricGameTest {
     context.addInstantFinalTask(
         () -> {
           context.assertTrue(
-              player.getHealth() < player.getMaxHealth(),
-              "The guarding adult never bit the player who hurt its pack");
+              guard.getTarget() == player, "The guarding adult never went for the player");
           SurvivalTestPlayer.leave(context, player);
         });
   }

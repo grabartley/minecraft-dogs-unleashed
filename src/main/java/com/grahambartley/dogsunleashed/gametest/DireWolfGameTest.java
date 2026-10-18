@@ -190,7 +190,7 @@ public final class DireWolfGameTest implements FabricGameTest {
     context.assertTrue(
         pack.stream().filter(wolf -> wolf.getGrowth().stage() != DireWolfGrowthStage.PUP).count()
             >= 3,
-        "Every pack has at least three grown members");
+        "Every pack has at least three members that are not pups");
     context.assertTrue(
         pack.stream().noneMatch(wolf -> wolf.getGrowth().stage() == DireWolfGrowthStage.ALPHA),
         "No wild pack member is an alpha");

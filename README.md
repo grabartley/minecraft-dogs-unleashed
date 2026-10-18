@@ -131,7 +131,7 @@ only operators can.
 | Alpha Battles             | 20      | Fights a prime must win beside you before it can become an alpha, from 1 to 200.  |
 | Smallest / Largest Pack   | 5 / 10  | How many dire wolves a wild pack has, from 4 to 16.                               |
 | Wild Packs Hunt           | On      | Whether wild dire wolves hunt animals, skeletons and zombies. Penned animals are safe. |
-| Packs Defend Each Other   | On      | Whether a wild pack attacks anything that hurts one of them.                      |
+| Packs Defend Each Other   | On      | Whether a wild pack attacks anything that hurts one of them, and goes after players it holds a grudge against. |
 | Riding Stamina Drain      | On      | Off lets you sprint on a dire wolf for as long as you like.                       |
 | Riding Stamina            | 100%    | How long a dire wolf can sprint, from 25% to 400%.                                |
 | Stamina Recovery          | 100%    | How fast a dire wolf gets its stamina back, from 25% to 400%.                     |

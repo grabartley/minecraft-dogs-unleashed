@@ -8,7 +8,6 @@ public final class WildPackRules {
 
   public static final double DEFENCE_RANGE = 24.0;
   public static final double HUNT_RANGE = 16.0;
-  public static final double GRUDGE_RANGE = 64.0;
   public static final int PEN_RANGE = 4;
   public static final int HUNT_COOLDOWN_TICKS = 2 * 60 * 20;
   public static final int THREAT_MEMORY_TICKS = 30 * 20;

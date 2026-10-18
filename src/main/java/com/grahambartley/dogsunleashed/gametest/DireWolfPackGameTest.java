@@ -28,6 +28,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.AfterBatch;
+import net.minecraft.test.BeforeBatch;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.text.Text;
@@ -43,6 +44,9 @@ public final class DireWolfPackGameTest implements FabricGameTest {
   private static final BlockPos REL_PREY = new BlockPos(9, FLOOR_Y, 4);
   private static final int WATCH_TICKS = 100;
   private static final int NATURAL_PACK_SIZE = 10;
+  private static final String HUNTING_OFF_BATCH = "pack-hunting-off";
+
+  private static DogsUnleashedConfig configBeforeHuntingOff;
 
   @GameTest(templateName = RANGE, tickLimit = WATCH_TICKS + 20)
   public void aWildAdultHuntsANearbySheep(final TestContext context) {
@@ -113,24 +117,33 @@ public final class DireWolfPackGameTest implements FabricGameTest {
     context.complete();
   }
 
-  @GameTest(templateName = RANGE, tickLimit = WATCH_TICKS + 40, batchId = "pack-hunting-off")
+  @BeforeBatch(batchId = HUNTING_OFF_BATCH)
+  public void rememberConfig(final ServerWorld world) {
+    configBeforeHuntingOff = DogsUnleashed.SERVER_CONFIG;
+  }
+
+  @AfterBatch(batchId = HUNTING_OFF_BATCH)
+  public void restoreConfig(final ServerWorld world) {
+    ServerConfigService.update(world.getServer(), configBeforeHuntingOff);
+  }
+
+  @GameTest(templateName = RANGE, tickLimit = WATCH_TICKS + 40, batchId = HUNTING_OFF_BATCH)
   public void turningPackHuntingOffMidHuntCallsItOff(final TestContext context) {
     final UnleashedDogEntity wolf = spawnPack(context, DireWolfGrowthStage.ADULT).get(0);
     final SheepEntity sheep = context.spawnEntity(EntityType.SHEEP, REL_PREY);
     sheep.setAiDisabled(true);
     sheep.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(1000.0);
     sheep.setHealth(1000.0f);
-    final MinecraftServer server = context.getWorld().getServer();
-    final DogsUnleashedConfig before = DogsUnleashed.SERVER_CONFIG;
     final boolean[] calledOff = {false};
     context.runAtEveryTick(
         () -> {
           if (!calledOff[0] && wolf.getTarget() == sheep) {
             calledOff[0] = true;
+            final DogsUnleashedConfig config = DogsUnleashed.SERVER_CONFIG;
             ServerConfigService.update(
-                server,
-                before.withDireWolf(
-                    before.direWolf().withPacks(before.direWolf().packs().withHunt(false))));
+                context.getWorld().getServer(),
+                config.withDireWolf(
+                    config.direWolf().withPacks(config.direWolf().packs().withHunt(false))));
           }
         });
     context.addInstantFinalTask(
@@ -138,18 +151,7 @@ public final class DireWolfPackGameTest implements FabricGameTest {
           context.assertTrue(calledOff[0], "The wolf never started hunting the sheep");
           context.assertTrue(
               wolf.getTarget() == null, "Hunting was turned off, but the wolf kept hunting");
-          ServerConfigService.update(server, before);
         });
-  }
-
-  @AfterBatch(batchId = "pack-hunting-off")
-  public void restoreHunting(final ServerWorld world) {
-    ServerConfigService.update(
-        world.getServer(),
-        DogsUnleashed.SERVER_CONFIG.withDireWolf(
-            DogsUnleashed.SERVER_CONFIG
-                .direWolf()
-                .withPacks(DogsUnleashed.SERVER_CONFIG.direWolf().packs().withHunt(true))));
   }
 
   @GameTest(templateName = RANGE, tickLimit = 20)

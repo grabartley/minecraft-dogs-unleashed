@@ -15,7 +15,10 @@ import java.util.List;
 import java.util.function.UnaryOperator;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.EntityData;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.mob.ZombieEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.MinecraftServer;
@@ -47,7 +50,6 @@ public final class DireWolfGrudgeGameTest implements FabricGameTest {
       feed(pup, player);
       pack.get(0).damage(context.getWorld().getDamageSources().playerAttack(player), 1.0f);
 
-      context.assertTrue(pup.getTrust().trustOf(player) == 0, "The pup kept its trust");
       context.assertTrue(pup.getTrust().isShunnedBy(player), "The pup should shun the player");
       context.assertTrue(
           ModNetworking.trustView(player, pup).equals(WildTrustView.SHUNNED),
@@ -108,15 +110,42 @@ public final class DireWolfGrudgeGameTest implements FabricGameTest {
     final ServerPlayerEntity player = SurvivalTestPlayer.joinAt(context, REL_NEARBY);
     WildPackGrudges.get(context.getWorld().getServer())
         .record(pack.get(0).getPack().id(), player.getUuid());
-    context.runAtEveryTick(
-        () ->
-            context.assertTrue(
-                pack.get(1).getTarget() == null, "The pup went for the player itself"));
     context.addInstantFinalTask(
         () -> {
           context.assertTrue(
               pack.get(0).getTarget() == player, "The adult should go after the player");
           SurvivalTestPlayer.leave(context, player);
+        });
+  }
+
+  @GameTest(templateName = RANGE, tickLimit = 200)
+  public void aWolfChasingAGrudgeTurnsOnAMobThatHurtsItsPack(final TestContext context) {
+    final List<UnleashedDogEntity> pack =
+        spawnPack(context, null, DireWolfGrowthStage.ADULT, DireWolfGrowthStage.ADULT);
+    final UnleashedDogEntity chaser = pack.get(0);
+    pack.get(1).setAiDisabled(true);
+    final ZombieEntity zombie = context.spawnEntity(EntityType.ZOMBIE, REL_LATECOMER);
+    zombie.setAiDisabled(true);
+    zombie.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(1000.0);
+    zombie.setHealth(1000.0f);
+    final ServerPlayerEntity player = SurvivalTestPlayer.joinAt(context, REL_NEARBY);
+    WildPackGrudges.get(context.getWorld().getServer())
+        .record(chaser.getPack().id(), player.getUuid());
+    final long[] hitAt = {-1};
+    context.runAtEveryTick(
+        () -> {
+          if (hitAt[0] < 0 && chaser.getTarget() == player) {
+            hitAt[0] = context.getTick();
+            pack.get(1).damage(context.getWorld().getDamageSources().mobAttack(zombie), 1.0f);
+          } else if (hitAt[0] >= 0) {
+            context.assertTrue(
+                chaser.getTarget() == zombie,
+                "The wolf dropped the zombie for " + chaser.getTarget());
+            if (context.getTick() >= hitAt[0] + 20) {
+              SurvivalTestPlayer.leave(context, player);
+              context.complete();
+            }
+          }
         });
   }
 

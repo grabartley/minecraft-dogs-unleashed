@@ -61,6 +61,9 @@ public final class DogTrust {
   }
 
   public int trustOf(final PlayerEntity player) {
+    if (this.isShunnedBy(player)) {
+      return 0;
+    }
     return this.trustByPlayer.getOrDefault(player.getUuid(), 0);
   }
 

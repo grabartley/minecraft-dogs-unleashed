@@ -4,19 +4,18 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.WildPackRules;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.util.math.BlockPos;
 
-public class WildHuntGoal extends ActiveTargetGoal<LivingEntity> {
+public class WildHuntGoal extends OwnTargetGoal<LivingEntity> {
 
   private static final int TARGET_CHANCE = 10;
 
   private final UnleashedDogEntity dog;
 
   public WildHuntGoal(final UnleashedDogEntity dog) {
-    super(dog, LivingEntity.class, TARGET_CHANCE, true, false, WildHuntGoal::isPrey);
+    super(dog, LivingEntity.class, TARGET_CHANCE, WildHuntGoal::isPrey);
     this.dog = dog;
   }
 
@@ -26,8 +25,8 @@ public class WildHuntGoal extends ActiveTargetGoal<LivingEntity> {
   }
 
   @Override
-  public boolean shouldContinue() {
-    return this.dog.getPack().keepsHunting() && super.shouldContinue();
+  protected boolean stillWants(final LivingEntity target) {
+    return this.dog.getPack().keepsHunting();
   }
 
   @Override
