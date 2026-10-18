@@ -21,6 +21,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
+import org.joml.Matrix4f;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
@@ -38,9 +39,11 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
   private final StickBlockEntity stickDummy;
   private final GeoBlockRenderer<FrisbeeBlockEntity> frisbeeRenderer;
   private final FrisbeeBlockEntity frisbeeDummy;
+  private final Matrix4f entityOrigin;
 
-  public DogCarryFetchItemLayer(GeoRenderer<T> renderer) {
+  public DogCarryFetchItemLayer(GeoRenderer<T> renderer, Matrix4f entityOrigin) {
     super(renderer);
+    this.entityOrigin = entityOrigin;
     this.tennisBallRenderer = new GeoBlockRenderer<>(new TennisBallModel());
     this.tennisBallDummy =
         new TennisBallBlockEntity(BlockPos.ORIGIN, ModBlocks.TENNIS_BALL.getDefaultState());
@@ -86,8 +89,12 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
       return;
     }
     CarryProfile profile = animatable.getRigSourceBreed().carryProfileFor(fetchType);
+    MouthFrame.level(poseStack, bone);
     poseStack.translate(0.0, profile.verticalOffset(), profile.forwardOffset());
-    poseStack.scale(profile.scale(), profile.scale(), profile.scale());
+    CarriedToy toy = CarriedToy.of(fetchType);
+    float scale = toy.scaleIn(this.entityOrigin, poseStack.peek().getPositionMatrix());
+    poseStack.scale(scale, scale, scale);
+    poseStack.translate(0.0, toy.centreDrop(), 0.0);
 
     if (fetchType == FetchTypes.TENNIS_BALL) {
       renderGeo(

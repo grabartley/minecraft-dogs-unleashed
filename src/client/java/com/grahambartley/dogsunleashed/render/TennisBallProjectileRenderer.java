@@ -11,7 +11,7 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 public class TennisBallProjectileRenderer extends GeoEntityRenderer<TennisBallProjectileEntity> {
 
-  private static final float BALL_SCALE = 0.5f;
+  private static final float BALL_SCALE = 1f / 6f;
 
   public TennisBallProjectileRenderer(EntityRendererFactory.Context context) {
     super(context, new TennisBallProjectileModel());
