@@ -36,6 +36,13 @@ public final class DogLineage {
         && !partner.undead();
   }
 
+  public static boolean breedsTogether(
+      final UnleashedDogBreed first, final UnleashedDogBreed second) {
+    final boolean exclusive =
+        first.nature().breedsOnlyWithOwnBreed() || second.nature().breedsOnlyWithOwnBreed();
+    return !exclusive || first == second;
+  }
+
   public static UnleashedDogBreed childBreed(
       final UnleashedDogBreed first, final UnleashedDogBreed second) {
     return first == second && first != UnleashedDogBreed.CROSS_BREED
@@ -51,7 +58,8 @@ public final class DogLineage {
     if (other == this.dog || !(other instanceof UnleashedDogEntity partner)) {
       return false;
     }
-    return matesCanBreed(mateStateOf(this.dog), mateStateOf(partner));
+    return breedsTogether(this.dog.getBreed(), partner.getBreed())
+        && matesCanBreed(mateStateOf(this.dog), mateStateOf(partner));
   }
 
   @Nullable

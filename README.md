@@ -19,7 +19,7 @@
 
 # Dogs Unleashed
 
-Dogs Unleashed adds five dog breeds to Minecraft. Each one has its own look, coats, voice and home biome, and is fully
+Dogs Unleashed adds six dog breeds to Minecraft. Each one has its own look, coats, voice and home biome, and is fully
 animated. You can tame them, give them commands, play fetch, put them to bed, and raise families of them.
 
 > **Alpha:** Dogs Unleashed is in alpha and we would love your feedback.
@@ -34,8 +34,14 @@ animated. You can tame them, give them commands, play fetch, put them to bed, an
 | **Beagle**           | Forests and meadows                       | 12                        |
 | **Golden Retriever** | Beaches                                   | 1, the classic golden     |
 | **Shiba Inu**        | Cherry groves                             | 3: red, black and sesame  |
+| **Dire Wolf**        | Packs in the coldest peaks and ice fields | 6, from smoke grey to albino white |
 
 Breeds differ in size, health, speed and bite. Some coats are rarer than others.
+
+The dire wolf is the rare one. It only roams the coldest peaks, slopes and ice fields, always in a pack with pups. A pup
+grows up over about an hour and a half, ending taller than a horse and stronger than any other dog. Dire wolves are
+harder to tame, they bark and howl, and they only breed with each other. Tame one of every coat to earn
+"Winter is Coming".
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/main/docs/all%20huskies.png" alt="Husky coat variants" width="800">
@@ -73,12 +79,12 @@ night.
 carefully, or your dog ends up with a bad hair day until it grows back.
 - **Never lose them.** Your dogs follow you through portals, unless they are sitting, staying or guarding. Bind a dog whistle to call one from anywhere, or open the
 Pet Manager to see and summon your whole pack.
-- **Raise a family.** Any two living tamed dogs can have puppies, and mixed parents give a mixed breed puppy. Every dog has a
+- **Raise a family.** Any two living tamed dogs can have puppies, and mixed parents give a mixed breed puppy. Dire wolves only breed with dire wolves. Every dog has a
 family tree you can explore.
 - **Bring them back.** A tamed dog that dies leaves a grave. Put a totem in it and a lightning rod above it, then wait
 for a storm. Your dog comes back undead and burns in daylight unless it has shade, armour, or a fire pendant. Cure it the same way you
 cure a zombie villager. If it dies while undead, it is gone for good, unless it wears a Pendant of Loyalty.
-- **Little touches.** Huskies howl at the full moon, dogs tilt their heads at food, and they shake off after rain or a
+- **Little touches.** Huskies and dire wolves howl at the full moon, dogs tilt their heads at food, and they shake off after rain or a
 swim. There is also an advancement tab to work through.
 
 ## Install
@@ -105,7 +111,7 @@ only operators can.
 | Spawn Dogs in the Wild    | On      | Whether dogs spawn in their biomes. Needs a world restart.                        |
 | Spawn Rate                | 100%    | How often dogs spawn, from 0% to 500%. Needs a world restart.                     |
 | Spawn Rate (per breed)    | 100%    | The same, for one breed. Needs a world restart.                                   |
-| Cap-Independent Spawner   | On      | Lets small packs of wild dogs spawn near you even in well-explored areas.         |
+| Cap-Independent Spawner   | On      | Lets small packs of wild dogs spawn near you even in well-explored areas. Dire wolf packs spawn this way even when it is off. |
 | Dog Graves on Death       | On      | Whether a tamed dog leaves a grave when it dies. Its gear drops either way.                        |
 | Drop Leash on Play Mode   | On      | Off keeps the lead on, and fetch waits until you take it off.                     |
 | Show Dog Names            | On      | Shows or hides name tags above dogs.                                              |

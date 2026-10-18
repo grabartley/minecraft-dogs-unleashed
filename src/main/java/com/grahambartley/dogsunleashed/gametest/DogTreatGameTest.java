@@ -158,8 +158,8 @@ public final class DogTreatGameTest implements FabricGameTest {
     context.assertTrue(
         DogFoods.attentionIngredient().test(treat),
         "The tempt goal's ingredient should accept a treat");
-    context.assertTrue(dog.isTreatItem(treat), "A dog should recognise a treat");
-    context.assertFalse(dog.isTamingItem(treat), "A treat must not tame a dog");
+    context.assertTrue(DogFoods.isTreatItem(treat), "A dog should recognise a treat");
+    context.assertFalse(DogFoods.isTamingItem(treat), "A treat must not tame a dog");
     context.assertFalse(dog.isBreedingItem(treat), "A treat must not breed a dog");
     context.complete();
   }

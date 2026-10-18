@@ -12,13 +12,15 @@ quoting it in an issue, and update this file when a breed changes.
 | Golden retriever | 128x128 | 128 | 5.0 (1.5 to 16.7) | 66 | 1.7 |
 | Husky | 64x64 | 64 | 0.9 (0.6 to 40) | 26 | 1.3 |
 | Shiba inu | 128x128 | 128 | 4.0 (1.7 to 10) | 33 | 1.5 |
+| Dire wolf | 256x256 | 256 | 4.4 (3.0 to 8.6) | 76 | 1.47, up to 2.25x that at the alpha stage |
 
 Density is `floor(size) / (size + 2 * inflate)` times the sheet scale, taken on the thinnest axis
 of each cube, because GeckoLib floors the size before laying out the patch. The high outliers are
 thin detail cubes and planes (paws, tufts, the husky's eye slab) that carry many texels across a
 sliver. The husky is the odd one out: native scale, no inflate trick, a third to a fifth of the density. It
 still reads well because its markings are large shapes. Match the breed you are painting on; do
-not mix densities inside one rig.
+not mix densities inside one rig. A breed that renders far larger than a normal dog needs a bigger sheet to keep its
+texels per block near the others: the dire wolf alpha draws 2.25 times its yearling size, which is why it is 256x256.
 
 ## Rest-Pose Proportions
 

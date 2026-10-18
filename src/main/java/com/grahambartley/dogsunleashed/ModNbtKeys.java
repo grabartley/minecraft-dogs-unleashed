@@ -65,6 +65,8 @@ public final class ModNbtKeys {
   public static final String CURING_PLAYER_ID = "CuringPlayerId";
   public static final String FUR_STAGE = "FurStage";
   public static final String FUR_TICKS_IN_STAGE = "FurTicksInStage";
+  public static final String GROWTH_STAGE = "GrowthStage";
+  public static final String GROWTH_TICKS_IN_STAGE = "GrowthTicksInStage";
 
   private ModNbtKeys() {}
 }

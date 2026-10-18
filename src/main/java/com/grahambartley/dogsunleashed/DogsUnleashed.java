@@ -1,9 +1,10 @@
 package com.grahambartley.dogsunleashed;
 
+import com.grahambartley.dogsunleashed.advancement.DogHowledCriterion;
 import com.grahambartley.dogsunleashed.advancement.DogShearBotchedCriterion;
 import com.grahambartley.dogsunleashed.advancement.DogSleptInBedCriterion;
+import com.grahambartley.dogsunleashed.advancement.DogTamedCriterion;
 import com.grahambartley.dogsunleashed.advancement.FetchReturnedCriterion;
-import com.grahambartley.dogsunleashed.advancement.HuskyHowledCriterion;
 import com.grahambartley.dogsunleashed.advancement.PetCuredCriterion;
 import com.grahambartley.dogsunleashed.advancement.PetResurrectedCriterion;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
@@ -38,7 +39,8 @@ public class DogsUnleashed implements ModInitializer {
 
   @Override
   public void onInitialize() {
-    HuskyHowledCriterion.register();
+    DogHowledCriterion.register();
+    DogTamedCriterion.register();
     FetchReturnedCriterion.register();
     DogSleptInBedCriterion.register();
     DogShearBotchedCriterion.register();

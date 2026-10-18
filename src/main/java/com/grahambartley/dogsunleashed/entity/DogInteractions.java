@@ -2,12 +2,15 @@ package com.grahambartley.dogsunleashed.entity;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModItems;
+import com.grahambartley.dogsunleashed.advancement.DogTamedCriterion;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
+import com.grahambartley.dogsunleashed.entity.variant.UnleashedDogCoat;
 import com.grahambartley.dogsunleashed.item.DogWhistleItem;
 import com.grahambartley.dogsunleashed.network.ModNetworking;
 import com.grahambartley.dogsunleashed.pet.PetData;
+import com.grahambartley.dogsunleashed.pet.PetNames;
 import com.grahambartley.dogsunleashed.pet.PetRegistrar;
 import java.util.List;
 import java.util.function.Supplier;
@@ -23,7 +26,6 @@ import org.jetbrains.annotations.Nullable;
 
 public final class DogInteractions {
 
-  private static final int TAME_SUCCESS_CHANCE = 3;
   private static final float BREEDING_ITEM_HEAL_AMOUNT = 2.0F;
 
   private final UnleashedDogEntity dog;
@@ -61,7 +63,7 @@ public final class DogInteractions {
       if (tamedResult != null) {
         return tamedResult;
       }
-    } else if (this.dog.isTamingItem(itemStack)) {
+    } else if (DogFoods.isTamingItem(itemStack)) {
       return this.tryTame(player, itemStack);
     }
 
@@ -70,6 +72,13 @@ public final class DogInteractions {
 
   public void tame(final @Nullable PlayerEntity player) {
     this.becomeOwnedBy(player, false);
+    if (player instanceof ServerPlayerEntity serverPlayer) {
+      final UnleashedDogCoat coat = this.dog.getCoatVariant();
+      DogTamedCriterion.INSTANCE.trigger(
+          serverPlayer,
+          this.dog.getBreed().serializedId(),
+          coat == null ? "" : coat.getTexturePrefix());
+    }
   }
 
   public void adoptNewborn(final @Nullable PlayerEntity player) {
@@ -158,7 +167,7 @@ public final class DogInteractions {
     if (!this.isDirectOwnerInteraction(player) || !itemStack.isOf(ModItems.DOG_WHISTLE)) {
       return null;
     }
-    DogWhistleItem.bind(itemStack, this.dog.getUuid(), this.dog.getTamedName());
+    DogWhistleItem.bind(itemStack, this.dog.getUuid(), PetNames.tamedNameOf(this.dog));
     this.sendFeedback(player, "message.dogs-unleashed.whistle.bound");
     return ActionResult.SUCCESS;
   }
@@ -227,7 +236,7 @@ public final class DogInteractions {
 
   private @Nullable ActionResult tryAssignBedOrOpenWheel(
       final PlayerEntity player, final ItemStack itemStack) {
-    if (!this.dog.isOwner(player) || this.dog.isTamingItem(itemStack)) {
+    if (!this.dog.isOwner(player) || DogFoods.isTamingItem(itemStack)) {
       return null;
     }
     if (player.isSneaking()) {
@@ -243,7 +252,7 @@ public final class DogInteractions {
 
   private ActionResult tryTame(final PlayerEntity player, final ItemStack itemStack) {
     itemStack.decrementUnlessCreative(1, player);
-    if (this.dog.getRandom().nextInt(TAME_SUCCESS_CHANCE) == 0) {
+    if (this.dog.getRandom().nextInt(this.dog.getBreed().nature().tameSuccessChance()) == 0) {
       this.tame(player);
     } else {
       this.dog
@@ -258,7 +267,7 @@ public final class DogInteractions {
   }
 
   private void sendFeedback(final PlayerEntity player, final String translationKey) {
-    player.sendMessage(Text.translatable(translationKey, this.dog.getTamedName()), true);
+    player.sendMessage(Text.translatable(translationKey, PetNames.tamedNameOf(this.dog)), true);
   }
 
   private static @Nullable ActionResult firstHandled(final List<Supplier<ActionResult>> steps) {

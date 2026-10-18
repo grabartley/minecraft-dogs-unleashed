@@ -6,8 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
+import net.minecraft.world.biome.BiomeKeys;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -24,6 +27,8 @@ class UnleashedDogBreedTest {
         Arguments.of("golden_retriever", UnleashedDogBreed.GOLDEN_RETRIEVER),
         Arguments.of("shibainu", UnleashedDogBreed.SHIBA_INU),
         Arguments.of("shiba_inu", UnleashedDogBreed.SHIBA_INU),
+        Arguments.of("direwolf", UnleashedDogBreed.DIRE_WOLF),
+        Arguments.of("dire_wolf", UnleashedDogBreed.DIRE_WOLF),
         Arguments.of("crossbreed", UnleashedDogBreed.CROSS_BREED),
         Arguments.of("cross_breed", UnleashedDogBreed.CROSS_BREED));
   }
@@ -134,6 +139,7 @@ class UnleashedDogBreedTest {
         Arguments.of(UnleashedDogBreed.BEAGLE, 0.8f, 1.1f),
         Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, 0.8f, 1.1f),
         Arguments.of(UnleashedDogBreed.SHIBA_INU, 0.8f, 1.1f),
+        Arguments.of(UnleashedDogBreed.DIRE_WOLF, 0.8f, 1.1f),
         Arguments.of(UnleashedDogBreed.CROSS_BREED, 0.8f, 1.1f));
   }
 
@@ -159,6 +165,7 @@ class UnleashedDogBreedTest {
         Arguments.of(UnleashedDogBreed.BEAGLE, 17.0, 0.29, 3.0),
         Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, 24.0, 0.30, 4.0),
         Arguments.of(UnleashedDogBreed.SHIBA_INU, 18.0, 0.32, 3.5),
+        Arguments.of(UnleashedDogBreed.DIRE_WOLF, 30.0, 0.32, 6.0),
         Arguments.of(UnleashedDogBreed.CROSS_BREED, 18.0, 0.29, 3.5));
   }
 
@@ -215,6 +222,7 @@ class UnleashedDogBreedTest {
         Arguments.of(UnleashedDogBreed.BEAGLE, false, true),
         Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, false, true),
         Arguments.of(UnleashedDogBreed.SHIBA_INU, false, true),
+        Arguments.of(UnleashedDogBreed.DIRE_WOLF, true, true),
         Arguments.of(UnleashedDogBreed.CROSS_BREED, false, false));
   }
 
@@ -241,6 +249,7 @@ class UnleashedDogBreedTest {
         Arguments.of(UnleashedDogBreed.BEAGLE, 1.5f, 0.75f, 0.0f, 0.88f),
         Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, 1.7f, 0.85f, 0.0f, 1.31f),
         Arguments.of(UnleashedDogBreed.SHIBA_INU, 1.5f, 0.75f, 0.0f, 0.88f),
+        Arguments.of(UnleashedDogBreed.DIRE_WOLF, 1.47f, 0.735f, 0.0f, 1.31f),
         Arguments.of(UnleashedDogBreed.CROSS_BREED, 1.5f, 0.75f, 0.0f, 0.88f));
   }
 
@@ -290,6 +299,7 @@ class UnleashedDogBreedTest {
         Arguments.of(UnleashedDogBreed.HUSKY, DogFurStage.OVERGROWN, 48000, 2),
         Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, DogFurStage.OVERGROWN, 48000, 2),
         Arguments.of(UnleashedDogBreed.SHIBA_INU, DogFurStage.OVERGROWN, 60000, 2),
+        Arguments.of(UnleashedDogBreed.DIRE_WOLF, DogFurStage.OVERGROWN, 48000, 2),
         Arguments.of(UnleashedDogBreed.BEAGLE, DogFurStage.SHAGGY, 72000, 1),
         Arguments.of(UnleashedDogBreed.DACHSHUND, DogFurStage.SHAGGY, 72000, 1));
   }
@@ -305,5 +315,90 @@ class UnleashedDogBreedTest {
     assertEquals(
         new UnleashedDogBreed.FurProfile(maxStage, ticksPerStage, yieldPerStage),
         breed.furProfile());
+  }
+
+  static Stream<Arguments> expectedHowlSounds() {
+    return Stream.of(
+        Arguments.of(UnleashedDogBreed.HUSKY, "dogs-unleashed:entity.husky.howl"),
+        Arguments.of(UnleashedDogBreed.DIRE_WOLF, "dogs-unleashed:entity.direwolf.howl"));
+  }
+
+  @ParameterizedTest(name = "{0} howls with {1}")
+  @MethodSource("expectedHowlSounds")
+  @DisplayName("each howling breed resolves its own howl sound")
+  void howlingBreedsResolveTheirOwnHowl(final UnleashedDogBreed breed, final String soundId) {
+    assertNotNull(breed.howlSound(), breed + " howl sound");
+    assertEquals(soundId, breed.howlSound().getId().toString());
+  }
+
+  @ParameterizedTest
+  @EnumSource(UnleashedDogBreed.class)
+  @DisplayName("a breed has a howl sound exactly when it howls")
+  void howlSoundPresenceMatchesHowling(final UnleashedDogBreed breed) {
+    assertEquals(breed.howls(), breed.howlSound() != null, breed + " howl sound presence");
+  }
+
+  static Stream<Arguments> expectedNatures() {
+    return Stream.of(
+        Arguments.of(UnleashedDogBreed.HUSKY, 3, false, false),
+        Arguments.of(UnleashedDogBreed.DACHSHUND, 3, false, false),
+        Arguments.of(UnleashedDogBreed.BEAGLE, 3, false, false),
+        Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, 3, false, false),
+        Arguments.of(UnleashedDogBreed.SHIBA_INU, 3, false, false),
+        Arguments.of(UnleashedDogBreed.DIRE_WOLF, 6, true, true),
+        Arguments.of(UnleashedDogBreed.CROSS_BREED, 3, false, false));
+  }
+
+  @ParameterizedTest(name = "{0} tames 1 in {1}, own breed only={2}, staged growth={3}")
+  @MethodSource("expectedNatures")
+  @DisplayName("each breed declares its taming chance, breeding rule and growth model")
+  void breedNatureMatchesTheSpec(
+      final UnleashedDogBreed breed,
+      final int tameSuccessChance,
+      final boolean breedsOnlyWithOwnBreed,
+      final boolean growsThroughStages) {
+    assertEquals(
+        new UnleashedDogBreed.Nature(tameSuccessChance, breedsOnlyWithOwnBreed, growsThroughStages),
+        breed.nature());
+  }
+
+  @ParameterizedTest
+  @EnumSource(UnleashedDogBreed.class)
+  @DisplayName("cross-breed founders spawn naturally and breed with other breeds")
+  void crossBreedFoundersSpawnAndBreedOpenly(final UnleashedDogBreed breed) {
+    assertEquals(
+        breed.isNaturallySpawning() && breed != UnleashedDogBreed.DIRE_WOLF,
+        breed.isCrossBreedFounder(),
+        breed + " founder");
+  }
+
+  @Test
+  @DisplayName("dire wolves spawn rarely, only in the coldest biomes, and only as whole packs")
+  void direWolfSpawnSettingsMatchTheSpec() {
+    final UnleashedDogBreed.SpawnSettings spawn = UnleashedDogBreed.DIRE_WOLF.spawnSettings();
+    assertNotNull(spawn);
+    assertEquals(2, spawn.weight());
+    assertEquals(5, spawn.minGroupSize());
+    assertEquals(10, spawn.maxGroupSize());
+    assertTrue(spawn.packOnly());
+    assertEquals(
+        Set.of(
+            BiomeKeys.ICE_SPIKES,
+            BiomeKeys.FROZEN_PEAKS,
+            BiomeKeys.JAGGED_PEAKS,
+            BiomeKeys.SNOWY_SLOPES,
+            BiomeKeys.SNOWY_TAIGA),
+        Set.of(spawn.biomes()));
+  }
+
+  @ParameterizedTest
+  @EnumSource(UnleashedDogBreed.class)
+  @DisplayName("only the dire wolf spawns as a whole pack")
+  void onlyDireWolfIsPackOnly(final UnleashedDogBreed breed) {
+    final UnleashedDogBreed.SpawnSettings spawn = breed.spawnSettings();
+    assertEquals(
+        breed == UnleashedDogBreed.DIRE_WOLF,
+        spawn != null && spawn.packOnly(),
+        breed + " pack only");
   }
 }

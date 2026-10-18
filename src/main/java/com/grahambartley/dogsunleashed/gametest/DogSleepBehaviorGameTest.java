@@ -99,7 +99,8 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
           context.assertTrue(
               husky.isCommandedToSleep(), "commandToSleep should set COMMANDED_TO_SLEEP");
-          context.assertTrue(husky.hasAssignedBed(), "commandToSleep should set assigned bed");
+          context.assertTrue(
+              husky.getAssignedBedPos().isPresent(), "commandToSleep should set assigned bed");
           context.assertTrue(
               husky.getAssignedBedPos().get().equals(absBedPos),
               "Assigned bed should match given position");

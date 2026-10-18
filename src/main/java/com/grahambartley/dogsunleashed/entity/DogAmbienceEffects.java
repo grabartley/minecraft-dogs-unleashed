@@ -69,8 +69,7 @@ public final class DogAmbienceEffects {
   }
 
   void updateSocialCues(final @Nullable PlayerEntity nearbyPlayer) {
-    this.dog.setHeadTilting(
-        nearbyPlayer != null && this.dog.isPlayerHoldingAttentionItem(nearbyPlayer));
+    this.dog.setHeadTilting(nearbyPlayer != null && DogFoods.isHoldingAttentionItem(nearbyPlayer));
     this.updateTailWag(nearbyPlayer);
   }
 
@@ -150,11 +149,11 @@ public final class DogAmbienceEffects {
       shouldWag =
           shouldWagForPlayer(
               this.dog.isTamed(),
-              this.dog.isTamingItem(nearbyPlayer.getMainHandStack())
-                  || this.dog.isTamingItem(nearbyPlayer.getOffHandStack()),
+              DogFoods.isTamingItem(nearbyPlayer.getMainHandStack())
+                  || DogFoods.isTamingItem(nearbyPlayer.getOffHandStack()),
               this.dog.isBreedingItem(nearbyPlayer.getMainHandStack())
                   || this.dog.isBreedingItem(nearbyPlayer.getOffHandStack()),
-              this.dog.isPlayerHoldingTreat(nearbyPlayer));
+              DogFoods.isHoldingTreat(nearbyPlayer));
     }
 
     this.dog.setTailWagTimer(

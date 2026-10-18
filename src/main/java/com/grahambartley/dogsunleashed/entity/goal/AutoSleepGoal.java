@@ -44,7 +44,7 @@ public class AutoSleepGoal extends Goal {
     if (this.dog.getSleepController().isAutoSleepSuppressed()) {
       return false;
     }
-    if (!this.dog.hasAssignedBed()) {
+    if (!this.dog.getAssignedBedPos().isPresent()) {
       return false;
     }
 

@@ -4,7 +4,7 @@ import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.ModItems;
-import com.grahambartley.dogsunleashed.advancement.HuskyHowledCriterion;
+import com.grahambartley.dogsunleashed.advancement.DogHowledCriterion;
 import com.grahambartley.dogsunleashed.advancement.PetCuredCriterion;
 import com.grahambartley.dogsunleashed.advancement.PetResurrectedCriterion;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
@@ -33,7 +33,8 @@ public final class DogAdvancementGameTest implements FabricGameTest {
           "forever_in_our_hearts",
           "cherry_companion",
           "second_leash_of_life",
-          "best_friend_again");
+          "best_friend_again",
+          "winter_is_coming");
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void advancementsLoadFromDataPackResources(final TestContext context) {
@@ -113,7 +114,7 @@ public final class DogAdvancementGameTest implements FabricGameTest {
     husky.getFetchCarry().setActiveType(FetchTypes.TENNIS_BALL);
     husky.getFetchCarry().setCarriedStack(new ItemStack(ModItems.TENNIS_BALL));
 
-    HuskyHowledCriterion.INSTANCE.trigger(player);
+    DogHowledCriterion.INSTANCE.trigger(player);
     new FetchReturnGoal(husky).tick();
     husky.getSleepController().startSleepingInBed(absBedPos);
 
@@ -123,7 +124,7 @@ public final class DogAdvancementGameTest implements FabricGameTest {
 
     context.assertTrue(
         player.getAdvancementTracker().getProgress(barkAtTheMoon).isDone(),
-        "husky_howled should unlock bark_at_the_moon");
+        "dog_howled should unlock bark_at_the_moon");
     context.assertTrue(
         player.getAdvancementTracker().getProgress(fetch).isDone(),
         "fetch_returned should unlock fetch");

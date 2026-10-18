@@ -28,6 +28,9 @@ public class ModEntities {
   public static final EntityType<UnleashedDogEntity> SHIBA_INU =
       registerDog(UnleashedDogBreed.SHIBA_INU);
 
+  public static final EntityType<UnleashedDogEntity> DIRE_WOLF =
+      registerDog(UnleashedDogBreed.DIRE_WOLF);
+
   public static final EntityType<UnleashedDogEntity> CROSS_BREED =
       registerDog(UnleashedDogBreed.CROSS_BREED);
 
@@ -45,6 +48,9 @@ public class ModEntities {
 
   public static final EntityType<UnleashedDogEntity> ZOMBIE_SHIBA_INU =
       registerZombieDog(UnleashedDogBreed.SHIBA_INU);
+
+  public static final EntityType<UnleashedDogEntity> ZOMBIE_DIRE_WOLF =
+      registerZombieDog(UnleashedDogBreed.DIRE_WOLF);
 
   public static final EntityType<UnleashedDogEntity> ZOMBIE_CROSS_BREED =
       registerZombieDog(UnleashedDogBreed.CROSS_BREED);
@@ -105,6 +111,7 @@ public class ModEntities {
       case BEAGLE -> BEAGLE;
       case GOLDEN_RETRIEVER -> GOLDEN_RETRIEVER;
       case SHIBA_INU -> SHIBA_INU;
+      case DIRE_WOLF -> DIRE_WOLF;
       case CROSS_BREED -> CROSS_BREED;
     };
   }
@@ -117,6 +124,7 @@ public class ModEntities {
       case BEAGLE -> ZOMBIE_BEAGLE;
       case GOLDEN_RETRIEVER -> ZOMBIE_GOLDEN_RETRIEVER;
       case SHIBA_INU -> ZOMBIE_SHIBA_INU;
+      case DIRE_WOLF -> ZOMBIE_DIRE_WOLF;
       case CROSS_BREED -> ZOMBIE_CROSS_BREED;
     };
   }

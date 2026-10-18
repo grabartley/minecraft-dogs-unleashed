@@ -14,7 +14,7 @@ import static com.grahambartley.dogsunleashed.ModConstants.RANDOM_HOWL_CHANCE;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModSounds;
-import com.grahambartley.dogsunleashed.advancement.HuskyHowledCriterion;
+import com.grahambartley.dogsunleashed.advancement.DogHowledCriterion;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -84,7 +84,11 @@ public final class DogVocalization {
   }
 
   public SoundEvent howlSound() {
-    return this.dog.isUndead() ? SoundEvents.ENTITY_ZOMBIE_AMBIENT : ModSounds.HUSKY_HOWL;
+    if (this.dog.isUndead()) {
+      return SoundEvents.ENTITY_ZOMBIE_AMBIENT;
+    }
+    final SoundEvent howl = this.dog.getVoiceBreed().howlSound();
+    return howl != null ? howl : ModSounds.HUSKY_HOWL;
   }
 
   boolean canBark() {
@@ -128,7 +132,7 @@ public final class DogVocalization {
 
   private boolean shouldBark(final @Nullable PlayerEntity nearbyPlayer) {
     final boolean playerHoldingLure =
-        nearbyPlayer != null && this.dog.isPlayerHoldingAttentionItem(nearbyPlayer);
+        nearbyPlayer != null && DogFoods.isHoldingAttentionItem(nearbyPlayer);
     return hasBarkTrigger(
             playerHoldingLure,
             this.dog.getHealth(),
@@ -186,6 +190,6 @@ public final class DogVocalization {
       return;
     }
 
-    HuskyHowledCriterion.INSTANCE.trigger(player);
+    DogHowledCriterion.INSTANCE.trigger(player);
   }
 }

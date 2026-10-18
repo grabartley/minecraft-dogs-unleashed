@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetManager;
+import com.grahambartley.dogsunleashed.pet.PetNames;
 import com.grahambartley.dogsunleashed.pet.PetRegistrar;
 import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -43,8 +44,8 @@ public final class PetRegistrarGameTest implements FabricGameTest {
         !petData.getName().isBlank(),
         "Puppy should get a generated name so the actionbar stops falling back to the breed");
     context.assertTrue(
-        petData.getName().equals(baby.getTamedName()),
-        "getTamedName should resolve to the record's name, but was " + baby.getTamedName());
+        petData.getName().equals(PetNames.tamedNameOf(baby)),
+        "getTamedName should resolve to the record's name, but was " + PetNames.tamedNameOf(baby));
     context.complete();
   }
 

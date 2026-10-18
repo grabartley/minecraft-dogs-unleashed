@@ -44,6 +44,31 @@ class GeoCompare(unittest.TestCase):
         self.assertTrue(any("b[0].uv" in m for m in mismatches))
         self.assertTrue(any("b[0].inflate" in m for m in mismatches))
 
+    def test_a_size_just_under_a_whole_number_is_a_box_uv_change(self):
+        a = write_geo([{"origin": [0, 0, 0], "size": [8, 7, 8], "uv": [0, 0]}])
+        b = write_geo([{"origin": [0, 0, 0], "size": [8, 7, 7.999999999999999], "uv": [0, 0]}])
+        try:
+            mismatches = bbmodel.compare_geo(a, b)
+        finally:
+            remove(a, b)
+        self.assertEqual(mismatches, ["b[0].box_uv_size [8, 7, 8] vs [8, 7, 7]"])
+
+
+class TidyGeo(unittest.TestCase):
+    def test_float_noise_from_an_export_is_rounded_away(self):
+        noisy = write_geo([{"origin": [-4.270000000000001, 0.20000000000000018, 3.4000000000000004],
+                            "size": [8, 7, 7.999999999999999], "inflate": -3.27, "uv": [149, 217]}])
+        out = temp_path(".geo.json")
+        try:
+            bbmodel.tidy_geo(noisy, out)
+            with open(out) as handle:
+                cube = json.load(handle)["minecraft:geometry"][0]["bones"][0]["cubes"][0]
+        finally:
+            remove(noisy, out)
+        self.assertEqual(cube["size"], [8, 7, 8])
+        self.assertEqual(cube["origin"], [-4.27, 0.2, 3.4])
+        self.assertEqual(cube["inflate"], -3.27)
+
 
 if __name__ == "__main__":
     unittest.main()

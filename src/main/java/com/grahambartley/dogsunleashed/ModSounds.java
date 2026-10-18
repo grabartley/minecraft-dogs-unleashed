@@ -12,8 +12,10 @@ public class ModSounds {
   public static final SoundEvent GOLDEN_RETRIEVER_BARK =
       registerSound("entity.goldenretriever.bark");
   public static final SoundEvent SHIBA_INU_BARK = registerSound("entity.shibainu.bark");
+  public static final SoundEvent DIRE_WOLF_BARK = registerSound("entity.direwolf.bark");
 
   public static final SoundEvent HUSKY_HOWL = registerSound("entity.husky.howl");
+  public static final SoundEvent DIRE_WOLF_HOWL = registerSound("entity.direwolf.howl");
 
   public static final SoundEvent DOG_WHISTLE_BLOW = registerSound("item.dog_whistle.blow");
 

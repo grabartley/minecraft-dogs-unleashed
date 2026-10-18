@@ -35,7 +35,15 @@ class DogRarityClassifierTest {
         Arguments.of("beagle lilac 2", UnleashedDogBreed.BEAGLE, BeagleCoat.LILAC_2, 5),
         Arguments.of("shiba red", UnleashedDogBreed.SHIBA_INU, ShibaInuCoat.RED, 65),
         Arguments.of("shiba black", UnleashedDogBreed.SHIBA_INU, ShibaInuCoat.BLACK, 35),
-        Arguments.of("shiba sesame", UnleashedDogBreed.SHIBA_INU, ShibaInuCoat.SESAME, 15));
+        Arguments.of("shiba sesame", UnleashedDogBreed.SHIBA_INU, ShibaInuCoat.SESAME, 15),
+        Arguments.of(
+            "dire wolf smoke grey", UnleashedDogBreed.DIRE_WOLF, DireWolfCoat.SMOKEGREY, 30),
+        Arguments.of("dire wolf ash grey", UnleashedDogBreed.DIRE_WOLF, DireWolfCoat.ASHGREY, 27),
+        Arguments.of(
+            "dire wolf frost grey", UnleashedDogBreed.DIRE_WOLF, DireWolfCoat.FROSTGREY, 22),
+        Arguments.of("dire wolf silver", UnleashedDogBreed.DIRE_WOLF, DireWolfCoat.SILVER, 17),
+        Arguments.of("dire wolf black", UnleashedDogBreed.DIRE_WOLF, DireWolfCoat.BLACK, 9),
+        Arguments.of("dire wolf white", UnleashedDogBreed.DIRE_WOLF, DireWolfCoat.WHITE, 2));
   }
 
   @ParameterizedTest(name = "{0}")

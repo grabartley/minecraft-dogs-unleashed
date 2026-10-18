@@ -40,7 +40,7 @@ public class DogSpawner implements SpecialSpawner {
   public int spawn(
       final ServerWorld world, final boolean spawnMonsters, final boolean spawnAnimals) {
     final DogsUnleashedConfig config = DogsUnleashed.SERVER_CONFIG;
-    if (!config.capIndependentSpawningEnabled() || !config.enableNaturalSpawning()) {
+    if (!config.enableNaturalSpawning()) {
       return 0;
     }
     if (!spawnAnimals || !world.getGameRules().getBoolean(GameRules.DO_MOB_SPAWNING)) {
@@ -85,7 +85,23 @@ public class DogSpawner implements SpecialSpawner {
     }
     final UnleashedDogBreed breed =
         pickWeighted(candidates, config, random.nextInt(totalEffective));
+    if (!spawnsThroughThisSpawner(breed, config.capIndependentSpawningEnabled())) {
+      return 0;
+    }
+    if (breed.spawnSettings().packOnly() && countUntamedNear(world, surface, breed) > 0) {
+      return 0;
+    }
     return spawnPack(world, breed, surface);
+  }
+
+  public static boolean spawnsThroughThisSpawner(
+      final UnleashedDogBreed breed, final boolean capIndependentSpawningEnabled) {
+    return capIndependentSpawningEnabled || breed.spawnSettings().packOnly();
+  }
+
+  public static boolean placesPack(
+      final int placed, final int minGroupSize, final boolean packOnly) {
+    return packOnly ? placed >= minGroupSize : placed > 0;
   }
 
   private int spawnPack(
@@ -96,8 +112,7 @@ public class DogSpawner implements SpecialSpawner {
         settings.minGroupSize()
             + random.nextInt(settings.maxGroupSize() - settings.minGroupSize() + 1);
     final EntityType<? extends UnleashedDogEntity> type = ModEntities.getDogEntityType(breed);
-    EntityData entityData = null;
-    int spawned = 0;
+    final List<UnleashedDogEntity> pack = new ArrayList<>();
     for (int i = 0; i < packSize; i++) {
       final BlockPos pos = i == 0 ? center : scatterAround(world, center, random);
       if (!SpawnRestriction.isSpawnPosAllowed(type, world, pos)
@@ -113,13 +128,21 @@ public class DogSpawner implements SpecialSpawner {
         dog.discard();
         continue;
       }
+      pack.add(dog);
+    }
+    if (!placesPack(pack.size(), settings.minGroupSize(), settings.packOnly())) {
+      pack.forEach(UnleashedDogEntity::discard);
+      return 0;
+    }
+    EntityData entityData = null;
+    for (final UnleashedDogEntity dog : pack) {
       dog.setSpawnedByDogSpawner(true);
       entityData =
-          dog.initialize(world, world.getLocalDifficulty(pos), SpawnReason.NATURAL, entityData);
+          dog.initialize(
+              world, world.getLocalDifficulty(dog.getBlockPos()), SpawnReason.NATURAL, entityData);
       world.spawnEntityAndPassengers(dog);
-      spawned++;
     }
-    return spawned;
+    return pack.size();
   }
 
   public static List<UnleashedDogBreed> spawnableBreedsIn(
@@ -171,6 +194,15 @@ public class DogSpawner implements SpecialSpawner {
       }
     }
     return candidates.get(candidates.size() - 1);
+  }
+
+  public static int countUntamedNear(
+      final ServerWorld world, final BlockPos center, final UnleashedDogBreed breed) {
+    final Box searchBox = new Box(center).expand(UNTAMED_DOG_CAP_RADIUS_BLOCKS);
+    return world
+        .getEntitiesByClass(
+            UnleashedDogEntity.class, searchBox, dog -> !dog.isTamed() && dog.getBreed() == breed)
+        .size();
   }
 
   public static int countUntamedDogsNear(final ServerWorld world, final BlockPos center) {

@@ -52,7 +52,15 @@
           "type": "dogs-unleashed:shibainu"
         }
       }
+    },
+    "tamed_direwolf": {
+      "trigger": "minecraft:tame_animal",
+      "conditions": {
+        "entity": {
+          "type": "dogs-unleashed:direwolf"
+        }
+      }
     }
   },
-  "requirements": [["tamed_husky", "tamed_dachshund", "tamed_beagle", "tamed_goldenretriever", "tamed_shibainu"]]
+  "requirements": [["tamed_husky", "tamed_dachshund", "tamed_beagle", "tamed_goldenretriever", "tamed_shibainu", "tamed_direwolf"]]
 }

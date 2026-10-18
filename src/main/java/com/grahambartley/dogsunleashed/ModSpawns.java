@@ -31,6 +31,14 @@ public class ModSpawns {
         continue;
       }
       final UnleashedDogBreed.SpawnSettings spawnSettings = breed.spawnSettings();
+      SpawnRestriction.register(
+          ModEntities.getDogEntityType(breed),
+          SpawnLocationTypes.ON_GROUND,
+          Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
+          UnleashedDogEntity::canSpawn);
+      if (spawnSettings.packOnly()) {
+        continue;
+      }
       spawnModification.add(
           ModificationPhase.ADDITIONS,
           BiomeSelectors.includeByKey(spawnSettings.biomes()),
@@ -54,12 +62,6 @@ public class ModSpawns {
                         spawnSettings.minGroupSize(),
                         spawnSettings.maxGroupSize()));
           });
-
-      SpawnRestriction.register(
-          ModEntities.getDogEntityType(breed),
-          SpawnLocationTypes.ON_GROUND,
-          Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
-          UnleashedDogEntity::canSpawn);
     }
 
     ServerWorldEvents.LOAD.register(

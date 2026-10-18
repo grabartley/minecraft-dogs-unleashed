@@ -26,6 +26,7 @@ public enum UnleashedDogBreed {
           10,
           2,
           4,
+          false,
           BiomeKeys.SNOWY_TAIGA,
           BiomeKeys.SNOWY_PLAINS,
           BiomeKeys.ICE_SPIKES,
@@ -33,10 +34,11 @@ public enum UnleashedDogBreed {
           BiomeKeys.SNOWY_SLOPES,
           BiomeKeys.GROVE),
       new Attributes(25.0, 0.30, 5.0),
-      new Voice(true, null),
+      new Voice(true, null, () -> ModSounds.HUSKY_HOWL),
       true,
       new RenderTransforms(1.3f, 0.5f, 0.0f, 1.31f),
-      new FurProfile(DogFurStage.OVERGROWN, 48000, 2)),
+      new FurProfile(DogFurStage.OVERGROWN, 48000, 2),
+      Nature.ORDINARY),
   DACHSHUND(
       "dachshund",
       new FetchCarryProfiles(
@@ -45,12 +47,14 @@ public enum UnleashedDogBreed {
           new CarryProfile(0.0, 0.05, 0.40f)),
       new SpawnEggColors(0xA0673F, 0xDC8847),
       new Dimensions(0.8f, 1.1f),
-      new SpawnSettings(10, 1, 2, BiomeKeys.PLAINS, BiomeKeys.SUNFLOWER_PLAINS, BiomeKeys.MEADOW),
+      new SpawnSettings(
+          10, 1, 2, false, BiomeKeys.PLAINS, BiomeKeys.SUNFLOWER_PLAINS, BiomeKeys.MEADOW),
       new Attributes(10.0, 0.25, 2.0),
-      new Voice(false, () -> ModSounds.DACHSHUND_BARK),
+      new Voice(false, () -> ModSounds.DACHSHUND_BARK, null),
       false,
       new RenderTransforms(1.3f, 0.75f, 180.0f, 0.57f),
-      new FurProfile(DogFurStage.SHAGGY, 72000, 1)),
+      new FurProfile(DogFurStage.SHAGGY, 72000, 1),
+      Nature.ORDINARY),
   BEAGLE(
       "beagle",
       new FetchCarryProfiles(
@@ -63,16 +67,18 @@ public enum UnleashedDogBreed {
           10,
           1,
           3,
+          false,
           BiomeKeys.FLOWER_FOREST,
           BiomeKeys.FOREST,
           BiomeKeys.BIRCH_FOREST,
           BiomeKeys.OLD_GROWTH_BIRCH_FOREST,
           BiomeKeys.MEADOW),
       new Attributes(17.0, 0.29, 3.0),
-      new Voice(false, () -> ModSounds.BEAGLE_BARK),
+      new Voice(false, () -> ModSounds.BEAGLE_BARK, null),
       false,
       new RenderTransforms(1.5f, 0.75f, 0.0f, 0.88f),
-      new FurProfile(DogFurStage.SHAGGY, 72000, 1)),
+      new FurProfile(DogFurStage.SHAGGY, 72000, 1),
+      Nature.ORDINARY),
   GOLDEN_RETRIEVER(
       "goldenretriever",
       new FetchCarryProfiles(
@@ -81,12 +87,13 @@ public enum UnleashedDogBreed {
           new CarryProfile(0.0, -0.06, 0.50f)),
       new SpawnEggColors(0xDAA06D, 0xF5DEB3),
       new Dimensions(0.8f, 1.1f),
-      new SpawnSettings(10, 1, 3, BiomeKeys.BEACH),
+      new SpawnSettings(10, 1, 3, false, BiomeKeys.BEACH),
       new Attributes(24.0, 0.30, 4.0),
-      new Voice(false, () -> ModSounds.GOLDEN_RETRIEVER_BARK),
+      new Voice(false, () -> ModSounds.GOLDEN_RETRIEVER_BARK, null),
       false,
       new RenderTransforms(1.7f, 0.85f, 0.0f, 1.31f),
-      new FurProfile(DogFurStage.OVERGROWN, 48000, 2)),
+      new FurProfile(DogFurStage.OVERGROWN, 48000, 2),
+      Nature.ORDINARY),
   SHIBA_INU(
       "shibainu",
       new FetchCarryProfiles(
@@ -95,12 +102,37 @@ public enum UnleashedDogBreed {
           new CarryProfile(0.0, -0.05, 0.45f)),
       new SpawnEggColors(0xCE8346, 0xF5DEB3),
       new Dimensions(0.8f, 1.1f),
-      new SpawnSettings(10, 1, 2, BiomeKeys.CHERRY_GROVE),
+      new SpawnSettings(10, 1, 2, false, BiomeKeys.CHERRY_GROVE),
       new Attributes(18.0, 0.32, 3.5),
-      new Voice(false, () -> ModSounds.SHIBA_INU_BARK),
+      new Voice(false, () -> ModSounds.SHIBA_INU_BARK, null),
       false,
       new RenderTransforms(1.5f, 0.75f, 0.0f, 0.88f),
-      new FurProfile(DogFurStage.OVERGROWN, 60000, 2)),
+      new FurProfile(DogFurStage.OVERGROWN, 60000, 2),
+      Nature.ORDINARY),
+  DIRE_WOLF(
+      "direwolf",
+      new FetchCarryProfiles(
+          new CarryProfile(0.0, 0.0, 0.54f),
+          new CarryProfile(0.0, 0.0, 0.40f),
+          new CarryProfile(0.0, -0.06, 0.66f)),
+      new SpawnEggColors(0x5E6268, 0xD9D9D3),
+      new Dimensions(0.8f, 1.1f),
+      new SpawnSettings(
+          2,
+          5,
+          10,
+          true,
+          BiomeKeys.ICE_SPIKES,
+          BiomeKeys.FROZEN_PEAKS,
+          BiomeKeys.JAGGED_PEAKS,
+          BiomeKeys.SNOWY_SLOPES,
+          BiomeKeys.SNOWY_TAIGA),
+      new Attributes(30.0, 0.32, 6.0),
+      new Voice(true, () -> ModSounds.DIRE_WOLF_BARK, () -> ModSounds.DIRE_WOLF_HOWL),
+      false,
+      new RenderTransforms(1.47f, 0.735f, 0.0f, 1.31f),
+      new FurProfile(DogFurStage.OVERGROWN, 48000, 2),
+      new Nature(6, true, true)),
   CROSS_BREED(
       "crossbreed",
       new FetchCarryProfiles(
@@ -111,10 +143,11 @@ public enum UnleashedDogBreed {
       new Dimensions(0.8f, 1.1f),
       null,
       new Attributes(18.0, 0.29, 3.5),
-      new Voice(false, null),
+      new Voice(false, null, null),
       false,
       new RenderTransforms(1.5f, 0.75f, 0.0f, 0.88f),
-      new FurProfile(DogFurStage.SHAGGY, 60000, 1));
+      new FurProfile(DogFurStage.SHAGGY, 60000, 1),
+      Nature.ORDINARY);
 
   public static final UnleashedDogBreed FALLBACK_RIG = HUSKY;
 
@@ -128,6 +161,7 @@ public enum UnleashedDogBreed {
   private final boolean hasEyeColorVariants;
   private final RenderTransforms renderTransforms;
   private final FurProfile furProfile;
+  private final Nature nature;
 
   UnleashedDogBreed(
       final String serializedId,
@@ -139,7 +173,8 @@ public enum UnleashedDogBreed {
       final Voice voice,
       final boolean hasEyeColorVariants,
       final RenderTransforms renderTransforms,
-      final FurProfile furProfile) {
+      final FurProfile furProfile,
+      final Nature nature) {
     this.serializedId = serializedId;
     this.fetchCarryProfiles = fetchCarryProfiles;
     this.spawnEggColors = spawnEggColors;
@@ -150,6 +185,7 @@ public enum UnleashedDogBreed {
     this.hasEyeColorVariants = hasEyeColorVariants;
     this.renderTransforms = renderTransforms;
     this.furProfile = furProfile;
+    this.nature = nature;
   }
 
   public String serializedId() {
@@ -188,6 +224,10 @@ public enum UnleashedDogBreed {
     return this.spawnSettings != null;
   }
 
+  public boolean isCrossBreedFounder() {
+    return this.isNaturallySpawning() && !this.nature.breedsOnlyWithOwnBreed();
+  }
+
   public @Nullable SpawnSettings spawnSettings() {
     return this.spawnSettings;
   }
@@ -209,6 +249,11 @@ public enum UnleashedDogBreed {
     return barkSound == null ? null : barkSound.get();
   }
 
+  public @Nullable SoundEvent howlSound() {
+    final Supplier<SoundEvent> howlSound = this.voice.howlSound();
+    return howlSound == null ? null : howlSound.get();
+  }
+
   public boolean hasEyeColorVariants() {
     return this.hasEyeColorVariants;
   }
@@ -219,6 +264,10 @@ public enum UnleashedDogBreed {
 
   public FurProfile furProfile() {
     return this.furProfile;
+  }
+
+  public Nature nature() {
+    return this.nature;
   }
 
   public DefaultAttributeContainer.Builder createAttributes() {
@@ -239,6 +288,7 @@ public enum UnleashedDogBreed {
       case "beagle" -> BEAGLE;
       case "goldenretriever", "golden_retriever" -> GOLDEN_RETRIEVER;
       case "shibainu", "shiba_inu" -> SHIBA_INU;
+      case "direwolf", "dire_wolf" -> DIRE_WOLF;
       case "crossbreed", "cross_breed" -> CROSS_BREED;
       default -> null;
     };
@@ -254,14 +304,26 @@ public enum UnleashedDogBreed {
   public record Dimensions(float width, float height) {}
 
   public record SpawnSettings(
-      int weight, int minGroupSize, int maxGroupSize, RegistryKey<Biome>... biomes) {}
+      int weight,
+      int minGroupSize,
+      int maxGroupSize,
+      boolean packOnly,
+      RegistryKey<Biome>... biomes) {}
 
   public record Attributes(double maxHealth, double movementSpeed, double attackDamage) {}
 
-  public record Voice(boolean howls, @Nullable Supplier<SoundEvent> barkSound) {}
+  public record Voice(
+      boolean howls,
+      @Nullable Supplier<SoundEvent> barkSound,
+      @Nullable Supplier<SoundEvent> howlSound) {}
 
   public record RenderTransforms(
       float adultScale, float babyScale, float bodyYawOffsetDegrees, float portraitHeight) {}
 
   public record FurProfile(DogFurStage maxStage, int ticksPerStage, int shearYieldPerStage) {}
+
+  public record Nature(
+      int tameSuccessChance, boolean breedsOnlyWithOwnBreed, boolean growsThroughStages) {
+    public static final Nature ORDINARY = new Nature(3, false, false);
+  }
 }

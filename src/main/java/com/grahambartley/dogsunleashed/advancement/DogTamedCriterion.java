@@ -12,13 +12,13 @@ import net.minecraft.registry.Registry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
-public final class HuskyHowledCriterion extends AbstractCriterion<HuskyHowledCriterion.Conditions> {
-  public static final Identifier ID = Identifier.of(DogsUnleashed.MOD_ID, "husky_howled");
-  public static final HuskyHowledCriterion INSTANCE = new HuskyHowledCriterion();
+public final class DogTamedCriterion extends AbstractCriterion<DogTamedCriterion.Conditions> {
+  public static final Identifier ID = Identifier.of(DogsUnleashed.MOD_ID, "dog_tamed");
+  public static final DogTamedCriterion INSTANCE = new DogTamedCriterion();
 
-  private HuskyHowledCriterion() {}
+  private DogTamedCriterion() {}
 
-  public static HuskyHowledCriterion register() {
+  public static DogTamedCriterion register() {
     return Registry.register(Registries.CRITERION, ID, INSTANCE);
   }
 
@@ -27,11 +27,12 @@ public final class HuskyHowledCriterion extends AbstractCriterion<HuskyHowledCri
     return Conditions.CODEC;
   }
 
-  public void trigger(ServerPlayerEntity player) {
-    this.trigger(player, conditions -> true);
+  public void trigger(final ServerPlayerEntity player, final String breed, final String coat) {
+    this.trigger(player, conditions -> conditions.matches(breed, coat));
   }
 
-  public record Conditions(Optional<LootContextPredicate> player)
+  public record Conditions(
+      Optional<LootContextPredicate> player, Optional<String> breed, Optional<String> coat)
       implements AbstractCriterion.Conditions {
     public static final Codec<Conditions> CODEC =
         RecordCodecBuilder.create(
@@ -40,7 +41,14 @@ public final class HuskyHowledCriterion extends AbstractCriterion<HuskyHowledCri
                     .group(
                         EntityPredicate.LOOT_CONTEXT_PREDICATE_CODEC
                             .optionalFieldOf("player")
-                            .forGetter(Conditions::player))
+                            .forGetter(Conditions::player),
+                        Codec.STRING.optionalFieldOf("breed").forGetter(Conditions::breed),
+                        Codec.STRING.optionalFieldOf("coat").forGetter(Conditions::coat))
                     .apply(instance, Conditions::new));
+
+    public boolean matches(final String tamedBreed, final String tamedCoat) {
+      return this.breed.map(tamedBreed::equals).orElse(true)
+          && this.coat.map(tamedCoat::equals).orElse(true);
+    }
   }
 }

@@ -17,7 +17,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 class DogStatsPanelTest {
 
   @Test
-  @DisplayName("the stat maxima match the strongest breed in each category")
+  @DisplayName("the stat maxima match the strongest breed that does not grow through stages")
   void statMaximaMatchStrongestBreeds() {
     assertEquals(25.0, DogStatsPanel.maxHealthAcrossBreeds());
     assertEquals(0.32, DogStatsPanel.maxSpeedAcrossBreeds());

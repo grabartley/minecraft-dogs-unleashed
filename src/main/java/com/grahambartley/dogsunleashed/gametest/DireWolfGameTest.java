@@ -1,0 +1,337 @@
+package com.grahambartley.dogsunleashed.gametest;
+
+import com.grahambartley.dogsunleashed.DogsUnleashed;
+import com.grahambartley.dogsunleashed.ModBlocks;
+import com.grahambartley.dogsunleashed.ModEntities;
+import com.grahambartley.dogsunleashed.ModNbtKeys;
+import com.grahambartley.dogsunleashed.entity.DireWolfGrowthStage;
+import com.grahambartley.dogsunleashed.entity.DogTraits;
+import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.variant.DireWolfCoat;
+import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
+import com.grahambartley.dogsunleashed.pet.PetData;
+import com.grahambartley.dogsunleashed.pet.PetLifeState;
+import com.grahambartley.dogsunleashed.pet.PetManager;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
+import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import net.minecraft.advancement.AdvancementEntry;
+import net.minecraft.entity.EntityData;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.test.CustomTestProvider;
+import net.minecraft.test.GameTest;
+import net.minecraft.test.TestContext;
+import net.minecraft.test.TestFunction;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+
+public final class DireWolfGameTest implements FabricGameTest {
+
+  private static final String ARENA = "dogs-unleashed:dog_arena";
+  private static final BlockPos REL_WOLF = new BlockPos(3, 2, 3);
+  private static final int PACK_SIZE = 10;
+
+  @GameTest(templateName = ARENA, tickLimit = 40)
+  public void aYearlingGrowsIntoAnAdultWhenItsTwentyMinutesAreUp(final TestContext context) {
+    final UnleashedDogEntity wolf = spawnWolf(context);
+    wolf.getGrowth().setStage(DireWolfGrowthStage.YEARLING);
+    wolf.setHealth(10.0f);
+    final NbtCompound nbt = new NbtCompound();
+    wolf.writeCustomDataToNbt(nbt);
+    nbt.putInt(ModNbtKeys.GROWTH_TICKS_IN_STAGE, DireWolfGrowthStage.TICKS_PER_ADULT_STAGE - 1);
+    wolf.readCustomDataFromNbt(nbt);
+
+    context.runAtTick(
+        5,
+        () -> {
+          context.assertTrue(
+              wolf.getGrowth().stage() == DireWolfGrowthStage.ADULT,
+              "The yearling should have grown, but it is " + wolf.getGrowth().stage());
+          context.assertTrue(
+              wolf.getMaxHealth() == 40.0f, "An adult has 40 health, not " + wolf.getMaxHealth());
+          context.assertTrue(
+              wolf.getHealth() == 20.0f,
+              "Growing adds the 10 health gained rather than healing, but health is "
+                  + wolf.getHealth());
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 20)
+  public void eachStageHasTheHitboxAndStatsOfTheGrowthTable(final TestContext context) {
+    final UnleashedDogEntity wolf = spawnWolf(context);
+    for (final DireWolfGrowthStage stage : DireWolfGrowthStage.values()) {
+      wolf.getGrowth().setStage(stage);
+      context.assertTrue(wolf.getGrowth().stage() == stage, "stage " + stage);
+      context.assertTrue(
+          Math.abs(wolf.getWidth() - stage.width()) < 0.001f
+              && Math.abs(wolf.getHeight() - stage.height()) < 0.001f,
+          stage
+              + " hitbox should be "
+              + stage.width()
+              + "x"
+              + stage.height()
+              + " but was "
+              + wolf.getWidth()
+              + "x"
+              + wolf.getHeight());
+      context.assertTrue(
+          Math.abs(wolf.getMaxHealth() - stage.maxHealth()) < 0.001,
+          stage + " max health " + wolf.getMaxHealth());
+      context.assertTrue(
+          Math.abs(
+                  wolf.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED)
+                      - stage.movementSpeed())
+              < 0.0001,
+          stage + " speed");
+      context.assertTrue(
+          Math.abs(
+                  wolf.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE)
+                      - stage.attackDamage())
+              < 0.001,
+          stage + " attack damage");
+      context.assertTrue(
+          Math.abs(wolf.getArmor() - stage.armor()) < 0.001, stage + " armor " + wolf.getArmor());
+    }
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 20)
+  public void theStageAndTimerSurviveASaveAndReload(final TestContext context) {
+    final UnleashedDogEntity wolf = spawnWolf(context);
+    wolf.getGrowth().setStage(DireWolfGrowthStage.PRIME);
+    final NbtCompound nbt = new NbtCompound();
+    wolf.writeNbt(nbt);
+    nbt.putInt(ModNbtKeys.GROWTH_TICKS_IN_STAGE, 1234);
+
+    final UnleashedDogEntity reloaded = ModEntities.DIRE_WOLF.create(context.getWorld());
+    reloaded.readNbt(nbt);
+
+    context.assertTrue(
+        reloaded.getGrowth().stage() == DireWolfGrowthStage.PRIME,
+        "Reloaded stage should be PRIME but was " + reloaded.getGrowth().stage());
+    context.assertTrue(
+        reloaded.getGrowth().ticksInStage() == 1234,
+        "Reloaded timer should be 1234 but was " + reloaded.getGrowth().ticksInStage());
+    context.assertTrue(
+        reloaded.getMaxHealth() == 50.0f && reloaded.getHealth() == 50.0f,
+        "A reloaded prime keeps its 50 health, not "
+            + reloaded.getHealth()
+            + "/"
+            + reloaded.getMaxHealth());
+    context.assertTrue(
+        Math.abs(reloaded.getHeight() - 1.6f) < 0.001f,
+        "A reloaded prime keeps its 1.6 block hitbox, not " + reloaded.getHeight());
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 20)
+  public void aPupGrowsUpIntoAYearlingWithoutAFreeHeal(final TestContext context) {
+    final UnleashedDogEntity wolf = spawnWolf(context);
+    wolf.getGrowth().setStage(DireWolfGrowthStage.PUP);
+    context.assertTrue(wolf.isBaby(), "A stage 1 dire wolf is a puppy");
+    context.assertTrue(wolf.getMaxHealth() == 20.0f, "A pup has 20 health");
+    wolf.setHealth(5.0f);
+
+    wolf.setBaby(false);
+
+    context.assertTrue(
+        wolf.getGrowth().stage() == DireWolfGrowthStage.YEARLING,
+        "A grown pup becomes a yearling, not " + wolf.getGrowth().stage());
+    context.assertTrue(
+        wolf.getHealth() == 15.0f, "Growing up adds 10 health, but health is " + wolf.getHealth());
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 20)
+  public void aWildPackHasAPupThreeAdultsAndNothingAboveAnAdult(final TestContext context) {
+    final ServerWorld world = context.getWorld();
+    final List<UnleashedDogEntity> pack = new ArrayList<>();
+    EntityData packData = null;
+    for (int member = 0; member < PACK_SIZE; member++) {
+      final UnleashedDogEntity wolf =
+          context.spawnEntity(ModEntities.DIRE_WOLF, REL_WOLF.east(member % 3));
+      wolf.setAiDisabled(true);
+      packData =
+          wolf.initialize(
+              world, world.getLocalDifficulty(wolf.getBlockPos()), SpawnReason.NATURAL, packData);
+      pack.add(wolf);
+    }
+
+    context.assertTrue(
+        pack.stream().anyMatch(wolf -> wolf.getGrowth().stage() == DireWolfGrowthStage.PUP),
+        "Every pack has a pup");
+    context.assertTrue(
+        pack.stream()
+                .filter(
+                    wolf ->
+                        wolf.getGrowth().stage() == DireWolfGrowthStage.YEARLING
+                            || wolf.getGrowth().stage() == DireWolfGrowthStage.ADULT)
+                .count()
+            >= 3,
+        "Every pack has at least three stage 2 or 3 adults");
+    context.assertTrue(
+        pack.stream()
+            .allMatch(
+                wolf -> wolf.getGrowth().stage().number() <= DireWolfGrowthStage.ADULT.number()),
+        "No wild pack member is above stage 3");
+    context.complete();
+  }
+
+  @CustomTestProvider
+  public Collection<TestFunction> aDireWolfRefusesToBreedWithEveryOtherBreed() {
+    final List<TestFunction> tests = new ArrayList<>();
+    for (final DogTestData other : DogTestData.getAllBreeds()) {
+      if (other.breed() == UnleashedDogBreed.DIRE_WOLF) {
+        continue;
+      }
+      tests.add(
+          new TestFunction(
+              "defaultBatch",
+              "direwolfgametest.refusestobreedwith." + other.breed().serializedId(),
+              ARENA,
+              20,
+              0L,
+              true,
+              context -> assertBreeding(context, other, false)));
+    }
+    tests.add(
+        new TestFunction(
+            "defaultBatch",
+            "direwolfgametest.breedswithanotherdirewolf",
+            ARENA,
+            20,
+            0L,
+            true,
+            context -> assertBreeding(context, DogTestData.DIRE_WOLF, true)));
+    return tests;
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 20)
+  public void twoDireWolvesHaveAStageOnePup(final TestContext context) {
+    final UUID owner = UUID.randomUUID();
+    final UnleashedDogEntity mother = spawnTamed(context, ModEntities.DIRE_WOLF, owner, 0);
+    final UnleashedDogEntity father = spawnTamed(context, ModEntities.DIRE_WOLF, owner, 2);
+
+    final UnleashedDogEntity pup =
+        (UnleashedDogEntity) mother.createChild(context.getWorld(), father);
+
+    context.assertTrue(pup != null, "Two dire wolves should have a pup");
+    context.assertTrue(
+        pup.getBreed() == UnleashedDogBreed.DIRE_WOLF, "The pup is a pure dire wolf");
+    context.assertTrue(
+        pup.getGrowth().stage() == DireWolfGrowthStage.PUP,
+        "The pup starts at stage 1, not " + pup.getGrowth().stage());
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 40)
+  public void anAlphaThatDiesLeavesAGrave(final TestContext context) {
+    final UnleashedDogEntity wolf =
+        spawnTamed(context, ModEntities.DIRE_WOLF, UUID.randomUUID(), 0);
+    wolf.getGrowth().setStage(DireWolfGrowthStage.ALPHA);
+    registerPet(context, wolf);
+
+    wolf.kill();
+
+    context.runAtTick(
+        5,
+        () -> {
+          final boolean[] found = {false};
+          context.forEachRelativePos(
+              pos -> {
+                if (context.getBlockState(pos).isOf(ModBlocks.DOG_GRAVE)) {
+                  found[0] = true;
+                }
+              });
+          context.assertTrue(found[0], "A dead alpha dire wolf should leave a grave");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 20)
+  public void winterIsComingNeedsADireWolfOfEveryCoat(final TestContext context) {
+    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+    final AdvancementEntry winter =
+        context
+            .getWorld()
+            .getServer()
+            .getAdvancementLoader()
+            .get(Identifier.of(DogsUnleashed.MOD_ID, "winter_is_coming"));
+    context.assertTrue(winter != null, "winter_is_coming should load");
+
+    final DireWolfCoat[] coats = DireWolfCoat.values();
+    for (int index = 0; index < coats.length; index++) {
+      context.assertTrue(
+          !player.getAdvancementTracker().getProgress(winter).isDone(),
+          "Winter is Coming must wait for every coat, but was granted after " + index);
+      final UnleashedDogEntity wolf =
+          context.spawnEntity(ModEntities.DIRE_WOLF, REL_WOLF.east(index % 3));
+      wolf.setAiDisabled(true);
+      wolf.applyTraits(new DogTraits(UnleashedDogBreed.DIRE_WOLF, coats[index].getOrdinal(), 0));
+      wolf.getInteractions().tame(player);
+    }
+
+    context.assertTrue(
+        player.getAdvancementTracker().getProgress(winter).isDone(),
+        "Taming all six coats should grant Winter is Coming");
+    context.complete();
+  }
+
+  private static void assertBreeding(
+      final TestContext context, final DogTestData other, final boolean expected) {
+    final UUID owner = UUID.randomUUID();
+    final UnleashedDogEntity wolf = spawnTamed(context, ModEntities.DIRE_WOLF, owner, 0);
+    final UnleashedDogEntity partner = spawnTamed(context, other.entityType(), owner, 2);
+    wolf.setLoveTicks(600);
+    partner.setLoveTicks(600);
+
+    context.assertTrue(
+        wolf.canBreedWith(partner) == expected && partner.canBreedWith(wolf) == expected,
+        "A dire wolf breeding with " + other.breed() + " should be " + expected);
+    context.complete();
+  }
+
+  private static UnleashedDogEntity spawnWolf(final TestContext context) {
+    final UnleashedDogEntity wolf = context.spawnEntity(ModEntities.DIRE_WOLF, REL_WOLF);
+    wolf.setAiDisabled(true);
+    return wolf;
+  }
+
+  private static UnleashedDogEntity spawnTamed(
+      final TestContext context,
+      final EntityType<UnleashedDogEntity> type,
+      final UUID owner,
+      final int offset) {
+    final UnleashedDogEntity dog = context.spawnEntity(type, REL_WOLF.east(offset));
+    dog.setAiDisabled(true);
+    dog.setOwnerUuid(owner);
+    dog.setTamed(true, true);
+    return dog;
+  }
+
+  private static void registerPet(final TestContext context, final UnleashedDogEntity dog) {
+    final ServerWorld world = context.getWorld();
+    final PetData pet =
+        new PetData(
+            dog.getUuid(),
+            dog.getOwnerUuid(),
+            dog.getBreed(),
+            "Ghost",
+            dog.getHealth(),
+            dog.getMaxHealth(),
+            dog.getBlockPos(),
+            world.getRegistryKey().getValue().toString(),
+            PetLifeState.LIVING);
+    pet.syncAppearanceFrom(dog);
+    PetManager.get(world.getServer()).registerPet(pet);
+  }
+}

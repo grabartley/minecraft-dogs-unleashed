@@ -95,4 +95,38 @@ class DogSpawnerTest {
         DogSpawner.pickWeighted(
             List.of(UnleashedDogBreed.SHIBA_INU), DogsUnleashedConfig.defaults(), 0));
   }
+
+  static Stream<Arguments> spawnerRoutes() {
+    return Stream.of(
+        Arguments.of(UnleashedDogBreed.HUSKY, true, true),
+        Arguments.of(UnleashedDogBreed.HUSKY, false, false),
+        Arguments.of(UnleashedDogBreed.DIRE_WOLF, true, true),
+        Arguments.of(UnleashedDogBreed.DIRE_WOLF, false, true));
+  }
+
+  @ParameterizedTest(name = "{0}, cap-independent spawner on={1} -> {2}")
+  @MethodSource("spawnerRoutes")
+  @DisplayName("pack-only breeds spawn through the pack spawner even with it switched off")
+  void packOnlyBreedsAlwaysUseThePackSpawner(
+      final UnleashedDogBreed breed, final boolean enabled, final boolean expected) {
+    assertEquals(expected, DogSpawner.spawnsThroughThisSpawner(breed, enabled));
+  }
+
+  static Stream<Arguments> packPlacements() {
+    return Stream.of(
+        Arguments.of(0, 5, true, false),
+        Arguments.of(4, 5, true, false),
+        Arguments.of(5, 5, true, true),
+        Arguments.of(10, 5, true, true),
+        Arguments.of(0, 1, false, false),
+        Arguments.of(1, 3, false, true));
+  }
+
+  @ParameterizedTest(name = "{0} placed of min {1}, pack only={2} -> spawns={3}")
+  @MethodSource("packPlacements")
+  @DisplayName("a pack-only breed spawns its whole pack or nothing")
+  void packOnlyBreedsSpawnWholePacks(
+      final int placed, final int minGroupSize, final boolean packOnly, final boolean expected) {
+    assertEquals(expected, DogSpawner.placesPack(placed, minGroupSize, packOnly));
+  }
 }

@@ -5,6 +5,7 @@ import com.grahambartley.dogsunleashed.entity.DogSleepController;
 import com.grahambartley.dogsunleashed.entity.DogWheelAction;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.network.payload.SelectWheelActionPayload;
+import com.grahambartley.dogsunleashed.pet.PetNames;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -29,7 +30,7 @@ public final class WheelActionNetworkHandler {
         || !dog.isAlive()) {
       return;
     }
-    final String dogName = dog.getTamedName();
+    final String dogName = PetNames.tamedNameOf(dog);
     if (action.isOneShot()) {
       runOneShotWheelAction(action, dog, player, dogName);
       return;
