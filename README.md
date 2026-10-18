@@ -84,7 +84,7 @@ Pet Manager to see and summon your whole pack.
 - **Raise a family.** Any two living tamed dogs can have puppies, and mixed parents give a mixed breed puppy. Dire wolves only breed with dire wolves. Every dog has a
 family tree you can explore.
 - **Bring them back.** A tamed dog that dies leaves a grave. Put a totem in it and a lightning rod above it, then wait
-for a storm. Your dog comes back undead and burns in daylight unless it has shade, armour, or a fire pendant. Cure it the same way you
+for lightning to strike it. Your dog comes back undead and burns in daylight unless it has shade, armour, or a fire pendant. Cure it the same way you
 cure a zombie villager. If it dies while undead, it is gone for good, unless it wears a Pendant of Loyalty.
 - **Little touches.** Huskies and dire wolves howl at the full moon, dogs tilt their heads at food, and they shake off after rain or a
 swim. There is also an advancement tab to work through.
@@ -211,6 +211,8 @@ arguments untranslated. Found a mistake in a translation?
 [Open an issue](https://github.com/grabartley/minecraft-dogs-unleashed/issues/new).
 
 ## Credits
+
+How every part of the mod is meant to work is written down in the [product requirements](docs/prd.md).
 
 Dogs Unleashed is released under the [MIT License](LICENSE).
 
