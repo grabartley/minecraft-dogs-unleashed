@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModBlockTags;
+import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
@@ -30,6 +31,7 @@ public final class DogSpawnPredicateGameTest implements FabricGameTest {
           new SurfaceCase(Blocks.SNOW_BLOCK, true),
           new SurfaceCase(Blocks.COARSE_DIRT, true),
           new SurfaceCase(Blocks.PODZOL, true),
+          new SurfaceCase(Blocks.SAND, false),
           new SurfaceCase(Blocks.STONE, false));
 
   @CustomTestProvider
@@ -59,6 +61,25 @@ public final class DogSpawnPredicateGameTest implements FabricGameTest {
   @CustomTestProvider
   public List<TestFunction> spawnPredicateRejectsStonePerBreed() {
     return generatePerBreed("rejectsstone", new SurfaceCase(Blocks.STONE, false));
+  }
+
+  @CustomTestProvider
+  public List<TestFunction> spawnPredicateAcceptsSandOnlyForGoldenRetrieversPerBreed() {
+    return DogTestData.getAllBreeds().stream()
+        .map(
+            data ->
+                GeneratedGameTest.of(
+                    "defaultBatch",
+                    "dogspawnpredicatetest.sand." + data.breed().serializedId(),
+                    ARENA,
+                    TICK_LIMIT,
+                    ctx ->
+                        testSpawnPredicate(
+                            ctx,
+                            data,
+                            new SurfaceCase(
+                                Blocks.SAND, data.breed() == UnleashedDogBreed.GOLDEN_RETRIEVER))))
+        .toList();
   }
 
   private List<TestFunction> generatePerBreed(
