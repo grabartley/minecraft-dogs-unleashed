@@ -6,6 +6,7 @@ import com.grahambartley.dogsunleashed.entity.DogCollar;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.DogSpawnerOrigin;
+import com.grahambartley.dogsunleashed.entity.DogTreatBuff;
 import com.grahambartley.dogsunleashed.entity.DogTreatBuffState;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.Set;
@@ -39,6 +40,7 @@ public final class DogEntityNbtGameTest implements FabricGameTest {
     context.assertTrue(
         dog.getComponents().get(DogTreatBuffState.class).getRemainingTicks() == 300,
         "treat buff ticks");
+    context.assertTrue(DogTreatBuff.isApplied(dog), "treat buff modifiers re-applied on load");
     context.assertTrue(dog.getCommand() == DogCommand.STAY, "command");
     context.assertTrue(
         dog.getSleepController().getAssignedBedPos().orElseThrow().equals(new BlockPos(7, 64, -3)),

@@ -19,4 +19,6 @@ The treat buff, the collar colour and the spawner origin flag are the first comp
 
 A new feature adds a class and one entry in the holder instead of a field, a getter and accessors on the entity. Save keys are unchanged, so worlds saved before the split load as they were.
 
-Looking a component up by type is more verbose than a named getter, and a missing component is only found at runtime. The holder fails loudly when a component is missing or added twice, and the gametests reach every registered component. The tracked data constants still live in the entity, so a component that syncs to the client still adds one line there.
+Looking a component up by type is more verbose than a named getter, and a missing component is only found at runtime. The holder fails loudly when a component is missing or added twice, and the gametests reach every registered component.
+
+The order components are created in is the order they tick, save and load, so a component whose load has side effects must not depend on state that `DogEntityNbt` reads after it. Components must live in the `entity` package: the hooks are package-private and the base class cannot be extended from outside it, so a component elsewhere fails to compile rather than silently never ticking or saving. The tracked data constants still live in the entity, so a component that syncs to the client still adds one line there.

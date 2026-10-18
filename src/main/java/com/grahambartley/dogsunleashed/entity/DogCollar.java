@@ -28,8 +28,12 @@ public final class DogCollar extends DogComponent {
 
   @Override
   void readNbt(final NbtCompound nbt) {
-    if (nbt.contains(ModNbtKeys.COLLAR_COLOR, NbtElement.NUMBER_TYPE)) {
-      this.setColor(DyeColor.byId(nbt.getInt(ModNbtKeys.COLLAR_COLOR)));
-    }
+    this.setColor(colorFromSave(nbt, this.getColor()));
+  }
+
+  static DyeColor colorFromSave(final NbtCompound nbt, final DyeColor current) {
+    return nbt.contains(ModNbtKeys.COLLAR_COLOR, NbtElement.NUMBER_TYPE)
+        ? DyeColor.byId(nbt.getInt(ModNbtKeys.COLLAR_COLOR))
+        : current;
   }
 }

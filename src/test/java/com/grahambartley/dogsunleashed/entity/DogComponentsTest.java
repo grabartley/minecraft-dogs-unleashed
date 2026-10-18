@@ -12,33 +12,52 @@ import org.junit.jupiter.api.Test;
 
 class DogComponentsTest {
 
-  private static final List<String> CALLS = new ArrayList<>();
-
   private static class Counter extends DogComponent {
+    private final List<String> calls;
     int value;
+
+    Counter(final List<String> calls) {
+      this.calls = calls;
+    }
 
     @Override
     void tick() {
       this.value++;
-      CALLS.add(this.getClass().getSimpleName() + ".tick");
+      this.calls.add(this.getClass().getSimpleName() + ".tick");
     }
 
     @Override
     void writeNbt(final NbtCompound nbt) {
       nbt.putInt(this.getClass().getSimpleName(), this.value);
-      CALLS.add(this.getClass().getSimpleName() + ".write");
+      this.calls.add(this.getClass().getSimpleName() + ".write");
     }
 
     @Override
     void readNbt(final NbtCompound nbt) {
       this.value = nbt.getInt(this.getClass().getSimpleName());
-      CALLS.add(this.getClass().getSimpleName() + ".read");
+      this.calls.add(this.getClass().getSimpleName() + ".read");
     }
   }
 
-  private static final class First extends Counter {}
+  private static final class First extends Counter {
+    First(final List<String> calls) {
+      super(calls);
+    }
 
-  private static final class Second extends Counter {}
+    First() {
+      this(new ArrayList<>());
+    }
+  }
+
+  private static final class Second extends Counter {
+    Second(final List<String> calls) {
+      super(calls);
+    }
+
+    Second() {
+      this(new ArrayList<>());
+    }
+  }
 
   private static final class Silent extends DogComponent {}
 
@@ -68,8 +87,9 @@ class DogComponentsTest {
   @Test
   @DisplayName("tick, write and read reach every component in the order they were added")
   void callsReachEveryComponentInOrder() {
-    CALLS.clear();
-    final DogComponents components = DogComponents.of(new First(), new Second(), new Silent());
+    final List<String> calls = new ArrayList<>();
+    final DogComponents components =
+        DogComponents.of(new First(calls), new Second(calls), new Silent());
     final NbtCompound nbt = new NbtCompound();
     components.tick();
     components.writeNbt(nbt);
@@ -82,7 +102,7 @@ class DogComponentsTest {
             "Second.write",
             "First.read",
             "Second.read"),
-        CALLS);
+        calls);
   }
 
   @Test
@@ -95,13 +115,5 @@ class DogComponentsTest {
     final First read = new First();
     DogComponents.of(read).readNbt(nbt);
     assertEquals(1, read.value);
-  }
-
-  @Test
-  @DisplayName("components keep the order they were added in")
-  void keepsInsertionOrder() {
-    final First first = new First();
-    final Second second = new Second();
-    assertEquals(List.of(second, first), DogComponents.of(second, first).inOrder());
   }
 }

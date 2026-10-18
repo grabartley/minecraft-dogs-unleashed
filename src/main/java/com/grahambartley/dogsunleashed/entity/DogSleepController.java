@@ -131,9 +131,7 @@ public final class DogSleepController {
 
   void writeNbt(final NbtCompound nbt) {
     nbt.putBoolean(ModNbtKeys.SLEEPING_IN_BED, this.isSleepingInBed());
-    this.dog
-        .getSleepController()
-        .getAssignedBedPos()
+    this.getAssignedBedPos()
         .ifPresent(
             pos -> {
               nbt.putInt(ModNbtKeys.BED_POS_X, pos.getX());

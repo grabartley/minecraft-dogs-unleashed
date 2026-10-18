@@ -1,7 +1,6 @@
 package com.grahambartley.dogsunleashed.entity;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import net.minecraft.nbt.NbtCompound;
 
@@ -25,10 +24,6 @@ public final class DogComponents {
       throw new IllegalArgumentException("No dog component " + type);
     }
     return type.cast(component);
-  }
-
-  List<DogComponent> inOrder() {
-    return List.copyOf(this.byType.values());
   }
 
   void tick() {
