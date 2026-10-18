@@ -15,9 +15,13 @@ public class FrisbeeBlockEntityRenderer extends GeoBlockRenderer<FrisbeeBlockEnt
 
   public static final float PLACED_SCALE = 0.75f;
 
-  public FrisbeeBlockEntityRenderer(BlockEntityRendererFactory.Context context) {
+  public FrisbeeBlockEntityRenderer() {
     super(new FrisbeeModel());
     withScale(PLACED_SCALE);
+  }
+
+  public FrisbeeBlockEntityRenderer(BlockEntityRendererFactory.Context context) {
+    this();
   }
 
   @Override

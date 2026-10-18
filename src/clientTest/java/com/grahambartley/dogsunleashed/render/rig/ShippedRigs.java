@@ -31,8 +31,11 @@ public final class ShippedRigs {
   private ShippedRigs() {}
 
   public static BakedGeoModel model(final String name) {
-    final Model raw =
-        KeyFramesAdapter.GEO_GSON.fromJson(json("geo/" + name + ".geo.json"), Model.class);
+    return modelAt("geo/" + name + ".geo.json");
+  }
+
+  public static BakedGeoModel modelAt(final String path) {
+    final Model raw = KeyFramesAdapter.GEO_GSON.fromJson(json(path), Model.class);
     final BakedGeoModel baked =
         BakedModelFactory.DEFAULT_FACTORY.constructGeoModel(GeometryTree.fromModel(raw));
     saveRestPose(baked.topLevelBones());
@@ -62,11 +65,10 @@ public final class ShippedRigs {
     }
   }
 
-  public static List<String> animatedBones(final String file, final String animationName) {
+  public static List<String> animatedBones(final String path, final String animationName) {
     final BakedAnimations animations =
         KeyFramesAdapter.GEO_GSON.fromJson(
-            json("animations/" + file + ".animation.json").getAsJsonObject("animations"),
-            BakedAnimations.class);
+            json(path).getAsJsonObject("animations"), BakedAnimations.class);
     return Arrays.stream(animations.getAnimation(animationName).boneAnimations())
         .map(BoneAnimation::boneName)
         .toList();

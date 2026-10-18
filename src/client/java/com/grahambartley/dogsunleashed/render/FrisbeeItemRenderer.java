@@ -13,8 +13,9 @@ import net.minecraft.util.math.BlockPos;
 
 public class FrisbeeItemRenderer implements BuiltinItemRendererRegistry.DynamicItemRenderer {
 
-  private FrisbeeBlockEntityRenderer renderer;
-  private FrisbeeBlockEntity dummyEntity;
+  private final FrisbeeBlockEntityRenderer renderer = new FrisbeeBlockEntityRenderer();
+  private final FrisbeeBlockEntity dummyEntity =
+      new FrisbeeBlockEntity(BlockPos.ORIGIN, ModBlocks.FRISBEE.getDefaultState());
 
   @Override
   public void render(
@@ -24,11 +25,6 @@ public class FrisbeeItemRenderer implements BuiltinItemRendererRegistry.DynamicI
       VertexConsumerProvider vertexConsumers,
       int light,
       int overlay) {
-    if (this.renderer == null) {
-      this.renderer = new FrisbeeBlockEntityRenderer(null);
-      this.dummyEntity =
-          new FrisbeeBlockEntity(BlockPos.ORIGIN, ModBlocks.FRISBEE.getDefaultState());
-    }
     this.dummyEntity.setColor(stack.getOrDefault(ModComponents.FRISBEE_COLOR, DyeColor.WHITE));
     this.renderer.render(this.dummyEntity, 1.0f, matrices, vertexConsumers, light, overlay);
   }

@@ -16,7 +16,7 @@ class TennisBallBlockEntityRendererTest {
   @DisplayName("the placed ball fills its block outline exactly and rests on the floor")
   void placedBallFillsItsOutline() {
     final Box placed =
-        PlacedGeoBounds.of(
+        UnrotatedGeoBounds.of(
             ShippedRigs.model("tennis_ball"), TennisBallBlockEntityRenderer.PLACED_SCALE);
     final Box outline = TennisBallBlock.SHAPE.getBoundingBox();
 

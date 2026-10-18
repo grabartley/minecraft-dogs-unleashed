@@ -7,11 +7,11 @@ import software.bernie.geckolib.cache.object.GeoCube;
 import software.bernie.geckolib.cache.object.GeoQuad;
 import software.bernie.geckolib.cache.object.GeoVertex;
 
-final class PlacedGeoBounds {
+final class UnrotatedGeoBounds {
 
   private static final double BLOCK_CENTRE = 0.5;
 
-  private PlacedGeoBounds() {}
+  private UnrotatedGeoBounds() {}
 
   static Box of(final BakedGeoModel model, final float scale) {
     final double[] min = {Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE};
@@ -29,7 +29,13 @@ final class PlacedGeoBounds {
   }
 
   private static void collect(final GeoBone bone, final double[] min, final double[] max) {
+    if (bone.getRotX() != 0 || bone.getRotY() != 0 || bone.getRotZ() != 0) {
+      throw new IllegalArgumentException("bone " + bone.getName() + " is rotated");
+    }
     for (final GeoCube cube : bone.getCubes()) {
+      if (cube.rotation().lengthSquared() != 0) {
+        throw new IllegalArgumentException("a cube in bone " + bone.getName() + " is rotated");
+      }
       for (final GeoQuad quad : cube.quads()) {
         if (quad == null) {
           continue;

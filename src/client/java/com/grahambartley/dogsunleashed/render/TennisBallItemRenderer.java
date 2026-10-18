@@ -13,12 +13,12 @@ import software.bernie.geckolib.renderer.GeoBlockRenderer;
 
 public class TennisBallItemRenderer implements BuiltinItemRendererRegistry.DynamicItemRenderer {
 
-  static final double BALL_RADIUS = 6.0 / 16.0;
+  static final double LIFT_TO_BLOCK_CENTRE = 2.0 / 16.0;
 
-  static final double LIFT_TO_BLOCK_CENTRE = 0.5 - BALL_RADIUS;
-
-  private GeoBlockRenderer<TennisBallBlockEntity> renderer;
-  private TennisBallBlockEntity dummyEntity;
+  private final GeoBlockRenderer<TennisBallBlockEntity> renderer =
+      new GeoBlockRenderer<>(new TennisBallModel());
+  private final TennisBallBlockEntity dummyEntity =
+      new TennisBallBlockEntity(BlockPos.ORIGIN, ModBlocks.TENNIS_BALL.getDefaultState());
 
   @Override
   public void render(
@@ -28,11 +28,6 @@ public class TennisBallItemRenderer implements BuiltinItemRendererRegistry.Dynam
       VertexConsumerProvider vertexConsumers,
       int light,
       int overlay) {
-    if (this.renderer == null) {
-      this.renderer = new GeoBlockRenderer<>(new TennisBallModel());
-      this.dummyEntity =
-          new TennisBallBlockEntity(BlockPos.ORIGIN, ModBlocks.TENNIS_BALL.getDefaultState());
-    }
     matrices.push();
     matrices.translate(0.0, LIFT_TO_BLOCK_CENTRE, 0.0);
     this.renderer.render(this.dummyEntity, 1.0f, matrices, vertexConsumers, light, overlay);

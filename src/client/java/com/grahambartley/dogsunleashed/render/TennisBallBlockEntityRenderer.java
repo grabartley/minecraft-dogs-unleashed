@@ -9,8 +9,12 @@ public class TennisBallBlockEntityRenderer extends GeoBlockRenderer<TennisBallBl
 
   public static final float PLACED_SCALE = 5f / 12f;
 
-  public TennisBallBlockEntityRenderer(BlockEntityRendererFactory.Context context) {
+  public TennisBallBlockEntityRenderer() {
     super(new TennisBallModel());
     withScale(PLACED_SCALE);
+  }
+
+  public TennisBallBlockEntityRenderer(BlockEntityRendererFactory.Context context) {
+    this();
   }
 }

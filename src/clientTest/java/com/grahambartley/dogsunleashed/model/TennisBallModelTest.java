@@ -11,15 +11,18 @@ import software.bernie.geckolib.cache.object.BakedGeoModel;
 
 class TennisBallModelTest {
 
+  private final TennisBallModel model = new TennisBallModel();
+
   @Test
-  @DisplayName("every bone the fly animation turns exists in the geometry")
+  @DisplayName("every bone the fly animation turns exists in the model's geometry")
   void flyAnimationDrivesRealBones() {
-    final BakedGeoModel model = ShippedRigs.model("tennis_ball");
-    final List<String> bones = ShippedRigs.animatedBones("tennis_ball", "fly");
+    final BakedGeoModel geometry = ShippedRigs.modelAt(model.getModelResource(null).getPath());
+    final List<String> bones =
+        ShippedRigs.animatedBones(model.getAnimationResource(null).getPath(), "fly");
 
     assertFalse(bones.isEmpty());
     for (final String bone : bones) {
-      assertTrue(model.getBone(bone).isPresent(), "missing bone " + bone);
+      assertTrue(geometry.getBone(bone).isPresent(), "missing bone " + bone);
     }
   }
 }

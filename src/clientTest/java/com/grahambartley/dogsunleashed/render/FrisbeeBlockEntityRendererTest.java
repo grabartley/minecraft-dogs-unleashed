@@ -14,7 +14,7 @@ class FrisbeeBlockEntityRendererTest {
   private static final double TOLERANCE = 1e-5;
 
   private static Box placed() {
-    return PlacedGeoBounds.of(
+    return UnrotatedGeoBounds.of(
         ShippedRigs.model("frisbee"), FrisbeeBlockEntityRenderer.PLACED_SCALE);
   }
 
