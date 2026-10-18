@@ -6,6 +6,8 @@ import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.entity.DireWolfGrowthStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.WildPackGrudges;
+import com.grahambartley.dogsunleashed.entity.goal.PackGrudgeGoal;
+import com.grahambartley.dogsunleashed.entity.goal.WildHuntGoal;
 import com.grahambartley.dogsunleashed.gametest.util.SurvivalTestPlayer;
 import com.grahambartley.dogsunleashed.network.ModNetworking;
 import com.grahambartley.dogsunleashed.network.payload.WildTrustView;
@@ -17,8 +19,8 @@ import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.mob.ZombieEntity;
+import net.minecraft.entity.passive.SheepEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.MinecraftServer;
@@ -118,35 +120,59 @@ public final class DireWolfGrudgeGameTest implements FabricGameTest {
         });
   }
 
-  @GameTest(templateName = RANGE, tickLimit = 200)
+  @GameTest(templateName = RANGE, tickLimit = 20)
   public void aWolfChasingAGrudgeTurnsOnAMobThatHurtsItsPack(final TestContext context) {
     final List<UnleashedDogEntity> pack =
         spawnPack(context, null, DireWolfGrowthStage.ADULT, DireWolfGrowthStage.ADULT);
     final UnleashedDogEntity chaser = pack.get(0);
-    pack.get(1).setAiDisabled(true);
+    pack.forEach(wolf -> wolf.setAiDisabled(true));
     final ZombieEntity zombie = context.spawnEntity(EntityType.ZOMBIE, REL_LATECOMER);
     zombie.setAiDisabled(true);
-    zombie.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(1000.0);
-    zombie.setHealth(1000.0f);
     final ServerPlayerEntity player = SurvivalTestPlayer.joinAt(context, REL_NEARBY);
-    WildPackGrudges.get(context.getWorld().getServer())
-        .record(chaser.getPack().id(), player.getUuid());
-    final long[] hitAt = {-1};
-    context.runAtEveryTick(
-        () -> {
-          if (hitAt[0] < 0 && chaser.getTarget() == player) {
-            hitAt[0] = context.getTick();
-            pack.get(1).damage(context.getWorld().getDamageSources().mobAttack(zombie), 1.0f);
-          } else if (hitAt[0] >= 0) {
-            context.assertTrue(
-                chaser.getTarget() == zombie,
-                "The wolf dropped the zombie for " + chaser.getTarget());
-            if (context.getTick() >= hitAt[0] + 20) {
-              SurvivalTestPlayer.leave(context, player);
-              context.complete();
-            }
-          }
-        });
+    try {
+      WildPackGrudges.get(context.getWorld().getServer())
+          .record(chaser.getPack().id(), player.getUuid());
+      final PackGrudgeGoal grudge = new PackGrudgeGoal(chaser);
+      grudge.setTargetEntity(player);
+      grudge.start();
+      context.assertTrue(chaser.getTarget() == player, "The grudge never set its target");
+      context.assertTrue(grudge.shouldContinue(), "The grudge gave up on the player");
+
+      pack.get(1).damage(context.getWorld().getDamageSources().mobAttack(zombie), 1.0f);
+      context.assertTrue(chaser.getTarget() == zombie, "The rally never reached the chaser");
+      context.assertFalse(grudge.shouldContinue(), "The grudge kept running over the rally");
+      grudge.stop();
+      context.assertTrue(
+          chaser.getTarget() == zombie, "The grudge dropped the zombie for " + chaser.getTarget());
+    } finally {
+      SurvivalTestPlayer.leave(context, player);
+    }
+    context.complete();
+  }
+
+  @GameTest(templateName = RANGE, tickLimit = 20)
+  public void aHuntingWolfTurnsOnAMobThatHurtsItsPack(final TestContext context) {
+    final List<UnleashedDogEntity> pack =
+        spawnPack(context, null, DireWolfGrowthStage.ADULT, DireWolfGrowthStage.ADULT);
+    final UnleashedDogEntity hunter = pack.get(0);
+    pack.forEach(wolf -> wolf.setAiDisabled(true));
+    final SheepEntity sheep = context.spawnEntity(EntityType.SHEEP, REL_NEARBY);
+    sheep.setAiDisabled(true);
+    final ZombieEntity zombie = context.spawnEntity(EntityType.ZOMBIE, REL_LATECOMER);
+    zombie.setAiDisabled(true);
+    final WildHuntGoal hunt = new WildHuntGoal(hunter);
+    hunt.setTargetEntity(sheep);
+    hunt.start();
+    context.assertTrue(hunter.getTarget() == sheep, "The hunt never set its target");
+    context.assertTrue(hunt.shouldContinue(), "The hunt gave up on the sheep");
+
+    pack.get(1).damage(context.getWorld().getDamageSources().mobAttack(zombie), 1.0f);
+    context.assertTrue(hunter.getTarget() == zombie, "The rally never reached the hunter");
+    context.assertFalse(hunt.shouldContinue(), "The hunt kept running over the rally");
+    hunt.stop();
+    context.assertTrue(
+        hunter.getTarget() == zombie, "The hunt dropped the zombie for " + hunter.getTarget());
+    context.complete();
   }
 
   @GameTest(templateName = RANGE, tickLimit = 20)
