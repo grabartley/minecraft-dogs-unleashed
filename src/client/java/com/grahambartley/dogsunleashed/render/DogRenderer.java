@@ -10,6 +10,7 @@ import com.grahambartley.dogsunleashed.render.growth.GrowthRigScale;
 import com.grahambartley.dogsunleashed.render.layer.DogArmourLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogCarryFetchItemLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogCollarLayer;
+import com.grahambartley.dogsunleashed.render.layer.DogCosmeticLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogFurOverlayLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogPendantLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogSheetOverlayLayer;
@@ -55,6 +56,7 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
     this.addRenderLayer(new DogSheetOverlayLayer(this));
     this.addRenderLayer(new DogArmourLayer(this));
     this.addRenderLayer(new DogPendantLayer(this));
+    this.addRenderLayer(new DogCosmeticLayer(this));
   }
 
   @Override

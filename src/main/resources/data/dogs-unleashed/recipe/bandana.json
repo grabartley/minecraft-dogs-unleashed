@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###",
+    " # "
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:white_wool"
+    }
+  },
+  "result": {
+    "id": "dogs-unleashed:bandana",
+    "count": 1
+  }
+}

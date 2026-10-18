@@ -1,30 +1,22 @@
 package com.grahambartley.dogsunleashed.render.layer;
 
 import com.google.common.collect.MapMaker;
-import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.item.pendant.PendantType;
-import com.grahambartley.dogsunleashed.render.armour.ArmourClearance;
-import com.grahambartley.dogsunleashed.render.armour.ArmourFit;
+import com.grahambartley.dogsunleashed.render.armour.ArmourShell;
 import com.grahambartley.dogsunleashed.render.rig.CharmMount;
-import com.grahambartley.dogsunleashed.render.rig.CollarBandLocator;
 import com.grahambartley.dogsunleashed.render.rig.CollarBandLocator.CollarSpot;
-import com.grahambartley.dogsunleashed.render.rig.CollarTextureMask;
+import com.grahambartley.dogsunleashed.render.rig.CollarSpots;
 import com.grahambartley.dogsunleashed.render.rig.CubeGeometry;
 import com.grahambartley.dogsunleashed.render.rig.LivePose;
 import com.grahambartley.dogsunleashed.render.rig.PoseClearance;
 import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
 import org.joml.Matrix4fc;
 import org.joml.Vector3f;
 import software.bernie.geckolib.cache.GeckoLibCache;
@@ -68,21 +60,6 @@ public class DogPendantLayer extends GeoRenderLayer<UnleashedDogEntity> {
             : this.mounts.computeIfAbsent(bakedModel, model -> mount(model, animatable));
   }
 
-  private List<PoseClearance.Box> shellBoxes(
-      final UnleashedDogEntity animatable, final Set<String> headSide) {
-    if (animatable.getArmour().worn().isEmpty()) {
-      return List.of();
-    }
-    final Set<String> armoured =
-        new HashSet<>(ArmourFit.torsoBones(animatable.getRigSourceBreed()));
-    armoured.removeAll(headSide);
-    final Vector3f inflation =
-        ArmourClearance.inflationFor(this.frameModel, animatable.getRigSourceBreed());
-    return PoseClearance.liveBoxesOf(this.frameModel, armoured).stream()
-        .map(box -> box.grown(inflation))
-        .toList();
-  }
-
   @Override
   public void renderForBone(
       final MatrixStack poseStack,
@@ -109,7 +86,7 @@ public class DogPendantLayer extends GeoRenderLayer<UnleashedDogEntity> {
     final Vector3f clearance =
         CharmMount.clearanceInBone(
             PoseClearance.liveBoxesOf(this.frameModel, mount.get().sides().body()),
-            shellBoxes(animatable, mount.get().sides().head()),
+            ArmourShell.boxes(this.frameModel, animatable, mount.get().sides().head()),
             () -> PoseClearance.liveBoxesOf(this.frameModel, mount.get().sides().head()),
             LivePose.of(bone),
             mount.get().charmToBone(),
@@ -157,22 +134,12 @@ public class DogPendantLayer extends GeoRenderLayer<UnleashedDogEntity> {
       return Optional.empty();
     }
     final String mouthBone = mouth.get();
-    return locate(model, animatable, mouthBone)
+    return CollarSpots.locate(model, animatable.getRigSourceBreed(), mouthBone)
         .map(
             spot ->
                 new Mount(
                     spot,
                     CharmMount.sidesOf(model, spot, mouthBone),
                     CharmMount.charmToBone(spot)));
-  }
-
-  private static Optional<CollarSpot> locate(
-      final BakedGeoModel model, final UnleashedDogEntity animatable, final String mouthBone) {
-    final Identifier collarTexture =
-        Identifier.of(
-            DogsUnleashed.MOD_ID,
-            "textures/entity/" + animatable.getRigSourceBreed().serializedId() + "_collar.png");
-    return CollarTextureMask.load(MinecraftClient.getInstance().getResourceManager(), collarTexture)
-        .flatMap(mask -> CollarBandLocator.locate(model, mouthBone, mask));
   }
 }

@@ -48,6 +48,18 @@ public final class RestPose {
     return posed;
   }
 
+  public Vector3f local(final Vector3f posed) {
+    final Vector3f local = new Vector3f(posed);
+    for (int i = this.childToRoot.size() - 1; i >= 0; i--) {
+      final Joint joint = this.childToRoot.get(i);
+      final Vector3f r = joint.rotationRadians();
+      final Quaternionf undo =
+          new Quaternionf().rotationZ(r.z).rotateY(r.y).rotateX(r.x).conjugate();
+      local.sub(joint.pivot()).rotate(undo).add(joint.pivot());
+    }
+    return local;
+  }
+
   public Vector3f direction(final Vector3f local) {
     return new Vector3f(local).rotate(this.rotation()).normalize();
   }

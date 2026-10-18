@@ -183,4 +183,20 @@ class CharmMountTest {
   private static PoseClearance.Box box(final Vector3f min, final Vector3f max) {
     return new PoseClearance.Box(new Matrix4f(), min, max);
   }
+
+  @Test
+  @DisplayName("placing at a scale moves to the collar spot and sizes by that scale")
+  void placedToBoneScales() {
+    final CollarBandLocator.CollarSpot spot =
+        new CollarBandLocator.CollarSpot("neck", new Vector3f(1, 2, 3), true, new Quaternionf());
+
+    final Matrix4f placed = CharmMount.placedToBone(spot, 0.5f);
+
+    final Vector3f origin = placed.transformPosition(new Vector3f());
+    final Vector3f unitX = placed.transformDirection(new Vector3f(1, 0, 0));
+    assertEquals(1.0f, origin.x, EPSILON);
+    assertEquals(2.0f, origin.y, EPSILON);
+    assertEquals(3.0f, origin.z, EPSILON);
+    assertEquals(0.5f, unitX.length(), EPSILON);
+  }
 }
