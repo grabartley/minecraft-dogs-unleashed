@@ -13,7 +13,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
-class DogTraitFormatTest {
+class DogAppearanceFormatTest {
 
   private static String fakeName(final UnleashedDogBreed breed) {
     final String id = breed.serializedId();
@@ -50,7 +50,8 @@ class DogTraitFormatTest {
   void compositionsFormatAsPercentageList(
       final String label, final List<BreedShare> composition, final String expected) {
     assertEquals(
-        expected, DogTraitFormat.formatComposition(composition, DogTraitFormatTest::fakeName));
+        expected,
+        DogAppearanceFormat.formatComposition(composition, DogAppearanceFormatTest::fakeName));
   }
 
   @ParameterizedTest(name = "share {0} formats as {1}")
@@ -66,7 +67,7 @@ class DogTraitFormatTest {
   })
   @DisplayName("shares round to whole percentages with a floor label under one percent")
   void sharesFormatAsPercent(final float share, final String expected) {
-    assertEquals(expected, DogTraitFormat.formatPercent(share));
+    assertEquals(expected, DogAppearanceFormat.formatPercent(share));
   }
 
   @ParameterizedTest(name = "{0}")
@@ -79,7 +80,7 @@ class DogTraitFormatTest {
   @DisplayName("rarity shows its chance except when the roll is guaranteed")
   void rarityFormatsWithChance(
       final String rarityName, final int chancePercent, final String expected) {
-    assertEquals(expected, DogTraitFormat.formatRarity(rarityName, chancePercent));
+    assertEquals(expected, DogAppearanceFormat.formatRarity(rarityName, chancePercent));
   }
 
   static Stream<Arguments> mixNameCompositions() {
@@ -122,6 +123,6 @@ class DogTraitFormatTest {
       final String label,
       final List<BreedShare> composition,
       final List<UnleashedDogBreed> expected) {
-    assertEquals(expected, DogTraitFormat.mixNameBreeds(composition));
+    assertEquals(expected, DogAppearanceFormat.mixNameBreeds(composition));
   }
 }

@@ -47,7 +47,7 @@ public final class DogEntityNbtGameTest implements FabricGameTest {
         "bed position");
     context.assertTrue(!dog.getSleepController().isSleepingInBed(), "sleeping flag");
     context.assertTrue(dog.getFur().stage() == DogFurStage.fromOrdinal(3), "fur stage");
-    context.assertTrue(dog.getTraits().coatVariantOrdinal() == 1, "coat variant");
+    context.assertTrue(dog.getAppearance().coatVariantOrdinal() == 1, "coat variant");
     assertWritesBack(context, dog, saved);
     context.complete();
   }

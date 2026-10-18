@@ -11,11 +11,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import net.minecraft.text.Text;
 
-final class DogTraitFormat {
+final class DogAppearanceFormat {
 
   static final float MEANINGFUL_SHARE_THRESHOLD = 0.25f;
 
-  private DogTraitFormat() {}
+  private DogAppearanceFormat() {}
 
   static List<UnleashedDogBreed> mixNameBreeds(final List<BreedShare> composition) {
     if (composition.size() < 2) {

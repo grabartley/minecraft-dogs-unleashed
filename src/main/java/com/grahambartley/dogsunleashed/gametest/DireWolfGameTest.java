@@ -10,10 +10,10 @@ import com.grahambartley.dogsunleashed.block.DogSleepSpotAssignment;
 import com.grahambartley.dogsunleashed.block.entity.DogGraveBlockEntity;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.entity.DireWolfGrowthStage;
+import com.grahambartley.dogsunleashed.entity.DogAppearance;
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.DogGrowthRules;
 import com.grahambartley.dogsunleashed.entity.DogResurrection;
-import com.grahambartley.dogsunleashed.entity.DogTraits;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.variant.DireWolfCoat;
@@ -488,7 +488,8 @@ public final class DireWolfGameTest implements FabricGameTest {
       final UnleashedDogEntity wolf =
           context.spawnEntity(ModEntities.DIRE_WOLF, REL_WOLF.east(index % 3));
       wolf.setAiDisabled(true);
-      wolf.applyTraits(new DogTraits(UnleashedDogBreed.DIRE_WOLF, coats[index].getOrdinal(), 0));
+      wolf.applyAppearance(
+          new DogAppearance(UnleashedDogBreed.DIRE_WOLF, coats[index].getOrdinal(), 0));
       wolf.getInteractions().tame(player);
     }
 

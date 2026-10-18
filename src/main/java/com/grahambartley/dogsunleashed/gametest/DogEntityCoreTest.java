@@ -1,8 +1,8 @@
 package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModNbtKeys;
+import com.grahambartley.dogsunleashed.entity.DogAppearance;
 import com.grahambartley.dogsunleashed.entity.DogCollar;
-import com.grahambartley.dogsunleashed.entity.DogTraits;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.variant.DogCoats;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
@@ -35,8 +35,8 @@ public final class DogEntityCoreTest implements FabricGameTest {
   }
 
   @CustomTestProvider
-  public List<TestFunction> traitsPersistInNbtPerBreed() {
-    return generatePerBreed("traitsPersistInNbt", 100, this::testTraitsPersistInNbt);
+  public List<TestFunction> appearancePersistsInNbtPerBreed() {
+    return generatePerBreed("appearancePersistsInNbt", 100, this::testAppearancePersistsInNbt);
   }
 
   @CustomTestProvider
@@ -121,29 +121,30 @@ public final class DogEntityCoreTest implements FabricGameTest {
     context.complete();
   }
 
-  private void testTraitsPersistInNbt(final TestContext context, final DogTestData data) {
+  private void testAppearancePersistsInNbt(final TestContext context, final DogTestData data) {
     final ServerWorld world = context.getWorld();
     final UnleashedDogEntity dog = DogTestHelper.spawnDog(context, data);
-    final DogTraits appliedTraits = new DogTraits(data.breed(), 1, 1);
-    dog.applyTraits(appliedTraits);
+    final DogAppearance appliedAppearance = new DogAppearance(data.breed(), 1, 1);
+    dog.applyAppearance(appliedAppearance);
 
     context.assertTrue(
-        appliedTraits.equals(dog.getTraits()), "Applied traits should read back unchanged");
+        appliedAppearance.equals(dog.getAppearance()),
+        "Applied appearance should read back unchanged");
 
     final NbtCompound nbt = new NbtCompound();
     dog.writeCustomDataToNbt(nbt);
     final UnleashedDogEntity newDog = data.factory().apply(world);
     newDog.readCustomDataFromNbt(nbt);
 
-    final DogTraits expectedTraits =
-        new DogTraits(
+    final DogAppearance expectedAppearance =
+        new DogAppearance(
             data.breed(),
             DogCoats.hasCoatVariants(data.breed()) ? 1 : 0,
             data.breed().hasEyeColorVariants() ? 1 : 0);
     context.assertTrue(
-        expectedTraits.equals(newDog.getTraits()),
-        "Traits should persist through NBT for variants the breed supports, but were "
-            + newDog.getTraits());
+        expectedAppearance.equals(newDog.getAppearance()),
+        "Appearance should persist through NBT for variants the breed supports, but was "
+            + newDog.getAppearance());
     context.complete();
   }
 

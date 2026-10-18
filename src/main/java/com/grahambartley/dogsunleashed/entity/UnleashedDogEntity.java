@@ -242,16 +242,16 @@ public class UnleashedDogEntity extends DogMountEntity
     }
   }
 
-  public DogTraits getTraits() {
-    return new DogTraits(
+  public DogAppearance getAppearance() {
+    return new DogAppearance(
         this.getRigSourceBreed(),
         this.dataTracker.get(COAT_VARIANT),
         this.dataTracker.get(EYE_COLOR_VARIANT));
   }
 
-  public void applyTraits(final DogTraits traits) {
-    this.dataTracker.set(COAT_VARIANT, traits.coatVariantOrdinal());
-    this.dataTracker.set(EYE_COLOR_VARIANT, traits.eyeColorVariantOrdinal());
+  public void applyAppearance(final DogAppearance appearance) {
+    this.dataTracker.set(COAT_VARIANT, appearance.coatVariantOrdinal());
+    this.dataTracker.set(EYE_COLOR_VARIANT, appearance.eyeColorVariantOrdinal());
   }
 
   @Override

@@ -40,7 +40,7 @@ public final class DogAppearanceRoller {
     final BiFunction<SpawnReason, Integer, UnleashedDogCoat> rollResolver =
         DogCoats.rollResolverFor(rigBreed);
     final Random random = this.dog.getRandom();
-    final DogTraits current = this.dog.getTraits();
+    final DogAppearance current = this.dog.getAppearance();
     final int coatVariantOrdinal =
         resolvedVariantOrdinal(
             rollResolver != null,
@@ -52,7 +52,8 @@ public final class DogAppearanceRoller {
             rigBreed.hasEyeColorVariants(),
             current.eyeColorVariantOrdinal(),
             () -> HuskyEyeColor.fromRandom(random).ordinal());
-    this.dog.applyTraits(new DogTraits(rigBreed, coatVariantOrdinal, eyeColorVariantOrdinal));
+    this.dog.applyAppearance(
+        new DogAppearance(rigBreed, coatVariantOrdinal, eyeColorVariantOrdinal));
   }
 
   DogGenome genomeOrPure() {
