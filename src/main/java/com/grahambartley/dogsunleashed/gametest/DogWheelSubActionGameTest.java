@@ -9,6 +9,7 @@ import com.grahambartley.dogsunleashed.network.ModNetworking;
 import com.grahambartley.dogsunleashed.network.handler.WheelActionNetworkHandler;
 import com.grahambartley.dogsunleashed.network.payload.OpenCommandWheelPayload;
 import com.grahambartley.dogsunleashed.network.payload.SelectWheelSubActionPayload;
+import com.grahambartley.dogsunleashed.network.payload.WheelSubActionState;
 import java.util.ArrayList;
 import java.util.List;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -108,7 +109,7 @@ public final class DogWheelSubActionGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = 20)
-  public void deadDogCannotRunASubAction(final TestContext context) {
+  public void removedDogCannotRunASubAction(final TestContext context) {
     final Fixture fixture = fixture(context, null);
     fixture.dog().discard();
 
@@ -122,15 +123,47 @@ public final class DogWheelSubActionGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = 20)
-  public void openWheelPayloadCarriesEveryRegisteredSubAction(final TestContext context) {
+  public void openWheelPayloadCarriesEachSubActionAndItsRefusal(final TestContext context) {
     final Fixture fixture = fixture(context, null);
+    fixture
+        .registry()
+        .register(
+            new DogWheelSubAction(
+                ACTION_ID + 1,
+                "command.dogs-unleashed.ride",
+                Identifier.of("minecraft", "saddle"),
+                (target, player) -> REFUSAL_KEY,
+                (target, player) -> {}));
+
     final OpenCommandWheelPayload payload =
-        ModNetworking.openCommandWheelPayload(fixture.owner(), fixture.dog());
+        ModNetworking.openCommandWheelPayload(fixture.registry(), fixture.owner(), fixture.dog());
+
+    final List<WheelSubActionState> expected =
+        List.of(
+            new WheelSubActionState(
+                0, "command.dogs-unleashed.actions", Identifier.of("minecraft", "bell"), ""),
+            new WheelSubActionState(
+                1,
+                "command.dogs-unleashed.ride",
+                Identifier.of("minecraft", "saddle"),
+                "screen.dogs-unleashed.command_wheel.ride.busy"));
     context.assertTrue(
-        payload
-            .subActions()
-            .equals(DogWheelSubActions.REGISTERED.statesFor(fixture.dog(), fixture.owner())),
-        "The wheel should list the registered sub-actions, got " + payload.subActions());
+        payload.subActions().equals(expected),
+        "The wheel should list each sub-action with its refusal, got " + payload.subActions());
+    context.complete();
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = 20)
+  public void deadDogCannotRunASubAction(final TestContext context) {
+    final Fixture fixture = fixture(context, null);
+    fixture.dog().setHealth(0.0f);
+
+    WheelActionNetworkHandler.selectSubAction(
+        fixture.registry(),
+        new SelectWheelSubActionPayload(fixture.dog().getUuid(), ACTION_ID),
+        fixture.owner());
+
+    context.assertTrue(fixture.runs().isEmpty(), "A dead dog must not run anything");
     context.complete();
   }
 }

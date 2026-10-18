@@ -315,7 +315,7 @@ public class DogCommandWheelScreen extends Screen {
       return true;
     }
     final int index = keyCode == GLFW.GLFW_KEY_0 ? ACTIONS.length - 1 : keyCode - GLFW.GLFW_KEY_1;
-    if (index >= 0 && index < Math.min(ACTIONS.length, this.ring.sectorCount())) {
+    if (!this.ring.isSubRingOpen() && index >= 0 && index < ACTIONS.length) {
       this.selectAction(index);
       return true;
     }

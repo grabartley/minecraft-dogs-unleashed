@@ -89,11 +89,14 @@ public final class ModNetworking {
 
   public static void sendOpenCommandWheel(
       final ServerPlayerEntity player, final UnleashedDogEntity dog) {
-    ServerPlayNetworking.send(player, openCommandWheelPayload(player, dog));
+    ServerPlayNetworking.send(
+        player, openCommandWheelPayload(DogWheelSubActions.REGISTERED, player, dog));
   }
 
   public static OpenCommandWheelPayload openCommandWheelPayload(
-      final ServerPlayerEntity player, final UnleashedDogEntity dog) {
+      final DogWheelSubActions subActions,
+      final ServerPlayerEntity player,
+      final UnleashedDogEntity dog) {
     return new OpenCommandWheelPayload(
         dog.getId(),
         dog.getUuid(),
@@ -101,7 +104,7 @@ public final class ModNetworking {
         dog.getSleepController().getAssignedBedPos().isPresent(),
         PetNames.tamedNameOf(dog),
         Objects.requireNonNullElse(dog.getRiding().refusalKey(player), ""),
-        DogWheelSubActions.REGISTERED.statesFor(dog, player));
+        subActions.statesFor(dog, player));
   }
 
   public static void sendOpenNamingScreen(
