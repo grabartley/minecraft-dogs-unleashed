@@ -1,4 +1,8 @@
 {
   "replace": false,
-  "values": ["dogs-unleashed:leather_dog_armor"]
+  "values": [
+    "dogs-unleashed:leather_dog_armor",
+    "dogs-unleashed:bandana",
+    "dogs-unleashed:collar_bow"
+  ]
 }

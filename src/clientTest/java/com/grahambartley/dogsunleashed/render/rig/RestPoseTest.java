@@ -107,4 +107,17 @@ class RestPoseTest {
     assertEquals(expected.y, actual.y, EPSILON, "y of " + actual);
     assertEquals(expected.z, actual.z, EPSILON, "z of " + actual);
   }
+
+  @Test
+  @DisplayName("local undoes point, so a posed point maps back to where it started")
+  void localUndoesPoint() {
+    final RestPose pose =
+        new RestPose(
+            List.of(
+                new RestPose.Joint(new Vector3f(0, 1, 0), new Vector3f(QUARTER_TURN, 0, 0)),
+                new RestPose.Joint(new Vector3f(1, 0, 2), new Vector3f(0.3f, -0.7f, 0.2f))));
+    final Vector3f start = new Vector3f(0.4f, 1.3f, -2.1f);
+
+    assertClose(start, pose.local(pose.point(start)));
+  }
 }

@@ -28,18 +28,28 @@ public final class CharmMount {
   private CharmMount() {}
 
   public static void place(final MatrixStack poseStack, final CollarSpot spot) {
+    place(poseStack, spot, CHARM_SCALE);
+    poseStack.translate(0.0f, 0.0f, -CHARM_HALF_DEPTH);
+  }
+
+  public static void place(final MatrixStack poseStack, final CollarSpot spot, final float scale) {
     poseStack.translate(spot.point().x, spot.point().y, spot.point().z);
     poseStack.multiply(new Quaternionf(spot.restRotation()).conjugate());
     if (!spot.facesNegativeZ()) {
       poseStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(HALF_TURN_DEGREES));
     }
-    poseStack.scale(CHARM_SCALE, CHARM_SCALE, CHARM_SCALE);
-    poseStack.translate(0.0f, 0.0f, -CHARM_HALF_DEPTH);
+    poseStack.scale(scale, scale, scale);
   }
 
   public static Matrix4f charmToBone(final CollarSpot spot) {
     final MatrixStack placed = new MatrixStack();
     place(placed, spot);
+    return new Matrix4f(placed.peek().getPositionMatrix());
+  }
+
+  public static Matrix4f placedToBone(final CollarSpot spot, final float scale) {
+    final MatrixStack placed = new MatrixStack();
+    place(placed, spot, scale);
     return new Matrix4f(placed.peek().getPositionMatrix());
   }
 

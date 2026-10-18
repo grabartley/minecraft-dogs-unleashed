@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " W ",
+    "WWW"
+  ],
+  "key": {
+    "W": {
+      "item": "minecraft:wheat"
+    }
+  },
+  "result": {
+    "id": "dogs-unleashed:straw_hat",
+    "count": 1
+  }
+}

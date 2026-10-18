@@ -405,7 +405,7 @@ The gear screen, opened from the wheel, has slots for armour, a pendant, a cosme
 | GEAR-16 | The loyalty pendant (totem of undying) saves the dog from one death with a totem's effects, then is used up |
 | GEAR-17 | Warding and vitality do not stack across several dogs |
 | GEAR-18 | The cosmetic slot takes bandanas, bows, a party hat, a straw hat and a rosette. Bandanas and bows take dye. Bandanas take banner patterns on a loom |
-| GEAR-19 | Cosmetics render on the dog in every pose, clear of armour, pendants and ears |
+| GEAR-19 | Cosmetics render on the dog in every pose, clear of armour, pendants and ears. A hat hides any pointed ear that would stand up through it |
 | GEAR-20 | Saddlebags (leather and a chest) add 9 item slots to the gear screen and show on the dog |
 | GEAR-21 | The gear screen closes if the owner moves out of 8 blocks or the dog dies |
 | GEAR-22 | The gear screen looks like vanilla's horse inventory: the vanilla container background and slot art, a live view of the dog in the preview box, and greyed empty-slot icons for the pendant, cosmetic and costume slots. Hovering an empty dog slot names it and says what it holds |

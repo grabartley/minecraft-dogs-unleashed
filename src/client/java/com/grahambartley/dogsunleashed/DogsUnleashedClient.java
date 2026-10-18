@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed;
 
 import com.grahambartley.dogsunleashed.config.SyncedServerConfig;
 import com.grahambartley.dogsunleashed.item.armor.DogArmorTier;
+import com.grahambartley.dogsunleashed.item.cosmetic.DogCosmetic;
 import com.grahambartley.dogsunleashed.network.ModNetworkingClient;
 import com.grahambartley.dogsunleashed.render.CacheReloader;
 import com.grahambartley.dogsunleashed.render.DogBedBlockEntityRenderer;
@@ -23,6 +24,7 @@ import com.grahambartley.dogsunleashed.render.TennisBallProjectileRenderer;
 import com.grahambartley.dogsunleashed.render.armour.ArmourLook;
 import com.grahambartley.dogsunleashed.render.coat.UndeadCoatTextures;
 import com.grahambartley.dogsunleashed.render.coat.UndeadEyeGlows;
+import com.grahambartley.dogsunleashed.render.cosmetic.BandanaPrints;
 import com.grahambartley.dogsunleashed.render.layer.WolfDogArmourFeatureRenderer;
 import com.grahambartley.dogsunleashed.render.overlay.ProjectedOverlays;
 import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
@@ -42,6 +44,7 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.client.render.entity.WolfEntityRenderer;
 import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.resource.ResourceType;
+import net.minecraft.util.math.ColorHelper;
 
 public class DogsUnleashedClient implements ClientModInitializer {
   @Override
@@ -54,6 +57,17 @@ public class DogsUnleashedClient implements ClientModInitializer {
         (stack, tintIndex) ->
             tintIndex > 0 ? -1 : DyedColorComponent.getColor(stack, ArmourLook.UNDYED_LEATHER),
         ModArmorItems.of(DogArmorTier.LEATHER));
+    for (final DogCosmetic cosmetic : DogCosmetic.values()) {
+      if (cosmetic.isDyeable()) {
+        ColorProviderRegistry.ITEM.register(
+            (stack, tintIndex) ->
+                tintIndex > 0
+                    ? -1
+                    : ColorHelper.Argb.fullAlpha(
+                        DyedColorComponent.getColor(stack, cosmetic.undyedColor())),
+            ModCosmeticItems.of(cosmetic));
+      }
+    }
     EntityRendererRegistry.register(ModEntities.HUSKY, DogRenderer::new);
     EntityRendererRegistry.register(ModEntities.DACHSHUND, DogRenderer::new);
     EntityRendererRegistry.register(ModEntities.BEAGLE, DogRenderer::new);
@@ -122,6 +136,11 @@ public class DogsUnleashedClient implements ClientModInitializer {
             () ->
                 ProjectedOverlays.shared()
                     .clear(MinecraftClient.getInstance().getTextureManager())));
+
+    resources.registerReloadListener(
+        new CacheReloader(
+            BandanaPrints.RELOADER_ID,
+            () -> BandanaPrints.shared().clear(MinecraftClient.getInstance().getTextureManager())));
 
     ModKeyBindings.register();
     ModNetworkingClient.registerClientReceivers();

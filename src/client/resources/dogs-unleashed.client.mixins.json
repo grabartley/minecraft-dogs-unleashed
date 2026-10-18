@@ -9,6 +9,7 @@
 		"InGameHudMixin",
 		"LeashCollarTintMixin",
 		"LivingEntityRendererMixin",
+		"LoomScreenMixin",
 		"WorldRendererMixin"
 	],
 	"injectors": {
