@@ -21,7 +21,8 @@ public final class DogRiding {
   static final float ACCELERATION = 0.12f;
   static final float LEAP_FORWARD_BOOST = 0.35f;
 
-  static final float RIDE_SPEED_SCALE = 0.55f;
+  public static final float RIDE_SPEED_SCALE = 0.55f;
+  static final double REACH_ALLOWANCE = 2.0;
 
   private final UnleashedDogEntity dog;
   private final ChargedJump chargedJump = new ChargedJump();
@@ -68,11 +69,18 @@ public final class DogRiding {
     if (!this.isRideableStage()) {
       return "screen.dogs-unleashed.command_wheel.ride.too_young";
     }
+    if (!this.isWithinReach(player)) {
+      return "screen.dogs-unleashed.command_wheel.ride.too_far";
+    }
     return this.canCarry(player) ? null : "screen.dogs-unleashed.command_wheel.ride.busy";
   }
 
+  public boolean isWithinReach(final PlayerEntity player) {
+    return player.canInteractWithEntity(this.dog, REACH_ALLOWANCE);
+  }
+
   public boolean mount(final PlayerEntity player) {
-    if (!this.canCarry(player)) {
+    if (!this.canCarry(player) || !this.isWithinReach(player)) {
       return false;
     }
     this.dog.getNavigation().stop();
@@ -171,7 +179,7 @@ public final class DogRiding {
     return this.isSprinting() ? base * DireWolfStamina.SPRINT_SPEED_MULTIPLIER : base;
   }
 
-  void leapIfAsked(final Vec3d movementInput) {
+  public void leapIfAsked(final Vec3d movementInput) {
     if (this.dog.isLogicalSideForUpdatingMovement()
         && this.pendingLeapPower > 0.0f
         && this.dog.isOnGround()) {

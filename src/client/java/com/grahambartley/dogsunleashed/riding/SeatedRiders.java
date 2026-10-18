@@ -50,14 +50,11 @@ public final class SeatedRiders {
       return vanillaEye;
     }
     final float lean = poseOf(mount, tickDelta).lean();
-    final double eyeHeight = vanillaEye.y - MathHelper.lerp(tickDelta, rider.prevY, rider.getY());
+    final double eyeHeight = vanillaEye.y - lerpedPosition(rider, tickDelta).y;
     final Vector3f origin = seat.riderOrigin(rider.getVehicleAttachmentPos(mount), lean);
     final Vector3f eye =
         seat.riderRotation(lean).transform(new Vector3f(0.0f, (float) eyeHeight, 0.0f)).add(origin);
-    return new Vec3d(
-        MathHelper.lerp(tickDelta, mount.prevX, mount.getX()) + eye.x,
-        MathHelper.lerp(tickDelta, mount.prevY, mount.getY()) + eye.y,
-        MathHelper.lerp(tickDelta, mount.prevZ, mount.getZ()) + eye.z);
+    return lerpedPosition(mount, tickDelta).add(eye.x, eye.y, eye.z);
   }
 
   public static boolean isSeated(final Entity rider) {

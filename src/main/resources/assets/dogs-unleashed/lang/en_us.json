@@ -325,6 +325,7 @@
   "screen.dogs-unleashed.command_wheel.ride.breed": "Only grown dire wolves can be ridden",
   "screen.dogs-unleashed.command_wheel.ride.too_young": "Only a prime or alpha can carry you",
   "screen.dogs-unleashed.command_wheel.ride.busy": "Can't carry you right now",
+  "screen.dogs-unleashed.command_wheel.ride.too_far": "Too far away to climb on",
   "screen.dogs-unleashed.pet_details.riding": "Riding",
   "screen.dogs-unleashed.pet_details.riding_ready": "Can carry you, %s%% stamina",
   "screen.dogs-unleashed.pet_details.riding_too_young": "Too young, rideable as a prime",

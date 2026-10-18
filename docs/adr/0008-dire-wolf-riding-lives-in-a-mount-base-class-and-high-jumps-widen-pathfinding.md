@@ -13,7 +13,7 @@ Primes and alphas also jump 1.5 and 2 blocks. A stronger jump alone does nothing
 
 The mount overrides live in `DogMountEntity`, an abstract base class between `TameableEntity` and the dog. It also owns the two values the client needs for riding: the stamina fraction and whether sprinting is locked out. Each override hands straight to `DogRiding`, which holds the rules: who may ride, steering, the eased ride speed, the leap, the seat and stamina. The stamina arithmetic is a pure class, `DireWolfStamina`. This is the same layering vanilla uses for horses.
 
-The rider's client moves the mount, as in vanilla. The client sends only whether sprint is held, and the server checks that the sender is riding a dog it owns. Stamina is worked out on the server and synced as a fraction, so the HUD bar is right even when the server's stamina settings differ from the client's.
+The rider's client moves the mount, as in vanilla. Sprinting is vanilla's own: the mount says it can carry a sprinting rider, so double-tapping forward or holding the sprint key sets the rider's sprint flag, and vanilla sends that flag to the server. The jump charges on the rider's client like a horse's and is applied there, since that side moves the mount. Stamina is worked out on the server and synced as a fraction, so the HUD bar is right even when the server's stamina settings differ from the client's.
 
 The jump height is a value on each growth stage, applied through the jump strength attribute, so riding and walking use the same jump. A small mixin on `LandPathNodeMaker` raises the climb height it plans for, but only for a dog whose stage jumps high, and the dog's navigation is told it may cross fences when the stage clears them. Vanilla's own move control then makes the jump.
 

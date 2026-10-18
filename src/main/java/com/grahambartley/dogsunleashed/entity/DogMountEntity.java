@@ -41,9 +41,11 @@ public abstract class DogMountEntity extends TameableEntity {
   @Override
   protected void tickControlled(final PlayerEntity controllingPlayer, final Vec3d movementInput) {
     super.tickControlled(controllingPlayer, movementInput);
-    this.setRotation(
-        MountTurning.turn(this.getYaw(), controllingPlayer.getYaw(), this.getRiding().pace()),
-        0.0f);
+    if (this.isLogicalSideForUpdatingMovement()) {
+      this.setRotation(
+          MountTurning.turn(this.getYaw(), controllingPlayer.getYaw(), this.getRiding().pace()),
+          0.0f);
+    }
     this.prevYaw = this.bodyYaw = this.headYaw = this.getYaw();
     this.getRiding().leapIfAsked(movementInput);
   }

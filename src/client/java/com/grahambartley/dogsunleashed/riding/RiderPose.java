@@ -28,7 +28,7 @@ public record RiderPose(
 
   public static RiderPose parse(final JsonObject json, final RiderPose fallback) {
     return new RiderPose(
-        json.has("lean") ? json.get("lean").getAsFloat() : fallback.lean,
+        number(json.get("lean"), fallback.lean),
         angles(json.get("right_arm"), fallback.rightArm),
         angles(json.get("left_arm"), fallback.leftArm),
         angles(json.get("right_leg"), fallback.rightLeg),
@@ -36,11 +36,41 @@ public record RiderPose(
   }
 
   private static Vector3f angles(final JsonElement element, final Vector3f fallback) {
-    if (element instanceof JsonArray xyz && xyz.size() == 3) {
+    if (element instanceof JsonArray xyz
+        && xyz.size() == 3
+        && xyz.asList().stream().allMatch(RiderPose::isNumber)) {
       return new Vector3f(
           xyz.get(0).getAsFloat(), xyz.get(1).getAsFloat(), xyz.get(2).getAsFloat());
     }
-    return fallback;
+    return new Vector3f(fallback);
+  }
+
+  private static float number(final JsonElement element, final float fallback) {
+    return isNumber(element) ? element.getAsFloat() : fallback;
+  }
+
+  private static boolean isNumber(final JsonElement element) {
+    return element != null && element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber();
+  }
+
+  @Override
+  public Vector3f rightArm() {
+    return new Vector3f(this.rightArm);
+  }
+
+  @Override
+  public Vector3f leftArm() {
+    return new Vector3f(this.leftArm);
+  }
+
+  @Override
+  public Vector3f rightLeg() {
+    return new Vector3f(this.rightLeg);
+  }
+
+  @Override
+  public Vector3f leftLeg() {
+    return new Vector3f(this.leftLeg);
   }
 
   public RiderPose blend(final RiderPose toward, final float amount) {
@@ -53,9 +83,11 @@ public record RiderPose(
         new Vector3f(this.leftLeg).lerp(toward.leftLeg, t));
   }
 
-  public void applyTo(final BipedEntityModel<?> model) {
-    set(model.rightArm, this.rightArm);
-    set(model.leftArm, this.leftArm);
+  public void applyTo(final BipedEntityModel<?> model, final boolean handsFree) {
+    if (handsFree) {
+      set(model.rightArm, this.rightArm);
+      set(model.leftArm, this.leftArm);
+    }
     set(model.rightLeg, this.rightLeg);
     set(model.leftLeg, this.leftLeg);
     model.head.pitch -= this.lean * MathHelper.RADIANS_PER_DEGREE;

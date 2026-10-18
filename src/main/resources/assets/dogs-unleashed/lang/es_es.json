@@ -325,6 +325,7 @@
   "screen.dogs-unleashed.command_wheel.ride.breed": "Solo se pueden montar lobos terribles crecidos",
   "screen.dogs-unleashed.command_wheel.ride.too_young": "Solo un lobo en plenitud o un alfa puede llevarte",
   "screen.dogs-unleashed.command_wheel.ride.busy": "Ahora no puede llevarte",
+  "screen.dogs-unleashed.command_wheel.ride.too_far": "Demasiado lejos para montar",
   "screen.dogs-unleashed.pet_details.riding": "Montura",
   "screen.dogs-unleashed.pet_details.riding_ready": "Puede llevarte, %s%% de aguante",
   "screen.dogs-unleashed.pet_details.riding_too_young": "Demasiado joven, se podrá montar en plenitud",

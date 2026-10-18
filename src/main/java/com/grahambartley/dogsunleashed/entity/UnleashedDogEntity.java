@@ -64,8 +64,6 @@ public class UnleashedDogEntity extends DogMountEntity
   public static final int DEFAULT_COLLAR_COLOR_ID = DyeColor.RED.getId();
   public static final int UNSET_VARIANT = -1;
 
-  private static final double NEARBY_PLAYER_RANGE = 10.0D;
-
   private static final TrackedData<Integer> ANGER_TIME = data(INTEGER);
   private static final TrackedData<Integer> COAT_VARIANT = data(INTEGER);
   private static final TrackedData<Integer> EYE_COLOR_VARIANT = data(INTEGER);
@@ -555,26 +553,7 @@ public class UnleashedDogEntity extends DogMountEntity
   public void tick() {
     super.tick();
     if (!this.getWorld().isClient) {
-      if (this.isLeashed() && (this.isSleepingInBed() || this.isCommandedToSleep())) {
-        this.wakeUp();
-      }
-
-      final PlayerEntity nearbyPlayer = this.getWorld().getClosestPlayer(this, NEARBY_PLAYER_RANGE);
-
-      this.ambience.updateSocialCues(nearbyPlayer);
-
-      this.vocalization.tick(nearbyPlayer);
-      this.treatBuff.tick();
-
-      this.ambience.tickShakeOff();
-      this.undeadState.tick();
-      this.curing.tick();
-      this.pendants.tick();
-      this.fur.tick();
-      this.growth.tick();
-      this.growl.tick();
-      this.trust.tick();
-      this.riding.tick();
+      DogServerTick.run(this);
     }
   }
 

@@ -325,6 +325,7 @@
   "screen.dogs-unleashed.command_wheel.ride.breed": "Nur ausgewachsene Schreckenswölfe sind reitbar",
   "screen.dogs-unleashed.command_wheel.ride.too_young": "Nur ein Prachtwolf oder Alpha kann dich tragen",
   "screen.dogs-unleashed.command_wheel.ride.busy": "Kann dich gerade nicht tragen",
+  "screen.dogs-unleashed.command_wheel.ride.too_far": "Zu weit weg zum Aufsteigen",
   "screen.dogs-unleashed.pet_details.riding": "Reiten",
   "screen.dogs-unleashed.pet_details.riding_ready": "Kann dich tragen, %s%% Ausdauer",
   "screen.dogs-unleashed.pet_details.riding_too_young": "Zu jung, ab Prachtwolf reitbar",

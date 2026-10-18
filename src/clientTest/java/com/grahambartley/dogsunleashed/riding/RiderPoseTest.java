@@ -53,7 +53,7 @@ class RiderPoseTest {
     model.head.pitch = 0.1f;
     final RiderPose pose = pose("{\"lean\": 30, \"right_arm\": [-40, -15, 5]}");
 
-    pose.applyTo(model);
+    pose.applyTo(model, true);
 
     assertAngles(model.rightArm, -40, -15, 5);
     assertAngles(model.leftLeg, -81, -18, -4.5f);
@@ -66,5 +66,38 @@ class RiderPoseTest {
     assertEquals(x * MathHelper.RADIANS_PER_DEGREE, part.pitch, EPSILON);
     assertEquals(y * MathHelper.RADIANS_PER_DEGREE, part.yaw, EPSILON);
     assertEquals(z * MathHelper.RADIANS_PER_DEGREE, part.roll, EPSILON);
+  }
+
+  @Test
+  @DisplayName("busy hands keep vanilla's arms, so swings and aiming still show")
+  void busyHandsKeepTheirArms() {
+    final BipedEntityModel<?> model =
+        new BipedEntityModel<>(
+            BipedEntityModel.getModelData(net.minecraft.client.model.Dilation.NONE, 0.0f)
+                .getRoot()
+                .createPart(64, 64));
+    model.rightArm.pitch = 1.2f;
+
+    pose("{\"right_arm\": [-40, -15, 5]}").applyTo(model, false);
+
+    assertEquals(1.2f, model.rightArm.pitch, EPSILON);
+    assertAngles(model.rightLeg, -81, 18, 4.5f);
+  }
+
+  @Test
+  @DisplayName("a bad number keeps the fallback instead of breaking the profile")
+  void badNumbersFallBack() {
+    final RiderPose pose = pose("{\"lean\": \"far\", \"right_arm\": [\"a\", 1, 2]}");
+
+    assertEquals(RiderPose.UPRIGHT.lean(), pose.lean(), EPSILON);
+    assertEquals(RiderPose.UPRIGHT.rightArm(), pose.rightArm());
+  }
+
+  @Test
+  @DisplayName("a pose hands out copies, so nobody can bend the shared upright pose")
+  void accessorsAreCopies() {
+    RiderPose.UPRIGHT.rightArm().set(99, 99, 99);
+
+    assertEquals(new Vector3f(-36, 0, 0), RiderPose.UPRIGHT.rightArm());
   }
 }

@@ -325,6 +325,7 @@
   "screen.dogs-unleashed.command_wheel.ride.breed": "Seuls les loups terribles adultes peuvent être montés",
   "screen.dogs-unleashed.command_wheel.ride.too_young": "Seul un aguerri ou un alpha peut vous porter",
   "screen.dogs-unleashed.command_wheel.ride.busy": "Ne peut pas vous porter pour l'instant",
+  "screen.dogs-unleashed.command_wheel.ride.too_far": "Trop loin pour monter",
   "screen.dogs-unleashed.pet_details.riding": "Monture",
   "screen.dogs-unleashed.pet_details.riding_ready": "Peut vous porter, %s%% d'endurance",
   "screen.dogs-unleashed.pet_details.riding_too_young": "Trop jeune, montable une fois aguerri",

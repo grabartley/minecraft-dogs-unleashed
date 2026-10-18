@@ -26,7 +26,10 @@ public abstract class BipedEntityModelMixin<T extends LivingEntity> {
         && entity.getVehicle() instanceof UnleashedDogEntity mount) {
       SeatedRiders.poseOf(
               mount, MinecraftClient.getInstance().getRenderTickCounter().getTickDelta(true))
-          .applyTo((BipedEntityModel<?>) (Object) this);
+          .applyTo(
+              (BipedEntityModel<?>) (Object) this,
+              ((BipedEntityModel<?>) (Object) this).handSwingProgress <= 0.0f
+                  && !entity.isUsingItem());
     }
   }
 }

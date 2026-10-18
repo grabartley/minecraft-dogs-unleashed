@@ -3,13 +3,16 @@ package com.grahambartley.dogsunleashed.gametest;
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
+import com.grahambartley.dogsunleashed.entity.ChargedJump;
 import com.grahambartley.dogsunleashed.entity.DireWolfGrowthStage;
 import com.grahambartley.dogsunleashed.entity.DireWolfStamina;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
+import com.grahambartley.dogsunleashed.entity.DogRiding;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.SurvivalTestPlayer;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.mob.ZombieEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -208,7 +211,7 @@ public final class DireWolfRidingGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = RANGE, tickLimit = 20)
-  public void aRiddenWolfMovesAtItsStageSpeedOnTheRidersSide(final TestContext context) {
+  public void aRiddenWolfMovesAtItsScaledStageSpeedEvenWithoutItsAi(final TestContext context) {
     for (final DireWolfGrowthStage stage :
         new DireWolfGrowthStage[] {DireWolfGrowthStage.PRIME, DireWolfGrowthStage.ALPHA}) {
       final ServerPlayerEntity owner = SurvivalTestPlayer.joinAt(context, REL_PLAYER);
@@ -216,7 +219,9 @@ public final class DireWolfRidingGameTest implements FabricGameTest {
       wolf.setMovementSpeed(0.0f);
       wolf.getRiding().mount(owner);
       context.assertTrue(
-          Math.abs(wolf.getRiding().targetSpeed() - (float) stage.movementSpeed() * 0.55f)
+          Math.abs(
+                  wolf.getRiding().targetSpeed()
+                      - (float) stage.movementSpeed() * DogRiding.RIDE_SPEED_SCALE)
               < 1.0e-4f,
           "A ridden "
               + stage
@@ -230,9 +235,73 @@ public final class DireWolfRidingGameTest implements FabricGameTest {
     context.complete();
   }
 
+  @GameTest(templateName = RANGE, tickLimit = 20)
+  public void anOwnerOutOfReachCannotClimbOn(final TestContext context) {
+    final ServerPlayerEntity owner =
+        SurvivalTestPlayer.joinAt(context, new Vec3d(REL_WOLF.getX() + 12.5, FLOOR_Y, 4.5));
+    final UnleashedDogEntity wolf = ownedWolf(context, owner, DireWolfGrowthStage.PRIME);
+    context.assertTrue(
+        "screen.dogs-unleashed.command_wheel.ride.too_far"
+            .equals(wolf.getRiding().refusalKey(owner)),
+        "A distant owner was not told the wolf is too far: " + wolf.getRiding().refusalKey(owner));
+    context.assertFalse(wolf.getRiding().mount(owner), "A distant owner climbed on");
+    SurvivalTestPlayer.leave(context, owner);
+    context.complete();
+  }
+
+  @GameTest(templateName = RANGE, tickLimit = 40)
+  public void aReleasedJumpLeapsWithTheChargeItBuiltAndOnlyOnce(final TestContext context) {
+    final ServerPlayerEntity owner = SurvivalTestPlayer.joinAt(context, REL_PLAYER);
+    final UnleashedDogEntity full = ownedWolf(context, owner, DireWolfGrowthStage.PRIME);
+    final UnleashedDogEntity half =
+        ownedWolf(context, owner, DireWolfGrowthStage.PRIME, REL_WOLF.add(0, 0, 3));
+    full.setAiDisabled(false);
+    half.setAiDisabled(false);
+    context.runAtTick(
+        10,
+        () -> {
+          context.assertTrue(full.isOnGround() && half.isOnGround(), "The wolves never landed");
+          charge(full.getRiding(), ChargedJump.FULL_CHARGE_TICKS);
+          charge(half.getRiding(), 5);
+          final double strength = full.getAttributeValue(EntityAttributes.GENERIC_JUMP_STRENGTH);
+          full.getRiding().leapIfAsked(Vec3d.ZERO);
+          half.getRiding().leapIfAsked(Vec3d.ZERO);
+          context.assertTrue(
+              Math.abs(full.getVelocity().y - strength) < 1.0e-3,
+              "A full charge should leap at " + strength + " but leapt at " + full.getVelocity().y);
+          final double halfPower = 0.4 + 0.4 * 50 / 90.0;
+          context.assertTrue(
+              Math.abs(half.getVelocity().y - strength * halfPower) < 1.0e-2,
+              "Half a charge should leap at "
+                  + strength * halfPower
+                  + " but leapt at "
+                  + half.getVelocity().y);
+          full.setVelocity(Vec3d.ZERO);
+          full.getRiding().leapIfAsked(Vec3d.ZERO);
+          context.assertTrue(full.getVelocity().y == 0.0, "One charge leapt twice");
+          SurvivalTestPlayer.leave(context, owner);
+          context.complete();
+        });
+  }
+
+  private static void charge(final DogRiding riding, final int ticks) {
+    for (int tick = 0; tick < ticks; tick++) {
+      riding.setJumpHeld(true);
+    }
+    riding.setJumpHeld(false);
+  }
+
   private static UnleashedDogEntity ownedWolf(
       final TestContext context, final ServerPlayerEntity owner, final DireWolfGrowthStage stage) {
-    final UnleashedDogEntity wolf = context.spawnEntity(ModEntities.DIRE_WOLF, REL_WOLF);
+    return ownedWolf(context, owner, stage, REL_WOLF);
+  }
+
+  private static UnleashedDogEntity ownedWolf(
+      final TestContext context,
+      final ServerPlayerEntity owner,
+      final DireWolfGrowthStage stage,
+      final BlockPos at) {
+    final UnleashedDogEntity wolf = context.spawnEntity(ModEntities.DIRE_WOLF, at);
     wolf.setAiDisabled(true);
     wolf.setOwner(owner);
     wolf.getGrowth().setStage(stage);

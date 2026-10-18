@@ -325,6 +325,7 @@
   "screen.dogs-unleashed.command_wheel.ride.breed": "Só lobos-terríveis crescidos podem ser montados",
   "screen.dogs-unleashed.command_wheel.ride.too_young": "Só um maduro ou alfa pode te carregar",
   "screen.dogs-unleashed.command_wheel.ride.busy": "Não pode te carregar agora",
+  "screen.dogs-unleashed.command_wheel.ride.too_far": "Longe demais para montar",
   "screen.dogs-unleashed.pet_details.riding": "Montaria",
   "screen.dogs-unleashed.pet_details.riding_ready": "Pode te carregar, %s%% de fôlego",
   "screen.dogs-unleashed.pet_details.riding_too_young": "Jovem demais, montável quando maduro",

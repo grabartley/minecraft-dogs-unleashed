@@ -325,6 +325,7 @@
   "screen.dogs-unleashed.command_wheel.ride.breed": "Ездить можно только на взрослых ужасных волках",
   "screen.dogs-unleashed.command_wheel.ride.too_young": "Вас выдержит только матёрый волк или вожак",
   "screen.dogs-unleashed.command_wheel.ride.busy": "Сейчас не может вас везти",
+  "screen.dogs-unleashed.command_wheel.ride.too_far": "Слишком далеко, чтобы сесть верхом",
   "screen.dogs-unleashed.pet_details.riding": "Езда верхом",
   "screen.dogs-unleashed.pet_details.riding_ready": "Может везти вас, выносливость %s%%",
   "screen.dogs-unleashed.pet_details.riding_too_young": "Слишком молод, ездить можно на матёром",

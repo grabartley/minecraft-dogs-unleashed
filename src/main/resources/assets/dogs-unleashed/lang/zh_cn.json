@@ -325,6 +325,7 @@
   "screen.dogs-unleashed.command_wheel.ride.breed": "只有长大的恐狼才能骑乘",
   "screen.dogs-unleashed.command_wheel.ride.too_young": "只有壮年狼或头狼才能驮你",
   "screen.dogs-unleashed.command_wheel.ride.busy": "现在无法驮你",
+  "screen.dogs-unleashed.command_wheel.ride.too_far": "距离太远，无法骑上",
   "screen.dogs-unleashed.pet_details.riding": "骑乘",
   "screen.dogs-unleashed.pet_details.riding_ready": "可以驮你，体力 %s%%",
   "screen.dogs-unleashed.pet_details.riding_too_young": "太小了，成为壮年狼后可骑乘",
