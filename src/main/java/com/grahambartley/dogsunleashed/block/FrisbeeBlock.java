@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 public class FrisbeeBlock extends FallingBlock implements BlockEntityProvider {
 
   public static final MapCodec<FrisbeeBlock> CODEC = createCodec(FrisbeeBlock::new);
-  private static final VoxelShape SHAPE =
+  public static final VoxelShape SHAPE =
       VoxelShapes.cuboid(0.125, 0.0, 0.125, 0.875, 0.1875, 0.875);
 
   public FrisbeeBlock(Settings settings) {

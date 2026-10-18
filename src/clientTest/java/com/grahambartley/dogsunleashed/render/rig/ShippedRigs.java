@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 import javax.imageio.ImageIO;
 import software.bernie.geckolib.animation.Animation;
@@ -59,6 +60,16 @@ public final class ShippedRigs {
       bone.setScaleY(heldFrame(scale.yKeyframes(), 1));
       bone.setScaleZ(heldFrame(scale.zKeyframes(), 1));
     }
+  }
+
+  public static List<String> animatedBones(final String file, final String animationName) {
+    final BakedAnimations animations =
+        KeyFramesAdapter.GEO_GSON.fromJson(
+            json("animations/" + file + ".animation.json").getAsJsonObject("animations"),
+            BakedAnimations.class);
+    return Arrays.stream(animations.getAnimation(animationName).boneAnimations())
+        .map(BoneAnimation::boneName)
+        .toList();
   }
 
   static CollarBandLocator.CollarMask collarMask(final String rig) {

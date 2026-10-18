@@ -13,8 +13,11 @@ import software.bernie.geckolib.renderer.GeoBlockRenderer;
 
 public class FrisbeeBlockEntityRenderer extends GeoBlockRenderer<FrisbeeBlockEntity> {
 
+  public static final float PLACED_SCALE = 0.75f;
+
   public FrisbeeBlockEntityRenderer(BlockEntityRendererFactory.Context context) {
     super(new FrisbeeModel());
+    withScale(PLACED_SCALE);
   }
 
   @Override
