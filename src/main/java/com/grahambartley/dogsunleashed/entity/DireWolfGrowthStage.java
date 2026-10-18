@@ -15,8 +15,9 @@ public enum DireWolfGrowthStage {
       0.0,
       false,
       0,
+      0.0,
       new SlotScales(1.25f, 1.0f, 0.8f, 0.8f)),
-  YEARLING(2, 0.80f, 1.10f, 1.00f, 30.0, 0.32, 6.0, 2.0, false, 24000, SlotScales.NONE),
+  YEARLING(2, 0.80f, 1.10f, 1.00f, 30.0, 0.32, 6.0, 2.0, false, 24000, 0.0, SlotScales.NONE),
   ADULT(
       3,
       1.15f,
@@ -28,6 +29,7 @@ public enum DireWolfGrowthStage {
       3.0,
       false,
       48000,
+      0.0,
       new SlotScales(0.97f, 1.02f, 1.04f, 1.02f)),
   PRIME(
       4,
@@ -40,6 +42,7 @@ public enum DireWolfGrowthStage {
       4.0,
       true,
       0,
+      1.5,
       new SlotScales(0.94f, 1.05f, 1.07f, 1.04f)),
   ALPHA(
       5,
@@ -52,6 +55,7 @@ public enum DireWolfGrowthStage {
       6.0,
       true,
       0,
+      2.0,
       new SlotScales(0.9f, 1.08f, 1.12f, 1.06f));
 
   private final int number;
@@ -64,6 +68,7 @@ public enum DireWolfGrowthStage {
   private final double armor;
   private final boolean rideable;
   private final int ticksToGrow;
+  private final double jumpClearance;
   private final SlotScales slotScales;
 
   DireWolfGrowthStage(
@@ -77,6 +82,7 @@ public enum DireWolfGrowthStage {
       final double armor,
       final boolean rideable,
       final int ticksToGrow,
+      final double jumpClearance,
       final SlotScales slotScales) {
     this.number = number;
     this.width = width;
@@ -88,6 +94,7 @@ public enum DireWolfGrowthStage {
     this.armor = armor;
     this.rideable = rideable;
     this.ticksToGrow = ticksToGrow;
+    this.jumpClearance = jumpClearance;
     this.slotScales = slotScales;
   }
 
@@ -158,6 +165,24 @@ public enum DireWolfGrowthStage {
 
   public boolean rideable() {
     return this.rideable;
+  }
+
+  public boolean leapsHigh() {
+    return this.jumpClearance > 0.0;
+  }
+
+  public double jumpClearance() {
+    return this.leapsHigh() ? this.jumpClearance : DogJumpPhysics.VANILLA_CLEARANCE;
+  }
+
+  public double jumpStrength() {
+    return this.leapsHigh()
+        ? DogJumpPhysics.strengthToClear(this.jumpClearance)
+        : DogJumpPhysics.VANILLA_JUMP_STRENGTH;
+  }
+
+  public boolean clearsFences() {
+    return this.jumpClearance() >= DogJumpPhysics.FENCE_HEIGHT;
   }
 
   public SlotScales slotScales() {
