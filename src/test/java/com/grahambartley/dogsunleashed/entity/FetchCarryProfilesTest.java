@@ -14,9 +14,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 class FetchCarryProfilesTest {
 
-  private static final CarryProfile TENNIS = new CarryProfile(0.50f);
-  private static final CarryProfile STICK = new CarryProfile(0.40f);
-  private static final CarryProfile FRISBEE = new CarryProfile(1.50f);
+  private static final CarryProfile TENNIS = new CarryProfile(0.10, -0.40, 0.50f);
+  private static final CarryProfile STICK = new CarryProfile(0.00, -0.50, 0.40f);
+  private static final CarryProfile FRISBEE = new CarryProfile(0.20, -0.30, 1.50f);
 
   private final FetchCarryProfiles profiles = new FetchCarryProfiles(TENNIS, STICK, FRISBEE);
 

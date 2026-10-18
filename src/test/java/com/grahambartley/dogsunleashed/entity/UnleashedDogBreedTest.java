@@ -82,12 +82,18 @@ class UnleashedDogBreedTest {
 
   @ParameterizedTest
   @EnumSource(UnleashedDogBreed.class)
-  @DisplayName("every carry profile has a positive scale")
-  void everyCarryProfileHasPositiveScale(final UnleashedDogBreed breed) {
+  @DisplayName("every carry profile has a positive scale and finite offsets")
+  void everyCarryProfileHasPositiveScaleAndFiniteOffsets(final UnleashedDogBreed breed) {
     final FetchCarryProfiles profiles = breed.fetchCarryProfiles();
     for (final CarryProfile profile :
         List.of(profiles.tennisBall(), profiles.stick(), profiles.frisbee())) {
       assertTrue(profile.scale() > 0f, "scale must be positive: " + breed + " " + profile);
+      assertTrue(
+          Double.isFinite(profile.verticalOffset()),
+          "vertical offset must be finite: " + breed + " " + profile);
+      assertTrue(
+          Double.isFinite(profile.forwardOffset()),
+          "forward offset must be finite: " + breed + " " + profile);
     }
   }
 
