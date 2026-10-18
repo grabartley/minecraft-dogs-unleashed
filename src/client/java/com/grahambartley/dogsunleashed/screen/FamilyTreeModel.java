@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.network.payload.ConnectionDogSyncData;
 import com.grahambartley.dogsunleashed.network.payload.SyncDogConnectionsPayload;
 import com.grahambartley.dogsunleashed.screen.FamilyTreeLayout.NodePosition;
 import com.grahambartley.dogsunleashed.screen.FamilyTreeLayout.Relations;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -108,11 +109,11 @@ final class FamilyTreeModel {
   }
 
   Map<String, NodePosition> positions() {
-    return positions;
+    return Collections.unmodifiableMap(positions);
   }
 
   Map<String, Relations> relations() {
-    return relationsById;
+    return Collections.unmodifiableMap(relationsById);
   }
 
   boolean isExpanded(final String dogId) {

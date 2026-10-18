@@ -204,22 +204,21 @@ class FamilyTreeViewportTest {
     assertFalse(viewport.userAdjusted());
   }
 
-  @ParameterizedTest(name = "zoom in {0} gives {1}")
-  @CsvSource({"true, 1.15", "false, 0.8695652"})
+  @ParameterizedTest(name = "zoom in {0} gives zoom {1} and pan ({2}, {3})")
+  @CsvSource({"true, 1.15, 7.2, 16.5", "false, 0.8695652, -6.2608696, -14.3478261"})
   @DisplayName("scrolling steps the zoom and keeps the point under the cursor fixed")
-  void zoomAtStepsAndKeepsTheCursorPoint(final boolean zoomIn, final double expectedZoom) {
+  void zoomAtStepsAndKeepsTheCursorPoint(
+      final boolean zoomIn,
+      final double expectedZoom,
+      final double expectedPanX,
+      final double expectedPanY) {
     final FamilyTreeViewport viewport = new FamilyTreeViewport();
-    final int centerX = FamilyTreeViewport.canvasCenterX(400);
-    final double mouseX = 90;
-    final double mouseY = 40;
-    final double worldX = (mouseX - centerX) / viewport.zoom();
-    final double worldY = (mouseY - 150) / viewport.zoom();
 
-    viewport.zoomAt(mouseX, mouseY, 400, 300, zoomIn);
+    viewport.zoomAt(90, 40, 400, 300, zoomIn);
 
     assertEquals(expectedZoom, viewport.zoom(), 0.0001);
-    assertEquals(mouseX, centerX + viewport.panX() + worldX * viewport.zoom(), 0.0001);
-    assertEquals(mouseY, 150 + viewport.panY() + worldY * viewport.zoom(), 0.0001);
+    assertEquals(expectedPanX, viewport.panX(), 0.0001);
+    assertEquals(expectedPanY, viewport.panY(), 0.0001);
     assertTrue(viewport.userAdjusted());
   }
 

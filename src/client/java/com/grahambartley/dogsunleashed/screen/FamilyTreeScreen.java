@@ -100,13 +100,14 @@ public class FamilyTreeScreen extends Screen implements DogConnectionsListener {
   }
 
   private void renderPanel(final DrawContext context) {
-    final ConnectionDogSyncData dog = model.node(model.selectedId());
-    final boolean showActions = dog != null && !model.selectedId().equals(model.focusId());
+    final String selectedId = model.selectedId();
+    final ConnectionDogSyncData dog = model.node(selectedId);
+    final boolean showActions = dog != null && !selectedId.equals(model.focusId());
     toggleExpandButton.visible = showActions;
     focusButton.visible = showActions;
     if (dog != null) {
       toggleExpandButton.setMessage(
-          model.isExpanded(model.selectedId())
+          model.isExpanded(selectedId)
               ? Text.translatable("screen.dogs-unleashed.family_tree.collapse")
               : Text.translatable("screen.dogs-unleashed.family_tree.expand"));
     }

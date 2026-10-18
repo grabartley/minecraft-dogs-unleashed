@@ -11,6 +11,7 @@ final class FamilyTreeDetailPanel {
 
   static final int CONTENT_WIDTH = FamilyTreeViewport.PANEL_WIDTH - 12;
   private static final int PANEL_COLOR = 0xE0202020;
+  private static final int DIVIDER_COLOR = 0xFF666666;
   private static final float LOW_HEALTH_COLOR_THRESHOLD = 0.5f;
 
   private FamilyTreeDetailPanel() {}
@@ -22,7 +23,7 @@ final class FamilyTreeDetailPanel {
       final int screenWidth,
       final int screenHeight) {
     final int x = FamilyTreeViewport.panelX(screenWidth);
-    renderBackground(context, screenWidth, screenHeight);
+    renderBackground(context, x, screenWidth, screenHeight);
     if (dog == null) {
       return;
     }
@@ -81,10 +82,9 @@ final class FamilyTreeDetailPanel {
   }
 
   private static void renderBackground(
-      final DrawContext context, final int screenWidth, final int screenHeight) {
-    final int x = FamilyTreeViewport.panelX(screenWidth);
+      final DrawContext context, final int x, final int screenWidth, final int screenHeight) {
     context.fill(x, 0, screenWidth, screenHeight, PANEL_COLOR);
-    context.fill(x, 0, x + 1, screenHeight, FamilyTreeCanvasRenderer.CARD_BORDER);
+    context.fill(x, 0, x + 1, screenHeight, DIVIDER_COLOR);
   }
 
   static int healthColor(final float health, final float maxHealth) {

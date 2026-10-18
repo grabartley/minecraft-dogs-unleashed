@@ -11,10 +11,11 @@ import java.util.Map;
 import java.util.Set;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import org.jetbrains.annotations.Nullable;
 
 final class FamilyTreeCanvasRenderer {
 
-  static final int CARD_BORDER = 0xFF666666;
+  private static final int CARD_BORDER = 0xFF666666;
   private static final int PORTRAIT_SIZE = 48;
   private static final int EDGE_COLOR = 0xFF8A8A8A;
   private static final int MATE_EDGE_COLOR = 0xFFB08A5A;
@@ -127,7 +128,7 @@ final class FamilyTreeCanvasRenderer {
       final FamilyTreeViewport viewport,
       final int centerX,
       final int centerY,
-      final String hoveredId,
+      final @Nullable String hoveredId,
       final int mouseX,
       final int mouseY) {
     for (final Map.Entry<String, NodePosition> entry : model.positions().entrySet()) {
