@@ -1,9 +1,16 @@
 package com.grahambartley.dogsunleashed.screen;
 
+import com.grahambartley.dogsunleashed.entity.genome.DogGeneLocus;
 import com.grahambartley.dogsunleashed.network.payload.ConnectionDogSyncData;
+import com.grahambartley.dogsunleashed.network.payload.GeneSyncData;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.text.OrderedText;
+import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,6 +20,11 @@ final class FamilyTreeDetailPanel {
   private static final int PANEL_COLOR = 0xE0202020;
   private static final int DIVIDER_COLOR = 0xFF666666;
   private static final float LOW_HEALTH_COLOR_THRESHOLD = 0.5f;
+  static final int CARRIER_COLOR = 0xE0A040;
+  static final String GENES_KEY = "screen.dogs-unleashed.family_tree.genes";
+  static final String GENE_KEY = "screen.dogs-unleashed.family_tree.gene";
+  static final String CARRIES_KEY = "screen.dogs-unleashed.family_tree.carries";
+  static final String HIDDEN_KEY = "screen.dogs-unleashed.family_tree.carried_hidden";
 
   private FamilyTreeDetailPanel() {}
 
@@ -59,6 +71,7 @@ final class FamilyTreeDetailPanel {
           textY,
           0xFF5555,
           false);
+      renderGenes(context, textRenderer, dog, textX, textY + 18);
       return;
     }
     context.drawText(
@@ -79,6 +92,64 @@ final class FamilyTreeDetailPanel {
         textY,
         0xAAAAAA,
         false);
+    renderGenes(context, textRenderer, dog, textX, textY + 18);
+  }
+
+  private static void renderGenes(
+      final DrawContext context,
+      final TextRenderer textRenderer,
+      final ConnectionDogSyncData dog,
+      final int textX,
+      final int startY) {
+    int textY = startY;
+    for (final GeneLine line :
+        geneLines(dog, (key, args) -> Text.translatable(key, args).getString())) {
+      for (final OrderedText wrapped :
+          textRenderer.wrapLines(StringVisitable.plain(line.text()), CONTENT_WIDTH)) {
+        context.drawText(textRenderer, wrapped, textX, textY, line.color(), false);
+        textY += 10;
+      }
+      textY += 2;
+    }
+  }
+
+  static List<GeneLine> geneLines(final ConnectionDogSyncData dog, final Translator translator) {
+    if (dog.genes().isEmpty()) {
+      return List.of();
+    }
+    final List<GeneLine> lines = new ArrayList<>();
+    lines.add(new GeneLine(translator.translate(GENES_KEY), 0xFFFFFF));
+    for (final GeneSyncData gene : dog.genes()) {
+      final DogGeneLocus locus = gene.locus();
+      lines.add(
+          new GeneLine(
+              translator.translate(
+                  GENE_KEY,
+                  translator.translate(locus.trait().translationKey()),
+                  translator.translate(locus.alleleTranslationKey(gene.shown()))),
+              0xAAAAAA));
+      if (gene.carrier()) {
+        final String carried =
+            gene.carried().stream()
+                .map(allele -> translator.translate(locus.alleleTranslationKey(allele)))
+                .collect(Collectors.joining(", "));
+        lines.add(new GeneLine(translator.translate(CARRIES_KEY, carried), CARRIER_COLOR));
+      }
+    }
+    if (!dog.carriedGenesRevealed()) {
+      lines.add(new GeneLine(translator.translate(HIDDEN_KEY), 0x777777));
+    }
+    return lines;
+  }
+
+  static boolean isCarrier(final ConnectionDogSyncData dog) {
+    return dog.genes().stream().anyMatch(GeneSyncData::carrier);
+  }
+
+  record GeneLine(String text, int color) {}
+
+  interface Translator {
+    String translate(String key, Object... args);
   }
 
   private static void renderBackground(

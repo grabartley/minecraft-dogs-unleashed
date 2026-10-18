@@ -144,6 +144,10 @@ public final class PetManager extends PersistentState {
     return pets;
   }
 
+  public boolean hasChildren(final UUID dogId) {
+    return !childIdsByParentId.getOrDefault(dogId, Set.of()).isEmpty();
+  }
+
   public boolean isConnectedToOwnedPet(UUID ownerId, UUID dogId) {
     final Set<UUID> visited = new HashSet<>();
     final Deque<UUID> queue = new ArrayDeque<>();

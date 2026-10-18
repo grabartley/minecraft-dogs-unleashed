@@ -94,7 +94,7 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
     final String ownerId =
         client.player != null ? client.player.getUuid().toString() : new UUID(0, 0).toString();
     final String ownerName = client.player != null ? client.player.getGameProfile().getName() : "";
-    return new ConnectionDogSyncData(pet, ownerId, ownerName);
+    return new ConnectionDogSyncData(pet, ownerId, ownerName, List.of(), false);
   }
 
   @Override

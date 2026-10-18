@@ -66,6 +66,7 @@ public final class DogEntityNbt {
       nbt.putUuid(ModNbtKeys.CURING_PLAYER_ID, this.dog.getCuring().getCurerId());
     }
     this.dog.getLineage().writeNbt(nbt);
+    this.dog.getGenes().writeNbt(nbt);
     this.dog.getEquipmentHolder().writeNbt(nbt);
     this.dog.getFur().writeNbt(nbt);
     this.dog.getGrowth().writeNbt(nbt);
@@ -89,6 +90,7 @@ public final class DogEntityNbt {
             variantOrdinalOr(nbt, ModNbtKeys.COAT_VARIANT, currentAppearance.coatVariantOrdinal()),
             variantOrdinalOr(
                 nbt, ModNbtKeys.EYE_COLOR_VARIANT, currentAppearance.eyeColorVariantOrdinal())));
+    this.dog.getGenes().readNbt(nbt);
     this.dog.getAmbienceEffects().readNbt(nbt);
     this.dog.getSleepController().readNbt(nbt);
     this.dog.getPlaySession().readNbt(nbt);

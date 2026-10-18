@@ -6,7 +6,6 @@ import com.grahambartley.dogsunleashed.entity.genome.DogGenomeCombiner;
 import com.grahambartley.dogsunleashed.pet.PetRegistrar;
 import com.grahambartley.dogsunleashed.util.BreedingOwnerResolver;
 import java.util.UUID;
-import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -83,7 +82,7 @@ public final class DogLineage {
               this.dog.getRandom()));
       baby.setHealth(baby.getMaxHealth());
     }
-    baby.getAppearanceRoller().rollAppearance(SpawnReason.BREEDING);
+    baby.getAppearanceRoller().inheritAppearance(this.dog, partner);
     final PlayerEntity lovingPlayer = this.dog.getLovingPlayer();
     if (lovingPlayer != null) {
       baby.getInteractions().adoptNewborn(lovingPlayer);

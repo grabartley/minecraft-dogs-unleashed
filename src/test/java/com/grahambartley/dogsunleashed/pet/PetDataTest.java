@@ -10,9 +10,16 @@ import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.genome.AllelePair;
+import com.grahambartley.dogsunleashed.entity.genome.DogGeneLocus;
+import com.grahambartley.dogsunleashed.entity.genome.DogGeneTrait;
+import com.grahambartley.dogsunleashed.entity.genome.DogGenes;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
+import com.grahambartley.dogsunleashed.entity.variant.HuskyCoat;
+import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 import net.minecraft.nbt.NbtCompound;
@@ -415,5 +422,65 @@ class PetDataTest {
     assertEquals(0.0f, reloaded.getMovementSpeed(), "legacy movement speed");
     assertEquals(0.0f, reloaded.getAttackDamage(), "legacy attack damage");
     assertTrue(reloaded.getComposition().isEmpty(), "legacy composition");
+  }
+
+  @Test
+  @DisplayName("genes survive a pet record round trip")
+  void genesRoundTrip() {
+    final DogGeneLocus coat = new DogGeneLocus(UnleashedDogBreed.HUSKY, DogGeneTrait.COAT);
+    final DogGenes genes =
+        new DogGenes(
+            Map.of(
+                coat, new AllelePair(HuskyCoat.BLACK_WHITE.ordinal(), HuskyCoat.WHITE.ordinal())));
+    final NbtCompound nbt = baselinePet().toNbt();
+    nbt.put(ModNbtKeys.GENES, genes.toNbt());
+
+    final PetData reloaded = PetData.fromNbt(nbt);
+
+    assertEquals(genes, reloaded.getGenes());
+    assertEquals(genes, PetData.fromNbt(reloaded.toNbt()).getGenes(), "genes after re-save");
+  }
+
+  @Test
+  @DisplayName("records written before genes existed get genes matching their saved look")
+  void legacyRecordDerivesGenesFromItsLook() {
+    final NbtCompound nbt = baselinePet().toNbt();
+    nbt.putInt(ModNbtKeys.PORTRAIT_COAT_VARIANT, HuskyCoat.SABLE.ordinal());
+    nbt.putInt(ModNbtKeys.PORTRAIT_HUSKY_EYE, HuskyEyeColor.BLUE_HAZEL.ordinal());
+
+    final DogGenes genes = PetData.fromNbt(nbt).getGenes();
+
+    assertEquals(
+        AllelePair.matching(HuskyCoat.SABLE.ordinal()),
+        genes.pair(new DogGeneLocus(UnleashedDogBreed.HUSKY, DogGeneTrait.COAT)));
+    assertEquals(
+        AllelePair.matching(HuskyEyeColor.BLUE_HAZEL.ordinal()),
+        genes.pair(new DogGeneLocus(UnleashedDogBreed.HUSKY, DogGeneTrait.EYES)));
+  }
+
+  @Test
+  @DisplayName("a cross record renders with its dominant breed, or the fallback rig without a mix")
+  void rigSourceBreedFollowsComposition() {
+    final PetData cross =
+        new PetData(
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            UnleashedDogBreed.CROSS_BREED,
+            "Mutt",
+            BASE_HEALTH,
+            20.0f,
+            BASE_POS,
+            BASE_DIM,
+            PetLifeState.LIVING);
+    assertEquals(UnleashedDogBreed.FALLBACK_RIG, cross.getRigSourceBreed());
+    final NbtCompound nbt = cross.toNbt();
+    nbt.put(
+        ModNbtKeys.COMPOSITION,
+        DogGenome.compositionToNbt(
+            List.of(
+                new BreedShare(UnleashedDogBreed.BEAGLE, 0.7f),
+                new BreedShare(UnleashedDogBreed.HUSKY, 0.3f))));
+    assertEquals(UnleashedDogBreed.BEAGLE, PetData.fromNbt(nbt).getRigSourceBreed());
+    assertEquals(UnleashedDogBreed.HUSKY, baselinePet().getRigSourceBreed());
   }
 }

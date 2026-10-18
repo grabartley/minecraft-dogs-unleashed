@@ -81,8 +81,8 @@ night. Dire wolves are too big for either and sleep where they lie.
 carefully, or your dog ends up with a bad hair day until it grows back.
 - **Never lose them.** Your dogs follow you through portals, unless they are sitting, staying or guarding. Bind a dog whistle to call one from anywhere, or open the
 Pet Manager to see and summon your whole pack.
-- **Raise a family.** Any two living tamed dogs can have puppies, and mixed parents give a mixed breed puppy. Dire wolves only breed with dire wolves. Every dog has a
-family tree you can explore.
+- **Raise a family.** Any two living tamed dogs can have puppies, and mixed parents give a mixed breed puppy. Dire wolves only breed with dire wolves. Puppies inherit
+their parents' coat and eye genes, so two parents can carry a rare coat and pass it on. Every dog has a family tree you can explore.
 - **Bring them back.** A tamed dog that dies leaves a grave. Put a totem in it and a lightning rod above it, then wait
 for lightning to strike it. Your dog comes back undead and burns in daylight unless it has shade, armour, or a fire pendant. Cure it the same way you
 cure a zombie villager. If it dies while undead, it is gone for good, unless it wears a Pendant of Loyalty.

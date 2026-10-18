@@ -105,6 +105,7 @@ public class UnleashedDogEntity extends DogMountEntity
   private final DogEquipmentHolder equipment = new DogEquipmentHolder(this);
   private final DogAppearanceRoller appearance = new DogAppearanceRoller(this);
   private final DogLineage lineage = new DogLineage(this);
+  private final DogGeneHolder genes = new DogGeneHolder(this);
   private final DogEntityNbt persistence = new DogEntityNbt(this);
   private final DogInteractions interactions = new DogInteractions(this);
   private final DogCommandController commandController = new DogCommandController(this);
@@ -312,6 +313,10 @@ public class UnleashedDogEntity extends DogMountEntity
 
   DogAppearanceRoller getAppearanceRoller() {
     return this.appearance;
+  }
+
+  public DogGeneHolder getGenes() {
+    return this.genes;
   }
 
   public DogLineage getLineage() {

@@ -126,4 +126,16 @@ class DogCoatsTest {
       }
     }
   }
+
+  @ParameterizedTest(name = "{0}")
+  @EnumSource(UnleashedDogBreed.class)
+  @DisplayName("every coat a breed lists resolves back from its own ordinal")
+  void coatsOfListsEveryCoatInOrdinalOrder(final UnleashedDogBreed breed) {
+    final List<UnleashedDogCoat> coats = DogCoats.coatsOf(breed);
+    assertEquals(DogCoats.hasCoatVariants(breed), !coats.isEmpty());
+    for (int ordinal = 0; ordinal < coats.size(); ordinal++) {
+      assertEquals(ordinal, coats.get(ordinal).getOrdinal());
+      assertEquals(coats.get(ordinal), DogCoats.coatOf(breed, ordinal));
+    }
+  }
 }
