@@ -118,4 +118,16 @@ class DogCommandWheelScreenTest {
         DogCommandWheelScreen.sectorIndexAt(
             Math.cos(angle) * radius, Math.sin(angle) * radius, 10, INNER, OUTER));
   }
+
+  @ParameterizedTest(name = "sector {0} of 11")
+  @ValueSource(ints = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
+  @DisplayName("with the Actions sector added, the centre of every sector selects that sector")
+  void elevenSectorsEachSelectThemselves(final int sector) {
+    final double angle = -Math.PI / 2 + sector * 2 * Math.PI / 11;
+    final double radius = (INNER + OUTER) / 2.0;
+    assertEquals(
+        sector,
+        DogCommandWheelScreen.sectorIndexAt(
+            Math.cos(angle) * radius, Math.sin(angle) * radius, 11, INNER, OUTER));
+  }
 }

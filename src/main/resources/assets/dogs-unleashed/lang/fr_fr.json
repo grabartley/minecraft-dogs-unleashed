@@ -322,6 +322,7 @@
   "message.dogs-unleashed.direwolf.already_alpha": "%s est déjà un alpha.",
   "command.dogs-unleashed.equipment": "Équipement",
   "command.dogs-unleashed.ride": "Monter",
+  "command.dogs-unleashed.actions": "Actions",
   "screen.dogs-unleashed.command_wheel.ride.breed": "Seuls les loups terribles adultes peuvent être montés",
   "screen.dogs-unleashed.command_wheel.ride.too_young": "Seul un aguerri ou un alpha peut vous porter",
   "screen.dogs-unleashed.command_wheel.ride.busy": "Ne peut pas vous porter pour l'instant",

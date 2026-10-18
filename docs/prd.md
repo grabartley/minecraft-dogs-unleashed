@@ -89,6 +89,9 @@ Decisions the product owner has made where the sources could be read more than o
 | Does a dog lost for good leave a grave? | Yes, as a memorial that says the dog cannot come back | DEATH-12 |
 | Can adult dire wolves from spawn eggs be tamed? | No. Only pups can be won, whatever their source | TAME-4 |
 | Is the "Winter is Coming" advancement title kept? | Yes | DIRE-13 |
+| Which breed comes next? | The one players ask for most, then the next most asked for | BREED-1 |
+| Do mob costumes change how mobs treat the dog? | No. Costumes and mob heads are cosmetic only | COSTUME-9 |
+| Can a costume be worn with armour? | Yes. Armour covers it, and it shows again when the armour comes off | COSTUME-5 |
 | Where does the command wheel get room for new actions? | One Actions sector opens a second ring. Existing sectors keep their places | CMD-14 |
 | Where the Dog Rig Profiles plan and a decision record disagree, which wins? | The decision record: fur is hand made, armour is painted per torso | LOOK-5 |
 
@@ -114,9 +117,9 @@ Decisions the product owner has made where the sources could be read more than o
 | Term | Definition |
 |---|---|
 | Dog | A Dogs Unleashed creature of any breed, living or undead |
-| Breed | One of husky, dachshund, beagle, golden retriever, shiba inu, dire wolf, or a cross. A breed sets the rig, coats, voice, size, stats and home biomes |
+| Breed | One of husky, dachshund, beagle, golden retriever, shiba inu, pinscher, shih tzu, caramelo, border collie, chihuahua, labrador, yorkshire terrier, pomeranian, german shepherd, dire wolf, or a cross. A breed sets the rig, coats, voice, size, stats and home biomes |
 | Cross | A dog whose genome mixes more than one founding breed. It renders on the rig of its largest share |
-| Founding breed | A breed that spawns naturally and may cross: husky, dachshund, beagle, golden retriever, shiba inu. The dire wolf breeds only with dire wolves |
+| Founding breed | A breed that spawns naturally, in the wild or as a village stray, and may cross: every breed but the dire wolf. The dire wolf breeds only with dire wolves |
 | Genome | A dog's breed shares, blended stats (health, speed, damage, fur growth), voice and genes |
 | Gene | A pair of alleles for one trait (a coat locus, eye colour, or a personality trait). One allele is shown, the other may be carried |
 | Coat | A painted coat variant of a breed, with a rarity of common, uncommon, rare or epic |
@@ -130,7 +133,9 @@ Decisions the product owner has made where the sources could be read more than o
 | Play mode | A fetch session between one owner and one dog |
 | Bed | A dog bed or dog house assigned to one dog |
 | Sleep window | The time of day a dog sleeps: 13000 to 23000 for adults, 11000 to 24000 for puppies, inverted for undead dogs |
-| Gear | A dog's armour, pendant, cosmetic and saddlebags |
+| Gear | A dog's armour, pendant, cosmetic, costume and saddlebags |
+| Cosmetic | A small thing worn on the head or neck, such as a bandana, a hat or a vanilla mob head |
+| Costume | A suit worn over the body that dresses the dog up as a mob |
 | Pet record | The world-level record of a tamed dog: name, owner, breed, life state, last known place, stats and family. It outlives the entity |
 | Life state | Living, undead, deceased (can be brought back), or lost (gone for good) |
 | Bond | How close a dog is to its owner, in five named steps from Stranger to Devoted |
@@ -174,6 +179,15 @@ Each breed lives in its home biomes and spawns there in small groups. Dire wolve
 | Beagle | Forest, flower forest, birch forest, old growth birch forest, meadow | 1 to 3 |
 | Golden retriever | Beach | 1 to 3 |
 | Shiba inu | Cherry grove | 1 to 2 |
+| Pinscher | Badlands, wooded badlands | 1 to 2 |
+| Shih tzu | Bamboo jungle | 1 to 2 |
+| Caramelo | Villages of every biome, as a stray only | 1 |
+| Border collie | Meadow, plains, windswept hills | 1 to 3 |
+| Chihuahua | Desert | 1 to 2 |
+| Labrador | Swamp, river banks | 1 to 3 |
+| Yorkshire terrier | Dark forest | 1 to 2 |
+| Pomeranian | Taiga, old growth spruce taiga | 1 to 2 |
+| German shepherd | Sparse jungle, savanna, windswept hills | 1 to 3 |
 | Dire wolf | Ice spikes, frozen peaks, jagged peaks, snowy slopes, snowy taiga | One leader that brings a whole pack, 5 to 10 by default |
 
 | ID | Requirement |
@@ -185,11 +199,21 @@ Each breed lives in its home biomes and spawns there in small groups. Dire wolve
 | SPAWN-5 | When Spawn Near Players is on, an extra spawner places wild groups of every breed near players even when the mob cap is full. Every 60 to 120 seconds it tries spots 24 to 48 blocks from a random player, and it waits while 2 or more wild groups are within 64 blocks. A breed's spawn rate scales how many groups it places, so 200% is about twice as many. An untamed dog with no group counts as a group of its own |
 | SPAWN-6 | Dogs from the extra spawner may despawn while wild, like vanilla animals. Taming stops that |
 | SPAWN-7 | Coat, eye colour (huskies) and fur length are rolled at spawn from the breed's natural tables |
-| SPAWN-8 | Villages get a stray now and then, of the breed that fits the village biome (snowy: husky, plains: dachshund, taiga: beagle, desert or savanna: shiba inu, others: golden retriever), never more than 2 per village, and only near a village with more than 4 occupied homes within 48 blocks |
+| SPAWN-8 | Villages get a stray now and then, never more than 2 per village. One stray in three is a caramelo. The rest are the breed that fits the village biome (snowy: husky, plains: dachshund, taiga: beagle, desert or savanna: shiba inu, others: golden retriever), and only near a village with more than 4 occupied homes within 48 blocks |
 | SPAWN-9 | The wandering trader rarely offers a Puppy Basket for emeralds. Using it releases a random founding breed's puppy, already tamed to the user |
 | SPAWN-10 | Village Strays and Trader Puppies are settings, both on by default |
 
-**Not supported:** dogs in the Nether or the End; cross-breeds spawning wild; wild alphas.
+**Not supported:** dogs in the Nether or the End; cross-breeds spawning wild; wild alphas; caramelos in the wild.
+
+#### Breed Roster
+
+| ID | Requirement |
+|---|---|
+| BREED-1 | New breeds are added in order of how often players ask for them: pinscher, shih tzu, caramelo, border collie, chihuahua, labrador, yorkshire terrier, pomeranian, then german shepherd |
+| BREED-2 | Every new breed is a founding breed. It tames with a taming food (TAME-2), crosses with the other founding breeds (FAM-2) and is listed in the Pet Manager's breed filter |
+| BREED-3 | Every new breed is made the way the shipped ones are (LOOK-1, LOOK-7): its own rig, animation set, painted coats, collar mask, fur and rig profile, and a voice from real recordings of that breed (LOOK-12) |
+| BREED-4 | Each breed's size and stats match the real dog: the pinscher, chihuahua, yorkshire terrier and pomeranian are toy sized, smaller than the dachshund, and the labrador and german shepherd are about the size of the golden retriever |
+| BREED-5 | The caramelo is a short-coated mixed street dog in shades of tan and cream. It spawns only as a village stray (SPAWN-8) |
 
 **Enforcement:** server. Spawning, rolls and trades are decided on the server.
 
@@ -352,7 +376,7 @@ Right-clicking your own dog opens the command wheel. The dog takes a standing co
 
 **Actor:** Owner.
 
-The gear screen, opened from the wheel, has slots for armour, a pendant, a cosmetic and saddlebags.
+The gear screen, opened from the wheel, has slots for armour, a pendant, a cosmetic, a costume and saddlebags.
 
 | Gesture | Result |
 |---|---|
@@ -370,7 +394,7 @@ The gear screen, opened from the wheel, has slots for armour, a pendant, a cosme
 | GEAR-5 | Only grown dogs can wear armour |
 | GEAR-6 | Curse of Binding keeps armour on outside creative mode |
 | GEAR-7 | Tamed vanilla wolves can wear dog armour, following the same rules |
-| GEAR-8 | Armour, pendant, cosmetic and saddlebags all drop when the dog dies |
+| GEAR-8 | Armour, pendant, cosmetic, costume and saddlebags all drop when the dog dies |
 | GEAR-9 | Shears always trim fur (GROOM-4). Armour comes off only through the gear screen |
 | GEAR-10 | The collar is red by default. The owner can dye it any colour. The leash takes the collar's colour |
 | GEAR-11 | A Dog Treat (wheat, bone meal and sugar) gives 60 seconds of +10% speed and +1 attack damage, with a wag, hearts and a bark. Another treat resets the timer |
@@ -384,11 +408,47 @@ The gear screen, opened from the wheel, has slots for armour, a pendant, a cosme
 | GEAR-19 | Cosmetics render on the dog in every pose, clear of armour, pendants and ears |
 | GEAR-20 | Saddlebags (leather and a chest) add 9 item slots to the gear screen and show on the dog |
 | GEAR-21 | The gear screen closes if the owner moves out of 8 blocks or the dog dies |
-| GEAR-22 | The gear screen looks like vanilla's horse inventory: the vanilla container background and slot art, a live view of the dog in the preview box, and greyed empty-slot icons for the pendant and cosmetic slots. Hovering an empty dog slot names it and says what it holds |
+| GEAR-22 | The gear screen looks like vanilla's horse inventory: the vanilla container background and slot art, a live view of the dog in the preview box, and greyed empty-slot icons for the pendant, cosmetic and costume slots. Hovering an empty dog slot names it and says what it holds |
 
-**Not supported:** gear on other players' dogs; stacking several pendants.
+#### Costumes
 
-**Enforcement:** server. Equipping, slots and effects are server decisions. Only the owner may open the gear screen.
+A dog can be dressed up as a Minecraft mob. A vanilla mob head goes in the cosmetic slot, and a mob costume goes in the costume slot, so a dog can wear a head and its matching suit together.
+
+| Costume | Look | Crafted from |
+|---|---|---|
+| Spider | A dark fuzzy suit with eight legs sticking out of its sides and red eyes on the hood | String, a spider eye and black wool |
+| Zombie | A torn blue shirt and green paws | Rotten flesh and blue wool |
+| Skeleton | A bone print suit | Bones and white wool |
+| Enderman | A black suit with purple eyes on the hood | An ender pearl and black wool |
+| Ender dragon | A black scaled suit with wings | Dragon's breath, phantom membrane and black wool |
+| Creeper | A green pixel hoodie | Gunpowder and lime wool |
+| Wither | A dark suit with a small skull on each shoulder | A wither rose and black wool |
+| Warden | A dark suit with glowing sculk patches | An echo shard and sculk |
+| Bee | A yellow and black striped vest with wings and an antenna headband | Honeycomb, yellow wool and black wool |
+| Sheep | A fluffy wool coat | White wool |
+| Mooshroom | A red spotted coat with mushrooms on the back | Red mushrooms and red wool |
+| Chicken | A feathered vest with a comb on the hood | Feathers and white wool |
+| Axolotl | A pink suit with frilly gills on the hood | A tropical fish and pink wool |
+| Frog | A green hood with big eyes | Slimeballs and green wool |
+| Panda | A black and white suit | Bamboo, black wool and white wool |
+| Turtle | A shell on the back | A turtle scute |
+| Allay | Small blue wings | An amethyst shard and light blue wool |
+
+| ID | Requirement |
+|---|---|
+| COSTUME-1 | The cosmetic slot also takes the vanilla mob heads (zombie, skeleton, wither skeleton, creeper, piglin and dragon) and a carved pumpkin. The dragon head's jaw opens when the dog barks |
+| COSTUME-2 | The costume slot takes the costumes in the table above, and nothing else |
+| COSTUME-3 | Each costume is crafted from the ingredients in the table. The sheep costume takes dye like leather armour |
+| COSTUME-4 | The wandering trader sometimes offers one costume for emeralds, picked at random from the table |
+| COSTUME-5 | A costume renders over the dog's body in every pose. Armour covers it while worn, and it shows again when the armour comes off. Cosmetics, pendants, saddlebags and collars render over it |
+| COSTUME-6 | Every costume and mob head fits every breed, adults and puppies, crosses, undead dogs and the dire wolf at every growth stage, from the rig profile's roles (LOOK-5). Nothing is placed per breed in code |
+| COSTUME-7 | Costumes move with the dog: the spider's legs step with its walk, the ender dragon's, chicken's and allay's wings flap when it jumps, the bee's wings buzz while it runs, the wither's side skulls look around, the warden's patches pulse when it barks, and the axolotl's gills wiggle in water |
+| COSTUME-8 | Only the owner can put on or take off a costume, through the gear screen or by right-clicking their dog with it |
+| COSTUME-9 | Costumes and mob heads are cosmetic only. They change no stats, and mobs treat a dog in costume exactly as they treat any other dog |
+
+**Not supported:** gear on other players' dogs; stacking several pendants; wild dogs spawning in costume; more than one costume at a time.
+
+**Enforcement:** server. Equipping, slots and effects are server decisions. Only the owner may open the gear screen or change a costume.
 
 ### 5.8 Groom A Dog
 

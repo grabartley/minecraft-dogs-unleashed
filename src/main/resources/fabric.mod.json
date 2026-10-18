@@ -34,6 +34,7 @@
     ],
     "fabric-gametest": [
       "com.grahambartley.dogsunleashed.gametest.DogAdvancementGameTest",
+      "com.grahambartley.dogsunleashed.gametest.DogWheelSubActionGameTest",
       "com.grahambartley.dogsunleashed.gametest.DireWolfGameTest",
       "com.grahambartley.dogsunleashed.gametest.DireWolfJumpGameTest",
       "com.grahambartley.dogsunleashed.gametest.DireWolfPackGameTest",
