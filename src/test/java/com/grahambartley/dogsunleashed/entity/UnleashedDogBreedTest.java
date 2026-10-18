@@ -340,25 +340,27 @@ class UnleashedDogBreedTest {
 
   static Stream<Arguments> expectedNatures() {
     return Stream.of(
-        Arguments.of(UnleashedDogBreed.HUSKY, 3, false, false),
-        Arguments.of(UnleashedDogBreed.DACHSHUND, 3, false, false),
-        Arguments.of(UnleashedDogBreed.BEAGLE, 3, false, false),
-        Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, 3, false, false),
-        Arguments.of(UnleashedDogBreed.SHIBA_INU, 3, false, false),
-        Arguments.of(UnleashedDogBreed.DIRE_WOLF, 6, true, true),
-        Arguments.of(UnleashedDogBreed.CROSS_BREED, 3, false, false));
+        Arguments.of(UnleashedDogBreed.HUSKY, 3, false, false, true),
+        Arguments.of(UnleashedDogBreed.DACHSHUND, 3, false, false, true),
+        Arguments.of(UnleashedDogBreed.BEAGLE, 3, false, false, true),
+        Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, 3, false, false, true),
+        Arguments.of(UnleashedDogBreed.SHIBA_INU, 3, false, false, true),
+        Arguments.of(UnleashedDogBreed.DIRE_WOLF, 6, true, true, false),
+        Arguments.of(UnleashedDogBreed.CROSS_BREED, 3, false, false, true));
   }
 
-  @ParameterizedTest(name = "{0} tames 1 in {1}, own breed only={2}, staged growth={3}")
+  @ParameterizedTest(name = "{0} tames 1 in {1}, own breed only={2}, staged growth={3}, beds={4}")
   @MethodSource("expectedNatures")
   @DisplayName("each breed declares its taming chance, breeding rule and growth model")
   void breedNatureMatchesTheSpec(
       final UnleashedDogBreed breed,
       final int tameSuccessChance,
       final boolean breedsOnlyWithOwnBreed,
-      final boolean growsThroughStages) {
+      final boolean growsThroughStages,
+      final boolean sleepsInBeds) {
     assertEquals(
-        new UnleashedDogBreed.Nature(tameSuccessChance, breedsOnlyWithOwnBreed, growsThroughStages),
+        new UnleashedDogBreed.Nature(
+            tameSuccessChance, breedsOnlyWithOwnBreed, growsThroughStages, sleepsInBeds),
         breed.nature());
   }
 

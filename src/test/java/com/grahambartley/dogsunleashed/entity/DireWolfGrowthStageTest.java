@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Locale;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,11 +22,11 @@ class DireWolfGrowthStageTest {
         Arguments.of(
             DireWolfGrowthStage.YEARLING, 2, 0.80f, 1.10f, 1.00f, 30.0, 0.32, 6.0, 2.0, false),
         Arguments.of(
-            DireWolfGrowthStage.ADULT, 3, 1.10f, 1.35f, 1.25f, 40.0, 0.34, 8.0, 3.0, false),
+            DireWolfGrowthStage.ADULT, 3, 1.15f, 1.50f, 1.36f, 40.0, 0.34, 8.0, 3.0, false),
         Arguments.of(
-            DireWolfGrowthStage.PRIME, 4, 1.40f, 1.60f, 1.45f, 50.0, 0.36, 10.0, 4.0, true),
+            DireWolfGrowthStage.PRIME, 4, 1.40f, 1.75f, 1.59f, 50.0, 0.36, 10.0, 4.0, true),
         Arguments.of(
-            DireWolfGrowthStage.ALPHA, 5, 1.80f, 2.50f, 2.25f, 60.0, 0.38, 12.0, 6.0, true));
+            DireWolfGrowthStage.ALPHA, 5, 1.80f, 2.50f, 2.27f, 60.0, 0.38, 12.0, 6.0, true));
   }
 
   @ParameterizedTest(name = "{0}")
@@ -107,9 +108,49 @@ class DireWolfGrowthStageTest {
     }
   }
 
+  static Stream<Arguments> growthTimes() {
+    return Stream.of(
+        Arguments.of(DireWolfGrowthStage.PUP, 0),
+        Arguments.of(DireWolfGrowthStage.YEARLING, 24000),
+        Arguments.of(DireWolfGrowthStage.ADULT, 48000),
+        Arguments.of(DireWolfGrowthStage.PRIME, 0),
+        Arguments.of(DireWolfGrowthStage.ALPHA, 0));
+  }
+
+  @ParameterizedTest(name = "{0} grows on its own after {1} ticks")
+  @MethodSource("growthTimes")
+  @DisplayName("growth slows after the yearling, and only time moves a yearling or adult on")
+  void growthTimesMatchTheSpec(final DireWolfGrowthStage stage, final int ticks) {
+    assertEquals(ticks, stage.ticksToGrow());
+    assertEquals(ticks > 0, stage.growsWithTime());
+  }
+
+  @ParameterizedTest
+  @EnumSource(DireWolfGrowthStage.class)
+  @DisplayName("only a prime becomes an alpha, and only through its bond")
+  void onlyPrimeEvolves(final DireWolfGrowthStage stage) {
+    assertEquals(stage == DireWolfGrowthStage.PRIME, stage.evolvesThroughBond());
+  }
+
   @Test
-  @DisplayName("pup to alpha takes three twenty-minute adult stages")
-  void adultStagesTakeTwentyMinutes() {
-    assertEquals(24000, DireWolfGrowthStage.TICKS_PER_ADULT_STAGE);
+  @DisplayName(
+      "an adult outgrows every other dog, a prime is horse sized, an alpha is bigger still")
+  void laterStagesAreHuge() {
+    final float tallestOtherDog = 1.4f;
+    final float horseHeight = 1.6f;
+    final float horseWidth = 1.3965f;
+    assertTrue(DireWolfGrowthStage.ADULT.height() > tallestOtherDog);
+    assertTrue(DireWolfGrowthStage.PRIME.height() >= horseHeight);
+    assertTrue(DireWolfGrowthStage.PRIME.width() >= horseWidth);
+    assertTrue(DireWolfGrowthStage.ALPHA.height() > DireWolfGrowthStage.PRIME.height() + 0.5f);
+  }
+
+  @ParameterizedTest
+  @EnumSource(DireWolfGrowthStage.class)
+  @DisplayName("every stage has a display name key")
+  void stageTranslationKey(final DireWolfGrowthStage stage) {
+    assertEquals(
+        "growth.dogs-unleashed.direwolf." + stage.name().toLowerCase(Locale.ROOT),
+        stage.translationKey());
   }
 }

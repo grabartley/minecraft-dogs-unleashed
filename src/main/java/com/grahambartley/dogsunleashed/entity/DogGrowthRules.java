@@ -3,6 +3,8 @@ package com.grahambartley.dogsunleashed.entity;
 public final class DogGrowthRules {
 
   public static final int PERCENT = 100;
+  public static final int BATTLES_TO_EVOLVE = 20;
+  public static final double BOND_RANGE_BLOCKS = 16.0;
   static final int PUP_MEMBER = 1;
   static final int GUARANTEED_ADULTS = 3;
   static final int FOUNDING_ADULT_YEARLING_CHANCE = 50;
@@ -35,7 +37,16 @@ public final class DogGrowthRules {
     return Math.min(newMaxHealth, grown);
   }
 
-  public static boolean advancesStage(final int ticksInStage) {
-    return ticksInStage >= DireWolfGrowthStage.TICKS_PER_ADULT_STAGE;
+  public static boolean advancesStage(final DireWolfGrowthStage stage, final int ticksInStage) {
+    return stage.growsWithTime() && ticksInStage >= stage.ticksToGrow();
+  }
+
+  public static int battlesStillNeeded(final int battlesWon) {
+    return Math.max(0, BATTLES_TO_EVOLVE - battlesWon);
+  }
+
+  public static boolean canEvolve(
+      final DireWolfGrowthStage stage, final boolean tamed, final int battlesWon) {
+    return stage.evolvesThroughBond() && tamed && battlesStillNeeded(battlesWon) == 0;
   }
 }

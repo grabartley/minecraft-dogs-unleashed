@@ -1,7 +1,6 @@
 package com.grahambartley.dogsunleashed.entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.stream.Stream;
@@ -95,10 +94,42 @@ class DogGrowthRulesTest {
         expected, DogGrowthRules.healthAfterStageChange(current, previousMax, newMax), 1e-6f);
   }
 
-  @Test
-  @DisplayName("a stage advances once its twenty minutes are up")
-  void stageAdvancesAfterTwentyMinutes() {
-    assertFalse(DogGrowthRules.advancesStage(23999));
-    assertTrue(DogGrowthRules.advancesStage(24000));
+  @ParameterizedTest(name = "{0} at {1} ticks advances={2}")
+  @CsvSource({
+    "YEARLING, 23999, false",
+    "YEARLING, 24000, true",
+    "ADULT, 47999, false",
+    "ADULT, 48000, true",
+    "PRIME, 999999, false",
+    "ALPHA, 999999, false",
+  })
+  @DisplayName("a yearling grows after 20 minutes, an adult after 40, and a prime never on its own")
+  void stageAdvancesOnItsOwnClock(
+      final DireWolfGrowthStage stage, final int ticks, final boolean expected) {
+    assertEquals(expected, DogGrowthRules.advancesStage(stage, ticks));
+  }
+
+  @ParameterizedTest(name = "{0} battles -> {1} still needed")
+  @CsvSource({"0, 20", "7, 13", "19, 1", "20, 0", "35, 0"})
+  @DisplayName("an evolution needs twenty battles won beside the owner")
+  void battlesStillNeeded(final int won, final int needed) {
+    assertEquals(needed, DogGrowthRules.battlesStillNeeded(won));
+  }
+
+  @ParameterizedTest(name = "{0} tamed={1} battles={2} -> {3}")
+  @CsvSource({
+    "PRIME, true, 20, true",
+    "PRIME, true, 19, false",
+    "PRIME, false, 20, false",
+    "ADULT, true, 20, false",
+    "ALPHA, true, 50, false",
+  })
+  @DisplayName("only a tamed prime with twenty battles won can evolve")
+  void canEvolve(
+      final DireWolfGrowthStage stage,
+      final boolean tamed,
+      final int battles,
+      final boolean expected) {
+    assertEquals(expected, DogGrowthRules.canEvolve(stage, tamed, battles));
   }
 }

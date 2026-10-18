@@ -107,6 +107,7 @@ public final class DogInteractions {
         firstHandled(
             List.of(
                 () -> this.tryBindWhistle(player, itemStack),
+                () -> this.tryEvolve(player, itemStack),
                 () -> this.tryCure(player, itemStack),
                 () -> this.tryFeedTreat(player, itemStack),
                 () -> this.tryHeal(player, itemStack),
@@ -224,6 +225,12 @@ public final class DogInteractions {
       return null;
     }
     return this.dog.getEquipmentHolder().tryDirectEquip(player, hand, itemStack);
+  }
+
+  private @Nullable ActionResult tryEvolve(final PlayerEntity player, final ItemStack itemStack) {
+    return this.isDirectOwnerInteraction(player)
+        ? this.dog.getGrowth().tryEvolve(player, itemStack)
+        : null;
   }
 
   private @Nullable ActionResult tryTrimFur(

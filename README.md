@@ -39,9 +39,9 @@ animated. You can tame them, give them commands, play fetch, put them to bed, an
 Breeds differ in size, health, speed and bite. Some coats are rarer than others.
 
 The dire wolf is the rare one. It only roams the coldest peaks, slopes and ice fields, always in a pack with pups. A pup
-grows up over about an hour and a half, ending taller than a horse and stronger than any other dog. Dire wolves are
-harder to tame, they bark and howl, and they only breed with each other. Tame one of every coat to earn
-"Winter is Coming".
+grows into an adult bigger than any other dog, then a prime the size of a horse. To raise an alpha, bigger still, your
+prime has to win 20 battles beside you and then eat an Enchanted Golden Apple. Dire wolves are harder to tame, they
+bark and howl, and they only breed with each other. Tame one of every coat to earn "Winter is Coming".
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/main/docs/all%20huskies.png" alt="Husky coat variants" width="800">

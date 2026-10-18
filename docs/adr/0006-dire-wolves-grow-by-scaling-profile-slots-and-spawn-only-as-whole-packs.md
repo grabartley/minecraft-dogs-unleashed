@@ -15,7 +15,7 @@ Dire wolves are also meant to be rare and to live only in packs. Vanilla biome s
 
 There is one dire wolf rig, modelled at the yearling's proportions. Each growth stage carries a scale for the head, torso, legs and tail. The renderer turns those into one scale per bone, divided by the parent's so children never scale twice, and applies it around each bone's pivot on the matrix stack while the model is drawn. It then lifts the body so longer or shorter legs keep the paws on the ground, and shrinks the whole model so its height matches the stage's hitbox. Animations are authored once and every stage plays them.
 
-Stage stats are attribute modifiers on top of the preset's base values, saved with the entity's attributes, so a reload keeps both the stage and the current health.
+Stage stats are attribute modifiers on top of the preset's base values, saved with the entity's attributes, so a reload keeps both the stage and the current health. A yearling and an adult grow on a timer, the adult more slowly. A prime never grows on its own: it becomes an alpha only after winning battles beside its owner and eating a rare item, so alphas are earned rather than waited for.
 
 A breed whose spawn settings are marked pack only is left out of vanilla biome spawning. The mod's own pack spawner places it, and it places the whole pack or nothing. It still runs for those breeds when the cap-independent spawner option is off, because it is the only way they appear.
 

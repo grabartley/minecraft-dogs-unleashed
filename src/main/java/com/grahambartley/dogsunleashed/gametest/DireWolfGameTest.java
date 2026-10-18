@@ -4,7 +4,9 @@ import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
+import com.grahambartley.dogsunleashed.block.DogSleepSpotAssignment;
 import com.grahambartley.dogsunleashed.entity.DireWolfGrowthStage;
+import com.grahambartley.dogsunleashed.entity.DogGrowthRules;
 import com.grahambartley.dogsunleashed.entity.DogTraits;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
@@ -23,6 +25,8 @@ import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -32,6 +36,7 @@ import net.minecraft.test.TestContext;
 import net.minecraft.test.TestFunction;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.GameMode;
 
 public final class DireWolfGameTest implements FabricGameTest {
 
@@ -46,7 +51,7 @@ public final class DireWolfGameTest implements FabricGameTest {
     wolf.setHealth(10.0f);
     final NbtCompound nbt = new NbtCompound();
     wolf.writeCustomDataToNbt(nbt);
-    nbt.putInt(ModNbtKeys.GROWTH_TICKS_IN_STAGE, DireWolfGrowthStage.TICKS_PER_ADULT_STAGE - 1);
+    nbt.putInt(ModNbtKeys.GROWTH_TICKS_IN_STAGE, DireWolfGrowthStage.YEARLING.ticksToGrow() - 1);
     wolf.readCustomDataFromNbt(nbt);
 
     context.runAtTick(
@@ -128,8 +133,8 @@ public final class DireWolfGameTest implements FabricGameTest {
             + "/"
             + reloaded.getMaxHealth());
     context.assertTrue(
-        Math.abs(reloaded.getHeight() - 1.6f) < 0.001f,
-        "A reloaded prime keeps its 1.6 block hitbox, not " + reloaded.getHeight());
+        Math.abs(reloaded.getHeight() - 1.75f) < 0.001f,
+        "A reloaded prime keeps its 1.75 block hitbox, not " + reloaded.getHeight());
     context.complete();
   }
 
@@ -183,6 +188,112 @@ public final class DireWolfGameTest implements FabricGameTest {
             .allMatch(
                 wolf -> wolf.getGrowth().stage().number() <= DireWolfGrowthStage.ADULT.number()),
         "No wild pack member is above stage 3");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 20)
+  public void aPrimeNeverGrowsIntoAnAlphaWithTimeAlone(final TestContext context) {
+    final UnleashedDogEntity wolf = spawnWolf(context);
+    wolf.getGrowth().setStage(DireWolfGrowthStage.PRIME);
+    final NbtCompound nbt = new NbtCompound();
+    wolf.writeCustomDataToNbt(nbt);
+    nbt.putInt(ModNbtKeys.GROWTH_TICKS_IN_STAGE, 10_000_000);
+    wolf.readCustomDataFromNbt(nbt);
+
+    context.runAtTick(
+        5,
+        () -> {
+          context.assertTrue(
+              wolf.getGrowth().stage() == DireWolfGrowthStage.PRIME,
+              "A prime only becomes an alpha through its bond, but it is "
+                  + wolf.getGrowth().stage());
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 20)
+  public void aPrimeEvolvesAfterTwentyBattlesAndAnEnchantedGoldenApple(final TestContext context) {
+    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    owner.changeGameMode(GameMode.SURVIVAL);
+    final UnleashedDogEntity wolf = spawnOwnedPrime(context, owner);
+    final ItemStack apple = new ItemStack(Items.ENCHANTED_GOLDEN_APPLE, 2);
+
+    for (int battle = 0; battle < DogGrowthRules.BATTLES_TO_EVOLVE - 1; battle++) {
+      wolf.getGrowth().recordBattle(context.spawnEntity(EntityType.ZOMBIE, REL_WOLF.east(2)));
+    }
+    wolf.getGrowth().tryEvolve(owner, apple);
+    context.assertTrue(
+        wolf.getGrowth().stage() == DireWolfGrowthStage.PRIME && apple.getCount() == 2,
+        "One battle short, the prime stays a prime and keeps the apple");
+
+    wolf.getGrowth().recordBattle(context.spawnEntity(EntityType.SKELETON, REL_WOLF.east(2)));
+    wolf.getGrowth().tryEvolve(owner, apple);
+    context.assertTrue(
+        wolf.getGrowth().stage() == DireWolfGrowthStage.ALPHA,
+        "After twenty battles the apple should make it an alpha, but it is "
+            + wolf.getGrowth().stage());
+    context.assertTrue(apple.getCount() == 1, "Evolving eats one apple");
+    context.assertTrue(
+        Math.abs(wolf.getHeight() - 2.5f) < 0.001f, "An alpha stands 2.5 blocks tall");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 20)
+  public void onlyHostileKillsNearTheOwnerCountAsBattles(final TestContext context) {
+    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final UnleashedDogEntity wolf = spawnOwnedPrime(context, owner);
+
+    wolf.getGrowth().recordBattle(context.spawnEntity(EntityType.SHEEP, REL_WOLF.east(2)));
+    context.assertTrue(wolf.getGrowth().battlesWon() == 0, "A sheep is not a battle");
+
+    owner.refreshPositionAndAngles(wolf.getX() + 40, wolf.getY(), wolf.getZ(), 0, 0);
+    wolf.getGrowth().recordBattle(context.spawnEntity(EntityType.ZOMBIE, REL_WOLF.east(2)));
+    context.assertTrue(
+        wolf.getGrowth().battlesWon() == 0, "A fight with the owner far away does not count");
+
+    owner.refreshPositionAndAngles(wolf.getX() + 2, wolf.getY(), wolf.getZ(), 0, 0);
+    wolf.getGrowth().recordBattle(context.spawnEntity(EntityType.ZOMBIE, REL_WOLF.east(2)));
+    context.assertTrue(
+        wolf.getGrowth().battlesWon() == 1, "A hostile kill beside the owner counts");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 20)
+  public void battlesWonSurviveASaveAndReload(final TestContext context) {
+    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final UnleashedDogEntity wolf = spawnOwnedPrime(context, owner);
+    for (int battle = 0; battle < 7; battle++) {
+      wolf.getGrowth().recordBattle(context.spawnEntity(EntityType.ZOMBIE, REL_WOLF.east(2)));
+    }
+    final NbtCompound nbt = new NbtCompound();
+    wolf.writeNbt(nbt);
+    final UnleashedDogEntity reloaded = ModEntities.DIRE_WOLF.create(context.getWorld());
+    reloaded.readNbt(nbt);
+
+    context.assertTrue(
+        reloaded.getGrowth().battlesWon() == 7,
+        "Reloaded battles should be 7 but were " + reloaded.getGrowth().battlesWon());
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 20)
+  public void aDireWolfCannotBeGivenABedOrADogHouse(final TestContext context) {
+    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final UnleashedDogEntity wolf = spawnWolf(context);
+    wolf.setOwnerUuid(owner.getUuid());
+    wolf.setTamed(true, true);
+    final BlockPos bed = REL_WOLF.west(2);
+    final BlockPos house = REL_WOLF.north(2);
+    context.setBlockState(bed, ModBlocks.DOG_BED.getDefaultState());
+    context.setBlockState(house, ModBlocks.DOG_HOUSE.getDefaultState());
+
+    for (final BlockPos spot : List.of(bed, house)) {
+      DogSleepSpotAssignment.setPendingAssignment(owner.getUuid(), wolf.getUuid());
+      context.useBlock(spot, owner);
+      context.assertTrue(
+          wolf.getAssignedBedPos().isEmpty(),
+          "A dire wolf must refuse " + context.getBlockState(spot).getBlock());
+    }
     context.complete();
   }
 
@@ -300,6 +411,16 @@ public final class DireWolfGameTest implements FabricGameTest {
     context.complete();
   }
 
+  private static UnleashedDogEntity spawnOwnedPrime(
+      final TestContext context, final ServerPlayerEntity owner) {
+    final UnleashedDogEntity wolf = spawnWolf(context);
+    owner.refreshPositionAndAngles(wolf.getX() + 2, wolf.getY(), wolf.getZ(), 0, 0);
+    wolf.setOwnerUuid(owner.getUuid());
+    wolf.setTamed(true, true);
+    wolf.getGrowth().setStage(DireWolfGrowthStage.PRIME);
+    return wolf;
+  }
+
   private static UnleashedDogEntity spawnWolf(final TestContext context) {
     final UnleashedDogEntity wolf = context.spawnEntity(ModEntities.DIRE_WOLF, REL_WOLF);
     wolf.setAiDisabled(true);
@@ -325,7 +446,7 @@ public final class DireWolfGameTest implements FabricGameTest {
             dog.getUuid(),
             dog.getOwnerUuid(),
             dog.getBreed(),
-            "Ghost",
+            "Frost",
             dog.getHealth(),
             dog.getMaxHealth(),
             dog.getBlockPos(),

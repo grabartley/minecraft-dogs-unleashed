@@ -132,7 +132,7 @@ public enum UnleashedDogBreed {
       false,
       new RenderTransforms(1.47f, 0.735f, 0.0f, 1.31f),
       new FurProfile(DogFurStage.OVERGROWN, 48000, 2),
-      new Nature(6, true, true)),
+      new Nature(6, true, true, false)),
   CROSS_BREED(
       "crossbreed",
       new FetchCarryProfiles(
@@ -323,7 +323,10 @@ public enum UnleashedDogBreed {
   public record FurProfile(DogFurStage maxStage, int ticksPerStage, int shearYieldPerStage) {}
 
   public record Nature(
-      int tameSuccessChance, boolean breedsOnlyWithOwnBreed, boolean growsThroughStages) {
-    public static final Nature ORDINARY = new Nature(3, false, false);
+      int tameSuccessChance,
+      boolean breedsOnlyWithOwnBreed,
+      boolean growsThroughStages,
+      boolean sleepsInBeds) {
+    public static final Nature ORDINARY = new Nature(3, false, false, true);
   }
 }

@@ -56,6 +56,11 @@ public final class DogSleepSpotAssignment {
     if (pendingDogUuid != null && world instanceof ServerWorld serverWorld) {
       final Entity entity = serverWorld.getEntity(pendingDogUuid);
       if (entity instanceof UnleashedDogEntity dog && dog.isOwner(player)) {
+        if (!dog.getBreed().nature().sleepsInBeds()) {
+          player.sendMessage(
+              Text.translatable("message.dogs-unleashed.bed_refused", dogName(world, dog)), true);
+          return ActionResult.SUCCESS;
+        }
         assign(serverWorld, pos, holder, dog);
         player.sendMessage(
             Text.translatable("message.dogs-unleashed.bed_assigned", dogName(world, dog)), true);

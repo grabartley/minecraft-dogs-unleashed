@@ -10,6 +10,7 @@ import com.grahambartley.dogsunleashed.advancement.PetResurrectedCriterion;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
 import com.grahambartley.dogsunleashed.command.DogsUnleashedCommand;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
+import com.grahambartley.dogsunleashed.entity.DireWolfBondListener;
 import com.grahambartley.dogsunleashed.entity.DogPlaySession;
 import com.grahambartley.dogsunleashed.listener.PendantEffectListener;
 import com.grahambartley.dogsunleashed.listener.PetLocationSyncListener;
@@ -66,6 +67,7 @@ public class DogsUnleashed implements ModInitializer {
     PetLocationSyncListener.initialize();
     ResurrectionRitualListener.initialize();
     PendantEffectListener.initialize();
+    DireWolfBondListener.initialize();
 
     ServerLifecycleEvents.SERVER_STARTING.register(ServerConfigService::loadFromWorld);
 
