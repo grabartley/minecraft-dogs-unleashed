@@ -33,7 +33,7 @@ Dogs Unleashed adds real dog breeds to Minecraft, each with its own look, coats,
 | Breeds feel distinct | Each breed has its own rig, animation set, painted coats, voice, size, stats and home biome (ADR 0003, 0005) |
 | Dogs are never lost | Dogs follow through portals, a whistle calls one from anywhere, and the Pet Manager lists and summons every dog (FIND-1 to FIND-12) |
 | Death has a second act | Graves, a lightning ritual, an undead life and a cure (DEATH-1 to DEATH-14) |
-| A breed that grows into a mount | The dire wolf grows through five stages, earns its alpha form in battle and can be ridden (DIRE-1 to DIRE-15, RIDE-1 to RIDE-9) |
+| A breed that grows into a mount | The dire wolf grows through five stages, earns its alpha form in battle and can be ridden (DIRE-1 to DIRE-13, RIDE-1 to RIDE-9) |
 | Dogs with a nose | A dog tracks a scent to a mob, an ore, a dig site or a treasure map's X (NOSE-1 to NOSE-12). No other dog mod tracks structures or map targets |
 | Point and command | Look at something and send your dog to it, with no menu (POINT-1 to POINT-8) |
 | Learning by doing | Dogs learn tricks the way real dogs do, by being rewarded for what they already do (TRICK-1 to TRICK-7) |
@@ -43,10 +43,10 @@ Dogs Unleashed adds real dog breeds to Minecraft, each with its own look, coats,
 ### Non-Goals
 
 - **Not a general pet mod.** It is about dogs. Cats, birds and other pets are out.
-- **Not a mount mod.** Only the dire wolf can be ridden, and only bareback. No saddles, and no riding for other breeds.
+- **Not a mount mod.** Only the dire wolf grows big enough to carry a rider, and it is ridden bareback. No saddles, and no riding for other breeds.
 - **Not a stats game.** No experience bars, levels or numeric bond meters on screen. Inspect cards show words and bars, never grinding targets.
-- **Not a replacement for the vanilla wolf.** Vanilla wolves stay as they are, apart from being able to wear dog armour.
-- **Not a shared skeleton.** Breeds are never made from one blended mesh or one shared texture layout. That approach was tried and reverted.
+- **Not a replacement for the vanilla wolf.** Vanilla wolves stay as they are (GEAR-7).
+- **Not a shared skeleton.** Breeds are never made from one blended mesh or one shared texture layout, because the rigs differ too much (21 to 66 cubes) to blend.
 
 ## 2. Release Scope
 
@@ -64,10 +64,6 @@ This document specifies the Dogs Unleashed alpha line for Minecraft 1.21.1 on Fa
 
 | Out | Why |
 |---|---|
-| Riding any breed but the dire wolf | Only the dire wolf grows big enough to carry a rider convincingly |
-| Saddles or tack for riding | A wolf is ridden bareback |
-| A charge-up bar or rearing like a horse | A wolf leaps, it does not rear |
-| A shared skeleton, shared UV template or mesh blending between breeds | Tried and reverted. Rigs differ too much (21 to 66 cubes) to blend |
 | Generated fur | It never reached the quality the mod needs. Fur is hand made per rig (ADR 0005) |
 | Projecting armour from a shared sheet | Armour is painted onto each breed's own torso cubes instead (ADR 0003) |
 | A separate zombie model per breed | The undead look is one overlay projected onto every rig (ADR 0006) |
@@ -78,7 +74,6 @@ This document specifies the Dogs Unleashed alpha line for Minecraft 1.21.1 on Fa
 | Dogs dying of old age | Aging is meant to be gentle, so seniors never die of age |
 | Making new maps by scent | Scent reads existing map targets only |
 | Personality changes that stop a dog obeying | Traits colour behaviour but never override a command |
-| Gametest sharding | Test time is dominated by fixed startup, not test count |
 
 ### Product Decisions
 
@@ -86,17 +81,16 @@ Decisions the product owner has made where the sources could be read more than o
 
 | Question | Decision | Requirement |
 |---|---|---|
-| Can a stranger dye, heal, cure or breed someone else's dog? | Only the owner dyes or breeds. Anyone may heal or start a cure, as a kindness | PERM-4, PERM-5 |
+| Can a stranger dye, heal, cure or breed someone else's dog? | Only the owner dyes or breeds. Anyone may heal or start a cure, as a kindness | GEAR-10, FAM-1, PERM-4 |
 | What do shears do on an armoured dog? | Always trim fur. Armour comes off only through the gear screen | GEAR-9 |
 | Which dogs come with you through portals and long teleports? | Follow and Heel dogs, from anywhere. Everyone else stays | FIND-2 |
 | Do dire wolves sleep? | They nap on the ground, about 3 minutes by day and 3 by night, only when idle and safe | SLEEP-14 |
 | Does the resurrection ritual need a storm? | No. Any lightning that strikes the rod works, including a Channeling trident | DEATH-7 |
 | Does a dog lost for good leave a grave? | Yes, as a memorial that says the dog cannot come back | DEATH-12 |
-| Can adult dire wolves from spawn eggs be tamed? | No. Only pups can be won, whatever their source | DIRE-14 |
-| Is the "Winter is Coming" advancement title kept? | Yes | DIRE-15 |
+| Can adult dire wolves from spawn eggs be tamed? | No. Only pups can be won, whatever their source | TAME-4 |
+| Is the "Winter is Coming" advancement title kept? | Yes | DIRE-13 |
 | Where does the command wheel get room for new actions? | One Actions sector opens a second ring. Existing sectors keep their places | CMD-14 |
 | Where the Dog Rig Profiles plan and a decision record disagree, which wins? | The decision record: fur is hand made, armour is painted per torso | LOOK-5 |
-| Are new art deliverables phased? | No. Every art piece a feature needs is its own deliverable | Section 8, Look and Sound |
 
 ## 3. Actors
 
@@ -108,7 +102,7 @@ Decisions the product owner has made where the sources could be read more than o
 | **Delivery recipient** | To receive items a messenger dog brings, and nothing more |
 | **Server operator** | To configure every option from the command line, look up and summon any player's dogs, and trust that clients cannot cheat |
 | **Pack author** | To tune spawn rates, packs and growth, and change data-driven content (scent rules, loot tables, tags) without code |
-| **Artist** | To add a breed or a coat through data and assets, with no code change per breed |
+| **Artist** | To add a breed through a preset entry, a rig, coats and a profile, and a coat through data and assets, with no per-breed code in any feature (LOOK-7) |
 | **Wild dogs and packs** | Not people, but they act on their own: wild dire wolf packs hunt, guard pups and hold grudges |
 | **Vanilla mobs** | Foxes raid caches, raiders trigger alarms, warded mobs are turned away. They behave as vanilla does unless a requirement says otherwise |
 | **A vanilla client** | Cannot join: the mod adds entities, blocks and items, so the client must have the mod installed. Every rule is still enforced by the server, so a client that lies is no better off |
@@ -171,7 +165,7 @@ Decisions the product owner has made where the sources could be read more than o
 
 **Actor:** New player.
 
-Each breed lives in its home biomes and spawns there in small groups. Dire wolves spawn only as whole packs in the coldest places, always with a pup and a grown wolf. Strays turn up in villages, and the wandering trader now and then sells a puppy in a basket.
+Each breed lives in its home biomes and spawns there in small groups. Dire wolves spawn only as whole packs in the coldest places, always with a pup and an older wolf. Strays turn up in villages, and the wandering trader now and then sells a puppy in a basket.
 
 | Breed | Home | Group |
 |---|---|---|
@@ -216,7 +210,7 @@ Most breeds are tamed with meat or a bone. A dire wolf can only be won as a pup,
 | TAME-1 | Taming foods are raw and cooked chicken, beef, porkchop, mutton and rabbit, rotten flesh, and bones |
 | TAME-2 | A founding breed tames on a 1 in 3 roll per taming food |
 | TAME-3 | On taming, the dog becomes the player's, sits, gets a pet record with a random name, and the player is offered a naming screen. Names are 1 to 32 characters with control characters removed |
-| TAME-4 | A wild dire wolf can be won only as a pup, and never on a random roll |
+| TAME-4 | A dire wolf can be won only as a wild pup, and never on a random roll. Adults cannot be tamed, whatever their source |
 | TAME-5 | Each pup keeps a trust value per player from 0 to 100. Raw meat adds 20, a bone or cooked meat adds 10, with a 2 second cooldown per pup. Rotten flesh and anything else is refused and kept |
 | TAME-6 | Killing a hostile mob within 16 blocks of a pup adds 20 trust, and killing a rabbit, chicken, fox or sheep adds 15, with a 5 second cooldown |
 | TAME-7 | Spooking the pack costs 15 trust. Trust fades by 1 every 10 seconds while the player is offline or more than 24 blocks away |
@@ -280,7 +274,7 @@ Right-clicking your own dog opens the command wheel. The dog takes a standing co
 | Sneak and use the whistle while looking at a block | The dog runs there and stays |
 | Sneak and use the whistle while looking at a mob | The dog attacks it |
 | Sneak and use the whistle while looking at a dropped item | The dog fetches it to you |
-| Use the whistle without sneaking | Summons the dog, as before (FIND-6) |
+| Use the whistle without sneaking | Summons the dog (FIND-6) |
 
 | ID | Requirement |
 |---|---|
@@ -337,7 +331,7 @@ Right-clicking your own dog opens the command wheel. The dog takes a standing co
 |---|---|
 | SLEEP-1 | Dog beds are crafted in any carpet colour. Dog houses are 2 by 2 by 2 and crafted with a cushion of any carpet colour |
 | SLEEP-2 | A bed or house holds one dog. Assigning a new dog clears the old dog's link |
-| SLEEP-3 | Only the owner can assign their dog, and only to a bed in the same dimension |
+| SLEEP-3 | Only the owner can assign their dog |
 | SLEEP-4 | A dog with a bed goes to it by itself in its sleep window when within the Auto-Sleep Range, unless leashed, sitting, or woken by hand earlier in the same window |
 | SLEEP-5 | Living dogs don't sleep in rain or thunder. Undead dogs sleep by day, whatever the weather |
 | SLEEP-6 | Being leashed, hurt or given a command wakes a sleeping dog |
@@ -346,9 +340,9 @@ Right-clicking your own dog opens the command wheel. The dog takes a standing co
 | SLEEP-9 | Breaking a bed or house, or the dog's death, clears the assignment |
 | SLEEP-10 | A bed or house drops itself with its colour. A broken house drops once |
 | SLEEP-11 | Any player may recolour a bed or house with a dye |
-| SLEEP-12 | A bed remembers its dimension. A dog in a different dimension from its bed does not try to sleep there |
+| SLEEP-12 | A bed remembers its dimension. A dog can be assigned only to a bed in its own dimension, and a dog in another dimension from its bed does not try to sleep there |
 | SLEEP-13 | A dog picks one of its breed's sleep poses and keeps it for that nap, so a sleeping pack doesn't look cloned |
-| SLEEP-14 | Dire wolves can't be given beds. A tamed dire wolf naps on the ground for about 3 in-game minutes in the day and about 3 at night, only when idle and safe: nothing to do, no hostile mob within 16 blocks, not hurt in the last 30 seconds, not ridden, leashed or playing, on solid ground. If it cannot nap safely it skips the nap |
+| SLEEP-14 | Dire wolves can't be given beds. A tamed dire wolf naps on the ground for about 3 in-game minutes in the day and about 3 at night, only when idle and safe: on Follow, Stay, Guard or Free Roam with nothing to do, no hostile mob within 16 blocks, not hurt in the last 30 seconds, not ridden, leashed or playing, on solid ground. If it cannot nap safely it skips the nap. A command, damage, a hostile coming near or its owner mounting it wakes it |
 
 **Not supported:** two dogs in one bed; beds that work across dimensions.
 
@@ -390,6 +384,7 @@ The gear screen, opened from the wheel, has slots for armour, a pendant, a cosme
 | GEAR-19 | Cosmetics render on the dog in every pose, clear of armour, pendants and ears |
 | GEAR-20 | Saddlebags (leather and a chest) add 9 item slots to the gear screen and show on the dog |
 | GEAR-21 | The gear screen closes if the owner moves out of 8 blocks or the dog dies |
+| GEAR-22 | The gear screen looks like vanilla's horse inventory: the vanilla container background and slot art, a live view of the dog in the preview box, and greyed empty-slot icons for the pendant and cosmetic slots. Hovering an empty dog slot names it and says what it holds |
 
 **Not supported:** gear on other players' dogs; stacking several pendants.
 
@@ -426,13 +421,13 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 |---|---|
 | FIND-1 | Every tamed dog has a pet record that outlives the entity: name, breed, owner, life state, last known place and stats |
 | FIND-2 | After a portal trip, or a teleport of 16 blocks or more in the same world, the owner's Follow and Heel dogs join them from anywhere, unless asleep in a bed or already within 12 blocks (Section 4) |
-| FIND-3 | A dog that follows lands on a safe spot near the player. If there is none, it stays where it was |
+| FIND-3 | A dog that follows (FIND-2) lands on a safe spot near the player. If there is none, it stays where it was |
 | FIND-4 | A dog whistle (gold, string and wool) binds to one of your dogs by right-clicking it |
 | FIND-5 | A whistle only works for its binder. Another player using it does nothing |
-| FIND-6 | Using a bound whistle summons the dog from anywhere, loading it if needed, with a 1 second cooldown |
+| FIND-6 | Using a bound whistle summons the dog from anywhere, loading it if needed, with a 1 second cooldown. A summon, from the whistle, the Pet Manager or an operator, wakes the dog, sets it to Follow and places it on a safe spot beside the player, or on the player's own spot if there is none |
 | FIND-7 | The Pet Manager lists every dog the player owns, with a portrait, search, breed filter and life state filter, 4 per page. Filters are remembered per player |
 | FIND-8 | Pet details show breed, coat, rarity, fur, owner, life state, health, age, riding and stamina (dire wolves), last known place, stats and family |
-| FIND-9 | The Pet Manager can summon any living or undead dog, sharing the whistle's 1 second cooldown |
+| FIND-9 | The Pet Manager can summon (FIND-6) any living or undead dog, sharing the whistle's 1 second cooldown |
 | FIND-10 | The Pet Manager shows saved data for dogs that aren't loaded. It never loads chunks to fill the list |
 | FIND-11 | The Pet Manager key is unbound by default, and a one-time toast suggests binding it |
 | FIND-12 | When a player joins, their tamed dogs within 32 blocks wag and show hearts, at most once a minute per dog |
@@ -447,18 +442,18 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 
 | ID | Requirement |
 |---|---|
-| FAM-1 | Two tamed living dogs breed with a breeding food (the taming foods without the bone). Only an owner may start breeding their dog |
+| FAM-1 | Two tamed living dogs breed with a breeding food (the taming foods without the bone). Only a dog's owner may start breeding it |
 | FAM-2 | Two of the same breed give that breed. Anything else gives a cross. Dire wolves breed only with dire wolves |
 | FAM-3 | A puppy belongs to the player who fed a parent, if that player owns it, otherwise to a parent's owner. It never belongs to a stranger |
 | FAM-4 | A cross's breed shares are the average of its parents'. One time in 20, one ancestor's share is nudged up by 15% (a throwback) |
 | FAM-5 | A cross's health, speed, damage and fur growth are the share-weighted average of its breeds, each varied by up to 5% |
 | FAM-6 | A cross takes its voice from one parent and renders on the rig of its largest share |
-| FAM-7 | A cross looks like a mix of its parents: coat tinted toward the other parents' colours by share, one parent's ear shape inherited whole, and proportions scaled by share. Pure breeds look exactly as before |
+| FAM-7 | A cross looks like a mix of its parents: coat tinted toward the other parents' colours by share, one parent's ear shape inherited whole, and proportions scaled by share. Pure breeds show no blending |
 | FAM-8 | Puppies follow a living parent, starting 3 to 16 blocks away and giving up beyond 32 |
 | FAM-9 | Every dog carries two alleles per gene: each coat locus of its breed, eye colour, and each trait |
 | FAM-10 | A puppy takes one random allele from each parent per gene, with about a 1 in 32 mutation chance |
 | FAM-11 | The dominant allele shows, or the recessive one when both alleles match. A rare coat can be carried for generations |
-| FAM-12 | Dogs from before genes existed get genes matching how they look, so nothing about them changes |
+| FAM-12 | A dog saved without genes gets genes matching how it looks, so nothing about it changes |
 | FAM-13 | The family tree shows parents, mates, siblings and children (32 each at most), with pan, zoom, expand and focus |
 | FAM-14 | The family tree shows each dog's visible genes, and marks the genes it carries once breeding has revealed them |
 | FAM-15 | A player may view the family tree of a dog they own, or of a dog related to one they own |
@@ -486,7 +481,7 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 | DEATH-11 | A dog that dies while undead is lost for good, unless it wears a Pendant of Loyalty |
 | DEATH-12 | A lost dog still leaves a grave, as a memorial. Its tooltip says it can't come back, and a ritual on it fizzles and says why |
 | DEATH-13 | An undead dog looks undead on every breed and coat through one shared overlay. Curing restores exactly its living look |
-| DEATH-14 | When an owner dies, their Follow dogs within 32 blocks go to the spot, lie down and attack hostile mobs within 8 blocks. They bark or howl when the owner respawns, and keep watch until the owner comes within 8 blocks or gives a command |
+| DEATH-14 | When an owner dies, their Follow and Heel dogs within 32 blocks go to the spot, lie down and attack hostile mobs within 8 blocks. They bark or howl when the owner respawns, and keep watch until the owner comes within 8 blocks or gives a command |
 
 **Not supported:** reviving a lost dog; reviving without a totem.
 
@@ -506,7 +501,7 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 
 | ID | Requirement |
 |---|---|
-| DIRE-1 | A pup grows into a yearling, a yearling into an adult after 20 minutes, an adult into a prime after 40, all scaled by Dire Wolf Growth Speed. At 0% no stage grows, pups included |
+| DIRE-1 | A pup, wild or bred, grows into a yearling, a yearling into an adult after 20 minutes, an adult into a prime after 40, all scaled by Dire Wolf Growth Speed. At 0% no stage grows, pups included |
 | DIRE-2 | The owner is told each time their wolf grows |
 | DIRE-3 | A prime that wins Alpha Battles fights (default 20) beside its owner, then eats an Enchanted Golden Apple from them, becomes an alpha with a howl. A battle is a kill of a hostile mob while the owner is within 16 blocks |
 | DIRE-4 | The wolf refuses the apple, saying why, if it is already an alpha, not a prime, or short of battles |
@@ -518,9 +513,7 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 | DIRE-10 | Wild young members never attack and keep 12 blocks from threats |
 | DIRE-11 | Pack hunting and pack defence are settings, both on by default |
 | DIRE-12 | Dire wolves howl and bark, and growl when angry |
-| DIRE-13 | Dire wolves breed only with dire wolves, and bred pups grow like wild ones |
-| DIRE-14 | Only pups can be tamed, whatever their source |
-| DIRE-15 | Tame one of every dire wolf coat to earn "Winter is Coming" |
+| DIRE-13 | Tame one of every dire wolf coat to earn "Winter is Coming" |
 | RIDE-1 | The owner rides a prime or alpha from the wheel's Ride sector when it is within reach, alive, not sitting, sleeping, playing or leashed, and not already carrying someone |
 | RIDE-2 | Steer with the camera and movement keys. Speed eases in and out. Turning slows at a gallop. Sneak to get off |
 | RIDE-3 | Holding sprint runs 1.6 times as fast while stamina lasts, never in water |
@@ -561,7 +554,7 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 
 **Not supported:** tracking players; making maps.
 
-**Enforcement:** server. Search costs are budgeted (PERF-3).
+**Enforcement:** server. Search costs are budgeted (PERF-2).
 
 ### 5.14 Teach Tricks
 
@@ -574,7 +567,7 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 | TRICK-3 | Five rewards teach the trick. The dog barks happily and the owner is told |
 | TRICK-4 | Learned tricks appear in the Actions ring. Picking one makes the dog do it |
 | TRICK-5 | Learned tricks are never forgotten, through death and resurrection |
-| TRICK-6 | Pups of a senior parent learn tricks twice as fast (AGE-3) |
+| TRICK-6 | How fast a pup learns depends on its parents (AGE-3) |
 | TRICK-7 | Advancements reward a first trick and all three |
 
 **Not supported:** teaching another player's dog; tricks on demand without learning them.
@@ -587,13 +580,13 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 
 | ID | Requirement |
 |---|---|
-| BOND-1 | Every tamed dog has a bond with its owner in five named steps from Stranger to Devoted. The inspect card shows the step's name, never a number |
+| BOND-1 | Every tamed dog has a bond with its owner in five named steps from Stranger to Devoted. Pet details show the step's name, never a number |
 | BOND-2 | Bond grows from walks together, play, fights won together, treats and grooming. Each source has a daily cap |
 | BOND-3 | Bond never drops from neglect. It resets only if the dog changes owner |
 | BOND-4 | Bond shows in body language: tail wag speed, a play bow when the owner returns after a while, and following closer |
 | BOND-5 | A closer bond gives a longer follow and teleport range and faster responses. At Devoted the dog comes to its owner when they are hurt |
 | BOND-6 | Bond survives death, resurrection and unloading |
-| TRAIT-1 | Every dog has one or two traits, shown on the inspect card and in the Pet Manager |
+| TRAIT-1 | Every dog has one or two traits, shown in pet details and on the inspect card |
 | TRAIT-2 | Brave: growls and steps between its owner and a hostile mob, never flees |
 | TRAIT-3 | Timid: cowers, stays behind its owner in fights, flees at higher health |
 | TRAIT-4 | Greedy: sometimes takes one food from an open chest or the ground near its owner and eats it |
@@ -614,7 +607,7 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 | ID | Requirement |
 |---|---|
 | AGE-1 | Dog Aging is off by default. With it off, nothing ages |
-| AGE-2 | An adult becomes a senior after a set number of in-game days (100 by default). Seniors have a grey muzzle, walk a little slower and nap more |
+| AGE-2 | An adult becomes a senior after a set number of in-game days (100 by default). Seniors have a grey muzzle, walk a little slower and nap more. Pet details and the inspect card show a senior as one |
 | AGE-3 | Pups of a senior parent learn tricks twice as fast and start one bond step higher |
 | AGE-4 | Seniors never die of age |
 | AGE-5 | Dire wolves age only after their adult stage, and aging never changes their size |
@@ -697,7 +690,7 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 | WORK-3 | Finds come from data loot tables per biome group, rolled from the biomes within about 1000 blocks of where it was sent, mostly common items and sometimes a rare one |
 | WORK-4 | The map is centred on the furthest biome it visited, with a marker at the find |
 | WORK-5 | One trip per dog at a time. A sitting, sleeping, ridden or undead dog can't go |
-| WORK-6 | Deliver, in the Actions ring, sends a dog wearing saddlebags to an online player chosen from a list. It arrives after a travel time based on distance and waits for them to open its bags, then comes home the same way |
+| WORK-6 | Deliver, in the Actions ring, sends a dog wearing saddlebags to an online player chosen from a list. It arrives after a travel time based on distance and waits for them to open its bags, then comes home the same way. Delivery works across dimensions and takes a fixed extra time |
 | WORK-7 | A recipient can take items from the bags, but not change the dog's gear or commands |
 | WORK-8 | If the recipient leaves mid-trip, the dog returns to its owner with everything |
 | WORK-9 | An owned dog barks toward raiders, a patrol or a raid within 48 blocks, with a subtitle that says which way, until told to Sit or Stay |
@@ -750,7 +743,7 @@ New features add their own settings (SPAWN-10, GROOM-10, AGE-1 and others) under
 | CFG-7 | Settings sync to every player, so the screen shows live values |
 | CFG-8 | `config reset` restores every default |
 | CFG-9 | The settings screen opens from Mod Menu or the Pet Manager. Without permission it is read-only |
-| CFG-10 | `/dogsunleashed list <player>`, `summon <player> <petId>` and `find <petId>` let an operator look up and call any player's dogs |
+| CFG-10 | `/dogsunleashed status` shows the current settings. `list <player>`, `summon <player> <petId>` and `find <petId>` let an operator look up and call any player's dogs |
 
 **Enforcement:** server. See PERM-1.
 
@@ -788,30 +781,28 @@ The adversary is a modified client that can send any packet with any value. Hidi
 | Heal with food | yes | yes | yes | yes |
 | Start a cure | yes | yes | yes | yes |
 | Place or take a grave totem, trigger the ritual | yes | yes | yes | yes |
-| Inspect a dog | yes | yes, read-only | yes | yes |
+| Inspect a dog | sees the same in pet details (FIND-8) | yes, read-only | yes | yes |
 | Rename, summon, list in Pet Manager | yes | no | no | no |
 | View a family tree | yes, or a dog related to one they own | if related to a dog they own | same as a player | same as a player |
 | Assign or unassign a bed | yes | no | no | no |
 | Recolour a bed or house | yes | yes | yes | yes |
 | Give a scent, teach tricks, hitch to a sled | yes | no | no | no |
 | Take items from a delivery | the sender | the named recipient only | no | no |
-| Change settings | no | no | yes | yes |
+| Change settings from the screen | no | no | yes | yes |
+| Change settings by command, `status` | no | no | yes | no, unless also an operator |
 | `list`, `summon`, `find` any player's dogs | no | no | yes | no, unless also an operator |
 
 ### Requirements
 
 | ID | Requirement |
 |---|---|
-| PERM-1 | Changing settings needs operator level 2, or being the host of the integrated server. A refused change re-sends the current settings to that player |
-| PERM-2 | Every owner-only action checks the sender owns the dog, that the dog is alive and in the sender's world, on the server |
+| PERM-1 | `/dogsunleashed config` and `status` need operator level 2. The settings screen accepts operator level 2 or the host of the integrated server. A refused change re-sends the current settings to that player |
+| PERM-2 | Every owner-only action checks, on the server, that the sender owns the dog and that the dog is alive and in the sender's world |
 | PERM-3 | A dog has exactly one owner. Only taming, trust and breeding (FAM-3) set it |
-| PERM-4 | Only the owner can dye a collar or start breeding |
-| PERM-5 | Any player may heal a tamed dog with food or start a cure. This cannot change ownership |
-| PERM-6 | A whistle bound by one player does nothing for another |
-| PERM-7 | Names are trimmed, stripped of control characters, and refused if blank or over 32 characters |
-| PERM-8 | Family tree access is checked through lineage on the server, visiting at most 512 dogs |
-| PERM-9 | The server never accepts a target, position or value from a client that it can work out itself |
-| PERM-10 | Wild dogs belong to nobody. Only the server's rules act on them |
+| PERM-4 | Anything a stranger may do to a tamed dog (heal it, start a cure) never changes its ownership |
+| PERM-5 | Family tree access is checked through lineage on the server, visiting at most 512 dogs |
+| PERM-6 | The server never accepts a target, position or value from a client that it can work out itself |
+| PERM-7 | Wild dogs belong to nobody. Only the server's rules act on them |
 
 ## 7. Client And Server
 
@@ -837,23 +828,22 @@ There is no singleplayer mode in this mod's design. A singleplayer world is an i
 | CS-1 | Two players acting on one dog in the same tick get one consistent result, and only the owner's actions apply |
 | CS-2 | A hopper and a hand filling the same food bowl never duplicate or lose food |
 | CS-3 | Two players breaking or using one grave, bed or statue at once never duplicate its item |
-| CS-4 | A dog away on a job cannot be summoned, pointed or ridden until it returns |
-| CS-5 | Starting play mode with one dog ends any other play session for that player, anywhere on the server |
+| CS-4 | A dog away on a job cannot be summoned, pointed, ridden, bred or hurt until it returns |
 
 ### Per-Player State
 
 | ID | Requirement |
 |---|---|
-| CS-6 | Each player receives only their own pet records, trust values and Pet Manager filters |
-| CS-7 | Point markers, the stamina bar and the tug bar are shown only to the player concerned |
-| CS-8 | Inspect cards show trust only for the player looking |
+| CS-5 | Each player receives only their own pet records, trust values and Pet Manager filters |
+| CS-6 | Point markers, the stamina bar and the tug bar are shown only to the player concerned |
+| CS-7 | Inspect cards show trust only for the player looking |
 
 ### Side Separation
 
 | ID | Requirement |
 |---|---|
-| CS-9 | A dedicated server starts without loading any client class. A build check enforces it |
-| CS-10 | Mod Menu, JEI and EMI classes load only when those mods are present, and only on the client |
+| CS-8 | A dedicated server starts without loading any client class. A build check enforces it |
+| CS-9 | Mod Menu, JEI and EMI classes load only when those mods are present, and only on the client |
 
 ## 8. Non-Functional Requirements
 
@@ -864,18 +854,17 @@ There is no singleplayer mode in this mod's design. A singleplayer world is an i
 | SAFE-1 | No game mechanic duplicates or deletes an item the mod handles: fetch toys, gear, saddlebag contents, deliveries, bowls, caches, totems, graves |
 | SAFE-2 | No mechanic duplicates or deletes a dog. A dog moved between worlds keeps its id and leaves no twin |
 | SAFE-3 | A bad config file never stops a server starting (CFG-3, CFG-4) |
-| SAFE-4 | Every payload is size-limited: names 32, searches 64, breed lists 8, family lists 32, owner names 16 |
+| SAFE-4 | Every payload is size-limited (names are covered by TAME-3): searches 64, breed lists 8, family lists 32, owner names 16 |
 
 ### Performance
 
 | ID | Requirement |
 |---|---|
-| PERF-1 | Opening the Pet Manager never loads chunks (FIND-10) |
-| PERF-2 | Following and summoning load at most the chunk the dog was last seen in, for at most 20 ticks |
-| PERF-3 | Scent searches never scan a volume in one tick. They work in budgeted slices, and structure lookups run at most once per scent |
-| PERF-4 | The raid scan runs at most once a second, and not at all when no raider is loaded nearby |
-| PERF-5 | The extra spawner tries at most once every 60 seconds |
-| PERF-6 | Projected overlays and portraits are built once per look and rebuilt only after a resource reload |
+| PERF-1 | Following and summoning load at most the chunk the dog was last seen in, for at most 20 ticks |
+| PERF-2 | Scent searches never scan a volume in one tick. They work in budgeted slices, and structure lookups run at most once per scent |
+| PERF-3 | The raid scan runs at most once a second, and not at all when no raider is loaded nearby |
+| PERF-4 | The extra spawner tries at most once every 60 seconds |
+| PERF-5 | Projected overlays and portraits are built once per look and rebuilt only after a resource reload |
 
 ### Persistence
 
@@ -903,7 +892,7 @@ These follow the Dog Rig Profiles plan. Where that plan and a later decision rec
 | LOOK-4 | An effect shown on every breed (undead, mud, grey muzzle) is painted once on a shared sheet and projected onto each rig (ADR 0006). A rig may override any role with hand-made art where the projection looks wrong |
 | LOOK-5 | Fur is hand made on each rig and named in its profile (ADR 0005). Armour is painted onto each breed's own torso (ADR 0003). A pendant is one model, placed from the collar on every breed (ADR 0002, 0004). Harnesses, saddlebags and cosmetics are placed from profile roles |
 | LOOK-6 | Every breed answers to the same animation names. A new animation (sniff, dig, play bow, cower, growl, beg, roll over, play dead, tug, run) is added under one name on every rig that uses it, using rotation rather than position keys where it must hold up across sizes |
-| LOOK-7 | Adding a breed takes a rig, coats and a profile. Every existing feature then works on it with no code change |
+| LOOK-7 | Adding a breed takes a breed preset entry, a rig, coats and a profile. Armour, pendants, carried items, fur, overlays and gear then work on it from the profile, with no per-breed code in any feature |
 | LOOK-8 | A dire wolf is one rig at every growth stage, grown by scaling its profile roles (ADR 0007) |
 | LOOK-9 | A cross (FAM-7) stands on one parent's rig. Ears are inherited whole and never averaged. Colour and shape are inherited separately. Proportions are scaled while drawing, never by changing the model every dog of that breed shares |
 | LOOK-10 | A new feature never changes how an existing breed looks or moves unless that is its purpose. Every rendering change is checked against `main` |
@@ -926,16 +915,15 @@ These follow the Dog Rig Profiles plan. Where that plan and a later decision rec
 |---|---|
 | COMPAT-1 | Minecraft 1.21.1, Java 21, Fabric Loader 0.16.5 or later, Fabric API 0.107.0+1.21.1 or later, GeckoLib 4.7 or later |
 | COMPAT-2 | Mod Menu, JEI and EMI are optional. With them, settings and info pages appear. Without them, the mod works fully |
-| COMPAT-3 | Vanilla wolves keep their behaviour and gain only dog armour |
-| COMPAT-4 | Data-driven content (scent rules, loot tables, tags, spawn ground) can be changed by data packs |
-| COMPAT-5 | Shipped languages: English, German, Spanish, French, Brazilian Portuguese, Russian and Simplified Chinese |
-| COMPAT-6 | Every declared dependency is used |
+| COMPAT-3 | Data-driven content (scent rules, loot tables, tags, spawn ground) can be changed by data packs |
+| COMPAT-4 | Shipped languages: English, German, Spanish, French, Brazilian Portuguese, Russian and Simplified Chinese |
+| COMPAT-5 | Every declared dependency is used |
 
 ## 9. Release Criteria
 
 - Every use case's requirements hold on a dedicated server with two clients and in a singleplayer world, through the same code.
 - No item, dog or gear can be duplicated or lost by any mechanic the mod adds (SAFE-1, SAFE-2).
-- A dedicated server starts with no client classes loaded (CS-9).
+- A dedicated server starts with no client classes loaded (CS-8).
 - Every shipped breed looks and moves exactly as it did in the previous release, apart from changes a release sets out to make.
 - Every string is translated in every shipped language.
 - Every setting is reachable from the command line.

@@ -110,9 +110,9 @@ only operators can.
 
 | Setting                   | Default | What it does                                                                      |
 |---------------------------|---------|-----------------------------------------------------------------------------------|
-| Spawn Dogs in the Wild    | On      | Whether dogs spawn in their biomes. Biome spawns change after a world restart.   |
-| Spawn Rate                | 100%    | How often dogs spawn, from 0% to 500%. Biome spawns change after a restart.      |
-| Spawn Rate (per breed)    | 100%    | The same, for one breed. Biome spawns change after a restart.                    |
+| Spawn Dogs in the Wild    | On      | Whether dogs spawn in their biomes. Biome spawns change after a world restart.    |
+| Spawn Rate                | 100%    | How often dogs spawn, from 0% to 500%. Biome spawns change after a world restart. |
+| Spawn Rate (per breed)    | 100%    | The same, for one breed. Biome spawns change after a world restart.               |
 | Cap-Independent Spawner   | On      | Lets small packs of wild dogs spawn near you even in well-explored areas. Dire wolf packs spawn this way even when it is off. |
 | Dog Graves on Death       | On      | Whether a tamed dog leaves a grave when it dies. Its gear drops either way.                        |
 | Drop Leash on Play Mode   | On      | Off keeps the lead on, and fetch waits until you take it off.                     |
