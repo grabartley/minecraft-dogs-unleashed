@@ -74,5 +74,24 @@
     "fur_overgrown_hips"
   ],
   "trimmed_overlay": "dogs-unleashed:textures/entity/direwolf_trimmed.png",
-  "botched_overlay": "dogs-unleashed:textures/entity/direwolf_botched.png"
+  "botched_overlay": "dogs-unleashed:textures/entity/direwolf_botched.png",
+  "seats": [
+    "seat"
+  ],
+  "rider_pose": {
+    "rest": {
+      "lean": 12,
+      "right_arm": [-38, -16, 0],
+      "left_arm": [-38, 16, 0],
+      "right_leg": [-76, 22, 6],
+      "left_leg": [-76, -22, -6]
+    },
+    "gallop": {
+      "lean": 32,
+      "right_arm": [-30, -18, 0],
+      "left_arm": [-30, 18, 0],
+      "right_leg": [-58, 24, 6],
+      "left_leg": [-58, -24, -6]
+    }
+  }
 }

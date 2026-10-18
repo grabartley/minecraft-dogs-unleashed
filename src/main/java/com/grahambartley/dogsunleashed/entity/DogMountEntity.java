@@ -41,10 +41,10 @@ public abstract class DogMountEntity extends TameableEntity {
   @Override
   protected void tickControlled(final PlayerEntity controllingPlayer, final Vec3d movementInput) {
     super.tickControlled(controllingPlayer, movementInput);
-    this.setRotation(controllingPlayer.getYaw(), 0.0f);
-    this.prevYaw = this.getYaw();
-    this.bodyYaw = this.getYaw();
-    this.headYaw = this.getYaw();
+    this.setRotation(
+        MountTurning.turn(this.getYaw(), controllingPlayer.getYaw(), this.getRiding().pace()),
+        0.0f);
+    this.prevYaw = this.bodyYaw = this.headYaw = this.getYaw();
     this.getRiding().leapIfAsked(movementInput);
   }
 
@@ -66,7 +66,16 @@ public abstract class DogMountEntity extends TameableEntity {
   }
 
   @Override
+  public boolean canSprintAsVehicle() {
+    return this.getRiding().isRidden();
+  }
+
+  @Override
   public boolean canMoveVoluntarily() {
     return super.canMoveVoluntarily() && !this.getRiding().isRidden();
+  }
+
+  float jumpVelocity(final float power) {
+    return this.getJumpVelocity(power);
   }
 }

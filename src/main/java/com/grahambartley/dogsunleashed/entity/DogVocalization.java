@@ -121,6 +121,9 @@ public final class DogVocalization {
 
   private void playBark(final float pitch) {
     this.dog.playSound(this.barkSound(), DogsUnleashed.SERVER_CONFIG.barkVolume(), pitch);
+    if (this.dog.getRigSourceBreed().barkMovesJaw()) {
+      this.dog.triggerAnim(DogAnimationKeys.BARK, DogAnimationKeys.BARK);
+    }
     this.barkCooldownTicks = BARK_COOLDOWN_TICKS;
   }
 

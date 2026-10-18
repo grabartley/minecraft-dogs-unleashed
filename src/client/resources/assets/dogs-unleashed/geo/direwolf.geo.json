@@ -1912,11 +1912,11 @@
 				},
 				{
 					"name": "seat",
-					"parent": "body",
+					"parent": "waist",
 					"pivot": [
 						0,
-						7.7,
-						-1.2
+						7.3,
+						0
 					]
 				}
 			]

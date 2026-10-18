@@ -3,9 +3,13 @@
 	"package": "com.grahambartley.dogsunleashed.mixin.client",
 	"compatibilityLevel": "JAVA_21",
 	"client": [
+		"BipedEntityModelMixin",
+		"CameraMixin",
 		"GeoLeashCollarTintMixin",
 		"InGameHudMixin",
-		"LeashCollarTintMixin"
+		"LeashCollarTintMixin",
+		"LivingEntityRendererMixin",
+		"WorldRendererMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

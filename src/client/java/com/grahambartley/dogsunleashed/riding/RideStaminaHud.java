@@ -23,6 +23,10 @@ public final class RideStaminaHud {
     HudRenderCallback.EVENT.register(RideStaminaHud::render);
   }
 
+  public static float shownFraction(final float jumpCharge, final float stamina) {
+    return jumpCharge > 0.0f ? jumpCharge : stamina;
+  }
+
   public static int fillWidth(final float fraction) {
     return Math.round(Math.max(0.0f, Math.min(1.0f, fraction)) * BAR_WIDTH);
   }
@@ -35,12 +39,13 @@ public final class RideStaminaHud {
     }
     final int x = context.getScaledWindowWidth() / 2 - BAR_WIDTH / 2;
     final int y = context.getScaledWindowHeight() - BOTTOM_OFFSET;
-    final int fill = fillWidth(dog.getRiding().staminaFraction());
+    final float charge = dog.getRiding().jumpCharge();
+    final int fill = fillWidth(shownFraction(charge, dog.getRiding().staminaFraction()));
     RenderSystem.enableBlend();
     context.drawGuiTexture(BACKGROUND, x, y, BAR_WIDTH, BAR_HEIGHT);
     if (fill > 0) {
       context.drawGuiTexture(
-          dog.getRiding().isLockedOut() ? LOCKED_OUT : PROGRESS,
+          charge <= 0.0f && dog.getRiding().isLockedOut() ? LOCKED_OUT : PROGRESS,
           BAR_WIDTH,
           BAR_HEIGHT,
           0,

@@ -16,7 +16,12 @@ import com.grahambartley.dogsunleashed.render.layer.DogSheetOverlayLayer;
 import com.grahambartley.dogsunleashed.render.layer.UndeadEyeGlowLayer;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile;
 import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
+import com.grahambartley.dogsunleashed.riding.SeatTransform;
+import com.grahambartley.dogsunleashed.riding.SeatedRiders;
 import com.grahambartley.dogsunleashed.screen.DogCommandWheelScreen;
+import java.util.HashMap;
+import java.util.Map;
+import net.minecraft.client.render.Frustum;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -24,9 +29,11 @@ import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import software.bernie.geckolib.util.RenderUtil;
 
 public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
 
@@ -36,6 +43,8 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
   private DogFurStage frameStage = DogFurStage.NATURAL;
   private boolean frameArmoured;
   private @Nullable GrowthRigScale frameGrowth;
+  private final Matrix4f frameOrigin = new Matrix4f();
+  private final Map<String, SeatTransform> frameSeats = new HashMap<>();
 
   public DogRenderer(EntityRendererFactory.Context context) {
     super(context, new DogModel());
@@ -46,6 +55,33 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
     this.addRenderLayer(new DogSheetOverlayLayer(this));
     this.addRenderLayer(new DogArmourLayer(this));
     this.addRenderLayer(new DogPendantLayer(this));
+  }
+
+  @Override
+  public void render(
+      UnleashedDogEntity entity,
+      float entityYaw,
+      float partialTick,
+      MatrixStack poseStack,
+      VertexConsumerProvider bufferSource,
+      int packedLight) {
+    this.frameOrigin.set(poseStack.peek().getPositionMatrix());
+    this.frameSeats.clear();
+    super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
+    if (entity.hasPassengers()) {
+      SeatedRiders.drawRiders(entity, Map.copyOf(this.frameSeats), poseStack, partialTick);
+    }
+  }
+
+  @Override
+  public boolean shouldRender(
+      UnleashedDogEntity entity, Frustum frustum, double x, double y, double z) {
+    return super.shouldRender(entity, frustum, x, y, z)
+        || entity.getPassengerList().stream()
+            .anyMatch(
+                rider ->
+                    SeatedRiders.isSeated(rider)
+                        && frustum.isVisible(rider.getVisibilityBoundingBox()));
   }
 
   @Override
@@ -147,6 +183,9 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
       poseStack.scale(growthScale, growthScale, growthScale);
       poseStack.translate(-pivotX, -pivotY, -pivotZ);
     }
+    if (!isReRender && this.frameProfile.seats().contains(bone.getName())) {
+      this.captureSeat(poseStack, animatable, bone);
+    }
     super.renderRecursively(
         poseStack,
         animatable,
@@ -162,5 +201,20 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
     if (growthScale != 1.0f) {
       poseStack.pop();
     }
+  }
+
+  private void captureSeat(
+      final MatrixStack poseStack, final UnleashedDogEntity animatable, final GeoBone bone) {
+    poseStack.push();
+    RenderUtil.translateMatrixToBone(poseStack, bone);
+    RenderUtil.translateToPivotPoint(poseStack, bone);
+    RenderUtil.rotateMatrixAroundBone(poseStack, bone);
+    this.frameSeats.put(
+        bone.getName(),
+        SeatTransform.between(
+            this.frameOrigin,
+            poseStack.peek().getPositionMatrix(),
+            animatable.getRigSourceBreed().renderTransforms().bodyYawOffsetDegrees()));
+    poseStack.pop();
   }
 }

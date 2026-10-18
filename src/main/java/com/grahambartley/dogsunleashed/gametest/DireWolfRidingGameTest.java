@@ -8,7 +8,6 @@ import com.grahambartley.dogsunleashed.entity.DireWolfStamina;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.SurvivalTestPlayer;
-import com.grahambartley.dogsunleashed.network.handler.RideSprintNetworkHandler;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.mob.ZombieEntity;
@@ -134,8 +133,9 @@ public final class DireWolfRidingGameTest implements FabricGameTest {
           context.assertTrue(
               wolf.getRiding().stamina() == DireWolfStamina.PRIME_CAPACITY,
               "A fresh prime should start full, not " + wolf.getRiding().stamina());
+          owner.setSprinting(true);
           context.assertTrue(
-              RideSprintNetworkHandler.applySprint(owner, true), "The rider's sprint was refused");
+              wolf.getRiding().isSprinting(), "The rider sprinted but the wolf did not");
         });
     context.runAtTick(
         2 + SPRINT_TICKS,
@@ -166,7 +166,7 @@ public final class DireWolfRidingGameTest implements FabricGameTest {
     final ServerPlayerEntity owner = SurvivalTestPlayer.joinAt(context, REL_PLAYER);
     final UnleashedDogEntity wolf = ownedWolf(context, owner, DireWolfGrowthStage.ALPHA);
     wolf.getRiding().mount(owner);
-    context.runAtTick(2, () -> RideSprintNetworkHandler.applySprint(owner, true));
+    context.runAtTick(2, () -> owner.setSprinting(true));
     context.runAtTick(
         2 + SPRINT_TICKS,
         () -> {
@@ -181,19 +181,52 @@ public final class DireWolfRidingGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = RANGE, tickLimit = 20)
-  public void aSprintPacketFromSomeoneNotRidingIsIgnored(final TestContext context) {
+  public void onlyItsOwnRidersSprintMakesTheWolfSprint(final TestContext context) {
     final ServerPlayerEntity owner = SurvivalTestPlayer.joinAt(context, REL_PLAYER);
     final ServerPlayerEntity stranger = SurvivalTestPlayer.joinAt(context, REL_PLAYER);
     final UnleashedDogEntity wolf = ownedWolf(context, owner, DireWolfGrowthStage.PRIME);
-    context.assertFalse(
-        RideSprintNetworkHandler.applySprint(owner, true), "Sprint was accepted while on foot");
-    wolf.getRiding().mount(owner);
-    context.assertFalse(
-        RideSprintNetworkHandler.applySprint(stranger, true), "A stranger's sprint was accepted");
-    context.assertFalse(wolf.getRiding().isSprintHeld(), "The wolf is sprinting");
-    owner.stopRiding();
-    SurvivalTestPlayer.leave(context, owner);
-    SurvivalTestPlayer.leave(context, stranger);
+    owner.setSprinting(true);
+    stranger.setSprinting(true);
+    context.runAtTick(
+        2,
+        () -> {
+          context.assertFalse(wolf.getRiding().isSprinting(), "The wolf sprints with nobody on it");
+          context.assertFalse(wolf.canSprintAsVehicle(), "An empty wolf lets a rider sprint");
+          wolf.getRiding().mount(owner);
+          context.assertTrue(
+              wolf.canSprintAsVehicle(), "The ridden wolf refuses its rider's sprint");
+          context.assertTrue(
+              wolf.getRiding().isSprinting(), "The rider sprints but the wolf does not");
+          owner.setSprinting(false);
+          context.assertFalse(
+              wolf.getRiding().isSprinting(), "The wolf sprints on a stranger's say or by itself");
+          owner.stopRiding();
+          SurvivalTestPlayer.leave(context, owner);
+          SurvivalTestPlayer.leave(context, stranger);
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = RANGE, tickLimit = 20)
+  public void aRiddenWolfMovesAtItsStageSpeedOnTheRidersSide(final TestContext context) {
+    for (final DireWolfGrowthStage stage :
+        new DireWolfGrowthStage[] {DireWolfGrowthStage.PRIME, DireWolfGrowthStage.ALPHA}) {
+      final ServerPlayerEntity owner = SurvivalTestPlayer.joinAt(context, REL_PLAYER);
+      final UnleashedDogEntity wolf = ownedWolf(context, owner, stage);
+      wolf.setMovementSpeed(0.0f);
+      wolf.getRiding().mount(owner);
+      context.assertTrue(
+          Math.abs(wolf.getRiding().targetSpeed() - (float) stage.movementSpeed() * 0.55f)
+              < 1.0e-4f,
+          "A ridden "
+              + stage
+              + " should move at its stage speed "
+              + stage.movementSpeed()
+              + " even where its AI never ran, but moves at "
+              + wolf.getRiding().targetSpeed());
+      owner.stopRiding();
+      SurvivalTestPlayer.leave(context, owner);
+    }
     context.complete();
   }
 

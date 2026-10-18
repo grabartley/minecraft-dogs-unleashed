@@ -333,6 +333,13 @@ class UnleashedDogBreedTest {
 
   @ParameterizedTest
   @EnumSource(UnleashedDogBreed.class)
+  @DisplayName("only the dire wolf rig opens its jaw to bark")
+  void onlyTheDireWolfMovesItsJawToBark(final UnleashedDogBreed breed) {
+    assertEquals(breed == UnleashedDogBreed.DIRE_WOLF, breed.barkMovesJaw());
+  }
+
+  @ParameterizedTest
+  @EnumSource(UnleashedDogBreed.class)
   @DisplayName("only the dire wolf growls")
   void onlyTheDireWolfGrowls(final UnleashedDogBreed breed) {
     if (breed == UnleashedDogBreed.DIRE_WOLF) {

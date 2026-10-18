@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.grahambartley.dogsunleashed.riding.RiderPoseRange;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -21,12 +22,16 @@ public record RigProfile(
     Map<Slot, Set<String>> bones,
     Map<Overlay, Identifier> overlays,
     List<Texel> pupils,
-    Map<Identifier, Map<Slot, Identifier>> sheetOverrides) {
+    Map<Identifier, Map<Slot, Identifier>> sheetOverrides,
+    List<String> seats,
+    RiderPoseRange riderPose) {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RigProfile.class);
 
   private static final String PUPILS_KEY = "pupils";
   private static final String SHEET_OVERRIDES_KEY = "sheet_overrides";
+  private static final String SEATS_KEY = "seats";
+  private static final String RIDER_POSE_KEY = "rider_pose";
 
   public static final RigProfile EMPTY = new RigProfile(Map.of(), Map.of(), List.of(), Map.of());
 
@@ -68,11 +73,20 @@ public record RigProfile(
     bones = Map.copyOf(bones);
     overlays = Map.copyOf(overlays);
     pupils = List.copyOf(pupils);
+    seats = List.copyOf(seats);
     sheetOverrides =
         sheetOverrides.entrySet().stream()
             .collect(
                 Collectors.toUnmodifiableMap(
                     Map.Entry::getKey, entry -> Map.copyOf(entry.getValue())));
+  }
+
+  public RigProfile(
+      final Map<Slot, Set<String>> bones,
+      final Map<Overlay, Identifier> overlays,
+      final List<Texel> pupils,
+      final Map<Identifier, Map<Slot, Identifier>> sheetOverrides) {
+    this(bones, overlays, pupils, sheetOverrides, List.of(), RiderPoseRange.UPRIGHT);
   }
 
   public static RigProfile parse(final JsonObject json) {
@@ -98,7 +112,31 @@ public record RigProfile(
     } else if (json.has(PUPILS_KEY)) {
       LOGGER.warn("Ignoring pupils {}, expected a list of [x, y] pairs", json.get(PUPILS_KEY));
     }
-    return new RigProfile(bones, overlays, pupils, sheetOverridesOf(json));
+    return new RigProfile(
+        bones,
+        overlays,
+        pupils,
+        sheetOverridesOf(json),
+        seatsOf(json),
+        json.get(RIDER_POSE_KEY) instanceof JsonObject pose
+            ? RiderPoseRange.parse(pose)
+            : RiderPoseRange.UPRIGHT);
+  }
+
+  private static List<String> seatsOf(final JsonObject json) {
+    final List<String> seats = new ArrayList<>();
+    if (json.get(SEATS_KEY) instanceof JsonArray names) {
+      for (final JsonElement name : names) {
+        if (name.isJsonPrimitive() && name.getAsJsonPrimitive().isString()) {
+          seats.add(name.getAsString());
+        } else {
+          LOGGER.warn("Skipping seat {}", name);
+        }
+      }
+    } else if (json.has(SEATS_KEY)) {
+      LOGGER.warn("Ignoring seats {}, expected a list of bone names", json.get(SEATS_KEY));
+    }
+    return seats;
   }
 
   private static Map<Identifier, Map<Slot, Identifier>> sheetOverridesOf(final JsonObject json) {

@@ -14,4 +14,11 @@ class RideStaminaHudTest {
   void fillWidth(final float fraction, final int expected) {
     assertEquals(expected, RideStaminaHud.fillWidth(fraction));
   }
+
+  @ParameterizedTest(name = "charge {0}, stamina {1} -> {2}")
+  @CsvSource({"0,0.7,0.7", "0.4,0.7,0.4", "1,0.2,1"})
+  @DisplayName("the bar shows the jump charge while charging and stamina otherwise")
+  void shownFraction(final float charge, final float stamina, final float expected) {
+    assertEquals(expected, RideStaminaHud.shownFraction(charge, stamina));
+  }
 }

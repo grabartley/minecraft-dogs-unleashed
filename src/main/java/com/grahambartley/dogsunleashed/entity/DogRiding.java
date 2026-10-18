@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.config.DireWolfStaminaSettings;
 import net.minecraft.entity.EntityDimensions;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
@@ -20,9 +21,11 @@ public final class DogRiding {
   static final float ACCELERATION = 0.12f;
   static final float LEAP_FORWARD_BOOST = 0.35f;
 
+  static final float RIDE_SPEED_SCALE = 0.55f;
+
   private final UnleashedDogEntity dog;
-  private boolean sprintHeld;
-  private boolean jumpHeld;
+  private final ChargedJump chargedJump = new ChargedJump();
+  private float pendingLeapPower;
   private float rideSpeed;
   private float stamina;
   private boolean staminaKnown;
@@ -109,29 +112,24 @@ public final class DogRiding {
     return this.isRidden()
         && DireWolfStamina.sprints(
             new DireWolfStamina.State(this.staminaFraction(), this.isLockedOut()),
-            this.sprintHeld,
+            this.rider() != null && this.rider().isSprinting(),
             this.dog.isTouchingWater());
   }
 
-  public void setRiderInput(final boolean sprint, final boolean jump) {
-    this.sprintHeld = sprint;
-    this.jumpHeld = jump;
+  public void setJumpHeld(final boolean jump) {
+    final float power = this.chargedJump.tick(jump);
+    if (power > 0.0f) {
+      this.pendingLeapPower = power;
+    }
   }
 
-  public void setSprintHeld(final boolean sprint) {
-    this.sprintHeld = sprint;
-  }
-
-  public boolean isSprintHeld() {
-    return this.sprintHeld;
+  public float jumpCharge() {
+    return this.chargedJump.charge();
   }
 
   void tick() {
     if (!this.isRideableStage()) {
       return;
-    }
-    if (!this.isRidden()) {
-      this.sprintHeld = false;
     }
     if (!this.staminaKnown) {
       this.staminaKnown = true;
@@ -154,15 +152,30 @@ public final class DogRiding {
   }
 
   float speed() {
-    final float base = this.dog.getMovementSpeed();
-    final float target = this.isSprinting() ? base * DireWolfStamina.SPRINT_SPEED_MULTIPLIER : base;
-    this.rideSpeed = approach(this.rideSpeed, target);
+    this.rideSpeed = approach(this.rideSpeed, this.targetSpeed());
     return this.rideSpeed;
   }
 
+  public float pace() {
+    final float gallop = this.baseSpeed() * DireWolfStamina.SPRINT_SPEED_MULTIPLIER;
+    return gallop <= 0.0f ? 0.0f : this.rideSpeed / gallop;
+  }
+
+  private float baseSpeed() {
+    return (float) this.dog.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED)
+        * RIDE_SPEED_SCALE;
+  }
+
+  public float targetSpeed() {
+    final float base = this.baseSpeed();
+    return this.isSprinting() ? base * DireWolfStamina.SPRINT_SPEED_MULTIPLIER : base;
+  }
+
   void leapIfAsked(final Vec3d movementInput) {
-    if (this.dog.isLogicalSideForUpdatingMovement() && this.jumpHeld && this.dog.isOnGround()) {
-      this.leap(movementInput);
+    if (this.dog.isLogicalSideForUpdatingMovement()
+        && this.pendingLeapPower > 0.0f
+        && this.dog.isOnGround()) {
+      this.leap(movementInput, this.pendingLeapPower);
     }
   }
 
@@ -184,19 +197,21 @@ public final class DogRiding {
     }
   }
 
-  private void leap(final Vec3d movementInput) {
-    this.dog.jump();
+  private void leap(final Vec3d movementInput, final float power) {
+    final Vec3d velocity = this.dog.getVelocity();
+    this.dog.setVelocity(velocity.x, this.dog.jumpVelocity(power), velocity.z);
+    this.dog.velocityDirty = true;
     if (movementInput.z > 0.0) {
       final float yaw = this.dog.getYaw() * MathHelper.RADIANS_PER_DEGREE;
       this.dog.setVelocity(
           this.dog
               .getVelocity()
               .add(
-                  -MathHelper.sin(yaw) * LEAP_FORWARD_BOOST,
+                  -MathHelper.sin(yaw) * LEAP_FORWARD_BOOST * power,
                   0.0,
-                  MathHelper.cos(yaw) * LEAP_FORWARD_BOOST));
+                  MathHelper.cos(yaw) * LEAP_FORWARD_BOOST * power));
     }
-    this.jumpHeld = false;
+    this.pendingLeapPower = 0.0f;
   }
 
   private void store(final DireWolfStamina.State state) {

@@ -76,6 +76,25 @@ class RigProfileTest {
   }
 
   @Test
+  @DisplayName(
+      "seats read in the order the profile lists them, skipping anything that is not a name")
+  void seatsReadInOrder() {
+    final RigProfile profile =
+        RigProfile.parse(
+            JsonParser.parseString("{\"seats\": [\"seat_front\", 7, \"seat_back\"]}")
+                .getAsJsonObject());
+
+    assertEquals(List.of("seat_front", "seat_back"), profile.seats());
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(strings = {"{}", "{\"seats\": \"seat\"}"})
+  @DisplayName("a profile with no seat list has no seats")
+  void noSeatList(final String json) {
+    assertTrue(RigProfile.parse(JsonParser.parseString(json).getAsJsonObject()).seats().isEmpty());
+  }
+
+  @Test
   @DisplayName("pupils read as texels in the order the profile lists them")
   void pupilsReadAsTexels() {
     assertEquals(List.of(new Texel(7, 47), new Texel(10, 48)), PROFILE.pupils());
