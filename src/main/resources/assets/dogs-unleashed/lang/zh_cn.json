@@ -322,6 +322,7 @@
   "message.dogs-unleashed.direwolf.already_alpha": "%s已经是头狼了。",
   "command.dogs-unleashed.equipment": "装备",
   "command.dogs-unleashed.ride": "骑乘",
+  "command.dogs-unleashed.actions": "动作",
   "screen.dogs-unleashed.command_wheel.ride.breed": "只有长大的恐狼才能骑乘",
   "screen.dogs-unleashed.command_wheel.ride.too_young": "只有壮年狼或头狼才能驮你",
   "screen.dogs-unleashed.command_wheel.ride.busy": "现在无法驮你",

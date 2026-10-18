@@ -322,6 +322,7 @@
   "message.dogs-unleashed.direwolf.already_alpha": "%s уже вожак.",
   "command.dogs-unleashed.equipment": "Снаряжение",
   "command.dogs-unleashed.ride": "Верхом",
+  "command.dogs-unleashed.actions": "Действия",
   "screen.dogs-unleashed.command_wheel.ride.breed": "Ездить можно только на взрослых ужасных волках",
   "screen.dogs-unleashed.command_wheel.ride.too_young": "Вас выдержит только матёрый волк или вожак",
   "screen.dogs-unleashed.command_wheel.ride.busy": "Сейчас не может вас везти",

@@ -322,6 +322,7 @@
   "message.dogs-unleashed.direwolf.already_alpha": "%s já é um alfa.",
   "command.dogs-unleashed.equipment": "Equipamento",
   "command.dogs-unleashed.ride": "Montar",
+  "command.dogs-unleashed.actions": "Ações",
   "screen.dogs-unleashed.command_wheel.ride.breed": "Só lobos-terríveis crescidos podem ser montados",
   "screen.dogs-unleashed.command_wheel.ride.too_young": "Só um maduro ou alfa pode te carregar",
   "screen.dogs-unleashed.command_wheel.ride.busy": "Não pode te carregar agora",

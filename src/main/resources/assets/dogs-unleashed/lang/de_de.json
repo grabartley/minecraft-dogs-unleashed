@@ -322,6 +322,7 @@
   "message.dogs-unleashed.direwolf.already_alpha": "%s ist bereits ein Alpha.",
   "command.dogs-unleashed.equipment": "Ausrüstung",
   "command.dogs-unleashed.ride": "Reiten",
+  "command.dogs-unleashed.actions": "Aktionen",
   "screen.dogs-unleashed.command_wheel.ride.breed": "Nur ausgewachsene Schreckenswölfe sind reitbar",
   "screen.dogs-unleashed.command_wheel.ride.too_young": "Nur ein Prachtwolf oder Alpha kann dich tragen",
   "screen.dogs-unleashed.command_wheel.ride.busy": "Kann dich gerade nicht tragen",

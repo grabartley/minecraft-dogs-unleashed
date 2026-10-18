@@ -322,6 +322,7 @@
   "message.dogs-unleashed.direwolf.already_alpha": "%s is already an Alpha.",
   "command.dogs-unleashed.equipment": "Equipment",
   "command.dogs-unleashed.ride": "Ride",
+  "command.dogs-unleashed.actions": "Actions",
   "screen.dogs-unleashed.command_wheel.ride.breed": "Only grown dire wolves can be ridden",
   "screen.dogs-unleashed.command_wheel.ride.too_young": "Only a prime or alpha can carry you",
   "screen.dogs-unleashed.command_wheel.ride.busy": "Can't carry you right now",
