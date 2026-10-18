@@ -12,10 +12,11 @@
 			},
 			"bones": [
 				{
-					"name": "eyelid",
-					"pivot": [0, 3.1, 0],
+					"name": "eyelids",
+					"parent": "head",
+					"pivot": [0, 5.9, -4.1],
 					"cubes": [
-						{"origin": [-3, 2.9, -7.2], "size": [6, 6, 6], "inflate": -1.9, "uv": [1, 71]}
+						{"origin": [-3, 2.9, -7.1], "size": [6, 6, 6], "inflate": -2.45, "uv": [1, 71]}
 					]
 				},
 				{

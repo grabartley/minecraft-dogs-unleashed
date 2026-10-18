@@ -12,11 +12,21 @@
 			},
 			"bones": [
 				{
-					"name": "olhos",
-					"pivot": [0.35024, 10.9, -8.8],
+					"name": "eyelid_right",
+					"parent": "head",
+					"pivot": [-0.5472, 12.6762, -6.8846],
+					"rotation": [30.5, 0, 0],
 					"cubes": [
-						{"origin": [-4.34976, 10.2, -9.8], "size": [5, 5, 8], "inflate": -3.9, "uv": [2, 51]},
-						{"origin": [-1.84976, 10.2, -9.8], "size": [5, 5, 8], "inflate": -3.9, "uv": [2, 51], "mirror": true}
+						{"origin": [-3.0472, 10.1762, -10.8846], "size": [5, 5, 8], "inflate": -3.9, "uv": [2, 51]}
+					]
+				},
+				{
+					"name": "eyelid_left",
+					"parent": "head",
+					"pivot": [-0.5472, 12.6762, -6.8846],
+					"rotation": [30.5, 0, 0],
+					"cubes": [
+						{"origin": [-3.0472, 10.1762, -10.8846], "size": [5, 5, 8], "inflate": -3.9, "uv": [2, 51], "mirror": true}
 					]
 				},
 				{

@@ -85,16 +85,17 @@ class UndeadDogEyesTest {
 
   @ParameterizedTest(name = "{0}")
   @MethodSource("rigs")
-  @DisplayName("each pupil sits on the face of the head that the eyes slot covers")
-  void pupilsSitUnderTheEyesSlot(final UnleashedDogBreed rig) {
+  @DisplayName("each pupil sits on the face of the head that the closed eyelids cover")
+  void pupilsSitUnderTheClosedEyelids(final UnleashedDogBreed rig) {
     final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
     final RigProfile profile = BUNDLED.profileOf(rig);
+    ShippedRigs.pose(model, rig.serializedId(), "sleep", profile.bonesIn(Slot.EYES)::contains);
     final CubeGeometry.Bounds eyes = new CubeGeometry.Bounds();
     for (final String name : profile.bonesIn(Slot.EYES)) {
-      final CubeGeometry.Bounds bone =
-          CubeGeometry.posedBoundsOf(model.getBone(name).orElseThrow());
-      eyes.include(bone.min());
-      eyes.include(bone.max());
+      final GeoBone lid = model.getBone(name).orElseThrow();
+      lid.getCubes().stream()
+          .flatMap(cube -> ShippedRigs.liveCorners(lid, cube).stream())
+          .forEach(eyes::include);
     }
     final int width = (int) model.properties().textureWidth();
     final int height = (int) model.properties().textureHeight();
@@ -113,7 +114,7 @@ class UndeadDogEyesTest {
       assertTrue(onHead.isPresent(), rig + " pupil " + pupil + " is not on the head");
       assertTrue(
           eyes.containsXy(onHead.get().x, onHead.get().y),
-          rig + " pupil " + pupil + " at " + onHead.get() + " is outside the eyes slot");
+          rig + " pupil " + pupil + " at " + onHead.get() + " is not under the closed eyelids");
     }
   }
 

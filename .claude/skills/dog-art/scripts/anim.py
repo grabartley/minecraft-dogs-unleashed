@@ -1,6 +1,8 @@
 import json
+import uuid
 
 LOOP_MODES = {"loop": True, "hold": "hold_on_last_frame"}
+LOOP_NAMES = {True: "loop", "hold_on_last_frame": "hold"}
 CHANNELS = ("rotation", "position", "scale")
 FLIPPED_IN_V5 = {"rotation": (True, True, False), "position": (True, False, False), "scale": (False, False, False)}
 
@@ -105,3 +107,53 @@ def export_animations(project, step=0.05, tolerance=0.2):
 def fmt(time):
     text = f"{time:.4f}".rstrip("0").rstrip(".")
     return text if "." in text else text + ".0"
+
+
+def track_keys(track):
+    if isinstance(track, list) or (isinstance(track, dict) and "vector" in track):
+        return [(0.0, point_of(track), "linear")]
+    keys = []
+    for time, frame in sorted(track.items(), key=lambda item: float(item[0])):
+        interpolation = frame.get("lerp_mode", "linear") if isinstance(frame, dict) else "linear"
+        keys.append((float(time), point_of(frame), interpolation))
+    return keys
+
+
+def point_of(frame):
+    if isinstance(frame, dict):
+        frame = frame.get("vector", frame.get("post", frame.get("pre")))
+        if isinstance(frame, dict):
+            frame = frame.get("vector")
+    if not isinstance(frame, list):
+        frame = [frame] * 3
+    return [float(v) for v in frame]
+
+
+def import_animations(project, animations):
+    v5 = is_v5(project)
+    groups = {group["name"]: group["uuid"] for group in project.get("groups", [])}
+    skipped = set()
+    clips = []
+    for name, clip in animations["animations"].items():
+        animators = {}
+        for bone, channels in clip.get("bones", {}).items():
+            if bone not in groups:
+                skipped.add(bone)
+                continue
+            keyframes = [
+                {"uuid": str(uuid.uuid4()), "channel": channel, "time": time, "color": -1,
+                 "interpolation": interpolation,
+                 "data_points": [dict(zip("xyz", (fmt_number(v) for v in to_geckolib(value, channel, v5))))]}
+                for channel in CHANNELS if channel in channels
+                for time, value, interpolation in track_keys(channels[channel])]
+            animators[groups[bone]] = {"name": bone, "type": "bone", "keyframes": keyframes}
+        clips.append({"uuid": str(uuid.uuid4()), "name": name, "loop": LOOP_NAMES.get(clip.get("loop"), "once"),
+                      "override": False, "length": float(clip.get("animation_length", 0)), "snapping": 24,
+                      "selected": False, "anim_time_update": "", "blend_weight": "", "start_delay": "",
+                      "loop_delay": "", "animators": animators})
+    project["animations"] = clips
+    return sorted(skipped)
+
+
+def fmt_number(value):
+    return f"{value:.4f}".rstrip("0").rstrip(".") or "0"

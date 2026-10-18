@@ -12,8 +12,8 @@
     "bone5"
   ],
   "eyes": [
-    "eyelid",
-    "eyelid2"
+    "eyelid_left",
+    "eyelid_right"
   ],
   "pupils": [
     [

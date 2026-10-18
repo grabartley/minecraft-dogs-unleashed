@@ -83,13 +83,16 @@ Shared assets live under `src/main/resources/assets/dogs-unleashed/`:
    `leg_back_left`, `leg_back_right`. A slot lists only the bones of its own part, so `head` is the
    skull without the snout or ears. A slot may list several bones; list a cube-less parent bone
    together with the child bones that carry its cubes. Left and right are the dog's own left and
-   right, not the viewer's. Add `fur_shaggy`, `fur_overgrown`, `trimmed_overlay` and
+   right, not the viewer's. The `eyes` slot lists the eyelid bones, set up the way ADR 0009
+   describes: children of the head, named `eyelid_left` and `eyelid_right` (or `eyelids` for one
+   cube), hidden inside the head at rest, held closed by `sleep` and blinked closed once in the
+   `idle` loop with the same pose. Add `fur_shaggy`, `fur_overgrown`, `trimmed_overlay` and
    `botched_overlay` once the breed's fur art exists. Never rename bones in the rig to fit a slot.
    `RigProfilesTest` checks every breed and fails when a slot is missing, names a bone the rig does
    not have, or puts a left part on the right. Also add `pupils`: the two texels, as `[x, y]`
    pairs, where the eyes are painted on the head's face texture. Undead dogs glow on exactly
-   those texels. `UndeadDogEyesTest` fails when a pupil is off the head or outside the `eyes`
-   slot. Add a couple of the breed's coats to its `TEXTURES_BY_RIG` so the pupils are also
+   those texels. `UndeadDogEyesTest` fails when a pupil is off the head or not under the closed
+   eyelids. Add a couple of the breed's coats to its `TEXTURES_BY_RIG` so the pupils are also
    checked against dark eye pixels in the art. The body slots are also where shared overlay sheets
    land, so a new breed picks up every sheet effect without new art. If a sheet looks wrong on one
    slot of the new breed, add a hand-made atlas-sized texture under `sheet_overrides`, keyed by

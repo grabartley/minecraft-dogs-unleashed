@@ -49,7 +49,9 @@ maps, checks and diffs the exports. The workflow is:
    JSON, and the export flips them back. GeckoLib has no Catmull-Rom spline (its `catmullrom` is an
    ease per segment), so spline channels are baked into linear keys every `--step` seconds and
    simplified to stay within 0.2 of the curve. Judge poses with `bbmodel_render` on a clip, which
-   draws the project convention correctly.
+   draws the project convention correctly. The older breeds' projects started without clips;
+   `python3 $D animimport project.bbmodel <repo animation path> out.bbmodel` loads the shipped
+   clips into a copy of a project so they can be rendered and edited there.
 
 If a breed has no project yet, make one from the shipped export: `python3 $D tobbmodel geo png
 out.bbmodel`. Every shipped rig round-trips through that and the MCP export with zero mismatches.
@@ -70,6 +72,7 @@ ever committed. `.gitignore` refuses them.
 | `check geo png [--palette file] [--fail-unpainted] [--strict]` | Holes on mapped faces, paint no face reads, faces off the sheet, density outliers, palette drift | instant |
 | `diff a.png b.png [out.png] [--fail-on-change]` | How many visible pixels changed, and where | instant |
 | `patch base.png block.txt out.png --at U V` | Paint a palette-mapped text block onto a sheet | instant |
+| `animimport project.bbmodel in.animation.json out.bbmodel` | A copy of the project carrying the shipped clips, sign-corrected for Blockbench 5 | instant |
 | `tobbmodel geo png out.bbmodel` | A Blockbench project of a shipped rig with its texture embedded | instant |
 | `geocompare a.geo.json b.geo.json` | Bone-by-bone, cube-by-cube numeric diff of two rigs, including floored box UV sizes | instant |
 | `tidygeo in.geo.json out.geo.json` | Round an MCP export's float noise away before it reaches the repo | instant |
@@ -89,11 +92,11 @@ export proves the same conventions on the real rigs. Run the tests with:
 python3 -m unittest discover -s .claude/skills/dog-art/scripts -p "test_*.py"
 ```
 
-The rig profile beside the geo is read automatically. Its `eyes` bones are the closed-eye
-overlays that every awake animation parks inside the body and only `sleep` swings over the eyes,
-so renders hide them unless `--asleep`. Fur bones follow `--fur-stage` the way `FurLook` does in
-the client. Blockbench's renderer knows none of this: a contact sheet of the project shows the
-closed eyes, because it draws the rest pose with every bone.
+The rig profile beside the geo is read automatically. Its `eyes` bones are the eyelids, hidden
+inside the head at rest; `--asleep` moves them to the pose the `sleep` clip holds them in, read
+from the animation file beside the geo. Fur bones follow `--fur-stage` the way `FurLook` does in
+the client. Blockbench's renderer knows none of this, so a contact sheet of the project shows open
+eyes; render the `sleep` clip to see them closed.
 
 Views: `front`, `front34`, `left`, `right`, `back`, `back34`, `top`, or `--yaw` and `--pitch`.
 `left` is the dog's own left. The dachshund rig faces the other way (its body yaw offset is 180 in
@@ -169,10 +172,18 @@ assumption that produced it: the reference is always the shipped asset on `main`
   10 units tall and scaled up by `RenderTransforms` in `UnleashedDogBreed`. Keep the idiom when adding
   cubes to a rig; a cube with no inflate on a small rig lands at a fraction of the texel density and
   looks blurry beside its neighbours. `check` flags that as `DENSITY`.
-- Parts that only show in one clip are parked inside the head and moved out by that clip. The
-  eyelids work this way, and so do the dire wolf's four fangs: they sit inside the snout and jaw
-  and only `growl` slides them out. Every other clip leaves them hidden, so a rest-pose render
-  must stay pixel-identical after adding a parked part.
+- Parts that only show in some clips are parked inside the head and moved out by those clips. The
+  dire wolf's four fangs sit inside the snout and jaw and only `growl` slides them out. Every
+  other clip leaves them hidden, so a rest-pose render must stay pixel-identical after adding a
+  parked part.
+- Every rig sets up its eyelids the same way (ADR 0009). The bones are children of the head and
+  listed under `eyes` in the profile, named `eyelid_left` and `eyelid_right`, or `eyelids` when
+  one cube carries both lids. At rest they sit inside the head, so the eyes are open and a clip
+  that keeps them open does not key the lids at all. Closed is one pose per rig, a position
+  offset plus a scale where a lid is parked smaller than it shows, and every clip that closes the
+  eyes uses that pose: `sleep` holds it and `idle` blinks to it. `RigProfilesTest` fails when a
+  lid is not a head child, pokes out of the head at rest, or blinks to a different pose than it
+  sleeps in, and `UndeadDogEyesTest` fails when the closed lids miss the pupils.
 - Zero-width cubes are flat planes and the artist uses them: the shiba inu carries six `fur`
   planes behind the rump that draw at every fur stage because its profile lists no fur slots.
   `FurLook` hides a bone only when the profile names it under `fur_shaggy` or `fur_overgrown`.
@@ -208,9 +219,9 @@ the proportions of every shipped breed.
 
 ## Known Limits
 
-- Rest pose only, with the eyes and fur slots hidden the way the client does. Animation files are
-  not read, so a pose-dependent clip (an ear through a cheek when sitting) only shows in game or
-  in `bbmodel_render` with a clip.
+- Rest pose only, with the fur slots hidden the way the client does. The only animation read is
+  the closed-eye pose for `--asleep`, so a pose-dependent clip (an ear through a cheek when
+  sitting) only shows in game or in `bbmodel_render` with a clip.
 - Face brightness is the block ramp, not entity lighting. Judge tone relationships, not absolute
   brightness.
 - `tobbmodel` carries geometry and one texture, not animations. The artist's own project is the

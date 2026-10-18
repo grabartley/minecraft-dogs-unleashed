@@ -13,10 +13,11 @@ Commands:
   tobbmodel  geo png out.bbmodel [--name N]
   geocompare a.geo.json b.geo.json [--tolerance T]
   animexport project.bbmodel out.animation.json [--step S]
+  animimport project.bbmodel in.animation.json out.bbmodel
   tidygeo    in.geo.json out.geo.json [--places N]
 
 The rig profile beside the geo (rig_profiles/<name>.json) is read by default. Bones in its eyes slot are
-the closed-eye overlays the sleep animation swings into place, so they are hidden unless --asleep, and
+the eyelids, hidden inside the head at rest. --asleep moves them to the pose the sleep clip holds them in, and
 fur bones follow --fur-stage the way FurLook does in the client.
 """
 import argparse
@@ -53,7 +54,8 @@ def profile_for(args):
 def rig(args, hide=True):
     profile = profile_for(args)
     hidden = bake.hidden_bones(profile, getattr(args, "asleep", False), getattr(args, "fur_stage", "natural")) if hide else ()
-    description, cubes = bake.cubes_of(args.geo, profile, hidden)
+    poses = bake.closed_eyes(profile, bake.animation_path_for(args.geo)) if getattr(args, "asleep", False) else {}
+    description, cubes = bake.cubes_of(args.geo, profile, hidden, poses)
     return description.get("texture_width", 64), description.get("texture_height", 64), cubes
 
 
@@ -227,9 +229,20 @@ def cmd_animexport(args):
     print(f"wrote {args.out}: {', '.join(exported['animations'])}")
 
 
+def cmd_animimport(args):
+    project = anim.load_project(args.project)
+    with open(args.animations) as handle:
+        skipped = anim.import_animations(project, json.load(handle))
+    with open(args.out, "w") as handle:
+        json.dump(project, handle)
+    print(f"wrote {args.out}: {', '.join(clip['name'] for clip in project['animations'])}")
+    if skipped:
+        print(f"skipped bones the project lacks: {', '.join(skipped)}")
+
+
 def add_rig_options(parser):
     parser.add_argument("--profile", help="rig profile; defaults to rig_profiles/<name>.json beside the geo")
-    parser.add_argument("--asleep", action="store_true", help="show the eyes slot, as the sleep animation does")
+    parser.add_argument("--asleep", action="store_true", help="close the eyes with the pose the sleep clip holds them in")
     parser.add_argument("--fur-stage", choices=bake.FUR_STAGES, default="natural")
     parser.add_argument("--scale", type=float, default=8)
     parser.add_argument("--spin", type=float, default=0, help="extra yaw, 180 for a rig that faces +z")
@@ -323,6 +336,12 @@ def main(argv=None):
     p.add_argument("out")
     p.add_argument("--step", type=float, default=0.05, help="seconds between baked keys for catmullrom channels")
     p.set_defaults(func=cmd_animexport)
+
+    p = commands.add_parser("animimport")
+    p.add_argument("project")
+    p.add_argument("animations")
+    p.add_argument("out")
+    p.set_defaults(func=cmd_animimport)
 
     args = parser.parse_args(argv)
     return args.func(args) or 0
