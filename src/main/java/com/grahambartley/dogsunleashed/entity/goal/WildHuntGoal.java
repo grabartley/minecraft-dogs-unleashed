@@ -2,8 +2,6 @@ package com.grahambartley.dogsunleashed.entity.goal;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.WildPackRules;
-import java.util.Map;
-import java.util.WeakHashMap;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.MobEntity;
@@ -14,7 +12,6 @@ import net.minecraft.world.World;
 public class WildHuntGoal extends OwnTargetGoal<LivingEntity> {
 
   private static final int TARGET_CHANCE = 10;
-  private static final Map<World, PenMemory> PEN_MEMORIES = new WeakHashMap<>();
 
   private final UnleashedDogEntity dog;
 
@@ -48,8 +45,7 @@ public class WildHuntGoal extends OwnTargetGoal<LivingEntity> {
   static boolean isPenned(final LivingEntity target) {
     final World world = target.getWorld();
     final BlockPos center = target.getBlockPos();
-    return PEN_MEMORIES
-        .computeIfAbsent(world, ignored -> new PenMemory())
+    return PenMemory.of(world)
         .isPenned(center.asLong(), world.getTime(), () -> scanForPen(world, center));
   }
 

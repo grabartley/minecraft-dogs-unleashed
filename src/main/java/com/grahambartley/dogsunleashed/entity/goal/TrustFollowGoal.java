@@ -43,10 +43,11 @@ public class TrustFollowGoal extends Goal {
   @Override
   public void tick() {
     this.dog.getLookControl().lookAt(this.friend, 10.0f, this.dog.getMaxLookPitchChange());
-    if (--this.repathCooldown <= 0) {
-      this.repathCooldown = this.getTickCount(REPATH_TICKS);
-      this.dog.getNavigation().startMovingTo(this.friend, FOLLOW_SPEED);
+    if (--this.repathCooldown > 0) {
+      return;
     }
+    this.repathCooldown = this.getTickCount(REPATH_TICKS);
+    this.dog.getNavigation().startMovingTo(this.friend, FOLLOW_SPEED);
   }
 
   @Override
