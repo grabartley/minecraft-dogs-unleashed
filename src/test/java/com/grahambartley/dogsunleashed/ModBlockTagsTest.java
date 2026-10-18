@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import java.util.stream.Stream;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
@@ -13,9 +14,10 @@ class ModBlockTagsTest {
 
   static Stream<Arguments> entityTypesAndTheirSpawnGroundTags() {
     return Stream.of(
-        Arguments.of("goldenretriever", "spawnable_on/goldenretriever"),
-        Arguments.of("husky", "spawnable_on/husky"),
-        Arguments.of("direwolf", "spawnable_on/direwolf"));
+        Arguments.of(
+            UnleashedDogBreed.GOLDEN_RETRIEVER.serializedId(), "spawnable_on/goldenretriever"),
+        Arguments.of(UnleashedDogBreed.HUSKY.serializedId(), "spawnable_on/husky"),
+        Arguments.of(UnleashedDogBreed.DIRE_WOLF.serializedId(), "spawnable_on/direwolf"));
   }
 
   @ParameterizedTest(name = "{0} spawns on #dogs-unleashed:{1}")
