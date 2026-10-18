@@ -12,7 +12,6 @@ import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
 import com.grahambartley.dogsunleashed.model.FrisbeeModel;
 import com.grahambartley.dogsunleashed.model.StickModel;
 import com.grahambartley.dogsunleashed.model.TennisBallModel;
-import com.grahambartley.dogsunleashed.render.DogRenderer;
 import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.render.RenderLayer;
@@ -22,8 +21,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RotationAxis;
-import net.minecraft.util.math.Vec3d;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
@@ -88,21 +85,9 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
     if (fetchType == null) {
       return;
     }
-    final CarryProfile profile = animatable.getRigSourceBreed().carryProfileFor(fetchType);
-    final double forward = forwardOf(animatable);
-    final Vec3d grip = MouthGrip.of(bone, forward);
-    final ToyHold toyHold = ToyHold.forToy(fetchType.id().getPath());
-    final Vec3d hold = toyHold.point(forward);
-    poseStack.translate(
-        grip.x, grip.y + profile.verticalOffset(), grip.z + forward * profile.forwardOffset());
-    final float toyScale =
-        CarriedToySize.scaleInFrame(
-            profile.scale(),
-            animatable.getRigSourceBreed().renderTransforms().adultScale(),
-            scaleBelowEntityRoot(poseStack));
-    poseStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(toyHold.droopDegrees(forward)));
-    poseStack.scale(toyScale, toyScale, toyScale);
-    poseStack.translate(-hold.x, -hold.y, -hold.z);
+    CarryProfile profile = animatable.getRigSourceBreed().carryProfileFor(fetchType);
+    poseStack.translate(0.0, profile.verticalOffset(), profile.forwardOffset());
+    poseStack.scale(profile.scale(), profile.scale(), profile.scale());
 
     if (fetchType == FetchTypes.TENNIS_BALL) {
       renderGeo(
@@ -137,18 +122,6 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
 
     super.renderStackForBone(
         poseStack, bone, stack, animatable, bufferSource, partialTick, packedLight, packedOverlay);
-  }
-
-  private float scaleBelowEntityRoot(final MatrixStack poseStack) {
-    if (getRenderer() instanceof DogRenderer dogRenderer) {
-      return dogRenderer.scaleBelowEntityRoot(poseStack.peek().getPositionMatrix());
-    }
-    return 1.0f;
-  }
-
-  private static double forwardOf(final UnleashedDogEntity dog) {
-    return -Math.cos(
-        Math.toRadians(dog.getRigSourceBreed().renderTransforms().bodyYawOffsetDegrees()));
   }
 
   private static <A extends BlockEntity & GeoAnimatable> void renderGeo(
