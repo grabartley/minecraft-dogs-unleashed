@@ -105,7 +105,7 @@ public final class DogGenesGameTest implements FabricGameTest {
     original.writeCustomDataToNbt(nbt);
     nbt.remove(ModNbtKeys.GENES);
 
-    final UnleashedDogEntity reloaded = spawnHusky(context, OTHER_PARENT_POS);
+    final UnleashedDogEntity reloaded = spawnCarrier(context, OTHER_PARENT_POS);
     reloaded.readCustomDataFromNbt(nbt);
 
     final DogGenes genes = reloaded.getGenes().genes();

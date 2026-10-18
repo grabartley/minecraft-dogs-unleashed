@@ -171,4 +171,36 @@ class DogGenomeTest {
     nbt.remove(ModNbtKeys.GENOME_VOICE_BREED);
     assertEquals(UnleashedDogBreed.SHIBA_INU, DogGenome.fromNbt(nbt).voiceBreed());
   }
+
+  static Stream<Arguments> rigBreeds() {
+    return Stream.of(
+        Arguments.of(
+            "a pure breed rigs as itself",
+            UnleashedDogBreed.BEAGLE,
+            List.of(),
+            UnleashedDogBreed.BEAGLE),
+        Arguments.of(
+            "a cross rigs as its largest share",
+            UnleashedDogBreed.CROSS_BREED,
+            List.of(
+                new BreedShare(UnleashedDogBreed.HUSKY, 0.3f),
+                new BreedShare(UnleashedDogBreed.SHIBA_INU, 0.7f)),
+            UnleashedDogBreed.SHIBA_INU),
+        Arguments.of(
+            "a cross without a mix uses the fallback rig",
+            UnleashedDogBreed.CROSS_BREED,
+            List.of(),
+            UnleashedDogBreed.FALLBACK_RIG));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("rigBreeds")
+  @DisplayName("the rig breed is the dog's own breed, or a cross's dominant breed")
+  void rigBreedOfFollowsBreedAndMix(
+      final String label,
+      final UnleashedDogBreed breed,
+      final List<BreedShare> composition,
+      final UnleashedDogBreed expected) {
+    assertEquals(expected, DogGenome.rigBreedOf(breed, composition));
+  }
 }

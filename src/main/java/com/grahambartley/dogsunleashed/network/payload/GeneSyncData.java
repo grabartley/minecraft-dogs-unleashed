@@ -1,5 +1,8 @@
 package com.grahambartley.dogsunleashed.network.payload;
 
+import static com.grahambartley.dogsunleashed.network.PacketLimits.CARRIED_ALLELES_MAX_SIZE;
+import static com.grahambartley.dogsunleashed.network.PacketLimits.GENES_MAX_SIZE;
+
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.genome.AllelePair;
 import com.grahambartley.dogsunleashed.entity.genome.DogGeneLocus;
@@ -12,9 +15,6 @@ import net.minecraft.network.RegistryByteBuf;
 import org.jetbrains.annotations.Nullable;
 
 public record GeneSyncData(DogGeneLocus locus, int shown, List<Integer> carried) {
-
-  static final int MAX_GENES = DogGeneTrait.values().length;
-  static final int MAX_CARRIED = 2;
 
   public GeneSyncData {
     carried = List.copyOf(carried);
@@ -42,23 +42,23 @@ public record GeneSyncData(DogGeneLocus locus, int shown, List<Integer> carried)
   }
 
   static void writeList(final RegistryByteBuf buf, final List<GeneSyncData> genes) {
-    buf.writeVarInt(genes.size());
-    for (final GeneSyncData gene : genes) {
+    final List<GeneSyncData> written = genes.subList(0, Math.min(genes.size(), GENES_MAX_SIZE));
+    buf.writeVarInt(written.size());
+    for (final GeneSyncData gene : written) {
       buf.writeString(gene.locus.breed().serializedId());
       buf.writeVarInt(gene.locus.trait().ordinal());
       buf.writeVarInt(gene.shown);
-      buf.writeVarInt(gene.carried.size());
-      for (final int allele : gene.carried) {
+      final List<Integer> carried =
+          gene.carried.subList(0, Math.min(gene.carried.size(), CARRIED_ALLELES_MAX_SIZE));
+      buf.writeVarInt(carried.size());
+      for (final int allele : carried) {
         buf.writeVarInt(allele);
       }
     }
   }
 
   static List<GeneSyncData> readList(final RegistryByteBuf buf) {
-    final int size = buf.readVarInt();
-    if (size < 0 || size > MAX_GENES) {
-      throw new IllegalArgumentException("Too many genes: " + size);
-    }
+    final int size = Math.min(buf.readVarInt(), GENES_MAX_SIZE);
     final List<GeneSyncData> genes = new ArrayList<>(size);
     for (int i = 0; i < size; i++) {
       final GeneSyncData gene = read(buf);
@@ -73,10 +73,7 @@ public record GeneSyncData(DogGeneLocus locus, int shown, List<Integer> carried)
     final UnleashedDogBreed breed = UnleashedDogBreed.fromSerializedIdOrNull(buf.readString());
     final int traitOrdinal = buf.readVarInt();
     final int shown = buf.readVarInt();
-    final int carriedCount = buf.readVarInt();
-    if (carriedCount < 0 || carriedCount > MAX_CARRIED) {
-      throw new IllegalArgumentException("Too many carried alleles: " + carriedCount);
-    }
+    final int carriedCount = Math.min(buf.readVarInt(), CARRIED_ALLELES_MAX_SIZE);
     final List<Integer> carried = new ArrayList<>(carriedCount);
     for (int i = 0; i < carriedCount; i++) {
       carried.add(buf.readVarInt());

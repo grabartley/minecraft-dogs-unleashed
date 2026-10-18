@@ -14,6 +14,7 @@ import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.entity.variant.DogCoats;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
 import com.grahambartley.dogsunleashed.entity.variant.UnleashedDogCoat;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
@@ -212,11 +213,8 @@ public class UnleashedDogEntity extends DogMountEntity
   }
 
   public UnleashedDogBreed getRigSourceBreed() {
-    if (this.breed != UnleashedDogBreed.CROSS_BREED) {
-      return this.breed;
-    }
     final DogGenome genome = this.getGenome();
-    return genome != null ? genome.dominantBreed() : UnleashedDogBreed.FALLBACK_RIG;
+    return DogGenome.rigBreedOf(this.breed, genome != null ? genome.composition() : List.of());
   }
 
   public UnleashedDogBreed getVoiceBreed() {

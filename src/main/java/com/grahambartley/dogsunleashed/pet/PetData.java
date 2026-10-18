@@ -175,12 +175,7 @@ public final class PetData {
   }
 
   public UnleashedDogBreed getRigSourceBreed() {
-    if (breed != UnleashedDogBreed.CROSS_BREED) {
-      return breed;
-    }
-    return composition.isEmpty()
-        ? UnleashedDogBreed.FALLBACK_RIG
-        : DogGenome.dominantOf(composition);
+    return DogGenome.rigBreedOf(breed, composition);
   }
 
   public DogGenes getGenes() {

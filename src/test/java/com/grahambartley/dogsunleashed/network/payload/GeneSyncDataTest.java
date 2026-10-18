@@ -1,9 +1,9 @@
 package com.grahambartley.dogsunleashed.network.payload;
 
+import static com.grahambartley.dogsunleashed.network.PacketLimits.GENES_MAX_SIZE;
 import static com.grahambartley.dogsunleashed.network.payload.PayloadTestFixtures.newBuf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
@@ -15,6 +15,7 @@ import com.grahambartley.dogsunleashed.entity.genome.DogGenes;
 import com.grahambartley.dogsunleashed.entity.variant.BeagleCoat;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyCoat;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.network.RegistryByteBuf;
@@ -108,18 +109,15 @@ class GeneSyncDataTest {
   }
 
   @Test
-  @DisplayName("oversized lists are refused")
-  void oversizedListsAreRefused() {
-    final RegistryByteBuf genes = newBuf();
-    genes.writeVarInt(GeneSyncData.MAX_GENES + 1);
-    assertThrows(IllegalArgumentException.class, () -> GeneSyncData.readList(genes));
-
-    final RegistryByteBuf carried = newBuf();
-    carried.writeVarInt(1);
-    carried.writeString(UnleashedDogBreed.HUSKY.serializedId());
-    carried.writeVarInt(DogGeneTrait.COAT.ordinal());
-    carried.writeVarInt(0);
-    carried.writeVarInt(GeneSyncData.MAX_CARRIED + 1);
-    assertThrows(IllegalArgumentException.class, () -> GeneSyncData.readList(carried));
+  @DisplayName("lists longer than the packet limits are cut to them")
+  void oversizedListsAreCut() {
+    final GeneSyncData gene =
+        new GeneSyncData(HUSKY_COAT, 0, List.of(1, 2, HuskyCoat.WHITE.ordinal()));
+    final RegistryByteBuf buf = newBuf();
+    GeneSyncData.writeList(buf, Collections.nCopies(GENES_MAX_SIZE + 1, gene));
+    final List<GeneSyncData> read = GeneSyncData.readList(buf);
+    assertEquals(GENES_MAX_SIZE, read.size());
+    assertEquals(List.of(1, 2), read.get(0).carried());
+    assertFalse(buf.isReadable());
   }
 }

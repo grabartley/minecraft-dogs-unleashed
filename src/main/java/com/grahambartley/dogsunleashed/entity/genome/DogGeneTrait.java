@@ -10,13 +10,17 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.IntUnaryOperator;
 import net.minecraft.entity.SpawnReason;
 
 public enum DogGeneTrait {
   COAT,
   EYES;
+
+  private final Map<UnleashedDogBreed, GeneDominance> dominanceByBreed = new ConcurrentHashMap<>();
 
   public String serializedId() {
     return this.name().toLowerCase(Locale.ROOT);
@@ -34,6 +38,10 @@ public enum DogGeneTrait {
   }
 
   public GeneDominance dominance(final UnleashedDogBreed breed) {
+    return this.dominanceByBreed.computeIfAbsent(breed, this::computeDominance);
+  }
+
+  private GeneDominance computeDominance(final UnleashedDogBreed breed) {
     return switch (this) {
       case COAT -> coatDominance(breed);
       case EYES -> eyeDominance();

@@ -40,6 +40,8 @@ public final class DogGeneHolder {
   void readNbt(final NbtCompound nbt) {
     if (nbt.contains(ModNbtKeys.GENES, NbtElement.COMPOUND_TYPE)) {
       this.stored = DogGenes.fromNbt(nbt.getCompound(ModNbtKeys.GENES));
+    } else {
+      this.stored = null;
     }
   }
 }
