@@ -8,7 +8,6 @@ import java.util.Optional;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.pathing.MobNavigation;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
@@ -52,10 +51,6 @@ public final class DogGrowth {
 
   DogGrowth(final UnleashedDogEntity dog) {
     this.dog = dog;
-  }
-
-  public static boolean assignsPackStage(final SpawnReason reason) {
-    return reason == SpawnReason.NATURAL || reason == SpawnReason.CHUNK_GENERATION;
   }
 
   public boolean applies() {
@@ -234,14 +229,10 @@ public final class DogGrowth {
     return EntityDimensions.changing(stage.width(), stage.height());
   }
 
-  @Nullable
-  EntityData joinPack(final SpawnReason reason, final @Nullable EntityData entityData) {
-    if (!this.applies() || !assignsPackStage(reason)) {
-      return entityData;
+  void joinPack(final @Nullable EntityData packData) {
+    if (this.applies() && packData instanceof WildPackData pack) {
+      this.packMemberIndex = pack.getSpawnedCount();
     }
-    final WildPackData pack = DogPack.startOrJoin(entityData);
-    this.packMemberIndex = pack.getSpawnedCount();
-    return pack;
   }
 
   void settleInPack() {

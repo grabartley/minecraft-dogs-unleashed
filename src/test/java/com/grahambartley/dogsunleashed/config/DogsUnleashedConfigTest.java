@@ -522,6 +522,34 @@ class DogsUnleashedConfigTest {
     assertEquals(expected, config.effectiveSpawnWeight(baseWeight, "husky"), label);
   }
 
+  static Stream<Arguments> spawnRateCases() {
+    return Stream.of(
+        Arguments.of(100, 100, 1.0),
+        Arguments.of(300, 100, 3.0),
+        Arguments.of(100, 300, 3.0),
+        Arguments.of(200, 150, 3.0),
+        Arguments.of(50, 50, 0.25),
+        Arguments.of(500, 500, 25.0),
+        Arguments.of(0, 100, 0.0),
+        Arguments.of(100, 0, 0.0));
+  }
+
+  @ParameterizedTest(name = "global {0}% x breed {1}% -> {2}")
+  @MethodSource("spawnRateCases")
+  @DisplayName("spawnRate is the global rate times the breed rate, as a multiple of default")
+  void spawnRateMultipliesGlobalAndBreedRates(
+      final int globalPercent, final int breedPercent, final double expected) {
+    final DogsUnleashedConfig config =
+        configWithSpawnRates(globalPercent, Map.of("husky", breedPercent));
+    assertEquals(expected, config.spawnRate("husky"), 1e-9);
+  }
+
+  @Test
+  @DisplayName("spawnRate treats an unknown breed id as the default rate")
+  void spawnRateUnknownBreedUsesDefault() {
+    assertEquals(2.0, configWithSpawnRates(200, Map.of()).spawnRate("not-a-breed"), 1e-9);
+  }
+
   @Test
   @DisplayName("effectiveSpawnWeight treats an unknown breed id as the default multiplier")
   void effectiveSpawnWeightUnknownBreedUsesDefault() {

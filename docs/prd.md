@@ -165,7 +165,7 @@ Decisions the product owner has made where the sources could be read more than o
 
 **Actor:** New player.
 
-Each breed lives in its home biomes and spawns there in small groups. Dire wolves spawn only as whole packs in the coldest places, always with a pup and an older wolf. Strays turn up in villages, and the wandering trader now and then sells a puppy in a basket.
+Each breed lives in its home biomes and spawns there in small groups. Dire wolves spawn only as whole packs in the coldest places, always with a pup and an older wolf, both in new chunks and near players. Strays turn up in villages, and the wandering trader now and then sells a puppy in a basket.
 
 | Breed | Home | Group |
 |---|---|---|
@@ -174,15 +174,15 @@ Each breed lives in its home biomes and spawns there in small groups. Dire wolve
 | Beagle | Forest, flower forest, birch forest, old growth birch forest, meadow | 1 to 3 |
 | Golden retriever | Beach | 1 to 3 |
 | Shiba inu | Cherry grove | 1 to 2 |
-| Dire wolf | Ice spikes, frozen peaks, jagged peaks, snowy slopes, snowy taiga | Whole packs, 5 to 10 by default |
+| Dire wolf | Ice spikes, frozen peaks, jagged peaks, snowy slopes, snowy taiga | One leader that brings a whole pack, 5 to 10 by default |
 
 | ID | Requirement |
 |---|---|
-| SPAWN-1 | Each founding breed spawns naturally in its home biomes, on ground its breed allows, at a weight scaled by the global and per-breed spawn rate settings |
+| SPAWN-1 | Each naturally spawning breed, the dire wolf included, spawns in its home biomes when chunks generate and while the creature cap has room, on ground its breed allows, at a weight scaled by the global and per-breed spawn rate settings |
 | SPAWN-2 | Golden retrievers spawn on beach sand |
-| SPAWN-3 | Dire wolves spawn only as whole packs. A pack spawns only if every member can be placed, and never within 64 blocks of another wild pack of the same breed |
+| SPAWN-3 | Dire wolves spawn only as whole packs. A wild dire wolf spawned by any natural path brings the rest of its pack, placed within 3 blocks and a 2 block step of it in the same chunk. It spawns only where its smallest pack fits, and vanilla spawning places at most one pack leader per chunk at a time. Spawn eggs and commands give a single wolf |
 | SPAWN-4 | A pack's leader is a prime one time in five, otherwise a yearling or adult. The second member is always a pup. Later members are pups, yearlings, adults and, rarely, primes. No wild pack has an alpha |
-| SPAWN-5 | An extra spawner places small groups near players even when the mob cap is full, every 60 to 120 seconds, 24 to 48 blocks from a random player, and never with 4 or more wild dogs within 64 blocks. Dire wolf packs always use it. Other breeds use it only when Cap-Independent Spawner is on |
+| SPAWN-5 | When Spawn Near Players is on, an extra spawner places wild groups of every breed near players even when the mob cap is full. Every 60 to 120 seconds it tries spots 24 to 48 blocks from a random player, and it waits while 2 or more wild groups are within 64 blocks. A breed's spawn rate scales how many groups it places, so 200% is about twice as many. An untamed dog with no group counts as a group of its own |
 | SPAWN-6 | Dogs from the extra spawner may despawn while wild, like vanilla animals. Taming stops that |
 | SPAWN-7 | Coat, eye colour (huskies) and fur length are rolled at spawn from the breed's natural tables |
 | SPAWN-8 | Villages get a stray now and then, of the breed that fits the village biome (snowy: husky, plains: dachshund, taiga: beagle, desert or savanna: shiba inu, others: golden retriever), never more than 2 per village, and only near a village with more than 4 occupied homes within 48 blocks |
@@ -710,7 +710,7 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 | Spawn Dogs in the Wild | on | on, off | `config spawn` |
 | Spawn Rate | 100% | 0 to 500% | `config spawnrate` |
 | Spawn Rate per breed | 100% | 0 to 500% | `config spawnrate <breed>` |
-| Cap-Independent Spawner | on | on, off | `config capindependentspawning` |
+| Spawn Near Players | on | on, off | `config capindependentspawning` |
 | Dog Graves on Death | on | on, off | `config graves` |
 | Drop Leash on Play Mode | on | on, off | `config dropleashonplay` |
 | Show Dog Names | on | on, off | `config shownames` |
@@ -863,7 +863,7 @@ There is no singleplayer mode in this mod's design. A singleplayer world is an i
 | PERF-1 | Following and summoning load at most the chunk the dog was last seen in, for at most 20 ticks |
 | PERF-2 | Scent searches never scan a volume in one tick. They work in budgeted slices, and structure lookups run at most once per scent |
 | PERF-3 | The raid scan runs at most once a second, and not at all when no raider is loaded nearby |
-| PERF-4 | The extra spawner tries at most once every 60 seconds |
+| PERF-4 | The extra spawner runs at most once every 60 seconds, with one try per whole multiple of the highest spawn rate |
 | PERF-5 | Projected overlays and portraits are built once per look and rebuilt only after a resource reload |
 
 ### Persistence

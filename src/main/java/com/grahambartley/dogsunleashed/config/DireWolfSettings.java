@@ -2,7 +2,6 @@ package com.grahambartley.dogsunleashed.config;
 
 import com.google.gson.JsonObject;
 import com.grahambartley.dogsunleashed.entity.DogGrowthRules;
-import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 
 public record DireWolfSettings(
     int growthRateMultiplierPercent,
@@ -18,13 +17,15 @@ public record DireWolfSettings(
   public static final int BATTLES_MAX = 200;
   public static final int PACK_MIN = 4;
   public static final int PACK_MAX = 16;
+  public static final int DEFAULT_SMALLEST_PACK = 5;
+  public static final int DEFAULT_LARGEST_PACK = 10;
 
   public static final DireWolfSettings DEFAULTS =
       new DireWolfSettings(
           100,
           DogGrowthRules.BATTLES_TO_EVOLVE,
-          UnleashedDogBreed.DIRE_WOLF.spawnSettings().minGroupSize(),
-          UnleashedDogBreed.DIRE_WOLF.spawnSettings().maxGroupSize(),
+          DEFAULT_SMALLEST_PACK,
+          DEFAULT_LARGEST_PACK,
           DireWolfPackSettings.DEFAULTS,
           DireWolfStaminaSettings.DEFAULTS);
 

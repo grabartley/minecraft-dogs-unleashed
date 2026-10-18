@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.grahambartley.dogsunleashed.entity.DogGrowthRules;
-import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,15 +15,14 @@ import org.junit.jupiter.params.provider.MethodSource;
 class DireWolfSettingsTest {
 
   @Test
-  @DisplayName("the defaults match the dire wolf's own spawn settings and evolution rule")
-  void defaultsMatchTheBreed() {
-    final UnleashedDogBreed.SpawnSettings spawn = UnleashedDogBreed.DIRE_WOLF.spawnSettings();
+  @DisplayName("wild packs default to 5 to 10 wolves, with the default growth and evolution rule")
+  void defaultsMatchTheSpec() {
     assertEquals(
         new DireWolfSettings(
             100,
             DogGrowthRules.BATTLES_TO_EVOLVE,
-            spawn.minGroupSize(),
-            spawn.maxGroupSize(),
+            5,
+            10,
             DireWolfPackSettings.DEFAULTS,
             DireWolfStaminaSettings.DEFAULTS),
         DireWolfSettings.DEFAULTS);
