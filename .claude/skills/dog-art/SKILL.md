@@ -176,7 +176,7 @@ assumption that produced it: the reference is always the shipped asset on `main`
   dire wolf's four fangs sit inside the snout and jaw and only `growl` slides them out. Every
   other clip leaves them hidden, so a rest-pose render must stay pixel-identical after adding a
   parked part.
-- Every rig sets up its eyelids the same way (ADR 0009). The bones are children of the head and
+- Every rig sets up its eyelids the same way (ADR 0011). The bones are children of the head and
   listed under `eyes` in the profile, named `eyelid_left` and `eyelid_right`, or `eyelids` when
   one cube carries both lids. At rest they sit inside the head, so the eyes are open and a clip
   that does not close them needs no lid keys. Closed is one pose per rig, a position offset plus

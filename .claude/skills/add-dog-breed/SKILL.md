@@ -83,7 +83,7 @@ Shared assets live under `src/main/resources/assets/dogs-unleashed/`:
    `leg_back_left`, `leg_back_right`. A slot lists only the bones of its own part, so `head` is the
    skull without the snout or ears. A slot may list several bones; list a cube-less parent bone
    together with the child bones that carry its cubes. Left and right are the dog's own left and
-   right, not the viewer's. The `eyes` slot lists the eyelid bones, set up the way ADR 0009
+   right, not the viewer's. The `eyes` slot lists the eyelid bones, set up the way ADR 0011
    describes: children of the head, named `eyelid_left` and `eyelid_right` (or `eyelids` for one
    cube), hidden inside the head at rest, held closed by `sleep` and blinked closed once in the
    `idle` loop with the same pose. Add `fur_shaggy`, `fur_overgrown`, `trimmed_overlay` and

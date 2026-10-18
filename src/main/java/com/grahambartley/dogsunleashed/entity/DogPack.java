@@ -8,6 +8,7 @@ import java.util.UUID;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
@@ -26,14 +27,21 @@ public final class DogPack {
     this.dog = dog;
   }
 
-  static WildPackData startOrJoin(final @Nullable EntityData entityData) {
-    return entityData instanceof WildPackData pack ? pack : new WildPackData(UUID.randomUUID());
+  public static boolean isWildSpawn(final SpawnReason reason) {
+    return reason == SpawnReason.NATURAL || reason == SpawnReason.CHUNK_GENERATION;
   }
 
-  void joinFrom(final @Nullable EntityData entityData) {
-    if (entityData instanceof WildPackData pack) {
-      this.packId = pack.packId();
+  @Nullable
+  EntityData join(final SpawnReason reason, final @Nullable EntityData entityData) {
+    if (!isWildSpawn(reason)) {
+      return entityData;
     }
+    final WildPackData pack =
+        entityData instanceof WildPackData existing
+            ? existing
+            : new WildPackData(UUID.randomUUID(), !this.dog.getGrowth().applies());
+    this.packId = pack.packId();
+    return pack;
   }
 
   public @Nullable UUID id() {
@@ -41,7 +49,9 @@ public final class DogPack {
   }
 
   public boolean isWildMember() {
-    return this.packId != null && !this.dog.isTamed();
+    return this.packId != null
+        && !this.dog.isTamed()
+        && this.dog.getBreed().nature().livesInPacks();
   }
 
   public boolean isGrown() {
@@ -76,10 +86,7 @@ public final class DogPack {
   }
 
   public boolean keepsHunting() {
-    return this.dog.getBreed().nature().huntsInPacks()
-        && this.isWildMember()
-        && this.isGrown()
-        && settings().hunt();
+    return this.isWildMember() && this.isGrown() && settings().hunt();
   }
 
   public void recordKill() {

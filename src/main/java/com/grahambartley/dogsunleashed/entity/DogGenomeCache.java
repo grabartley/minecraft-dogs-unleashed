@@ -18,7 +18,7 @@ public final class DogGenomeCache {
   @Nullable
   DogGenome get() {
     if (!this.valid) {
-      final NbtCompound genomeNbt = this.dog.getTrackedGenomeNbt();
+      final NbtCompound genomeNbt = this.dog.getDataTracker().get(UnleashedDogEntity.GENOME);
       this.cached = genomeNbt.isEmpty() ? null : DogGenome.fromNbt(genomeNbt);
       this.valid = true;
     }
@@ -26,7 +26,7 @@ public final class DogGenomeCache {
   }
 
   void apply(final DogGenome genome) {
-    this.dog.setTrackedGenomeNbt(genome.toNbt());
+    this.dog.getDataTracker().set(UnleashedDogEntity.GENOME, genome.toNbt());
     this.dog
         .getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH)
         .setBaseValue(genome.maxHealth());

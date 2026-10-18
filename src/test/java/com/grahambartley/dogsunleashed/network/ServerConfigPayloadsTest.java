@@ -6,6 +6,11 @@ import com.grahambartley.dogsunleashed.config.DireWolfPackSettings;
 import com.grahambartley.dogsunleashed.config.DireWolfSettings;
 import com.grahambartley.dogsunleashed.config.DireWolfStaminaSettings;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
+import com.grahambartley.dogsunleashed.config.FurSettings;
+import com.grahambartley.dogsunleashed.config.GameplaySettings;
+import com.grahambartley.dogsunleashed.config.SleepSettings;
+import com.grahambartley.dogsunleashed.config.SoundSettings;
+import com.grahambartley.dogsunleashed.config.SpawningSettings;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.EditServerConfigC2SPayload;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.SyncServerConfigS2CPayload;
 import io.netty.buffer.Unpooled;
@@ -26,24 +31,18 @@ class ServerConfigPayloadsTest {
   static Stream<Arguments> configs() {
     return Stream.of(
         Arguments.of("defaults", DogsUnleashedConfig.defaults()),
-        Arguments.of("names hidden", DogsUnleashedConfig.defaults().withShowDogNames(false)),
+        Arguments.of(
+            "names hidden",
+            DogsUnleashedConfig.defaults()
+                .withGameplay(DogsUnleashedConfig.defaults().gameplay().withShowDogNames(false))),
         Arguments.of(
             "every field flipped off the default",
             new DogsUnleashedConfig(
-                false,
-                250,
-                Map.of("husky", 0, "beagle", 40),
-                false,
-                false,
-                false,
-                false,
-                64,
-                0.5f,
-                0.25f,
-                false,
-                false,
-                250,
-                0,
+                new SpawningSettings(false, 250, Map.of("husky", 0, "beagle", 40), false),
+                new GameplaySettings(false, false, false),
+                new SleepSettings(false, 64),
+                new FurSettings(false, 250, 0),
+                new SoundSettings(0.5f, 0.25f),
                 new DireWolfSettings(
                     175,
                     8,

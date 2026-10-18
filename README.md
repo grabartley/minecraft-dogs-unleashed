@@ -84,7 +84,7 @@ Pet Manager to see and summon your whole pack.
 - **Raise a family.** Any two living tamed dogs can have puppies, and mixed parents give a mixed breed puppy. Dire wolves only breed with dire wolves. Every dog has a
 family tree you can explore.
 - **Bring them back.** A tamed dog that dies leaves a grave. Put a totem in it and a lightning rod above it, then wait
-for a storm. Your dog comes back undead and burns in daylight unless it has shade, armour, or a fire pendant. Cure it the same way you
+for lightning to strike it. Your dog comes back undead and burns in daylight unless it has shade, armour, or a fire pendant. Cure it the same way you
 cure a zombie villager. If it dies while undead, it is gone for good, unless it wears a Pendant of Loyalty.
 - **Little touches.** Huskies and dire wolves howl at the full moon, dogs tilt their heads at food, and they shake off after rain or a
 swim. There is also an advancement tab to work through.
@@ -110,10 +110,10 @@ only operators can.
 
 | Setting                   | Default | What it does                                                                      |
 |---------------------------|---------|-----------------------------------------------------------------------------------|
-| Spawn Dogs in the Wild    | On      | Whether dogs spawn in their biomes. Needs a world restart.                        |
-| Spawn Rate                | 100%    | How often dogs spawn, from 0% to 500%. Needs a world restart.                     |
-| Spawn Rate (per breed)    | 100%    | The same, for one breed. Needs a world restart.                                   |
-| Cap-Independent Spawner   | On      | Lets small packs of wild dogs spawn near you even in well-explored areas. Dire wolf packs spawn this way even when it is off. |
+| Spawn Dogs in the Wild    | On      | Whether dogs spawn in their biomes, in new chunks and near you. New chunks change after a world restart. |
+| Spawn Rate                | 100%    | How many dogs spawn, from 0% to 500%. 200% is about twice as many. New chunks change after a world restart. |
+| Spawn Rate (per breed)    | 100%    | The same, for one breed. It multiplies with Spawn Rate.                           |
+| Spawn Near Players        | On      | Keeps wild dogs of every breed turning up near you, even in well-explored areas.  |
 | Dog Graves on Death       | On      | Whether a tamed dog leaves a grave when it dies. Its gear drops either way.                        |
 | Drop Leash on Play Mode   | On      | Off keeps the lead on, and fetch waits until you take it off.                     |
 | Show Dog Names            | On      | Shows or hides name tags above dogs.                                              |
@@ -126,7 +126,7 @@ only operators can.
 | Bad Haircut Chance        | 100%    | How often a trim goes wrong, from 0% to 500%. 0% means every trim is clean.       |
 | Dire Wolf Growth Speed    | 100%    | How fast dire wolves grow up, from 0% to 500%. 0% stops them growing.             |
 | Alpha Battles             | 20      | Fights a prime must win beside you before it can become an alpha, from 1 to 200.  |
-| Smallest / Largest Pack   | 5 / 10  | How many dire wolves a wild pack has, from 4 to 16.                               |
+| Smallest / Largest Pack   | 5 / 10  | How many dire wolves every wild pack has, from 4 to 16.                           |
 | Wild Packs Hunt           | On      | Whether wild dire wolves hunt animals, skeletons and zombies. Penned animals are safe. |
 | Packs Defend Each Other   | On      | Whether a wild pack attacks anything that hurts one of them, and goes after players it holds a grudge against. |
 | Riding Stamina Drain      | On      | Off lets you sprint on a dire wolf for as long as you like.                       |
@@ -211,6 +211,8 @@ arguments untranslated. Found a mistake in a translation?
 [Open an issue](https://github.com/grabartley/minecraft-dogs-unleashed/issues/new).
 
 ## Credits
+
+How every part of the mod is meant to work is written down in the [product requirements](docs/prd.md).
 
 Dogs Unleashed is released under the [MIT License](LICENSE).
 

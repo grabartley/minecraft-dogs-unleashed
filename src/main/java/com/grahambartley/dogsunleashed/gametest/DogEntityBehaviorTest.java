@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.gametest;
 
+import com.grahambartley.dogsunleashed.entity.DogCollar;
 import com.grahambartley.dogsunleashed.entity.DogFoods;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
@@ -87,15 +88,17 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
         () -> {
           context.assertTrue(dog.isTamed(), "Dog should be tamed");
           context.assertTrue(
-              dog.getCollarColor() == DyeColor.RED, "Tamed dog should start with RED collar");
+              dog.getComponents().get(DogCollar.class).getColor() == DyeColor.RED,
+              "Tamed dog should start with RED collar");
 
-          dog.setCollarColor(DyeColor.BLUE);
+          dog.getComponents().get(DogCollar.class).setColor(DyeColor.BLUE);
 
           context.runAtTick(
               20,
               () -> {
                 context.assertTrue(
-                    dog.getCollarColor() == DyeColor.BLUE, "Collar color should change to BLUE");
+                    dog.getComponents().get(DogCollar.class).getColor() == DyeColor.BLUE,
+                    "Collar color should change to BLUE");
                 context.complete();
               });
         });
@@ -112,14 +115,15 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
           context.assertFalse(babyDog.isTamed(), "Baby should not be tamed initially");
 
           babyDog.setTamed(true, true);
-          babyDog.setCollarColor(DyeColor.PINK);
+          babyDog.getComponents().get(DogCollar.class).setColor(DyeColor.PINK);
 
           context.runAtTick(
               20,
               () -> {
                 context.assertTrue(babyDog.isTamed(), "Baby should be tamed");
                 context.assertTrue(
-                    babyDog.getCollarColor() == DyeColor.PINK, "Baby should have PINK collar");
+                    babyDog.getComponents().get(DogCollar.class).getColor() == DyeColor.PINK,
+                    "Baby should have PINK collar");
                 context.complete();
               });
         });
@@ -151,9 +155,9 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
           };
 
           for (final DyeColor color : testColors) {
-            dog.setCollarColor(color);
+            dog.getComponents().get(DogCollar.class).setColor(color);
             context.assertTrue(
-                dog.getCollarColor() == color,
+                dog.getComponents().get(DogCollar.class).getColor() == color,
                 "Collar should accept " + color.getName() + " color");
           }
 
@@ -167,7 +171,7 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
     final UUID ownerUuid = UUID.randomUUID();
     final UnleashedDogEntity parent =
         DogTestHelper.spawnTamedDog(context, data, new BlockPos(0, 1, 0), ownerUuid);
-    parent.setCollarColor(DyeColor.YELLOW);
+    parent.getComponents().get(DogCollar.class).setColor(DyeColor.YELLOW);
 
     context.runAtTick(
         10,

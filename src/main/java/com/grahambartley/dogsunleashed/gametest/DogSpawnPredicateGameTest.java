@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModBlockTags;
+import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
 import java.util.List;
@@ -8,7 +9,6 @@ import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.SpawnRestriction;
 import net.minecraft.registry.Registries;
 import net.minecraft.test.CustomTestProvider;
 import net.minecraft.test.TestContext;
@@ -96,7 +96,7 @@ public final class DogSpawnPredicateGameTest implements FabricGameTest {
 
     final BlockPos absSpawnPos = context.getAbsolutePos(REL_SURFACE_POS.up());
     final boolean allowed =
-        SpawnRestriction.canSpawn(
+        UnleashedDogEntity.canSpawn(
             data.entityType(),
             context.getWorld(),
             SpawnReason.NATURAL,

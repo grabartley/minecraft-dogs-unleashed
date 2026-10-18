@@ -1,4 +1,4 @@
-# ADR 0009: Eyelids hide in the head and close to one pose per rig
+# ADR 0011: Eyelids hide in the head and close to one pose per rig
 
 - **Status:** Accepted
 - **Date:** 2026-10-18

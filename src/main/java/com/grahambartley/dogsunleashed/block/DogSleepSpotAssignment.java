@@ -72,7 +72,7 @@ public final class DogSleepSpotAssignment {
       final UnleashedDogEntity dog = holder.getAssignedDog(world);
       if (dog != null && dog.isOwner(player)) {
         final String dogName = dogName(world, dog);
-        if (dog.isSleepingInBed()) {
+        if (dog.getSleepController().isSleepingInBed()) {
           dog.getSleepController().markManuallyWoken();
           dog.wakeUp();
           player.sendMessage(Text.translatable(messageKeyRoot + ".wake_command", dogName), true);
@@ -94,10 +94,11 @@ public final class DogSleepSpotAssignment {
 
   private static void assign(
       ServerWorld world, BlockPos pos, AssignedDogHolder holder, UnleashedDogEntity dog) {
-    if (dog.isSleepingInBed()) {
+    if (dog.getSleepController().isSleepingInBed()) {
       dog.wakeUp();
     }
-    dog.getAssignedBedPos()
+    dog.getSleepController()
+        .getAssignedBedPos()
         .ifPresent(
             oldPos -> {
               if (world.getBlockEntity(oldPos) instanceof AssignedDogHolder oldHolder) {
@@ -105,7 +106,7 @@ public final class DogSleepSpotAssignment {
               }
             });
     holder.setAssignedDog(dog);
-    dog.setAssignedBedPos(pos);
+    dog.getSleepController().setAssignedBedPos(pos);
   }
 
   public static String dogName(World world, UnleashedDogEntity dog) {

@@ -1,6 +1,6 @@
 # ADR 0007: Dire wolves grow by scaling profile slots and spawn only as whole packs
 
-- **Status:** Accepted
+- **Status:** Accepted. Its spawning decision is superseded by [ADR 0010](0010-wild-packs-spawn-through-every-path-with-the-leader-bringing-the-pack.md)
 - **Date:** 2026-10-18
 
 ## Context

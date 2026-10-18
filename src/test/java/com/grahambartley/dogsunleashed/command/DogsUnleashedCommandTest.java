@@ -7,6 +7,11 @@ import static org.mockito.Mockito.when;
 
 import com.grahambartley.dogsunleashed.config.DireWolfSettings;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
+import com.grahambartley.dogsunleashed.config.FurSettings;
+import com.grahambartley.dogsunleashed.config.GameplaySettings;
+import com.grahambartley.dogsunleashed.config.SleepSettings;
+import com.grahambartley.dogsunleashed.config.SoundSettings;
+import com.grahambartley.dogsunleashed.config.SpawningSettings;
 import com.grahambartley.dogsunleashed.server.ServerConfigService;
 import java.util.List;
 import java.util.Map;
@@ -127,20 +132,11 @@ class DogsUnleashedCommandTest {
   void statusLinesCarryConfigValuesAsArguments() {
     final DogsUnleashedConfig config =
         new DogsUnleashedConfig(
-            true,
-            150,
-            Map.of("beagle", 75),
-            true,
-            false,
-            false,
-            true,
-            32,
-            0.5f,
-            1.5f,
-            false,
-            false,
-            250,
-            7,
+            new SpawningSettings(true, 150, Map.of("beagle", 75), true),
+            new GameplaySettings(false, false, false),
+            new SleepSettings(true, 32),
+            new FurSettings(false, 250, 7),
+            new SoundSettings(0.5f, 1.5f),
             DireWolfSettings.DEFAULTS);
 
     final List<Text> lines = DogsUnleashedCommand.statusLines(config);
@@ -176,20 +172,11 @@ class DogsUnleashedCommandTest {
       final int index, final String breedId, final int expectedPercent) {
     final DogsUnleashedConfig config =
         new DogsUnleashedConfig(
-            true,
-            150,
-            Map.of("beagle", 75),
-            true,
-            false,
-            false,
-            true,
-            32,
-            0.5f,
-            1.5f,
-            false,
-            true,
-            100,
-            100,
+            new SpawningSettings(true, 150, Map.of("beagle", 75), true),
+            new GameplaySettings(false, false, false),
+            new SleepSettings(true, 32),
+            new FurSettings(true, 100, 100),
+            new SoundSettings(0.5f, 1.5f),
             DireWolfSettings.DEFAULTS);
 
     final List<Text> lines = DogsUnleashedCommand.statusLines(config);

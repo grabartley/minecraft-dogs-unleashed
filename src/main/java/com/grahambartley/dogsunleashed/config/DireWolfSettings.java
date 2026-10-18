@@ -2,7 +2,6 @@ package com.grahambartley.dogsunleashed.config;
 
 import com.google.gson.JsonObject;
 import com.grahambartley.dogsunleashed.entity.DogGrowthRules;
-import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 
 public record DireWolfSettings(
     int growthRateMultiplierPercent,
@@ -18,13 +17,15 @@ public record DireWolfSettings(
   public static final int BATTLES_MAX = 200;
   public static final int PACK_MIN = 4;
   public static final int PACK_MAX = 16;
+  public static final int DEFAULT_SMALLEST_PACK = 5;
+  public static final int DEFAULT_LARGEST_PACK = 10;
 
   public static final DireWolfSettings DEFAULTS =
       new DireWolfSettings(
           100,
           DogGrowthRules.BATTLES_TO_EVOLVE,
-          UnleashedDogBreed.DIRE_WOLF.spawnSettings().minGroupSize(),
-          UnleashedDogBreed.DIRE_WOLF.spawnSettings().maxGroupSize(),
+          DEFAULT_SMALLEST_PACK,
+          DEFAULT_LARGEST_PACK,
           DireWolfPackSettings.DEFAULTS,
           DireWolfStaminaSettings.DEFAULTS);
 
@@ -37,10 +38,10 @@ public record DireWolfSettings(
 
   public DireWolfSettings {
     growthRateMultiplierPercent =
-        clamp(growthRateMultiplierPercent, GROWTH_RATE_MIN, GROWTH_RATE_MAX);
-    battlesToEvolve = clamp(battlesToEvolve, BATTLES_MIN, BATTLES_MAX);
-    smallestPack = clamp(smallestPack, PACK_MIN, PACK_MAX);
-    largestPack = Math.max(smallestPack, clamp(largestPack, PACK_MIN, PACK_MAX));
+        ConfigBounds.clamp(growthRateMultiplierPercent, GROWTH_RATE_MIN, GROWTH_RATE_MAX);
+    battlesToEvolve = ConfigBounds.clamp(battlesToEvolve, BATTLES_MIN, BATTLES_MAX);
+    smallestPack = ConfigBounds.clamp(smallestPack, PACK_MIN, PACK_MAX);
+    largestPack = Math.max(smallestPack, ConfigBounds.clamp(largestPack, PACK_MIN, PACK_MAX));
     packs = packs == null ? DireWolfPackSettings.DEFAULTS : packs;
     stamina = stamina == null ? DireWolfStaminaSettings.DEFAULTS : stamina;
   }
@@ -103,9 +104,5 @@ public record DireWolfSettings(
     json.add(KEY_PACKS, packs.toJson());
     json.add(KEY_STAMINA, stamina.toJson());
     return json;
-  }
-
-  private static int clamp(final int value, final int min, final int max) {
-    return Math.max(min, Math.min(max, value));
   }
 }

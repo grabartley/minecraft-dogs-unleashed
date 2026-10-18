@@ -49,11 +49,6 @@ public final class DogSpawnRegistrationGameTest implements FabricGameTest {
               .orElse(null);
       final String breedInBiome = data.breed().serializedId() + " in " + biomeKey.getValue();
 
-      if (breedSettings.packOnly()) {
-        context.assertTrue(
-            entry == null, breedInBiome + " spawns only as whole packs, never from biome spawning");
-        continue;
-      }
       context.assertTrue(entry != null, breedInBiome + " must have a baked CREATURE spawn entry");
       context.assertTrue(
           entry.getWeight().getValue() == breedSettings.weight(),

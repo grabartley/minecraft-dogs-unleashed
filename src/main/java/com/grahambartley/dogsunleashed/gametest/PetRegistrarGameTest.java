@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModEntities;
+import com.grahambartley.dogsunleashed.entity.DogCollar;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetManager;
@@ -118,7 +119,7 @@ public final class PetRegistrarGameTest implements FabricGameTest {
       final TestContext context, final UUID ownerUuid) {
     final ServerWorld world = context.getWorld();
     final UnleashedDogEntity parent = spawnTamedDog(context, ownerUuid, PARENT_POS);
-    parent.setCollarColor(DyeColor.LIME);
+    parent.getComponents().get(DogCollar.class).setColor(DyeColor.LIME);
     final UnleashedDogEntity otherParent = spawnTamedDog(context, ownerUuid, OTHER_PARENT_POS);
 
     return (UnleashedDogEntity) parent.createChild(world, otherParent);

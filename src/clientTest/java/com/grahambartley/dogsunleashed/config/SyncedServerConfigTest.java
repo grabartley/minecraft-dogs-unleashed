@@ -10,7 +10,8 @@ import org.junit.jupiter.api.Test;
 class SyncedServerConfigTest {
 
   private static final DogsUnleashedConfig SYNCED =
-      DogsUnleashedConfig.defaults().withGravesEnabled(false);
+      DogsUnleashedConfig.defaults()
+          .withGameplay(DogsUnleashedConfig.defaults().gameplay().withGravesEnabled(false));
 
   @AfterEach
   void resetHolders() {
