@@ -5,6 +5,8 @@ import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.advancement.DogSleptInBedCriterion;
 import com.grahambartley.dogsunleashed.block.DogSleepPose;
 import com.grahambartley.dogsunleashed.block.DogSleepSpotAnchor;
+import com.grahambartley.dogsunleashed.block.DogSleepSpotHandover;
+import com.grahambartley.dogsunleashed.block.entity.AssignedDogHolder;
 import com.grahambartley.dogsunleashed.entity.goal.DogSleepWindow;
 import java.util.Optional;
 import net.minecraft.nbt.NbtCompound;
@@ -34,6 +36,15 @@ public final class DogSleepController {
     final Optional<BlockPos> leaving = this.getAssignedBedPos();
     this.setAssignedBedPos(null);
     this.wakeFrom(leaving);
+  }
+
+  public boolean releaseSpotIfTaken(final BlockPos spotPos) {
+    if (this.dog.getWorld().getBlockEntity(spotPos) instanceof AssignedDogHolder holder
+        && DogSleepSpotHandover.isTakenByAnother(holder.getAssignedDogUuid(), this.dog.getUuid())) {
+      this.clearAssignedBed();
+      return true;
+    }
+    return false;
   }
 
   public boolean canSleepNow() {

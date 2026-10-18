@@ -69,6 +69,7 @@
   "message.dogs-unleashed.play_end_no_retrieve": "%s não conseguiu trazer o %s",
   "message.dogs-unleashed.pending_bed_assignment": "%s selecionado! Agora clique com o botão direito em uma cama de cachorro para atribuí-lo",
   "message.dogs-unleashed.bed_assigned": "%s foi atribuído a esta cama",
+  "message.dogs-unleashed.bed_taken": "%s perdeu seu lugar de dormir para %s",
   "message.dogs-unleashed.no_pending_assignment": "Agache + clique com o botão direito em um cachorro primeiro, depois clique com o botão direito nesta cama",
   "message.dogs-unleashed.bed_refused": "%s é grande e selvagem demais para dormir em uma cama ou casinha de cachorro",
   "message.dogs-unleashed.summon_failed": "Não foi possível encontrar %s em lugar nenhum",

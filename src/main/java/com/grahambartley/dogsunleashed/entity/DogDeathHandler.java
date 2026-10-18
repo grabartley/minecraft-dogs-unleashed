@@ -1,7 +1,7 @@
 package com.grahambartley.dogsunleashed.entity;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
-import com.grahambartley.dogsunleashed.block.entity.DogBedBlockEntity;
+import com.grahambartley.dogsunleashed.block.entity.AssignedDogHolder;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetManager;
 import net.minecraft.server.world.ServerWorld;
@@ -26,8 +26,9 @@ public final class DogDeathHandler {
         .getAssignedBedPos()
         .ifPresent(
             bedPos -> {
-              if (world.getBlockEntity(bedPos) instanceof DogBedBlockEntity bedEntity) {
-                bedEntity.clearAssignedDog(world);
+              if (world.getBlockEntity(bedPos) instanceof AssignedDogHolder holder
+                  && dog.getUuid().equals(holder.getAssignedDogUuid())) {
+                holder.clearAssignedDog(world);
               }
             });
 

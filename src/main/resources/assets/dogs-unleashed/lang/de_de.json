@@ -69,6 +69,7 @@
   "message.dogs-unleashed.play_end_no_retrieve": "%s konnte den %s nicht zurückholen",
   "message.dogs-unleashed.pending_bed_assignment": "%s ausgewählt! Rechtsklicke nun auf ein Hundebett, um ihn zuzuweisen",
   "message.dogs-unleashed.bed_assigned": "%s wurde diesem Bett zugewiesen",
+  "message.dogs-unleashed.bed_taken": "%s hat seinen Schlafplatz an %s verloren",
   "message.dogs-unleashed.no_pending_assignment": "Schleiche + rechtsklicke zuerst einen Hund, dann rechtsklicke dieses Bett",
   "message.dogs-unleashed.bed_refused": "%s ist zu groß und zu wild, um in einem Bett oder einer Hundehütte zu schlafen",
   "message.dogs-unleashed.summon_failed": "%s konnte nirgendwo gefunden werden",
