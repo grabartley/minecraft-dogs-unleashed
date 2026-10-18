@@ -2,8 +2,6 @@ package com.grahambartley.dogsunleashed.screen;
 
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.DogWheelAction;
-import com.grahambartley.dogsunleashed.entity.DogWheelSubAction;
-import com.grahambartley.dogsunleashed.entity.DogWheelSubActions;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.network.ModNetworkingClient;
 import com.grahambartley.dogsunleashed.network.payload.OpenCommandWheelPayload;
@@ -90,20 +88,14 @@ public class DogCommandWheelScreen extends Screen {
         };
     this.subEntries =
         payload.subActions().stream()
-            .flatMap(
+            .map(
                 state ->
-                    DogWheelSubActions.REGISTERED.byId(state.id()).stream()
-                        .map(
-                            action ->
-                                new SubEntry(
-                                    state,
-                                    action,
-                                    new ItemStack(Registries.ITEM.get(action.iconItemId())))))
+                    new SubEntry(state, new ItemStack(Registries.ITEM.get(state.iconItemId()))))
             .toList();
     this.ring = new CommandWheelRing(ACTIONS.length, this.subEntries.size());
   }
 
-  private record SubEntry(WheelSubActionState state, DogWheelSubAction action, ItemStack icon) {}
+  private record SubEntry(WheelSubActionState state, ItemStack icon) {}
 
   @Override
   public boolean shouldPause() {
@@ -343,7 +335,7 @@ public class DogCommandWheelScreen extends Screen {
     }
     if (this.ring.isSubRingOpen()) {
       ModNetworkingClient.sendSelectWheelSubAction(
-          this.dogId, this.subEntries.get(index).action().id());
+          this.dogId, this.subEntries.get(index).state().id());
       this.playClick();
       this.close();
       return;
@@ -388,7 +380,7 @@ public class DogCommandWheelScreen extends Screen {
 
   private String labelKeyAt(final int index) {
     if (this.ring.isSubRingOpen()) {
-      return this.subEntries.get(index).action().translationKey();
+      return this.subEntries.get(index).state().translationKey();
     }
     return this.ring.isActionsSector(index) ? ACTIONS_SECTOR_KEY : ACTIONS[index].translationKey();
   }

@@ -1,7 +1,6 @@
 package com.grahambartley.dogsunleashed.network.payload;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
-import com.grahambartley.dogsunleashed.entity.DogWheelSubActions;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.network.RegistryByteBuf;
@@ -27,7 +26,7 @@ public record OpenCommandWheelPayload(
   public static final PacketCodec<RegistryByteBuf, OpenCommandWheelPayload> CODEC =
       PacketCodec.of(OpenCommandWheelPayload::write, OpenCommandWheelPayload::read);
   private static final PacketCodec<RegistryByteBuf, List<WheelSubActionState>> SUB_ACTIONS_CODEC =
-      WheelSubActionState.CODEC.collect(PacketCodecs.toList(DogWheelSubActions.MAX_ACTIONS));
+      WheelSubActionState.CODEC.collect(PacketCodecs.toList(WheelSubActionState.MAX_PER_WHEEL));
 
   @Override
   public CustomPayload.Id<? extends CustomPayload> getId() {

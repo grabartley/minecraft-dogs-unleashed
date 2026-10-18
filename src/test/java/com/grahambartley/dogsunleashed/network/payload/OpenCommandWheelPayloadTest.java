@@ -7,13 +7,13 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.grahambartley.dogsunleashed.entity.DogWheelSubActions;
 import io.netty.handler.codec.DecoderException;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,6 +21,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 class OpenCommandWheelPayloadTest {
+
+  private static final Identifier BELL = Identifier.of("minecraft", "bell");
 
   static Stream<Arguments> payloads() {
     return Stream.of(
@@ -32,7 +34,7 @@ class OpenCommandWheelPayloadTest {
             false,
             "Good Boy",
             "screen.dogs-unleashed.command_wheel.ride.breed",
-            List.of(new WheelSubActionState(0, ""))),
+            List.of(new WheelSubActionState(0, "a.label", BELL, ""))),
         Arguments.of(
             "unicode name with sub-actions",
             7,
@@ -40,7 +42,9 @@ class OpenCommandWheelPayloadTest {
             true,
             "小白",
             "screen.dogs-unleashed.command_wheel.ride.busy",
-            List.of(new WheelSubActionState(2, ""), new WheelSubActionState(5, "some.refusal"))));
+            List.of(
+                new WheelSubActionState(2, "a.label", BELL, ""),
+                new WheelSubActionState(5, "b.label", BELL, "some.refusal"))));
   }
 
   @ParameterizedTest(name = "{0}")
@@ -89,8 +93,8 @@ class OpenCommandWheelPayloadTest {
   @DisplayName("a sub-action list longer than the registry cap is refused on decode")
   void oversizedSubActionListIsRefused() {
     final List<WheelSubActionState> tooMany =
-        IntStream.rangeClosed(0, DogWheelSubActions.MAX_ACTIONS)
-            .mapToObj(id -> new WheelSubActionState(id, ""))
+        IntStream.rangeClosed(0, WheelSubActionState.MAX_PER_WHEEL)
+            .mapToObj(id -> new WheelSubActionState(id, "a.label", BELL, ""))
             .toList();
     final RegistryByteBuf buf = newBuf();
     buf.writeVarInt(1);

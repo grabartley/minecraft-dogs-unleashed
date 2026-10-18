@@ -5,7 +5,9 @@ import com.grahambartley.dogsunleashed.entity.DogWheelSubActions;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
+import com.grahambartley.dogsunleashed.network.ModNetworking;
 import com.grahambartley.dogsunleashed.network.handler.WheelActionNetworkHandler;
+import com.grahambartley.dogsunleashed.network.payload.OpenCommandWheelPayload;
 import com.grahambartley.dogsunleashed.network.payload.SelectWheelSubActionPayload;
 import java.util.ArrayList;
 import java.util.List;
@@ -120,11 +122,15 @@ public final class DogWheelSubActionGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = 20)
-  public void shippedWheelHasNoSubActions(final TestContext context) {
+  public void openWheelPayloadCarriesEveryRegisteredSubAction(final TestContext context) {
     final Fixture fixture = fixture(context, null);
+    final OpenCommandWheelPayload payload =
+        ModNetworking.openCommandWheelPayload(fixture.owner(), fixture.dog());
     context.assertTrue(
-        DogWheelSubActions.REGISTERED.statesFor(fixture.dog(), fixture.owner()).isEmpty(),
-        "No feature registers a sub-action yet, so the Actions sector stays hidden");
+        payload
+            .subActions()
+            .equals(DogWheelSubActions.REGISTERED.statesFor(fixture.dog(), fixture.owner())),
+        "The wheel should list the registered sub-actions, got " + payload.subActions());
     context.complete();
   }
 }

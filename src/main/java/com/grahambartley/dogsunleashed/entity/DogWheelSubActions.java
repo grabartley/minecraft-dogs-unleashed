@@ -9,23 +9,19 @@ import net.minecraft.server.network.ServerPlayerEntity;
 
 public final class DogWheelSubActions {
 
-  public static final int MAX_ACTIONS = 16;
   public static final DogWheelSubActions REGISTERED = new DogWheelSubActions();
 
   private final List<DogWheelSubAction> actions = new ArrayList<>();
 
   public void register(final DogWheelSubAction action) {
-    if (this.actions.size() >= MAX_ACTIONS) {
-      throw new IllegalStateException("The actions wheel holds at most " + MAX_ACTIONS);
+    if (this.actions.size() >= WheelSubActionState.MAX_PER_WHEEL) {
+      throw new IllegalStateException(
+          "The actions wheel holds at most " + WheelSubActionState.MAX_PER_WHEEL);
     }
     if (this.byId(action.id()).isPresent()) {
       throw new IllegalArgumentException("Duplicate wheel sub-action id " + action.id());
     }
     this.actions.add(action);
-  }
-
-  public List<DogWheelSubAction> all() {
-    return List.copyOf(this.actions);
   }
 
   public Optional<DogWheelSubAction> byId(final int id) {
@@ -39,6 +35,8 @@ public final class DogWheelSubActions {
             action ->
                 new WheelSubActionState(
                     action.id(),
+                    action.translationKey(),
+                    action.iconItemId(),
                     Objects.requireNonNullElse(action.refusal().refusalKey(dog, player), "")))
         .toList();
   }

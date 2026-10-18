@@ -89,16 +89,19 @@ public final class ModNetworking {
 
   public static void sendOpenCommandWheel(
       final ServerPlayerEntity player, final UnleashedDogEntity dog) {
-    ServerPlayNetworking.send(
-        player,
-        new OpenCommandWheelPayload(
-            dog.getId(),
-            dog.getUuid(),
-            dog.getCommand().id(),
-            dog.getSleepController().getAssignedBedPos().isPresent(),
-            PetNames.tamedNameOf(dog),
-            Objects.requireNonNullElse(dog.getRiding().refusalKey(player), ""),
-            DogWheelSubActions.REGISTERED.statesFor(dog, player)));
+    ServerPlayNetworking.send(player, openCommandWheelPayload(player, dog));
+  }
+
+  public static OpenCommandWheelPayload openCommandWheelPayload(
+      final ServerPlayerEntity player, final UnleashedDogEntity dog) {
+    return new OpenCommandWheelPayload(
+        dog.getId(),
+        dog.getUuid(),
+        dog.getCommand().id(),
+        dog.getSleepController().getAssignedBedPos().isPresent(),
+        PetNames.tamedNameOf(dog),
+        Objects.requireNonNullElse(dog.getRiding().refusalKey(player), ""),
+        DogWheelSubActions.REGISTERED.statesFor(dog, player));
   }
 
   public static void sendOpenNamingScreen(

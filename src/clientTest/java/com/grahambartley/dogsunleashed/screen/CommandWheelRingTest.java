@@ -53,7 +53,7 @@ class CommandWheelRingTest {
   }
 
   @Test
-  @DisplayName("Escape returns to the main ring once, then falls through to closing")
+  @DisplayName("Escape returns to the main ring once and does nothing more on the main ring")
   void escapeReturnsToMainRing() {
     final CommandWheelRing ring = new CommandWheelRing(MAIN, 2);
     ring.openSubRing();

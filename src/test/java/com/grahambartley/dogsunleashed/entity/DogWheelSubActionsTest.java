@@ -13,20 +13,17 @@ import org.junit.jupiter.api.Test;
 
 class DogWheelSubActionsTest {
 
+  private static final Identifier BONE = Identifier.of("minecraft", "bone");
+
   private static DogWheelSubAction action(final int id, final String refusalKey) {
     return new DogWheelSubAction(
-        id,
-        "test.action." + id,
-        Identifier.of("minecraft", "bone"),
-        (dog, player) -> refusalKey,
-        (dog, player) -> {});
+        id, "test.action." + id, BONE, (dog, player) -> refusalKey, (dog, player) -> {});
   }
 
   @Test
   @DisplayName("a new registry has no actions, so the wheel shows no Actions sector")
   void newRegistryIsEmpty() {
     final DogWheelSubActions registry = new DogWheelSubActions();
-    assertTrue(registry.all().isEmpty());
     assertTrue(registry.statesFor(null, null).isEmpty());
   }
 
@@ -38,7 +35,9 @@ class DogWheelSubActionsTest {
     registry.register(action(2, null));
     registry.register(action(9, null));
 
-    assertEquals(List.of(5, 2, 9), registry.all().stream().map(DogWheelSubAction::id).toList());
+    assertEquals(
+        List.of(5, 2, 9),
+        registry.statesFor(null, null).stream().map(WheelSubActionState::id).toList());
   }
 
   @Test
@@ -64,11 +63,11 @@ class DogWheelSubActionsTest {
   @DisplayName("the actions ring is capped so the payload can bound what it reads")
   void registrationIsCapped() {
     final DogWheelSubActions registry = new DogWheelSubActions();
-    IntStream.range(0, DogWheelSubActions.MAX_ACTIONS)
+    IntStream.range(0, WheelSubActionState.MAX_PER_WHEEL)
         .forEach(id -> registry.register(action(id, null)));
     assertThrows(
         IllegalStateException.class,
-        () -> registry.register(action(DogWheelSubActions.MAX_ACTIONS, null)));
+        () -> registry.register(action(WheelSubActionState.MAX_PER_WHEEL, null)));
   }
 
   @Test
@@ -79,7 +78,9 @@ class DogWheelSubActionsTest {
     registry.register(action(2, "test.refused"));
 
     assertEquals(
-        List.of(new WheelSubActionState(1, ""), new WheelSubActionState(2, "test.refused")),
+        List.of(
+            new WheelSubActionState(1, "test.action.1", BONE, ""),
+            new WheelSubActionState(2, "test.action.2", BONE, "test.refused")),
         registry.statesFor(null, null));
   }
 }
