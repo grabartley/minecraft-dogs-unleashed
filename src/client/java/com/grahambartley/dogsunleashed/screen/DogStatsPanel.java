@@ -156,6 +156,7 @@ final class DogStatsPanel {
   private static double maxAcrossBreeds(final ToDoubleFunction<UnleashedDogBreed> stat) {
     return Arrays.stream(UnleashedDogBreed.values())
         .filter(UnleashedDogBreed::isNaturallySpawning)
+        .filter(breed -> !breed.nature().growsThroughStages())
         .mapToDouble(stat)
         .max()
         .orElse(0.0);

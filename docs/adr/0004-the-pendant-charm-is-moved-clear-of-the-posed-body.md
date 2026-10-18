@@ -15,9 +15,11 @@ Each frame, after the animation has posed the bones, the charm is checked agains
 
 Which cubes count as body is decided once per model, from the rest pose: a bone whose centre is on the far side of the collar from the mouth is body, and everything else is head. Only body cubes push the charm. If a push would land the charm inside the head, for example under the chin of a sleeping dog, the charm stays where the collar put it.
 
+Armour is a hard plate, so it is checked differently. When the dog wears armour, the charm is also checked against the armour shell, which is each armoured torso cube grown by the same amount the armour is drawn with. Here the back of the charm must be clear, so the whole charm sits on the front of the armour. The collar's own bone counts for this check too, since the armour covers it. The charm moves by whichever push is larger.
+
 ## Consequences
 
-The charm stays visible on a sitting dog of any breed with no breed-specific code, and any new breed or animation gets the same treatment. Poses where the charm was already visible are left exactly as they were.
+The charm stays visible on a sitting dog of any breed with no breed-specific code, and any new breed or animation gets the same treatment. Poses where the charm was already visible are left exactly as they were. A dog in armour shows the whole charm on the front of the armour instead of half of it sunk into the plate.
 
 The cost is a small amount of work every frame for each dog wearing a pendant: rebuilding the body and head boxes from the posed bones. Dogs without a pendant pay nothing.
 

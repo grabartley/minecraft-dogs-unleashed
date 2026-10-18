@@ -391,7 +391,7 @@ public final class UndeadDogGameTest implements FabricGameTest {
             dog.getBlockPos(),
             world.getRegistryKey().getValue().toString(),
             lifeState);
-    pet.syncAppearanceFrom(dog);
+    pet.syncFrom(dog);
     PetManager.get(world.getServer()).registerPet(pet);
     return pet;
   }

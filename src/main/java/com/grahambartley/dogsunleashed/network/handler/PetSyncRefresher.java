@@ -29,7 +29,7 @@ public final class PetSyncRefresher {
             pet.setHealth(newHealth);
             pet.setLastKnownPosition(newPos);
             pet.setDimension(newDim);
-            pet.syncAppearanceFrom(dog);
+            pet.syncFrom(dog);
             petManager.updatePet(pet);
           }
         }

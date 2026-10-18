@@ -479,6 +479,7 @@ public class PetManagerScreen extends Screen {
     BEAGLE(UnleashedDogBreed.BEAGLE),
     GOLDEN_RETRIEVER(UnleashedDogBreed.GOLDEN_RETRIEVER),
     SHIBA_INU(UnleashedDogBreed.SHIBA_INU),
+    DIRE_WOLF(UnleashedDogBreed.DIRE_WOLF),
     MIXED(UnleashedDogBreed.CROSS_BREED);
 
     private final UnleashedDogBreed breed;
@@ -506,6 +507,7 @@ public class PetManagerScreen extends Screen {
         case BEAGLE -> BEAGLE;
         case GOLDEN_RETRIEVER -> GOLDEN_RETRIEVER;
         case SHIBA_INU -> SHIBA_INU;
+        case DIRE_WOLF -> DIRE_WOLF;
         case CROSS_BREED -> MIXED;
       };
     }

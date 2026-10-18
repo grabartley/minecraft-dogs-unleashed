@@ -32,7 +32,7 @@ public class SleepInBedGoal extends Goal {
     if (!this.dog.isSleepingInBed() && !this.dog.isCommandedToSleep()) {
       return false;
     }
-    if (!this.dog.hasAssignedBed()) {
+    if (!this.dog.getAssignedBedPos().isPresent()) {
       return false;
     }
     this.targetBedPos = this.dog.getAssignedBedPos().get();

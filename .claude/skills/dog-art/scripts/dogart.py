@@ -12,18 +12,22 @@ Commands:
   patch      base.png block.txt out.png --at U V
   tobbmodel  geo png out.bbmodel [--name N]
   geocompare a.geo.json b.geo.json [--tolerance T]
+  animexport project.bbmodel out.animation.json [--step S]
+  tidygeo    in.geo.json out.geo.json [--places N]
 
 The rig profile beside the geo (rig_profiles/<name>.json) is read by default. Bones in its eyes slot are
 the closed-eye overlays the sleep animation swings into place, so they are hidden unless --asleep, and
 fur bones follow --fur-stage the way FurLook does in the client.
 """
 import argparse
+import json
 import os
 import sys
 from collections import defaultdict
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+import anim
 import bake
 import bbmodel
 import checks
@@ -211,6 +215,18 @@ def cmd_geocompare(args):
     return 1 if mismatches else 0
 
 
+def cmd_tidygeo(args):
+    bbmodel.tidy_geo(args.input, args.out, args.places)
+    print(f"wrote {args.out}: numbers rounded to {args.places} places")
+
+
+def cmd_animexport(args):
+    exported = anim.export_animations(anim.load_project(args.project), args.step)
+    with open(args.out, "w") as handle:
+        json.dump(exported, handle, indent="\t")
+    print(f"wrote {args.out}: {', '.join(exported['animations'])}")
+
+
 def add_rig_options(parser):
     parser.add_argument("--profile", help="rig profile; defaults to rig_profiles/<name>.json beside the geo")
     parser.add_argument("--asleep", action="store_true", help="show the eyes slot, as the sleep animation does")
@@ -295,6 +311,18 @@ def main(argv=None):
     p.add_argument("b")
     p.add_argument("--tolerance", type=float, default=1e-4)
     p.set_defaults(func=cmd_geocompare)
+
+    p = commands.add_parser("tidygeo")
+    p.add_argument("input")
+    p.add_argument("out")
+    p.add_argument("--places", type=int, default=4)
+    p.set_defaults(func=cmd_tidygeo)
+
+    p = commands.add_parser("animexport")
+    p.add_argument("project")
+    p.add_argument("out")
+    p.add_argument("--step", type=float, default=0.05, help="seconds between baked keys for catmullrom channels")
+    p.set_defaults(func=cmd_animexport)
 
     args = parser.parse_args(argv)
     return args.func(args) or 0

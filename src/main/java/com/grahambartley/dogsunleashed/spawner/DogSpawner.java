@@ -6,7 +6,10 @@ import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
@@ -17,11 +20,13 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.spawner.SpecialSpawner;
+import org.jetbrains.annotations.Nullable;
 
 public class DogSpawner implements SpecialSpawner {
 
@@ -30,6 +35,7 @@ public class DogSpawner implements SpecialSpawner {
   static final int MIN_SPAWN_DISTANCE_BLOCKS = 24;
   static final int MAX_SPAWN_DISTANCE_BLOCKS = 48;
   static final int PACK_SCATTER_RADIUS_BLOCKS = 3;
+  static final int PLACEMENT_ATTEMPTS = 4;
   public static final int UNTAMED_DOG_CAP = 4;
   public static final int UNTAMED_DOG_CAP_RADIUS_BLOCKS = 64;
   private static final int REGION_LOADED_MARGIN_BLOCKS = 8;
@@ -40,7 +46,7 @@ public class DogSpawner implements SpecialSpawner {
   public int spawn(
       final ServerWorld world, final boolean spawnMonsters, final boolean spawnAnimals) {
     final DogsUnleashedConfig config = DogsUnleashed.SERVER_CONFIG;
-    if (!config.capIndependentSpawningEnabled() || !config.enableNaturalSpawning()) {
+    if (!config.enableNaturalSpawning()) {
       return 0;
     }
     if (!spawnAnimals || !world.getGameRules().getBoolean(GameRules.DO_MOB_SPAWNING)) {
@@ -85,41 +91,105 @@ public class DogSpawner implements SpecialSpawner {
     }
     final UnleashedDogBreed breed =
         pickWeighted(candidates, config, random.nextInt(totalEffective));
-    return spawnPack(world, breed, surface);
+    if (!spawnsThroughThisSpawner(breed, config.capIndependentSpawningEnabled())) {
+      return 0;
+    }
+    if (breed.spawnSettings().packOnly()
+        && countUntamedDogsNear(world, surface, nearby -> nearby == breed) > 0) {
+      return 0;
+    }
+    return spawnPack(world, breed, surface, config);
+  }
+
+  public static boolean spawnsThroughThisSpawner(
+      final UnleashedDogBreed breed, final boolean capIndependentSpawningEnabled) {
+    return capIndependentSpawningEnabled || breed.spawnSettings().packOnly();
+  }
+
+  public static boolean placesPack(final int placed, final int packSize, final boolean packOnly) {
+    return packOnly ? placed == packSize : placed > 0;
+  }
+
+  public static int smallestPack(final UnleashedDogBreed breed, final DogsUnleashedConfig config) {
+    return breed.spawnSettings().packOnly()
+        ? config.direWolf().smallestPack()
+        : breed.spawnSettings().minGroupSize();
+  }
+
+  public static int largestPack(final UnleashedDogBreed breed, final DogsUnleashedConfig config) {
+    return breed.spawnSettings().packOnly()
+        ? config.direWolf().largestPack()
+        : breed.spawnSettings().maxGroupSize();
   }
 
   private int spawnPack(
-      final ServerWorld world, final UnleashedDogBreed breed, final BlockPos center) {
+      final ServerWorld world,
+      final UnleashedDogBreed breed,
+      final BlockPos center,
+      final DogsUnleashedConfig config) {
     final UnleashedDogBreed.SpawnSettings settings = breed.spawnSettings();
     final Random random = world.random;
-    final int packSize =
-        settings.minGroupSize()
-            + random.nextInt(settings.maxGroupSize() - settings.minGroupSize() + 1);
+    final int smallest = smallestPack(breed, config);
+    final int packSize = smallest + random.nextInt(largestPack(breed, config) - smallest + 1);
     final EntityType<? extends UnleashedDogEntity> type = ModEntities.getDogEntityType(breed);
-    EntityData entityData = null;
-    int spawned = 0;
+    final List<UnleashedDogEntity> pack = new ArrayList<>();
+    final Set<Long> usedColumns = new HashSet<>();
+    final int attempts = placementAttempts(settings.packOnly());
     for (int i = 0; i < packSize; i++) {
-      final BlockPos pos = i == 0 ? center : scatterAround(world, center, random);
-      if (!SpawnRestriction.isSpawnPosAllowed(type, world, pos)
+      final UnleashedDogEntity dog =
+          placeMember(world, type, center, i == 0, attempts, usedColumns);
+      if (dog != null) {
+        pack.add(dog);
+      }
+    }
+    if (!placesPack(pack.size(), packSize, settings.packOnly())) {
+      pack.forEach(UnleashedDogEntity::discard);
+      return 0;
+    }
+    EntityData entityData = null;
+    for (final UnleashedDogEntity dog : pack) {
+      dog.setSpawnedByDogSpawner(true);
+      entityData =
+          dog.initialize(
+              world, world.getLocalDifficulty(dog.getBlockPos()), SpawnReason.NATURAL, entityData);
+      world.spawnEntityAndPassengers(dog);
+    }
+    return pack.size();
+  }
+
+  public static int placementAttempts(final boolean packOnly) {
+    return packOnly ? PLACEMENT_ATTEMPTS : 1;
+  }
+
+  private static @Nullable UnleashedDogEntity placeMember(
+      final ServerWorld world,
+      final EntityType<? extends UnleashedDogEntity> type,
+      final BlockPos center,
+      final boolean leader,
+      final int attempts,
+      final Set<Long> usedColumns) {
+    final Random random = world.random;
+    for (int attempt = 0; attempt < attempts; attempt++) {
+      final BlockPos pos = leader && attempt == 0 ? center : scatterAround(world, center, random);
+      final long column = ChunkPos.toLong(pos.getX(), pos.getZ());
+      if ((attempts > 1 && usedColumns.contains(column))
+          || !SpawnRestriction.isSpawnPosAllowed(type, world, pos)
           || !SpawnRestriction.canSpawn(type, world, SpawnReason.NATURAL, pos, random)) {
         continue;
       }
       final UnleashedDogEntity dog = type.create(world);
       if (dog == null) {
-        continue;
+        return null;
       }
       dog.refreshPositionAndAngles(pos, random.nextFloat() * 360.0F, 0.0F);
       if (!world.isSpaceEmpty(dog)) {
         dog.discard();
         continue;
       }
-      dog.setSpawnedByDogSpawner(true);
-      entityData =
-          dog.initialize(world, world.getLocalDifficulty(pos), SpawnReason.NATURAL, entityData);
-      world.spawnEntityAndPassengers(dog);
-      spawned++;
+      usedColumns.add(column);
+      return dog;
     }
-    return spawned;
+    return null;
   }
 
   public static List<UnleashedDogBreed> spawnableBreedsIn(
@@ -174,15 +244,18 @@ public class DogSpawner implements SpecialSpawner {
   }
 
   public static int countUntamedDogsNear(final ServerWorld world, final BlockPos center) {
+    return countUntamedDogsNear(world, center, breed -> true);
+  }
+
+  public static int countUntamedDogsNear(
+      final ServerWorld world, final BlockPos center, final Predicate<UnleashedDogBreed> breeds) {
     final Box searchBox = new Box(center).expand(UNTAMED_DOG_CAP_RADIUS_BLOCKS);
-    int count = 0;
-    for (final UnleashedDogEntity dog :
-        world.getNonSpectatingEntities(UnleashedDogEntity.class, searchBox)) {
-      if (!dog.isTamed()) {
-        count++;
-      }
-    }
-    return count;
+    return world
+        .getEntitiesByClass(
+            UnleashedDogEntity.class,
+            searchBox,
+            dog -> !dog.isSpectator() && !dog.isTamed() && breeds.test(dog.getBreed()))
+        .size();
   }
 
   private static int nextSpawnOffset(final Random random) {

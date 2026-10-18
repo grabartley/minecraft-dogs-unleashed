@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.network;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
+import com.grahambartley.dogsunleashed.config.DireWolfSettings;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.RegistryByteBuf;
@@ -74,6 +75,10 @@ public final class ServerConfigPayloads {
     buf.writeBoolean(config.furGrowthEnabled());
     buf.writeVarInt(config.furGrowthRateMultiplierPercent());
     buf.writeVarInt(config.badHairDayChanceMultiplierPercent());
+    buf.writeVarInt(config.direWolf().growthRateMultiplierPercent());
+    buf.writeVarInt(config.direWolf().battlesToEvolve());
+    buf.writeVarInt(config.direWolf().smallestPack());
+    buf.writeVarInt(config.direWolf().largestPack());
   }
 
   private static DogsUnleashedConfig readConfig(final RegistryByteBuf buf) {
@@ -91,6 +96,8 @@ public final class ServerConfigPayloads {
         buf.readBoolean(),
         buf.readBoolean(),
         buf.readVarInt(),
-        buf.readVarInt());
+        buf.readVarInt(),
+        new DireWolfSettings(
+            buf.readVarInt(), buf.readVarInt(), buf.readVarInt(), buf.readVarInt()));
   }
 }

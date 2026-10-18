@@ -24,6 +24,7 @@ import com.grahambartley.dogsunleashed.network.payload.SyncPetManagerStatePayloa
 import com.grahambartley.dogsunleashed.network.payload.SyncPetsPayload;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import com.grahambartley.dogsunleashed.pet.PetManager;
+import com.grahambartley.dogsunleashed.pet.PetNames;
 import java.util.List;
 import java.util.UUID;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -86,8 +87,8 @@ public final class ModNetworking {
             dog.getId(),
             dog.getUuid(),
             dog.getCommand().id(),
-            dog.hasAssignedBed(),
-            dog.getTamedName()));
+            dog.getAssignedBedPos().isPresent(),
+            PetNames.tamedNameOf(dog)));
   }
 
   public static void sendOpenNamingScreen(

@@ -35,7 +35,8 @@ public record DogsUnleashedConfig(
     boolean showDogNames,
     boolean furGrowthEnabled,
     int furGrowthRateMultiplierPercent,
-    int badHairDayChanceMultiplierPercent) {
+    int badHairDayChanceMultiplierPercent,
+    DireWolfSettings direWolf) {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DogsUnleashedConfig.class);
   private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -80,6 +81,7 @@ public record DogsUnleashedConfig(
   static final String KEY_FUR_GROWTH_RATE_MULTIPLIER_PERCENT = "furGrowthRateMultiplierPercent";
   static final String KEY_BAD_HAIR_DAY_CHANCE_MULTIPLIER_PERCENT =
       "badHairDayChanceMultiplierPercent";
+  static final String KEY_DIRE_WOLF = "direWolf";
 
   public DogsUnleashedConfig {
     spawnRateMultiplierPercent =
@@ -94,6 +96,7 @@ public record DogsUnleashedConfig(
     badHairDayChanceMultiplierPercent =
         clampInt(
             badHairDayChanceMultiplierPercent, BAD_HAIR_DAY_CHANCE_MIN, BAD_HAIR_DAY_CHANCE_MAX);
+    direWolf = direWolf == null ? DireWolfSettings.DEFAULTS : direWolf;
   }
 
   public static DogsUnleashedConfig defaults() {
@@ -111,7 +114,8 @@ public record DogsUnleashedConfig(
         DEFAULT_SHOW_DOG_NAMES,
         DEFAULT_FUR_GROWTH_ENABLED,
         DEFAULT_FUR_GROWTH_RATE_MULTIPLIER_PERCENT,
-        DEFAULT_BAD_HAIR_DAY_CHANCE_MULTIPLIER_PERCENT);
+        DEFAULT_BAD_HAIR_DAY_CHANCE_MULTIPLIER_PERCENT,
+        DireWolfSettings.DEFAULTS);
   }
 
   public int effectiveSpawnWeight(final int baseWeight, final String breedSerializedId) {
@@ -141,7 +145,8 @@ public record DogsUnleashedConfig(
         showDogNames,
         furGrowthEnabled,
         furGrowthRateMultiplierPercent,
-        badHairDayChanceMultiplierPercent);
+        badHairDayChanceMultiplierPercent,
+        direWolf);
   }
 
   public DogsUnleashedConfig withSpawnRateMultiplierPercent(int value) {
@@ -159,7 +164,8 @@ public record DogsUnleashedConfig(
         showDogNames,
         furGrowthEnabled,
         furGrowthRateMultiplierPercent,
-        badHairDayChanceMultiplierPercent);
+        badHairDayChanceMultiplierPercent,
+        direWolf);
   }
 
   public DogsUnleashedConfig withBreedSpawnRateMultiplierPercent(
@@ -180,7 +186,8 @@ public record DogsUnleashedConfig(
         showDogNames,
         furGrowthEnabled,
         furGrowthRateMultiplierPercent,
-        badHairDayChanceMultiplierPercent);
+        badHairDayChanceMultiplierPercent,
+        direWolf);
   }
 
   public DogsUnleashedConfig withCapIndependentSpawningEnabled(boolean value) {
@@ -198,7 +205,8 @@ public record DogsUnleashedConfig(
         showDogNames,
         furGrowthEnabled,
         furGrowthRateMultiplierPercent,
-        badHairDayChanceMultiplierPercent);
+        badHairDayChanceMultiplierPercent,
+        direWolf);
   }
 
   public DogsUnleashedConfig withGravesEnabled(boolean value) {
@@ -216,7 +224,8 @@ public record DogsUnleashedConfig(
         showDogNames,
         furGrowthEnabled,
         furGrowthRateMultiplierPercent,
-        badHairDayChanceMultiplierPercent);
+        badHairDayChanceMultiplierPercent,
+        direWolf);
   }
 
   public DogsUnleashedConfig withDropLeashOnPlayMode(boolean value) {
@@ -234,7 +243,8 @@ public record DogsUnleashedConfig(
         showDogNames,
         furGrowthEnabled,
         furGrowthRateMultiplierPercent,
-        badHairDayChanceMultiplierPercent);
+        badHairDayChanceMultiplierPercent,
+        direWolf);
   }
 
   public DogsUnleashedConfig withAutoSleepEnabled(boolean value) {
@@ -252,7 +262,8 @@ public record DogsUnleashedConfig(
         showDogNames,
         furGrowthEnabled,
         furGrowthRateMultiplierPercent,
-        badHairDayChanceMultiplierPercent);
+        badHairDayChanceMultiplierPercent,
+        direWolf);
   }
 
   public DogsUnleashedConfig withAutoSleepRangeBlocks(int value) {
@@ -270,7 +281,8 @@ public record DogsUnleashedConfig(
         showDogNames,
         furGrowthEnabled,
         furGrowthRateMultiplierPercent,
-        badHairDayChanceMultiplierPercent);
+        badHairDayChanceMultiplierPercent,
+        direWolf);
   }
 
   public DogsUnleashedConfig withBarkVolume(float value) {
@@ -288,7 +300,8 @@ public record DogsUnleashedConfig(
         showDogNames,
         furGrowthEnabled,
         furGrowthRateMultiplierPercent,
-        badHairDayChanceMultiplierPercent);
+        badHairDayChanceMultiplierPercent,
+        direWolf);
   }
 
   public DogsUnleashedConfig withHowlVolume(float value) {
@@ -306,7 +319,8 @@ public record DogsUnleashedConfig(
         showDogNames,
         furGrowthEnabled,
         furGrowthRateMultiplierPercent,
-        badHairDayChanceMultiplierPercent);
+        badHairDayChanceMultiplierPercent,
+        direWolf);
   }
 
   public DogsUnleashedConfig withShowDogNames(boolean value) {
@@ -324,7 +338,8 @@ public record DogsUnleashedConfig(
         value,
         furGrowthEnabled,
         furGrowthRateMultiplierPercent,
-        badHairDayChanceMultiplierPercent);
+        badHairDayChanceMultiplierPercent,
+        direWolf);
   }
 
   public DogsUnleashedConfig withFurGrowthEnabled(boolean value) {
@@ -342,7 +357,8 @@ public record DogsUnleashedConfig(
         showDogNames,
         value,
         furGrowthRateMultiplierPercent,
-        badHairDayChanceMultiplierPercent);
+        badHairDayChanceMultiplierPercent,
+        direWolf);
   }
 
   public DogsUnleashedConfig withFurGrowthRateMultiplierPercent(int value) {
@@ -360,7 +376,8 @@ public record DogsUnleashedConfig(
         showDogNames,
         furGrowthEnabled,
         value,
-        badHairDayChanceMultiplierPercent);
+        badHairDayChanceMultiplierPercent,
+        direWolf);
   }
 
   public DogsUnleashedConfig withBadHairDayChanceMultiplierPercent(int value) {
@@ -378,6 +395,26 @@ public record DogsUnleashedConfig(
         showDogNames,
         furGrowthEnabled,
         furGrowthRateMultiplierPercent,
+        value,
+        direWolf);
+  }
+
+  public DogsUnleashedConfig withDireWolf(final DireWolfSettings value) {
+    return new DogsUnleashedConfig(
+        enableNaturalSpawning,
+        spawnRateMultiplierPercent,
+        breedSpawnRateMultipliersPercent,
+        capIndependentSpawningEnabled,
+        gravesEnabled,
+        dropLeashOnPlayMode,
+        autoSleepEnabled,
+        autoSleepRangeBlocks,
+        barkVolume,
+        howlVolume,
+        showDogNames,
+        furGrowthEnabled,
+        furGrowthRateMultiplierPercent,
+        badHairDayChanceMultiplierPercent,
         value);
   }
 
@@ -508,7 +545,8 @@ public record DogsUnleashedConfig(
         showDogNames,
         furGrowthEnabled,
         rawFurRate,
-        rawBadHairDay);
+        rawBadHairDay,
+        DireWolfSettings.fromJson(fields.readObject(KEY_DIRE_WOLF)));
   }
 
   static JsonObject toJson(DogsUnleashedConfig config) {
@@ -533,6 +571,7 @@ public record DogsUnleashedConfig(
     root.addProperty(KEY_FUR_GROWTH_RATE_MULTIPLIER_PERCENT, config.furGrowthRateMultiplierPercent);
     root.addProperty(
         KEY_BAD_HAIR_DAY_CHANCE_MULTIPLIER_PERCENT, config.badHairDayChanceMultiplierPercent);
+    root.add(KEY_DIRE_WOLF, config.direWolf.toJson());
     return root;
   }
 

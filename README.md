@@ -19,7 +19,7 @@
 
 # Dogs Unleashed
 
-Dogs Unleashed adds five dog breeds to Minecraft. Each one has its own look, coats, voice and home biome, and is fully
+Dogs Unleashed adds six dog breeds to Minecraft. Each one has its own look, coats, voice and home biome, and is fully
 animated. You can tame them, give them commands, play fetch, put them to bed, and raise families of them.
 
 > **Alpha:** Dogs Unleashed is in alpha and we would love your feedback.
@@ -34,8 +34,14 @@ animated. You can tame them, give them commands, play fetch, put them to bed, an
 | **Beagle**           | Forests and meadows                       | 12                        |
 | **Golden Retriever** | Beaches                                   | 1, the classic golden     |
 | **Shiba Inu**        | Cherry groves                             | 3: red, black and sesame  |
+| **Dire Wolf**        | Packs in the coldest peaks and ice fields | 6, from smoke grey to albino white |
 
 Breeds differ in size, health, speed and bite. Some coats are rarer than others.
+
+The dire wolf is the rare one. It only roams the coldest peaks, slopes and ice fields, always in a pack with pups. A pup
+grows into an adult bigger than any other dog, then a prime the size of a horse. To raise an alpha, bigger still, your
+prime has to win 20 battles beside you and then eat an Enchanted Golden Apple. Dire wolves are harder to tame, they
+bark and howl, and they only breed with each other. Tame one of every coat to earn "Winter is Coming".
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/main/docs/all%20huskies.png" alt="Husky coat variants" width="800">
@@ -67,18 +73,18 @@ Breeds differ in size, health, speed and bite. Some coats are rarer than others.
 and Go to Bed. Hunting dogs leave your other pets, villagers and golems alone, but name your farm animals to keep them safe.
 - **Play fetch.** Throw a stick, a tennis ball or a frisbee. Your dog chases it, picks it up and brings it back to you.
 - **Give them a bed.** Craft a dog bed or a dog house in any colour and assign it. Your dog goes to bed by itself at
-night.
+night. Dire wolves are too big for either and sleep where they lie.
 - **Kit them out.** Open their gear from the command wheel. Craft them armour from leather, iron, gold, diamond or netherite, or use wolf armour. Your tamed wolves can wear it too. It takes hits for them, cracks as it wears, and mends with its own material. Dye leather armour and their collar any colour, and feed them treats for a short speed and damage boost. Hang a pendant on their collar to keep a mob family away from you both, shield them from fire, falls or drowning, heal you while they're near, or save them from death once.
 - **Keep them groomed.** Coats grow out over time, and a long coat slows a dog down. Trim it with shears to collect dog fur. Go
 carefully, or your dog ends up with a bad hair day until it grows back.
 - **Never lose them.** Your dogs follow you through portals, unless they are sitting, staying or guarding. Bind a dog whistle to call one from anywhere, or open the
 Pet Manager to see and summon your whole pack.
-- **Raise a family.** Any two living tamed dogs can have puppies, and mixed parents give a mixed breed puppy. Every dog has a
+- **Raise a family.** Any two living tamed dogs can have puppies, and mixed parents give a mixed breed puppy. Dire wolves only breed with dire wolves. Every dog has a
 family tree you can explore.
 - **Bring them back.** A tamed dog that dies leaves a grave. Put a totem in it and a lightning rod above it, then wait
 for a storm. Your dog comes back undead and burns in daylight unless it has shade, armour, or a fire pendant. Cure it the same way you
 cure a zombie villager. If it dies while undead, it is gone for good, unless it wears a Pendant of Loyalty.
-- **Little touches.** Huskies howl at the full moon, dogs tilt their heads at food, and they shake off after rain or a
+- **Little touches.** Huskies and dire wolves howl at the full moon, dogs tilt their heads at food, and they shake off after rain or a
 swim. There is also an advancement tab to work through.
 
 ## Install
@@ -105,17 +111,20 @@ only operators can.
 | Spawn Dogs in the Wild    | On      | Whether dogs spawn in their biomes. Needs a world restart.                        |
 | Spawn Rate                | 100%    | How often dogs spawn, from 0% to 500%. Needs a world restart.                     |
 | Spawn Rate (per breed)    | 100%    | The same, for one breed. Needs a world restart.                                   |
-| Cap-Independent Spawner   | On      | Lets small packs of wild dogs spawn near you even in well-explored areas.         |
+| Cap-Independent Spawner   | On      | Lets small packs of wild dogs spawn near you even in well-explored areas. Dire wolf packs spawn this way even when it is off. |
 | Dog Graves on Death       | On      | Whether a tamed dog leaves a grave when it dies. Its gear drops either way.                        |
 | Drop Leash on Play Mode   | On      | Off keeps the lead on, and fetch waits until you take it off.                     |
 | Show Dog Names            | On      | Shows or hides name tags above dogs.                                              |
 | Auto-Sleep at Night       | On      | Whether dogs go to bed by themselves.                                             |
 | Auto-Sleep Range (blocks) | 32      | How far from its bed a dog can be and still go to sleep, from 4 to 128.           |
 | Bark Volume               | 1.0     | How loud barks are, from 0.0 to 2.0.                                              |
-| Husky Howl Volume         | 1.5     | How loud howls are, from 0.0 to 2.0.                                              |
+| Howl Volume               | 1.5     | How loud howls are, from 0.0 to 2.0.                                              |
 | Fur Growth                | On      | Whether coats grow out. Off keeps every coat as it is. Shears still work.          |
 | Fur Growth Speed          | 100%    | How fast coats grow, from 0% to 500%.                                             |
 | Bad Haircut Chance        | 100%    | How often a trim goes wrong, from 0% to 500%. 0% means every trim is clean.       |
+| Dire Wolf Growth Speed    | 100%    | How fast dire wolves grow up, from 0% to 500%. 0% stops them growing.             |
+| Alpha Battles             | 20      | Fights a prime must win beside you before it can become an alpha, from 1 to 200.  |
+| Smallest / Largest Pack   | 5 / 10  | How many dire wolves a wild pack has, from 4 to 16.                               |
 
 </details>
 
@@ -140,13 +149,17 @@ Every subcommand needs operator permission.
 /dogsunleashed config furgrowth <true|false>
 /dogsunleashed config furgrowthrate <0..500>
 /dogsunleashed config badhairdaychance <0..500>
+/dogsunleashed config direwolf growthrate <0..500>
+/dogsunleashed config direwolf battles <1..200>
+/dogsunleashed config direwolf smallestpack <4..16>
+/dogsunleashed config direwolf largestpack <4..16>
 /dogsunleashed config reset
 /dogsunleashed list <player>
 /dogsunleashed summon <player> <petId>
 /dogsunleashed find <petId>
 ```
 
-The breed ids are `husky`, `dachshund`, `beagle`, `goldenretriever` and `shibainu`. `list`, `summon` and `find` let
+The breed ids are `husky`, `dachshund`, `beagle`, `goldenretriever`, `shibainu` and `direwolf`. `list`, `summon` and `find` let
 operators look up and call back any player's dogs.
 
 </details>

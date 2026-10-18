@@ -15,7 +15,7 @@ public final class DogDeathHandler {
     final PetManager petManager = PetManager.get(world.getServer());
     final PetData petData = petManager.getPetByEntityId(dog.getUuid());
     if (petData != null) {
-      petData.syncAppearanceFrom(dog);
+      petData.syncFrom(dog);
       petManager.updatePet(petData);
     }
     petManager.markPetDeceased(dog.getUuid(), dog.isUndead());

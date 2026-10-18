@@ -37,10 +37,19 @@ maps, checks and diffs the exports. The workflow is:
 2. `bbmodel_validate` for broken references, slivers and floating parts, `bbmodel_contact_sheet`
    or `bbmodel_render` to look at it with Blockbench's renderer, and `bbmodel_web_url` for a link
    that opens the project in the Blockbench web app for the artist.
-3. `bbmodel_export_bedrock_geometry` to the repo's geo path. That is the same geometry the GeckoLib
-   plugin's export writes.
+3. `bbmodel_export_bedrock_geometry` into the rig's folder in `~/blockbench`, then
+   `python3 $D tidygeo export.geo.json <repo geo path>`. The MCP export writes float noise such as
+   `7.999999999999999`, which GeckoLib floors to 7 when it lays out box UV, shifting every face of
+   that cube. `tidygeo` rounds to 4 places the way Blockbench's own codec does.
 4. `python3 $D geocompare` the new geo against `main` to see every bone and cube that moved, then
-   the gates below.
+   the gates below. It also reports any cube whose floored box UV size changed.
+5. Animations live in the project too. The MCP has no animation export, so
+   `python3 $D animexport project.bbmodel <repo animation path>` writes GeckoLib's JSON. Blockbench
+   5.0 projects store rotation x, rotation y and position x keyframes with the opposite sign to the
+   JSON, and the export flips them back. GeckoLib has no Catmull-Rom spline (its `catmullrom` is an
+   ease per segment), so spline channels are baked into linear keys every `--step` seconds and
+   simplified to stay within 0.2 of the curve. Judge poses with `bbmodel_render` on a clip, which
+   draws the project convention correctly.
 
 If a breed has no project yet, make one from the shipped export: `python3 $D tobbmodel geo png
 out.bbmodel`. Every shipped rig round-trips through that and the MCP export with zero mismatches.
@@ -62,10 +71,12 @@ ever committed. `.gitignore` refuses them.
 | `diff a.png b.png [out.png] [--fail-on-change]` | How many visible pixels changed, and where | instant |
 | `patch base.png block.txt out.png --at U V` | Paint a palette-mapped text block onto a sheet | instant |
 | `tobbmodel geo png out.bbmodel` | A Blockbench project of a shipped rig with its texture embedded | instant |
-| `geocompare a.geo.json b.geo.json` | Bone-by-bone, cube-by-cube numeric diff of two rigs | instant |
+| `geocompare a.geo.json b.geo.json` | Bone-by-bone, cube-by-cube numeric diff of two rigs, including floored box UV sizes | instant |
+| `tidygeo in.geo.json out.geo.json` | Round an MCP export's float noise away before it reaches the repo | instant |
+| `animexport project.bbmodel out.json [--step S]` | GeckoLib animation JSON from a project's clips, sign-corrected and spline-baked | instant |
 
 It needs nothing but the system Python, and it is split by concern: `pngio.py`, `bake.py`,
-`render.py`, `checks.py`, `bbmodel.py`, each with its own `test_*.py`, and `dogart.py` as the
+`render.py`, `checks.py`, `bbmodel.py`, `anim.py`, each with its own `test_*.py`, and `dogart.py` as the
 command line. The geometry follows GeckoLib 4.7's `BakedModelFactory` exactly: x mirrored, bone
 and cube x and y angles negated, box UV sizes floored, the first side patch on the model's +x
 face, the bottom face laid out front to back, mirrored cubes swapping their side patches and
@@ -116,7 +127,14 @@ Views: `front`, `front34`, `left`, `right`, `back`, `back34`, `top`, or `--yaw` 
    ```
 6. **Prove it in game** with `scripted-qa`: Pet Manager portrait, a close-up at two blocks and a
    view at ten blocks, each beside the same shot on `main`. World lighting, animation and the
-   portrait scale all change how a coat reads, and only the game shows them.
+   portrait scale all change how a coat reads, and only the game shows them. Some checks only
+   mean something under the right conditions:
+   - The head tilt only plays while the nearest player holds a treat or a taming item, so a tilt
+     shot without one proves nothing.
+   - A size claim against another mob (as big as a horse) is a measurement, not a look: put both
+     at the same distance on a plain background and compare the back height in pixels.
+   - Gear goes on every breed it changes. A pendant over armour must show its whole charm,
+     back plate included, from the front and three-quarter views.
 7. **Hand off.** The PR carries the renders or screenshots the gate asks for. Anything the artist
    corrects afterwards goes into `reference/review-log.md` as before, after and why.
 
@@ -166,14 +184,20 @@ assumption that produced it: the reference is always the shipped asset on `main`
 - In game, `SlotRegions` derives each slot's texel rectangles from the baked rig. That is the
   authority for code that paints onto a slot; `faces` is the authoring view of the same thing,
   and both read the same GeckoLib layout.
-- Collar textures are a single flat white tinted at render time. Overlays are translucent PNGs
+- Collar textures are a single flat white tinted at render time. A collar must wrap the neck as
+  a band you can see from the side and back, not a patch on the chest, and it must be painted on
+  the front of the throat: the charm hangs from the lowest painted collar texel on a forward
+  face. Overlays are translucent PNGs
   over the coat's own UV.
 - Several shipped faces are partly or fully transparent on purpose: eyelid and eye cubes are
   overlays over the head, and mirrored tuft cubes share one patch. `check` reports those as holes
   and unpainted faces without failing. `--strict` makes holes, stray paint and off-sheet faces
   fail and is for new sheets. `--fail-unpainted` is for a sheet that must have every face painted.
-- GeckoLib floors fractional cube sizes before laying out box UV, so a 4.3-wide face reads 4
-  texels. Paint the floored rectangle.
+- Author every cube with whole-number sizes and reach the visible size with `inflate`. GeckoLib
+  floors fractional sizes before laying out box UV, but Blockbench and `bbmodel_render` do not, so
+  a fractional cube looks right in game and shows see-through gaps and shifted faces in Blockbench.
+  With one inflate per cube its visible sides differ by whole numbers; design within that, and
+  anchor the faces that must line up (paws on the ground, the nose at the muzzle tip).
 
 `reference/style-guide.md` holds the measured numbers behind these rules, the colour findings and
 the proportions of every shipped breed.

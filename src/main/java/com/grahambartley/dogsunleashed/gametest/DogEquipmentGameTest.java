@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
+import com.grahambartley.dogsunleashed.entity.DogWorldTransfer;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
@@ -187,7 +188,8 @@ public final class DogEquipmentGameTest implements FabricGameTest {
 
     final BlockPos destination = context.getAbsolutePos(OWNER_POS);
     final UnleashedDogEntity summoned =
-        dog.teleportToWorld(context.getWorld(), Vec3d.ofBottomCenter(destination));
+        DogWorldTransfer.teleportToWorld(
+            dog, context.getWorld(), Vec3d.ofBottomCenter(destination));
 
     assertSlotHolds(context, summoned, DogEquipmentSlot.ARMOUR, Items.WOLF_ARMOR);
     assertSlotHolds(context, summoned, DogEquipmentSlot.PENDANT, Items.GOLD_INGOT);

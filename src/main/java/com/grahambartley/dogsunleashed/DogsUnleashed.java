@@ -1,15 +1,17 @@
 package com.grahambartley.dogsunleashed;
 
+import com.grahambartley.dogsunleashed.advancement.DogHowledCriterion;
 import com.grahambartley.dogsunleashed.advancement.DogShearBotchedCriterion;
 import com.grahambartley.dogsunleashed.advancement.DogSleptInBedCriterion;
+import com.grahambartley.dogsunleashed.advancement.DogTamedCriterion;
 import com.grahambartley.dogsunleashed.advancement.FetchReturnedCriterion;
-import com.grahambartley.dogsunleashed.advancement.HuskyHowledCriterion;
 import com.grahambartley.dogsunleashed.advancement.PetCuredCriterion;
 import com.grahambartley.dogsunleashed.advancement.PetResurrectedCriterion;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
 import com.grahambartley.dogsunleashed.command.DogsUnleashedCommand;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.entity.DogPlaySession;
+import com.grahambartley.dogsunleashed.listener.DogBattleListener;
 import com.grahambartley.dogsunleashed.listener.PendantEffectListener;
 import com.grahambartley.dogsunleashed.listener.PetLocationSyncListener;
 import com.grahambartley.dogsunleashed.listener.PlayerDimensionChangeListener;
@@ -38,7 +40,8 @@ public class DogsUnleashed implements ModInitializer {
 
   @Override
   public void onInitialize() {
-    HuskyHowledCriterion.register();
+    DogHowledCriterion.register();
+    DogTamedCriterion.register();
     FetchReturnedCriterion.register();
     DogSleptInBedCriterion.register();
     DogShearBotchedCriterion.register();
@@ -64,6 +67,7 @@ public class DogsUnleashed implements ModInitializer {
     PetLocationSyncListener.initialize();
     ResurrectionRitualListener.initialize();
     PendantEffectListener.initialize();
+    DogBattleListener.initialize();
 
     ServerLifecycleEvents.SERVER_STARTING.register(ServerConfigService::loadFromWorld);
 

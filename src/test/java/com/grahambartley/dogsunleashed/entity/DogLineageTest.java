@@ -95,4 +95,31 @@ class DogLineageTest {
   void theInitiatorsSittingPoseDoesNotBlockThePair() {
     assertTrue(DogLineage.matesCanBreed(new MateState(true, true, true, false), ready()));
   }
+
+  static Stream<Arguments> breedPairs() {
+    return Stream.of(
+        Arguments.of(UnleashedDogBreed.DIRE_WOLF, UnleashedDogBreed.DIRE_WOLF, true),
+        Arguments.of(UnleashedDogBreed.DIRE_WOLF, UnleashedDogBreed.HUSKY, false),
+        Arguments.of(UnleashedDogBreed.HUSKY, UnleashedDogBreed.DIRE_WOLF, false),
+        Arguments.of(UnleashedDogBreed.DIRE_WOLF, UnleashedDogBreed.CROSS_BREED, false),
+        Arguments.of(UnleashedDogBreed.CROSS_BREED, UnleashedDogBreed.DIRE_WOLF, false),
+        Arguments.of(UnleashedDogBreed.HUSKY, UnleashedDogBreed.BEAGLE, true),
+        Arguments.of(UnleashedDogBreed.HUSKY, UnleashedDogBreed.CROSS_BREED, true));
+  }
+
+  @ParameterizedTest(name = "{0} with {1} -> {2}")
+  @MethodSource("breedPairs")
+  @DisplayName("dire wolves only breed with dire wolves; every other pairing stays open")
+  void breedsTogether(
+      final UnleashedDogBreed first, final UnleashedDogBreed second, final boolean expected) {
+    assertEquals(expected, DogLineage.breedsTogether(first, second));
+  }
+
+  @Test
+  @DisplayName("two dire wolves have a pure dire wolf pup")
+  void direWolvesHaveDireWolfPups() {
+    assertEquals(
+        UnleashedDogBreed.DIRE_WOLF,
+        DogLineage.childBreed(UnleashedDogBreed.DIRE_WOLF, UnleashedDogBreed.DIRE_WOLF));
+  }
 }

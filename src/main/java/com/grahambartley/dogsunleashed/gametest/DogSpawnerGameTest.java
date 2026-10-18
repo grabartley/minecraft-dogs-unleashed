@@ -232,7 +232,10 @@ public final class DogSpawnerGameTest implements FabricGameTest {
 
   private static final List<BiomeCandidatesCase> BIOME_CANDIDATES_CASES =
       List.of(
-          new BiomeCandidatesCase(BiomeKeys.SNOWY_TAIGA, List.of(UnleashedDogBreed.HUSKY)),
+          new BiomeCandidatesCase(
+              BiomeKeys.SNOWY_TAIGA, List.of(UnleashedDogBreed.HUSKY, UnleashedDogBreed.DIRE_WOLF)),
+          new BiomeCandidatesCase(BiomeKeys.SNOWY_PLAINS, List.of(UnleashedDogBreed.HUSKY)),
+          new BiomeCandidatesCase(BiomeKeys.JAGGED_PEAKS, List.of(UnleashedDogBreed.DIRE_WOLF)),
           new BiomeCandidatesCase(
               BiomeKeys.MEADOW, List.of(UnleashedDogBreed.DACHSHUND, UnleashedDogBreed.BEAGLE)),
           new BiomeCandidatesCase(BiomeKeys.BEACH, List.of(UnleashedDogBreed.GOLDEN_RETRIEVER)),

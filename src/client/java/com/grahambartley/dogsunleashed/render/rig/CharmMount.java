@@ -47,22 +47,32 @@ public final class CharmMount {
 
   public static Vector3f clearanceInBone(
       final List<PoseClearance.Box> body,
+      final List<PoseClearance.Box> shell,
       final Supplier<List<PoseClearance.Box>> head,
       final Matrix4fc boneToModel,
       final Matrix4fc charmToBone,
       final CubeGeometry.Bounds charmBounds,
       final boolean facesNegativeZ) {
     final Matrix4f charmToModel = new Matrix4f(boneToModel).mul(charmToBone);
-    final List<Vector3f> samples = new ArrayList<>();
-    for (final Vector3f point : faceCentreLine(charmBounds)) {
-      samples.add(charmToModel.transformPosition(point));
-    }
+    final List<Vector3f> front = toModel(charmToModel, faceCentreLine(charmBounds));
+    final List<Vector3f> back = toModel(charmToModel, backCentreLine(charmBounds));
     final Vector3f forward = new Vector3f(0.0f, 0.0f, facesNegativeZ ? -1.0f : 1.0f);
-    final float pushed = PoseClearance.pushOut(body, samples, forward);
-    if (pushed == 0.0f || buriedAfter(head.get(), samples, new Vector3f(forward).mul(pushed))) {
+    final float pushed =
+        Math.max(
+            PoseClearance.pushOut(body, front, forward),
+            PoseClearance.pushOut(shell, back, forward));
+    if (pushed == 0.0f || buriedAfter(head.get(), front, new Vector3f(forward).mul(pushed))) {
       return new Vector3f();
     }
     return new Matrix4f(boneToModel).invert().transformDirection(forward.mul(pushed));
+  }
+
+  private static List<Vector3f> toModel(final Matrix4fc charmToModel, final List<Vector3f> points) {
+    final List<Vector3f> samples = new ArrayList<>();
+    for (final Vector3f point : points) {
+      samples.add(charmToModel.transformPosition(new Vector3f(point)));
+    }
+    return samples;
   }
 
   private static boolean buriedAfter(
@@ -130,5 +140,15 @@ public final class CharmMount {
         new Vector3f(middleX, max.y, min.z),
         new Vector3f(middleX, (min.y + max.y) * 0.5f, min.z),
         new Vector3f(middleX, min.y, min.z));
+  }
+
+  static List<Vector3f> backCentreLine(final CubeGeometry.Bounds bounds) {
+    final Vector3f min = bounds.min();
+    final Vector3f max = bounds.max();
+    final float middleX = (min.x + max.x) * 0.5f;
+    return List.of(
+        new Vector3f(middleX, max.y, max.z),
+        new Vector3f(middleX, (min.y + max.y) * 0.5f, max.z),
+        new Vector3f(middleX, min.y, max.z));
   }
 }

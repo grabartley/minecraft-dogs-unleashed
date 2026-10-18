@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.gametest;
 
+import com.grahambartley.dogsunleashed.entity.DogFoods;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
@@ -194,7 +195,7 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
     final UnleashedDogEntity dog = DogTestHelper.spawnDog(context, data);
     final ItemStack bone = new ItemStack(Items.BONE);
 
-    context.assertTrue(dog.isTamingItem(bone), "Bone should be a taming item");
+    context.assertTrue(DogFoods.isTamingItem(bone), "Bone should be a taming item");
     context.assertFalse(dog.isBreedingItem(bone), "Bone should not be a breeding item");
     context.complete();
   }
@@ -204,7 +205,7 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
     final UnleashedDogEntity dog = DogTestHelper.spawnDog(context, data);
     final ItemStack chicken = new ItemStack(Items.CHICKEN);
 
-    context.assertTrue(dog.isTamingItem(chicken), "Chicken should be a taming item");
+    context.assertTrue(DogFoods.isTamingItem(chicken), "Chicken should be a taming item");
     context.assertTrue(dog.isBreedingItem(chicken), "Chicken should be a breeding item");
     context.complete();
   }
@@ -227,7 +228,8 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
           newDog.readCustomDataFromNbt(nbt);
 
           context.assertTrue(
-              newDog.getShakeProgress() == dog.getShakeProgress(),
+              newDog.getAnimationState().getShakeProgress()
+                  == dog.getAnimationState().getShakeProgress(),
               "Shake progress should persist after NBT load");
           context.complete();
         });

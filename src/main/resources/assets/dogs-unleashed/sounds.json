@@ -41,10 +41,26 @@
       "dogs-unleashed:entity/shibainu/bark1"
     ]
   },
+  "entity.direwolf.bark": {
+    "subtitle": "subtitles.dogs-unleashed.direwolf.bark",
+    "sounds": [
+      "dogs-unleashed:entity/direwolf/bark1",
+      "dogs-unleashed:entity/direwolf/bark2",
+      "dogs-unleashed:entity/direwolf/bark3",
+      "dogs-unleashed:entity/direwolf/bark4",
+      "dogs-unleashed:entity/direwolf/bark5"
+    ]
+  },
   "entity.husky.howl": {
     "subtitle": "subtitles.dogs-unleashed.husky.howl",
     "sounds": [
       "dogs-unleashed:entity/husky/howl1"
+    ]
+  },
+  "entity.direwolf.howl": {
+    "subtitle": "subtitles.dogs-unleashed.direwolf.howl",
+    "sounds": [
+      "dogs-unleashed:entity/direwolf/howl1"
     ]
   },
   "item.dog_whistle.blow": {

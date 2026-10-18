@@ -1,5 +1,6 @@
 import base64
 import json
+import math
 import os
 import uuid
 
@@ -107,6 +108,9 @@ def compare_geo(a_path, b_path, tolerance=1e-4):
             for key, default in (("origin", [0, 0, 0]), ("size", [0, 0, 0]), ("pivot", [0, 0, 0]), ("rotation", [0, 0, 0]), ("uv", [0, 0])):
                 if not close(c1.get(key, default), c2.get(key, default), tolerance):
                     mismatches.append(f"{bone['name']}[{index}].{key} {c1.get(key)} vs {c2.get(key)}")
+            floors = ([math.floor(v) for v in c1.get("size", [0, 0, 0])], [math.floor(v) for v in c2.get("size", [0, 0, 0])])
+            if floors[0] != floors[1]:
+                mismatches.append(f"{bone['name']}[{index}].box_uv_size {floors[0]} vs {floors[1]}")
             inflate_a = float(c1.get("inflate", bone.get("inflate", 0)))
             inflate_b = float(c2.get("inflate", other.get("inflate", 0)))
             if abs(inflate_a - inflate_b) > tolerance:
@@ -121,3 +125,21 @@ def compare_geo(a_path, b_path, tolerance=1e-4):
 def close(a, b, tolerance):
     a, b = list(a), list(b)
     return len(a) == len(b) and all(abs(float(x) - float(y)) <= tolerance for x, y in zip(a, b))
+
+
+def tidy_numbers(node, places=4):
+    if isinstance(node, float):
+        rounded = round(node, places)
+        return int(rounded) if rounded == int(rounded) and abs(rounded) < 1e15 else rounded
+    if isinstance(node, list):
+        return [tidy_numbers(item, places) for item in node]
+    if isinstance(node, dict):
+        return {key: tidy_numbers(value, places) for key, value in node.items()}
+    return node
+
+
+def tidy_geo(in_path, out_path, places=4):
+    with open(in_path) as handle:
+        geometry = json.load(handle)
+    with open(out_path, "w") as handle:
+        json.dump(tidy_numbers(geometry, places), handle, indent="\t")

@@ -13,7 +13,8 @@ class CustomCriteriaTest {
 
   static Stream<Arguments> criteria() {
     return Stream.of(
-        Arguments.of("HuskyHowled", HuskyHowledCriterion.ID, "dogs-unleashed:husky_howled"),
+        Arguments.of("DogHowled", DogHowledCriterion.ID, "dogs-unleashed:dog_howled"),
+        Arguments.of("DogTamed", DogTamedCriterion.ID, "dogs-unleashed:dog_tamed"),
         Arguments.of("FetchReturned", FetchReturnedCriterion.ID, "dogs-unleashed:fetch_returned"),
         Arguments.of("DogSleptInBed", DogSleptInBedCriterion.ID, "dogs-unleashed:dog_slept_in_bed"),
         Arguments.of(

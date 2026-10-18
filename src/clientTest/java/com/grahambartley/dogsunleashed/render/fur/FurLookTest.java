@@ -62,4 +62,18 @@ class FurLookTest {
     assertEquals(true, FurLook.shows(RigProfile.EMPTY, "any", stage));
     assertEquals(List.of(), FurLook.overlays(RigProfile.EMPTY, stage));
   }
+
+  @ParameterizedTest(name = "{0} on {1} flattened={2}")
+  @CsvSource({
+    "shag, body, true",
+    "mop, body, true",
+    "shag, leg, false",
+    "body, body, false",
+    "mop, '', false"
+  })
+  @DisplayName("armour flattens only the fur that grows from an armoured bone")
+  void armourFlattensFurOnTheTorso(final String bone, final String parent, final boolean expected) {
+    assertEquals(
+        expected, FurLook.flattenedByArmour(PROFILE, bone, parent.isEmpty() ? null : parent));
+  }
 }

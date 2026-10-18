@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.grahambartley.dogsunleashed.config.DireWolfSettings;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.server.ServerConfigService;
 import java.util.List;
@@ -59,10 +60,14 @@ class DogsUnleashedCommandTest {
         Arguments.of(13, "command.dogs-unleashed.help.badhairdaychance"),
         Arguments.of(14, "command.dogs-unleashed.help.barkvolume"),
         Arguments.of(15, "command.dogs-unleashed.help.howlvolume"),
-        Arguments.of(16, "command.dogs-unleashed.help.reset"),
-        Arguments.of(17, "command.dogs-unleashed.help.list"),
-        Arguments.of(18, "command.dogs-unleashed.help.summon"),
-        Arguments.of(19, "command.dogs-unleashed.help.find"));
+        Arguments.of(16, "command.dogs-unleashed.help.direwolf.growthrate"),
+        Arguments.of(17, "command.dogs-unleashed.help.direwolf.battles"),
+        Arguments.of(18, "command.dogs-unleashed.help.direwolf.smallestpack"),
+        Arguments.of(19, "command.dogs-unleashed.help.direwolf.largestpack"),
+        Arguments.of(20, "command.dogs-unleashed.help.reset"),
+        Arguments.of(21, "command.dogs-unleashed.help.list"),
+        Arguments.of(22, "command.dogs-unleashed.help.summon"),
+        Arguments.of(23, "command.dogs-unleashed.help.find"));
   }
 
   @ParameterizedTest(name = "help line {0} -> {1}")
@@ -84,17 +89,21 @@ class DogsUnleashedCommandTest {
         Arguments.of(5, "command.dogs-unleashed.status.spawnrate.breed"),
         Arguments.of(6, "command.dogs-unleashed.status.spawnrate.breed"),
         Arguments.of(7, "command.dogs-unleashed.status.spawnrate.breed"),
-        Arguments.of(8, "command.dogs-unleashed.status.capindependentspawning"),
-        Arguments.of(9, "command.dogs-unleashed.status.graves"),
-        Arguments.of(10, "command.dogs-unleashed.status.dropleashonplay"),
-        Arguments.of(11, "command.dogs-unleashed.status.shownames"),
-        Arguments.of(12, "command.dogs-unleashed.status.autosleep"),
-        Arguments.of(13, "command.dogs-unleashed.status.autosleeprange"),
-        Arguments.of(14, "command.dogs-unleashed.status.barkvolume"),
-        Arguments.of(15, "command.dogs-unleashed.status.howlvolume"),
-        Arguments.of(16, "command.dogs-unleashed.status.furgrowth"),
-        Arguments.of(17, "command.dogs-unleashed.status.furgrowthrate"),
-        Arguments.of(18, "command.dogs-unleashed.status.badhairdaychance"));
+        Arguments.of(8, "command.dogs-unleashed.status.spawnrate.breed"),
+        Arguments.of(9, "command.dogs-unleashed.status.capindependentspawning"),
+        Arguments.of(10, "command.dogs-unleashed.status.graves"),
+        Arguments.of(11, "command.dogs-unleashed.status.dropleashonplay"),
+        Arguments.of(12, "command.dogs-unleashed.status.shownames"),
+        Arguments.of(13, "command.dogs-unleashed.status.autosleep"),
+        Arguments.of(14, "command.dogs-unleashed.status.autosleeprange"),
+        Arguments.of(15, "command.dogs-unleashed.status.barkvolume"),
+        Arguments.of(16, "command.dogs-unleashed.status.howlvolume"),
+        Arguments.of(17, "command.dogs-unleashed.status.furgrowth"),
+        Arguments.of(18, "command.dogs-unleashed.status.furgrowthrate"),
+        Arguments.of(19, "command.dogs-unleashed.status.badhairdaychance"),
+        Arguments.of(20, "command.dogs-unleashed.status.direwolf.growthrate"),
+        Arguments.of(21, "command.dogs-unleashed.status.direwolf.battles"),
+        Arguments.of(22, "command.dogs-unleashed.status.direwolf.packsize"));
   }
 
   @ParameterizedTest(name = "status line {0} -> {1}")
@@ -124,23 +133,24 @@ class DogsUnleashedCommandTest {
             false,
             false,
             250,
-            7);
+            7,
+            DireWolfSettings.DEFAULTS);
 
     final List<Text> lines = DogsUnleashedCommand.statusLines(config);
 
     assertEquals(true, translationArgs(lines.get(1))[0]);
     assertEquals(150, translationArgs(lines.get(2))[0]);
-    assertEquals(true, translationArgs(lines.get(8))[0]);
-    assertEquals(false, translationArgs(lines.get(9))[0]);
+    assertEquals(true, translationArgs(lines.get(9))[0]);
     assertEquals(false, translationArgs(lines.get(10))[0]);
     assertEquals(false, translationArgs(lines.get(11))[0]);
-    assertEquals(true, translationArgs(lines.get(12))[0]);
-    assertEquals(32, translationArgs(lines.get(13))[0]);
-    assertEquals("0.50", translationArgs(lines.get(14))[0]);
-    assertEquals("1.50", translationArgs(lines.get(15))[0]);
-    assertEquals(false, translationArgs(lines.get(16))[0]);
-    assertEquals(250, translationArgs(lines.get(17))[0]);
-    assertEquals(7, translationArgs(lines.get(18))[0]);
+    assertEquals(false, translationArgs(lines.get(12))[0]);
+    assertEquals(true, translationArgs(lines.get(13))[0]);
+    assertEquals(32, translationArgs(lines.get(14))[0]);
+    assertEquals("0.50", translationArgs(lines.get(15))[0]);
+    assertEquals("1.50", translationArgs(lines.get(16))[0]);
+    assertEquals(false, translationArgs(lines.get(17))[0]);
+    assertEquals(250, translationArgs(lines.get(18))[0]);
+    assertEquals(7, translationArgs(lines.get(19))[0]);
   }
 
   static Stream<Arguments> breedStatusLineCases() {
@@ -172,7 +182,8 @@ class DogsUnleashedCommandTest {
             false,
             true,
             100,
-            100);
+            100,
+            DireWolfSettings.DEFAULTS);
 
     final List<Text> lines = DogsUnleashedCommand.statusLines(config);
 

@@ -14,7 +14,7 @@
   },
   "criteria": {
     "heard_husky_howl": {
-      "trigger": "dogs-unleashed:husky_howled"
+      "trigger": "dogs-unleashed:dog_howled"
     }
   },
   "requirements": [["heard_husky_howl"]]

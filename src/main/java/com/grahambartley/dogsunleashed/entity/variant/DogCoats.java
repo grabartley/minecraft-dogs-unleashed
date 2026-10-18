@@ -21,6 +21,7 @@ public final class DogCoats {
       case DACHSHUND -> DachshundCoat.fromOrdinal(coatOrdinal);
       case BEAGLE -> BeagleCoat.fromOrdinal(coatOrdinal);
       case SHIBA_INU -> ShibaInuCoat.fromOrdinal(coatOrdinal);
+      case DIRE_WOLF -> DireWolfCoat.fromOrdinal(coatOrdinal);
       case GOLDEN_RETRIEVER, CROSS_BREED -> null;
     };
   }
@@ -32,6 +33,7 @@ public final class DogCoats {
       case DACHSHUND -> DachshundCoatRolls::resolveCoatFromRoll;
       case BEAGLE -> BeagleCoatRolls::resolveCoatFromRoll;
       case SHIBA_INU -> ShibaInuCoatRolls::resolveCoatFromRoll;
+      case DIRE_WOLF -> DireWolfCoatRolls::resolveCoatFromRoll;
       case GOLDEN_RETRIEVER, CROSS_BREED -> null;
     };
   }

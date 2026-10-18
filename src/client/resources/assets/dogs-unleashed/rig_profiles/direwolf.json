@@ -1,0 +1,78 @@
+{
+  "torso": [
+    "chest",
+    "mane",
+    "waist",
+    "hips"
+  ],
+  "mouth": [
+    "snout",
+    "jaw"
+  ],
+  "head": [
+    "head"
+  ],
+  "eyes": [
+    "eyelid_left",
+    "eyelid_right"
+  ],
+  "pupils": [
+    [
+      189,
+      25
+    ],
+    [
+      202,
+      25
+    ]
+  ],
+  "neck": [
+    "neck"
+  ],
+  "tail": [
+    "tail",
+    "tail_mid",
+    "tail_tip"
+  ],
+  "ear_left": [
+    "ear_left"
+  ],
+  "ear_right": [
+    "ear_right"
+  ],
+  "leg_front_left": [
+    "leg_front_left",
+    "leg_front_left_lower"
+  ],
+  "leg_front_right": [
+    "leg_front_right",
+    "leg_front_right_lower"
+  ],
+  "leg_back_left": [
+    "leg_back_left",
+    "leg_back_left_lower",
+    "leg_back_left_foot"
+  ],
+  "leg_back_right": [
+    "leg_back_right",
+    "leg_back_right_lower",
+    "leg_back_right_foot"
+  ],
+  "fur_shaggy": [
+    "fur_shaggy_mane",
+    "fur_shaggy_cheeks",
+    "fur_shaggy_leg_front_left",
+    "fur_shaggy_leg_front_right",
+    "fur_shaggy_belly",
+    "fur_shaggy_tail"
+  ],
+  "fur_overgrown": [
+    "fur_overgrown_mane",
+    "fur_overgrown_head",
+    "fur_overgrown_body",
+    "fur_overgrown_tail",
+    "fur_overgrown_hips"
+  ],
+  "trimmed_overlay": "dogs-unleashed:textures/entity/direwolf_trimmed.png",
+  "botched_overlay": "dogs-unleashed:textures/entity/direwolf_botched.png"
+}

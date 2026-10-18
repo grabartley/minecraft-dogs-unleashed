@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.pet;
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.DogStandingSpot;
+import com.grahambartley.dogsunleashed.entity.DogWorldTransfer;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.Comparator;
 import java.util.function.Predicate;
@@ -214,7 +215,7 @@ public final class PetLocationService {
     if (forcePlacement) {
       dog.getCommandController().apply(DogCommand.FOLLOW);
     }
-    dog.teleportToWorld(playerWorld, summonPos);
+    DogWorldTransfer.teleportToWorld(dog, playerWorld, summonPos);
 
     petData.setDimension(playerWorld.getRegistryKey().getValue().toString());
     petData.setLastKnownPosition(BlockPos.ofFloored(summonPos));

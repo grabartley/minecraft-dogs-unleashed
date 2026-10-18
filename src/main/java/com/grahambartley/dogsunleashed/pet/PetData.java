@@ -40,6 +40,9 @@ public final class PetData {
   private DogGenome genome;
   private float movementSpeed;
   private float attackDamage;
+  private int growthStage;
+  private int growthBattlesWon;
+  private int growthTicksInStage;
 
   public PetData(
       UUID petId,
@@ -172,6 +175,18 @@ public final class PetData {
     return attackDamage;
   }
 
+  public int getGrowthStage() {
+    return growthStage;
+  }
+
+  public int getGrowthBattlesWon() {
+    return growthBattlesWon;
+  }
+
+  public int getGrowthTicksInStage() {
+    return growthTicksInStage;
+  }
+
   public UUID getParentAId() {
     return parentAId;
   }
@@ -193,7 +208,7 @@ public final class PetData {
     return changed;
   }
 
-  public void syncAppearanceFrom(final UnleashedDogEntity dog) {
+  public void syncFrom(final UnleashedDogEntity dog) {
     this.baby = dog.isBaby();
     this.collarColor = dog.getCollarColor().getId();
     this.coatVariant = coatVariantOf(dog);
@@ -201,6 +216,9 @@ public final class PetData {
     this.furStage = dog.getFur().stage().ordinal();
     this.movementSpeed = (float) dog.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
     this.attackDamage = (float) dog.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
+    this.growthStage = dog.getGrowth().stage().number();
+    this.growthBattlesWon = dog.getGrowth().battlesWon();
+    this.growthTicksInStage = dog.getGrowth().ticksInStage();
     final DogGenome dogGenome = dog.getGenome();
     this.genome = dogGenome;
     this.composition = dogGenome != null ? dogGenome.composition() : List.of();
@@ -249,6 +267,9 @@ public final class PetData {
     nbt.putInt(ModNbtKeys.PORTRAIT_FUR_STAGE, furStage);
     nbt.putFloat(ModNbtKeys.MOVEMENT_SPEED, movementSpeed);
     nbt.putFloat(ModNbtKeys.ATTACK_DAMAGE, attackDamage);
+    nbt.putInt(ModNbtKeys.GROWTH_STAGE, growthStage);
+    nbt.putInt(ModNbtKeys.GROWTH_BATTLES_WON, growthBattlesWon);
+    nbt.putInt(ModNbtKeys.GROWTH_TICKS_IN_STAGE, growthTicksInStage);
     if (!composition.isEmpty()) {
       nbt.put(ModNbtKeys.COMPOSITION, DogGenome.compositionToNbt(composition));
     }
@@ -306,6 +327,9 @@ public final class PetData {
     if (nbt.contains(ModNbtKeys.ATTACK_DAMAGE, NbtElement.NUMBER_TYPE)) {
       pet.attackDamage = nbt.getFloat(ModNbtKeys.ATTACK_DAMAGE);
     }
+    pet.growthStage = nbt.getInt(ModNbtKeys.GROWTH_STAGE);
+    pet.growthBattlesWon = nbt.getInt(ModNbtKeys.GROWTH_BATTLES_WON);
+    pet.growthTicksInStage = nbt.getInt(ModNbtKeys.GROWTH_TICKS_IN_STAGE);
     if (nbt.contains(ModNbtKeys.COMPOSITION, NbtElement.COMPOUND_TYPE)) {
       pet.composition = DogGenome.compositionFromNbt(nbt.getCompound(ModNbtKeys.COMPOSITION));
     }

@@ -209,6 +209,21 @@ class PetDataTest {
     assertEquals(DogFurStage.NATURAL.ordinal(), reloaded.getFurStage());
   }
 
+  @Test
+  @DisplayName("the growth stage, battles won and time in stage survive a save and reload")
+  void growthRoundTrips() {
+    final NbtCompound nbt = baselinePet().toNbt();
+    nbt.putInt(ModNbtKeys.GROWTH_STAGE, 5);
+    nbt.putInt(ModNbtKeys.GROWTH_BATTLES_WON, 17);
+    nbt.putInt(ModNbtKeys.GROWTH_TICKS_IN_STAGE, 12345);
+
+    final PetData reloaded = PetData.fromNbt(PetData.fromNbt(nbt).toNbt());
+
+    assertEquals(5, reloaded.getGrowthStage());
+    assertEquals(17, reloaded.getGrowthBattlesWon());
+    assertEquals(12345, reloaded.getGrowthTicksInStage());
+  }
+
   private static final UUID PARENT_A = UUID.nameUUIDFromBytes("parent-a".getBytes());
   private static final UUID PARENT_B = UUID.nameUUIDFromBytes("parent-b".getBytes());
 

@@ -41,7 +41,8 @@ class DogsUnleashedConfigTest {
         true,
         true,
         100,
-        100);
+        100,
+        DireWolfSettings.DEFAULTS);
   }
 
   @Test
@@ -106,7 +107,21 @@ class DogsUnleashedConfigTest {
   void constructorClampsFurMultipliers(final int input, final int expected) {
     final DogsUnleashedConfig config =
         new DogsUnleashedConfig(
-            true, 100, Map.of(), false, true, true, true, 32, 1.0f, 1.5f, true, true, input, input);
+            true,
+            100,
+            Map.of(),
+            false,
+            true,
+            true,
+            true,
+            32,
+            1.0f,
+            1.5f,
+            true,
+            true,
+            input,
+            input,
+            DireWolfSettings.DEFAULTS);
     assertEquals(expected, config.furGrowthRateMultiplierPercent());
     assertEquals(expected, config.badHairDayChanceMultiplierPercent());
   }
@@ -156,7 +171,8 @@ class DogsUnleashedConfigTest {
             false,
             false,
             250,
-            0);
+            0,
+            new DireWolfSettings(175, 8, 6, 9));
     assertTrue(DogsUnleashedConfig.save(path, original));
     assertTrue(Files.exists(path));
     assertEquals(original, DogsUnleashedConfig.load(path));
@@ -290,7 +306,21 @@ class DogsUnleashedConfigTest {
   void constructorClampsAutoSleepRange(final int input, final int expected) {
     final DogsUnleashedConfig config =
         new DogsUnleashedConfig(
-            true, 100, Map.of(), false, true, true, true, input, 1.0f, 1.5f, true, true, 100, 100);
+            true,
+            100,
+            Map.of(),
+            false,
+            true,
+            true,
+            true,
+            input,
+            1.0f,
+            1.5f,
+            true,
+            true,
+            100,
+            100,
+            DireWolfSettings.DEFAULTS);
     assertEquals(expected, config.autoSleepRangeBlocks());
   }
 
@@ -311,7 +341,21 @@ class DogsUnleashedConfigTest {
   void constructorClampsVolumes(final float input, final float expected) {
     final DogsUnleashedConfig config =
         new DogsUnleashedConfig(
-            true, 100, Map.of(), false, true, true, true, 32, input, input, true, true, 100, 100);
+            true,
+            100,
+            Map.of(),
+            false,
+            true,
+            true,
+            true,
+            32,
+            input,
+            input,
+            true,
+            true,
+            100,
+            100,
+            DireWolfSettings.DEFAULTS);
     assertEquals(expected, config.barkVolume());
     assertEquals(expected, config.howlVolume());
   }

@@ -7,6 +7,7 @@ import java.util.Set;
 import net.minecraft.client.util.math.MatrixStack;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.cache.object.GeoCube;
@@ -22,6 +23,11 @@ public final class PoseClearance {
   private static final float DEGENERATE = 1.0e-9f;
 
   public record Box(Matrix4f modelToLocal, Vector3f min, Vector3f max) {
+
+    public Box grown(final Vector3fc by) {
+      return new Box(
+          this.modelToLocal, new Vector3f(this.min).sub(by), new Vector3f(this.max).add(by));
+    }
 
     public boolean contains(final Vector3f modelPoint) {
       final Vector3f local = this.modelToLocal.transformPosition(new Vector3f(modelPoint));

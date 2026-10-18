@@ -132,4 +132,17 @@ class PoseClearanceTest {
     assertTrue(rest.contains(justInside));
     assertFalse(sitting.contains(justInside));
   }
+
+  @Test
+  @DisplayName("a grown box reaches past its old walls on every side, so armour counts as body")
+  void grownBoxCoversTheShell() {
+    final PoseClearance.Box box =
+        new PoseClearance.Box(new Matrix4f(), new Vector3f(0, 0, 0), new Vector3f(1, 1, 1));
+    final PoseClearance.Box shell = box.grown(new Vector3f(0.25f, 0.25f, 0.25f));
+
+    assertFalse(box.contains(new Vector3f(0.5f, 0.5f, -0.1f)));
+    assertTrue(shell.contains(new Vector3f(0.5f, 0.5f, -0.1f)));
+    assertTrue(shell.contains(new Vector3f(1.2f, 0.5f, 0.5f)));
+    assertFalse(shell.contains(new Vector3f(0.5f, 0.5f, -0.3f)));
+  }
 }

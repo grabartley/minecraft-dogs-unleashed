@@ -22,7 +22,7 @@ public final class DogAppearanceRoller {
 
   public static List<UnleashedDogBreed> naturalFounders() {
     return Arrays.stream(UnleashedDogBreed.values())
-        .filter(UnleashedDogBreed::isNaturallySpawning)
+        .filter(UnleashedDogBreed::isCrossBreedFounder)
         .toList();
   }
 

@@ -14,11 +14,12 @@ import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.entity.variant.DogCoats;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
 import com.grahambartley.dogsunleashed.entity.variant.UnleashedDogCoat;
-import com.grahambartley.dogsunleashed.pet.PetNames;
 import java.util.Optional;
 import java.util.UUID;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.entity.EntityData;
+import net.minecraft.entity.EntityDimensions;
+import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LightningEntity;
@@ -45,7 +46,6 @@ import net.minecraft.util.DyeColor;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TimeHelper;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.intprovider.UniformIntProvider;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.LocalDifficulty;
@@ -69,13 +69,13 @@ public class UnleashedDogEntity extends TameableEntity
   private static final TrackedData<Integer> ANGER_TIME = data(INTEGER);
   private static final TrackedData<Integer> COAT_VARIANT = data(INTEGER);
   private static final TrackedData<Integer> EYE_COLOR_VARIANT = data(INTEGER);
-  private static final TrackedData<Boolean> HOWLING = data(BOOLEAN);
+  static final TrackedData<Boolean> HOWLING = data(BOOLEAN);
   private static final TrackedData<NbtCompound> GENOME = data(NBT_COMPOUND);
   private static final TrackedData<Integer> COLLAR_COLOR = data(INTEGER);
-  private static final TrackedData<Integer> TAIL_WAG_TIMER = data(INTEGER);
-  private static final TrackedData<Integer> SHAKE_PROGRESS = data(INTEGER);
+  static final TrackedData<Integer> TAIL_WAG_TIMER = data(INTEGER);
+  static final TrackedData<Integer> SHAKE_PROGRESS = data(INTEGER);
   private static final TrackedData<Integer> TREAT_BUFF_TICKS = data(INTEGER);
-  private static final TrackedData<Boolean> HEAD_TILTING = data(BOOLEAN);
+  static final TrackedData<Boolean> HEAD_TILTING = data(BOOLEAN);
   private static final TrackedData<Boolean> SLEEPING_IN_BED = data(BOOLEAN);
   private static final TrackedData<Boolean> COMMANDED_TO_SLEEP = data(BOOLEAN);
   private static final TrackedData<Optional<BlockPos>> ASSIGNED_BED_POS = data(OPTIONAL_BLOCK_POS);
@@ -89,6 +89,7 @@ public class UnleashedDogEntity extends TameableEntity
 
   private static final TrackedData<Integer> COMMAND = data(INTEGER);
   private static final TrackedData<Integer> FUR_STAGE = data(INTEGER);
+  private static final TrackedData<Integer> GROWTH_STAGE = data(INTEGER);
 
   private static <T> TrackedData<T> data(final TrackedDataHandler<T> handler) {
     return DataTracker.registerData(UnleashedDogEntity.class, handler);
@@ -97,6 +98,7 @@ public class UnleashedDogEntity extends TameableEntity
   private static final UniformIntProvider ANGER_TIME_RANGE = TimeHelper.betweenSeconds(20, 39);
   private java.util.UUID angryAt;
 
+  private final DogAnimationState animationState = new DogAnimationState(this);
   private final DogVocalization vocalization = new DogVocalization(this);
   private final DogAmbienceEffects ambience = new DogAmbienceEffects(this);
   private final DogSleepController sleep = new DogSleepController(this);
@@ -115,6 +117,7 @@ public class UnleashedDogEntity extends TameableEntity
   private final DogArmour armour = new DogArmour(this);
   private final DogFetchCarry fetchCarry = new DogFetchCarry(this);
   private final DogFur fur = new DogFur(this);
+  private final DogGrowth growth = new DogGrowth(this);
   private boolean spawnedByDogSpawner = false;
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -156,7 +159,10 @@ public class UnleashedDogEntity extends TameableEntity
       this.getAppearanceRoller().rollAppearance(spawnReason);
     }
     this.undeadState.applyAttributeScaling();
-    final EntityData initialized = super.initialize(world, difficulty, spawnReason, entityData);
+    final EntityData pack = this.growth.joinPack(spawnReason, entityData);
+    final EntityData initialized = super.initialize(world, difficulty, spawnReason, pack);
+    this.growth.settleInPack();
+    this.growth.refresh();
     this.fur.rollSpawnStage(spawnReason);
     return initialized;
   }
@@ -237,6 +243,9 @@ public class UnleashedDogEntity extends TameableEntity
     if (GENOME.equals(trackedData)) {
       this.genomeCache.invalidate();
     }
+    if (GROWTH_STAGE.equals(trackedData)) {
+      this.calculateDimensions();
+    }
   }
 
   public DogTraits getTraits() {
@@ -249,14 +258,6 @@ public class UnleashedDogEntity extends TameableEntity
   public void applyTraits(final DogTraits traits) {
     this.dataTracker.set(COAT_VARIANT, traits.coatVariantOrdinal());
     this.dataTracker.set(EYE_COLOR_VARIANT, traits.eyeColorVariantOrdinal());
-  }
-
-  public boolean isHowling() {
-    return this.dataTracker.get(HOWLING);
-  }
-
-  void setHowling(final boolean howling) {
-    this.dataTracker.set(HOWLING, howling);
   }
 
   @Override
@@ -283,6 +284,7 @@ public class UnleashedDogEntity extends TameableEntity
     builder.add(HOWLING, false);
     builder.add(GENOME, new NbtCompound());
     builder.add(FUR_STAGE, DogFurStage.NATURAL.ordinal());
+    builder.add(GROWTH_STAGE, DireWolfGrowthStage.YEARLING.number());
   }
 
   public DogCommand getCommand() {
@@ -295,6 +297,10 @@ public class UnleashedDogEntity extends TameableEntity
 
   void stopJumping() {
     this.jumping = false;
+  }
+
+  public DogAnimationState getAnimationState() {
+    return this.animationState;
   }
 
   public DogVocalization getVocalization() {
@@ -337,6 +343,23 @@ public class UnleashedDogEntity extends TameableEntity
     this.dataTracker.set(FUR_STAGE, stageOrdinal);
   }
 
+  public DogGrowth getGrowth() {
+    return this.growth;
+  }
+
+  int getTrackedGrowthStage() {
+    return this.dataTracker.get(GROWTH_STAGE);
+  }
+
+  void setTrackedGrowthStage(final int stageNumber) {
+    this.dataTracker.set(GROWTH_STAGE, stageNumber);
+  }
+
+  @Override
+  public EntityDimensions getBaseDimensions(final EntityPose pose) {
+    return this.growth.dimensions(super.getBaseDimensions(pose));
+  }
+
   public DogPendants getPendants() {
     return this.pendants;
   }
@@ -375,30 +398,6 @@ public class UnleashedDogEntity extends TameableEntity
         : null;
   }
 
-  public int getShakeProgress() {
-    return this.dataTracker.get(SHAKE_PROGRESS);
-  }
-
-  public boolean isShaking() {
-    return this.getShakeProgress() > 0;
-  }
-
-  public boolean isHeadTilting() {
-    return this.dataTracker.get(HEAD_TILTING);
-  }
-
-  void setHeadTilting(final boolean tilting) {
-    this.dataTracker.set(HEAD_TILTING, tilting);
-  }
-
-  void setShakeProgress(final int progress) {
-    this.dataTracker.set(SHAKE_PROGRESS, progress);
-  }
-
-  void setTailWagTimer(final int ticks) {
-    this.dataTracker.set(TAIL_WAG_TIMER, ticks);
-  }
-
   public boolean isSleepingInBed() {
     return this.dataTracker.get(SLEEPING_IN_BED);
   }
@@ -426,10 +425,6 @@ public class UnleashedDogEntity extends TameableEntity
   @Override
   public void wakeUp() {
     this.sleep.wakeUp();
-  }
-
-  public boolean hasAssignedBed() {
-    return this.getAssignedBedPos().isPresent();
   }
 
   public @Nullable UUID getPlayPartnerPlayerUuid() {
@@ -461,10 +456,6 @@ public class UnleashedDogEntity extends TameableEntity
       final ServerWorld world, final DamageSource source, final boolean causedByPlayer) {
     super.dropEquipment(world, source, causedByPlayer);
     this.equipment.dropModOwnedSlots();
-  }
-
-  public int getTailWagTimerTicks() {
-    return this.dataTracker.get(TAIL_WAG_TIMER);
   }
 
   int getTreatBuffTicks() {
@@ -502,18 +493,6 @@ public class UnleashedDogEntity extends TameableEntity
     return !this.undead && DogFoods.isBreedingItem(stack);
   }
 
-  public boolean isTamingItem(ItemStack stack) {
-    return DogFoods.isTamingItem(stack);
-  }
-
-  public boolean isTreatItem(ItemStack stack) {
-    return DogFoods.isTreatItem(stack);
-  }
-
-  public String getTamedName() {
-    return PetNames.tamedNameOf(this);
-  }
-
   @Override
   public boolean canBreedWith(AnimalEntity other) {
     return this.lineage.canBreedWith(other);
@@ -530,6 +509,13 @@ public class UnleashedDogEntity extends TameableEntity
     if (baby && !this.undead) {
       this.ambience.armBirthWakeHearts();
     }
+    this.growth.refresh();
+  }
+
+  @Override
+  protected void onGrowUp() {
+    super.onGrowUp();
+    this.growth.refresh();
   }
 
   @Override
@@ -538,14 +524,6 @@ public class UnleashedDogEntity extends TameableEntity
       return;
     }
     super.setTarget(target);
-  }
-
-  boolean isPlayerHoldingAttentionItem(final PlayerEntity player) {
-    return DogFoods.isHoldingAttentionItem(player);
-  }
-
-  boolean isPlayerHoldingTreat(final PlayerEntity player) {
-    return DogFoods.isHoldingTreat(player);
   }
 
   @Override
@@ -568,6 +546,7 @@ public class UnleashedDogEntity extends TameableEntity
       this.curing.tick();
       this.pendants.tick();
       this.fur.tick();
+      this.growth.tick();
     }
   }
 
@@ -620,10 +599,6 @@ public class UnleashedDogEntity extends TameableEntity
       return;
     }
     super.onStruckByLightning(world, lightning);
-  }
-
-  public UnleashedDogEntity teleportToWorld(ServerWorld destination, Vec3d pos) {
-    return DogWorldTransfer.teleportToWorld(this, destination, pos);
   }
 
   @Override

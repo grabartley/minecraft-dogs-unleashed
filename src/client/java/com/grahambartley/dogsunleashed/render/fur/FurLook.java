@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 
 public final class FurLook {
 
@@ -22,6 +23,14 @@ public final class FurLook {
       return stage.ordinal() >= DogFurStage.SHAGGY.ordinal();
     }
     return true;
+  }
+
+  public static boolean flattenedByArmour(
+      final RigProfile profile, final String bone, final @Nullable String parent) {
+    final boolean fur =
+        profile.bonesIn(Slot.FUR_SHAGGY).contains(bone)
+            || profile.bonesIn(Slot.FUR_OVERGROWN).contains(bone);
+    return fur && parent != null && profile.bonesIn(Slot.TORSO).contains(parent);
   }
 
   public static List<Identifier> overlays(final RigProfile profile, final DogFurStage stage) {
