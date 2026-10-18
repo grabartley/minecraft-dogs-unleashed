@@ -8,6 +8,7 @@ import com.grahambartley.dogsunleashed.network.DogConnectionsListener;
 import com.grahambartley.dogsunleashed.network.ModNetworkingClient;
 import com.grahambartley.dogsunleashed.network.payload.ConnectionDogSyncData;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
+import com.grahambartley.dogsunleashed.network.payload.RidingView;
 import com.grahambartley.dogsunleashed.network.payload.SyncDogConnectionsPayload;
 import com.grahambartley.dogsunleashed.pet.BreedComposition;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
@@ -219,6 +220,16 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
                           : "screen.dogs-unleashed.pet_details.age_adult")
                   .getString(),
               VALUE_COLOR);
+      if (pet.riding().kind() != RidingView.Kind.NONE) {
+        y =
+            drawInfoLine(
+                context,
+                x,
+                y,
+                "screen.dogs-unleashed.pet_details.riding",
+                ridingText(pet.riding()).getString(),
+                VALUE_COLOR);
+      }
       y =
           drawInfoLine(
               context,
@@ -422,5 +433,12 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
   @Override
   public boolean shouldPause() {
     return false;
+  }
+
+  static Text ridingText(final RidingView riding) {
+    return riding.kind() == RidingView.Kind.READY
+        ? Text.translatable(
+            "screen.dogs-unleashed.pet_details.riding_ready", riding.staminaPercent())
+        : Text.translatable("screen.dogs-unleashed.pet_details.riding_too_young");
   }
 }

@@ -9,6 +9,7 @@ import software.bernie.geckolib.animation.RawAnimation;
 public final class DogAnimationControllers {
 
   private static final double MOVEMENT_THRESHOLD = 0.001;
+  private static final float GALLOP_LIMB_SPEED = 0.1f;
   private static final int HEAD_TILT_TRANSITION_TICKS = 5;
   private static final int GROWL_TRANSITION_TICKS = 4;
 
@@ -27,6 +28,9 @@ public final class DogAnimationControllers {
               }
               if (state.getAnimatable().isInSittingPose()) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("sit"));
+              }
+              if (isGalloping(state.getAnimatable())) {
+                return state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.RUN));
               }
               if (isMoving(state)) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("walk"));
@@ -104,6 +108,10 @@ public final class DogAnimationControllers {
               }
               return PlayState.STOP;
             }));
+  }
+
+  static boolean isGalloping(final UnleashedDogEntity dog) {
+    return dog.getRiding().isRidden() && dog.limbAnimator.getSpeed() > GALLOP_LIMB_SPEED;
   }
 
   static boolean isMoving(final AnimationState<UnleashedDogEntity> animationState) {

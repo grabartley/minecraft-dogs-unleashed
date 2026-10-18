@@ -8,6 +8,7 @@ public final class DogAnimationKeys {
   public static final String HOWL_SIT = "howl_sit";
   public static final String FLY = "fly";
   public static final String GROWL = "growl";
+  public static final String RUN = "run";
 
   private DogAnimationKeys() {}
 }

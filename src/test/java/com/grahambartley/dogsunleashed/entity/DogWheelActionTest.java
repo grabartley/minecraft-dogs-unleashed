@@ -24,7 +24,7 @@ class DogWheelActionTest {
   }
 
   @ParameterizedTest(name = "id {0}")
-  @ValueSource(ints = {-1, 9, 42, Integer.MAX_VALUE, Integer.MIN_VALUE})
+  @ValueSource(ints = {-1, 10, 42, Integer.MAX_VALUE, Integer.MIN_VALUE})
   @DisplayName("unknown wire ids resolve to null so the server drops the packet")
   void unknownIdResolvesToNull(final int id) {
     assertNull(DogWheelAction.fromId(id));
@@ -53,7 +53,8 @@ class DogWheelActionTest {
   static Stream<Arguments> oneShotActions() {
     return Stream.of(
         Arguments.of(DogWheelAction.GO_TO_BED, "command.dogs-unleashed.go_to_bed"),
-        Arguments.of(DogWheelAction.EQUIPMENT, "command.dogs-unleashed.equipment"));
+        Arguments.of(DogWheelAction.EQUIPMENT, "command.dogs-unleashed.equipment"),
+        Arguments.of(DogWheelAction.RIDE, "command.dogs-unleashed.ride"));
   }
 
   @ParameterizedTest(name = "{0} -> {1}")

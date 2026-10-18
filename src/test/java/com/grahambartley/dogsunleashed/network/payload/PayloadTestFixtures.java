@@ -48,6 +48,7 @@ final class PayloadTestFixtures {
         DogFurStage.NATURAL.ordinal(),
         0.29f,
         3.5f,
-        composition);
+        composition,
+        RidingView.NONE);
   }
 }

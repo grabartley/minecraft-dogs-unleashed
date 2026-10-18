@@ -12,6 +12,7 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
+import com.grahambartley.dogsunleashed.network.payload.RidingView;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import java.util.List;
@@ -254,7 +255,8 @@ class PortraitDogAppearanceTest {
             base.furStage(),
             base.movementSpeed(),
             base.attackDamage(),
-            base.composition());
+            base.composition(),
+            RidingView.NONE);
 
     assertEquals(expected, PortraitDogAppearance.of(pet).undead());
   }
@@ -292,7 +294,8 @@ class PortraitDogAppearanceTest {
         DogFurStage.NATURAL.ordinal(),
         MOVEMENT_SPEED,
         ATTACK_DAMAGE,
-        composition);
+        composition,
+        RidingView.NONE);
   }
 
   @Test
@@ -318,7 +321,8 @@ class PortraitDogAppearanceTest {
             DogFurStage.OVERGROWN.ordinal(),
             base.movementSpeed(),
             base.attackDamage(),
-            base.composition());
+            base.composition(),
+            RidingView.NONE);
 
     final NbtCompound nbt = PortraitDogAppearance.of(overgrown).toNbt();
 

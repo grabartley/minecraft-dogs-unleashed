@@ -7,6 +7,7 @@ import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.SyncServerCo
 import com.grahambartley.dogsunleashed.network.handler.DogConnectionsNetworkHandler;
 import com.grahambartley.dogsunleashed.network.handler.OwnerNameResolver;
 import com.grahambartley.dogsunleashed.network.handler.PetManagerNetworkHandler;
+import com.grahambartley.dogsunleashed.network.handler.RideSprintNetworkHandler;
 import com.grahambartley.dogsunleashed.network.handler.ServerConfigNetworkHandler;
 import com.grahambartley.dogsunleashed.network.handler.WheelActionNetworkHandler;
 import com.grahambartley.dogsunleashed.network.payload.OpenCommandWheelPayload;
@@ -16,6 +17,7 @@ import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
 import com.grahambartley.dogsunleashed.network.payload.RequestDogConnectionsPayload;
 import com.grahambartley.dogsunleashed.network.payload.RequestPetManagerStatePayload;
 import com.grahambartley.dogsunleashed.network.payload.RequestPetsPayload;
+import com.grahambartley.dogsunleashed.network.payload.RideSprintPayload;
 import com.grahambartley.dogsunleashed.network.payload.SelectWheelActionPayload;
 import com.grahambartley.dogsunleashed.network.payload.SetPetNamePayload;
 import com.grahambartley.dogsunleashed.network.payload.SummonPetPayload;
@@ -27,6 +29,7 @@ import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import com.grahambartley.dogsunleashed.pet.PetManager;
 import com.grahambartley.dogsunleashed.pet.PetNames;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -61,6 +64,7 @@ public final class ModNetworking {
         .register(SyncServerConfigS2CPayload.ID, SyncServerConfigS2CPayload.CODEC);
     PayloadTypeRegistry.playC2S()
         .register(EditServerConfigC2SPayload.ID, EditServerConfigC2SPayload.CODEC);
+    PayloadTypeRegistry.playC2S().register(RideSprintPayload.ID, RideSprintPayload.CODEC);
   }
 
   public static void registerServerReceivers() {
@@ -78,6 +82,8 @@ public final class ModNetworking {
         SelectWheelActionPayload.ID, WheelActionNetworkHandler::handleSelectWheelAction);
     ServerPlayNetworking.registerGlobalReceiver(
         RequestDogConnectionsPayload.ID, DogConnectionsNetworkHandler::handleRequestDogConnections);
+    ServerPlayNetworking.registerGlobalReceiver(
+        RideSprintPayload.ID, RideSprintNetworkHandler::handleRideSprint);
   }
 
   public static void sendOpenCommandWheel(
@@ -89,7 +95,8 @@ public final class ModNetworking {
             dog.getUuid(),
             dog.getCommand().id(),
             dog.getAssignedBedPos().isPresent(),
-            PetNames.tamedNameOf(dog)));
+            PetNames.tamedNameOf(dog),
+            Objects.requireNonNullElse(dog.getRiding().refusalKey(player), "")));
   }
 
   public static void sendOpenNamingScreen(

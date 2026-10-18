@@ -70,6 +70,7 @@ public final class ModNbtKeys {
   public static final String GROWTH_BATTLES_WON = "GrowthBattlesWon";
   public static final String WILD_PACK_ID = "WildPackId";
   public static final String TRUST = "WildTrust";
+  public static final String STAMINA = "RidingStamina";
 
   private ModNbtKeys() {}
 }

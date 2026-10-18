@@ -58,7 +58,7 @@ import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class UnleashedDogEntity extends TameableEntity
+public class UnleashedDogEntity extends DogMountEntity
     implements GeoEntity, Angerable, ExtendedScreenHandlerFactory<Integer> {
 
   public static final int DEFAULT_COLLAR_COLOR_ID = DyeColor.RED.getId();
@@ -122,6 +122,7 @@ public class UnleashedDogEntity extends TameableEntity
   private final DogPack pack = new DogPack(this);
   private final DogGrowl growl = new DogGrowl(this);
   private final DogTrust trust = new DogTrust(this);
+  private final DogRiding riding = new DogRiding(this);
   private boolean spawnedByDogSpawner = false;
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -365,6 +366,11 @@ public class UnleashedDogEntity extends TameableEntity
     return this.trust;
   }
 
+  @Override
+  public DogRiding getRiding() {
+    return this.riding;
+  }
+
   int getTrackedGrowthStage() {
     return this.dataTracker.get(GROWTH_STAGE);
   }
@@ -538,7 +544,8 @@ public class UnleashedDogEntity extends TameableEntity
 
   @Override
   public void setTarget(@Nullable final LivingEntity target) {
-    if (target != null && (this.isBaby() || this.pack.staysOutOfFights())) {
+    if (target != null
+        && (this.isBaby() || this.pack.staysOutOfFights() || this.riding.isRidden())) {
       return;
     }
     super.setTarget(target);
@@ -567,6 +574,7 @@ public class UnleashedDogEntity extends TameableEntity
       this.growth.tick();
       this.growl.tick();
       this.trust.tick();
+      this.riding.tick();
     }
   }
 
