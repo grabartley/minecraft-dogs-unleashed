@@ -188,7 +188,8 @@ public final class DogTreatGameTest implements FabricGameTest {
         SOCIAL_CUE_ASSERT_TICK,
         () -> {
           context.assertTrue(
-              dog.isHeadTilting(), "A dog should head tilt at a player holding a treat");
+              dog.getAnimationState().isHeadTilting(),
+              "A dog should head tilt at a player holding a treat");
           context.complete();
         });
   }
@@ -205,7 +206,7 @@ public final class DogTreatGameTest implements FabricGameTest {
     context.runAtTick(
         SOCIAL_CUE_ASSERT_TICK,
         () -> {
-          firstSample[0] = dog.getTailWagTimerTicks();
+          firstSample[0] = dog.getAnimationState().getTailWagTimerTicks();
           context.assertTrue(
               firstSample[0] > 0,
               "A tamed dog should wag for a held treat, timer=" + firstSample[0]);
@@ -214,11 +215,11 @@ public final class DogTreatGameTest implements FabricGameTest {
         SOCIAL_CUE_RESAMPLE_TICK,
         () -> {
           context.assertTrue(
-              dog.getTailWagTimerTicks() >= firstSample[0],
+              dog.getAnimationState().getTailWagTimerTicks() >= firstSample[0],
               "A held treat should keep the wag refreshed rather than let it decay, "
                   + firstSample[0]
                   + " then "
-                  + dog.getTailWagTimerTicks());
+                  + dog.getAnimationState().getTailWagTimerTicks());
           context.complete();
         });
   }
@@ -234,7 +235,7 @@ public final class DogTreatGameTest implements FabricGameTest {
         SOCIAL_CUE_ASSERT_TICK,
         () -> {
           context.assertEquals(
-              dog.getTailWagTimerTicks(),
+              dog.getAnimationState().getTailWagTimerTicks(),
               0,
               "An untamed dog cannot be fed a treat, so it should not wag for one");
           context.complete();

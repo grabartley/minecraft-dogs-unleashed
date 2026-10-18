@@ -69,13 +69,13 @@ public class UnleashedDogEntity extends TameableEntity
   private static final TrackedData<Integer> ANGER_TIME = data(INTEGER);
   private static final TrackedData<Integer> COAT_VARIANT = data(INTEGER);
   private static final TrackedData<Integer> EYE_COLOR_VARIANT = data(INTEGER);
-  private static final TrackedData<Boolean> HOWLING = data(BOOLEAN);
+  static final TrackedData<Boolean> HOWLING = data(BOOLEAN);
   private static final TrackedData<NbtCompound> GENOME = data(NBT_COMPOUND);
   private static final TrackedData<Integer> COLLAR_COLOR = data(INTEGER);
-  private static final TrackedData<Integer> TAIL_WAG_TIMER = data(INTEGER);
-  private static final TrackedData<Integer> SHAKE_PROGRESS = data(INTEGER);
+  static final TrackedData<Integer> TAIL_WAG_TIMER = data(INTEGER);
+  static final TrackedData<Integer> SHAKE_PROGRESS = data(INTEGER);
   private static final TrackedData<Integer> TREAT_BUFF_TICKS = data(INTEGER);
-  private static final TrackedData<Boolean> HEAD_TILTING = data(BOOLEAN);
+  static final TrackedData<Boolean> HEAD_TILTING = data(BOOLEAN);
   private static final TrackedData<Boolean> SLEEPING_IN_BED = data(BOOLEAN);
   private static final TrackedData<Boolean> COMMANDED_TO_SLEEP = data(BOOLEAN);
   private static final TrackedData<Optional<BlockPos>> ASSIGNED_BED_POS = data(OPTIONAL_BLOCK_POS);
@@ -98,6 +98,7 @@ public class UnleashedDogEntity extends TameableEntity
   private static final UniformIntProvider ANGER_TIME_RANGE = TimeHelper.betweenSeconds(20, 39);
   private java.util.UUID angryAt;
 
+  private final DogAnimationState animationState = new DogAnimationState(this);
   private final DogVocalization vocalization = new DogVocalization(this);
   private final DogAmbienceEffects ambience = new DogAmbienceEffects(this);
   private final DogSleepController sleep = new DogSleepController(this);
@@ -259,14 +260,6 @@ public class UnleashedDogEntity extends TameableEntity
     this.dataTracker.set(EYE_COLOR_VARIANT, traits.eyeColorVariantOrdinal());
   }
 
-  public boolean isHowling() {
-    return this.dataTracker.get(HOWLING);
-  }
-
-  void setHowling(final boolean howling) {
-    this.dataTracker.set(HOWLING, howling);
-  }
-
   @Override
   protected void initDataTracker(DataTracker.Builder builder) {
     super.initDataTracker(builder);
@@ -304,6 +297,10 @@ public class UnleashedDogEntity extends TameableEntity
 
   void stopJumping() {
     this.jumping = false;
+  }
+
+  public DogAnimationState getAnimationState() {
+    return this.animationState;
   }
 
   public DogVocalization getVocalization() {
@@ -401,30 +398,6 @@ public class UnleashedDogEntity extends TameableEntity
         : null;
   }
 
-  public int getShakeProgress() {
-    return this.dataTracker.get(SHAKE_PROGRESS);
-  }
-
-  public boolean isShaking() {
-    return this.getShakeProgress() > 0;
-  }
-
-  public boolean isHeadTilting() {
-    return this.dataTracker.get(HEAD_TILTING);
-  }
-
-  void setHeadTilting(final boolean tilting) {
-    this.dataTracker.set(HEAD_TILTING, tilting);
-  }
-
-  void setShakeProgress(final int progress) {
-    this.dataTracker.set(SHAKE_PROGRESS, progress);
-  }
-
-  void setTailWagTimer(final int ticks) {
-    this.dataTracker.set(TAIL_WAG_TIMER, ticks);
-  }
-
   public boolean isSleepingInBed() {
     return this.dataTracker.get(SLEEPING_IN_BED);
   }
@@ -483,10 +456,6 @@ public class UnleashedDogEntity extends TameableEntity
       final ServerWorld world, final DamageSource source, final boolean causedByPlayer) {
     super.dropEquipment(world, source, causedByPlayer);
     this.equipment.dropModOwnedSlots();
-  }
-
-  public int getTailWagTimerTicks() {
-    return this.dataTracker.get(TAIL_WAG_TIMER);
   }
 
   int getTreatBuffTicks() {

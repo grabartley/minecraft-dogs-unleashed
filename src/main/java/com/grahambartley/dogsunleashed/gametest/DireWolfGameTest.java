@@ -7,9 +7,11 @@ import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.ModPendantItems;
 import com.grahambartley.dogsunleashed.block.DogSleepSpotAssignment;
+import com.grahambartley.dogsunleashed.block.entity.DogGraveBlockEntity;
 import com.grahambartley.dogsunleashed.entity.DireWolfGrowthStage;
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.DogGrowthRules;
+import com.grahambartley.dogsunleashed.entity.DogResurrection;
 import com.grahambartley.dogsunleashed.entity.DogTraits;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
@@ -31,6 +33,7 @@ import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.mob.ZombieEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
@@ -266,6 +269,21 @@ public final class DireWolfGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = ARENA, tickLimit = 20)
+  public void aPrimeThatKillsAZombieBesideItsOwnerWinsABattle(final TestContext context) {
+    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final UnleashedDogEntity wolf = spawnOwnedPrime(context, owner);
+    final ZombieEntity zombie = context.spawnEntity(EntityType.ZOMBIE, REL_WOLF.east(2));
+
+    zombie.damage(context.getWorld().getDamageSources().mobAttack(wolf), 1000.0f);
+
+    context.assertTrue(zombie.isDead(), "The zombie should die");
+    context.assertTrue(
+        wolf.getGrowth().battlesWon() == 1,
+        "Killing it should count as a battle, but battles won is " + wolf.getGrowth().battlesWon());
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 20)
   public void battlesWonSurviveASaveAndReload(final TestContext context) {
     final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
     final UnleashedDogEntity wolf = spawnOwnedPrime(context, owner);
@@ -386,25 +404,42 @@ public final class DireWolfGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = ARENA, tickLimit = 40)
-  public void anAlphaThatDiesLeavesAGrave(final TestContext context) {
+  public void anAlphaComesBackFromItsGraveStillAnAlpha(final TestContext context) {
     final UnleashedDogEntity wolf =
         spawnTamed(context, ModEntities.DIRE_WOLF, UUID.randomUUID(), 0);
     wolf.getGrowth().setStage(DireWolfGrowthStage.ALPHA);
     registerPet(context, wolf);
+    final UUID wolfId = wolf.getUuid();
 
     wolf.kill();
 
     context.runAtTick(
         5,
         () -> {
-          final boolean[] found = {false};
+          final List<BlockPos> graves = new ArrayList<>();
           context.forEachRelativePos(
               pos -> {
                 if (context.getBlockState(pos).isOf(ModBlocks.DOG_GRAVE)) {
-                  found[0] = true;
+                  graves.add(context.getAbsolutePos(pos));
                 }
               });
-          context.assertTrue(found[0], "A dead alpha dire wolf should leave a grave");
+          context.assertTrue(graves.size() == 1, "A dead alpha dire wolf should leave a grave");
+          final BlockPos gravePos = graves.get(0);
+          final DogGraveBlockEntity grave =
+              (DogGraveBlockEntity) context.getWorld().getBlockEntity(gravePos);
+          grave.installTotem(UUID.randomUUID());
+
+          context.assertTrue(
+              DogResurrection.resurrect(context.getWorld(), gravePos, grave),
+              "The alpha should rise from its grave");
+          final UnleashedDogEntity risen =
+              (UnleashedDogEntity) context.getWorld().getEntity(wolfId);
+          context.assertTrue(
+              risen.getGrowth().stage() == DireWolfGrowthStage.ALPHA,
+              "It should still be an alpha, not " + risen.getGrowth().stage());
+          context.assertTrue(
+              Math.abs(risen.getHeight() - DireWolfGrowthStage.ALPHA.height()) < 0.001f,
+              "It should keep the alpha's size, not " + risen.getHeight());
           context.complete();
         });
   }

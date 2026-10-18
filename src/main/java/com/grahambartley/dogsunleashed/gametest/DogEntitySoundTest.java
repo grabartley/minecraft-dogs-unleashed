@@ -95,7 +95,9 @@ public final class DogEntitySoundTest implements FabricGameTest {
   public void huskyStartsNotHowling(TestContext context) {
     final UnleashedDogEntity husky = DogTestHelper.spawnDog(context, DogTestData.HUSKY);
 
-    context.assertFalse(husky.isHowling(), "Husky should not be howling immediately after spawn");
+    context.assertFalse(
+        husky.getAnimationState().isHowling(),
+        "Husky should not be howling immediately after spawn");
     context.complete();
   }
 
@@ -120,7 +122,8 @@ public final class DogEntitySoundTest implements FabricGameTest {
         10,
         () -> {
           context.assertTrue(husky.isSleepingInBed(), "Husky should be sleeping");
-          context.assertFalse(husky.isHowling(), "Sleeping husky should not be howling");
+          context.assertFalse(
+              husky.getAnimationState().isHowling(), "Sleeping husky should not be howling");
           context.complete();
         });
   }
@@ -133,7 +136,8 @@ public final class DogEntitySoundTest implements FabricGameTest {
         5,
         () ->
             context.assertFalse(
-                husky.isHowling(), "isHowling should start false before any howl is triggered"));
+                husky.getAnimationState().isHowling(),
+                "isHowling should start false before any howl is triggered"));
 
     context.runAtTick(
         10,

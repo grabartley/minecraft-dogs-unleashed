@@ -69,7 +69,9 @@ public final class DogAmbienceEffects {
   }
 
   void updateSocialCues(final @Nullable PlayerEntity nearbyPlayer) {
-    this.dog.setHeadTilting(nearbyPlayer != null && DogFoods.isHoldingAttentionItem(nearbyPlayer));
+    this.dog
+        .getAnimationState()
+        .setHeadTilting(nearbyPlayer != null && DogFoods.isHoldingAttentionItem(nearbyPlayer));
     this.updateTailWag(nearbyPlayer);
   }
 
@@ -78,17 +80,17 @@ public final class DogAmbienceEffects {
       this.startShaking();
     }
 
-    final int shakeProgress = this.dog.getShakeProgress();
+    final int shakeProgress = this.dog.getAnimationState().getShakeProgress();
     if (shakeProgress > 0) {
       if (isShakeParticleTick(shakeProgress)) {
         this.spawnShakeParticles();
       }
-      this.dog.setShakeProgress(shakeProgress - 1);
+      this.dog.getAnimationState().setShakeProgress(shakeProgress - 1);
     }
   }
 
   void startTailWag() {
-    this.dog.setTailWagTimer(TAIL_WAG_DURATION_TICKS);
+    this.dog.getAnimationState().setTailWagTimer(TAIL_WAG_DURATION_TICKS);
   }
 
   public void celebrateOwnerArrival() {
@@ -125,14 +127,14 @@ public final class DogAmbienceEffects {
   }
 
   void writeNbt(final NbtCompound nbt) {
-    nbt.putInt(ModNbtKeys.SHAKE_PROGRESS, this.dog.getShakeProgress());
+    nbt.putInt(ModNbtKeys.SHAKE_PROGRESS, this.dog.getAnimationState().getShakeProgress());
     this.wetness.writeNbt(nbt);
     nbt.putBoolean(ModNbtKeys.PENDING_BIRTH_WAKE_HEARTS, this.pendingBirthWakeHearts);
   }
 
   void readNbt(final NbtCompound nbt) {
     if (nbt.contains(ModNbtKeys.SHAKE_PROGRESS, NbtElement.NUMBER_TYPE)) {
-      this.dog.setShakeProgress(nbt.getInt(ModNbtKeys.SHAKE_PROGRESS));
+      this.dog.getAnimationState().setShakeProgress(nbt.getInt(ModNbtKeys.SHAKE_PROGRESS));
     }
     this.wetness.readNbt(nbt);
     if (nbt.contains(ModNbtKeys.PENDING_BIRTH_WAKE_HEARTS)) {
@@ -141,7 +143,7 @@ public final class DogAmbienceEffects {
   }
 
   private void updateTailWag(final @Nullable PlayerEntity nearbyPlayer) {
-    final int currentTimer = this.dog.getTailWagTimerTicks();
+    final int currentTimer = this.dog.getAnimationState().getTailWagTimerTicks();
     final boolean receptive = !this.dog.isInSittingPose() && this.dog.getAngerTime() <= 0;
 
     boolean shouldWag = false;
@@ -156,17 +158,21 @@ public final class DogAmbienceEffects {
               DogFoods.isHoldingTreat(nearbyPlayer));
     }
 
-    this.dog.setTailWagTimer(
-        nextTailWagTimer(
-            receptive,
-            shouldWag,
-            currentTimer,
-            () -> this.dog.isTamed() && this.dog.getRandom().nextInt(RANDOM_TAIL_WAG_CHANCE) == 0));
+    this.dog
+        .getAnimationState()
+        .setTailWagTimer(
+            nextTailWagTimer(
+                receptive,
+                shouldWag,
+                currentTimer,
+                () ->
+                    this.dog.isTamed()
+                        && this.dog.getRandom().nextInt(RANDOM_TAIL_WAG_CHANCE) == 0));
   }
 
   private void startShaking() {
-    if (!this.dog.isShaking() && !this.dog.isInSittingPose()) {
-      this.dog.setShakeProgress(SHAKE_DURATION_TICKS);
+    if (!this.dog.getAnimationState().isShaking() && !this.dog.isInSittingPose()) {
+      this.dog.getAnimationState().setShakeProgress(SHAKE_DURATION_TICKS);
     }
   }
 

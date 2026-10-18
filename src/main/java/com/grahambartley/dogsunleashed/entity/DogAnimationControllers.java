@@ -40,7 +40,8 @@ public final class DogAnimationControllers {
             0,
             state -> {
               final UnleashedDogEntity animatable = state.getAnimatable();
-              if (animatable.getTailWagTimerTicks() > 0 && !animatable.isSleepingInBed()) {
+              if (animatable.getAnimationState().getTailWagTimerTicks() > 0
+                  && !animatable.isSleepingInBed()) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("tail_wag"));
               }
               return PlayState.STOP;
@@ -52,7 +53,7 @@ public final class DogAnimationControllers {
             "shake",
             0,
             state -> {
-              if (state.getAnimatable().isShaking()) {
+              if (state.getAnimatable().getAnimationState().isShaking()) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("shake"));
               }
               return PlayState.STOP;
@@ -64,7 +65,7 @@ public final class DogAnimationControllers {
             "howl",
             0,
             state -> {
-              if (dog.isHowling()) {
+              if (dog.getAnimationState().isHowling()) {
                 if (dog.isInSittingPose()) {
                   return state.setAndContinue(
                       RawAnimation.begin().thenLoop(DogAnimationKeys.HOWL_SIT));
@@ -81,7 +82,7 @@ public final class DogAnimationControllers {
             HEAD_TILT_TRANSITION_TICKS,
             state -> {
               final UnleashedDogEntity animatable = state.getAnimatable();
-              if (animatable.isHeadTilting()) {
+              if (animatable.getAnimationState().isHeadTilting()) {
                 if (state.getController().getAnimationState()
                     == AnimationController.State.STOPPED) {
                   state.getController().forceAnimationReset();

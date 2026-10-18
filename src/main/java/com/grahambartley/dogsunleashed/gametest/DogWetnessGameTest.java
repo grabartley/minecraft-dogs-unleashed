@@ -52,7 +52,7 @@ public final class DogWetnessGameTest implements FabricGameTest {
 
     context.runAtEveryTick(
         () -> {
-          if (sheltered.get() && dog.isShaking()) {
+          if (sheltered.get() && dog.getAnimationState().isShaking()) {
             shookWhileSheltered.set(true);
           }
         });
@@ -66,7 +66,8 @@ public final class DogWetnessGameTest implements FabricGameTest {
           context.assertTrue(
               dog.isTouchingWaterOrRain(), "A dog stood out in the rain should register as wet");
           context.assertFalse(
-              dog.isShaking(), "A dog should not shake while the rain is still soaking it");
+              dog.getAnimationState().isShaking(),
+              "A dog should not shake while the rain is still soaking it");
           context.setBlockState(ROOF_POS, Blocks.STONE);
           sheltered.set(true);
         });
@@ -90,7 +91,7 @@ public final class DogWetnessGameTest implements FabricGameTest {
 
     context.runAtEveryTick(
         () -> {
-          if (dog.isShaking()) {
+          if (dog.getAnimationState().isShaking()) {
             shook.set(true);
           }
         });
@@ -121,7 +122,7 @@ public final class DogWetnessGameTest implements FabricGameTest {
 
     context.runAtEveryTick(
         () -> {
-          if (drained.get() && dog.isShaking()) {
+          if (drained.get() && dog.getAnimationState().isShaking()) {
             shookWhileDry.set(true);
           }
         });

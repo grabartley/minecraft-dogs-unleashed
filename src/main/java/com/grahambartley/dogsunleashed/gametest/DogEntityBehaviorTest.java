@@ -228,7 +228,8 @@ public final class DogEntityBehaviorTest implements FabricGameTest {
           newDog.readCustomDataFromNbt(nbt);
 
           context.assertTrue(
-              newDog.getShakeProgress() == dog.getShakeProgress(),
+              newDog.getAnimationState().getShakeProgress()
+                  == dog.getAnimationState().getShakeProgress(),
               "Shake progress should persist after NBT load");
           context.complete();
         });

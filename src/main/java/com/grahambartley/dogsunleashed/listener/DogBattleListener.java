@@ -1,10 +1,11 @@
-package com.grahambartley.dogsunleashed.entity;
+package com.grahambartley.dogsunleashed.listener;
 
+import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityCombatEvents;
 
-public final class DireWolfBondListener {
+public final class DogBattleListener {
 
-  private DireWolfBondListener() {}
+  private DogBattleListener() {}
 
   public static void initialize() {
     ServerEntityCombatEvents.AFTER_KILLED_OTHER_ENTITY.register(

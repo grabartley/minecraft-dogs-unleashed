@@ -163,12 +163,12 @@ public final class DogVocalization {
     if (this.howlActiveTicks > 0) {
       this.howlActiveTicks--;
       if (this.howlActiveTicks == 0) {
-        this.dog.setHowling(false);
+        this.dog.getAnimationState().setHowling(false);
       }
     }
 
     if (this.canHowl() && this.dog.getRandom().nextInt(RANDOM_HOWL_CHANCE) == 0) {
-      this.dog.setHowling(true);
+      this.dog.getAnimationState().setHowling(true);
       this.dog.playSound(this.howlSound(), DogsUnleashed.SERVER_CONFIG.howlVolume(), HOWL_PITCH);
       this.howlCooldownTicks = HOWL_COOLDOWN_TICKS;
       this.howlActiveTicks = HOWL_DURATION_TICKS;

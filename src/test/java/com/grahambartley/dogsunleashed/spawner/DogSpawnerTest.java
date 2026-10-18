@@ -117,16 +117,18 @@ class DogSpawnerTest {
         Arguments.of(0, 5, true, false),
         Arguments.of(4, 5, true, false),
         Arguments.of(5, 5, true, true),
-        Arguments.of(10, 5, true, true),
+        Arguments.of(6, 10, true, false),
+        Arguments.of(9, 10, true, false),
+        Arguments.of(10, 10, true, true),
         Arguments.of(0, 1, false, false),
         Arguments.of(1, 3, false, true));
   }
 
-  @ParameterizedTest(name = "{0} placed of min {1}, pack only={2} -> spawns={3}")
+  @ParameterizedTest(name = "{0} placed of a pack of {1}, pack only={2} -> spawns={3}")
   @MethodSource("packPlacements")
   @DisplayName("a pack-only breed spawns its whole pack or nothing")
   void packOnlyBreedsSpawnWholePacks(
-      final int placed, final int minGroupSize, final boolean packOnly, final boolean expected) {
-    assertEquals(expected, DogSpawner.placesPack(placed, minGroupSize, packOnly));
+      final int placed, final int packSize, final boolean packOnly, final boolean expected) {
+    assertEquals(expected, DogSpawner.placesPack(placed, packSize, packOnly));
   }
 }

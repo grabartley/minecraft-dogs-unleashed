@@ -33,8 +33,9 @@ public final class DogReunionGameTest implements FabricGameTest {
         () -> {
           dog.getAmbienceEffects().celebrateOwnerArrival();
           context.assertTrue(
-              dog.getTailWagTimerTicks() > 0,
-              "celebrateOwnerArrival should start a tail wag, timer=" + dog.getTailWagTimerTicks());
+              dog.getAnimationState().getTailWagTimerTicks() > 0,
+              "celebrateOwnerArrival should start a tail wag, timer="
+                  + dog.getAnimationState().getTailWagTimerTicks());
           context.complete();
         });
   }
@@ -51,9 +52,9 @@ public final class DogReunionGameTest implements FabricGameTest {
     context.runAtTick(
         25,
         () -> {
-          final int before = dog.getTailWagTimerTicks();
+          final int before = dog.getAnimationState().getTailWagTimerTicks();
           dog.getAmbienceEffects().celebrateOwnerArrival();
-          final int after = dog.getTailWagTimerTicks();
+          final int after = dog.getAnimationState().getTailWagTimerTicks();
 
           context.assertTrue(
               before > 0, "First celebration should still be winding down, before=" + before);
@@ -82,7 +83,7 @@ public final class DogReunionGameTest implements FabricGameTest {
         () -> {
           PlayerJoinReunionListener.celebrateDogsNear(owner);
           context.assertTrue(
-              dog.getTailWagTimerTicks() > 0,
+              dog.getAnimationState().getTailWagTimerTicks() > 0,
               "Listener should celebrate the joining player's own nearby dog");
           context.complete();
         });
@@ -102,7 +103,7 @@ public final class DogReunionGameTest implements FabricGameTest {
         () -> {
           PlayerJoinReunionListener.celebrateDogsNear(owner);
           context.assertTrue(
-              strayDog.getTailWagTimerTicks() == 0,
+              strayDog.getAnimationState().getTailWagTimerTicks() == 0,
               "Listener must not celebrate an untamed dog the player does not own");
           context.complete();
         });
@@ -124,7 +125,7 @@ public final class DogReunionGameTest implements FabricGameTest {
         () -> {
           PlayerJoinReunionListener.celebrateDogsNear(owner);
           context.assertTrue(
-              othersDog.getTailWagTimerTicks() == 0,
+              othersDog.getAnimationState().getTailWagTimerTicks() == 0,
               "Listener must not celebrate a dog owned by a different player");
           context.complete();
         });

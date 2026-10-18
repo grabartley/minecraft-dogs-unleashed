@@ -38,8 +38,9 @@ public final class DogGrowth {
   public static final Identifier ARMOR_MODIFIER_ID =
       Identifier.of(DogsUnleashed.MOD_ID, "growth_stage_armor");
 
-  private final UnleashedDogEntity dog;
   private static final int EVOLVE_PARTICLES = 60;
+
+  private final UnleashedDogEntity dog;
 
   private int ticksInStage;
   private int battlesWon;
@@ -120,17 +121,22 @@ public final class DogGrowth {
       return null;
     }
     final String name = PetNames.tamedNameOf(this.dog);
+    if (this.stage() == DireWolfGrowthStage.ALPHA) {
+      player.sendMessage(
+          Text.translatable("message.dogs-unleashed.direwolf.already_alpha", name), true);
+      return ActionResult.SUCCESS;
+    }
     if (!this.stage().evolvesThroughBond()) {
       player.sendMessage(
           Text.translatable("message.dogs-unleashed.direwolf.not_prime", name), true);
       return ActionResult.SUCCESS;
     }
     if (!DogGrowthRules.canEvolve(this.stage(), this.dog.isTamed(), this.battlesWon)) {
+      final int remaining = DogGrowthRules.battlesStillNeeded(this.battlesWon);
       player.sendMessage(
-          Text.translatable(
-              "message.dogs-unleashed.direwolf.needs_battles",
-              name,
-              DogGrowthRules.battlesStillNeeded(this.battlesWon)),
+          remaining == 1
+              ? Text.translatable("message.dogs-unleashed.direwolf.needs_one_battle", name)
+              : Text.translatable("message.dogs-unleashed.direwolf.needs_battles", name, remaining),
           true);
       return ActionResult.SUCCESS;
     }
@@ -236,6 +242,17 @@ public final class DogGrowth {
         DogGrowthRules.packStage(
             this.packMemberIndex, this.dog.getRandom().nextInt(DogGrowthRules.PERCENT)));
     this.packMemberIndex = -1;
+  }
+
+  void restore(final int stageNumber, final int battlesWon) {
+    if (!this.applies()) {
+      return;
+    }
+    this.battlesWon = Math.max(0, battlesWon);
+    if (!this.dog.isBaby()) {
+      this.dog.setTrackedGrowthStage(DireWolfGrowthStage.fromNumber(stageNumber).number());
+    }
+    this.refresh();
   }
 
   void writeNbt(final NbtCompound nbt) {
