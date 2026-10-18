@@ -127,7 +127,14 @@ Views: `front`, `front34`, `left`, `right`, `back`, `back34`, `top`, or `--yaw` 
    ```
 6. **Prove it in game** with `scripted-qa`: Pet Manager portrait, a close-up at two blocks and a
    view at ten blocks, each beside the same shot on `main`. World lighting, animation and the
-   portrait scale all change how a coat reads, and only the game shows them.
+   portrait scale all change how a coat reads, and only the game shows them. Some checks only
+   mean something under the right conditions:
+   - The head tilt only plays while the nearest player holds a treat or a taming item, so a tilt
+     shot without one proves nothing.
+   - A size claim against another mob (as big as a horse) is a measurement, not a look: put both
+     at the same distance on a plain background and compare the back height in pixels.
+   - Gear goes on every breed it changes. A pendant over armour must show its whole charm,
+     back plate included, from the front and three-quarter views.
 7. **Hand off.** The PR carries the renders or screenshots the gate asks for. Anything the artist
    corrects afterwards goes into `reference/review-log.md` as before, after and why.
 
@@ -177,7 +184,10 @@ assumption that produced it: the reference is always the shipped asset on `main`
 - In game, `SlotRegions` derives each slot's texel rectangles from the baked rig. That is the
   authority for code that paints onto a slot; `faces` is the authoring view of the same thing,
   and both read the same GeckoLib layout.
-- Collar textures are a single flat white tinted at render time. Overlays are translucent PNGs
+- Collar textures are a single flat white tinted at render time. A collar must wrap the neck as
+  a band you can see from the side and back, not a patch on the chest, and it must be painted on
+  the front of the throat: the charm hangs from the lowest painted collar texel on a forward
+  face. Overlays are translucent PNGs
   over the coat's own UV.
 - Several shipped faces are partly or fully transparent on purpose: eyelid and eye cubes are
   overlays over the head, and mirrored tuft cubes share one patch. `check` reports those as holes

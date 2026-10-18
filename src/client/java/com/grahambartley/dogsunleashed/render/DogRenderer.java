@@ -34,6 +34,7 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
 
   private RigProfile frameProfile = RigProfile.EMPTY;
   private DogFurStage frameStage = DogFurStage.NATURAL;
+  private boolean frameArmoured;
   private @Nullable GrowthRigScale frameGrowth;
 
   public DogRenderer(EntityRendererFactory.Context context) {
@@ -73,6 +74,7 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
       int colour) {
     this.frameProfile = RigProfiles.of(animatable.getRigSourceBreed());
     this.frameStage = animatable.getFur().stage();
+    this.frameArmoured = !animatable.getArmour().worn().isEmpty();
     this.frameGrowth =
         animatable.getGrowth().applies()
             ? GrowthRigScale.of(model, this.frameProfile, animatable.getGrowth().stage())
@@ -126,7 +128,12 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
       int packedLight,
       int packedOverlay,
       int colour) {
-    if (!FurLook.shows(this.frameProfile, bone.getName(), this.frameStage)) {
+    if (!FurLook.shows(this.frameProfile, bone.getName(), this.frameStage)
+        || (this.frameArmoured
+            && FurLook.flattenedByArmour(
+                this.frameProfile,
+                bone.getName(),
+                bone.getParent() == null ? null : bone.getParent().getName()))) {
       return;
     }
     final float growthScale =

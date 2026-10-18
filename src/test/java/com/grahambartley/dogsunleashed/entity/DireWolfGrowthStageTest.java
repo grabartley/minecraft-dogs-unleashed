@@ -24,9 +24,9 @@ class DireWolfGrowthStageTest {
         Arguments.of(
             DireWolfGrowthStage.ADULT, 3, 1.15f, 1.50f, 1.36f, 40.0, 0.34, 8.0, 3.0, false),
         Arguments.of(
-            DireWolfGrowthStage.PRIME, 4, 1.40f, 1.75f, 1.59f, 50.0, 0.36, 10.0, 4.0, true),
+            DireWolfGrowthStage.PRIME, 4, 1.60f, 2.55f, 2.32f, 50.0, 0.36, 10.0, 4.0, true),
         Arguments.of(
-            DireWolfGrowthStage.ALPHA, 5, 1.80f, 2.50f, 2.27f, 60.0, 0.38, 12.0, 6.0, true));
+            DireWolfGrowthStage.ALPHA, 5, 2.00f, 3.20f, 2.91f, 60.0, 0.38, 12.0, 6.0, true));
   }
 
   @ParameterizedTest(name = "{0}")
@@ -142,7 +142,7 @@ class DireWolfGrowthStageTest {
     assertTrue(DireWolfGrowthStage.ADULT.height() > tallestOtherDog);
     assertTrue(DireWolfGrowthStage.PRIME.height() >= horseHeight);
     assertTrue(DireWolfGrowthStage.PRIME.width() >= horseWidth);
-    assertTrue(DireWolfGrowthStage.ALPHA.height() > DireWolfGrowthStage.PRIME.height() + 0.5f);
+    assertTrue(DireWolfGrowthStage.ALPHA.height() > DireWolfGrowthStage.PRIME.height() * 1.2f);
   }
 
   @ParameterizedTest

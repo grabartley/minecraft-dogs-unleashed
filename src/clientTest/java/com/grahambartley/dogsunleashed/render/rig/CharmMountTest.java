@@ -38,6 +38,7 @@ class CharmMountTest {
     final Vector3f push =
         CharmMount.clearanceInBone(
             PoseClearance.liveBoxesOf(dog, sides.body()),
+            List.of(),
             () -> PoseClearance.liveBoxesOf(dog, sides.head()),
             boneToModel,
             charmToBone,
@@ -124,10 +125,16 @@ class CharmMountTest {
 
     final Vector3f clear =
         CharmMount.clearanceInBone(
-            List.of(chest), List::of, new Matrix4f(), new Matrix4f(), charm, true);
+            List.of(chest), List.of(), List::of, new Matrix4f(), new Matrix4f(), charm, true);
     final Vector3f refused =
         CharmMount.clearanceInBone(
-            List.of(chest), () -> List.of(chin), new Matrix4f(), new Matrix4f(), charm, true);
+            List.of(chest),
+            List.of(),
+            () -> List.of(chin),
+            new Matrix4f(),
+            new Matrix4f(),
+            charm,
+            true);
 
     assertTrue(clear.z < -0.45f, "without a head in the way it comes out of the chest: " + clear);
     assertEquals(0.0f, refused.length(), EPSILON);
@@ -152,6 +159,25 @@ class CharmMountTest {
           charmToBone.transformPosition(new Vector3f(point)).z,
           EPSILON);
     }
+  }
+
+  @Test
+  @DisplayName("a charm worn over armour comes out until its back rests on the armour's front")
+  void armourShellIsClearedByTheBackFace() {
+    final PoseClearance.Box shell = box(new Vector3f(-1, -1, -0.5f), new Vector3f(1, 1, 0.5f));
+    final CubeGeometry.Bounds charm = new CubeGeometry.Bounds();
+    charm.include(new Vector3f(-0.1f, -0.1f, -0.03f));
+    charm.include(new Vector3f(0.1f, 0.1f, 0.03f));
+
+    final Vector3f overFur =
+        CharmMount.clearanceInBone(
+            List.of(shell), List.of(), List::of, new Matrix4f(), new Matrix4f(), charm, true);
+    final Vector3f overArmour =
+        CharmMount.clearanceInBone(
+            List.of(), List.of(shell), List::of, new Matrix4f(), new Matrix4f(), charm, true);
+
+    assertTrue(overFur.z <= -0.47f && overFur.z > -0.5f, "fur lets the back sink in: " + overFur);
+    assertTrue(overArmour.z <= -0.53f, "armour holds the back outside: " + overArmour);
   }
 
   private static PoseClearance.Box box(final Vector3f min, final Vector3f max) {

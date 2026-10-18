@@ -146,8 +146,8 @@ public final class DireWolfGameTest implements FabricGameTest {
             + "/"
             + reloaded.getMaxHealth());
     context.assertTrue(
-        Math.abs(reloaded.getHeight() - 1.75f) < 0.001f,
-        "A reloaded prime keeps its 1.75 block hitbox, not " + reloaded.getHeight());
+        Math.abs(reloaded.getHeight() - DireWolfGrowthStage.PRIME.height()) < 0.001f,
+        "A reloaded prime keeps its hitbox height, not " + reloaded.getHeight());
     context.complete();
   }
 
@@ -247,7 +247,8 @@ public final class DireWolfGameTest implements FabricGameTest {
             + wolf.getGrowth().stage());
     context.assertTrue(apple.getCount() == 1, "Evolving eats one apple");
     context.assertTrue(
-        Math.abs(wolf.getHeight() - 2.5f) < 0.001f, "An alpha stands 2.5 blocks tall");
+        Math.abs(wolf.getHeight() - DireWolfGrowthStage.ALPHA.height()) < 0.001f,
+        "An alpha stands at its full height");
     context.complete();
   }
 

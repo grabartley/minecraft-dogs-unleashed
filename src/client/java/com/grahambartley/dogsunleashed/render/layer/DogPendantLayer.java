@@ -4,6 +4,8 @@ import com.google.common.collect.MapMaker;
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.item.pendant.PendantType;
+import com.grahambartley.dogsunleashed.render.armour.ArmourClearance;
+import com.grahambartley.dogsunleashed.render.armour.ArmourFit;
 import com.grahambartley.dogsunleashed.render.rig.CharmMount;
 import com.grahambartley.dogsunleashed.render.rig.CollarBandLocator;
 import com.grahambartley.dogsunleashed.render.rig.CollarBandLocator.CollarSpot;
@@ -12,8 +14,11 @@ import com.grahambartley.dogsunleashed.render.rig.CubeGeometry;
 import com.grahambartley.dogsunleashed.render.rig.LivePose;
 import com.grahambartley.dogsunleashed.render.rig.PoseClearance;
 import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -63,6 +68,21 @@ public class DogPendantLayer extends GeoRenderLayer<UnleashedDogEntity> {
             : this.mounts.computeIfAbsent(bakedModel, model -> mount(model, animatable));
   }
 
+  private List<PoseClearance.Box> shellBoxes(
+      final UnleashedDogEntity animatable, final Set<String> headSide) {
+    if (animatable.getArmour().worn().isEmpty()) {
+      return List.of();
+    }
+    final Set<String> armoured =
+        new HashSet<>(ArmourFit.torsoBones(animatable.getRigSourceBreed()));
+    armoured.removeAll(headSide);
+    final Vector3f inflation =
+        ArmourClearance.inflationFor(this.frameModel, animatable.getRigSourceBreed());
+    return PoseClearance.liveBoxesOf(this.frameModel, armoured).stream()
+        .map(box -> box.grown(inflation))
+        .toList();
+  }
+
   @Override
   public void renderForBone(
       final MatrixStack poseStack,
@@ -89,6 +109,7 @@ public class DogPendantLayer extends GeoRenderLayer<UnleashedDogEntity> {
     final Vector3f clearance =
         CharmMount.clearanceInBone(
             PoseClearance.liveBoxesOf(this.frameModel, mount.get().sides().body()),
+            shellBoxes(animatable, mount.get().sides().head()),
             () -> PoseClearance.liveBoxesOf(this.frameModel, mount.get().sides().head()),
             LivePose.of(bone),
             mount.get().charmToBone(),
