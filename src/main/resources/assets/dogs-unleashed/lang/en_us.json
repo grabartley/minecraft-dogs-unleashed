@@ -69,6 +69,7 @@
   "message.dogs-unleashed.play_end_no_retrieve": "%s couldn't retrieve the %s",
   "message.dogs-unleashed.pending_bed_assignment": "Selected %s! Now right-click a dog bed to assign them",
   "message.dogs-unleashed.bed_assigned": "%s has been assigned to this bed",
+  "message.dogs-unleashed.bed_taken": "%s lost its sleeping spot to %s",
   "message.dogs-unleashed.no_pending_assignment": "Sneak + right-click a dog first, then right-click this bed",
   "message.dogs-unleashed.bed_refused": "%s is too big and too wild to sleep in a bed or a dog house",
   "message.dogs-unleashed.summon_failed": "Couldn't find %s anywhere",

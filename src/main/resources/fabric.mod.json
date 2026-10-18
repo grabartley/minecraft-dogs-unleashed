@@ -55,6 +55,7 @@
       "com.grahambartley.dogsunleashed.gametest.DogEntityBehaviorTest",
       "com.grahambartley.dogsunleashed.gametest.DogEntitySoundTest",
       "com.grahambartley.dogsunleashed.gametest.DogBedBlockGameTest",
+      "com.grahambartley.dogsunleashed.gametest.DogSleepSpotAssignmentGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogBedColorGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogHouseGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogSleepBehaviorGameTest",

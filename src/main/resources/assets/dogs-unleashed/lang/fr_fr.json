@@ -69,6 +69,7 @@
   "message.dogs-unleashed.play_end_no_retrieve": "%s n'a pas pu rapporter le %s",
   "message.dogs-unleashed.pending_bed_assignment": "%s sélectionné ! Faites maintenant un clic droit sur un panier pour l'assigner",
   "message.dogs-unleashed.bed_assigned": "%s a été assigné à ce panier",
+  "message.dogs-unleashed.bed_taken": "%s a cédé sa place pour dormir à %s",
   "message.dogs-unleashed.no_pending_assignment": "Accroupissez-vous + clic droit sur un chien d'abord, puis clic droit sur ce panier",
   "message.dogs-unleashed.bed_refused": "%s est trop grand et trop sauvage pour dormir dans un panier ou une niche",
   "message.dogs-unleashed.summon_failed": "Impossible de trouver %s",

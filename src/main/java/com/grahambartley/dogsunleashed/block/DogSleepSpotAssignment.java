@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.UUID;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -105,8 +106,27 @@ public final class DogSleepSpotAssignment {
                 oldHolder.clearAssignedDog(null);
               }
             });
+    DogSleepSpotHandover.displaced(holder.getAssignedDogUuid(), dog.getUuid())
+        .ifPresent(displacedUuid -> evict(world, holder, displacedUuid, dog));
     holder.setAssignedDog(dog);
     dog.getSleepController().setAssignedBedPos(pos);
+  }
+
+  private static void evict(
+      ServerWorld world, AssignedDogHolder holder, UUID displacedUuid, UnleashedDogEntity newDog) {
+    final PetData displacedPet = PetManager.get(world.getServer()).getPetByEntityId(displacedUuid);
+    holder.clearAssignedDog(world);
+    if (displacedPet == null) {
+      return;
+    }
+    final ServerPlayerEntity displacedOwner =
+        world.getServer().getPlayerManager().getPlayer(displacedPet.getOwnerId());
+    if (displacedOwner != null) {
+      displacedOwner.sendMessage(
+          Text.translatable(
+              "message.dogs-unleashed.bed_taken", displacedPet.getName(), dogName(world, newDog)),
+          false);
+    }
   }
 
   public static String dogName(World world, UnleashedDogEntity dog) {
