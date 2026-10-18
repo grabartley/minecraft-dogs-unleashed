@@ -16,6 +16,7 @@ public class ModSounds {
 
   public static final SoundEvent HUSKY_HOWL = registerSound("entity.husky.howl");
   public static final SoundEvent DIRE_WOLF_HOWL = registerSound("entity.direwolf.howl");
+  public static final SoundEvent DIRE_WOLF_GROWL = registerSound("entity.direwolf.growl");
 
   public static final SoundEvent DOG_WHISTLE_BLOW = registerSound("item.dog_whistle.blow");
 

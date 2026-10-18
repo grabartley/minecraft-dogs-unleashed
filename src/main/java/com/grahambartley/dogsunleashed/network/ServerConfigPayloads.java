@@ -1,7 +1,9 @@
 package com.grahambartley.dogsunleashed.network;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
+import com.grahambartley.dogsunleashed.config.DireWolfPackSettings;
 import com.grahambartley.dogsunleashed.config.DireWolfSettings;
+import com.grahambartley.dogsunleashed.config.DireWolfStaminaSettings;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.RegistryByteBuf;
@@ -79,6 +81,11 @@ public final class ServerConfigPayloads {
     buf.writeVarInt(config.direWolf().battlesToEvolve());
     buf.writeVarInt(config.direWolf().smallestPack());
     buf.writeVarInt(config.direWolf().largestPack());
+    buf.writeBoolean(config.direWolf().packs().hunt());
+    buf.writeBoolean(config.direWolf().packs().defend());
+    buf.writeBoolean(config.direWolf().stamina().drains());
+    buf.writeVarInt(config.direWolf().stamina().capacityPercent());
+    buf.writeVarInt(config.direWolf().stamina().recoveryPercent());
   }
 
   private static DogsUnleashedConfig readConfig(final RegistryByteBuf buf) {
@@ -98,6 +105,11 @@ public final class ServerConfigPayloads {
         buf.readVarInt(),
         buf.readVarInt(),
         new DireWolfSettings(
-            buf.readVarInt(), buf.readVarInt(), buf.readVarInt(), buf.readVarInt()));
+            buf.readVarInt(),
+            buf.readVarInt(),
+            buf.readVarInt(),
+            buf.readVarInt(),
+            new DireWolfPackSettings(buf.readBoolean(), buf.readBoolean()),
+            new DireWolfStaminaSettings(buf.readBoolean(), buf.readVarInt(), buf.readVarInt())));
   }
 }

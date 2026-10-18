@@ -70,6 +70,7 @@ public class UnleashedDogEntity extends TameableEntity
   private static final TrackedData<Integer> COAT_VARIANT = data(INTEGER);
   private static final TrackedData<Integer> EYE_COLOR_VARIANT = data(INTEGER);
   static final TrackedData<Boolean> HOWLING = data(BOOLEAN);
+  static final TrackedData<Boolean> GROWLING = data(BOOLEAN);
   private static final TrackedData<NbtCompound> GENOME = data(NBT_COMPOUND);
   private static final TrackedData<Integer> COLLAR_COLOR = data(INTEGER);
   static final TrackedData<Integer> TAIL_WAG_TIMER = data(INTEGER);
@@ -118,6 +119,8 @@ public class UnleashedDogEntity extends TameableEntity
   private final DogFetchCarry fetchCarry = new DogFetchCarry(this);
   private final DogFur fur = new DogFur(this);
   private final DogGrowth growth = new DogGrowth(this);
+  private final DogPack pack = new DogPack(this);
+  private final DogGrowl growl = new DogGrowl(this);
   private boolean spawnedByDogSpawner = false;
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -159,8 +162,9 @@ public class UnleashedDogEntity extends TameableEntity
       this.getAppearanceRoller().rollAppearance(spawnReason);
     }
     this.undeadState.applyAttributeScaling();
-    final EntityData pack = this.growth.joinPack(spawnReason, entityData);
-    final EntityData initialized = super.initialize(world, difficulty, spawnReason, pack);
+    final EntityData packData = this.growth.joinPack(spawnReason, entityData);
+    this.pack.joinFrom(packData);
+    final EntityData initialized = super.initialize(world, difficulty, spawnReason, packData);
     this.growth.settleInPack();
     this.growth.refresh();
     this.fur.rollSpawnStage(spawnReason);
@@ -282,6 +286,7 @@ public class UnleashedDogEntity extends TameableEntity
     builder.add(COAT_VARIANT, 0);
     builder.add(EYE_COLOR_VARIANT, 0);
     builder.add(HOWLING, false);
+    builder.add(GROWLING, false);
     builder.add(GENOME, new NbtCompound());
     builder.add(FUR_STAGE, DogFurStage.NATURAL.ordinal());
     builder.add(GROWTH_STAGE, DireWolfGrowthStage.YEARLING.number());
@@ -345,6 +350,14 @@ public class UnleashedDogEntity extends TameableEntity
 
   public DogGrowth getGrowth() {
     return this.growth;
+  }
+
+  public DogPack getPack() {
+    return this.pack;
+  }
+
+  public DogGrowl getGrowl() {
+    return this.growl;
   }
 
   int getTrackedGrowthStage() {
@@ -520,7 +533,7 @@ public class UnleashedDogEntity extends TameableEntity
 
   @Override
   public void setTarget(@Nullable final LivingEntity target) {
-    if (target != null && this.isBaby()) {
+    if (target != null && (this.isBaby() || this.pack.staysOutOfFights())) {
       return;
     }
     super.setTarget(target);
@@ -547,6 +560,7 @@ public class UnleashedDogEntity extends TameableEntity
       this.pendants.tick();
       this.fur.tick();
       this.growth.tick();
+      this.growl.tick();
     }
   }
 
@@ -590,7 +604,11 @@ public class UnleashedDogEntity extends TameableEntity
       this.wakeUp();
       this.vocalization.barkIfReady(BARK_PITCH);
     }
-    return super.damage(source, amount);
+    final boolean damaged = super.damage(source, amount);
+    if (damaged && !this.getWorld().isClient) {
+      this.pack.rallyAgainst(source.getAttacker());
+    }
+    return damaged;
   }
 
   @Override

@@ -63,6 +63,14 @@
       "dogs-unleashed:entity/direwolf/howl1"
     ]
   },
+  "entity.direwolf.growl": {
+    "subtitle": "subtitles.dogs-unleashed.direwolf.growl",
+    "sounds": [
+      "dogs-unleashed:entity/direwolf/growl1",
+      "dogs-unleashed:entity/direwolf/growl2",
+      "dogs-unleashed:entity/direwolf/growl3"
+    ]
+  },
   "item.dog_whistle.blow": {
     "subtitle": "subtitles.dogs-unleashed.dog_whistle.blow",
     "sounds": [

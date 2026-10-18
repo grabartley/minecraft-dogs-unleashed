@@ -25,6 +25,7 @@ public final class DireWolfJumpGameTest implements FabricGameTest {
   private static final int RANGE_WIDTH = 9;
   private static final BlockPos REL_START = new BlockPos(3, FLOOR_Y, 4);
   private static final BlockPos REL_GOAL = new BlockPos(12, FLOOR_Y, 4);
+  private static final BlockPos REL_OWNER = new BlockPos(14, FLOOR_Y, 4);
   private static final double ARRIVED = 0.01;
   private static final double TELEPORT_STRIDE = 2.0;
 
@@ -72,7 +73,7 @@ public final class DireWolfJumpGameTest implements FabricGameTest {
       context.setBlockState(new BlockPos(STEP_START_X, FLOOR_Y, z), Blocks.OAK_FENCE);
     }
     final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
-    final Vec3d ownerPos = context.getAbsolute(Vec3d.ofBottomCenter(REL_GOAL));
+    final Vec3d ownerPos = context.getAbsolute(Vec3d.ofBottomCenter(REL_OWNER));
     owner.refreshPositionAndAngles(ownerPos.x, ownerPos.y, ownerPos.z, 0.0f, 0.0f);
     final UnleashedDogEntity wolf = context.spawnEntity(ModEntities.DIRE_WOLF, REL_START);
     wolf.setOwner(owner);

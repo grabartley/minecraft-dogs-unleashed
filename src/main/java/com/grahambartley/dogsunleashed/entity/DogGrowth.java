@@ -15,7 +15,6 @@ import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.mob.Monster;
-import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -239,10 +238,7 @@ public final class DogGrowth {
     if (!this.applies() || !assignsPackStage(reason)) {
       return entityData;
     }
-    final PassiveEntity.PassiveData pack =
-        entityData instanceof PassiveEntity.PassiveData passiveData
-            ? passiveData
-            : new PassiveEntity.PassiveData(false);
+    final WildPackData pack = DogPack.startOrJoin(entityData);
     this.packMemberIndex = pack.getSpawnedCount();
     return pack;
   }

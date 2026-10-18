@@ -172,7 +172,13 @@ class DogsUnleashedConfigTest {
             false,
             250,
             0,
-            new DireWolfSettings(175, 8, 6, 9));
+            new DireWolfSettings(
+                175,
+                8,
+                6,
+                9,
+                new DireWolfPackSettings(false, true),
+                new DireWolfStaminaSettings(false, 150, 60)));
     assertTrue(DogsUnleashedConfig.save(path, original));
     assertTrue(Files.exists(path));
     assertEquals(original, DogsUnleashedConfig.load(path));

@@ -64,10 +64,15 @@ class DogsUnleashedCommandTest {
         Arguments.of(17, "command.dogs-unleashed.help.direwolf.battles"),
         Arguments.of(18, "command.dogs-unleashed.help.direwolf.smallestpack"),
         Arguments.of(19, "command.dogs-unleashed.help.direwolf.largestpack"),
-        Arguments.of(20, "command.dogs-unleashed.help.reset"),
-        Arguments.of(21, "command.dogs-unleashed.help.list"),
-        Arguments.of(22, "command.dogs-unleashed.help.summon"),
-        Arguments.of(23, "command.dogs-unleashed.help.find"));
+        Arguments.of(20, "command.dogs-unleashed.help.direwolf.packhunting"),
+        Arguments.of(21, "command.dogs-unleashed.help.direwolf.packdefence"),
+        Arguments.of(22, "command.dogs-unleashed.help.direwolf.staminadrain"),
+        Arguments.of(23, "command.dogs-unleashed.help.direwolf.staminacapacity"),
+        Arguments.of(24, "command.dogs-unleashed.help.direwolf.staminarecovery"),
+        Arguments.of(25, "command.dogs-unleashed.help.reset"),
+        Arguments.of(26, "command.dogs-unleashed.help.list"),
+        Arguments.of(27, "command.dogs-unleashed.help.summon"),
+        Arguments.of(28, "command.dogs-unleashed.help.find"));
   }
 
   @ParameterizedTest(name = "help line {0} -> {1}")
@@ -103,7 +108,9 @@ class DogsUnleashedCommandTest {
         Arguments.of(19, "command.dogs-unleashed.status.badhairdaychance"),
         Arguments.of(20, "command.dogs-unleashed.status.direwolf.growthrate"),
         Arguments.of(21, "command.dogs-unleashed.status.direwolf.battles"),
-        Arguments.of(22, "command.dogs-unleashed.status.direwolf.packsize"));
+        Arguments.of(22, "command.dogs-unleashed.status.direwolf.packsize"),
+        Arguments.of(23, "command.dogs-unleashed.status.direwolf.packs"),
+        Arguments.of(24, "command.dogs-unleashed.status.direwolf.stamina"));
   }
 
   @ParameterizedTest(name = "status line {0} -> {1}")

@@ -34,7 +34,7 @@ public enum UnleashedDogBreed {
           BiomeKeys.SNOWY_SLOPES,
           BiomeKeys.GROVE),
       new Attributes(25.0, 0.30, 5.0),
-      new Voice(true, null, () -> ModSounds.HUSKY_HOWL),
+      new Voice(true, null, () -> ModSounds.HUSKY_HOWL, null),
       true,
       new RenderTransforms(1.3f, 0.5f, 0.0f, 1.31f),
       new FurProfile(DogFurStage.OVERGROWN, 48000, 2),
@@ -50,7 +50,7 @@ public enum UnleashedDogBreed {
       new SpawnSettings(
           10, 1, 2, false, BiomeKeys.PLAINS, BiomeKeys.SUNFLOWER_PLAINS, BiomeKeys.MEADOW),
       new Attributes(10.0, 0.25, 2.0),
-      new Voice(false, () -> ModSounds.DACHSHUND_BARK, null),
+      new Voice(false, () -> ModSounds.DACHSHUND_BARK, null, null),
       false,
       new RenderTransforms(1.3f, 0.75f, 180.0f, 0.57f),
       new FurProfile(DogFurStage.SHAGGY, 72000, 1),
@@ -74,7 +74,7 @@ public enum UnleashedDogBreed {
           BiomeKeys.OLD_GROWTH_BIRCH_FOREST,
           BiomeKeys.MEADOW),
       new Attributes(17.0, 0.29, 3.0),
-      new Voice(false, () -> ModSounds.BEAGLE_BARK, null),
+      new Voice(false, () -> ModSounds.BEAGLE_BARK, null, null),
       false,
       new RenderTransforms(1.5f, 0.75f, 0.0f, 0.88f),
       new FurProfile(DogFurStage.SHAGGY, 72000, 1),
@@ -89,7 +89,7 @@ public enum UnleashedDogBreed {
       new Dimensions(0.8f, 1.1f),
       new SpawnSettings(10, 1, 3, false, BiomeKeys.BEACH),
       new Attributes(24.0, 0.30, 4.0),
-      new Voice(false, () -> ModSounds.GOLDEN_RETRIEVER_BARK, null),
+      new Voice(false, () -> ModSounds.GOLDEN_RETRIEVER_BARK, null, null),
       false,
       new RenderTransforms(1.7f, 0.85f, 0.0f, 1.31f),
       new FurProfile(DogFurStage.OVERGROWN, 48000, 2),
@@ -104,7 +104,7 @@ public enum UnleashedDogBreed {
       new Dimensions(0.8f, 1.1f),
       new SpawnSettings(10, 1, 2, false, BiomeKeys.CHERRY_GROVE),
       new Attributes(18.0, 0.32, 3.5),
-      new Voice(false, () -> ModSounds.SHIBA_INU_BARK, null),
+      new Voice(false, () -> ModSounds.SHIBA_INU_BARK, null, null),
       false,
       new RenderTransforms(1.5f, 0.75f, 0.0f, 0.88f),
       new FurProfile(DogFurStage.OVERGROWN, 60000, 2),
@@ -128,15 +128,20 @@ public enum UnleashedDogBreed {
           BiomeKeys.SNOWY_SLOPES,
           BiomeKeys.SNOWY_TAIGA),
       new Attributes(30.0, 0.32, 6.0),
-      new Voice(true, () -> ModSounds.DIRE_WOLF_BARK, () -> ModSounds.DIRE_WOLF_HOWL),
+      new Voice(
+          true,
+          () -> ModSounds.DIRE_WOLF_BARK,
+          () -> ModSounds.DIRE_WOLF_HOWL,
+          () -> ModSounds.DIRE_WOLF_GROWL),
       false,
       new RenderTransforms(1.47f, 0.735f, 0.0f, 1.31f),
       new FurProfile(DogFurStage.OVERGROWN, 48000, 2),
       Nature.ORDINARY
-          .withTameSuccessChance(6)
           .breedingOnlyWithOwnBreed()
           .growingThroughStages()
-          .sleepingOutsideBeds()),
+          .sleepingOutsideBeds()
+          .huntingInPacks()
+          .tamingThroughTrust()),
   CROSS_BREED(
       "crossbreed",
       new FetchCarryProfiles(
@@ -147,7 +152,7 @@ public enum UnleashedDogBreed {
       new Dimensions(0.8f, 1.1f),
       null,
       new Attributes(18.0, 0.29, 3.5),
-      new Voice(false, null, null),
+      new Voice(false, null, null, null),
       false,
       new RenderTransforms(1.5f, 0.75f, 0.0f, 0.88f),
       new FurProfile(DogFurStage.SHAGGY, 60000, 1),
@@ -258,6 +263,11 @@ public enum UnleashedDogBreed {
     return howlSound == null ? null : howlSound.get();
   }
 
+  public @Nullable SoundEvent growlSound() {
+    final Supplier<SoundEvent> growlSound = this.voice.growlSound();
+    return growlSound == null ? null : growlSound.get();
+  }
+
   public boolean hasEyeColorVariants() {
     return this.hasEyeColorVariants;
   }
@@ -319,7 +329,8 @@ public enum UnleashedDogBreed {
   public record Voice(
       boolean howls,
       @Nullable Supplier<SoundEvent> barkSound,
-      @Nullable Supplier<SoundEvent> howlSound) {}
+      @Nullable Supplier<SoundEvent> howlSound,
+      @Nullable Supplier<SoundEvent> growlSound) {}
 
   public record RenderTransforms(
       float adultScale, float babyScale, float bodyYawOffsetDegrees, float portraitHeight) {}
@@ -330,23 +341,59 @@ public enum UnleashedDogBreed {
       int tameSuccessChance,
       boolean breedsOnlyWithOwnBreed,
       boolean growsThroughStages,
-      boolean sleepsInBeds) {
-    public static final Nature ORDINARY = new Nature(3, false, false, true);
-
-    public Nature withTameSuccessChance(final int chance) {
-      return new Nature(chance, breedsOnlyWithOwnBreed, growsThroughStages, sleepsInBeds);
-    }
+      boolean sleepsInBeds,
+      boolean huntsInPacks,
+      boolean tamesThroughTrust) {
+    public static final Nature ORDINARY = new Nature(3, false, false, true, false, false);
 
     public Nature breedingOnlyWithOwnBreed() {
-      return new Nature(tameSuccessChance, true, growsThroughStages, sleepsInBeds);
+      return new Nature(
+          tameSuccessChance,
+          true,
+          growsThroughStages,
+          sleepsInBeds,
+          huntsInPacks,
+          tamesThroughTrust);
     }
 
     public Nature growingThroughStages() {
-      return new Nature(tameSuccessChance, breedsOnlyWithOwnBreed, true, sleepsInBeds);
+      return new Nature(
+          tameSuccessChance,
+          breedsOnlyWithOwnBreed,
+          true,
+          sleepsInBeds,
+          huntsInPacks,
+          tamesThroughTrust);
     }
 
     public Nature sleepingOutsideBeds() {
-      return new Nature(tameSuccessChance, breedsOnlyWithOwnBreed, growsThroughStages, false);
+      return new Nature(
+          tameSuccessChance,
+          breedsOnlyWithOwnBreed,
+          growsThroughStages,
+          false,
+          huntsInPacks,
+          tamesThroughTrust);
+    }
+
+    public Nature huntingInPacks() {
+      return new Nature(
+          tameSuccessChance,
+          breedsOnlyWithOwnBreed,
+          growsThroughStages,
+          sleepsInBeds,
+          true,
+          tamesThroughTrust);
+    }
+
+    public Nature tamingThroughTrust() {
+      return new Nature(
+          tameSuccessChance,
+          breedsOnlyWithOwnBreed,
+          growsThroughStages,
+          sleepsInBeds,
+          huntsInPacks,
+          true);
     }
   }
 }

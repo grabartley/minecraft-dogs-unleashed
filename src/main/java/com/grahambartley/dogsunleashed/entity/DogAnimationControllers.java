@@ -10,6 +10,7 @@ public final class DogAnimationControllers {
 
   private static final double MOVEMENT_THRESHOLD = 0.001;
   private static final int HEAD_TILT_TRANSITION_TICKS = 5;
+  private static final int GROWL_TRANSITION_TICKS = 4;
 
   private DogAnimationControllers() {}
 
@@ -71,6 +72,18 @@ public final class DogAnimationControllers {
                       RawAnimation.begin().thenLoop(DogAnimationKeys.HOWL_SIT));
                 }
                 return state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.HOWL));
+              }
+              return PlayState.STOP;
+            }));
+
+    controllers.add(
+        new AnimationController<>(
+            dog,
+            DogAnimationKeys.GROWL,
+            GROWL_TRANSITION_TICKS,
+            state -> {
+              if (dog.getGrowl().isGrowling()) {
+                return state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.GROWL));
               }
               return PlayState.STOP;
             }));

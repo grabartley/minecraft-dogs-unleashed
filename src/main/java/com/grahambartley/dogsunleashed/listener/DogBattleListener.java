@@ -12,6 +12,7 @@ public final class DogBattleListener {
         (world, entity, killed) -> {
           if (entity instanceof UnleashedDogEntity dog) {
             dog.getGrowth().recordBattle(killed);
+            dog.getPack().recordKill();
           }
         });
   }
