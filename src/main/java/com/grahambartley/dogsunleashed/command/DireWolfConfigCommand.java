@@ -3,7 +3,6 @@ package com.grahambartley.dogsunleashed.command;
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.config.DireWolfSettings;
 import com.grahambartley.dogsunleashed.config.DireWolfStaminaSettings;
-import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -174,20 +173,11 @@ final class DireWolfConfigCommand {
 
   private static LiteralArgumentBuilder<ServerCommandSource> toggle(
       final String name, final BiFunction<DireWolfSettings, Boolean, DireWolfSettings> update) {
-    return CommandManager.literal(name)
-        .then(
-            CommandManager.argument("enabled", BoolArgumentType.bool())
-                .executes(
-                    ctx -> {
-                      final boolean value = BoolArgumentType.getBool(ctx, "enabled");
-                      return DogsUnleashedCommand.applyUpdate(
-                          ctx,
-                          DogsUnleashed.SERVER_CONFIG.withDireWolf(
-                              update.apply(DogsUnleashed.SERVER_CONFIG.direWolf(), value)),
-                          "direwolf " + name,
-                          String.valueOf(value),
-                          false);
-                    }));
+    return ConfigSettingNodes.toggle(
+        name,
+        "direwolf " + name,
+        (config, value) -> config.withDireWolf(update.apply(config.direWolf(), value)),
+        false);
   }
 
   private static int apply(
@@ -204,7 +194,7 @@ final class DireWolfConfigCommand {
       return 0;
     }
     final DireWolfSettings updated = update.apply(current, value);
-    return DogsUnleashedCommand.applyUpdate(
+    return ConfigSettingNodes.applyUpdate(
         ctx, DogsUnleashed.SERVER_CONFIG.withDireWolf(updated), label, value + unit, false);
   }
 }

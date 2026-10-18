@@ -184,6 +184,54 @@ public final class DireWolfTrustGameTest implements FabricGameTest {
         });
   }
 
+  @GameTest(templateName = RANGE, tickLimit = 120)
+  public void holdingAnAxeNearAPupDrawsTheNearestAdultBetweenThemAndThePup(
+      final TestContext context) {
+    final List<UnleashedDogEntity> pack =
+        spawnPack(context, DireWolfGrowthStage.PUP, DireWolfGrowthStage.ADULT);
+    final UnleashedDogEntity pup = pack.get(0);
+    final UnleashedDogEntity guard = pack.get(1);
+    pup.setAiDisabled(true);
+    moveTo(context, pup, REL_PUP);
+    moveTo(context, guard, REL_GUARD);
+    final ServerPlayerEntity player = SurvivalTestPlayer.joinAt(context, REL_NEARBY);
+    feed(pup, player, Items.BEEF, 1);
+    player.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.IRON_AXE));
+    context.addInstantFinalTask(
+        () -> {
+          context.assertTrue(
+              pup.getTrust().trustOf(player) == 5,
+              "An axe should spook the pack, but trust is " + pup.getTrust().trustOf(player));
+          context.assertTrue(
+              guard.distanceTo(player) < pup.distanceTo(player),
+              "The nearest adult has not stepped between the player and the pup");
+          SurvivalTestPlayer.leave(context, player);
+        });
+  }
+
+  @GameTest(templateName = RANGE, tickLimit = 120)
+  public void holdingFoodNearAPupLeavesThePackCalm(final TestContext context) {
+    final List<UnleashedDogEntity> pack =
+        spawnPack(context, DireWolfGrowthStage.PUP, DireWolfGrowthStage.ADULT);
+    final UnleashedDogEntity pup = pack.get(0);
+    pup.setAiDisabled(true);
+    moveTo(context, pup, REL_PUP);
+    moveTo(context, pack.get(1), REL_GUARD);
+    final ServerPlayerEntity player = SurvivalTestPlayer.joinAt(context, REL_NEARBY);
+    feed(pup, player, Items.BEEF, 1);
+    player.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.BEEF));
+    context.runAtEveryTick(
+        () ->
+            context.assertTrue(
+                pup.getTrust().trustOf(player) == 20, "A player holding food spooked the pack"));
+    context.runAtTick(
+        100,
+        () -> {
+          SurvivalTestPlayer.leave(context, player);
+          context.complete();
+        });
+  }
+
   @GameTest(templateName = RANGE, tickLimit = 20)
   public void hurtingAPupTurnsThePackAndWipesTrust(final TestContext context) {
     final List<UnleashedDogEntity> pack =

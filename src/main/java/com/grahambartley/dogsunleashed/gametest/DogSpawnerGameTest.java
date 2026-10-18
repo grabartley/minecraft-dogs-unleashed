@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
+import com.grahambartley.dogsunleashed.entity.DogSpawnerOrigin;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
@@ -13,12 +14,13 @@ import java.util.List;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import net.minecraft.entity.EntityData;
 import net.minecraft.entity.SpawnGroup;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.CustomTestProvider;
 import net.minecraft.test.GameTest;
@@ -47,9 +49,15 @@ public final class DogSpawnerGameTest implements FabricGameTest {
   private static final List<InertnessCase> INERTNESS_CASES =
       List.of(
           new InertnessCase(
-              "optedout", cfg -> cfg.withCapIndependentSpawningEnabled(false), true, false),
+              "optedout",
+              cfg -> cfg.withSpawning(cfg.spawning().withCapIndependentSpawningEnabled(false)),
+              true,
+              false),
           new InertnessCase(
-              "naturalspawningoff", cfg -> cfg.withEnableNaturalSpawning(false), true, false),
+              "naturalspawningoff",
+              cfg -> cfg.withSpawning(cfg.spawning().withEnableNaturalSpawning(false)),
+              true,
+              false),
           new InertnessCase("spawnanimalsoff", UnaryOperator.identity(), false, false),
           new InertnessCase("mobspawninggameruleoff", UnaryOperator.identity(), true, true));
 
@@ -132,9 +140,9 @@ public final class DogSpawnerGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
-  public void untamedDogCountTracksSpawnsAndTaming(final TestContext context) {
+  public void ungroupedUntamedDogsCountOneGroupEachAndTamedDogsDoNot(final TestContext context) {
     final BlockPos absCenter = context.getAbsolutePos(REL_ARENA_CENTER);
-    final int baseline = DogSpawner.countUntamedDogsNear(context.getWorld(), absCenter);
+    final int baseline = DogSpawner.countWildGroupsNear(context.getWorld(), absCenter);
 
     final List<UnleashedDogEntity> untamed =
         DogTestData.getAllBreeds().stream()
@@ -148,14 +156,37 @@ public final class DogSpawnerGameTest implements FabricGameTest {
     tamed.setAiDisabled(true);
 
     context.assertTrue(
-        DogSpawner.countUntamedDogsNear(context.getWorld(), absCenter) == baseline + untamed.size(),
-        "Every untamed dog of every breed should count toward the cap; the tamed dog should not");
+        DogSpawner.countWildGroupsNear(context.getWorld(), absCenter) == baseline + untamed.size(),
+        "Every untamed dog without a group should count as its own group; the tamed dog should"
+            + " not count");
 
     untamed.get(0).setTamed(true, true);
     context.assertTrue(
-        DogSpawner.countUntamedDogsNear(context.getWorld(), absCenter)
+        DogSpawner.countWildGroupsNear(context.getWorld(), absCenter)
             == baseline + untamed.size() - 1,
-        "Taming a dog should remove it from the untamed cap count");
+        "Taming a dog should remove it from the group count");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
+  public void aNaturallySpawnedGroupCountsOnce(final TestContext context) {
+    final ServerWorld world = context.getWorld();
+    final BlockPos absCenter = context.getAbsolutePos(REL_ARENA_CENTER);
+    final int baseline = DogSpawner.countWildGroupsNear(world, absCenter);
+
+    EntityData groupData = null;
+    for (int i = 0; i < 3; i++) {
+      final UnleashedDogEntity husky =
+          DogTestHelper.spawnDog(context, DogTestData.HUSKY, new BlockPos(2 + i, 2, 3));
+      husky.setAiDisabled(true);
+      groupData =
+          husky.initialize(
+              world, world.getLocalDifficulty(husky.getBlockPos()), SpawnReason.NATURAL, groupData);
+    }
+
+    context.assertTrue(
+        DogSpawner.countWildGroupsNear(world, absCenter) == baseline + 1,
+        "Three huskies from one natural group should count as one group");
     context.complete();
   }
 
@@ -164,10 +195,10 @@ public final class DogSpawnerGameTest implements FabricGameTest {
     final BlockPos farCenter =
         context
             .getAbsolutePos(REL_ARENA_CENTER)
-            .add(DogSpawner.UNTAMED_DOG_CAP_RADIUS_BLOCKS + 16, 0, 0);
-    final int baseline = DogSpawner.countUntamedDogsNear(context.getWorld(), farCenter);
+            .add(DogSpawner.WILD_GROUP_CAP_RADIUS_BLOCKS + 16, 0, 0);
+    final int baseline = DogSpawner.countWildGroupsNear(context.getWorld(), farCenter);
     final int nearBaseline =
-        DogSpawner.countUntamedDogsNear(
+        DogSpawner.countWildGroupsNear(
             context.getWorld(), context.getAbsolutePos(REL_ARENA_CENTER));
 
     final UnleashedDogEntity first =
@@ -178,18 +209,17 @@ public final class DogSpawnerGameTest implements FabricGameTest {
     second.setAiDisabled(true);
 
     context.assertTrue(
-        DogSpawner.countUntamedDogsNear(
-                context.getWorld(), context.getAbsolutePos(REL_ARENA_CENTER))
+        DogSpawner.countWildGroupsNear(context.getWorld(), context.getAbsolutePos(REL_ARENA_CENTER))
             == nearBaseline + 2,
         "Precondition: both dogs count from a center inside the structure");
     context.assertTrue(
-        DogSpawner.countUntamedDogsNear(context.getWorld(), farCenter) == baseline,
+        DogSpawner.countWildGroupsNear(context.getWorld(), farCenter) == baseline,
         "Dogs beyond the cap radius should not count toward the cap");
     context.complete();
   }
 
   @CustomTestProvider
-  public List<TestFunction> breedCandidateResolutionPerBreed() {
+  public List<TestFunction> breedIsNativeToEachOfItsBiomes() {
     return DogTestData.getAllBreeds().stream()
         .map(
             data ->
@@ -198,32 +228,17 @@ public final class DogSpawnerGameTest implements FabricGameTest {
                     "dogspawnertest.breedcandidates." + data.breed().serializedId(),
                     EMPTY_STRUCTURE,
                     TICK_LIMIT,
-                    ctx -> testBreedCandidateResolution(ctx, data.breed())))
+                    ctx -> testBreedIsNativeToItsBiomes(ctx, data.breed())))
         .toList();
   }
 
-  private void testBreedCandidateResolution(
+  private void testBreedIsNativeToItsBiomes(
       final TestContext context, final UnleashedDogBreed breed) {
     final Registry<Biome> biomes = biomeRegistry(context);
-    final DogsUnleashedConfig defaults = DogsUnleashedConfig.defaults();
-    final DogsUnleashedConfig breedDisabled =
-        defaults.withBreedSpawnRateMultiplierPercent(breed.serializedId(), 0);
-    final DogsUnleashedConfig globalDisabled = defaults.withSpawnRateMultiplierPercent(0);
-
     for (final RegistryKey<Biome> biomeKey : breed.spawnSettings().biomes()) {
-      final RegistryEntry<Biome> entry = biomes.entryOf(biomeKey);
       context.assertTrue(
-          DogSpawner.spawnableBreedsIn(entry, defaults).contains(breed),
+          DogSpawner.breedsNativeTo(biomes.entryOf(biomeKey)).contains(breed),
           breed.serializedId() + " should be a candidate in " + biomeKey.getValue());
-      context.assertFalse(
-          DogSpawner.spawnableBreedsIn(entry, breedDisabled).contains(breed),
-          breed.serializedId() + " at 0% should not be a candidate in " + biomeKey.getValue());
-      context.assertFalse(
-          DogSpawner.spawnableBreedsIn(entry, globalDisabled).contains(breed),
-          breed.serializedId()
-              + " should not be a candidate in "
-              + biomeKey.getValue()
-              + " at 0% global spawn rate");
     }
     context.complete();
   }
@@ -260,8 +275,7 @@ public final class DogSpawnerGameTest implements FabricGameTest {
   private void testExactCandidateSet(
       final TestContext context, final BiomeCandidatesCase biomeCase) {
     final List<UnleashedDogBreed> candidates =
-        DogSpawner.spawnableBreedsIn(
-            biomeRegistry(context).entryOf(biomeCase.biome()), DogsUnleashedConfig.defaults());
+        DogSpawner.breedsNativeTo(biomeRegistry(context).entryOf(biomeCase.biome()));
     context.assertTrue(
         candidates.equals(biomeCase.expected()),
         biomeCase.biome().getValue()
@@ -269,20 +283,6 @@ public final class DogSpawnerGameTest implements FabricGameTest {
             + biomeCase.expected()
             + " but resolved "
             + candidates);
-    context.complete();
-  }
-
-  @GameTest(templateName = EMPTY_STRUCTURE, tickLimit = TICK_LIMIT)
-  public void disablingOneBreedKeepsOthersInSharedBiome(final TestContext context) {
-    final DogsUnleashedConfig dachshundDisabled =
-        DogsUnleashedConfig.defaults()
-            .withBreedSpawnRateMultiplierPercent(UnleashedDogBreed.DACHSHUND.serializedId(), 0);
-    final List<UnleashedDogBreed> candidates =
-        DogSpawner.spawnableBreedsIn(
-            biomeRegistry(context).entryOf(BiomeKeys.MEADOW), dachshundDisabled);
-    context.assertTrue(
-        candidates.equals(List.of(UnleashedDogBreed.BEAGLE)),
-        "Meadow with dachshund at 0% should still offer the beagle but resolved " + candidates);
     context.complete();
   }
 
@@ -311,7 +311,7 @@ public final class DogSpawnerGameTest implements FabricGameTest {
     final UnleashedDogEntity original =
         DogTestHelper.spawnDog(context, data, new BlockPos(2, 2, 2));
     original.setAiDisabled(true);
-    original.setSpawnedByDogSpawner(flag);
+    original.getComponents().get(DogSpawnerOrigin.class).setFromSpawner(flag);
 
     final NbtCompound nbt = new NbtCompound();
     original.writeCustomDataToNbt(nbt);
@@ -319,11 +319,11 @@ public final class DogSpawnerGameTest implements FabricGameTest {
     final UnleashedDogEntity restored =
         DogTestHelper.spawnDog(context, data, new BlockPos(4, 2, 4));
     restored.setAiDisabled(true);
-    restored.setSpawnedByDogSpawner(!flag);
+    restored.getComponents().get(DogSpawnerOrigin.class).setFromSpawner(!flag);
     restored.readCustomDataFromNbt(nbt);
 
     context.assertTrue(
-        restored.isSpawnedByDogSpawner() == flag,
+        restored.getComponents().get(DogSpawnerOrigin.class).isFromSpawner() == flag,
         data.breed().serializedId()
             + " SpawnedByDogSpawner="
             + flag
@@ -354,21 +354,22 @@ public final class DogSpawnerGameTest implements FabricGameTest {
     dog.setAiDisabled(true);
     final String breedId = data.breed().serializedId();
 
-    dog.setSpawnedByDogSpawner(true);
+    dog.getComponents().get(DogSpawnerOrigin.class).setFromSpawner(true);
     context.assertTrue(
         dog.canImmediatelyDespawn(0.0),
         "An untamed spawner-spawned " + breedId + " should be eligible to despawn");
 
     dog.setTamed(true, true);
     context.assertFalse(
-        dog.isSpawnedByDogSpawner(), "Taming should clear the spawner-spawned flag on " + breedId);
+        dog.getComponents().get(DogSpawnerOrigin.class).isFromSpawner(),
+        "Taming should clear the spawner-spawned flag on " + breedId);
     context.assertFalse(
         dog.canImmediatelyDespawn(0.0),
         "A tamed " + breedId + " should never be eligible to despawn");
 
     dog.setTamed(false, true);
     context.assertFalse(
-        dog.isSpawnedByDogSpawner(),
+        dog.getComponents().get(DogSpawnerOrigin.class).isFromSpawner(),
         "Untaming should not restore the spawner-spawned flag on " + breedId);
     context.assertFalse(
         dog.canImmediatelyDespawn(0.0),
@@ -396,7 +397,7 @@ public final class DogSpawnerGameTest implements FabricGameTest {
     final String breedId = data.breed().serializedId();
 
     context.assertFalse(
-        dog.isSpawnedByDogSpawner(),
+        dog.getComponents().get(DogSpawnerOrigin.class).isFromSpawner(),
         "A " + breedId + " not spawned by the DogSpawner should carry no flag");
     context.assertFalse(
         dog.canImmediatelyDespawn(0.0),

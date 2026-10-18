@@ -367,7 +367,7 @@ class UnleashedDogBreedTest {
 
   @ParameterizedTest(
       name =
-          "{0} tames 1 in {1}, own breed only={2}, staged growth={3}, beds={4}, pack hunter={5},"
+          "{0} tames 1 in {1}, own breed only={2}, staged growth={3}, beds={4}, lives in packs={5},"
               + " trust={6}")
   @MethodSource("expectedNatures")
   @DisplayName("each breed declares its taming chance, breeding rule and growth model")
@@ -377,7 +377,7 @@ class UnleashedDogBreedTest {
       final boolean breedsOnlyWithOwnBreed,
       final boolean growsThroughStages,
       final boolean sleepsInBeds,
-      final boolean huntsInPacks,
+      final boolean livesInPacks,
       final boolean tamesThroughTrust) {
     assertEquals(
         new UnleashedDogBreed.Nature(
@@ -385,7 +385,7 @@ class UnleashedDogBreedTest {
             breedsOnlyWithOwnBreed,
             growsThroughStages,
             sleepsInBeds,
-            huntsInPacks,
+            livesInPacks,
             tamesThroughTrust),
         breed.nature());
   }
@@ -401,14 +401,13 @@ class UnleashedDogBreedTest {
   }
 
   @Test
-  @DisplayName("dire wolves spawn rarely, only in the coldest biomes, and only as whole packs")
+  @DisplayName("dire wolves spawn rarely, only in the coldest biomes, one pack leader at a time")
   void direWolfSpawnSettingsMatchTheSpec() {
     final UnleashedDogBreed.SpawnSettings spawn = UnleashedDogBreed.DIRE_WOLF.spawnSettings();
     assertNotNull(spawn);
     assertEquals(2, spawn.weight());
-    assertEquals(5, spawn.minGroupSize());
-    assertEquals(10, spawn.maxGroupSize());
-    assertTrue(spawn.packOnly());
+    assertEquals(1, spawn.minGroupSize());
+    assertEquals(1, spawn.maxGroupSize());
     assertEquals(
         Set.of(
             BiomeKeys.ICE_SPIKES,
@@ -421,13 +420,10 @@ class UnleashedDogBreedTest {
 
   @ParameterizedTest
   @EnumSource(UnleashedDogBreed.class)
-  @DisplayName("only the dire wolf spawns as a whole pack")
-  void onlyDireWolfIsPackOnly(final UnleashedDogBreed breed) {
-    final UnleashedDogBreed.SpawnSettings spawn = breed.spawnSettings();
+  @DisplayName("only the dire wolf lives in packs")
+  void onlyDireWolfLivesInPacks(final UnleashedDogBreed breed) {
     assertEquals(
-        breed == UnleashedDogBreed.DIRE_WOLF,
-        spawn != null && spawn.packOnly(),
-        breed + " pack only");
+        breed == UnleashedDogBreed.DIRE_WOLF, breed.nature().livesInPacks(), breed + " packs");
   }
 
   @Test
@@ -444,8 +440,7 @@ class UnleashedDogBreedTest {
         new UnleashedDogBreed.Nature(3, false, false, false, false, false),
         ordinary.sleepingOutsideBeds());
     assertEquals(
-        new UnleashedDogBreed.Nature(3, false, false, true, true, false),
-        ordinary.huntingInPacks());
+        new UnleashedDogBreed.Nature(3, false, false, true, true, false), ordinary.livingInPacks());
     assertEquals(
         new UnleashedDogBreed.Nature(3, false, false, true, false, true),
         ordinary.tamingThroughTrust());

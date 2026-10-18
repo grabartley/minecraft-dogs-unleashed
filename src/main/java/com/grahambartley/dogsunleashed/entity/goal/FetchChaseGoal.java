@@ -53,10 +53,10 @@ public class FetchChaseGoal extends Goal {
   }
 
   private boolean findTargetBall() {
-    if (this.dog.getPlayPartnerPlayerUuid() == null) {
+    if (this.dog.getPlaySession().getPlayPartnerPlayerUuid() == null) {
       return false;
     }
-    java.util.UUID playerUuid = this.dog.getPlayPartnerPlayerUuid();
+    java.util.UUID playerUuid = this.dog.getPlaySession().getPlayPartnerPlayerUuid();
     List<Entity> fetchProjectiles =
         this.dog
             .getWorld()

@@ -9,6 +9,7 @@ import com.grahambartley.dogsunleashed.ModArmorItems;
 import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
+import com.grahambartley.dogsunleashed.config.FurSettings;
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.DogFur;
 import com.grahambartley.dogsunleashed.entity.DogFurRules;
@@ -45,7 +46,7 @@ public final class DogFurGameTest implements FabricGameTest {
   private static final int TICKS_BEFORE_DUE = 3;
   private static final int TICKS_RUN = 10;
   private static final int NO_BOTCH = 0;
-  private static final int CERTAIN_BOTCH = DogsUnleashedConfig.BAD_HAIR_DAY_CHANCE_MAX;
+  private static final int CERTAIN_BOTCH = FurSettings.PERCENT_MAX;
 
   private static Collection<TestFunction> perBreed(
       final String name, final BiConsumer<TestContext, DogTestData> body) {
@@ -117,7 +118,9 @@ public final class DogFurGameTest implements FabricGameTest {
     final UnleashedDogEntity dog = wildAdult(context, DogTestData.HUSKY);
     seed(dog, DogFurStage.NATURAL, ticksPerStage(dog) - TICKS_BEFORE_DUE);
 
-    withConfig(config -> config.withFurGrowthEnabled(false), () -> tick(dog, TICKS_RUN));
+    withConfig(
+        config -> config.withFur(config.fur().withFurGrowthEnabled(false)),
+        () -> tick(dog, TICKS_RUN));
 
     context.assertTrue(dog.getFur().stage() == DogFurStage.NATURAL, "Frozen coats do not grow");
     context.assertEquals(
@@ -150,7 +153,7 @@ public final class DogFurGameTest implements FabricGameTest {
     owner.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.SHEARS));
 
     withConfig(
-        config -> config.withBadHairDayChanceMultiplierPercent(NO_BOTCH),
+        config -> config.withFur(config.fur().withBadHairDayChanceMultiplierPercent(NO_BOTCH)),
         () -> dog.interactMob(owner, Hand.MAIN_HAND));
 
     context.assertTrue(dog.getFur().stage() == DogFurStage.TRIMMED, "The coat is trimmed");
@@ -171,7 +174,7 @@ public final class DogFurGameTest implements FabricGameTest {
     owner.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.SHEARS));
 
     withConfig(
-        config -> config.withBadHairDayChanceMultiplierPercent(CERTAIN_BOTCH),
+        config -> config.withFur(config.fur().withBadHairDayChanceMultiplierPercent(CERTAIN_BOTCH)),
         () -> dog.interactMob(owner, Hand.MAIN_HAND));
 
     context.assertTrue(
@@ -208,7 +211,7 @@ public final class DogFurGameTest implements FabricGameTest {
 
     owner.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.SHEARS));
     withConfig(
-        config -> config.withBadHairDayChanceMultiplierPercent(NO_BOTCH),
+        config -> config.withFur(config.fur().withBadHairDayChanceMultiplierPercent(NO_BOTCH)),
         () -> dog.interactMob(owner, Hand.MAIN_HAND));
 
     context.assertFalse(
@@ -340,7 +343,7 @@ public final class DogFurGameTest implements FabricGameTest {
     return DogFurRules.ticksPerStage(
             dog.getFur().profile(),
             1.0,
-            DogsUnleashed.SERVER_CONFIG.furGrowthRateMultiplierPercent())
+            DogsUnleashed.SERVER_CONFIG.fur().furGrowthRateMultiplierPercent())
         .orElseThrow();
   }
 

@@ -63,13 +63,15 @@ public final class DogBedBlockGameTest implements FabricGameTest {
           final DogBedBlockEntity dogBedEntity = (DogBedBlockEntity) blockEntity;
 
           dogBedEntity.setAssignedDog(husky);
-          husky.setAssignedBedPos(absBedPos);
+          husky.getSleepController().setAssignedBedPos(absBedPos);
 
           context.assertTrue(dogBedEntity.hasAssignedDog(), "Bed should have assigned dog");
-          context.assertTrue(husky.getAssignedBedPos().isPresent(), "Dog should have assigned bed");
           context.assertTrue(
-              husky.getAssignedBedPos().isPresent()
-                  && husky.getAssignedBedPos().get().equals(absBedPos),
+              husky.getSleepController().getAssignedBedPos().isPresent(),
+              "Dog should have assigned bed");
+          context.assertTrue(
+              husky.getSleepController().getAssignedBedPos().isPresent()
+                  && husky.getSleepController().getAssignedBedPos().get().equals(absBedPos),
               "Dog's assigned bed position should match");
           context.complete();
         });
@@ -89,14 +91,15 @@ public final class DogBedBlockGameTest implements FabricGameTest {
     context.runAtTick(
         10,
         () -> {
-          husky.setAssignedBedPos(absBedPos);
+          husky.getSleepController().setAssignedBedPos(absBedPos);
           husky.getSleepController().startSleepingInBed(absBedPos);
 
           context.assertTrue(
-              husky.isSleepingInBed(), "Dog should be sleeping after startSleepingInBed");
+              husky.getSleepController().isSleepingInBed(),
+              "Dog should be sleeping after startSleepingInBed");
           context.assertTrue(
-              husky.getAssignedBedPos().isPresent()
-                  && husky.getAssignedBedPos().get().equals(absBedPos),
+              husky.getSleepController().getAssignedBedPos().isPresent()
+                  && husky.getSleepController().getAssignedBedPos().get().equals(absBedPos),
               "Dog should have bed position set");
           context.complete();
         });
@@ -117,9 +120,10 @@ public final class DogBedBlockGameTest implements FabricGameTest {
     context.runAtTick(
         10,
         () -> {
-          husky.setAssignedBedPos(absBedPos);
+          husky.getSleepController().setAssignedBedPos(absBedPos);
           husky.getSleepController().startSleepingInBed(absBedPos);
-          context.assertTrue(husky.isSleepingInBed(), "Dog should be sleeping");
+          context.assertTrue(
+              husky.getSleepController().isSleepingInBed(), "Dog should be sleeping");
         });
 
     context.runAtTick(
@@ -127,7 +131,8 @@ public final class DogBedBlockGameTest implements FabricGameTest {
         () -> {
           husky.damage(world.getDamageSources().generic(), 1.0f);
 
-          context.assertTrue(!husky.isSleepingInBed(), "Dog should wake up when damaged");
+          context.assertTrue(
+              !husky.getSleepController().isSleepingInBed(), "Dog should wake up when damaged");
           context.complete();
         });
   }
@@ -146,12 +151,14 @@ public final class DogBedBlockGameTest implements FabricGameTest {
     context.runAtTick(
         10,
         () -> {
-          husky.setAssignedBedPos(absBedPos);
-          context.assertTrue(husky.getAssignedBedPos().isPresent(), "Dog should have assigned bed");
+          husky.getSleepController().setAssignedBedPos(absBedPos);
+          context.assertTrue(
+              husky.getSleepController().getAssignedBedPos().isPresent(),
+              "Dog should have assigned bed");
 
           husky.getSleepController().clearAssignedBed();
           context.assertTrue(
-              !husky.getAssignedBedPos().isPresent(),
+              !husky.getSleepController().getAssignedBedPos().isPresent(),
               "Dog should not have assigned bed after clearAssignedBed");
           context.complete();
         });
@@ -190,7 +197,7 @@ public final class DogBedBlockGameTest implements FabricGameTest {
               "Old bed block entity should be DogBedBlockEntity");
           final DogBedBlockEntity oldBedEntity = (DogBedBlockEntity) oldBedBlockEntity;
           oldBedEntity.setAssignedDog(husky);
-          husky.setAssignedBedPos(absOldBedPos);
+          husky.getSleepController().setAssignedBedPos(absOldBedPos);
 
           context.assertTrue(oldBedEntity.hasAssignedDog(), "Old bed should have assigned dog");
 
@@ -206,6 +213,7 @@ public final class DogBedBlockGameTest implements FabricGameTest {
           final DogBedBlockEntity oldBedCheck = (DogBedBlockEntity) oldBedCheckBlockEntity;
 
           husky
+              .getSleepController()
               .getAssignedBedPos()
               .ifPresent(
                   pos -> {
@@ -214,14 +222,14 @@ public final class DogBedBlockGameTest implements FabricGameTest {
                     }
                   });
           newBedEntity.setAssignedDog(husky);
-          husky.setAssignedBedPos(absNewBedPos);
+          husky.getSleepController().setAssignedBedPos(absNewBedPos);
 
           context.assertTrue(newBedEntity.hasAssignedDog(), "New bed should have assigned dog");
           context.assertTrue(
               !oldBedCheck.hasAssignedDog(), "Old bed should no longer have assigned dog");
           context.assertTrue(
-              husky.getAssignedBedPos().isPresent()
-                  && husky.getAssignedBedPos().get().equals(absNewBedPos),
+              husky.getSleepController().getAssignedBedPos().isPresent()
+                  && husky.getSleepController().getAssignedBedPos().get().equals(absNewBedPos),
               "Dog's bed pos should be new bed");
           context.complete();
         });
@@ -248,7 +256,7 @@ public final class DogBedBlockGameTest implements FabricGameTest {
               "Bed block entity should be DogBedBlockEntity");
           final DogBedBlockEntity bedEntity = (DogBedBlockEntity) bedBlockEntity;
           bedEntity.setAssignedDog(husky);
-          husky.setAssignedBedPos(absBedPos);
+          husky.getSleepController().setAssignedBedPos(absBedPos);
 
           context.assertTrue(bedEntity.hasAssignedDog(), "Bed should have assigned dog");
         });
