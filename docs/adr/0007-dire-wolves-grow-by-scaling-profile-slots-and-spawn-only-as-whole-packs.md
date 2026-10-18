@@ -1,4 +1,4 @@
-# ADR 0006: Dire wolves grow by scaling profile slots and spawn only as whole packs
+# ADR 0007: Dire wolves grow by scaling profile slots and spawn only as whole packs
 
 - **Status:** Accepted
 - **Date:** 2026-10-18

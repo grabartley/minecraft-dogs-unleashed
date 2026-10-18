@@ -144,7 +144,7 @@ class SlotRegionsTest {
   @DisplayName("a bone the rig does not have adds no region")
   void missingBoneAddsNothing() {
     final RigProfile profile =
-        new RigProfile(Map.of(Slot.EYES, Set.of("no_such_bone")), Map.of(), List.of());
+        new RigProfile(Map.of(Slot.EYES, Set.of("no_such_bone")), Map.of(), List.of(), Map.of());
 
     assertTrue(SlotRegions.of(ShippedRigs.model("beagle"), profile, Slot.EYES).isEmpty());
   }
