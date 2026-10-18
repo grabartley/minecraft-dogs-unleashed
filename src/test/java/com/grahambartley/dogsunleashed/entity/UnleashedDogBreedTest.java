@@ -82,12 +82,11 @@ class UnleashedDogBreedTest {
 
   @ParameterizedTest
   @EnumSource(UnleashedDogBreed.class)
-  @DisplayName("every carry profile has a positive scale and finite offsets")
-  void everyCarryProfileHasPositiveScaleAndFiniteOffsets(final UnleashedDogBreed breed) {
+  @DisplayName("every carry profile has finite offsets")
+  void everyCarryProfileHasFiniteOffsets(final UnleashedDogBreed breed) {
     final FetchCarryProfiles profiles = breed.fetchCarryProfiles();
     for (final CarryProfile profile :
         List.of(profiles.tennisBall(), profiles.stick(), profiles.frisbee())) {
-      assertTrue(profile.scale() > 0f, "scale must be positive: " + breed + " " + profile);
       assertTrue(
           Double.isFinite(profile.verticalOffset()),
           "vertical offset must be finite: " + breed + " " + profile);
@@ -99,19 +98,18 @@ class UnleashedDogBreedTest {
 
   @ParameterizedTest
   @EnumSource(UnleashedDogBreed.class)
-  @DisplayName(
-      "frisbee carry scale exceeds tennis ball carry scale to compensate for the smaller frisbee"
-          + " GROUND scale")
-  void frisbeeCarryScaleExceedsTennisBallCarryScale(final UnleashedDogBreed breed) {
+  @DisplayName("the frisbee sits further forward than the ball because the dog grips its rim")
+  void frisbeeSitsFurtherForwardThanTheBall(final UnleashedDogBreed breed) {
     final FetchCarryProfiles profiles = breed.fetchCarryProfiles();
     assertTrue(
-        profiles.frisbee().scale() > profiles.tennisBall().scale(),
-        "frisbee carry scale must exceed tennis ball carry scale for breed="
+        Math.abs(profiles.frisbee().forwardOffset())
+            > Math.abs(profiles.tennisBall().forwardOffset()),
+        "frisbee must sit further forward than the ball for breed="
             + breed
             + ": frisbee="
-            + profiles.frisbee().scale()
+            + profiles.frisbee()
             + " tennisBall="
-            + profiles.tennisBall().scale());
+            + profiles.tennisBall());
   }
 
   @ParameterizedTest

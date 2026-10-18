@@ -7,13 +7,13 @@ import software.bernie.geckolib.cache.object.GeoCube;
 import software.bernie.geckolib.cache.object.GeoQuad;
 import software.bernie.geckolib.cache.object.GeoVertex;
 
-final class UnrotatedGeoBounds {
+public final class UnrotatedGeoBounds {
 
   private static final double BLOCK_CENTRE = 0.5;
 
   private UnrotatedGeoBounds() {}
 
-  static Box of(final BakedGeoModel model, final float scale) {
+  public static Box of(final BakedGeoModel model, final float scale) {
     final double[] min = {Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE};
     final double[] max = {-Double.MAX_VALUE, -Double.MAX_VALUE, -Double.MAX_VALUE};
     for (final GeoBone bone : model.topLevelBones()) {
