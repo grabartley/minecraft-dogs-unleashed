@@ -94,6 +94,7 @@ public final class DogResurrection {
     final DogGenome genome =
         petData.getGenome() != null ? petData.getGenome() : DogGenome.pure(petData.getBreed());
     dog.applyGenome(genome);
+    dog.getGenes().set(petData.getGenes());
     dog.applyAppearance(
         new DogAppearance(
             dog.getRigSourceBreed(), petData.getCoatVariant(), petData.getHuskyEyeVariant()));

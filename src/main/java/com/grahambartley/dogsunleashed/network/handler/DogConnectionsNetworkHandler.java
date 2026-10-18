@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.network.handler;
 import static com.grahambartley.dogsunleashed.network.PacketLimits.CONNECTIONS_LIST_MAX_SIZE;
 
 import com.grahambartley.dogsunleashed.network.payload.ConnectionDogSyncData;
+import com.grahambartley.dogsunleashed.network.payload.GeneSyncData;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
 import com.grahambartley.dogsunleashed.network.payload.RequestDogConnectionsPayload;
 import com.grahambartley.dogsunleashed.network.payload.SyncDogConnectionsPayload;
@@ -59,13 +60,13 @@ public final class DogConnectionsNetworkHandler {
     PetSyncRefresher.refreshAndProject(server, petManager, List.copyOf(allPets));
 
     return new SyncDogConnectionsPayload(
-        toConnectionSyncData(server, connections.self()),
+        toConnectionSyncData(server, petManager, connections.self()),
         petManager.getBreedComposition(
             connections.self().getPetId(), connections.self().getBreed()),
-        toConnectionSyncDataList(server, parents),
-        toConnectionSyncDataList(server, mates),
-        toConnectionSyncDataList(server, siblings),
-        toConnectionSyncDataList(server, children),
+        toConnectionSyncDataList(server, petManager, parents),
+        toConnectionSyncDataList(server, petManager, mates),
+        toConnectionSyncDataList(server, petManager, siblings),
+        toConnectionSyncDataList(server, petManager, children),
         truncated);
   }
 
@@ -76,15 +77,18 @@ public final class DogConnectionsNetworkHandler {
   }
 
   private static List<ConnectionDogSyncData> toConnectionSyncDataList(
-      final MinecraftServer server, final List<PetData> pets) {
-    return pets.stream().map(pet -> toConnectionSyncData(server, pet)).toList();
+      final MinecraftServer server, final PetManager petManager, final List<PetData> pets) {
+    return pets.stream().map(pet -> toConnectionSyncData(server, petManager, pet)).toList();
   }
 
   private static ConnectionDogSyncData toConnectionSyncData(
-      final MinecraftServer server, final PetData pet) {
+      final MinecraftServer server, final PetManager petManager, final PetData pet) {
+    final boolean carriedGenesRevealed = petManager.hasChildren(pet.getPetId());
     return new ConnectionDogSyncData(
         PetSyncData.from(pet),
         pet.getOwnerId().toString(),
-        OwnerNameResolver.resolve(server, pet.getOwnerId()));
+        OwnerNameResolver.resolve(server, pet.getOwnerId()),
+        GeneSyncData.visibleGenes(pet.getGenes(), pet.getRigSourceBreed(), carriedGenesRevealed),
+        carriedGenesRevealed);
   }
 }

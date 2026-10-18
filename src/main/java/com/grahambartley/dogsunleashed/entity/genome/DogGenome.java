@@ -51,6 +51,16 @@ public record DogGenome(
         .toList();
   }
 
+  public static UnleashedDogBreed rigBreedOf(
+      final UnleashedDogBreed breed, final List<BreedShare> composition) {
+    if (breed != UnleashedDogBreed.CROSS_BREED) {
+      return breed;
+    }
+    return composition.isEmpty()
+        ? UnleashedDogBreed.FALLBACK_RIG
+        : sortedComposition(composition).get(0).breed();
+  }
+
   public static @Nullable UnleashedDogBreed dominantOf(final List<BreedShare> composition) {
     return composition.isEmpty() ? null : sortedComposition(composition).get(0).breed();
   }

@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.entity.variant;
 
+import java.util.Locale;
 import net.minecraft.util.math.random.Random;
 
 public enum HuskyEyeColor {
@@ -15,6 +16,14 @@ public enum HuskyEyeColor {
       case BLUE_HAZEL -> "bluehazel";
       case HAZEL_BLUE -> "hazelblue";
     };
+  }
+
+  public boolean heterochromatic() {
+    return this == BLUE_HAZEL || this == HAZEL_BLUE;
+  }
+
+  public String translationKey() {
+    return "eyes.dogs-unleashed.husky." + this.name().toLowerCase(Locale.ROOT);
   }
 
   public static HuskyEyeColor fromOrdinal(int ordinal) {

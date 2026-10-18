@@ -17,6 +17,8 @@ final class FamilyTreeCanvasRenderer {
 
   private static final int CARD_BORDER = 0xFF666666;
   private static final int PORTRAIT_SIZE = 48;
+  private static final int CARRIER_MARKER_SIZE = 5;
+  private static final int CARRIER_MARKER_INSET = 3;
   private static final int EDGE_COLOR = 0xFF8A8A8A;
   private static final int MATE_EDGE_COLOR = 0xFFB08A5A;
   private static final int CARD_COLOR = 0xC0333333;
@@ -148,6 +150,16 @@ final class FamilyTreeCanvasRenderer {
       context.fill(left, top, left + width, top + height, isFocus ? CARD_FOCUS_COLOR : CARD_COLOR);
       context.drawBorder(
           left, top, width, height, borderColor(isSelected, isHovered, dog.pet().alive()));
+      if (FamilyTreeGeneLines.isCarrier(dog)) {
+        final int markerSize = viewport.scaled(CARRIER_MARKER_SIZE);
+        final int markerInset = viewport.scaled(CARRIER_MARKER_INSET);
+        context.fill(
+            left + width - markerInset - markerSize,
+            top + markerInset,
+            left + width - markerInset,
+            top + markerInset + markerSize,
+            0xFF000000 | FamilyTreeGeneLines.CARRIER_COLOR);
+      }
 
       final int portraitSize = viewport.scaled(PORTRAIT_SIZE);
       final int portraitX = left + (width - portraitSize) / 2;

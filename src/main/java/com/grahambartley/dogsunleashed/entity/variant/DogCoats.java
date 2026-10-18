@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.entity.variant;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import java.util.List;
 import java.util.function.BiFunction;
 import net.minecraft.entity.SpawnReason;
 import org.jetbrains.annotations.Nullable;
@@ -23,6 +24,17 @@ public final class DogCoats {
       case SHIBA_INU -> ShibaInuCoat.fromOrdinal(coatOrdinal);
       case DIRE_WOLF -> DireWolfCoat.fromOrdinal(coatOrdinal);
       case GOLDEN_RETRIEVER, CROSS_BREED -> null;
+    };
+  }
+
+  public static List<UnleashedDogCoat> coatsOf(final UnleashedDogBreed breed) {
+    return switch (breed) {
+      case HUSKY -> List.of(HuskyCoat.values());
+      case DACHSHUND -> List.of(DachshundCoat.values());
+      case BEAGLE -> List.of(BeagleCoat.values());
+      case SHIBA_INU -> List.of(ShibaInuCoat.values());
+      case DIRE_WOLF -> List.of(DireWolfCoat.values());
+      case GOLDEN_RETRIEVER, CROSS_BREED -> List.of();
     };
   }
 

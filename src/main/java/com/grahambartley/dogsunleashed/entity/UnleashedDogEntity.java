@@ -14,6 +14,7 @@ import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.entity.variant.DogCoats;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
 import com.grahambartley.dogsunleashed.entity.variant.UnleashedDogCoat;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
@@ -105,6 +106,7 @@ public class UnleashedDogEntity extends DogMountEntity
   private final DogEquipmentHolder equipment = new DogEquipmentHolder(this);
   private final DogAppearanceRoller appearance = new DogAppearanceRoller(this);
   private final DogLineage lineage = new DogLineage(this);
+  private final DogGeneHolder genes = new DogGeneHolder(this);
   private final DogEntityNbt persistence = new DogEntityNbt(this);
   private final DogInteractions interactions = new DogInteractions(this);
   private final DogCommandController commandController = new DogCommandController(this);
@@ -211,11 +213,8 @@ public class UnleashedDogEntity extends DogMountEntity
   }
 
   public UnleashedDogBreed getRigSourceBreed() {
-    if (this.breed != UnleashedDogBreed.CROSS_BREED) {
-      return this.breed;
-    }
     final DogGenome genome = this.getGenome();
-    return genome != null ? genome.dominantBreed() : UnleashedDogBreed.FALLBACK_RIG;
+    return DogGenome.rigBreedOf(this.breed, genome != null ? genome.composition() : List.of());
   }
 
   public UnleashedDogBreed getVoiceBreed() {
@@ -312,6 +311,10 @@ public class UnleashedDogEntity extends DogMountEntity
 
   DogAppearanceRoller getAppearanceRoller() {
     return this.appearance;
+  }
+
+  public DogGeneHolder getGenes() {
+    return this.genes;
   }
 
   public DogLineage getLineage() {

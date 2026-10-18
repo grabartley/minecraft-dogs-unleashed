@@ -8,7 +8,7 @@ public final class DogRarityClassifier {
 
   public static final int GUARANTEED_CHANCE_PERCENT = 100;
   static final int COMMON_MIN_CHANCE_PERCENT = 25;
-  static final int UNCOMMON_MIN_CHANCE_PERCENT = 10;
+  public static final int UNCOMMON_MIN_CHANCE_PERCENT = 10;
   static final int RARE_MIN_CHANCE_PERCENT = 3;
 
   private DogRarityClassifier() {}
@@ -26,6 +26,12 @@ public final class DogRarityClassifier {
     final int naturalChance = countRolls(resolver, SpawnReason.NATURAL, coatOrdinal);
     final int breedingChance = countRolls(resolver, SpawnReason.BREEDING, coatOrdinal);
     return Math.max(naturalChance, breedingChance);
+  }
+
+  public static int naturalChancePercent(final UnleashedDogBreed breed, final int coatOrdinal) {
+    final BiFunction<SpawnReason, Integer, UnleashedDogCoat> resolver =
+        DogCoats.rollResolverFor(breed);
+    return resolver == null ? 0 : countRolls(resolver, SpawnReason.NATURAL, coatOrdinal);
   }
 
   public static DogRarity classify(final int chancePercent) {

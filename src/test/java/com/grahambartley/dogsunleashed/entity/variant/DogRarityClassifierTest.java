@@ -8,6 +8,7 @@ import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -96,5 +97,30 @@ class DogRarityClassifierTest {
         DogRarityClassifier.GUARANTEED_CHANCE_PERCENT,
         DogRarityClassifier.chancePercent(breed, -1));
     assertEquals(DogRarity.COMMON, DogRarityClassifier.rarityOf(breed, -1));
+  }
+
+  static Stream<Arguments> naturalChances() {
+    return Stream.of(
+        Arguments.of(UnleashedDogBreed.HUSKY, HuskyCoat.BLACK_WHITE, 40),
+        Arguments.of(UnleashedDogBreed.HUSKY, HuskyCoat.SABLE, 13),
+        Arguments.of(UnleashedDogBreed.HUSKY, HuskyCoat.WHITE, 0),
+        Arguments.of(UnleashedDogBreed.SHIBA_INU, ShibaInuCoat.SESAME, 0),
+        Arguments.of(UnleashedDogBreed.DIRE_WOLF, DireWolfCoat.BLACK, 7));
+  }
+
+  @ParameterizedTest(name = "{0} {1}")
+  @MethodSource("naturalChances")
+  @DisplayName("the natural chance counts only the wild spawn table")
+  void naturalChanceCountsOnlyTheWildTable(
+      final UnleashedDogBreed breed, final UnleashedDogCoat coat, final int expectedChance) {
+    assertEquals(
+        expectedChance, DogRarityClassifier.naturalChancePercent(breed, coat.getOrdinal()));
+  }
+
+  @Test
+  @DisplayName("a breed without coats has no natural coat chance")
+  void breedWithoutCoatsHasNoNaturalChance() {
+    assertEquals(
+        0, DogRarityClassifier.naturalChancePercent(UnleashedDogBreed.GOLDEN_RETRIEVER, 0));
   }
 }

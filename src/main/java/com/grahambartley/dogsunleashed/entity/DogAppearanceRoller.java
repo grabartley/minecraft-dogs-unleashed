@@ -1,14 +1,10 @@
 package com.grahambartley.dogsunleashed.entity;
 
+import com.grahambartley.dogsunleashed.entity.genome.DogGenes;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenomeCombiner;
-import com.grahambartley.dogsunleashed.entity.variant.DogCoats;
-import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
-import com.grahambartley.dogsunleashed.entity.variant.UnleashedDogCoat;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.IntSupplier;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.util.math.random.Random;
 
@@ -30,30 +26,30 @@ public final class DogAppearanceRoller {
     return rawSecondIndex >= firstIndex ? rawSecondIndex + 1 : rawSecondIndex;
   }
 
-  public static int resolvedVariantOrdinal(
-      final boolean rollable, final int currentOrdinal, final IntSupplier roll) {
-    return rollable ? roll.getAsInt() : currentOrdinal;
+  void rollAppearance(final SpawnReason spawnReason) {
+    final Random random = this.dog.getRandom();
+    applyGenes(DogGenes.wild(this.dog.getGenes().loci(), spawnReason, random::nextInt));
   }
 
-  void rollAppearance(final SpawnReason spawnReason) {
-    final UnleashedDogBreed rigBreed = this.dog.getRigSourceBreed();
-    final BiFunction<SpawnReason, Integer, UnleashedDogCoat> rollResolver =
-        DogCoats.rollResolverFor(rigBreed);
+  void inheritAppearance(final UnleashedDogEntity parentA, final UnleashedDogEntity parentB) {
     final Random random = this.dog.getRandom();
+    applyGenes(
+        DogGenes.inherit(
+            parentA.getGenes().genes(),
+            parentB.getGenes().genes(),
+            this.dog.getGenes().loci(),
+            random::nextInt));
+  }
+
+  private void applyGenes(final DogGenes genes) {
+    this.dog.getGenes().set(genes);
     final DogAppearance current = this.dog.getAppearance();
-    final int coatVariantOrdinal =
-        resolvedVariantOrdinal(
-            rollResolver != null,
-            current.coatVariantOrdinal(),
-            () ->
-                rollResolver.apply(spawnReason, random.nextInt(DogCoats.ROLL_BOUND)).getOrdinal());
-    final int eyeColorVariantOrdinal =
-        resolvedVariantOrdinal(
-            rigBreed.hasEyeColorVariants(),
-            current.eyeColorVariantOrdinal(),
-            () -> HuskyEyeColor.fromRandom(random).ordinal());
     this.dog.applyAppearance(
-        new DogAppearance(rigBreed, coatVariantOrdinal, eyeColorVariantOrdinal));
+        genes.expressOnto(
+            new DogAppearance(
+                this.dog.getRigSourceBreed(),
+                current.coatVariantOrdinal(),
+                current.eyeColorVariantOrdinal())));
   }
 
   DogGenome genomeOrPure() {

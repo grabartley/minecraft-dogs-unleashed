@@ -5,6 +5,8 @@ import static com.grahambartley.dogsunleashed.network.payload.PayloadTestFixture
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import com.grahambartley.dogsunleashed.entity.genome.DogGeneLocus;
+import com.grahambartley.dogsunleashed.entity.genome.DogGeneTrait;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import java.util.List;
 import java.util.UUID;
@@ -15,14 +17,24 @@ import org.junit.jupiter.api.Test;
 class SyncDogConnectionsPayloadTest {
 
   @Test
-  @DisplayName("codec round-trips the focus composition")
+  @DisplayName("codec round-trips the focus composition and genes")
   void codecRoundTripsComposition() {
     final ConnectionDogSyncData self =
         new ConnectionDogSyncData(
-            samplePet(UnleashedDogBreed.HUSKY, "Luna"), UUID.randomUUID().toString(), "Alex");
+            samplePet(UnleashedDogBreed.HUSKY, "Luna"),
+            UUID.randomUUID().toString(),
+            "Alex",
+            List.of(
+                new GeneSyncData(
+                    new DogGeneLocus(UnleashedDogBreed.HUSKY, DogGeneTrait.COAT), 0, List.of(5))),
+            true);
     final ConnectionDogSyncData parent =
         new ConnectionDogSyncData(
-            samplePet(UnleashedDogBreed.BEAGLE, "Max"), UUID.randomUUID().toString(), "");
+            samplePet(UnleashedDogBreed.BEAGLE, "Max"),
+            UUID.randomUUID().toString(),
+            "",
+            List.of(),
+            false);
     final SyncDogConnectionsPayload payload =
         new SyncDogConnectionsPayload(
             self,

@@ -2,8 +2,11 @@ package com.grahambartley.dogsunleashed.screen;
 
 import com.grahambartley.dogsunleashed.network.payload.ConnectionDogSyncData;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
+import com.grahambartley.dogsunleashed.screen.FamilyTreeGeneLines.GeneLine;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.text.OrderedText;
+import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,6 +16,10 @@ final class FamilyTreeDetailPanel {
   private static final int PANEL_COLOR = 0xE0202020;
   private static final int DIVIDER_COLOR = 0xFF666666;
   private static final float LOW_HEALTH_COLOR_THRESHOLD = 0.5f;
+  private static final int GENES_GAP = 18;
+  private static final int LINE_HEIGHT = 10;
+  private static final int LINE_GAP = 2;
+  private static final int BUTTONS_HEIGHT = 60;
 
   private FamilyTreeDetailPanel() {}
 
@@ -59,6 +66,7 @@ final class FamilyTreeDetailPanel {
           textY,
           0xFF5555,
           false);
+      renderGenes(context, textRenderer, dog, textX, textY + GENES_GAP, screenHeight);
       return;
     }
     context.drawText(
@@ -79,6 +87,30 @@ final class FamilyTreeDetailPanel {
         textY,
         0xAAAAAA,
         false);
+    renderGenes(context, textRenderer, dog, textX, textY + GENES_GAP, screenHeight);
+  }
+
+  private static void renderGenes(
+      final DrawContext context,
+      final TextRenderer textRenderer,
+      final ConnectionDogSyncData dog,
+      final int textX,
+      final int startY,
+      final int screenHeight) {
+    final int bottom = screenHeight - BUTTONS_HEIGHT;
+    int textY = startY;
+    for (final GeneLine line :
+        FamilyTreeGeneLines.of(dog, (key, args) -> Text.translatable(key, args).getString())) {
+      for (final OrderedText wrapped :
+          textRenderer.wrapLines(StringVisitable.plain(line.text()), CONTENT_WIDTH)) {
+        if (textY + LINE_HEIGHT > bottom) {
+          return;
+        }
+        context.drawText(textRenderer, wrapped, textX, textY, line.color(), false);
+        textY += LINE_HEIGHT;
+      }
+      textY += LINE_GAP;
+    }
   }
 
   private static void renderBackground(

@@ -6,6 +6,8 @@ public final class PacketLimits {
   public static final int CONNECTIONS_LIST_MAX_SIZE = 32;
   public static final int OWNER_NAME_MAX_LENGTH = 16;
   public static final int BREED_COMPOSITION_MAX_SIZE = 8;
+  public static final int GENES_MAX_SIZE = 8;
+  public static final int CARRIED_ALLELES_MAX_SIZE = 2;
 
   private PacketLimits() {}
 }

@@ -1,10 +1,12 @@
 package com.grahambartley.dogsunleashed.pet;
 
 import com.grahambartley.dogsunleashed.ModNbtKeys;
+import com.grahambartley.dogsunleashed.entity.DogAppearance;
 import com.grahambartley.dogsunleashed.entity.DogCollar;
 import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.genome.DogGenes;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
@@ -16,6 +18,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
+import org.jetbrains.annotations.Nullable;
 
 public final class PetData {
 
@@ -40,6 +43,7 @@ public final class PetData {
   private UUID parentBId;
   private List<BreedShare> composition;
   private DogGenome genome;
+  private @Nullable DogGenes genes;
   private float movementSpeed;
   private float attackDamage;
   private int growthStage;
@@ -170,6 +174,20 @@ public final class PetData {
     return genome;
   }
 
+  public UnleashedDogBreed getRigSourceBreed() {
+    return DogGenome.rigBreedOf(breed, composition);
+  }
+
+  public DogGenes getGenes() {
+    if (genes != null) {
+      return genes;
+    }
+    final UnleashedDogBreed rigBreed = getRigSourceBreed();
+    return DogGenes.matching(
+        new DogAppearance(rigBreed, coatVariant, huskyEyeVariant),
+        DogGenes.lociFor(rigBreed, composition));
+  }
+
   public float getMovementSpeed() {
     return movementSpeed;
   }
@@ -230,6 +248,7 @@ public final class PetData {
     final DogGenome dogGenome = dog.getGenome();
     this.genome = dogGenome;
     this.composition = dogGenome != null ? dogGenome.composition() : List.of();
+    this.genes = dog.getGenes().genes();
   }
 
   public static int coatVariantOf(final UnleashedDogEntity dog) {
@@ -284,6 +303,9 @@ public final class PetData {
     }
     if (genome != null) {
       nbt.put(ModNbtKeys.GENOME, genome.toNbt());
+    }
+    if (genes != null) {
+      nbt.put(ModNbtKeys.GENES, genes.toNbt());
     }
     if (parentAId != null) {
       nbt.putUuid(ModNbtKeys.PARENT_A_ID, parentAId);
@@ -345,6 +367,9 @@ public final class PetData {
     }
     if (nbt.contains(ModNbtKeys.GENOME, NbtElement.COMPOUND_TYPE)) {
       pet.genome = DogGenome.fromNbt(nbt.getCompound(ModNbtKeys.GENOME));
+    }
+    if (nbt.contains(ModNbtKeys.GENES, NbtElement.COMPOUND_TYPE)) {
+      pet.genes = DogGenes.fromNbt(nbt.getCompound(ModNbtKeys.GENES));
     }
     if (nbt.containsUuid(ModNbtKeys.PARENT_A_ID)) {
       pet.parentAId = nbt.getUuid(ModNbtKeys.PARENT_A_ID);

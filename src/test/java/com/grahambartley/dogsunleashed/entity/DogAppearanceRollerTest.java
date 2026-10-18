@@ -8,7 +8,6 @@ import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,7 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
 
 @ExtendWith(MinecraftBootstrapExtension.class)
 class DogAppearanceRollerTest {
@@ -71,36 +69,5 @@ class DogAppearanceRollerTest {
     assertTrue(
         founders.stream().noneMatch(breed -> breed == UnleashedDogBreed.CROSS_BREED),
         "a cross breed cannot found itself");
-  }
-
-  @ParameterizedTest(name = "current ordinal {0}")
-  @ValueSource(ints = {0, 1, 7})
-  @DisplayName("a breed with nothing to roll keeps the ordinal it already has")
-  void unrollableVariantKeepsItsCurrentOrdinal(final int currentOrdinal) {
-    assertEquals(
-        currentOrdinal,
-        DogAppearanceRoller.resolvedVariantOrdinal(false, currentOrdinal, () -> 99));
-  }
-
-  @Test
-  @DisplayName("a rollable variant takes the rolled ordinal over its current one")
-  void rollableVariantTakesTheRolledOrdinal() {
-    assertEquals(99, DogAppearanceRoller.resolvedVariantOrdinal(true, 3, () -> 99));
-  }
-
-  @Test
-  @DisplayName("an unrollable variant never touches the entity rng")
-  void unrollableVariantNeverDrawsFromTheRng() {
-    final AtomicInteger draws = new AtomicInteger();
-    DogAppearanceRoller.resolvedVariantOrdinal(false, 3, draws::incrementAndGet);
-    assertEquals(0, draws.get(), "an extra draw would shift every later roll in the same tick");
-  }
-
-  @Test
-  @DisplayName("a rollable variant draws from the entity rng exactly once")
-  void rollableVariantDrawsExactlyOnce() {
-    final AtomicInteger draws = new AtomicInteger();
-    DogAppearanceRoller.resolvedVariantOrdinal(true, 3, draws::incrementAndGet);
-    assertEquals(1, draws.get());
   }
 }

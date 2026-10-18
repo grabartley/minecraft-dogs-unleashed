@@ -199,6 +199,8 @@ class FamilyTreeModelTest {
             List.of(),
             RidingView.NONE),
         "owner",
-        "Owner");
+        "Owner",
+        List.of(),
+        false);
   }
 }

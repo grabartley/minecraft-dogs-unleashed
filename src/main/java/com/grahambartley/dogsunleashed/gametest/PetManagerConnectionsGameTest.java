@@ -49,6 +49,21 @@ public final class PetManagerConnectionsGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 20)
+  public void onlyDogsWithPuppiesCountAsHavingBred(TestContext context) {
+    final Family family = buildFamily();
+
+    context.assertTrue(
+        family.manager().hasChildren(family.mother().getPetId()), "the mother has puppies");
+    context.assertTrue(
+        family.manager().hasChildren(family.father().getPetId()), "the father has puppies");
+    context.assertFalse(
+        family.manager().hasChildren(family.puppyOne().getPetId()), "a puppy has not bred");
+    context.assertFalse(
+        family.manager().hasChildren(family.stranger().getPetId()), "a stranger has not bred");
+    context.complete();
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 20)
   public void directConnectionsResolveChildren(TestContext context) {
     final Family family = buildFamily();
 
