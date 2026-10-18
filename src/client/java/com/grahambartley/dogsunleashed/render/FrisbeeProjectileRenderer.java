@@ -13,7 +13,7 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 public class FrisbeeProjectileRenderer extends GeoEntityRenderer<FrisbeeProjectileEntity> {
 
-  private static final float FRISBEE_SCALE = 0.5f;
+  private static final float FRISBEE_SCALE = 0.375f;
 
   public FrisbeeProjectileRenderer(EntityRendererFactory.Context context) {
     super(context, new FrisbeeProjectileModel());
