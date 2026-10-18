@@ -8,6 +8,7 @@ import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.ModPendantItems;
 import com.grahambartley.dogsunleashed.block.DogSleepSpotAssignment;
 import com.grahambartley.dogsunleashed.block.entity.DogGraveBlockEntity;
+import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.entity.DireWolfGrowthStage;
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.DogGrowthRules;
@@ -23,6 +24,7 @@ import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import com.grahambartley.dogsunleashed.pet.PetManager;
 import com.grahambartley.dogsunleashed.screenhandler.DogEquipmentScreenHandler;
+import com.grahambartley.dogsunleashed.server.ServerConfigService;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -37,6 +39,7 @@ import net.minecraft.entity.mob.ZombieEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.CustomTestProvider;
@@ -245,6 +248,34 @@ public final class DireWolfGameTest implements FabricGameTest {
     context.assertTrue(apple.getCount() == 1, "Evolving eats one apple");
     context.assertTrue(
         Math.abs(wolf.getHeight() - 2.5f) < 0.001f, "An alpha stands 2.5 blocks tall");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 20)
+  public void theBattlesCommandChangesHowManyBattlesAnAlphaNeeds(final TestContext context) {
+    final MinecraftServer server = context.getWorld().getServer();
+    final DogsUnleashedConfig before = DogsUnleashed.SERVER_CONFIG;
+    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    owner.changeGameMode(GameMode.SURVIVAL);
+    final UnleashedDogEntity wolf = spawnOwnedPrime(context, owner);
+    final ItemStack apple = new ItemStack(Items.ENCHANTED_GOLDEN_APPLE);
+    try {
+      server
+          .getCommandManager()
+          .executeWithPrefix(server.getCommandSource(), "dogsunleashed config direwolf battles 3");
+      context.assertTrue(
+          DogsUnleashed.SERVER_CONFIG.direWolf().battlesToEvolve() == 3,
+          "The command should set the battles needed to 3");
+      for (int battle = 0; battle < 3; battle++) {
+        wolf.getGrowth().recordBattle(context.spawnEntity(EntityType.ZOMBIE, REL_WOLF.east(2)));
+      }
+      wolf.getGrowth().tryEvolve(owner, apple);
+      context.assertTrue(
+          wolf.getGrowth().stage() == DireWolfGrowthStage.ALPHA,
+          "Three battles should be enough after the change, but it is " + wolf.getGrowth().stage());
+    } finally {
+      ServerConfigService.update(server, before);
+    }
     context.complete();
   }
 

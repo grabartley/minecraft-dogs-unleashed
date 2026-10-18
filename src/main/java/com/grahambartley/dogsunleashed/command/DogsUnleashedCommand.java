@@ -163,6 +163,7 @@ public final class DogsUnleashedCommand {
                                         ctx ->
                                             setHowlVolume(
                                                 ctx, FloatArgumentType.getFloat(ctx, "volume")))))
+                    .then(DireWolfConfigCommand.node())
                     .then(CommandManager.literal("reset").executes(DogsUnleashedCommand::resetAll)))
             .then(
                 CommandManager.literal("list")
@@ -228,48 +229,54 @@ public final class DogsUnleashedCommand {
   }
 
   static List<Text> helpLines() {
-    return List.of(
-        Text.translatable("command.dogs-unleashed.help.header"),
-        Text.translatable("command.dogs-unleashed.help.status"),
-        Text.translatable("command.dogs-unleashed.help.spawn"),
-        Text.translatable(
-            "command.dogs-unleashed.help.spawnrate",
-            DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MIN,
-            DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MAX),
-        Text.translatable(
-            "command.dogs-unleashed.help.spawnratebreed",
-            DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MIN,
-            DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MAX),
-        Text.translatable("command.dogs-unleashed.help.capindependentspawning"),
-        Text.translatable("command.dogs-unleashed.help.graves"),
-        Text.translatable("command.dogs-unleashed.help.dropleashonplay"),
-        Text.translatable("command.dogs-unleashed.help.shownames"),
-        Text.translatable("command.dogs-unleashed.help.autosleep"),
-        Text.translatable(
-            "command.dogs-unleashed.help.autosleeprange",
-            DogsUnleashedConfig.AUTO_SLEEP_RANGE_MIN,
-            DogsUnleashedConfig.AUTO_SLEEP_RANGE_MAX),
-        Text.translatable("command.dogs-unleashed.help.furgrowth"),
-        Text.translatable(
-            "command.dogs-unleashed.help.furgrowthrate",
-            DogsUnleashedConfig.FUR_GROWTH_RATE_MIN,
-            DogsUnleashedConfig.FUR_GROWTH_RATE_MAX),
-        Text.translatable(
-            "command.dogs-unleashed.help.badhairdaychance",
-            DogsUnleashedConfig.BAD_HAIR_DAY_CHANCE_MIN,
-            DogsUnleashedConfig.BAD_HAIR_DAY_CHANCE_MAX),
-        Text.translatable(
-            "command.dogs-unleashed.help.barkvolume",
-            DogsUnleashedConfig.VOLUME_MIN,
-            DogsUnleashedConfig.VOLUME_MAX),
-        Text.translatable(
-            "command.dogs-unleashed.help.howlvolume",
-            DogsUnleashedConfig.VOLUME_MIN,
-            DogsUnleashedConfig.VOLUME_MAX),
-        Text.translatable("command.dogs-unleashed.help.reset"),
-        Text.translatable("command.dogs-unleashed.help.list"),
-        Text.translatable("command.dogs-unleashed.help.summon"),
-        Text.translatable("command.dogs-unleashed.help.find"));
+    final List<Text> lines = new ArrayList<>();
+    lines.addAll(
+        List.of(
+            Text.translatable("command.dogs-unleashed.help.header"),
+            Text.translatable("command.dogs-unleashed.help.status"),
+            Text.translatable("command.dogs-unleashed.help.spawn"),
+            Text.translatable(
+                "command.dogs-unleashed.help.spawnrate",
+                DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MIN,
+                DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MAX),
+            Text.translatable(
+                "command.dogs-unleashed.help.spawnratebreed",
+                DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MIN,
+                DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MAX),
+            Text.translatable("command.dogs-unleashed.help.capindependentspawning"),
+            Text.translatable("command.dogs-unleashed.help.graves"),
+            Text.translatable("command.dogs-unleashed.help.dropleashonplay"),
+            Text.translatable("command.dogs-unleashed.help.shownames"),
+            Text.translatable("command.dogs-unleashed.help.autosleep"),
+            Text.translatable(
+                "command.dogs-unleashed.help.autosleeprange",
+                DogsUnleashedConfig.AUTO_SLEEP_RANGE_MIN,
+                DogsUnleashedConfig.AUTO_SLEEP_RANGE_MAX),
+            Text.translatable("command.dogs-unleashed.help.furgrowth"),
+            Text.translatable(
+                "command.dogs-unleashed.help.furgrowthrate",
+                DogsUnleashedConfig.FUR_GROWTH_RATE_MIN,
+                DogsUnleashedConfig.FUR_GROWTH_RATE_MAX),
+            Text.translatable(
+                "command.dogs-unleashed.help.badhairdaychance",
+                DogsUnleashedConfig.BAD_HAIR_DAY_CHANCE_MIN,
+                DogsUnleashedConfig.BAD_HAIR_DAY_CHANCE_MAX),
+            Text.translatable(
+                "command.dogs-unleashed.help.barkvolume",
+                DogsUnleashedConfig.VOLUME_MIN,
+                DogsUnleashedConfig.VOLUME_MAX),
+            Text.translatable(
+                "command.dogs-unleashed.help.howlvolume",
+                DogsUnleashedConfig.VOLUME_MIN,
+                DogsUnleashedConfig.VOLUME_MAX)));
+    lines.addAll(DireWolfConfigCommand.helpLines());
+    lines.addAll(
+        List.of(
+            Text.translatable("command.dogs-unleashed.help.reset"),
+            Text.translatable("command.dogs-unleashed.help.list"),
+            Text.translatable("command.dogs-unleashed.help.summon"),
+            Text.translatable("command.dogs-unleashed.help.find")));
+    return lines;
   }
 
   private static int status(final CommandContext<ServerCommandSource> ctx) {
@@ -323,6 +330,7 @@ public final class DogsUnleashedCommand {
             Text.translatable(
                 "command.dogs-unleashed.status.badhairdaychance",
                 config.badHairDayChanceMultiplierPercent())));
+    lines.addAll(DireWolfConfigCommand.statusLines(config.direWolf()));
     return lines;
   }
 
@@ -470,7 +478,7 @@ public final class DogsUnleashedCommand {
     return applyUpdate(ctx, DogsUnleashedConfig.defaults(), "all", "defaults", true);
   }
 
-  private static int applyUpdate(
+  static int applyUpdate(
       final CommandContext<ServerCommandSource> ctx,
       final DogsUnleashedConfig updated,
       final String label,

@@ -38,6 +38,18 @@ final class ConfigJsonFields {
     return (float) readNumber(key, fallback);
   }
 
+  JsonObject readObject(final String key) {
+    if (!root.has(key)) {
+      return new JsonObject();
+    }
+    final JsonElement element = root.get(key);
+    if (element.isJsonObject()) {
+      return element.getAsJsonObject();
+    }
+    warnInvalid(key, element, "an object", "defaults");
+    return new JsonObject();
+  }
+
   Map<String, Integer> readIntMap(final String key) {
     final Map<String, Integer> values = new LinkedHashMap<>();
     if (!root.has(key)) {

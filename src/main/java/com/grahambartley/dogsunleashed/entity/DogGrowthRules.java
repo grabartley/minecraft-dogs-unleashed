@@ -37,16 +37,24 @@ public final class DogGrowthRules {
     return Math.min(newMaxHealth, grown);
   }
 
-  public static boolean advancesStage(final DireWolfGrowthStage stage, final int ticksInStage) {
-    return stage.growsWithTime() && ticksInStage >= stage.ticksToGrow();
+  public static boolean advancesStage(
+      final DireWolfGrowthStage stage, final int ticksInStage, final int growthRatePercent) {
+    return stage.growsWithTime()
+        && growthRatePercent > 0
+        && (long) ticksInStage * growthRatePercent >= (long) stage.ticksToGrow() * PERCENT;
   }
 
-  public static int battlesStillNeeded(final int battlesWon) {
-    return Math.max(0, BATTLES_TO_EVOLVE - battlesWon);
+  public static int battlesStillNeeded(final int battlesWon, final int battlesToEvolve) {
+    return Math.max(0, battlesToEvolve - battlesWon);
   }
 
   public static boolean canEvolve(
-      final DireWolfGrowthStage stage, final boolean tamed, final int battlesWon) {
-    return stage.evolvesThroughBond() && tamed && battlesStillNeeded(battlesWon) == 0;
+      final DireWolfGrowthStage stage,
+      final boolean tamed,
+      final int battlesWon,
+      final int battlesToEvolve) {
+    return stage.evolvesThroughBond()
+        && tamed
+        && battlesStillNeeded(battlesWon, battlesToEvolve) == 0;
   }
 }

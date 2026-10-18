@@ -118,10 +118,13 @@ only operators can.
 | Auto-Sleep at Night       | On      | Whether dogs go to bed by themselves.                                             |
 | Auto-Sleep Range (blocks) | 32      | How far from its bed a dog can be and still go to sleep, from 4 to 128.           |
 | Bark Volume               | 1.0     | How loud barks are, from 0.0 to 2.0.                                              |
-| Husky Howl Volume         | 1.5     | How loud howls are, from 0.0 to 2.0.                                              |
+| Howl Volume               | 1.5     | How loud howls are, from 0.0 to 2.0.                                              |
 | Fur Growth                | On      | Whether coats grow out. Off keeps every coat as it is. Shears still work.          |
 | Fur Growth Speed          | 100%    | How fast coats grow, from 0% to 500%.                                             |
 | Bad Haircut Chance        | 100%    | How often a trim goes wrong, from 0% to 500%. 0% means every trim is clean.       |
+| Dire Wolf Growth Speed    | 100%    | How fast dire wolves grow up, from 0% to 500%. 0% stops them growing on their own. |
+| Battles to Become an Alpha | 20     | How many fights a prime must win beside you before it can become an alpha, from 1 to 200. |
+| Smallest / Largest Pack   | 5 / 10  | How many dire wolves a wild pack has, from 4 to 16.                               |
 
 </details>
 
@@ -146,13 +149,17 @@ Every subcommand needs operator permission.
 /dogsunleashed config furgrowth <true|false>
 /dogsunleashed config furgrowthrate <0..500>
 /dogsunleashed config badhairdaychance <0..500>
+/dogsunleashed config direwolf growthrate <0..500>
+/dogsunleashed config direwolf battles <1..200>
+/dogsunleashed config direwolf smallestpack <4..16>
+/dogsunleashed config direwolf largestpack <4..16>
 /dogsunleashed config reset
 /dogsunleashed list <player>
 /dogsunleashed summon <player> <petId>
 /dogsunleashed find <petId>
 ```
 
-The breed ids are `husky`, `dachshund`, `beagle`, `goldenretriever` and `shibainu`. `list`, `summon` and `find` let
+The breed ids are `husky`, `dachshund`, `beagle`, `goldenretriever`, `shibainu` and `direwolf`. `list`, `summon` and `find` let
 operators look up and call back any player's dogs.
 
 </details>

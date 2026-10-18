@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.screen;
 
+import com.grahambartley.dogsunleashed.config.DireWolfSettings;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.config.SyncedServerConfig;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
@@ -47,6 +48,7 @@ public final class DogsUnleashedConfigScreen extends Screen {
   private boolean furGrowthEnabled;
   private int furGrowthRateMultiplierPercent;
   private int badHairDayChanceMultiplierPercent;
+  private DireWolfSettings direWolf;
 
   public DogsUnleashedConfigScreen(@Nullable Screen parent) {
     super(Text.translatable("screen.dogs-unleashed.settings.title"));
@@ -70,6 +72,7 @@ public final class DogsUnleashedConfigScreen extends Screen {
     this.furGrowthEnabled = current.furGrowthEnabled();
     this.furGrowthRateMultiplierPercent = current.furGrowthRateMultiplierPercent();
     this.badHairDayChanceMultiplierPercent = current.badHairDayChanceMultiplierPercent();
+    this.direWolf = current.direWolf();
   }
 
   @Override
@@ -187,6 +190,44 @@ public final class DogsUnleashedConfigScreen extends Screen {
             DogsUnleashedConfig.BAD_HAIR_DAY_CHANCE_MAX,
             this.badHairDayChanceMultiplierPercent,
             value -> this.badHairDayChanceMultiplierPercent = value));
+
+    list.addRow(sectionHeader("screen.dogs-unleashed.settings.direwolf"));
+    list.addRow(
+        percentSliderRow(
+            canEdit,
+            Text.translatable("screen.dogs-unleashed.settings.direwolf.growthrate"),
+            Text.translatable("screen.dogs-unleashed.settings.direwolf.growthrate.tooltip"),
+            DireWolfSettings.GROWTH_RATE_MIN,
+            DireWolfSettings.GROWTH_RATE_MAX,
+            this.direWolf.growthRateMultiplierPercent(),
+            value -> this.direWolf = this.direWolf.withGrowthRateMultiplierPercent(value)));
+    list.addRow(
+        intSliderRow(
+            canEdit,
+            "screen.dogs-unleashed.settings.direwolf.battles",
+            "screen.dogs-unleashed.settings.direwolf.battles.tooltip",
+            DireWolfSettings.BATTLES_MIN,
+            DireWolfSettings.BATTLES_MAX,
+            this.direWolf.battlesToEvolve(),
+            value -> this.direWolf = this.direWolf.withBattlesToEvolve(value)));
+    list.addRow(
+        intSliderRow(
+            canEdit,
+            "screen.dogs-unleashed.settings.direwolf.smallestpack",
+            "screen.dogs-unleashed.settings.direwolf.smallestpack.tooltip",
+            DireWolfSettings.PACK_MIN,
+            DireWolfSettings.PACK_MAX,
+            this.direWolf.smallestPack(),
+            value -> this.direWolf = this.direWolf.withSmallestPack(value)));
+    list.addRow(
+        intSliderRow(
+            canEdit,
+            "screen.dogs-unleashed.settings.direwolf.largestpack",
+            "screen.dogs-unleashed.settings.direwolf.largestpack.tooltip",
+            DireWolfSettings.PACK_MIN,
+            DireWolfSettings.PACK_MAX,
+            this.direWolf.largestPack(),
+            value -> this.direWolf = this.direWolf.withLargestPack(value)));
 
     list.addRow(sectionHeader("screen.dogs-unleashed.settings.sounds"));
     list.addRow(
@@ -326,7 +367,8 @@ public final class DogsUnleashedConfigScreen extends Screen {
             this.showDogNames,
             this.furGrowthEnabled,
             this.furGrowthRateMultiplierPercent,
-            this.badHairDayChanceMultiplierPercent);
+            this.badHairDayChanceMultiplierPercent,
+            this.direWolf);
     ClientPlayNetworking.send(new EditServerConfigC2SPayload(updated));
     close();
   }

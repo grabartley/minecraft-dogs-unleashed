@@ -93,7 +93,7 @@ public class DogSpawner implements SpecialSpawner {
         && countUntamedDogsNear(world, surface, nearby -> nearby == breed) > 0) {
       return 0;
     }
-    return spawnPack(world, breed, surface);
+    return spawnPack(world, breed, surface, config);
   }
 
   public static boolean spawnsThroughThisSpawner(
@@ -105,13 +105,27 @@ public class DogSpawner implements SpecialSpawner {
     return packOnly ? placed == packSize : placed > 0;
   }
 
+  public static int smallestPack(final UnleashedDogBreed breed, final DogsUnleashedConfig config) {
+    return breed.spawnSettings().packOnly()
+        ? config.direWolf().smallestPack()
+        : breed.spawnSettings().minGroupSize();
+  }
+
+  public static int largestPack(final UnleashedDogBreed breed, final DogsUnleashedConfig config) {
+    return breed.spawnSettings().packOnly()
+        ? config.direWolf().largestPack()
+        : breed.spawnSettings().maxGroupSize();
+  }
+
   private int spawnPack(
-      final ServerWorld world, final UnleashedDogBreed breed, final BlockPos center) {
+      final ServerWorld world,
+      final UnleashedDogBreed breed,
+      final BlockPos center,
+      final DogsUnleashedConfig config) {
     final UnleashedDogBreed.SpawnSettings settings = breed.spawnSettings();
     final Random random = world.random;
-    final int packSize =
-        settings.minGroupSize()
-            + random.nextInt(settings.maxGroupSize() - settings.minGroupSize() + 1);
+    final int smallest = smallestPack(breed, config);
+    final int packSize = smallest + random.nextInt(largestPack(breed, config) - smallest + 1);
     final EntityType<? extends UnleashedDogEntity> type = ModEntities.getDogEntityType(breed);
     final List<UnleashedDogEntity> pack = new ArrayList<>();
     for (int i = 0; i < packSize; i++) {

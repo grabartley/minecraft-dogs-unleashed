@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.entity;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
+import com.grahambartley.dogsunleashed.config.DireWolfSettings;
 import com.grahambartley.dogsunleashed.pet.PetNames;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityDimensions;
@@ -94,7 +95,8 @@ public final class DogGrowth {
       return;
     }
     this.ticksInStage++;
-    if (DogGrowthRules.advancesStage(stage, this.ticksInStage)) {
+    if (DogGrowthRules.advancesStage(
+        stage, this.ticksInStage, settings().growthRateMultiplierPercent())) {
       this.growInto(stage.next());
     }
   }
@@ -131,8 +133,10 @@ public final class DogGrowth {
           Text.translatable("message.dogs-unleashed.direwolf.not_prime", name), true);
       return ActionResult.SUCCESS;
     }
-    if (!DogGrowthRules.canEvolve(this.stage(), this.dog.isTamed(), this.battlesWon)) {
-      final int remaining = DogGrowthRules.battlesStillNeeded(this.battlesWon);
+    if (!DogGrowthRules.canEvolve(
+        this.stage(), this.dog.isTamed(), this.battlesWon, settings().battlesToEvolve())) {
+      final int remaining =
+          DogGrowthRules.battlesStillNeeded(this.battlesWon, settings().battlesToEvolve());
       player.sendMessage(
           remaining == 1
               ? Text.translatable("message.dogs-unleashed.direwolf.needs_one_battle", name)
@@ -273,6 +277,10 @@ public final class DogGrowth {
     this.ticksInStage = Math.max(0, nbt.getInt(ModNbtKeys.GROWTH_TICKS_IN_STAGE));
     this.battlesWon = Math.max(0, nbt.getInt(ModNbtKeys.GROWTH_BATTLES_WON));
     this.dog.calculateDimensions();
+  }
+
+  private static DireWolfSettings settings() {
+    return DogsUnleashed.SERVER_CONFIG.direWolf();
   }
 
   private void overwrite(

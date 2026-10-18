@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.grahambartley.dogsunleashed.config.DireWolfSettings;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.server.ServerConfigService;
 import java.util.List;
@@ -59,10 +60,14 @@ class DogsUnleashedCommandTest {
         Arguments.of(13, "command.dogs-unleashed.help.badhairdaychance"),
         Arguments.of(14, "command.dogs-unleashed.help.barkvolume"),
         Arguments.of(15, "command.dogs-unleashed.help.howlvolume"),
-        Arguments.of(16, "command.dogs-unleashed.help.reset"),
-        Arguments.of(17, "command.dogs-unleashed.help.list"),
-        Arguments.of(18, "command.dogs-unleashed.help.summon"),
-        Arguments.of(19, "command.dogs-unleashed.help.find"));
+        Arguments.of(16, "command.dogs-unleashed.help.direwolf.growthrate"),
+        Arguments.of(17, "command.dogs-unleashed.help.direwolf.battles"),
+        Arguments.of(18, "command.dogs-unleashed.help.direwolf.smallestpack"),
+        Arguments.of(19, "command.dogs-unleashed.help.direwolf.largestpack"),
+        Arguments.of(20, "command.dogs-unleashed.help.reset"),
+        Arguments.of(21, "command.dogs-unleashed.help.list"),
+        Arguments.of(22, "command.dogs-unleashed.help.summon"),
+        Arguments.of(23, "command.dogs-unleashed.help.find"));
   }
 
   @ParameterizedTest(name = "help line {0} -> {1}")
@@ -95,7 +100,10 @@ class DogsUnleashedCommandTest {
         Arguments.of(16, "command.dogs-unleashed.status.howlvolume"),
         Arguments.of(17, "command.dogs-unleashed.status.furgrowth"),
         Arguments.of(18, "command.dogs-unleashed.status.furgrowthrate"),
-        Arguments.of(19, "command.dogs-unleashed.status.badhairdaychance"));
+        Arguments.of(19, "command.dogs-unleashed.status.badhairdaychance"),
+        Arguments.of(20, "command.dogs-unleashed.status.direwolf.growthrate"),
+        Arguments.of(21, "command.dogs-unleashed.status.direwolf.battles"),
+        Arguments.of(22, "command.dogs-unleashed.status.direwolf.packsize"));
   }
 
   @ParameterizedTest(name = "status line {0} -> {1}")
@@ -125,7 +133,8 @@ class DogsUnleashedCommandTest {
             false,
             false,
             250,
-            7);
+            7,
+            DireWolfSettings.DEFAULTS);
 
     final List<Text> lines = DogsUnleashedCommand.statusLines(config);
 
@@ -173,7 +182,8 @@ class DogsUnleashedCommandTest {
             false,
             true,
             100,
-            100);
+            100,
+            DireWolfSettings.DEFAULTS);
 
     final List<Text> lines = DogsUnleashedCommand.statusLines(config);
 

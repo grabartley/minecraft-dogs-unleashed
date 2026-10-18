@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.spawner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.grahambartley.dogsunleashed.config.DireWolfSettings;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import java.util.List;
@@ -20,7 +21,21 @@ class DogSpawnerTest {
 
   private static DogsUnleashedConfig configWithBreedRates(final Map<String, Integer> breedRates) {
     return new DogsUnleashedConfig(
-        true, 100, breedRates, true, true, true, true, 32, 1.0f, 1.5f, true, true, 100, 100);
+        true,
+        100,
+        breedRates,
+        true,
+        true,
+        true,
+        true,
+        32,
+        1.0f,
+        1.5f,
+        true,
+        true,
+        100,
+        100,
+        DireWolfSettings.DEFAULTS);
   }
 
   @Test
@@ -130,5 +145,26 @@ class DogSpawnerTest {
   void packOnlyBreedsSpawnWholePacks(
       final int placed, final int packSize, final boolean packOnly, final boolean expected) {
     assertEquals(expected, DogSpawner.placesPack(placed, packSize, packOnly));
+  }
+
+  @Test
+  @DisplayName("a pack-only breed takes its pack size from the dire wolf settings")
+  void packOnlyBreedUsesConfiguredPackSize() {
+    final DogsUnleashedConfig config =
+        DogsUnleashedConfig.defaults()
+            .withDireWolf(DireWolfSettings.DEFAULTS.withSmallestPack(7).withLargestPack(12));
+    assertEquals(7, DogSpawner.smallestPack(UnleashedDogBreed.DIRE_WOLF, config));
+    assertEquals(12, DogSpawner.largestPack(UnleashedDogBreed.DIRE_WOLF, config));
+  }
+
+  @Test
+  @DisplayName("other breeds keep their own pack size")
+  void otherBreedsKeepTheirPackSize() {
+    final DogsUnleashedConfig config =
+        DogsUnleashedConfig.defaults()
+            .withDireWolf(DireWolfSettings.DEFAULTS.withSmallestPack(7).withLargestPack(12));
+    final UnleashedDogBreed.SpawnSettings husky = UnleashedDogBreed.HUSKY.spawnSettings();
+    assertEquals(husky.minGroupSize(), DogSpawner.smallestPack(UnleashedDogBreed.HUSKY, config));
+    assertEquals(husky.maxGroupSize(), DogSpawner.largestPack(UnleashedDogBreed.HUSKY, config));
   }
 }

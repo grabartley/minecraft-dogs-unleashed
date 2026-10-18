@@ -94,42 +94,53 @@ class DogGrowthRulesTest {
         expected, DogGrowthRules.healthAfterStageChange(current, previousMax, newMax), 1e-6f);
   }
 
-  @ParameterizedTest(name = "{0} at {1} ticks advances={2}")
+  @ParameterizedTest(name = "{0} at {1} ticks and {2}% speed advances={3}")
   @CsvSource({
-    "YEARLING, 23999, false",
-    "YEARLING, 24000, true",
-    "ADULT, 47999, false",
-    "ADULT, 48000, true",
-    "PRIME, 999999, false",
-    "ALPHA, 999999, false",
+    "YEARLING, 23999, 100, false",
+    "YEARLING, 24000, 100, true",
+    "ADULT, 47999, 100, false",
+    "ADULT, 48000, 100, true",
+    "PRIME, 999999, 100, false",
+    "ALPHA, 999999, 100, false",
+    "YEARLING, 12000, 200, true",
+    "YEARLING, 11999, 200, false",
+    "ADULT, 96000, 50, true",
+    "ADULT, 95999, 50, false",
+    "YEARLING, 999999, 0, false",
   })
-  @DisplayName("a yearling grows after 20 minutes, an adult after 40, and a prime never on its own")
+  @DisplayName(
+      "a yearling grows after 20 minutes and an adult after 40, scaled by the growth speed")
   void stageAdvancesOnItsOwnClock(
-      final DireWolfGrowthStage stage, final int ticks, final boolean expected) {
-    assertEquals(expected, DogGrowthRules.advancesStage(stage, ticks));
+      final DireWolfGrowthStage stage,
+      final int ticks,
+      final int growthRate,
+      final boolean expected) {
+    assertEquals(expected, DogGrowthRules.advancesStage(stage, ticks, growthRate));
   }
 
-  @ParameterizedTest(name = "{0} battles -> {1} still needed")
-  @CsvSource({"0, 20", "7, 13", "19, 1", "20, 0", "35, 0"})
-  @DisplayName("an evolution needs twenty battles won beside the owner")
-  void battlesStillNeeded(final int won, final int needed) {
-    assertEquals(needed, DogGrowthRules.battlesStillNeeded(won));
+  @ParameterizedTest(name = "{0} of {1} battles -> {2} still needed")
+  @CsvSource({"0, 20, 20", "7, 20, 13", "19, 20, 1", "20, 20, 0", "35, 20, 0", "3, 5, 2"})
+  @DisplayName("an evolution needs the configured number of battles won beside the owner")
+  void battlesStillNeeded(final int won, final int required, final int needed) {
+    assertEquals(needed, DogGrowthRules.battlesStillNeeded(won, required));
   }
 
-  @ParameterizedTest(name = "{0} tamed={1} battles={2} -> {3}")
+  @ParameterizedTest(name = "{0} tamed={1} battles={2} of {3} -> {4}")
   @CsvSource({
-    "PRIME, true, 20, true",
-    "PRIME, true, 19, false",
-    "PRIME, false, 20, false",
-    "ADULT, true, 20, false",
-    "ALPHA, true, 50, false",
+    "PRIME, true, 20, 20, true",
+    "PRIME, true, 19, 20, false",
+    "PRIME, false, 20, 20, false",
+    "ADULT, true, 20, 20, false",
+    "ALPHA, true, 50, 20, false",
+    "PRIME, true, 5, 5, true",
   })
-  @DisplayName("only a tamed prime with twenty battles won can evolve")
+  @DisplayName("only a tamed prime with enough battles won can evolve")
   void canEvolve(
       final DireWolfGrowthStage stage,
       final boolean tamed,
       final int battles,
+      final int required,
       final boolean expected) {
-    assertEquals(expected, DogGrowthRules.canEvolve(stage, tamed, battles));
+    assertEquals(expected, DogGrowthRules.canEvolve(stage, tamed, battles, required));
   }
 }
