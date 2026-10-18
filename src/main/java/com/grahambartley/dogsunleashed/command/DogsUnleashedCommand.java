@@ -2,22 +2,17 @@ package com.grahambartley.dogsunleashed.command;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
-import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLocationService;
 import com.grahambartley.dogsunleashed.pet.PetManager;
 import com.grahambartley.dogsunleashed.server.ServerConfigService;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.BoolArgumentType;
-import com.mojang.brigadier.arguments.FloatArgumentType;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.UuidArgumentType;
@@ -40,131 +35,7 @@ public final class DogsUnleashedCommand {
                 CommandManager.literal("status")
                     .requires(DogsUnleashedCommand::isOp)
                     .executes(DogsUnleashedCommand::status))
-            .then(
-                CommandManager.literal("config")
-                    .requires(DogsUnleashedCommand::isOp)
-                    .then(
-                        CommandManager.literal("spawn")
-                            .then(
-                                CommandManager.argument("enabled", BoolArgumentType.bool())
-                                    .executes(
-                                        ctx ->
-                                            setSpawn(
-                                                ctx, BoolArgumentType.getBool(ctx, "enabled")))))
-                    .then(spawnRateNode())
-                    .then(
-                        CommandManager.literal("capindependentspawning")
-                            .then(
-                                CommandManager.argument("enabled", BoolArgumentType.bool())
-                                    .executes(
-                                        ctx ->
-                                            setCapIndependentSpawning(
-                                                ctx, BoolArgumentType.getBool(ctx, "enabled")))))
-                    .then(
-                        CommandManager.literal("graves")
-                            .then(
-                                CommandManager.argument("enabled", BoolArgumentType.bool())
-                                    .executes(
-                                        ctx ->
-                                            setGraves(
-                                                ctx, BoolArgumentType.getBool(ctx, "enabled")))))
-                    .then(
-                        CommandManager.literal("dropleashonplay")
-                            .then(
-                                CommandManager.argument("enabled", BoolArgumentType.bool())
-                                    .executes(
-                                        ctx ->
-                                            setDropLeashOnPlayMode(
-                                                ctx, BoolArgumentType.getBool(ctx, "enabled")))))
-                    .then(
-                        CommandManager.literal("shownames")
-                            .then(
-                                CommandManager.argument("enabled", BoolArgumentType.bool())
-                                    .executes(
-                                        ctx ->
-                                            setShowDogNames(
-                                                ctx, BoolArgumentType.getBool(ctx, "enabled")))))
-                    .then(
-                        CommandManager.literal("autosleep")
-                            .then(
-                                CommandManager.argument("enabled", BoolArgumentType.bool())
-                                    .executes(
-                                        ctx ->
-                                            setAutoSleepEnabled(
-                                                ctx, BoolArgumentType.getBool(ctx, "enabled")))))
-                    .then(
-                        CommandManager.literal("autosleeprange")
-                            .then(
-                                CommandManager.argument(
-                                        "blocks",
-                                        IntegerArgumentType.integer(
-                                            DogsUnleashedConfig.AUTO_SLEEP_RANGE_MIN,
-                                            DogsUnleashedConfig.AUTO_SLEEP_RANGE_MAX))
-                                    .executes(
-                                        ctx ->
-                                            setAutoSleepRange(
-                                                ctx,
-                                                IntegerArgumentType.getInteger(ctx, "blocks")))))
-                    .then(
-                        CommandManager.literal("furgrowth")
-                            .then(
-                                CommandManager.argument("enabled", BoolArgumentType.bool())
-                                    .executes(
-                                        ctx ->
-                                            setFurGrowth(
-                                                ctx, BoolArgumentType.getBool(ctx, "enabled")))))
-                    .then(
-                        CommandManager.literal("furgrowthrate")
-                            .then(
-                                CommandManager.argument(
-                                        "percent",
-                                        IntegerArgumentType.integer(
-                                            DogsUnleashedConfig.FUR_GROWTH_RATE_MIN,
-                                            DogsUnleashedConfig.FUR_GROWTH_RATE_MAX))
-                                    .executes(
-                                        ctx ->
-                                            setFurGrowthRate(
-                                                ctx,
-                                                IntegerArgumentType.getInteger(ctx, "percent")))))
-                    .then(
-                        CommandManager.literal("badhairdaychance")
-                            .then(
-                                CommandManager.argument(
-                                        "percent",
-                                        IntegerArgumentType.integer(
-                                            DogsUnleashedConfig.BAD_HAIR_DAY_CHANCE_MIN,
-                                            DogsUnleashedConfig.BAD_HAIR_DAY_CHANCE_MAX))
-                                    .executes(
-                                        ctx ->
-                                            setBadHairDayChance(
-                                                ctx,
-                                                IntegerArgumentType.getInteger(ctx, "percent")))))
-                    .then(
-                        CommandManager.literal("barkvolume")
-                            .then(
-                                CommandManager.argument(
-                                        "volume",
-                                        FloatArgumentType.floatArg(
-                                            DogsUnleashedConfig.VOLUME_MIN,
-                                            DogsUnleashedConfig.VOLUME_MAX))
-                                    .executes(
-                                        ctx ->
-                                            setBarkVolume(
-                                                ctx, FloatArgumentType.getFloat(ctx, "volume")))))
-                    .then(
-                        CommandManager.literal("howlvolume")
-                            .then(
-                                CommandManager.argument(
-                                        "volume",
-                                        FloatArgumentType.floatArg(
-                                            DogsUnleashedConfig.VOLUME_MIN,
-                                            DogsUnleashedConfig.VOLUME_MAX))
-                                    .executes(
-                                        ctx ->
-                                            setHowlVolume(
-                                                ctx, FloatArgumentType.getFloat(ctx, "volume")))))
-                    .then(DireWolfConfigCommand.node())
-                    .then(CommandManager.literal("reset").executes(DogsUnleashedCommand::resetAll)))
+            .then(configNode())
             .then(
                 CommandManager.literal("list")
                     .requires(DogsUnleashedCommand::isOp)
@@ -187,33 +58,17 @@ public final class DogsUnleashedCommand {
                             .executes(DogsUnleashedCommand::findPet))));
   }
 
-  private static LiteralArgumentBuilder<ServerCommandSource> spawnRateNode() {
-    final LiteralArgumentBuilder<ServerCommandSource> node = CommandManager.literal("spawnrate");
-    for (final UnleashedDogBreed breed : UnleashedDogBreed.values()) {
-      if (!breed.isNaturallySpawning()) {
-        continue;
-      }
-      node.then(
-          CommandManager.literal(breed.serializedId())
-              .then(
-                  CommandManager.argument(
-                          "percent",
-                          IntegerArgumentType.integer(
-                              DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MIN,
-                              DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MAX))
-                      .executes(
-                          ctx ->
-                              setBreedSpawnRate(
-                                  ctx, breed, IntegerArgumentType.getInteger(ctx, "percent")))));
-    }
-    node.then(
-        CommandManager.argument(
-                "percent",
-                IntegerArgumentType.integer(
-                    DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MIN,
-                    DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MAX))
-            .executes(ctx -> setSpawnRate(ctx, IntegerArgumentType.getInteger(ctx, "percent"))));
-    return node;
+  private static LiteralArgumentBuilder<ServerCommandSource> configNode() {
+    final LiteralArgumentBuilder<ServerCommandSource> config =
+        CommandManager.literal("config").requires(DogsUnleashedCommand::isOp);
+    SpawningConfigCommand.addTo(config);
+    GameplayConfigCommand.addTo(config);
+    SleepConfigCommand.addTo(config);
+    FurConfigCommand.addTo(config);
+    SoundConfigCommand.addTo(config);
+    return config
+        .then(DireWolfConfigCommand.node())
+        .then(CommandManager.literal("reset").executes(DogsUnleashedCommand::resetAll));
   }
 
   static boolean isOp(final ServerCommandSource source) {
@@ -230,45 +85,13 @@ public final class DogsUnleashedCommand {
 
   static List<Text> helpLines() {
     final List<Text> lines = new ArrayList<>();
-    lines.addAll(
-        List.of(
-            Text.translatable("command.dogs-unleashed.help.header"),
-            Text.translatable("command.dogs-unleashed.help.status"),
-            Text.translatable("command.dogs-unleashed.help.spawn"),
-            Text.translatable(
-                "command.dogs-unleashed.help.spawnrate",
-                DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MIN,
-                DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MAX),
-            Text.translatable(
-                "command.dogs-unleashed.help.spawnratebreed",
-                DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MIN,
-                DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MAX),
-            Text.translatable("command.dogs-unleashed.help.capindependentspawning"),
-            Text.translatable("command.dogs-unleashed.help.graves"),
-            Text.translatable("command.dogs-unleashed.help.dropleashonplay"),
-            Text.translatable("command.dogs-unleashed.help.shownames"),
-            Text.translatable("command.dogs-unleashed.help.autosleep"),
-            Text.translatable(
-                "command.dogs-unleashed.help.autosleeprange",
-                DogsUnleashedConfig.AUTO_SLEEP_RANGE_MIN,
-                DogsUnleashedConfig.AUTO_SLEEP_RANGE_MAX),
-            Text.translatable("command.dogs-unleashed.help.furgrowth"),
-            Text.translatable(
-                "command.dogs-unleashed.help.furgrowthrate",
-                DogsUnleashedConfig.FUR_GROWTH_RATE_MIN,
-                DogsUnleashedConfig.FUR_GROWTH_RATE_MAX),
-            Text.translatable(
-                "command.dogs-unleashed.help.badhairdaychance",
-                DogsUnleashedConfig.BAD_HAIR_DAY_CHANCE_MIN,
-                DogsUnleashedConfig.BAD_HAIR_DAY_CHANCE_MAX),
-            Text.translatable(
-                "command.dogs-unleashed.help.barkvolume",
-                DogsUnleashedConfig.VOLUME_MIN,
-                DogsUnleashedConfig.VOLUME_MAX),
-            Text.translatable(
-                "command.dogs-unleashed.help.howlvolume",
-                DogsUnleashedConfig.VOLUME_MIN,
-                DogsUnleashedConfig.VOLUME_MAX)));
+    lines.add(Text.translatable("command.dogs-unleashed.help.header"));
+    lines.add(Text.translatable("command.dogs-unleashed.help.status"));
+    lines.addAll(SpawningConfigCommand.helpLines());
+    lines.addAll(GameplayConfigCommand.helpLines());
+    lines.addAll(SleepConfigCommand.helpLines());
+    lines.addAll(FurConfigCommand.helpLines());
+    lines.addAll(SoundConfigCommand.helpLines());
     lines.addAll(DireWolfConfigCommand.helpLines());
     lines.addAll(
         List.of(
@@ -290,214 +113,18 @@ public final class DogsUnleashedCommand {
   static List<Text> statusLines(final DogsUnleashedConfig config) {
     final List<Text> lines = new ArrayList<>();
     lines.add(Text.translatable("command.dogs-unleashed.status.header"));
-    lines.add(
-        Text.translatable("command.dogs-unleashed.status.spawn", config.enableNaturalSpawning()));
-    lines.add(
-        Text.translatable(
-            "command.dogs-unleashed.status.spawnrate", config.spawnRateMultiplierPercent()));
-    for (final UnleashedDogBreed breed : UnleashedDogBreed.values()) {
-      if (!breed.isNaturallySpawning()) {
-        continue;
-      }
-      lines.add(
-          Text.translatable(
-              "command.dogs-unleashed.status.spawnrate.breed",
-              breed.serializedId(),
-              config.breedSpawnRateMultipliersPercent().get(breed.serializedId())));
-    }
-    lines.addAll(
-        List.of(
-            Text.translatable(
-                "command.dogs-unleashed.status.capindependentspawning",
-                config.capIndependentSpawningEnabled()),
-            Text.translatable("command.dogs-unleashed.status.graves", config.gravesEnabled()),
-            Text.translatable(
-                "command.dogs-unleashed.status.dropleashonplay", config.dropLeashOnPlayMode()),
-            Text.translatable("command.dogs-unleashed.status.shownames", config.showDogNames()),
-            Text.translatable("command.dogs-unleashed.status.autosleep", config.autoSleepEnabled()),
-            Text.translatable(
-                "command.dogs-unleashed.status.autosleeprange", config.autoSleepRangeBlocks()),
-            Text.translatable(
-                "command.dogs-unleashed.status.barkvolume",
-                String.format(Locale.ROOT, "%.2f", config.barkVolume())),
-            Text.translatable(
-                "command.dogs-unleashed.status.howlvolume",
-                String.format(Locale.ROOT, "%.2f", config.howlVolume())),
-            Text.translatable("command.dogs-unleashed.status.furgrowth", config.furGrowthEnabled()),
-            Text.translatable(
-                "command.dogs-unleashed.status.furgrowthrate",
-                config.furGrowthRateMultiplierPercent()),
-            Text.translatable(
-                "command.dogs-unleashed.status.badhairdaychance",
-                config.badHairDayChanceMultiplierPercent())));
+    lines.addAll(SpawningConfigCommand.statusLines(config.spawning()));
+    lines.addAll(GameplayConfigCommand.statusLines(config.gameplay()));
+    lines.addAll(SleepConfigCommand.statusLines(config.sleep()));
+    lines.addAll(SoundConfigCommand.statusLines(config.sound()));
+    lines.addAll(FurConfigCommand.statusLines(config.fur()));
     lines.addAll(DireWolfConfigCommand.statusLines(config.direWolf()));
     return lines;
   }
 
-  private static int setSpawn(final CommandContext<ServerCommandSource> ctx, final boolean value) {
-    return applyUpdate(
-        ctx,
-        DogsUnleashed.SERVER_CONFIG.withEnableNaturalSpawning(value),
-        "spawn",
-        Boolean.toString(value),
-        true);
-  }
-
-  private static int setSpawnRate(final CommandContext<ServerCommandSource> ctx, final int value) {
-    return applyUpdate(
-        ctx,
-        DogsUnleashed.SERVER_CONFIG.withSpawnRateMultiplierPercent(value),
-        "spawnrate",
-        value + "%",
-        true);
-  }
-
-  private static int setBreedSpawnRate(
-      final CommandContext<ServerCommandSource> ctx,
-      final UnleashedDogBreed breed,
-      final int value) {
-    return applyUpdate(
-        ctx,
-        DogsUnleashed.SERVER_CONFIG.withBreedSpawnRateMultiplierPercent(
-            breed.serializedId(), value),
-        "spawnrate " + breed.serializedId(),
-        value + "%",
-        true);
-  }
-
-  private static int setCapIndependentSpawning(
-      final CommandContext<ServerCommandSource> ctx, final boolean value) {
-    return applyUpdate(
-        ctx,
-        DogsUnleashed.SERVER_CONFIG.withCapIndependentSpawningEnabled(value),
-        "capindependentspawning",
-        Boolean.toString(value),
-        false);
-  }
-
-  private static int setGraves(final CommandContext<ServerCommandSource> ctx, final boolean value) {
-    return applyUpdate(
-        ctx,
-        DogsUnleashed.SERVER_CONFIG.withGravesEnabled(value),
-        "graves",
-        Boolean.toString(value),
-        false);
-  }
-
-  private static int setDropLeashOnPlayMode(
-      final CommandContext<ServerCommandSource> ctx, final boolean value) {
-    return applyUpdate(
-        ctx,
-        DogsUnleashed.SERVER_CONFIG.withDropLeashOnPlayMode(value),
-        "dropleashonplay",
-        Boolean.toString(value),
-        false);
-  }
-
-  private static int setShowDogNames(
-      final CommandContext<ServerCommandSource> ctx, final boolean value) {
-    return applyUpdate(
-        ctx,
-        DogsUnleashed.SERVER_CONFIG.withShowDogNames(value),
-        "shownames",
-        Boolean.toString(value),
-        false);
-  }
-
-  private static int setFurGrowth(
-      final CommandContext<ServerCommandSource> ctx, final boolean value) {
-    return applyUpdate(
-        ctx,
-        DogsUnleashed.SERVER_CONFIG.withFurGrowthEnabled(value),
-        "furgrowth",
-        Boolean.toString(value),
-        false);
-  }
-
-  private static int setFurGrowthRate(
-      final CommandContext<ServerCommandSource> ctx, final int value) {
-    return applyUpdate(
-        ctx,
-        DogsUnleashed.SERVER_CONFIG.withFurGrowthRateMultiplierPercent(value),
-        "furgrowthrate",
-        value + "%",
-        false);
-  }
-
-  private static int setBadHairDayChance(
-      final CommandContext<ServerCommandSource> ctx, final int value) {
-    return applyUpdate(
-        ctx,
-        DogsUnleashed.SERVER_CONFIG.withBadHairDayChanceMultiplierPercent(value),
-        "badhairdaychance",
-        value + "%",
-        false);
-  }
-
-  private static int setAutoSleepEnabled(
-      final CommandContext<ServerCommandSource> ctx, final boolean value) {
-    return applyUpdate(
-        ctx,
-        DogsUnleashed.SERVER_CONFIG.withAutoSleepEnabled(value),
-        "autosleep",
-        Boolean.toString(value),
-        false);
-  }
-
-  private static int setAutoSleepRange(
-      final CommandContext<ServerCommandSource> ctx, final int value) {
-    return applyUpdate(
-        ctx,
-        DogsUnleashed.SERVER_CONFIG.withAutoSleepRangeBlocks(value),
-        "autosleeprange",
-        Integer.toString(value),
-        false);
-  }
-
-  private static int setBarkVolume(
-      final CommandContext<ServerCommandSource> ctx, final float value) {
-    return applyUpdate(
-        ctx,
-        DogsUnleashed.SERVER_CONFIG.withBarkVolume(value),
-        "barkvolume",
-        String.format("%.2f", value),
-        false);
-  }
-
-  private static int setHowlVolume(
-      final CommandContext<ServerCommandSource> ctx, final float value) {
-    return applyUpdate(
-        ctx,
-        DogsUnleashed.SERVER_CONFIG.withHowlVolume(value),
-        "howlvolume",
-        String.format("%.2f", value),
-        false);
-  }
-
   private static int resetAll(final CommandContext<ServerCommandSource> ctx) {
-    return applyUpdate(ctx, DogsUnleashedConfig.defaults(), "all", "defaults", true);
-  }
-
-  static int applyUpdate(
-      final CommandContext<ServerCommandSource> ctx,
-      final DogsUnleashedConfig updated,
-      final String label,
-      final String displayValue,
-      final boolean restartNote) {
-    final ServerCommandSource source = ctx.getSource();
-    final boolean ok = ServerConfigService.update(source.getServer(), updated);
-    if (!ok) {
-      source.sendError(Text.translatable("command.dogs-unleashed.update.failed"));
-      return 0;
-    }
-    source.sendFeedback(
-        () -> Text.translatable("command.dogs-unleashed.update.success", label, displayValue),
-        true);
-    if (restartNote) {
-      source.sendFeedback(
-          () -> Text.translatable("command.dogs-unleashed.update.restart_note"), false);
-    }
-    return 1;
+    return ConfigSettingNodes.applyUpdate(
+        ctx, DogsUnleashedConfig.defaults(), "all", "defaults", true);
   }
 
   private static int listPets(final CommandContext<ServerCommandSource> ctx)

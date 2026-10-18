@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.render;
 
+import com.grahambartley.dogsunleashed.entity.DogCollar;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.DyeColor;
@@ -17,7 +18,9 @@ public final class LeashCollarTint {
 
   public static void capture(final Entity leashedEntity) {
     activeCollarColor =
-        leashedEntity instanceof UnleashedDogEntity dog ? dog.getCollarColor() : null;
+        leashedEntity instanceof UnleashedDogEntity dog
+            ? dog.getComponents().get(DogCollar.class).getColor()
+            : null;
   }
 
   public static void clear() {

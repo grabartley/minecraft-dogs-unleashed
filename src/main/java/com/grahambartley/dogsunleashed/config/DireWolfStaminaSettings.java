@@ -15,8 +15,8 @@ public record DireWolfStaminaSettings(boolean drains, int capacityPercent, int r
   static final String KEY_RECOVERY_PERCENT = "recoveryPercent";
 
   public DireWolfStaminaSettings {
-    capacityPercent = clamp(capacityPercent);
-    recoveryPercent = clamp(recoveryPercent);
+    capacityPercent = ConfigBounds.clamp(capacityPercent, PERCENT_MIN, PERCENT_MAX);
+    recoveryPercent = ConfigBounds.clamp(recoveryPercent, PERCENT_MIN, PERCENT_MAX);
   }
 
   public DireWolfStaminaSettings withDrains(final boolean value) {
@@ -45,9 +45,5 @@ public record DireWolfStaminaSettings(boolean drains, int capacityPercent, int r
     json.addProperty(KEY_CAPACITY_PERCENT, capacityPercent);
     json.addProperty(KEY_RECOVERY_PERCENT, recoveryPercent);
     return json;
-  }
-
-  private static int clamp(final int value) {
-    return Math.max(PERCENT_MIN, Math.min(PERCENT_MAX, value));
   }
 }

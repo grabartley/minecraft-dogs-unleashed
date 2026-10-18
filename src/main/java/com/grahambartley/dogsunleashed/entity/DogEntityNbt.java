@@ -5,7 +5,6 @@ import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.entity.variant.DogCoats;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,10 +14,6 @@ public final class DogEntityNbt {
 
   DogEntityNbt(final UnleashedDogEntity dog) {
     this.dog = dog;
-  }
-
-  public static int sanitizedTreatBuffTicks(final int savedTicks) {
-    return Math.max(0, savedTicks);
   }
 
   public static DogCommand commandForLegacySave(final boolean sitting) {
@@ -55,11 +50,10 @@ public final class DogEntityNbt {
     if (traits.rigSourceBreed().hasEyeColorVariants()) {
       nbt.putInt(ModNbtKeys.EYE_COLOR_VARIANT, traits.eyeColorVariantOrdinal());
     }
-    nbt.putInt(ModNbtKeys.COLLAR_COLOR, this.dog.getCollarColor().getId());
     this.dog.getAmbienceEffects().writeNbt(nbt);
     this.dog.getSleepController().writeNbt(nbt);
     this.dog.getPlaySession().writeNbt(nbt);
-    nbt.putInt(ModNbtKeys.TREAT_BUFF_TICKS, this.dog.getTreatBuffState().getRemainingTicks());
+    this.dog.getComponents().writeNbt(nbt);
     nbt.putInt(ModNbtKeys.COMMAND_MODE, this.dog.getCommand().id());
     final BlockPos anchor = this.dog.getCommandController().getAnchorPos();
     if (anchor != null) {
@@ -67,7 +61,6 @@ public final class DogEntityNbt {
       nbt.putInt(ModNbtKeys.COMMAND_ANCHOR_Y, anchor.getY());
       nbt.putInt(ModNbtKeys.COMMAND_ANCHOR_Z, anchor.getZ());
     }
-    nbt.putBoolean(ModNbtKeys.SPAWNED_BY_DOG_SPAWNER, this.dog.isSpawnedByDogSpawner());
     nbt.putInt(ModNbtKeys.CURING_TICKS, this.dog.getCuring().getRemainingTicks());
     if (this.dog.getCuring().getCurerId() != null) {
       nbt.putUuid(ModNbtKeys.CURING_PLAYER_ID, this.dog.getCuring().getCurerId());
@@ -96,19 +89,10 @@ public final class DogEntityNbt {
             variantOrdinalOr(nbt, ModNbtKeys.COAT_VARIANT, currentTraits.coatVariantOrdinal()),
             variantOrdinalOr(
                 nbt, ModNbtKeys.EYE_COLOR_VARIANT, currentTraits.eyeColorVariantOrdinal())));
-    if (nbt.contains(ModNbtKeys.COLLAR_COLOR, NbtElement.NUMBER_TYPE)) {
-      this.dog.setCollarColor(DyeColor.byId(nbt.getInt(ModNbtKeys.COLLAR_COLOR)));
-    }
     this.dog.getAmbienceEffects().readNbt(nbt);
     this.dog.getSleepController().readNbt(nbt);
     this.dog.getPlaySession().readNbt(nbt);
-    if (nbt.contains(ModNbtKeys.TREAT_BUFF_TICKS, NbtElement.NUMBER_TYPE)) {
-      final int treatBuffTicks = sanitizedTreatBuffTicks(nbt.getInt(ModNbtKeys.TREAT_BUFF_TICKS));
-      this.dog.getTreatBuffState().setRemainingTicksFromSave(treatBuffTicks);
-      if (treatBuffTicks > 0) {
-        DogTreatBuff.apply(this.dog);
-      }
-    }
+    this.dog.getComponents().readNbt(nbt);
     if (nbt.contains(ModNbtKeys.COMMAND_MODE, NbtElement.NUMBER_TYPE)) {
       this.dog
           .getCommandController()
@@ -121,9 +105,6 @@ public final class DogEntityNbt {
     final BlockPos anchor = commandAnchorFrom(nbt);
     if (anchor != null) {
       this.dog.getCommandController().setAnchorPosFromSave(anchor);
-    }
-    if (nbt.contains(ModNbtKeys.SPAWNED_BY_DOG_SPAWNER)) {
-      this.dog.setSpawnedByDogSpawner(nbt.getBoolean(ModNbtKeys.SPAWNED_BY_DOG_SPAWNER));
     }
     this.dog
         .getCuring()

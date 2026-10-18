@@ -37,7 +37,7 @@ public final class PlayModeSyncGameTest implements FabricGameTest {
     dog.getPlaySession().startPlayMode(player, FetchTypes.STICK);
 
     context.assertTrue(
-        player.getUuid().equals(dog.getPlayPartnerPlayerUuid()),
+        player.getUuid().equals(dog.getPlaySession().getPlayPartnerPlayerUuid()),
         "startPlayMode should expose the partner UUID through synced tracked data");
     context.complete();
   }
@@ -51,7 +51,7 @@ public final class PlayModeSyncGameTest implements FabricGameTest {
     dog.getPlaySession().endPlayMode();
 
     context.assertTrue(
-        dog.getPlayPartnerPlayerUuid() == null,
+        dog.getPlaySession().getPlayPartnerPlayerUuid() == null,
         "endPlayMode should clear the synced partner UUID so no stale prediction survives");
     context.complete();
   }
@@ -107,10 +107,10 @@ public final class PlayModeSyncGameTest implements FabricGameTest {
     secondDog.getPlaySession().startPlayMode(player, FetchTypes.STICK);
 
     context.assertTrue(
-        firstDog.getPlayPartnerPlayerUuid() == null,
+        firstDog.getPlaySession().getPlayPartnerPlayerUuid() == null,
         "Starting play mode with a second dog should clear the first dog's synced partner");
     context.assertTrue(
-        player.getUuid().equals(secondDog.getPlayPartnerPlayerUuid()),
+        player.getUuid().equals(secondDog.getPlaySession().getPlayPartnerPlayerUuid()),
         "The second dog should hold the synced partner after takeover");
     context.complete();
   }
@@ -124,7 +124,7 @@ public final class PlayModeSyncGameTest implements FabricGameTest {
     dog.discard();
 
     context.assertTrue(
-        dog.getPlayPartnerPlayerUuid() == null,
+        dog.getPlaySession().getPlayPartnerPlayerUuid() == null,
         "Discarding a play-mode dog should clear its synced partner via endPlayMode");
     context.complete();
   }

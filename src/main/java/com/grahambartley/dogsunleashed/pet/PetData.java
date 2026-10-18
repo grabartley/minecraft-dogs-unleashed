@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.pet;
 
 import com.grahambartley.dogsunleashed.ModNbtKeys;
+import com.grahambartley.dogsunleashed.entity.DogCollar;
 import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
@@ -216,7 +217,7 @@ public final class PetData {
 
   public void syncFrom(final UnleashedDogEntity dog) {
     this.baby = dog.isBaby();
-    this.collarColor = dog.getCollarColor().getId();
+    this.collarColor = dog.getComponents().get(DogCollar.class).getColor().getId();
     this.coatVariant = coatVariantOf(dog);
     this.huskyEyeVariant = huskyEyeVariantOf(dog);
     this.furStage = dog.getFur().stage().ordinal();

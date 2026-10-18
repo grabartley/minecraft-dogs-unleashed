@@ -44,7 +44,7 @@ public final class DogGraveSpawner {
 
     if (world.getBlockEntity(gravePos) instanceof DogGraveBlockEntity graveEntity) {
       graveEntity.setDogUuid(dog.getUuid());
-      graveEntity.setFlowerColor(dog.getCollarColor());
+      graveEntity.setFlowerColor(dog.getComponents().get(DogCollar.class).getColor());
 
       final PetManager petManager = PetManager.get(world.getServer());
       final PetData petData = petManager.getPetByEntityId(dog.getUuid());

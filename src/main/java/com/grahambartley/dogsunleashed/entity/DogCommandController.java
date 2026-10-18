@@ -21,11 +21,12 @@ public final class DogCommandController {
     if (!this.dog.isTamed()) {
       return;
     }
-    if (this.dog.isSleepingInBed() || this.dog.isCommandedToSleep()) {
+    if (this.dog.getSleepController().isSleepingInBed()
+        || this.dog.getSleepController().isCommandedToSleep()) {
       this.dog.getSleepController().markManuallyWoken();
       this.dog.wakeUp();
     }
-    this.dog.setCommandRaw(command);
+    this.dog.getDataTracker().set(UnleashedDogEntity.COMMAND, command.id());
     this.anchorPos = command.isAnchored() ? this.dog.getBlockPos() : null;
     this.dog.setSitting(command == DogCommand.SIT);
     this.dog.stopJumping();
@@ -40,13 +41,13 @@ public final class DogCommandController {
 
   void demoteSitToFollow() {
     if (this.dog.getCommand() == DogCommand.SIT) {
-      this.dog.setCommandRaw(DogCommand.FOLLOW);
+      this.dog.getDataTracker().set(UnleashedDogEntity.COMMAND, DogCommand.FOLLOW.id());
     }
     this.dog.setSitting(false);
   }
 
   void setCommandFromSave(final DogCommand command) {
-    this.dog.setCommandRaw(command);
+    this.dog.getDataTracker().set(UnleashedDogEntity.COMMAND, command.id());
   }
 
   void setAnchorPosFromSave(final BlockPos savedAnchorPos) {

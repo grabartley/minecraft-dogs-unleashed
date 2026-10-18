@@ -9,13 +9,15 @@ final class DogServerTick {
   private DogServerTick() {}
 
   static void run(final UnleashedDogEntity dog) {
-    if (dog.isLeashed() && (dog.isSleepingInBed() || dog.isCommandedToSleep())) {
+    if (dog.isLeashed()
+        && (dog.getSleepController().isSleepingInBed()
+            || dog.getSleepController().isCommandedToSleep())) {
       dog.wakeUp();
     }
     final PlayerEntity nearbyPlayer = dog.getWorld().getClosestPlayer(dog, NEARBY_PLAYER_RANGE);
     dog.getAmbienceEffects().updateSocialCues(nearbyPlayer);
     dog.getVocalization().tick(nearbyPlayer);
-    dog.getTreatBuffState().tick();
+    dog.getComponents().tick();
     dog.getAmbienceEffects().tickShakeOff();
     dog.getUndeadState().tick();
     dog.getCuring().tick();

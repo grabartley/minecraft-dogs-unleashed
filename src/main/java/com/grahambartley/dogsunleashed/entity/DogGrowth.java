@@ -8,7 +8,6 @@ import java.util.Optional;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.pathing.MobNavigation;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
@@ -54,10 +53,6 @@ public final class DogGrowth {
     this.dog = dog;
   }
 
-  public static boolean assignsPackStage(final SpawnReason reason) {
-    return reason == SpawnReason.NATURAL || reason == SpawnReason.CHUNK_GENERATION;
-  }
-
   public boolean applies() {
     return this.dog.getBreed().nature().growsThroughStages();
   }
@@ -65,7 +60,8 @@ public final class DogGrowth {
   public DireWolfGrowthStage stage() {
     return this.dog.isBaby()
         ? DireWolfGrowthStage.PUP
-        : DireWolfGrowthStage.fromNumber(this.dog.getTrackedGrowthStage());
+        : DireWolfGrowthStage.fromNumber(
+            this.dog.getDataTracker().get(UnleashedDogEntity.GROWTH_STAGE));
   }
 
   public int ticksInStage() {
@@ -84,7 +80,7 @@ public final class DogGrowth {
     if (this.dog.isBaby()) {
       this.dog.setBaby(false);
     }
-    this.dog.setTrackedGrowthStage(stage.number());
+    this.dog.getDataTracker().set(UnleashedDogEntity.GROWTH_STAGE, stage.number());
     this.ticksInStage = 0;
     this.refresh();
   }
@@ -233,14 +229,10 @@ public final class DogGrowth {
     return EntityDimensions.changing(stage.width(), stage.height());
   }
 
-  @Nullable
-  EntityData joinPack(final SpawnReason reason, final @Nullable EntityData entityData) {
-    if (!this.applies() || !assignsPackStage(reason)) {
-      return entityData;
+  void joinPack(final @Nullable EntityData packData) {
+    if (this.applies() && packData instanceof WildPackData pack) {
+      this.packMemberIndex = pack.getSpawnedCount();
     }
-    final WildPackData pack = DogPack.startOrJoin(entityData);
-    this.packMemberIndex = pack.getSpawnedCount();
-    return pack;
   }
 
   void settleInPack() {
@@ -259,7 +251,11 @@ public final class DogGrowth {
     }
     this.battlesWon = Math.max(0, battlesWon);
     if (!this.dog.isBaby()) {
-      this.dog.setTrackedGrowthStage(DireWolfGrowthStage.fromNumber(stageNumber).number());
+      this.dog
+          .getDataTracker()
+          .set(
+              UnleashedDogEntity.GROWTH_STAGE,
+              DireWolfGrowthStage.fromNumber(stageNumber).number());
     }
     this.refresh();
     this.ticksInStage = Math.max(0, ticksInStage);
@@ -269,7 +265,8 @@ public final class DogGrowth {
     if (!this.applies()) {
       return;
     }
-    nbt.putInt(ModNbtKeys.GROWTH_STAGE, this.dog.getTrackedGrowthStage());
+    nbt.putInt(
+        ModNbtKeys.GROWTH_STAGE, this.dog.getDataTracker().get(UnleashedDogEntity.GROWTH_STAGE));
     nbt.putInt(ModNbtKeys.GROWTH_TICKS_IN_STAGE, this.ticksInStage);
     nbt.putInt(ModNbtKeys.GROWTH_BATTLES_WON, this.battlesWon);
   }
@@ -278,8 +275,11 @@ public final class DogGrowth {
     if (!this.applies() || !nbt.contains(ModNbtKeys.GROWTH_STAGE, NbtElement.NUMBER_TYPE)) {
       return;
     }
-    this.dog.setTrackedGrowthStage(
-        DireWolfGrowthStage.fromNumber(nbt.getInt(ModNbtKeys.GROWTH_STAGE)).number());
+    this.dog
+        .getDataTracker()
+        .set(
+            UnleashedDogEntity.GROWTH_STAGE,
+            DireWolfGrowthStage.fromNumber(nbt.getInt(ModNbtKeys.GROWTH_STAGE)).number());
     this.ticksInStage = Math.max(0, nbt.getInt(ModNbtKeys.GROWTH_TICKS_IN_STAGE));
     this.battlesWon = Math.max(0, nbt.getInt(ModNbtKeys.GROWTH_BATTLES_WON));
     this.dog.calculateDimensions();

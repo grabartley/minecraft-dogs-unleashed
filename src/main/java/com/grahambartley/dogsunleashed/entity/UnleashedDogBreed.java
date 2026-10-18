@@ -26,7 +26,6 @@ public enum UnleashedDogBreed {
           10,
           2,
           4,
-          false,
           BiomeKeys.SNOWY_TAIGA,
           BiomeKeys.SNOWY_PLAINS,
           BiomeKeys.ICE_SPIKES,
@@ -47,8 +46,7 @@ public enum UnleashedDogBreed {
           new CarryProfile(0.021, 0.24)),
       new SpawnEggColors(0xA0673F, 0xDC8847),
       new Dimensions(0.8f, 1.1f),
-      new SpawnSettings(
-          10, 1, 2, false, BiomeKeys.PLAINS, BiomeKeys.SUNFLOWER_PLAINS, BiomeKeys.MEADOW),
+      new SpawnSettings(10, 1, 2, BiomeKeys.PLAINS, BiomeKeys.SUNFLOWER_PLAINS, BiomeKeys.MEADOW),
       new Attributes(10.0, 0.25, 2.0),
       new Voice(false, () -> ModSounds.DACHSHUND_BARK, null, null, false),
       false,
@@ -67,7 +65,6 @@ public enum UnleashedDogBreed {
           10,
           1,
           3,
-          false,
           BiomeKeys.FLOWER_FOREST,
           BiomeKeys.FOREST,
           BiomeKeys.BIRCH_FOREST,
@@ -87,7 +84,7 @@ public enum UnleashedDogBreed {
           new CarryProfile(-0.029, -0.205)),
       new SpawnEggColors(0xDAA06D, 0xF5DEB3),
       new Dimensions(0.8f, 1.1f),
-      new SpawnSettings(10, 1, 3, false, BiomeKeys.BEACH),
+      new SpawnSettings(10, 1, 3, BiomeKeys.BEACH),
       new Attributes(24.0, 0.30, 4.0),
       new Voice(false, () -> ModSounds.GOLDEN_RETRIEVER_BARK, null, null, false),
       false,
@@ -102,7 +99,7 @@ public enum UnleashedDogBreed {
           new CarryProfile(-0.016, -0.178)),
       new SpawnEggColors(0xCE8346, 0xF5DEB3),
       new Dimensions(0.8f, 1.1f),
-      new SpawnSettings(10, 1, 2, false, BiomeKeys.CHERRY_GROVE),
+      new SpawnSettings(10, 1, 2, BiomeKeys.CHERRY_GROVE),
       new Attributes(18.0, 0.32, 3.5),
       new Voice(false, () -> ModSounds.SHIBA_INU_BARK, null, null, false),
       false,
@@ -119,9 +116,8 @@ public enum UnleashedDogBreed {
       new Dimensions(0.8f, 1.1f),
       new SpawnSettings(
           2,
-          5,
-          10,
-          true,
+          1,
+          1,
           BiomeKeys.ICE_SPIKES,
           BiomeKeys.FROZEN_PEAKS,
           BiomeKeys.JAGGED_PEAKS,
@@ -141,7 +137,7 @@ public enum UnleashedDogBreed {
           .breedingOnlyWithOwnBreed()
           .growingThroughStages()
           .sleepingOutsideBeds()
-          .huntingInPacks()
+          .livingInPacks()
           .tamingThroughTrust()),
   CROSS_BREED(
       "crossbreed",
@@ -323,11 +319,7 @@ public enum UnleashedDogBreed {
   public record Dimensions(float width, float height) {}
 
   public record SpawnSettings(
-      int weight,
-      int minGroupSize,
-      int maxGroupSize,
-      boolean packOnly,
-      RegistryKey<Biome>... biomes) {}
+      int weight, int minGroupSize, int maxGroupSize, RegistryKey<Biome>... biomes) {}
 
   public record Attributes(double maxHealth, double movementSpeed, double attackDamage) {}
 
@@ -348,7 +340,7 @@ public enum UnleashedDogBreed {
       boolean breedsOnlyWithOwnBreed,
       boolean growsThroughStages,
       boolean sleepsInBeds,
-      boolean huntsInPacks,
+      boolean livesInPacks,
       boolean tamesThroughTrust) {
     public static final Nature ORDINARY = new Nature(3, false, false, true, false, false);
 
@@ -358,7 +350,7 @@ public enum UnleashedDogBreed {
           true,
           growsThroughStages,
           sleepsInBeds,
-          huntsInPacks,
+          livesInPacks,
           tamesThroughTrust);
     }
 
@@ -368,7 +360,7 @@ public enum UnleashedDogBreed {
           breedsOnlyWithOwnBreed,
           true,
           sleepsInBeds,
-          huntsInPacks,
+          livesInPacks,
           tamesThroughTrust);
     }
 
@@ -378,11 +370,11 @@ public enum UnleashedDogBreed {
           breedsOnlyWithOwnBreed,
           growsThroughStages,
           false,
-          huntsInPacks,
+          livesInPacks,
           tamesThroughTrust);
     }
 
-    public Nature huntingInPacks() {
+    public Nature livingInPacks() {
       return new Nature(
           tameSuccessChance,
           breedsOnlyWithOwnBreed,
@@ -398,7 +390,7 @@ public enum UnleashedDogBreed {
           breedsOnlyWithOwnBreed,
           growsThroughStages,
           sleepsInBeds,
-          huntsInPacks,
+          livesInPacks,
           true);
     }
   }

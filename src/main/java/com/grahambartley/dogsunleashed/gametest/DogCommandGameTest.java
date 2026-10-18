@@ -98,13 +98,16 @@ public final class DogCommandGameTest implements FabricGameTest {
     final UnleashedDogEntity dog = spawnOwnedDog(context, relPos);
     dog.setAiDisabled(true);
     final BlockPos absPos = context.getAbsolutePos(relPos);
-    dog.setAssignedBedPos(absPos);
+    dog.getSleepController().setAssignedBedPos(absPos);
     dog.getSleepController().startSleepingInBed(absPos);
 
     dog.getCommandController().apply(DogCommand.HEEL);
 
-    context.assertFalse(dog.isSleepingInBed(), "Issuing a command should wake a sleeping dog");
-    context.assertFalse(dog.isCommandedToSleep(), "Issuing a command should clear commanded sleep");
+    context.assertFalse(
+        dog.getSleepController().isSleepingInBed(), "Issuing a command should wake a sleeping dog");
+    context.assertFalse(
+        dog.getSleepController().isCommandedToSleep(),
+        "Issuing a command should clear commanded sleep");
     context.assertTrue(dog.getCommand() == DogCommand.HEEL, "Command should be HEEL");
     context.complete();
   }

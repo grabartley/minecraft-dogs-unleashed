@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.WildPackFounding;
 import com.grahambartley.dogsunleashed.mixin.ServerWorldSpawnersAccessor;
 import com.grahambartley.dogsunleashed.spawner.DogSpawner;
 import java.util.ArrayList;
@@ -35,20 +36,21 @@ public class ModSpawns {
           ModEntities.getDogEntityType(breed),
           SpawnLocationTypes.ON_GROUND,
           Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
-          UnleashedDogEntity::canSpawn);
-      if (spawnSettings.packOnly()) {
-        continue;
-      }
+          (type, world, reason, pos, random) ->
+              UnleashedDogEntity.canSpawn(type, world, reason, pos, random)
+                  && WildPackFounding.hasRoomForPack(breed, type, world, reason, pos));
       spawnModification.add(
           ModificationPhase.ADDITIONS,
           BiomeSelectors.includeByKey(spawnSettings.biomes()),
           context -> {
             final DogsUnleashedConfig config = DogsUnleashed.SERVER_CONFIG;
-            if (!config.enableNaturalSpawning()) {
+            if (!config.spawning().enableNaturalSpawning()) {
               return;
             }
             final int weight =
-                config.effectiveSpawnWeight(spawnSettings.weight(), breed.serializedId());
+                config
+                    .spawning()
+                    .effectiveSpawnWeight(spawnSettings.weight(), breed.serializedId());
             if (weight == 0) {
               return;
             }

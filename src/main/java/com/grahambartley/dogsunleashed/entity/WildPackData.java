@@ -7,8 +7,8 @@ public final class WildPackData extends PassiveEntity.PassiveData {
 
   private final UUID packId;
 
-  WildPackData(final UUID packId) {
-    super(false);
+  WildPackData(final UUID packId, final boolean babyAllowed) {
+    super(babyAllowed);
     this.packId = packId;
   }
 

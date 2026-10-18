@@ -11,6 +11,7 @@ import com.grahambartley.dogsunleashed.network.payload.RequestDogConnectionsPayl
 import com.grahambartley.dogsunleashed.network.payload.RequestPetManagerStatePayload;
 import com.grahambartley.dogsunleashed.network.payload.RequestPetsPayload;
 import com.grahambartley.dogsunleashed.network.payload.SelectWheelActionPayload;
+import com.grahambartley.dogsunleashed.network.payload.SelectWheelSubActionPayload;
 import com.grahambartley.dogsunleashed.network.payload.SetPetNamePayload;
 import com.grahambartley.dogsunleashed.network.payload.SummonPetPayload;
 import com.grahambartley.dogsunleashed.network.payload.SyncDogConnectionsPayload;
@@ -105,6 +106,10 @@ public final class ModNetworkingClient {
 
   public static void sendSelectWheelAction(UUID dogId, DogWheelAction action) {
     ClientPlayNetworking.send(new SelectWheelActionPayload(dogId, action.id()));
+  }
+
+  public static void sendSelectWheelSubAction(UUID dogId, int subActionId) {
+    ClientPlayNetworking.send(new SelectWheelSubActionPayload(dogId, subActionId));
   }
 
   public static void sendSetPetName(UUID petId, String name) {
