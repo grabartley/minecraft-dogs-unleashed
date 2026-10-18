@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityPose;
@@ -38,6 +39,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.Registries;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -146,7 +148,9 @@ public class UnleashedDogEntity extends DogMountEntity
       final SpawnReason spawnReason,
       final BlockPos pos,
       final Random random) {
-    return world.getBlockState(pos.down()).isIn(ModBlockTags.DOGS_SPAWNABLE_ON)
+    final BlockState ground = world.getBlockState(pos.down());
+    return (ground.isIn(ModBlockTags.DOGS_SPAWNABLE_ON)
+            || ground.isIn(ModBlockTags.spawnableOn(Registries.ENTITY_TYPE.getId(type))))
         && isLightLevelValidForNaturalSpawn(world, pos);
   }
 

@@ -1,10 +1,12 @@
 package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModBlockTags;
+import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
 import java.util.List;
+import java.util.function.Function;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -30,6 +32,7 @@ public final class DogSpawnPredicateGameTest implements FabricGameTest {
           new SurfaceCase(Blocks.SNOW_BLOCK, true),
           new SurfaceCase(Blocks.COARSE_DIRT, true),
           new SurfaceCase(Blocks.PODZOL, true),
+          new SurfaceCase(Blocks.SAND, false),
           new SurfaceCase(Blocks.STONE, false));
 
   @CustomTestProvider
@@ -61,8 +64,20 @@ public final class DogSpawnPredicateGameTest implements FabricGameTest {
     return generatePerBreed("rejectsstone", new SurfaceCase(Blocks.STONE, false));
   }
 
+  @CustomTestProvider
+  public List<TestFunction> spawnPredicateAcceptsSandOnlyForGoldenRetrieversPerBreed() {
+    return generatePerBreed(
+        "sand",
+        data -> new SurfaceCase(Blocks.SAND, data.breed() == UnleashedDogBreed.GOLDEN_RETRIEVER));
+  }
+
   private List<TestFunction> generatePerBreed(
       final String behavior, final SurfaceCase surfaceCase) {
+    return generatePerBreed(behavior, data -> surfaceCase);
+  }
+
+  private List<TestFunction> generatePerBreed(
+      final String behavior, final Function<DogTestData, SurfaceCase> surfaceCaseFor) {
     return DogTestData.getAllBreeds().stream()
         .map(
             data ->
@@ -71,7 +86,7 @@ public final class DogSpawnPredicateGameTest implements FabricGameTest {
                     "dogspawnpredicatetest." + behavior + "." + data.breed().serializedId(),
                     ARENA,
                     TICK_LIMIT,
-                    ctx -> testSpawnPredicate(ctx, data, surfaceCase)))
+                    ctx -> testSpawnPredicate(ctx, data, surfaceCaseFor.apply(data))))
         .toList();
   }
 
