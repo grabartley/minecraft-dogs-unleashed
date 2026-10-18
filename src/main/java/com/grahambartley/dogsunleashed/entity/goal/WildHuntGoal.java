@@ -2,15 +2,19 @@ package com.grahambartley.dogsunleashed.entity.goal;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.WildPackRules;
+import java.util.Map;
+import java.util.WeakHashMap;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 public class WildHuntGoal extends OwnTargetGoal<LivingEntity> {
 
   private static final int TARGET_CHANCE = 10;
+  private static final Map<World, PenMemory> PEN_MEMORIES = new WeakHashMap<>();
 
   private final UnleashedDogEntity dog;
 
@@ -42,12 +46,19 @@ public class WildHuntGoal extends OwnTargetGoal<LivingEntity> {
   }
 
   static boolean isPenned(final LivingEntity target) {
+    final World world = target.getWorld();
     final BlockPos center = target.getBlockPos();
+    return PEN_MEMORIES
+        .computeIfAbsent(world, ignored -> new PenMemory())
+        .isPenned(center.asLong(), world.getTime(), () -> scanForPen(world, center));
+  }
+
+  private static boolean scanForPen(final World world, final BlockPos center) {
     for (final BlockPos pos :
         BlockPos.iterate(
             center.add(-WildPackRules.PEN_RANGE, -1, -WildPackRules.PEN_RANGE),
             center.add(WildPackRules.PEN_RANGE, 1, WildPackRules.PEN_RANGE))) {
-      final BlockState state = target.getWorld().getBlockState(pos);
+      final BlockState state = world.getBlockState(pos);
       if (state.isIn(BlockTags.FENCES)
           || state.isIn(BlockTags.FENCE_GATES)
           || state.isIn(BlockTags.WALLS)) {
