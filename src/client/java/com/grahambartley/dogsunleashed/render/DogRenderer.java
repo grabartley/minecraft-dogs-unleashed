@@ -51,7 +51,7 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
   public DogRenderer(EntityRendererFactory.Context context) {
     super(context, new DogModel());
     this.addRenderLayer(new DogCollarLayer(this));
-    this.addRenderLayer(new DogCarryFetchItemLayer<>(this));
+    this.addRenderLayer(new DogCarryFetchItemLayer(this));
     this.addRenderLayer(new UndeadEyeGlowLayer(this));
     this.addRenderLayer(new DogFurOverlayLayer(this));
     this.addRenderLayer(new DogSheetOverlayLayer(this));

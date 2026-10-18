@@ -11,7 +11,7 @@ import software.bernie.geckolib.cache.object.GeoVertex;
 
 public final class CubeGeometry {
 
-  private static final float MODEL_UNITS_PER_BLOCK = 16.0f;
+  public static final float MODEL_UNITS_PER_BLOCK = 16.0f;
   static final float DETAIL_EXTENT = 0.7f / MODEL_UNITS_PER_BLOCK;
 
   private CubeGeometry() {}

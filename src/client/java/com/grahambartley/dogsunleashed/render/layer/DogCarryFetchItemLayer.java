@@ -5,7 +5,6 @@ import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.block.entity.FrisbeeBlockEntity;
 import com.grahambartley.dogsunleashed.block.entity.StickBlockEntity;
 import com.grahambartley.dogsunleashed.block.entity.TennisBallBlockEntity;
-import com.grahambartley.dogsunleashed.entity.CarryProfile;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
@@ -28,10 +27,9 @@ import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoBlockRenderer;
-import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
 
-public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockAndItemGeoLayer<T> {
+public class DogCarryFetchItemLayer extends BlockAndItemGeoLayer<UnleashedDogEntity> {
   private static final int FULL_BRIGHT_COLOR = 0xFFFFFFFF;
   private static final float NO_PARTIAL_TICK = 1.0f;
 
@@ -41,9 +39,11 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
   private final StickBlockEntity stickDummy;
   private final GeoBlockRenderer<FrisbeeBlockEntity> frisbeeRenderer;
   private final FrisbeeBlockEntity frisbeeDummy;
+  private final DogRenderer dogRenderer;
 
-  public DogCarryFetchItemLayer(GeoRenderer<T> renderer) {
+  public DogCarryFetchItemLayer(DogRenderer renderer) {
     super(renderer);
+    this.dogRenderer = renderer;
     this.tennisBallRenderer = new GeoBlockRenderer<>(new TennisBallModel());
     this.tennisBallDummy =
         new TennisBallBlockEntity(BlockPos.ORIGIN, ModBlocks.TENNIS_BALL.getDefaultState());
@@ -55,7 +55,7 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
   }
 
   @Override
-  protected ItemStack getStackForBone(GeoBone bone, T animatable) {
+  protected ItemStack getStackForBone(GeoBone bone, UnleashedDogEntity animatable) {
     if (animatable.isInvisible() || !animatable.getFetchCarry().isCarrying()) {
       return null;
     }
@@ -79,7 +79,7 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
       MatrixStack poseStack,
       GeoBone bone,
       ItemStack stack,
-      T animatable,
+      UnleashedDogEntity animatable,
       VertexConsumerProvider bufferSource,
       float partialTick,
       int packedLight,
@@ -88,26 +88,22 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
     if (fetchType == null) {
       return;
     }
-    final CarryProfile profile = animatable.getRigSourceBreed().carryProfileFor(fetchType);
     final double forward = forwardOf(animatable);
     final Vec3d grip = MouthGrip.of(bone, forward);
-    final ToyHold toyHold = ToyHold.forToy(fetchType.id().getPath());
-    final Vec3d hold = toyHold.point(forward);
-    poseStack.translate(
-        grip.x, grip.y + profile.verticalOffset(), grip.z + forward * profile.forwardOffset());
+    poseStack.translate(grip.x, grip.y, grip.z);
     final float toyScale =
         CarriedToySize.scaleInFrame(
-            profile.scale(),
+            animatable.getRigSourceBreed().carryProfileFor(fetchType).scale(),
             animatable.getRigSourceBreed().renderTransforms().adultScale(),
-            scaleBelowEntityRoot(poseStack));
-    poseStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(toyHold.droopDegrees(forward)));
-    poseStack.scale(toyScale, toyScale, toyScale);
-    poseStack.translate(-hold.x, -hold.y, -hold.z);
+            this.dogRenderer.scaleBelowEntityRoot(poseStack.peek().getPositionMatrix()));
+    final Placement placement =
+        new Placement(ToyHold.forToy(fetchType.id().getPath()), forward, toyScale);
 
     if (fetchType == FetchTypes.TENNIS_BALL) {
       renderGeo(
           tennisBallRenderer,
           tennisBallDummy,
+          placement,
           poseStack,
           bufferSource,
           packedLight,
@@ -119,6 +115,7 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
       renderGeo(
           stickRenderer,
           stickDummy,
+          placement,
           poseStack,
           bufferSource,
           packedLight,
@@ -131,19 +128,19 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
       frisbeeDummy.setColor(color);
       int tint = color.getEntityColor() | 0xFF000000;
       renderGeo(
-          frisbeeRenderer, frisbeeDummy, poseStack, bufferSource, packedLight, packedOverlay, tint);
+          frisbeeRenderer,
+          frisbeeDummy,
+          placement,
+          poseStack,
+          bufferSource,
+          packedLight,
+          packedOverlay,
+          tint);
       return;
     }
 
     super.renderStackForBone(
         poseStack, bone, stack, animatable, bufferSource, partialTick, packedLight, packedOverlay);
-  }
-
-  private float scaleBelowEntityRoot(final MatrixStack poseStack) {
-    if (getRenderer() instanceof DogRenderer dogRenderer) {
-      return dogRenderer.scaleBelowEntityRoot(poseStack.peek().getPositionMatrix());
-    }
-    return 1.0f;
   }
 
   private static double forwardOf(final UnleashedDogEntity dog) {
@@ -154,6 +151,7 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
   private static <A extends BlockEntity & GeoAnimatable> void renderGeo(
       GeoBlockRenderer<A> renderer,
       A animatable,
+      Placement placement,
       MatrixStack poseStack,
       VertexConsumerProvider bufferSource,
       int packedLight,
@@ -161,6 +159,7 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
       int color) {
     var geoModel = renderer.getGeoModel();
     BakedGeoModel bakedModel = geoModel.getBakedModel(geoModel.getModelResource(animatable));
+    placement.apply(poseStack, bakedModel);
     RenderLayer renderType =
         renderer.getRenderType(
             animatable, renderer.getTextureLocation(animatable), bufferSource, NO_PARTIAL_TICK);
@@ -177,5 +176,15 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
         packedLight,
         packedOverlay,
         color);
+  }
+
+  private record Placement(ToyHold hold, double forward, float scale) {
+    void apply(final MatrixStack poseStack, final BakedGeoModel toy) {
+      final Vec3d point = this.hold.point(ToyBounds.of(toy), this.forward);
+      poseStack.multiply(
+          RotationAxis.POSITIVE_X.rotationDegrees(this.hold.droopDegrees(this.forward)));
+      poseStack.scale(this.scale, this.scale, this.scale);
+      poseStack.translate(-point.x, -point.y, -point.z);
+    }
   }
 }
