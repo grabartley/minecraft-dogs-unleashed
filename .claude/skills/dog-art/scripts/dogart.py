@@ -13,7 +13,7 @@ Commands:
   tobbmodel  geo png out.bbmodel [--name N]
   geocompare a.geo.json b.geo.json [--tolerance T]
   animexport project.bbmodel out.animation.json [--step S]
-  animimport project.bbmodel in.animation.json out.bbmodel
+  animimport project.bbmodel in.animation.json out.bbmodel [--replace]
   tidygeo    in.geo.json out.geo.json [--places N]
 
 The rig profile beside the geo (rig_profiles/<name>.json) is read by default. Bones in its eyes slot are
@@ -54,7 +54,12 @@ def profile_for(args):
 def rig(args, hide=True):
     profile = profile_for(args)
     hidden = bake.hidden_bones(profile, getattr(args, "asleep", False), getattr(args, "fur_stage", "natural")) if hide else ()
-    poses = bake.closed_eyes(profile, bake.animation_path_for(args.geo)) if getattr(args, "asleep", False) else {}
+    poses = {}
+    if getattr(args, "asleep", False):
+        poses = bake.closed_eyes(profile, bake.animation_path_for(args.geo))
+        open_lids = sorted(set(profile.get("eyes", [])) - set(poses))
+        if open_lids:
+            print(f"no sleep pose found for {', '.join(open_lids)}, so they stay open", file=sys.stderr)
     description, cubes = bake.cubes_of(args.geo, profile, hidden, poses)
     return description.get("texture_width", 64), description.get("texture_height", 64), cubes
 
@@ -232,12 +237,18 @@ def cmd_animexport(args):
 def cmd_animimport(args):
     project = anim.load_project(args.project)
     with open(args.animations) as handle:
-        skipped = anim.import_animations(project, json.load(handle))
+        try:
+            skipped, eased = anim.import_animations(project, json.load(handle), args.replace)
+        except ValueError as error:
+            print(f"{error}; pass --replace to drop them", file=sys.stderr)
+            return 1
     with open(args.out, "w") as handle:
         json.dump(project, handle)
     print(f"wrote {args.out}: {', '.join(clip['name'] for clip in project['animations'])}")
     if skipped:
         print(f"skipped bones the project lacks: {', '.join(skipped)}")
+    if eased:
+        print(f"catmullrom is a spline in Blockbench but an ease per segment in GeckoLib, so these play differently there: {', '.join(eased)}")
 
 
 def add_rig_options(parser):
@@ -341,6 +352,7 @@ def main(argv=None):
     p.add_argument("project")
     p.add_argument("animations")
     p.add_argument("out")
+    p.add_argument("--replace", action="store_true", help="drop clips the project already has")
     p.set_defaults(func=cmd_animimport)
 
     args = parser.parse_args(argv)

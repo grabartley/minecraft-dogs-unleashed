@@ -16,7 +16,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -27,12 +26,9 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import software.bernie.geckolib.animation.Animation;
 import software.bernie.geckolib.animation.keyframe.BoneAnimation;
-import software.bernie.geckolib.animation.keyframe.Keyframe;
-import software.bernie.geckolib.animation.keyframe.KeyframeStack;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.cache.object.GeoCube;
-import software.bernie.geckolib.loading.math.MathValue;
 
 class RigProfilesTest {
 
@@ -205,6 +201,7 @@ class RigProfilesTest {
     final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
     for (final String lid : BUNDLED.profileOf(rig).bonesIn(Slot.EYES)) {
       final GeoBone bone = model.getBone(lid).orElseThrow();
+      assertNotNull(bone.getParent(), rig + " " + lid + " has no parent");
       for (final GeoCube cube : bone.getCubes()) {
         final List<Vector3f> corners = ShippedRigs.liveCorners(bone, cube);
         assertTrue(
@@ -223,24 +220,30 @@ class RigProfilesTest {
   void idleBlinksToTheSleepPose(final UnleashedDogBreed rig) {
     final Animation sleep = ShippedRigs.animation(rig.serializedId(), "sleep");
     final Animation idle = ShippedRigs.animation(rig.serializedId(), "idle");
+    assertNotNull(sleep, rig + " has no sleep clip");
+    assertNotNull(idle, rig + " has no idle clip");
     for (final String lid : BUNDLED.profileOf(rig).bonesIn(Slot.EYES)) {
-      final BoneAnimation asleep = boneAnimation(sleep, lid);
-      final BoneAnimation blink = boneAnimation(idle, lid);
+      final BoneAnimation asleep = ShippedRigs.boneAnimation(sleep, lid);
+      final BoneAnimation blink = ShippedRigs.boneAnimation(idle, lid);
       assertNotNull(asleep, rig + " sleep leaves " + lid + " open");
       assertNotNull(blink, rig + " idle never blinks " + lid);
-      final List<Vector3f> closedPosition = values(asleep.positionKeyFrames());
-      final List<Vector3f> closedScale = values(asleep.scaleKeyFrames());
+      assertTrue(
+          ShippedRigs.keyframeValues(asleep.rotationKeyFrames()).isEmpty()
+              && ShippedRigs.keyframeValues(blink.rotationKeyFrames()).isEmpty(),
+          rig + " turns " + lid + " to close it, but a closed pose is only a position and a scale");
+      final List<Vector3f> closedPosition = ShippedRigs.keyframeValues(asleep.positionKeyFrames());
+      final List<Vector3f> closedScale = ShippedRigs.keyframeValues(asleep.scaleKeyFrames());
       assertFalse(
           closedPosition.isEmpty() && closedScale.isEmpty(),
           rig + " sleep leaves " + lid + " open");
       assertBlinksTo(
           rig + " " + lid + " position",
-          values(blink.positionKeyFrames()),
+          ShippedRigs.keyframeValues(blink.positionKeyFrames()),
           closedPosition,
           new Vector3f());
       assertBlinksTo(
           rig + " " + lid + " scale",
-          values(blink.scaleKeyFrames()),
+          ShippedRigs.keyframeValues(blink.scaleKeyFrames()),
           closedScale,
           new Vector3f(1.0f));
     }
@@ -316,34 +319,9 @@ class RigProfilesTest {
     return a.distance(b) < 1.0e-4f;
   }
 
-  private static BoneAnimation boneAnimation(final Animation animation, final String bone) {
-    return Arrays.stream(animation.boneAnimations())
-        .filter(candidate -> candidate.boneName().equals(bone))
-        .findFirst()
-        .orElse(null);
-  }
-
-  private static List<Vector3f> values(final KeyframeStack<Keyframe<MathValue>> stack) {
-    final List<Keyframe<MathValue>> xs = stack.xKeyframes();
-    final List<Keyframe<MathValue>> ys = stack.yKeyframes();
-    final List<Keyframe<MathValue>> zs = stack.zKeyframes();
-    return IntStream.range(0, xs.size())
-        .mapToObj(
-            i ->
-                new Vector3f(
-                    (float) xs.get(i).endValue().get(),
-                    (float) ys.get(i).endValue().get(),
-                    (float) zs.get(i).endValue().get()))
-        .toList();
-  }
-
   private static boolean encloses(
       final GeoCube head, final Matrix4f pose, final List<Vector3f> corners) {
-    final CubeGeometry.Bounds box = new CubeGeometry.Bounds();
-    Arrays.stream(head.quads())
-        .filter(quad -> quad != null)
-        .flatMap(quad -> Arrays.stream(quad.vertices()))
-        .forEach(vertex -> box.include(new Vector3f(vertex.position())));
+    final CubeGeometry.Bounds box = CubeGeometry.localBoundsOf(head);
     final Matrix4f toHead = new Matrix4f(pose).invert();
     final float margin = 0.5f / 16.0f / 16.0f;
     return corners.stream()

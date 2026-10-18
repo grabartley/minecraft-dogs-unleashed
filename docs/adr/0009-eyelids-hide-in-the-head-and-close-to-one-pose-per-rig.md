@@ -14,8 +14,8 @@ Any later clip that closes the eyes, such as a wink, closed eyes while being pet
 Every rig sets up its eyelids the same way:
 
 - The lid bones are children of the head and are listed under `eyes` in the rig profile. Paired lids are `eyelid_left` and `eyelid_right`. A rig whose two lids are one cube calls it `eyelids`.
-- At rest the lids sit inside the head, so the eyes are open. A clip that keeps the eyes open does not key the lids at all.
-- Closed is one pose per rig: a position offset, plus a scale where a lid is parked smaller than it shows. Every clip that closes the eyes uses that pose. `sleep` holds it and `idle` blinks to it once a loop.
+- At rest the lids sit inside the head, so the eyes are open. A clip that does not close the eyes needs no lid keys.
+- Closed is one pose per rig: a position offset, plus a scale where a lid is parked smaller than it shows. Every clip that closes the eyes uses that pose. `sleep` holds it and `idle` blinks to it once a loop. A clip may still pose the lids some other way on purpose, as the dire wolf's `growl` tilts them into a scowl.
 
 The five older rigs were moved onto this setup without changing how they look asleep. Each closed pose was worked out from the old sleep poses with GeckoLib's own bone transforms, so the closed lids land where they did before, with the same texels. Lids that fit inside the head are parked at its centre. The beagle's lid is as big as its head, so it is parked at half size and scaled back up to close.
 

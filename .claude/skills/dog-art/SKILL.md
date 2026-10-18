@@ -179,9 +179,10 @@ assumption that produced it: the reference is always the shipped asset on `main`
 - Every rig sets up its eyelids the same way (ADR 0009). The bones are children of the head and
   listed under `eyes` in the profile, named `eyelid_left` and `eyelid_right`, or `eyelids` when
   one cube carries both lids. At rest they sit inside the head, so the eyes are open and a clip
-  that keeps them open does not key the lids at all. Closed is one pose per rig, a position
-  offset plus a scale where a lid is parked smaller than it shows, and every clip that closes the
-  eyes uses that pose: `sleep` holds it and `idle` blinks to it. `RigProfilesTest` fails when a
+  that does not close them needs no lid keys. Closed is one pose per rig, a position offset plus
+  a scale where a lid is parked smaller than it shows, and every clip that closes the eyes uses
+  that pose: `sleep` holds it and `idle` blinks to it. A clip may pose the lids another way on
+  purpose, as the dire wolf's `growl` tilts them into a scowl. `RigProfilesTest` fails when a
   lid is not a head child, pokes out of the head at rest, or blinks to a different pose than it
   sleeps in, and `UndeadDogEyesTest` fails when the closed lids miss the pupils.
 - Zero-width cubes are flat planes and the artist uses them: the shiba inu carries six `fur`
@@ -219,8 +220,8 @@ the proportions of every shipped breed.
 
 ## Known Limits
 
-- Rest pose only, with the fur slots hidden the way the client does. The only animation read is
-  the closed-eye pose for `--asleep`, so a pose-dependent clip (an ear through a cheek when
+- Rest pose only, with the fur slots hidden the way the client does and the eyelids left out
+  unless `--asleep`. The only animation read is the closed-eye pose for `--asleep`, so a pose-dependent clip (an ear through a cheek when
   sitting) only shows in game or in `bbmodel_render` with a clip.
 - Face brightness is the block ramp, not entity lighting. Judge tone relationships, not absolute
   brightness.

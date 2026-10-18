@@ -105,7 +105,7 @@ def export_animations(project, step=0.05, tolerance=0.2):
 
 
 def fmt(time):
-    text = f"{time:.4f}".rstrip("0").rstrip(".")
+    text = fmt_number(time)
     return text if "." in text else text + ".0"
 
 
@@ -129,10 +129,13 @@ def point_of(frame):
     return [float(v) for v in frame]
 
 
-def import_animations(project, animations):
+def import_animations(project, animations, replace=False):
+    if project.get("animations") and not replace:
+        raise ValueError(f"the project already has clips: {', '.join(c['name'] for c in project['animations'])}")
     v5 = is_v5(project)
     groups = {group["name"]: group["uuid"] for group in project.get("groups", [])}
     skipped = set()
+    eased = set()
     clips = []
     for name, clip in animations["animations"].items():
         animators = {}
@@ -146,13 +149,14 @@ def import_animations(project, animations):
                  "data_points": [dict(zip("xyz", (fmt_number(v) for v in to_geckolib(value, channel, v5))))]}
                 for channel in CHANNELS if channel in channels
                 for time, value, interpolation in track_keys(channels[channel])]
+            eased.update(f"{name} {bone}" for k in keyframes if k["interpolation"] == "catmullrom")
             animators[groups[bone]] = {"name": bone, "type": "bone", "keyframes": keyframes}
         clips.append({"uuid": str(uuid.uuid4()), "name": name, "loop": LOOP_NAMES.get(clip.get("loop"), "once"),
                       "override": False, "length": float(clip.get("animation_length", 0)), "snapping": 24,
                       "selected": False, "anim_time_update": "", "blend_weight": "", "start_delay": "",
                       "loop_delay": "", "animators": animators})
     project["animations"] = clips
-    return sorted(skipped)
+    return sorted(skipped), sorted(eased)
 
 
 def fmt_number(value):

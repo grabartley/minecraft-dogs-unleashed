@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 import javax.imageio.ImageIO;
 import net.minecraft.client.util.math.MatrixStack;
 import org.joml.Matrix4f;
@@ -52,6 +53,27 @@ public final class ShippedRigs {
             json("animations/" + rig + ".animation.json").getAsJsonObject("animations"),
             BakedAnimations.class);
     return animations.getAnimation(animationName);
+  }
+
+  public static BoneAnimation boneAnimation(final Animation animation, final String bone) {
+    return Arrays.stream(animation.boneAnimations())
+        .filter(candidate -> candidate.boneName().equals(bone))
+        .findFirst()
+        .orElse(null);
+  }
+
+  public static List<Vector3f> keyframeValues(final KeyframeStack<Keyframe<MathValue>> stack) {
+    final List<Keyframe<MathValue>> xs = stack.xKeyframes();
+    final List<Keyframe<MathValue>> ys = stack.yKeyframes();
+    final List<Keyframe<MathValue>> zs = stack.zKeyframes();
+    return IntStream.range(0, xs.size())
+        .mapToObj(
+            i ->
+                new Vector3f(
+                    (float) xs.get(i).endValue().get(),
+                    (float) ys.get(i).endValue().get(),
+                    (float) zs.get(i).endValue().get()))
+        .toList();
   }
 
   public static void pose(final BakedGeoModel model, final String rig, final String animationName) {

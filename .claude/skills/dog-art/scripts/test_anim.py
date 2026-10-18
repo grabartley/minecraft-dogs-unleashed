@@ -102,11 +102,21 @@ class AnimationImport(unittest.TestCase):
         idle, sleep = target["animations"]
         scale = [k for k in idle["animators"]["id"]["keyframes"] if k["channel"] == "scale"]
         self.assertEqual(scale[0]["interpolation"], "catmullrom")
+        self.assertEqual(anim.import_animations(self.target(), self.geckolib())[1], ["idle tail"])
         self.assertEqual((idle["loop"], idle["length"]), ("loop", 2.0))
         self.assertEqual(sleep["loop"], "hold")
 
     def test_reports_bones_the_project_lacks(self):
-        self.assertEqual(anim.import_animations(self.target(), self.geckolib()), ["missing"])
+        self.assertEqual(anim.import_animations(self.target(), self.geckolib())[0], ["missing"])
+
+    def test_keeps_existing_clips_unless_told_to_replace_them(self):
+        target = self.target()
+        target["animations"] = [{"name": "walk"}]
+        with self.assertRaises(ValueError):
+            anim.import_animations(target, self.geckolib())
+        self.assertEqual(target["animations"], [{"name": "walk"}])
+        anim.import_animations(target, self.geckolib(), replace=True)
+        self.assertEqual([clip["name"] for clip in target["animations"]], ["idle", "sleep"])
 
 
 if __name__ == "__main__":
