@@ -7,6 +7,7 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.model.DogModel;
 import com.grahambartley.dogsunleashed.render.fur.FurLook;
 import com.grahambartley.dogsunleashed.render.growth.GrowthRigScale;
+import com.grahambartley.dogsunleashed.render.layer.CarriedToySize;
 import com.grahambartley.dogsunleashed.render.layer.DogArmourLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogCarryFetchItemLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogCollarLayer;
@@ -43,6 +44,7 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
   private DogFurStage frameStage = DogFurStage.NATURAL;
   private boolean frameArmoured;
   private @Nullable GrowthRigScale frameGrowth;
+  private float frameModelScale = 1.0f;
   private final Matrix4f frameOrigin = new Matrix4f();
   private final Map<String, SeatTransform> frameSeats = new HashMap<>();
 
@@ -119,6 +121,7 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
       final UnleashedDogBreed.RenderTransforms transforms =
           animatable.getRigSourceBreed().renderTransforms();
       final float scale = this.frameScale(animatable, transforms);
+      this.frameModelScale = scale;
       poseStack.scale(scale, scale, scale);
       if (transforms.bodyYawOffsetDegrees() != 0.0f) {
         poseStack.multiply(
@@ -139,6 +142,12 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
         packedLight,
         packedOverlay,
         colour);
+  }
+
+  public float scaleBelowEntityRoot(final Matrix4f frame) {
+    return CarriedToySize.frameScale(frame)
+        / CarriedToySize.frameScale(this.entityRenderTranslations)
+        * this.frameModelScale;
   }
 
   private float frameScale(
