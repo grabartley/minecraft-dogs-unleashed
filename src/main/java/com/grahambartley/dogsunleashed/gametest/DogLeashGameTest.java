@@ -56,7 +56,7 @@ public final class DogLeashGameTest implements FabricGameTest {
     final ServerPlayerEntity owner = spawnOwnerAt(context, OWNER_POS);
     final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS, owner.getUuid());
-    dog.setAssignedBedPos(absBedPos);
+    dog.getSleepController().setAssignedBedPos(absBedPos);
     dog.attachLeash(owner, true);
 
     context.runAtTick(10, () -> context.setTime((int) NIGHT_TICK));
@@ -66,7 +66,8 @@ public final class DogLeashGameTest implements FabricGameTest {
         () -> {
           context.assertTrue(dog.isLeashed(), "The leash should still be attached mid-test");
           context.assertFalse(
-              dog.isSleepingInBed(), "A leashed dog must not auto-sleep, even at night");
+              dog.getSleepController().isSleepingInBed(),
+              "A leashed dog must not auto-sleep, even at night");
           context.complete();
         });
   }
@@ -77,7 +78,9 @@ public final class DogLeashGameTest implements FabricGameTest {
     final UnleashedDogEntity dog = DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS);
     dog.setAiDisabled(true);
     dog.getSleepController().startSleepingInBed(context.getAbsolutePos(BED_POS));
-    context.assertTrue(dog.isSleepingInBed(), "The dog should be asleep before the leash attaches");
+    context.assertTrue(
+        dog.getSleepController().isSleepingInBed(),
+        "The dog should be asleep before the leash attaches");
 
     dog.attachLeash(owner, true);
 
@@ -85,7 +88,8 @@ public final class DogLeashGameTest implements FabricGameTest {
         5,
         () -> {
           context.assertFalse(
-              dog.isSleepingInBed(), "Attaching a leash should wake a dog sleeping in its bed");
+              dog.getSleepController().isSleepingInBed(),
+              "Attaching a leash should wake a dog sleeping in its bed");
           context.complete();
         });
   }
@@ -98,7 +102,8 @@ public final class DogLeashGameTest implements FabricGameTest {
     context.setTime((int) NIGHT_TICK);
     dog.getSleepController().commandToSleep(context.getAbsolutePos(BED_POS));
     context.assertTrue(
-        dog.isCommandedToSleep(), "The dog should be en route to bed before the leash attaches");
+        dog.getSleepController().isCommandedToSleep(),
+        "The dog should be en route to bed before the leash attaches");
 
     dog.attachLeash(owner, true);
 
@@ -106,7 +111,8 @@ public final class DogLeashGameTest implements FabricGameTest {
         5,
         () -> {
           context.assertFalse(
-              dog.isCommandedToSleep(), "Attaching a leash should cancel a commanded sleep");
+              dog.getSleepController().isCommandedToSleep(),
+              "Attaching a leash should cancel a commanded sleep");
           context.complete();
         });
   }

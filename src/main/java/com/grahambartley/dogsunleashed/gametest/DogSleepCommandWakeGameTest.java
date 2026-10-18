@@ -97,15 +97,17 @@ public final class DogSleepCommandWakeGameTest implements FabricGameTest {
         5,
         () -> {
           world.setTimeOfDay(sleepTime);
-          dog.setAssignedBedPos(absBedPos);
+          dog.getSleepController().setAssignedBedPos(absBedPos);
         });
 
     context.runAtTick(
         60,
         () -> {
-          context.assertTrue(dog.isSleepingInBed(), "Dog should auto-sleep in its bed");
+          context.assertTrue(
+              dog.getSleepController().isSleepingInBed(), "Dog should auto-sleep in its bed");
           dog.getCommandController().apply(DogCommand.HEEL);
-          context.assertFalse(dog.isSleepingInBed(), "The command should wake the dog");
+          context.assertFalse(
+              dog.getSleepController().isSleepingInBed(), "The command should wake the dog");
           context.assertTrue(
               dog.getSleepController().isAutoSleepSuppressed(),
               "A command inside the dog's own sleep window should hold off auto-sleep");
@@ -115,7 +117,8 @@ public final class DogSleepCommandWakeGameTest implements FabricGameTest {
         160,
         () -> {
           final double distanceFromBed = Math.sqrt(dog.getBlockPos().getSquaredDistance(absBedPos));
-          context.assertFalse(dog.isSleepingInBed(), "The woken dog must not go back to bed");
+          context.assertFalse(
+              dog.getSleepController().isSleepingInBed(), "The woken dog must not go back to bed");
           context.assertTrue(
               distanceFromBed > 2.0,
               "A woken dog should follow its new command instead of staying on the bed, but it is "

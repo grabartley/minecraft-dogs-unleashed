@@ -35,16 +35,16 @@ public class AutoSleepGoal extends Goal {
     if (this.dog.isInSittingPose()) {
       return false;
     }
-    if (this.dog.isCommandedToSleep()) {
+    if (this.dog.getSleepController().isCommandedToSleep()) {
       return false;
     }
-    if (this.dog.isSleepingInBed()) {
+    if (this.dog.getSleepController().isSleepingInBed()) {
       return false;
     }
     if (this.dog.getSleepController().isAutoSleepSuppressed()) {
       return false;
     }
-    if (!this.dog.getAssignedBedPos().isPresent()) {
+    if (!this.dog.getSleepController().getAssignedBedPos().isPresent()) {
       return false;
     }
 
@@ -52,7 +52,7 @@ public class AutoSleepGoal extends Goal {
       return false;
     }
 
-    this.targetBedPos = this.dog.getAssignedBedPos().get();
+    this.targetBedPos = this.dog.getSleepController().getAssignedBedPos().get();
 
     if (!this.isValidBed(this.targetBedPos)) {
       return false;
@@ -95,7 +95,7 @@ public class AutoSleepGoal extends Goal {
       return false;
     }
 
-    if (this.dog.isSleepingInBed()) {
+    if (this.dog.getSleepController().isSleepingInBed()) {
       return this.dog.getSleepController().canSleepNow();
     }
 
@@ -118,7 +118,7 @@ public class AutoSleepGoal extends Goal {
 
   @Override
   public void stop() {
-    if (this.dog.isSleepingInBed()) {
+    if (this.dog.getSleepController().isSleepingInBed()) {
       this.dog.wakeUp();
     }
     this.targetBedPos = null;
@@ -131,7 +131,7 @@ public class AutoSleepGoal extends Goal {
       return;
     }
 
-    if (this.dog.isSleepingInBed()) {
+    if (this.dog.getSleepController().isSleepingInBed()) {
       this.dog.getSleepController().holdSleepPose(this.targetBedPos);
       return;
     }
@@ -153,6 +153,6 @@ public class AutoSleepGoal extends Goal {
 
   @Override
   public boolean canStop() {
-    return !this.dog.isSleepingInBed();
+    return !this.dog.getSleepController().isSleepingInBed();
   }
 }

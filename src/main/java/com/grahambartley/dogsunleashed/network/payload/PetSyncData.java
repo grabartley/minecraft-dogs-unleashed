@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.network.payload;
 
+import com.grahambartley.dogsunleashed.entity.DogCollar;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
@@ -74,7 +75,7 @@ public record PetSyncData(
         dog.getWorld().getRegistryKey().getValue().toString(),
         dog.isUndead() ? PetLifeState.UNDEAD : PetLifeState.LIVING,
         dog.isBaby(),
-        dog.getCollarColor().getId(),
+        dog.getComponents().get(DogCollar.class).getColor().getId(),
         PetData.coatVariantOf(dog),
         PetData.huskyEyeVariantOf(dog),
         dog.getFur().stage().ordinal(),

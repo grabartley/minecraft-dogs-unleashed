@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.gametest;
 import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.block.entity.DogGraveBlockEntity;
+import com.grahambartley.dogsunleashed.entity.DogCollar;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
@@ -164,8 +165,9 @@ public final class ResurrectionRitualGameTest implements FabricGameTest {
               dog.getBreed() == pet.getBreed(),
               "Breed should survive the ritual, but was " + dog.getBreed());
           context.assertTrue(
-              dog.getCollarColor() == COLLAR,
-              "Collar colour should survive the ritual, but was " + dog.getCollarColor());
+              dog.getComponents().get(DogCollar.class).getColor() == COLLAR,
+              "Collar colour should survive the ritual, but was "
+                  + dog.getComponents().get(DogCollar.class).getColor());
           context.assertTrue(
               GENOME.equals(dog.getGenome()),
               "Genome should survive the ritual, but was " + dog.getGenome());
@@ -361,7 +363,7 @@ public final class ResurrectionRitualGameTest implements FabricGameTest {
     final UnleashedDogEntity dog = context.spawnEntity(ModEntities.CROSS_BREED, REL_DOG);
     dog.setAiDisabled(true);
     dog.applyGenome(GENOME);
-    dog.setCollarColor(COLLAR);
+    dog.getComponents().get(DogCollar.class).setColor(COLLAR);
     dog.setOwnerUuid(ownerId);
     dog.setTamed(true, true);
 

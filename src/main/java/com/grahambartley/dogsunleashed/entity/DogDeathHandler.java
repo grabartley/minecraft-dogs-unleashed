@@ -20,9 +20,10 @@ public final class DogDeathHandler {
     }
     petManager.markPetDeceased(dog.getUuid(), dog.isUndead());
 
-    final BlockPos bedPosToAvoid = dog.getAssignedBedPos().orElse(null);
+    final BlockPos bedPosToAvoid = dog.getSleepController().getAssignedBedPos().orElse(null);
 
-    dog.getAssignedBedPos()
+    dog.getSleepController()
+        .getAssignedBedPos()
         .ifPresent(
             bedPos -> {
               if (world.getBlockEntity(bedPos) instanceof DogBedBlockEntity bedEntity) {

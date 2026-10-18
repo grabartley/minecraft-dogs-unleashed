@@ -121,7 +121,8 @@ public final class DogEntitySoundTest implements FabricGameTest {
     context.runAtTick(
         10,
         () -> {
-          context.assertTrue(husky.isSleepingInBed(), "Husky should be sleeping");
+          context.assertTrue(
+              husky.getSleepController().isSleepingInBed(), "Husky should be sleeping");
           context.assertFalse(
               husky.getAnimationState().isHowling(), "Sleeping husky should not be howling");
           context.complete();

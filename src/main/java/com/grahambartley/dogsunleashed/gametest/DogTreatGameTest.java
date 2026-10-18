@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.entity.DogFoods;
 import com.grahambartley.dogsunleashed.entity.DogTreatBuff;
+import com.grahambartley.dogsunleashed.entity.DogTreatBuffState;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
@@ -83,7 +84,7 @@ public final class DogTreatGameTest implements FabricGameTest {
     dog.interactMob(owner, Hand.MAIN_HAND);
 
     context.assertEquals(
-        dog.getTreatBuffState().getRemainingTicks(),
+        dog.getComponents().get(DogTreatBuffState.class).getRemainingTicks(),
         DogTreatBuff.DURATION_TICKS,
         "Feeding a treat should start the buff at its full duration");
     context.assertTrue(
@@ -140,7 +141,8 @@ public final class DogTreatGameTest implements FabricGameTest {
     dog.interactMob(player, Hand.MAIN_HAND);
 
     context.assertFalse(
-        dog.getTreatBuffState().isActive(), "An untamed dog must not gain the treat buff");
+        dog.getComponents().get(DogTreatBuffState.class).isActive(),
+        "An untamed dog must not gain the treat buff");
     context.assertEquals(
         player.getStackInHand(Hand.MAIN_HAND).getCount(),
         HELD_STACK_COUNT,
@@ -275,7 +277,7 @@ public final class DogTreatGameTest implements FabricGameTest {
     dog.interactMob(stranger, Hand.MAIN_HAND);
 
     context.assertFalse(
-        dog.getTreatBuffState().isActive(),
+        dog.getComponents().get(DogTreatBuffState.class).isActive(),
         "A dog must not accept a treat from a player who does not own it");
     context.assertEquals(
         stranger.getStackInHand(Hand.MAIN_HAND).getCount(),
@@ -294,7 +296,7 @@ public final class DogTreatGameTest implements FabricGameTest {
     dog.interactMob(owner, Hand.MAIN_HAND);
 
     context.assertFalse(
-        dog.getTreatBuffState().isActive(),
+        dog.getComponents().get(DogTreatBuffState.class).isActive(),
         "Sneak-right-click is the bed assignment gesture, not a feed");
     context.assertEquals(
         owner.getStackInHand(Hand.MAIN_HAND).getCount(),
@@ -338,7 +340,8 @@ public final class DogTreatGameTest implements FabricGameTest {
         EXPIRY_ASSERT_TICK,
         () -> {
           context.assertFalse(
-              dog.getTreatBuffState().isActive(), "The treat buff should expire once it runs out");
+              dog.getComponents().get(DogTreatBuffState.class).isActive(),
+              "The treat buff should expire once it runs out");
           context.assertFalse(
               DogTreatBuff.isApplied(dog),
               "Expiry should detach the movement speed modifier from the dog");
@@ -364,8 +367,8 @@ public final class DogTreatGameTest implements FabricGameTest {
     reloaded.readCustomDataFromNbt(nbt);
 
     context.assertEquals(
-        reloaded.getTreatBuffState().getRemainingTicks(),
-        fed.getTreatBuffState().getRemainingTicks(),
+        reloaded.getComponents().get(DogTreatBuffState.class).getRemainingTicks(),
+        fed.getComponents().get(DogTreatBuffState.class).getRemainingTicks(),
         "The remaining treat buff duration should survive a save and load");
     context.assertTrue(
         DogTreatBuff.isApplied(reloaded),

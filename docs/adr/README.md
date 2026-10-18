@@ -16,6 +16,7 @@ Shared engineering standards across all the mods in this family live in [`../sta
 | [0006](0006-shared-overlay-effects-are-painted-once-and-projected-onto-each-rig.md) | Shared overlay effects are painted once and projected onto each rig |
 | [0007](0007-dire-wolves-grow-by-scaling-profile-slots-and-spawn-only-as-whole-packs.md) | Dire wolves grow by scaling profile slots and spawn only as whole packs |
 | [0008](0008-dire-wolf-riding-lives-in-a-mount-base-class-and-high-jumps-widen-pathfinding.md) | Dire wolf riding lives in a mount base class, and high jumps widen pathfinding |
+| [0009](0009-new-per-dog-state-is-a-component-not-an-entity-field.md) | New per-dog state is a component, not an entity field |
 
 ## Writing A New Record
 

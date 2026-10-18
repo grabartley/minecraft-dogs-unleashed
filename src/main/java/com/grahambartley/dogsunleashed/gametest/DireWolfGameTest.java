@@ -341,7 +341,7 @@ public final class DireWolfGameTest implements FabricGameTest {
       DogSleepSpotAssignment.setPendingAssignment(owner.getUuid(), wolf.getUuid());
       context.useBlock(spot, owner);
       context.assertTrue(
-          wolf.getAssignedBedPos().isEmpty(),
+          wolf.getSleepController().getAssignedBedPos().isEmpty(),
           "A dire wolf must refuse " + context.getBlockState(spot).getBlock());
     }
     context.complete();

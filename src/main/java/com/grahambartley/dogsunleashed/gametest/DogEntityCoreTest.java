@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModNbtKeys;
+import com.grahambartley.dogsunleashed.entity.DogCollar;
 import com.grahambartley.dogsunleashed.entity.DogTraits;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.variant.DogCoats;
@@ -100,7 +101,7 @@ public final class DogEntityCoreTest implements FabricGameTest {
     final ServerWorld world = context.getWorld();
     final UnleashedDogEntity dog = DogTestHelper.spawnTamedDog(context, data);
 
-    dog.setCollarColor(DyeColor.LIME);
+    dog.getComponents().get(DogCollar.class).setColor(DyeColor.LIME);
 
     final NbtCompound nbt = new NbtCompound();
     dog.writeCustomDataToNbt(nbt);
@@ -115,7 +116,8 @@ public final class DogEntityCoreTest implements FabricGameTest {
     newDog.readCustomDataFromNbt(nbt);
 
     context.assertTrue(
-        newDog.getCollarColor() == DyeColor.LIME, "Collar color should persist after NBT load");
+        newDog.getComponents().get(DogCollar.class).getColor() == DyeColor.LIME,
+        "Collar color should persist after NBT load");
     context.complete();
   }
 
