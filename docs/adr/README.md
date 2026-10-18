@@ -1,6 +1,6 @@
 # Architecture Decision Records
 
-These records capture **why** Dogs Unleashed is built the way it is. They are not specifications: the acceptance criteria for a specific piece of work live on the issue that owns it, and what the mod offers a player lives in [`../../README.md`](../../README.md).
+These records capture **why** Dogs Unleashed is built the way it is. They are not specifications: the acceptance criteria for a specific piece of work live on the issue that owns it, and what the mod is, use case by use case, lives in the [product requirements](../prd.md).
 
 A record is historical. When a decision changes, add a new record superseding the old one rather than editing it, so the reasoning behind the original choice is not lost.
 

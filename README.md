@@ -84,7 +84,7 @@ Pet Manager to see and summon your whole pack.
 - **Raise a family.** Any two living tamed dogs can have puppies, and mixed parents give a mixed breed puppy. Dire wolves only breed with dire wolves. Every dog has a
 family tree you can explore.
 - **Bring them back.** A tamed dog that dies leaves a grave. Put a totem in it and a lightning rod above it, then wait
-for a storm. Your dog comes back undead and burns in daylight unless it has shade, armour, or a fire pendant. Cure it the same way you
+for lightning to strike it. Your dog comes back undead and burns in daylight unless it has shade, armour, or a fire pendant. Cure it the same way you
 cure a zombie villager. If it dies while undead, it is gone for good, unless it wears a Pendant of Loyalty.
 - **Little touches.** Huskies and dire wolves howl at the full moon, dogs tilt their heads at food, and they shake off after rain or a
 swim. There is also an advancement tab to work through.
@@ -110,9 +110,9 @@ only operators can.
 
 | Setting                   | Default | What it does                                                                      |
 |---------------------------|---------|-----------------------------------------------------------------------------------|
-| Spawn Dogs in the Wild    | On      | Whether dogs spawn in their biomes. Needs a world restart.                        |
-| Spawn Rate                | 100%    | How often dogs spawn, from 0% to 500%. Needs a world restart.                     |
-| Spawn Rate (per breed)    | 100%    | The same, for one breed. Needs a world restart.                                   |
+| Spawn Dogs in the Wild    | On      | Whether dogs spawn in their biomes. Biome spawns change after a world restart.    |
+| Spawn Rate                | 100%    | How often dogs spawn, from 0% to 500%. Biome spawns change after a world restart. |
+| Spawn Rate (per breed)    | 100%    | The same, for one breed. Biome spawns change after a world restart.               |
 | Cap-Independent Spawner   | On      | Lets small packs of wild dogs spawn near you even in well-explored areas. Dire wolf packs spawn this way even when it is off. |
 | Dog Graves on Death       | On      | Whether a tamed dog leaves a grave when it dies. Its gear drops either way.                        |
 | Drop Leash on Play Mode   | On      | Off keeps the lead on, and fetch waits until you take it off.                     |
@@ -211,6 +211,8 @@ arguments untranslated. Found a mistake in a translation?
 [Open an issue](https://github.com/grabartley/minecraft-dogs-unleashed/issues/new).
 
 ## Credits
+
+How every part of the mod is meant to work is written down in the [product requirements](docs/prd.md).
 
 Dogs Unleashed is released under the [MIT License](LICENSE).
 
