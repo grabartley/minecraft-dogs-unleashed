@@ -73,7 +73,7 @@ bark and howl, and they only breed with each other. Tame one of every coat to ea
 and Go to Bed. Hunting dogs leave your other pets, villagers and golems alone, but name your farm animals to keep them safe.
 - **Play fetch.** Throw a stick, a tennis ball or a frisbee. Your dog chases it, picks it up and brings it back to you.
 - **Give them a bed.** Craft a dog bed or a dog house in any colour and assign it. Your dog goes to bed by itself at
-night.
+night. Dire wolves are too big for either and sleep where they lie.
 - **Kit them out.** Open their gear from the command wheel. Craft them armour from leather, iron, gold, diamond or netherite, or use wolf armour. Your tamed wolves can wear it too. It takes hits for them, cracks as it wears, and mends with its own material. Dye leather armour and their collar any colour, and feed them treats for a short speed and damage boost. Hang a pendant on their collar to keep a mob family away from you both, shield them from fire, falls or drowning, heal you while they're near, or save them from death once.
 - **Keep them groomed.** Coats grow out over time, and a long coat slows a dog down. Trim it with shears to collect dog fur. Go
 carefully, or your dog ends up with a bad hair day until it grows back.
