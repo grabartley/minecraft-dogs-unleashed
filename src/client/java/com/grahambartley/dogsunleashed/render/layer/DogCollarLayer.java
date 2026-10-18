@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.render.layer;
 
 import static com.grahambartley.dogsunleashed.DogsUnleashed.MOD_ID;
 
+import com.grahambartley.dogsunleashed.entity.DogCollar;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
@@ -41,7 +42,7 @@ public class DogCollarLayer extends GeoRenderLayer<UnleashedDogEntity> {
       return;
     }
 
-    final DyeColor collarColor = animatable.getCollarColor();
+    final DyeColor collarColor = animatable.getComponents().get(DogCollar.class).getColor();
     final int color = collarColor.getEntityColor();
 
     final RenderLayer collarRenderType =

@@ -11,9 +11,11 @@ import org.jetbrains.annotations.Nullable;
 public class TrustFollowGoal extends Goal {
 
   private static final double FOLLOW_SPEED = 1.1;
+  private static final int REPATH_TICKS = 10;
 
   private final UnleashedDogEntity dog;
   private @Nullable PlayerEntity friend;
+  private int repathCooldown;
 
   public TrustFollowGoal(final UnleashedDogEntity dog) {
     this.dog = dog;
@@ -27,6 +29,11 @@ public class TrustFollowGoal extends Goal {
   }
 
   @Override
+  public void start() {
+    this.repathCooldown = 0;
+  }
+
+  @Override
   public boolean shouldContinue() {
     return this.friend != null
         && this.friend == this.trustedFriend()
@@ -36,6 +43,10 @@ public class TrustFollowGoal extends Goal {
   @Override
   public void tick() {
     this.dog.getLookControl().lookAt(this.friend, 10.0f, this.dog.getMaxLookPitchChange());
+    if (--this.repathCooldown > 0) {
+      return;
+    }
+    this.repathCooldown = this.getTickCount(REPATH_TICKS);
     this.dog.getNavigation().startMovingTo(this.friend, FOLLOW_SPEED);
   }
 

@@ -62,7 +62,10 @@ public final class WildPackFounding {
       }
       final BlockPos spot = spots.get(i);
       member.refreshPositionAndAngles(spot, random.nextFloat() * 360.0F, 0.0F);
-      member.setSpawnedByDogSpawner(leader.isSpawnedByDogSpawner());
+      member
+          .getComponents()
+          .get(DogSpawnerOrigin.class)
+          .setFromSpawner(leader.getComponents().get(DogSpawnerOrigin.class).isFromSpawner());
       member.initialize(world, world.getLocalDifficulty(spot), reason, packData);
       world.spawnEntityAndPassengers(member);
     }

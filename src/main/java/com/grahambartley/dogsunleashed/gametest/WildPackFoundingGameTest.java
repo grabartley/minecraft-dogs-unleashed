@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.config.DireWolfSettings;
 import com.grahambartley.dogsunleashed.entity.DireWolfGrowthStage;
+import com.grahambartley.dogsunleashed.entity.DogSpawnerOrigin;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
@@ -42,13 +43,14 @@ public final class WildPackFoundingGameTest implements FabricGameTest {
   public void packMembersInheritWhetherTheLeaderCanDespawn(final TestContext context) {
     coverFloor(context, Blocks.GRASS_BLOCK);
     final UnleashedDogEntity leader = spawnLeader(context);
-    leader.setSpawnedByDogSpawner(true);
+    leader.getComponents().get(DogSpawnerOrigin.class).setFromSpawner(true);
     initialize(context, leader, SpawnReason.NATURAL, null);
 
     final List<UnleashedDogEntity> pack = direWolves(context);
     context.assertTrue(pack.size() > 1, "Precondition: the leader brought a pack");
     context.assertTrue(
-        pack.stream().allMatch(UnleashedDogEntity::isSpawnedByDogSpawner),
+        pack.stream()
+            .allMatch(wolf -> wolf.getComponents().get(DogSpawnerOrigin.class).isFromSpawner()),
         "Every member of a top-up pack should despawn like its leader");
     context.complete();
   }

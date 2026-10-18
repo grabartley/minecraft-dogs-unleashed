@@ -6,6 +6,7 @@ import com.grahambartley.dogsunleashed.entity.fetch.FetchProjectileEntity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.Entity.RemovalReason;
@@ -72,7 +73,7 @@ public final class DogPlaySession {
         .getEntitiesByClass(
             UnleashedDogEntity.class,
             fetchDetectionBox(player),
-            dog -> player.getUuid().equals(dog.getPlayPartnerPlayerUuid()))
+            dog -> player.getUuid().equals(dog.getPlaySession().getPlayPartnerPlayerUuid()))
         .isEmpty();
   }
 
@@ -110,7 +111,9 @@ public final class DogPlaySession {
       this.endPlayModeForDog(priorDogUuid);
     }
     this.inPlayMode = true;
-    this.dog.setPlayPartnerPlayerUuid(player.getUuid());
+    this.dog
+        .getDataTracker()
+        .set(UnleashedDogEntity.PLAY_PARTNER_UUID, Optional.of(player.getUuid()));
     this.activeFetchBlockPos = null;
     this.dog.getFetchCarry().setActiveType(fetchItemType);
     this.dog.getCommandController().demoteSitToFollow();
@@ -118,12 +121,9 @@ public final class DogPlaySession {
 
   public void endPlayMode() {
     ActivePlaySessions.clear(
-        ACTIVE_PLAY_SESSIONS,
-        this.inPlayMode,
-        this.dog.getPlayPartnerPlayerUuid(),
-        this.dog.getUuid());
+        ACTIVE_PLAY_SESSIONS, this.inPlayMode, this.getPlayPartnerPlayerUuid(), this.dog.getUuid());
     this.inPlayMode = false;
-    this.dog.setPlayPartnerPlayerUuid(null);
+    this.dog.getDataTracker().set(UnleashedDogEntity.PLAY_PARTNER_UUID, Optional.empty());
     this.activeFetchBlockPos = null;
     this.dog.getFetchCarry().setActiveType(null);
     this.dog.getFetchCarry().setCarrying(false);
@@ -145,13 +145,15 @@ public final class DogPlaySession {
                 candidate ->
                     candidate != this.dog
                         && candidate.getPlaySession().isInPlayMode()
-                        && player.getUuid().equals(candidate.getPlayPartnerPlayerUuid()))) {
+                        && player
+                            .getUuid()
+                            .equals(candidate.getPlaySession().getPlayPartnerPlayerUuid()))) {
       other.getPlaySession().endPlayMode();
     }
   }
 
   public boolean isActivelyFetching() {
-    final UUID partnerUuid = this.dog.getPlayPartnerPlayerUuid();
+    final UUID partnerUuid = this.getPlayPartnerPlayerUuid();
     return switch (fetchStatus(
         this.inPlayMode,
         this.dog.getFetchCarry().isCarrying(),
@@ -231,5 +233,9 @@ public final class DogPlaySession {
           .result()
           .ifPresent(this.dog.getFetchCarry()::setCarriedStack);
     }
+  }
+
+  public @Nullable UUID getPlayPartnerPlayerUuid() {
+    return this.dog.getDataTracker().get(UnleashedDogEntity.PLAY_PARTNER_UUID).orElse(null);
   }
 }

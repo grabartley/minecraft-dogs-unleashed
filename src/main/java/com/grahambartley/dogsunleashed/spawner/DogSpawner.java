@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.spawner;
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
+import com.grahambartley.dogsunleashed.entity.DogSpawnerOrigin;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.ArrayList;
@@ -124,7 +125,7 @@ public class DogSpawner implements SpecialSpawner {
         dog.discard();
         continue;
       }
-      dog.setSpawnedByDogSpawner(true);
+      dog.getComponents().get(DogSpawnerOrigin.class).setFromSpawner(true);
       entityData =
           dog.initialize(world, world.getLocalDifficulty(pos), SpawnReason.NATURAL, entityData);
       world.spawnEntityAndPassengers(dog);

@@ -58,7 +58,7 @@ public final class DogFur {
   }
 
   public DogFurStage stage() {
-    return DogFurStage.fromOrdinal(this.dog.getTrackedFurStage());
+    return DogFurStage.fromOrdinal(this.dog.getDataTracker().get(UnleashedDogEntity.FUR_STAGE));
   }
 
   public int ticksInStage() {
@@ -70,7 +70,7 @@ public final class DogFur {
   }
 
   public void setStage(final DogFurStage stage) {
-    this.dog.setTrackedFurStage(stage.ordinal());
+    this.dog.getDataTracker().set(UnleashedDogEntity.FUR_STAGE, stage.ordinal());
     this.ticksInStage = 0;
     this.syncSpeedModifier();
   }

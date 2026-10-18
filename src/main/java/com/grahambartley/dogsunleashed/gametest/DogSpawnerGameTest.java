@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
+import com.grahambartley.dogsunleashed.entity.DogSpawnerOrigin;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
@@ -304,7 +305,7 @@ public final class DogSpawnerGameTest implements FabricGameTest {
     final UnleashedDogEntity original =
         DogTestHelper.spawnDog(context, data, new BlockPos(2, 2, 2));
     original.setAiDisabled(true);
-    original.setSpawnedByDogSpawner(flag);
+    original.getComponents().get(DogSpawnerOrigin.class).setFromSpawner(flag);
 
     final NbtCompound nbt = new NbtCompound();
     original.writeCustomDataToNbt(nbt);
@@ -312,11 +313,11 @@ public final class DogSpawnerGameTest implements FabricGameTest {
     final UnleashedDogEntity restored =
         DogTestHelper.spawnDog(context, data, new BlockPos(4, 2, 4));
     restored.setAiDisabled(true);
-    restored.setSpawnedByDogSpawner(!flag);
+    restored.getComponents().get(DogSpawnerOrigin.class).setFromSpawner(!flag);
     restored.readCustomDataFromNbt(nbt);
 
     context.assertTrue(
-        restored.isSpawnedByDogSpawner() == flag,
+        restored.getComponents().get(DogSpawnerOrigin.class).isFromSpawner() == flag,
         data.breed().serializedId()
             + " SpawnedByDogSpawner="
             + flag
@@ -347,21 +348,22 @@ public final class DogSpawnerGameTest implements FabricGameTest {
     dog.setAiDisabled(true);
     final String breedId = data.breed().serializedId();
 
-    dog.setSpawnedByDogSpawner(true);
+    dog.getComponents().get(DogSpawnerOrigin.class).setFromSpawner(true);
     context.assertTrue(
         dog.canImmediatelyDespawn(0.0),
         "An untamed spawner-spawned " + breedId + " should be eligible to despawn");
 
     dog.setTamed(true, true);
     context.assertFalse(
-        dog.isSpawnedByDogSpawner(), "Taming should clear the spawner-spawned flag on " + breedId);
+        dog.getComponents().get(DogSpawnerOrigin.class).isFromSpawner(),
+        "Taming should clear the spawner-spawned flag on " + breedId);
     context.assertFalse(
         dog.canImmediatelyDespawn(0.0),
         "A tamed " + breedId + " should never be eligible to despawn");
 
     dog.setTamed(false, true);
     context.assertFalse(
-        dog.isSpawnedByDogSpawner(),
+        dog.getComponents().get(DogSpawnerOrigin.class).isFromSpawner(),
         "Untaming should not restore the spawner-spawned flag on " + breedId);
     context.assertFalse(
         dog.canImmediatelyDespawn(0.0),
@@ -389,7 +391,7 @@ public final class DogSpawnerGameTest implements FabricGameTest {
     final String breedId = data.breed().serializedId();
 
     context.assertFalse(
-        dog.isSpawnedByDogSpawner(),
+        dog.getComponents().get(DogSpawnerOrigin.class).isFromSpawner(),
         "A " + breedId + " not spawned by the DogSpawner should carry no flag");
     context.assertFalse(
         dog.canImmediatelyDespawn(0.0),

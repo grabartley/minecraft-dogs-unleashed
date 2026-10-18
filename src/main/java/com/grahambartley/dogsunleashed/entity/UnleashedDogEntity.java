@@ -64,31 +64,31 @@ public class UnleashedDogEntity extends DogMountEntity
   public static final int DEFAULT_COLLAR_COLOR_ID = DyeColor.RED.getId();
   public static final int UNSET_VARIANT = -1;
 
-  private static final TrackedData<Integer> ANGER_TIME = data(INTEGER);
-  private static final TrackedData<Integer> COAT_VARIANT = data(INTEGER);
-  private static final TrackedData<Integer> EYE_COLOR_VARIANT = data(INTEGER);
+  static final TrackedData<Integer> ANGER_TIME = data(INTEGER);
+  static final TrackedData<Integer> COAT_VARIANT = data(INTEGER);
+  static final TrackedData<Integer> EYE_COLOR_VARIANT = data(INTEGER);
   static final TrackedData<Boolean> HOWLING = data(BOOLEAN);
   static final TrackedData<Boolean> GROWLING = data(BOOLEAN);
-  private static final TrackedData<NbtCompound> GENOME = data(NBT_COMPOUND);
-  private static final TrackedData<Integer> COLLAR_COLOR = data(INTEGER);
+  static final TrackedData<NbtCompound> GENOME = data(NBT_COMPOUND);
+  static final TrackedData<Integer> COLLAR_COLOR = data(INTEGER);
   static final TrackedData<Integer> TAIL_WAG_TIMER = data(INTEGER);
   static final TrackedData<Integer> SHAKE_PROGRESS = data(INTEGER);
-  private static final TrackedData<Integer> TREAT_BUFF_TICKS = data(INTEGER);
+  static final TrackedData<Integer> TREAT_BUFF_TICKS = data(INTEGER);
   static final TrackedData<Boolean> HEAD_TILTING = data(BOOLEAN);
-  private static final TrackedData<Boolean> SLEEPING_IN_BED = data(BOOLEAN);
-  private static final TrackedData<Boolean> COMMANDED_TO_SLEEP = data(BOOLEAN);
-  private static final TrackedData<Optional<BlockPos>> ASSIGNED_BED_POS = data(OPTIONAL_BLOCK_POS);
+  static final TrackedData<Boolean> SLEEPING_IN_BED = data(BOOLEAN);
+  static final TrackedData<Boolean> COMMANDED_TO_SLEEP = data(BOOLEAN);
+  static final TrackedData<Optional<BlockPos>> ASSIGNED_BED_POS = data(OPTIONAL_BLOCK_POS);
   static final TrackedData<Boolean> IS_CARRYING_FETCH_ITEM = data(BOOLEAN);
   static final TrackedData<String> ACTIVE_FETCH_TYPE_ID = data(STRING);
   static final TrackedData<ItemStack> CARRIED_FETCH_ITEM_STACK = data(ITEM_STACK);
   static final TrackedData<ItemStack> PENDANT_ITEM = data(ITEM_STACK);
   static final TrackedData<ItemStack> COSMETIC_ITEM = data(ITEM_STACK);
 
-  private static final TrackedData<Optional<UUID>> PLAY_PARTNER_UUID = data(OPTIONAL_UUID);
+  static final TrackedData<Optional<UUID>> PLAY_PARTNER_UUID = data(OPTIONAL_UUID);
 
-  private static final TrackedData<Integer> COMMAND = data(INTEGER);
-  private static final TrackedData<Integer> FUR_STAGE = data(INTEGER);
-  private static final TrackedData<Integer> GROWTH_STAGE = data(INTEGER);
+  static final TrackedData<Integer> COMMAND = data(INTEGER);
+  static final TrackedData<Integer> FUR_STAGE = data(INTEGER);
+  static final TrackedData<Integer> GROWTH_STAGE = data(INTEGER);
 
   private static <T> TrackedData<T> data(final TrackedDataHandler<T> handler) {
     return DataTracker.registerData(UnleashedDogEntity.class, handler);
@@ -108,7 +108,8 @@ public class UnleashedDogEntity extends DogMountEntity
   private final DogEntityNbt persistence = new DogEntityNbt(this);
   private final DogInteractions interactions = new DogInteractions(this);
   private final DogCommandController commandController = new DogCommandController(this);
-  private final DogTreatBuffState treatBuff = new DogTreatBuffState(this);
+  private final DogComponents components =
+      DogComponents.of(new DogTreatBuffState(this), new DogSpawnerOrigin(), new DogCollar(this));
   private final DogGenomeCache genomeCache = new DogGenomeCache(this);
   private final DogUndeadState undeadState = new DogUndeadState(this);
   private final DogCuring curing = new DogCuring(this);
@@ -121,7 +122,6 @@ public class UnleashedDogEntity extends DogMountEntity
   private final DogGrowl growl = new DogGrowl(this);
   private final DogTrust trust = new DogTrust(this);
   private final DogRiding riding = new DogRiding(this);
-  private boolean spawnedByDogSpawner = false;
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
   private final UnleashedDogBreed breed;
@@ -177,24 +177,16 @@ public class UnleashedDogEntity extends DogMountEntity
     return this.breed.nature().livesInPacks() ? 1 : super.getLimitPerChunk();
   }
 
-  public boolean isSpawnedByDogSpawner() {
-    return this.spawnedByDogSpawner;
-  }
-
-  public void setSpawnedByDogSpawner(final boolean spawnedByDogSpawner) {
-    this.spawnedByDogSpawner = spawnedByDogSpawner;
-  }
-
   @Override
   public boolean canImmediatelyDespawn(final double distanceSquared) {
-    return this.spawnedByDogSpawner && !this.isTamed();
+    return this.components.get(DogSpawnerOrigin.class).isFromSpawner() && !this.isTamed();
   }
 
   @Override
   public void setTamed(final boolean tamed, final boolean updateAttributes) {
     super.setTamed(tamed, updateAttributes);
     if (tamed) {
-      this.spawnedByDogSpawner = false;
+      this.components.get(DogSpawnerOrigin.class).setFromSpawner(false);
     }
   }
 
@@ -237,14 +229,6 @@ public class UnleashedDogEntity extends DogMountEntity
 
   public void applyGenome(final DogGenome genome) {
     this.genomeCache.apply(genome);
-  }
-
-  NbtCompound getTrackedGenomeNbt() {
-    return this.dataTracker.get(GENOME);
-  }
-
-  void setTrackedGenomeNbt(final NbtCompound genomeNbt) {
-    this.dataTracker.set(GENOME, genomeNbt);
   }
 
   @Override
@@ -302,10 +286,6 @@ public class UnleashedDogEntity extends DogMountEntity
     return DogCommand.fromId(this.dataTracker.get(COMMAND));
   }
 
-  void setCommandRaw(final DogCommand command) {
-    this.dataTracker.set(COMMAND, command.id());
-  }
-
   void stopJumping() {
     this.jumping = false;
   }
@@ -346,14 +326,6 @@ public class UnleashedDogEntity extends DogMountEntity
     return this.fur;
   }
 
-  int getTrackedFurStage() {
-    return this.dataTracker.get(FUR_STAGE);
-  }
-
-  void setTrackedFurStage(final int stageOrdinal) {
-    this.dataTracker.set(FUR_STAGE, stageOrdinal);
-  }
-
   public DogGrowth getGrowth() {
     return this.growth;
   }
@@ -373,14 +345,6 @@ public class UnleashedDogEntity extends DogMountEntity
   @Override
   public DogRiding getRiding() {
     return this.riding;
-  }
-
-  int getTrackedGrowthStage() {
-    return this.dataTracker.get(GROWTH_STAGE);
-  }
-
-  void setTrackedGrowthStage(final int stageNumber) {
-    this.dataTracker.set(GROWTH_STAGE, stageNumber);
   }
 
   @Override
@@ -404,16 +368,8 @@ public class UnleashedDogEntity extends DogMountEntity
     return this.commandController;
   }
 
-  public DogTreatBuffState getTreatBuffState() {
-    return this.treatBuff;
-  }
-
-  public DyeColor getCollarColor() {
-    return DyeColor.byId(this.dataTracker.get(COLLAR_COLOR));
-  }
-
-  public void setCollarColor(final DyeColor color) {
-    this.dataTracker.set(COLLAR_COLOR, color.getId());
+  public DogComponents getComponents() {
+    return this.components;
   }
 
   public @Nullable UnleashedDogCoat getCoatVariant() {
@@ -426,41 +382,9 @@ public class UnleashedDogEntity extends DogMountEntity
         : null;
   }
 
-  public boolean isSleepingInBed() {
-    return this.dataTracker.get(SLEEPING_IN_BED);
-  }
-
-  public Optional<BlockPos> getAssignedBedPos() {
-    return this.dataTracker.get(ASSIGNED_BED_POS);
-  }
-
-  public void setAssignedBedPos(final @Nullable BlockPos pos) {
-    this.dataTracker.set(ASSIGNED_BED_POS, Optional.ofNullable(pos));
-  }
-
-  void setSleepingInBed(final boolean sleeping) {
-    this.dataTracker.set(SLEEPING_IN_BED, sleeping);
-  }
-
-  void setCommandedToSleep(final boolean commanded) {
-    this.dataTracker.set(COMMANDED_TO_SLEEP, commanded);
-  }
-
-  public boolean isCommandedToSleep() {
-    return this.dataTracker.get(COMMANDED_TO_SLEEP);
-  }
-
   @Override
   public void wakeUp() {
     this.sleep.wakeUp();
-  }
-
-  public @Nullable UUID getPlayPartnerPlayerUuid() {
-    return this.dataTracker.get(PLAY_PARTNER_UUID).orElse(null);
-  }
-
-  void setPlayPartnerPlayerUuid(final @Nullable UUID playerUuid) {
-    this.dataTracker.set(PLAY_PARTNER_UUID, Optional.ofNullable(playerUuid));
   }
 
   @Override
@@ -484,14 +408,6 @@ public class UnleashedDogEntity extends DogMountEntity
       final ServerWorld world, final DamageSource source, final boolean causedByPlayer) {
     super.dropEquipment(world, source, causedByPlayer);
     this.equipment.dropModOwnedSlots();
-  }
-
-  int getTreatBuffTicks() {
-    return this.dataTracker.get(TREAT_BUFF_TICKS);
-  }
-
-  void setTreatBuffTicks(final int treatBuffTicks) {
-    this.dataTracker.set(TREAT_BUFF_TICKS, treatBuffTicks);
   }
 
   @Override

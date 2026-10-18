@@ -1,4 +1,4 @@
-# ADR 0009: Wild packs spawn through every path, with the leader bringing the pack
+# ADR 0010: Wild packs spawn through every path, with the leader bringing the pack
 
 - **Status:** Accepted
 - **Date:** 2026-10-18

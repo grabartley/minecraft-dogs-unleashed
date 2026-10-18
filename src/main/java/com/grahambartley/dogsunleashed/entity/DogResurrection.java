@@ -97,7 +97,7 @@ public final class DogResurrection {
     dog.applyTraits(
         new DogTraits(
             dog.getRigSourceBreed(), petData.getCoatVariant(), petData.getHuskyEyeVariant()));
-    dog.setCollarColor(DyeColor.byId(petData.getCollarColorId()));
+    dog.getComponents().get(DogCollar.class).setColor(DyeColor.byId(petData.getCollarColorId()));
     dog.getLineage().setParentDogUuid(petData.getParentAId());
     dog.getLineage().setSecondParentDogUuid(petData.getParentBId());
     dog.setBaby(petData.isBaby());

@@ -188,7 +188,7 @@ public final class DogInteractions {
       return null;
     }
     itemStack.decrementUnlessCreative(1, player);
-    this.dog.getTreatBuffState().apply();
+    this.dog.getComponents().get(DogTreatBuffState.class).apply();
     return ActionResult.SUCCESS;
   }
 
@@ -206,7 +206,7 @@ public final class DogInteractions {
     if (!(itemStack.getItem() instanceof DyeItem dyeItem)) {
       return null;
     }
-    this.dog.setCollarColor(dyeItem.getColor());
+    this.dog.getComponents().get(DogCollar.class).setColor(dyeItem.getColor());
     itemStack.decrementUnlessCreative(1, player);
     return ActionResult.SUCCESS;
   }
