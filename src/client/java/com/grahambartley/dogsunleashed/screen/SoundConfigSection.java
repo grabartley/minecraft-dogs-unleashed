@@ -2,7 +2,7 @@ package com.grahambartley.dogsunleashed.screen;
 
 import com.grahambartley.dogsunleashed.config.SoundSettings;
 
-final class SoundConfigSection implements ConfigSection<SoundSettings> {
+final class SoundConfigSection {
   private static final String KEY = "screen.dogs-unleashed.settings.";
 
   private SoundSettings settings;
@@ -11,8 +11,7 @@ final class SoundConfigSection implements ConfigSection<SoundSettings> {
     this.settings = settings;
   }
 
-  @Override
-  public void addTo(final DogsUnleashedConfigList list, final ConfigRows rows) {
+  void addTo(final DogsUnleashedConfigList list, final ConfigRows rows) {
     list.addRow(rows.header(KEY + "sounds"));
     list.addRow(
         rows.floatSlider(
@@ -32,8 +31,7 @@ final class SoundConfigSection implements ConfigSection<SoundSettings> {
             value -> this.settings = this.settings.withHowlVolume(value)));
   }
 
-  @Override
-  public SoundSettings settings() {
+  SoundSettings settings() {
     return this.settings;
   }
 }

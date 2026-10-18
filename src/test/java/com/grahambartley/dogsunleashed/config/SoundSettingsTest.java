@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.gson.JsonObject;
 import java.util.stream.Stream;
@@ -18,22 +19,6 @@ class SoundSettingsTest {
     assertEquals(new SoundSettings(1.0f, 1.5f), SoundSettings.DEFAULTS);
   }
 
-  static Stream<Arguments> volumeCases() {
-    return Stream.of(
-        Arguments.of(-1.0f, SoundSettings.VOLUME_MIN),
-        Arguments.of(0.5f, 0.5f),
-        Arguments.of(5.0f, SoundSettings.VOLUME_MAX));
-  }
-
-  @ParameterizedTest(name = "{0} clamps to {1}")
-  @MethodSource("volumeCases")
-  @DisplayName("both volumes stay between their bounds")
-  void volumesAreClamped(final float input, final float expected) {
-    final SoundSettings settings = new SoundSettings(input, input);
-    assertEquals(expected, settings.barkVolume());
-    assertEquals(expected, settings.howlVolume());
-  }
-
   @Test
   @DisplayName("each with method changes only its own setting")
   void withMethodsChangeOneSetting() {
@@ -49,5 +34,32 @@ class SoundSettingsTest {
     settings.writeJson(root);
     assertEquals(0.25f, root.get("barkVolume").getAsFloat());
     assertEquals(settings, SoundSettings.fromJson(new ConfigJsonFields(root)));
+  }
+
+  @Test
+  @DisplayName("the lowest volume is not negative and is below the highest")
+  void volumeMinIsNonNegativeAndBelowMax() {
+    assertTrue(SoundSettings.VOLUME_MIN >= 0.0f);
+    assertTrue(SoundSettings.VOLUME_MIN < SoundSettings.VOLUME_MAX);
+  }
+
+  static Stream<Arguments> volumeClampCases() {
+    return Stream.of(
+        Arguments.of(-1.0f, SoundSettings.VOLUME_MIN),
+        Arguments.of(-0.0001f, SoundSettings.VOLUME_MIN),
+        Arguments.of(SoundSettings.VOLUME_MIN, SoundSettings.VOLUME_MIN),
+        Arguments.of(0.5f, 0.5f),
+        Arguments.of(SoundSettings.VOLUME_MAX, SoundSettings.VOLUME_MAX),
+        Arguments.of(2.5f, SoundSettings.VOLUME_MAX),
+        Arguments.of(100.0f, SoundSettings.VOLUME_MAX));
+  }
+
+  @ParameterizedTest(name = "{0} clamps to {1}")
+  @MethodSource("volumeClampCases")
+  @DisplayName("both volumes are clamped to their bounds")
+  void constructorClampsVolumes(final float input, final float expected) {
+    final SoundSettings config = new SoundSettings(input, input);
+    assertEquals(expected, config.barkVolume());
+    assertEquals(expected, config.howlVolume());
   }
 }

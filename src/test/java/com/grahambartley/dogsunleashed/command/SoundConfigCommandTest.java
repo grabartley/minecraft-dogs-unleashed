@@ -28,10 +28,6 @@ class SoundConfigCommandTest {
     assertArrayEquals(new Object[] {"1.25"}, args(lines.get(1)));
   }
 
-  private static String key(final Text text) {
-    return ((TranslatableTextContent) text.getContent()).getKey();
-  }
-
   private static Object[] args(final Text text) {
     return ((TranslatableTextContent) text.getContent()).getArgs();
   }

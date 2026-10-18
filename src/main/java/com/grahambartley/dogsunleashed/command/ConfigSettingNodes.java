@@ -23,6 +23,14 @@ final class ConfigSettingNodes {
       final String name,
       final BiFunction<DogsUnleashedConfig, Boolean, DogsUnleashedConfig> update,
       final boolean restartNote) {
+    return toggle(name, name, update, restartNote);
+  }
+
+  static LiteralArgumentBuilder<ServerCommandSource> toggle(
+      final String name,
+      final String label,
+      final BiFunction<DogsUnleashedConfig, Boolean, DogsUnleashedConfig> update,
+      final boolean restartNote) {
     return CommandManager.literal(name)
         .then(
             CommandManager.argument("enabled", BoolArgumentType.bool())
@@ -32,7 +40,7 @@ final class ConfigSettingNodes {
                       return applyUpdate(
                           ctx,
                           update.apply(DogsUnleashed.SERVER_CONFIG, value),
-                          name,
+                          label,
                           Boolean.toString(value),
                           restartNote);
                     }));

@@ -3,7 +3,7 @@ package com.grahambartley.dogsunleashed.screen;
 import com.grahambartley.dogsunleashed.config.DireWolfSettings;
 import com.grahambartley.dogsunleashed.config.DireWolfStaminaSettings;
 
-final class DireWolfConfigSection implements ConfigSection<DireWolfSettings> {
+final class DireWolfConfigSection {
   private static final String KEY = "screen.dogs-unleashed.settings.direwolf.";
 
   private DireWolfSettings settings;
@@ -14,8 +14,7 @@ final class DireWolfConfigSection implements ConfigSection<DireWolfSettings> {
     this.settings = settings;
   }
 
-  @Override
-  public void addTo(final DogsUnleashedConfigList list, final ConfigRows rows) {
+  void addTo(final DogsUnleashedConfigList list, final ConfigRows rows) {
     list.addRow(rows.header("screen.dogs-unleashed.settings.direwolf"));
     list.addRow(
         rows.percentSlider(
@@ -98,8 +97,7 @@ final class DireWolfConfigSection implements ConfigSection<DireWolfSettings> {
                     this.settings.withStamina(this.settings.stamina().withRecoveryPercent(value))));
   }
 
-  @Override
-  public DireWolfSettings settings() {
+  DireWolfSettings settings() {
     return this.settings;
   }
 }

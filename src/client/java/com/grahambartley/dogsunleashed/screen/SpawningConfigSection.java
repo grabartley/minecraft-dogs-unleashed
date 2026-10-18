@@ -4,7 +4,7 @@ import com.grahambartley.dogsunleashed.config.SpawningSettings;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import net.minecraft.text.Text;
 
-final class SpawningConfigSection implements ConfigSection<SpawningSettings> {
+final class SpawningConfigSection {
   private static final String KEY = "screen.dogs-unleashed.settings.";
 
   private SpawningSettings settings;
@@ -22,8 +22,7 @@ final class SpawningConfigSection implements ConfigSection<SpawningSettings> {
             value -> this.settings = this.settings.withEnableNaturalSpawning(value)));
   }
 
-  @Override
-  public void addTo(final DogsUnleashedConfigList list, final ConfigRows rows) {
+  void addTo(final DogsUnleashedConfigList list, final ConfigRows rows) {
     list.addRow(rows.header(KEY + "spawning"));
     list.addRow(
         rows.percentSlider(
@@ -56,8 +55,7 @@ final class SpawningConfigSection implements ConfigSection<SpawningSettings> {
             value -> this.settings = this.settings.withCapIndependentSpawningEnabled(value)));
   }
 
-  @Override
-  public SpawningSettings settings() {
+  SpawningSettings settings() {
     return this.settings;
   }
 }

@@ -75,14 +75,14 @@ public final class ServerConfigPayloads {
     buf.writeBoolean(spawning.capIndependentSpawningEnabled());
     buf.writeBoolean(config.gameplay().gravesEnabled());
     buf.writeBoolean(config.gameplay().dropLeashOnPlayMode());
-    buf.writeBoolean(config.gameplay().showDogNames());
     buf.writeBoolean(config.sleep().autoSleepEnabled());
     buf.writeInt(config.sleep().autoSleepRangeBlocks());
+    buf.writeFloat(config.sound().barkVolume());
+    buf.writeFloat(config.sound().howlVolume());
+    buf.writeBoolean(config.gameplay().showDogNames());
     buf.writeBoolean(config.fur().furGrowthEnabled());
     buf.writeVarInt(config.fur().furGrowthRateMultiplierPercent());
     buf.writeVarInt(config.fur().badHairDayChanceMultiplierPercent());
-    buf.writeFloat(config.sound().barkVolume());
-    buf.writeFloat(config.sound().howlVolume());
     final DireWolfSettings direWolf = config.direWolf();
     buf.writeVarInt(direWolf.growthRateMultiplierPercent());
     buf.writeVarInt(direWolf.battlesToEvolve());
@@ -96,16 +96,25 @@ public final class ServerConfigPayloads {
   }
 
   private static DogsUnleashedConfig readConfig(final RegistryByteBuf buf) {
-    return new DogsUnleashedConfig(
+    final SpawningSettings spawning =
         new SpawningSettings(
             buf.readBoolean(),
             buf.readVarInt(),
             buf.readMap(PacketByteBuf::readString, PacketByteBuf::readVarInt),
-            buf.readBoolean()),
-        new GameplaySettings(buf.readBoolean(), buf.readBoolean(), buf.readBoolean()),
-        new SleepSettings(buf.readBoolean(), buf.readInt()),
-        new FurSettings(buf.readBoolean(), buf.readVarInt(), buf.readVarInt()),
-        new SoundSettings(buf.readFloat(), buf.readFloat()),
+            buf.readBoolean());
+    final boolean gravesEnabled = buf.readBoolean();
+    final boolean dropLeashOnPlayMode = buf.readBoolean();
+    final SleepSettings sleep = new SleepSettings(buf.readBoolean(), buf.readInt());
+    final SoundSettings sound = new SoundSettings(buf.readFloat(), buf.readFloat());
+    final GameplaySettings gameplay =
+        new GameplaySettings(gravesEnabled, dropLeashOnPlayMode, buf.readBoolean());
+    final FurSettings fur = new FurSettings(buf.readBoolean(), buf.readVarInt(), buf.readVarInt());
+    return new DogsUnleashedConfig(
+        spawning,
+        gameplay,
+        sleep,
+        fur,
+        sound,
         new DireWolfSettings(
             buf.readVarInt(),
             buf.readVarInt(),

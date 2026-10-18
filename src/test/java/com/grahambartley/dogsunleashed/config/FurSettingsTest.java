@@ -18,22 +18,6 @@ class FurSettingsTest {
     assertEquals(new FurSettings(true, 100, 100), FurSettings.DEFAULTS);
   }
 
-  static Stream<Arguments> percentCases() {
-    return Stream.of(
-        Arguments.of(-10, FurSettings.PERCENT_MIN),
-        Arguments.of(250, 250),
-        Arguments.of(9999, FurSettings.PERCENT_MAX));
-  }
-
-  @ParameterizedTest(name = "{0}% clamps to {1}%")
-  @MethodSource("percentCases")
-  @DisplayName("both multipliers stay between their bounds")
-  void multipliersAreClamped(final int input, final int expected) {
-    final FurSettings settings = new FurSettings(true, input, input);
-    assertEquals(expected, settings.furGrowthRateMultiplierPercent());
-    assertEquals(expected, settings.badHairDayChanceMultiplierPercent());
-  }
-
   @Test
   @DisplayName("each with method changes only its own setting")
   void withMethodsChangeOneSetting() {
@@ -51,5 +35,23 @@ class FurSettingsTest {
     settings.writeJson(root);
     assertEquals(300, root.get("furGrowthRateMultiplierPercent").getAsInt());
     assertEquals(settings, FurSettings.fromJson(new ConfigJsonFields(root)));
+  }
+
+  static Stream<Arguments> furMultiplierClampCases() {
+    return Stream.of(
+        Arguments.of(-5, 0),
+        Arguments.of(0, 0),
+        Arguments.of(250, 250),
+        Arguments.of(500, 500),
+        Arguments.of(501, 500));
+  }
+
+  @ParameterizedTest(name = "{0} clamps to {1}")
+  @MethodSource("furMultiplierClampCases")
+  @DisplayName("constructor clamps both fur multipliers to [0, 500]")
+  void constructorClampsFurMultipliers(final int input, final int expected) {
+    final FurSettings config = new FurSettings(true, input, input);
+    assertEquals(expected, config.furGrowthRateMultiplierPercent());
+    assertEquals(expected, config.badHairDayChanceMultiplierPercent());
   }
 }

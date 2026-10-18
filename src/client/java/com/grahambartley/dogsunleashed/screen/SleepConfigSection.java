@@ -2,7 +2,7 @@ package com.grahambartley.dogsunleashed.screen;
 
 import com.grahambartley.dogsunleashed.config.SleepSettings;
 
-final class SleepConfigSection implements ConfigSection<SleepSettings> {
+final class SleepConfigSection {
   private static final String KEY = "screen.dogs-unleashed.settings.";
 
   private SleepSettings settings;
@@ -11,8 +11,7 @@ final class SleepConfigSection implements ConfigSection<SleepSettings> {
     this.settings = settings;
   }
 
-  @Override
-  public void addTo(final DogsUnleashedConfigList list, final ConfigRows rows) {
+  void addTo(final DogsUnleashedConfigList list, final ConfigRows rows) {
     list.addRow(rows.header(KEY + "sleep"));
     list.addRow(
         rows.toggle(
@@ -30,8 +29,7 @@ final class SleepConfigSection implements ConfigSection<SleepSettings> {
             value -> this.settings = this.settings.withAutoSleepRangeBlocks(value)));
   }
 
-  @Override
-  public SleepSettings settings() {
+  SleepSettings settings() {
     return this.settings;
   }
 }

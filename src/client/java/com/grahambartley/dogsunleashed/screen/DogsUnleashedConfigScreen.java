@@ -36,7 +36,7 @@ public final class DogsUnleashedConfigScreen extends Screen {
             ? DogsUnleashedConfig.defaults()
             : SyncedServerConfig.get();
     this.spawning = new SpawningConfigSection(current.spawning());
-    this.gameplay = new GameplayConfigSection(current.gameplay());
+    this.gameplay = new GameplayConfigSection(current.gameplay(), this.spawning);
     this.sleep = new SleepConfigSection(current.sleep());
     this.grooming = new GroomingConfigSection(current.fur());
     this.direWolf = new DireWolfConfigSection(current.direWolf());
@@ -52,8 +52,6 @@ public final class DogsUnleashedConfigScreen extends Screen {
             this.client, this.width, layout, ROW_HEIGHT, ConfigRows.CONTENT_WIDTH);
     final ConfigRows rows = new ConfigRows(canEdit, this.textRenderer);
 
-    list.addRow(rows.header("screen.dogs-unleashed.settings.gameplay"));
-    this.spawning.addNaturalSpawningToggle(list, rows);
     this.gameplay.addTo(list, rows);
     this.spawning.addTo(list, rows);
     this.sleep.addTo(list, rows);

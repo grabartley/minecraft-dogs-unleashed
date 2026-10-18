@@ -2,17 +2,20 @@ package com.grahambartley.dogsunleashed.screen;
 
 import com.grahambartley.dogsunleashed.config.GameplaySettings;
 
-final class GameplayConfigSection implements ConfigSection<GameplaySettings> {
+final class GameplayConfigSection {
   private static final String KEY = "screen.dogs-unleashed.settings.";
 
+  private final SpawningConfigSection spawning;
   private GameplaySettings settings;
 
-  GameplayConfigSection(final GameplaySettings settings) {
+  GameplayConfigSection(final GameplaySettings settings, final SpawningConfigSection spawning) {
     this.settings = settings;
+    this.spawning = spawning;
   }
 
-  @Override
-  public void addTo(final DogsUnleashedConfigList list, final ConfigRows rows) {
+  void addTo(final DogsUnleashedConfigList list, final ConfigRows rows) {
+    list.addRow(rows.header(KEY + "gameplay"));
+    this.spawning.addNaturalSpawningToggle(list, rows);
     list.addRow(
         rows.toggle(
             KEY + "graves",
@@ -33,8 +36,7 @@ final class GameplayConfigSection implements ConfigSection<GameplaySettings> {
             value -> this.settings = this.settings.withShowDogNames(value)));
   }
 
-  @Override
-  public GameplaySettings settings() {
+  GameplaySettings settings() {
     return this.settings;
   }
 }

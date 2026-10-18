@@ -22,12 +22,12 @@
   "badHairDayChanceMultiplierPercent": 40,
   "direWolf": {
     "growthRateMultiplierPercent": 500,
-    "battlesToEvolve": 20,
-    "smallestPack": 5,
-    "largestPack": 10,
+    "battlesToEvolve": 30,
+    "smallestPack": 6,
+    "largestPack": 12,
     "packs": {
       "hunt": false,
-      "defend": true
+      "defend": false
     },
     "stamina": {
       "drains": false,
