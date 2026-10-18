@@ -54,10 +54,14 @@ public record DireWolfSettings(
   static DireWolfSettings fromJson(final JsonObject json) {
     final ConfigJsonFields fields = new ConfigJsonFields(json);
     return new DireWolfSettings(
-        fields.readInt(KEY_GROWTH_RATE_MULTIPLIER_PERCENT, DEFAULTS.growthRateMultiplierPercent),
-        fields.readInt(KEY_BATTLES_TO_EVOLVE, DEFAULTS.battlesToEvolve),
-        fields.readInt(KEY_SMALLEST_PACK, DEFAULTS.smallestPack),
-        fields.readInt(KEY_LARGEST_PACK, DEFAULTS.largestPack));
+        fields.readInt(
+            KEY_GROWTH_RATE_MULTIPLIER_PERCENT,
+            DEFAULTS.growthRateMultiplierPercent,
+            GROWTH_RATE_MIN,
+            GROWTH_RATE_MAX),
+        fields.readInt(KEY_BATTLES_TO_EVOLVE, DEFAULTS.battlesToEvolve, BATTLES_MIN, BATTLES_MAX),
+        fields.readInt(KEY_SMALLEST_PACK, DEFAULTS.smallestPack, PACK_MIN, PACK_MAX),
+        fields.readInt(KEY_LARGEST_PACK, DEFAULTS.largestPack, PACK_MIN, PACK_MAX));
   }
 
   JsonObject toJson() {

@@ -167,4 +167,11 @@ class DogSpawnerTest {
     assertEquals(husky.minGroupSize(), DogSpawner.smallestPack(UnleashedDogBreed.HUSKY, config));
     assertEquals(husky.maxGroupSize(), DogSpawner.largestPack(UnleashedDogBreed.HUSKY, config));
   }
+
+  @Test
+  @DisplayName("only a pack-only breed retries a failed placement, so other breeds spawn as before")
+  void onlyPackOnlyBreedsRetryPlacement() {
+    assertEquals(DogSpawner.PLACEMENT_ATTEMPTS, DogSpawner.placementAttempts(true));
+    assertEquals(1, DogSpawner.placementAttempts(false));
+  }
 }

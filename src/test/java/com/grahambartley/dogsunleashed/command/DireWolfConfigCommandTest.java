@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.command;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.config.DireWolfSettings;
 import java.util.List;
@@ -38,6 +39,15 @@ class DireWolfConfigCommandTest {
         new Object[] {DireWolfSettings.PACK_MIN, DireWolfSettings.PACK_MAX}, args(lines.get(2)));
     assertArrayEquals(
         new Object[] {DireWolfSettings.PACK_MIN, DireWolfSettings.PACK_MAX}, args(lines.get(3)));
+  }
+
+  @Test
+  @DisplayName("a smallest pack above the largest is refused, naming both sizes")
+  void packOrderRefusesASmallestAboveTheLargest() {
+    final Text refusal = DireWolfConfigCommand.packOrder(12, 10).orElseThrow();
+    assertArrayEquals(new Object[] {12, 10}, args(refusal));
+    assertTrue(DireWolfConfigCommand.packOrder(10, 10).isEmpty());
+    assertTrue(DireWolfConfigCommand.packOrder(5, 10).isEmpty());
   }
 
   private static Object[] args(final Text text) {

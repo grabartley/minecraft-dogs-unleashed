@@ -6,7 +6,9 @@ import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityType;
@@ -18,11 +20,13 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.spawner.SpecialSpawner;
+import org.jetbrains.annotations.Nullable;
 
 public class DogSpawner implements SpecialSpawner {
 
@@ -31,6 +35,7 @@ public class DogSpawner implements SpecialSpawner {
   static final int MIN_SPAWN_DISTANCE_BLOCKS = 24;
   static final int MAX_SPAWN_DISTANCE_BLOCKS = 48;
   static final int PACK_SCATTER_RADIUS_BLOCKS = 3;
+  static final int PLACEMENT_ATTEMPTS = 4;
   public static final int UNTAMED_DOG_CAP = 4;
   public static final int UNTAMED_DOG_CAP_RADIUS_BLOCKS = 64;
   private static final int REGION_LOADED_MARGIN_BLOCKS = 8;
@@ -128,22 +133,14 @@ public class DogSpawner implements SpecialSpawner {
     final int packSize = smallest + random.nextInt(largestPack(breed, config) - smallest + 1);
     final EntityType<? extends UnleashedDogEntity> type = ModEntities.getDogEntityType(breed);
     final List<UnleashedDogEntity> pack = new ArrayList<>();
+    final Set<Long> usedColumns = new HashSet<>();
+    final int attempts = placementAttempts(settings.packOnly());
     for (int i = 0; i < packSize; i++) {
-      final BlockPos pos = i == 0 ? center : scatterAround(world, center, random);
-      if (!SpawnRestriction.isSpawnPosAllowed(type, world, pos)
-          || !SpawnRestriction.canSpawn(type, world, SpawnReason.NATURAL, pos, random)) {
-        continue;
+      final UnleashedDogEntity dog =
+          placeMember(world, type, center, i == 0, attempts, usedColumns);
+      if (dog != null) {
+        pack.add(dog);
       }
-      final UnleashedDogEntity dog = type.create(world);
-      if (dog == null) {
-        continue;
-      }
-      dog.refreshPositionAndAngles(pos, random.nextFloat() * 360.0F, 0.0F);
-      if (!world.isSpaceEmpty(dog)) {
-        dog.discard();
-        continue;
-      }
-      pack.add(dog);
     }
     if (!placesPack(pack.size(), packSize, settings.packOnly())) {
       pack.forEach(UnleashedDogEntity::discard);
@@ -158,6 +155,41 @@ public class DogSpawner implements SpecialSpawner {
       world.spawnEntityAndPassengers(dog);
     }
     return pack.size();
+  }
+
+  public static int placementAttempts(final boolean packOnly) {
+    return packOnly ? PLACEMENT_ATTEMPTS : 1;
+  }
+
+  private static @Nullable UnleashedDogEntity placeMember(
+      final ServerWorld world,
+      final EntityType<? extends UnleashedDogEntity> type,
+      final BlockPos center,
+      final boolean leader,
+      final int attempts,
+      final Set<Long> usedColumns) {
+    final Random random = world.random;
+    for (int attempt = 0; attempt < attempts; attempt++) {
+      final BlockPos pos = leader && attempt == 0 ? center : scatterAround(world, center, random);
+      final long column = ChunkPos.toLong(pos.getX(), pos.getZ());
+      if ((attempts > 1 && usedColumns.contains(column))
+          || !SpawnRestriction.isSpawnPosAllowed(type, world, pos)
+          || !SpawnRestriction.canSpawn(type, world, SpawnReason.NATURAL, pos, random)) {
+        continue;
+      }
+      final UnleashedDogEntity dog = type.create(world);
+      if (dog == null) {
+        return null;
+      }
+      dog.refreshPositionAndAngles(pos, random.nextFloat() * 360.0F, 0.0F);
+      if (!world.isSpaceEmpty(dog)) {
+        dog.discard();
+        continue;
+      }
+      usedColumns.add(column);
+      return dog;
+    }
+    return null;
   }
 
   public static List<UnleashedDogBreed> spawnableBreedsIn(

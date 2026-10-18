@@ -49,6 +49,8 @@ public final class DogsUnleashedConfigScreen extends Screen {
   private int furGrowthRateMultiplierPercent;
   private int badHairDayChanceMultiplierPercent;
   private DireWolfSettings direWolf;
+  private IntSliderWidget smallestPackSlider;
+  private IntSliderWidget largestPackSlider;
 
   public DogsUnleashedConfigScreen(@Nullable Screen parent) {
     super(Text.translatable("screen.dogs-unleashed.settings.title"));
@@ -210,7 +212,7 @@ public final class DogsUnleashedConfigScreen extends Screen {
             DireWolfSettings.BATTLES_MAX,
             this.direWolf.battlesToEvolve(),
             value -> this.direWolf = this.direWolf.withBattlesToEvolve(value)));
-    list.addRow(
+    this.smallestPackSlider =
         intSliderRow(
             canEdit,
             "screen.dogs-unleashed.settings.direwolf.smallestpack",
@@ -218,8 +220,11 @@ public final class DogsUnleashedConfigScreen extends Screen {
             DireWolfSettings.PACK_MIN,
             DireWolfSettings.PACK_MAX,
             this.direWolf.smallestPack(),
-            value -> this.direWolf = this.direWolf.withSmallestPack(value)));
-    list.addRow(
+            value -> {
+              this.direWolf = this.direWolf.withSmallestPack(value);
+              this.largestPackSlider.show(this.direWolf.largestPack());
+            });
+    this.largestPackSlider =
         intSliderRow(
             canEdit,
             "screen.dogs-unleashed.settings.direwolf.largestpack",
@@ -227,7 +232,12 @@ public final class DogsUnleashedConfigScreen extends Screen {
             DireWolfSettings.PACK_MIN,
             DireWolfSettings.PACK_MAX,
             this.direWolf.largestPack(),
-            value -> this.direWolf = this.direWolf.withLargestPack(value)));
+            value -> {
+              this.direWolf = this.direWolf.withLargestPack(value);
+              this.smallestPackSlider.show(this.direWolf.smallestPack());
+            });
+    list.addRow(this.smallestPackSlider);
+    list.addRow(this.largestPackSlider);
 
     list.addRow(sectionHeader("screen.dogs-unleashed.settings.sounds"));
     list.addRow(
@@ -291,7 +301,7 @@ public final class DogsUnleashedConfigScreen extends Screen {
     return withTooltip(widget, Text.translatable(tooltipKey), canEdit);
   }
 
-  private static ClickableWidget intSliderRow(
+  private static IntSliderWidget intSliderRow(
       final boolean canEdit,
       final String labelKey,
       final String tooltipKey,
@@ -340,8 +350,8 @@ public final class DogsUnleashedConfigScreen extends Screen {
     return withTooltip(widget, Text.translatable(tooltipKey), canEdit);
   }
 
-  private static ClickableWidget withTooltip(
-      final ClickableWidget widget, final Text tooltip, final boolean canEdit) {
+  private static <W extends ClickableWidget> W withTooltip(
+      final W widget, final Text tooltip, final boolean canEdit) {
     widget.setTooltip(Tooltip.of(tooltip));
     widget.active = canEdit;
     return widget;
@@ -482,6 +492,12 @@ public final class DogsUnleashedConfigScreen extends Screen {
     @Override
     protected void updateMessage() {
       setMessage(label.copy().append(Text.literal(": " + currentValue + valueSuffix)));
+    }
+
+    void show(final int shown) {
+      currentValue = clamp(shown, min, max);
+      this.value = normalize(currentValue, min, max);
+      updateMessage();
     }
 
     @Override

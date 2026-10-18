@@ -6,6 +6,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -24,7 +25,8 @@ final class DireWolfConfigCommand {
                 DireWolfSettings.GROWTH_RATE_MIN,
                 DireWolfSettings.GROWTH_RATE_MAX,
                 DireWolfSettings::withGrowthRateMultiplierPercent,
-                "%"))
+                "%",
+                (settings, value) -> Optional.empty()))
         .then(
             setting(
                 "battles",
@@ -32,7 +34,8 @@ final class DireWolfConfigCommand {
                 DireWolfSettings.BATTLES_MIN,
                 DireWolfSettings.BATTLES_MAX,
                 DireWolfSettings::withBattlesToEvolve,
-                ""))
+                "",
+                (settings, value) -> Optional.empty()))
         .then(
             setting(
                 "smallestpack",
@@ -40,7 +43,8 @@ final class DireWolfConfigCommand {
                 DireWolfSettings.PACK_MIN,
                 DireWolfSettings.PACK_MAX,
                 DireWolfSettings::withSmallestPack,
-                ""))
+                "",
+                (settings, value) -> packOrder(value, settings.largestPack())))
         .then(
             setting(
                 "largestpack",
@@ -48,7 +52,8 @@ final class DireWolfConfigCommand {
                 DireWolfSettings.PACK_MIN,
                 DireWolfSettings.PACK_MAX,
                 DireWolfSettings::withLargestPack,
-                ""));
+                "",
+                (settings, value) -> packOrder(settings.smallestPack(), value)));
   }
 
   static List<Text> helpLines() {
@@ -84,13 +89,21 @@ final class DireWolfConfigCommand {
             settings.largestPack()));
   }
 
+  static Optional<Text> packOrder(final int smallest, final int largest) {
+    return smallest > largest
+        ? Optional.of(
+            Text.translatable("command.dogs-unleashed.direwolf.pack_order", smallest, largest))
+        : Optional.empty();
+  }
+
   private static LiteralArgumentBuilder<ServerCommandSource> setting(
       final String name,
       final String argument,
       final int min,
       final int max,
       final BiFunction<DireWolfSettings, Integer, DireWolfSettings> update,
-      final String unit) {
+      final String unit,
+      final BiFunction<DireWolfSettings, Integer, Optional<Text>> refusal) {
     return CommandManager.literal(name)
         .then(
             CommandManager.argument(argument, IntegerArgumentType.integer(min, max))
@@ -101,7 +114,8 @@ final class DireWolfConfigCommand {
                             "direwolf " + name,
                             update,
                             IntegerArgumentType.getInteger(ctx, argument),
-                            unit)));
+                            unit,
+                            refusal)));
   }
 
   private static int apply(
@@ -109,8 +123,15 @@ final class DireWolfConfigCommand {
       final String label,
       final BiFunction<DireWolfSettings, Integer, DireWolfSettings> update,
       final int value,
-      final String unit) {
-    final DireWolfSettings updated = update.apply(DogsUnleashed.SERVER_CONFIG.direWolf(), value);
+      final String unit,
+      final BiFunction<DireWolfSettings, Integer, Optional<Text>> refusal) {
+    final DireWolfSettings current = DogsUnleashed.SERVER_CONFIG.direWolf();
+    final Optional<Text> refused = refusal.apply(current, value);
+    if (refused.isPresent()) {
+      ctx.getSource().sendError(refused.get());
+      return 0;
+    }
+    final DireWolfSettings updated = update.apply(current, value);
     return DogsUnleashedCommand.applyUpdate(
         ctx, DogsUnleashed.SERVER_CONFIG.withDireWolf(updated), label, value + unit, false);
   }

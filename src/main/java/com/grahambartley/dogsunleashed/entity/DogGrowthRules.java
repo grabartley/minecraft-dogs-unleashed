@@ -1,5 +1,7 @@
 package com.grahambartley.dogsunleashed.entity;
 
+import java.util.Optional;
+
 public final class DogGrowthRules {
 
   public static final int PERCENT = 100;
@@ -56,5 +58,22 @@ public final class DogGrowthRules {
     return stage.evolvesThroughBond()
         && tamed
         && battlesStillNeeded(battlesWon, battlesToEvolve) == 0;
+  }
+
+  public static Optional<String> evolutionRefusalKey(
+      final DireWolfGrowthStage stage, final int battlesWon, final int battlesToEvolve) {
+    if (stage == DireWolfGrowthStage.ALPHA) {
+      return Optional.of("message.dogs-unleashed.direwolf.already_alpha");
+    }
+    if (!stage.evolvesThroughBond()) {
+      return Optional.of("message.dogs-unleashed.direwolf.not_prime");
+    }
+    final int remaining = battlesStillNeeded(battlesWon, battlesToEvolve);
+    if (remaining == 1) {
+      return Optional.of("message.dogs-unleashed.direwolf.needs_one_battle");
+    }
+    return remaining > 1
+        ? Optional.of("message.dogs-unleashed.direwolf.needs_battles")
+        : Optional.empty();
   }
 }

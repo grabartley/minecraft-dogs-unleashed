@@ -403,4 +403,18 @@ class UnleashedDogBreedTest {
         spawn != null && spawn.packOnly(),
         breed + " pack only");
   }
+
+  @Test
+  @DisplayName("each Nature builder method changes only its own trait")
+  void natureBuilderChangesOneTraitAtATime() {
+    final UnleashedDogBreed.Nature ordinary = UnleashedDogBreed.Nature.ORDINARY;
+    assertEquals(
+        new UnleashedDogBreed.Nature(9, false, false, true), ordinary.withTameSuccessChance(9));
+    assertEquals(
+        new UnleashedDogBreed.Nature(3, true, false, true), ordinary.breedingOnlyWithOwnBreed());
+    assertEquals(
+        new UnleashedDogBreed.Nature(3, false, true, true), ordinary.growingThroughStages());
+    assertEquals(
+        new UnleashedDogBreed.Nature(3, false, false, false), ordinary.sleepingOutsideBeds());
+  }
 }

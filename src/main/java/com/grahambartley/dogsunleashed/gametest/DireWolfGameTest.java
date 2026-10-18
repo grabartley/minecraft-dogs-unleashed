@@ -559,7 +559,7 @@ public final class DireWolfGameTest implements FabricGameTest {
             dog.getBlockPos(),
             world.getRegistryKey().getValue().toString(),
             PetLifeState.LIVING);
-    pet.syncAppearanceFrom(dog);
+    pet.syncFrom(dog);
     PetManager.get(world.getServer()).registerPet(pet);
   }
 }

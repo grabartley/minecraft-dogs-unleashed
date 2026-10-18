@@ -122,8 +122,8 @@ only operators can.
 | Fur Growth                | On      | Whether coats grow out. Off keeps every coat as it is. Shears still work.          |
 | Fur Growth Speed          | 100%    | How fast coats grow, from 0% to 500%.                                             |
 | Bad Haircut Chance        | 100%    | How often a trim goes wrong, from 0% to 500%. 0% means every trim is clean.       |
-| Dire Wolf Growth Speed    | 100%    | How fast dire wolves grow up, from 0% to 500%. 0% stops them growing on their own. |
-| Battles to Become an Alpha | 20     | How many fights a prime must win beside you before it can become an alpha, from 1 to 200. |
+| Dire Wolf Growth Speed    | 100%    | How fast dire wolves grow up, from 0% to 500%. 0% stops them growing.             |
+| Alpha Battles             | 20      | Fights a prime must win beside you before it can become an alpha, from 1 to 200.  |
 | Smallest / Largest Pack   | 5 / 10  | How many dire wolves a wild pack has, from 4 to 16.                               |
 
 </details>

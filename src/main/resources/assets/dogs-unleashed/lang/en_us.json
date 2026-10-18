@@ -373,7 +373,7 @@
   "screen.dogs-unleashed.settings.direwolf": "Dire Wolves",
   "screen.dogs-unleashed.settings.direwolf.growthrate": "Growth Speed",
   "screen.dogs-unleashed.settings.direwolf.growthrate.tooltip": "How fast a dire wolf grows from yearling to adult and from adult to prime. 0% stops them growing on their own.",
-  "screen.dogs-unleashed.settings.direwolf.battles": "Battles to Become an Alpha",
+  "screen.dogs-unleashed.settings.direwolf.battles": "Alpha Battles",
   "screen.dogs-unleashed.settings.direwolf.battles.tooltip": "How many hostile mobs a tamed prime must defeat near its owner before an Enchanted Golden Apple turns it into an Alpha.",
   "screen.dogs-unleashed.settings.direwolf.smallestpack": "Smallest Pack",
   "screen.dogs-unleashed.settings.direwolf.smallestpack.tooltip": "The fewest dire wolves a wild pack spawns with.",
@@ -391,5 +391,6 @@
   "command.dogs-unleashed.status.badhairdaychance": "- badhairdaychance=%s%%",
   "command.dogs-unleashed.status.direwolf.growthrate": "- direwolf growthrate=%s%%",
   "command.dogs-unleashed.status.direwolf.battles": "- direwolf battles=%s",
-  "command.dogs-unleashed.status.direwolf.packsize": "- direwolf pack=%s..%s"
+  "command.dogs-unleashed.status.direwolf.packsize": "- direwolf pack=%s..%s",
+  "command.dogs-unleashed.direwolf.pack_order": "The smallest pack (%s) can't be bigger than the largest pack (%s)."
 }

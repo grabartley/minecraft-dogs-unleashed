@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.config.DireWolfSettings;
 import com.grahambartley.dogsunleashed.pet.PetNames;
+import java.util.Optional;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.LivingEntity;
@@ -122,27 +123,21 @@ public final class DogGrowth {
     if (!this.applies() || !stack.isOf(Items.ENCHANTED_GOLDEN_APPLE)) {
       return null;
     }
-    final String name = PetNames.tamedNameOf(this.dog);
-    if (this.stage() == DireWolfGrowthStage.ALPHA) {
+    final int battlesToEvolve = settings().battlesToEvolve();
+    final Optional<String> refusal =
+        DogGrowthRules.evolutionRefusalKey(this.stage(), this.battlesWon, battlesToEvolve);
+    if (refusal.isPresent()) {
       player.sendMessage(
-          Text.translatable("message.dogs-unleashed.direwolf.already_alpha", name), true);
-      return ActionResult.SUCCESS;
-    }
-    if (!this.stage().evolvesThroughBond()) {
-      player.sendMessage(
-          Text.translatable("message.dogs-unleashed.direwolf.not_prime", name), true);
+          Text.translatable(
+              refusal.get(),
+              PetNames.tamedNameOf(this.dog),
+              DogGrowthRules.battlesStillNeeded(this.battlesWon, battlesToEvolve)),
+          true);
       return ActionResult.SUCCESS;
     }
     if (!DogGrowthRules.canEvolve(
-        this.stage(), this.dog.isTamed(), this.battlesWon, settings().battlesToEvolve())) {
-      final int remaining =
-          DogGrowthRules.battlesStillNeeded(this.battlesWon, settings().battlesToEvolve());
-      player.sendMessage(
-          remaining == 1
-              ? Text.translatable("message.dogs-unleashed.direwolf.needs_one_battle", name)
-              : Text.translatable("message.dogs-unleashed.direwolf.needs_battles", name, remaining),
-          true);
-      return ActionResult.SUCCESS;
+        this.stage(), this.dog.isTamed(), this.battlesWon, battlesToEvolve)) {
+      return ActionResult.PASS;
     }
     stack.decrementUnlessCreative(1, player);
     this.growInto(DireWolfGrowthStage.ALPHA);
@@ -248,7 +243,7 @@ public final class DogGrowth {
     this.packMemberIndex = -1;
   }
 
-  void restore(final int stageNumber, final int battlesWon) {
+  void restore(final int stageNumber, final int battlesWon, final int ticksInStage) {
     if (!this.applies()) {
       return;
     }
@@ -257,6 +252,7 @@ public final class DogGrowth {
       this.dog.setTrackedGrowthStage(DireWolfGrowthStage.fromNumber(stageNumber).number());
     }
     this.refresh();
+    this.ticksInStage = Math.max(0, ticksInStage);
   }
 
   void writeNbt(final NbtCompound nbt) {

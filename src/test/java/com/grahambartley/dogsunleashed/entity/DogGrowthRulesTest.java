@@ -143,4 +143,24 @@ class DogGrowthRulesTest {
       final boolean expected) {
     assertEquals(expected, DogGrowthRules.canEvolve(stage, tamed, battles, required));
   }
+
+  @ParameterizedTest(name = "{0} with {1} of {2} battles -> {3}")
+  @CsvSource({
+    "PUP, 0, 20, message.dogs-unleashed.direwolf.not_prime",
+    "ADULT, 20, 20, message.dogs-unleashed.direwolf.not_prime",
+    "ALPHA, 20, 20, message.dogs-unleashed.direwolf.already_alpha",
+    "PRIME, 0, 20, message.dogs-unleashed.direwolf.needs_battles",
+    "PRIME, 18, 20, message.dogs-unleashed.direwolf.needs_battles",
+    "PRIME, 19, 20, message.dogs-unleashed.direwolf.needs_one_battle",
+    "PRIME, 20, 20, ''",
+    "PRIME, 25, 20, ''",
+  })
+  @DisplayName("feeding the apple too early explains why, and a ready prime gets no refusal")
+  void evolutionRefusalKey(
+      final DireWolfGrowthStage stage,
+      final int battles,
+      final int required,
+      final String expected) {
+    assertEquals(expected, DogGrowthRules.evolutionRefusalKey(stage, battles, required).orElse(""));
+  }
 }

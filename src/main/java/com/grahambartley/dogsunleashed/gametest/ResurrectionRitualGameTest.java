@@ -376,7 +376,7 @@ public final class ResurrectionRitualGameTest implements FabricGameTest {
             context.getAbsolutePos(REL_GRAVE),
             world.getRegistryKey().getValue().toString(),
             PetLifeState.DECEASED);
-    pet.syncAppearanceFrom(dog);
+    pet.syncFrom(dog);
     PetManager.get(world.getServer()).registerPet(pet);
     dog.discard();
 

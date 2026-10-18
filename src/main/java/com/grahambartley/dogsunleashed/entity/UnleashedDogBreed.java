@@ -136,7 +136,7 @@ public enum UnleashedDogBreed {
           .withTameSuccessChance(6)
           .breedingOnlyWithOwnBreed()
           .growingThroughStages()
-          .tooBigForBeds()),
+          .sleepingOutsideBeds()),
   CROSS_BREED(
       "crossbreed",
       new FetchCarryProfiles(
@@ -345,7 +345,7 @@ public enum UnleashedDogBreed {
       return new Nature(tameSuccessChance, breedsOnlyWithOwnBreed, true, sleepsInBeds);
     }
 
-    public Nature tooBigForBeds() {
+    public Nature sleepingOutsideBeds() {
       return new Nature(tameSuccessChance, breedsOnlyWithOwnBreed, growsThroughStages, false);
     }
   }
