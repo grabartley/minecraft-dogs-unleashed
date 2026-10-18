@@ -30,7 +30,8 @@ public record PetSyncData(
     int furStage,
     float movementSpeed,
     float attackDamage,
-    List<BreedShare> composition) {
+    List<BreedShare> composition,
+    RidingView riding) {
 
   public static final PacketCodec<RegistryByteBuf, PetSyncData> CODEC =
       PacketCodec.of(PetSyncData::write, PetSyncData::read);
@@ -54,7 +55,8 @@ public record PetSyncData(
         petData.getFurStage(),
         petData.getMovementSpeed(),
         petData.getAttackDamage(),
-        petData.getComposition());
+        petData.getComposition(),
+        RidingView.of(petData.getBreed(), petData.getGrowthStage(), petData.getStaminaPercent()));
   }
 
   public static PetSyncData fromDog(final UnleashedDogEntity dog) {
@@ -78,7 +80,11 @@ public record PetSyncData(
         dog.getFur().stage().ordinal(),
         (float) dog.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED),
         (float) dog.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE),
-        genome != null ? genome.composition() : List.of());
+        genome != null ? genome.composition() : List.of(),
+        RidingView.of(
+            dog.getBreed(),
+            dog.getGrowth().stage().number(),
+            Math.round(dog.getRiding().staminaFraction() * 100.0f)));
   }
 
   public boolean alive() {
@@ -115,6 +121,7 @@ public record PetSyncData(
     buf.writeFloat(this.movementSpeed);
     buf.writeFloat(this.attackDamage);
     BreedShareCodec.writeList(buf, this.composition);
+    this.riding.write(buf);
   }
 
   static PetSyncData read(final RegistryByteBuf buf) {
@@ -136,6 +143,7 @@ public record PetSyncData(
         buf.readVarInt(),
         buf.readFloat(),
         buf.readFloat(),
-        BreedShareCodec.readList(buf));
+        BreedShareCodec.readList(buf),
+        RidingView.read(buf));
   }
 }

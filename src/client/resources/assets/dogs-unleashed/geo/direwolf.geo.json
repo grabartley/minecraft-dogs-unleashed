@@ -597,6 +597,62 @@
 					]
 				},
 				{
+					"name": "fang_upper_left",
+					"parent": "snout",
+					"pivot": [
+						0.45,
+						8.25,
+						-11.3
+					],
+					"cubes": [
+						{
+							"origin": [
+								-0.05,
+								7.75,
+								-11.8
+							],
+							"size": [
+								1,
+								1,
+								1
+							],
+							"inflate": -0.33,
+							"uv": [
+								180,
+								234
+							]
+						}
+					]
+				},
+				{
+					"name": "fang_upper_right",
+					"parent": "snout",
+					"pivot": [
+						-0.45,
+						8.25,
+						-11.3
+					],
+					"cubes": [
+						{
+							"origin": [
+								-0.95,
+								7.75,
+								-11.8
+							],
+							"size": [
+								1,
+								1,
+								1
+							],
+							"inflate": -0.33,
+							"uv": [
+								180,
+								234
+							]
+						}
+					]
+				},
+				{
 					"name": "jaw",
 					"parent": "head",
 					"pivot": [
@@ -620,6 +676,62 @@
 							"uv": [
 								96,
 								173
+							]
+						}
+					]
+				},
+				{
+					"name": "fang_lower_left",
+					"parent": "jaw",
+					"pivot": [
+						0.22,
+						7.7,
+						-10.9
+					],
+					"cubes": [
+						{
+							"origin": [
+								-0.28,
+								7.2,
+								-11.4
+							],
+							"size": [
+								1,
+								1,
+								1
+							],
+							"inflate": -0.33,
+							"uv": [
+								180,
+								234
+							]
+						}
+					]
+				},
+				{
+					"name": "fang_lower_right",
+					"parent": "jaw",
+					"pivot": [
+						-0.22,
+						7.7,
+						-10.9
+					],
+					"cubes": [
+						{
+							"origin": [
+								-0.72,
+								7.2,
+								-11.4
+							],
+							"size": [
+								1,
+								1,
+								1
+							],
+							"inflate": -0.33,
+							"uv": [
+								180,
+								234
 							]
 						}
 					]
@@ -1800,11 +1912,11 @@
 				},
 				{
 					"name": "seat",
-					"parent": "body",
+					"parent": "waist",
 					"pivot": [
 						0,
-						7.7,
-						-1.2
+						7.3,
+						0
 					]
 				}
 			]

@@ -18,7 +18,10 @@ class DogGrowthRulesTest {
         Arguments.of(0, 0, DireWolfGrowthStage.YEARLING),
         Arguments.of(0, 49, DireWolfGrowthStage.YEARLING),
         Arguments.of(0, 50, DireWolfGrowthStage.ADULT),
-        Arguments.of(0, 99, DireWolfGrowthStage.ADULT),
+        Arguments.of(0, 79, DireWolfGrowthStage.ADULT),
+        Arguments.of(0, 80, DireWolfGrowthStage.PRIME),
+        Arguments.of(0, 99, DireWolfGrowthStage.PRIME),
+        Arguments.of(2, 99, DireWolfGrowthStage.ADULT),
         Arguments.of(1, 0, DireWolfGrowthStage.PUP),
         Arguments.of(1, 99, DireWolfGrowthStage.PUP),
         Arguments.of(2, 0, DireWolfGrowthStage.YEARLING),
@@ -27,25 +30,41 @@ class DogGrowthRulesTest {
         Arguments.of(4, 40, DireWolfGrowthStage.YEARLING),
         Arguments.of(5, 79, DireWolfGrowthStage.YEARLING),
         Arguments.of(9, 80, DireWolfGrowthStage.ADULT),
-        Arguments.of(9, 99, DireWolfGrowthStage.ADULT));
+        Arguments.of(9, 94, DireWolfGrowthStage.ADULT),
+        Arguments.of(9, 95, DireWolfGrowthStage.PRIME),
+        Arguments.of(9, 99, DireWolfGrowthStage.PRIME));
   }
 
   @ParameterizedTest(name = "member {0}, roll {1} -> {2}")
   @MethodSource("packStages")
-  @DisplayName("pack members are an adult, a pup, two more adults, then a 40/40/20 mix")
+  @DisplayName("a pack is a leader that may be a prime, a pup, two more adults, then a mixed tail")
   void packMemberStage(final int member, final int roll, final DireWolfGrowthStage expected) {
     assertEquals(expected, DogGrowthRules.packStage(member, roll));
   }
 
   @Test
-  @DisplayName("no wild pack member is ever above an adult")
-  void noWildMemberAboveAdult() {
+  @DisplayName("no wild pack member is ever an alpha")
+  void noWildMemberIsAnAlpha() {
     for (int member = 0; member < 10; member++) {
       for (int roll = 0; roll < DogGrowthRules.PERCENT; roll++) {
-        assertTrue(
-            DogGrowthRules.packStage(member, roll).number() <= DireWolfGrowthStage.ADULT.number());
+        assertTrue(DogGrowthRules.packStage(member, roll) != DireWolfGrowthStage.ALPHA);
       }
     }
+  }
+
+  @Test
+  @DisplayName("primes lead one pack in five and are rare among the rest")
+  void primesAreLessCommonThanAdults() {
+    final int[] leader = new int[6];
+    final int[] tail = new int[6];
+    for (int roll = 0; roll < DogGrowthRules.PERCENT; roll++) {
+      leader[DogGrowthRules.packStage(0, roll).number()]++;
+      tail[DogGrowthRules.packStage(4, roll).number()]++;
+    }
+    assertEquals(20, leader[DireWolfGrowthStage.PRIME.number()]);
+    assertEquals(5, tail[DireWolfGrowthStage.PRIME.number()]);
+    assertTrue(
+        leader[DireWolfGrowthStage.PRIME.number()] < leader[DireWolfGrowthStage.ADULT.number()]);
   }
 
   @Test
@@ -68,7 +87,7 @@ class DogGrowthRulesTest {
   }
 
   @Test
-  @DisplayName("the later-member mix is 40 percent pups, 40 yearlings and 20 adults")
+  @DisplayName("the later-member mix is 40 percent pups, 40 yearlings, 15 adults and 5 primes")
   void laterMemberMixMatchesTheSpec() {
     final int[] counts = new int[6];
     for (int roll = 0; roll < DogGrowthRules.PERCENT; roll++) {
@@ -76,7 +95,8 @@ class DogGrowthRulesTest {
     }
     assertEquals(40, counts[1]);
     assertEquals(40, counts[2]);
-    assertEquals(20, counts[3]);
+    assertEquals(15, counts[3]);
+    assertEquals(5, counts[4]);
   }
 
   @ParameterizedTest(name = "health {0} of {1} -> {3} when max becomes {2}")

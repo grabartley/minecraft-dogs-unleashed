@@ -27,6 +27,8 @@ import com.grahambartley.dogsunleashed.render.layer.WolfDogArmourFeatureRenderer
 import com.grahambartley.dogsunleashed.render.overlay.ProjectedOverlays;
 import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
 import com.grahambartley.dogsunleashed.render.rig.SlotRegions;
+import com.grahambartley.dogsunleashed.riding.RideInputSync;
+import com.grahambartley.dogsunleashed.riding.RideStaminaHud;
 import com.grahambartley.dogsunleashed.screen.DogEquipmentScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
@@ -125,5 +127,7 @@ public class DogsUnleashedClient implements ClientModInitializer {
     ModNetworkingClient.registerClientReceivers();
     SyncedServerConfig.resetOnDisconnect();
     KeybindDiscoveryNudge.register();
+    RideInputSync.register();
+    RideStaminaHud.register();
   }
 }

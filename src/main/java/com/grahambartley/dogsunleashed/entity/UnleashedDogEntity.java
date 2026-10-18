@@ -58,18 +58,17 @@ import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class UnleashedDogEntity extends TameableEntity
+public class UnleashedDogEntity extends DogMountEntity
     implements GeoEntity, Angerable, ExtendedScreenHandlerFactory<Integer> {
 
   public static final int DEFAULT_COLLAR_COLOR_ID = DyeColor.RED.getId();
   public static final int UNSET_VARIANT = -1;
 
-  private static final double NEARBY_PLAYER_RANGE = 10.0D;
-
   private static final TrackedData<Integer> ANGER_TIME = data(INTEGER);
   private static final TrackedData<Integer> COAT_VARIANT = data(INTEGER);
   private static final TrackedData<Integer> EYE_COLOR_VARIANT = data(INTEGER);
   static final TrackedData<Boolean> HOWLING = data(BOOLEAN);
+  static final TrackedData<Boolean> GROWLING = data(BOOLEAN);
   private static final TrackedData<NbtCompound> GENOME = data(NBT_COMPOUND);
   private static final TrackedData<Integer> COLLAR_COLOR = data(INTEGER);
   static final TrackedData<Integer> TAIL_WAG_TIMER = data(INTEGER);
@@ -118,6 +117,10 @@ public class UnleashedDogEntity extends TameableEntity
   private final DogFetchCarry fetchCarry = new DogFetchCarry(this);
   private final DogFur fur = new DogFur(this);
   private final DogGrowth growth = new DogGrowth(this);
+  private final DogPack pack = new DogPack(this);
+  private final DogGrowl growl = new DogGrowl(this);
+  private final DogTrust trust = new DogTrust(this);
+  private final DogRiding riding = new DogRiding(this);
   private boolean spawnedByDogSpawner = false;
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -159,8 +162,9 @@ public class UnleashedDogEntity extends TameableEntity
       this.getAppearanceRoller().rollAppearance(spawnReason);
     }
     this.undeadState.applyAttributeScaling();
-    final EntityData pack = this.growth.joinPack(spawnReason, entityData);
-    final EntityData initialized = super.initialize(world, difficulty, spawnReason, pack);
+    final EntityData packData = this.growth.joinPack(spawnReason, entityData);
+    this.pack.joinFrom(packData);
+    final EntityData initialized = super.initialize(world, difficulty, spawnReason, packData);
     this.growth.settleInPack();
     this.growth.refresh();
     this.fur.rollSpawnStage(spawnReason);
@@ -282,6 +286,7 @@ public class UnleashedDogEntity extends TameableEntity
     builder.add(COAT_VARIANT, 0);
     builder.add(EYE_COLOR_VARIANT, 0);
     builder.add(HOWLING, false);
+    builder.add(GROWLING, false);
     builder.add(GENOME, new NbtCompound());
     builder.add(FUR_STAGE, DogFurStage.NATURAL.ordinal());
     builder.add(GROWTH_STAGE, DireWolfGrowthStage.YEARLING.number());
@@ -345,6 +350,23 @@ public class UnleashedDogEntity extends TameableEntity
 
   public DogGrowth getGrowth() {
     return this.growth;
+  }
+
+  public DogPack getPack() {
+    return this.pack;
+  }
+
+  public DogGrowl getGrowl() {
+    return this.growl;
+  }
+
+  public DogTrust getTrust() {
+    return this.trust;
+  }
+
+  @Override
+  public DogRiding getRiding() {
+    return this.riding;
   }
 
   int getTrackedGrowthStage() {
@@ -520,7 +542,8 @@ public class UnleashedDogEntity extends TameableEntity
 
   @Override
   public void setTarget(@Nullable final LivingEntity target) {
-    if (target != null && this.isBaby()) {
+    if (target != null
+        && (this.isBaby() || this.pack.staysOutOfFights() || this.riding.isRidden())) {
       return;
     }
     super.setTarget(target);
@@ -530,23 +553,7 @@ public class UnleashedDogEntity extends TameableEntity
   public void tick() {
     super.tick();
     if (!this.getWorld().isClient) {
-      if (this.isLeashed() && (this.isSleepingInBed() || this.isCommandedToSleep())) {
-        this.wakeUp();
-      }
-
-      final PlayerEntity nearbyPlayer = this.getWorld().getClosestPlayer(this, NEARBY_PLAYER_RANGE);
-
-      this.ambience.updateSocialCues(nearbyPlayer);
-
-      this.vocalization.tick(nearbyPlayer);
-      this.treatBuff.tick();
-
-      this.ambience.tickShakeOff();
-      this.undeadState.tick();
-      this.curing.tick();
-      this.pendants.tick();
-      this.fur.tick();
-      this.growth.tick();
+      DogServerTick.run(this);
     }
   }
 
@@ -590,7 +597,11 @@ public class UnleashedDogEntity extends TameableEntity
       this.wakeUp();
       this.vocalization.barkIfReady(BARK_PITCH);
     }
-    return super.damage(source, amount);
+    final boolean damaged = super.damage(source, amount);
+    if (damaged && !this.getWorld().isClient) {
+      this.pack.onHurtBy(source.getAttacker());
+    }
+    return damaged;
   }
 
   @Override

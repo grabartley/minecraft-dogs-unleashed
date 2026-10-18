@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.screen;
 
+import com.grahambartley.dogsunleashed.entity.DogTrustRules;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
 import java.util.Arrays;
@@ -20,6 +21,7 @@ final class DogStatsPanel {
   private static final int HEALTH_FILL = 0xFFE05B5B;
   private static final int SPEED_FILL = 0xFF5BA8E0;
   private static final int ATTACK_FILL = 0xFFE0A85B;
+  private static final int TRUST_FILL = 0xFFE07FB8;
   private static final int LABEL_COLOR = 0xFFBBBBBB;
   private static final int VALUE_COLOR = 0xFFFFFFFF;
 
@@ -126,6 +128,25 @@ final class DogStatsPanel {
             rowY,
             labelWidth);
     return rowY;
+  }
+
+  static int drawTrustRow(
+      final DrawContext context,
+      final TextRenderer textRenderer,
+      final int trust,
+      final int x,
+      final int y,
+      final int labelWidth) {
+    return drawRow(
+        context,
+        textRenderer,
+        "screen.dogs-unleashed.dog_inspect.trust",
+        trust + " / " + DogTrustRules.MAX_TRUST,
+        fraction(trust, DogTrustRules.MAX_TRUST),
+        TRUST_FILL,
+        x,
+        y,
+        labelWidth);
   }
 
   private static int drawRow(

@@ -2,7 +2,9 @@ package com.grahambartley.dogsunleashed.network;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.grahambartley.dogsunleashed.config.DireWolfPackSettings;
 import com.grahambartley.dogsunleashed.config.DireWolfSettings;
+import com.grahambartley.dogsunleashed.config.DireWolfStaminaSettings;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.EditServerConfigC2SPayload;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.SyncServerConfigS2CPayload;
@@ -42,7 +44,13 @@ class ServerConfigPayloadsTest {
                 false,
                 250,
                 0,
-                new DireWolfSettings(175, 8, 6, 9))));
+                new DireWolfSettings(
+                    175,
+                    8,
+                    6,
+                    9,
+                    new DireWolfPackSettings(false, true),
+                    new DireWolfStaminaSettings(false, 150, 60)))));
   }
 
   @ParameterizedTest(name = "{0}")

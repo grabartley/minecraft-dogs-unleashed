@@ -9,7 +9,9 @@ import software.bernie.geckolib.animation.RawAnimation;
 public final class DogAnimationControllers {
 
   private static final double MOVEMENT_THRESHOLD = 0.001;
+  private static final float GALLOP_LIMB_SPEED = 0.1f;
   private static final int HEAD_TILT_TRANSITION_TICKS = 5;
+  private static final int GROWL_TRANSITION_TICKS = 4;
 
   private DogAnimationControllers() {}
 
@@ -26,6 +28,9 @@ public final class DogAnimationControllers {
               }
               if (state.getAnimatable().isInSittingPose()) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("sit"));
+              }
+              if (isGalloping(state.getAnimatable())) {
+                return state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.RUN));
               }
               if (isMoving(state)) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("walk"));
@@ -78,6 +83,23 @@ public final class DogAnimationControllers {
     controllers.add(
         new AnimationController<>(
             dog,
+            DogAnimationKeys.GROWL,
+            GROWL_TRANSITION_TICKS,
+            state -> {
+              if (dog.getGrowl().isGrowling()) {
+                return state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.GROWL));
+              }
+              return PlayState.STOP;
+            }));
+
+    controllers.add(
+        new AnimationController<>(dog, DogAnimationKeys.BARK, 0, state -> PlayState.STOP)
+            .triggerableAnim(
+                DogAnimationKeys.BARK, RawAnimation.begin().thenPlay(DogAnimationKeys.BARK)));
+
+    controllers.add(
+        new AnimationController<>(
+            dog,
             "head_tilt",
             HEAD_TILT_TRANSITION_TICKS,
             state -> {
@@ -91,6 +113,10 @@ public final class DogAnimationControllers {
               }
               return PlayState.STOP;
             }));
+  }
+
+  static boolean isGalloping(final UnleashedDogEntity dog) {
+    return dog.getRiding().isRidden() && dog.limbAnimator.getSpeed() > GALLOP_LIMB_SPEED;
   }
 
   static boolean isMoving(final AnimationState<UnleashedDogEntity> animationState) {

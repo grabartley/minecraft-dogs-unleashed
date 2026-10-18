@@ -333,6 +333,24 @@ class UnleashedDogBreedTest {
 
   @ParameterizedTest
   @EnumSource(UnleashedDogBreed.class)
+  @DisplayName("only the dire wolf rig opens its jaw to bark")
+  void onlyTheDireWolfMovesItsJawToBark(final UnleashedDogBreed breed) {
+    assertEquals(breed == UnleashedDogBreed.DIRE_WOLF, breed.barkMovesJaw());
+  }
+
+  @ParameterizedTest
+  @EnumSource(UnleashedDogBreed.class)
+  @DisplayName("only the dire wolf growls")
+  void onlyTheDireWolfGrowls(final UnleashedDogBreed breed) {
+    if (breed == UnleashedDogBreed.DIRE_WOLF) {
+      assertEquals("dogs-unleashed:entity.direwolf.growl", breed.growlSound().getId().toString());
+    } else {
+      assertNull(breed.growlSound(), breed + " growl sound");
+    }
+  }
+
+  @ParameterizedTest
+  @EnumSource(UnleashedDogBreed.class)
   @DisplayName("a breed has a howl sound exactly when it howls")
   void howlSoundPresenceMatchesHowling(final UnleashedDogBreed breed) {
     assertEquals(breed.howls(), breed.howlSound() != null, breed + " howl sound presence");
@@ -340,16 +358,19 @@ class UnleashedDogBreedTest {
 
   static Stream<Arguments> expectedNatures() {
     return Stream.of(
-        Arguments.of(UnleashedDogBreed.HUSKY, 3, false, false, true),
-        Arguments.of(UnleashedDogBreed.DACHSHUND, 3, false, false, true),
-        Arguments.of(UnleashedDogBreed.BEAGLE, 3, false, false, true),
-        Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, 3, false, false, true),
-        Arguments.of(UnleashedDogBreed.SHIBA_INU, 3, false, false, true),
-        Arguments.of(UnleashedDogBreed.DIRE_WOLF, 6, true, true, false),
-        Arguments.of(UnleashedDogBreed.CROSS_BREED, 3, false, false, true));
+        Arguments.of(UnleashedDogBreed.HUSKY, 3, false, false, true, false, false),
+        Arguments.of(UnleashedDogBreed.DACHSHUND, 3, false, false, true, false, false),
+        Arguments.of(UnleashedDogBreed.BEAGLE, 3, false, false, true, false, false),
+        Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, 3, false, false, true, false, false),
+        Arguments.of(UnleashedDogBreed.SHIBA_INU, 3, false, false, true, false, false),
+        Arguments.of(UnleashedDogBreed.DIRE_WOLF, 3, true, true, false, true, true),
+        Arguments.of(UnleashedDogBreed.CROSS_BREED, 3, false, false, true, false, false));
   }
 
-  @ParameterizedTest(name = "{0} tames 1 in {1}, own breed only={2}, staged growth={3}, beds={4}")
+  @ParameterizedTest(
+      name =
+          "{0} tames 1 in {1}, own breed only={2}, staged growth={3}, beds={4}, pack hunter={5},"
+              + " trust={6}")
   @MethodSource("expectedNatures")
   @DisplayName("each breed declares its taming chance, breeding rule and growth model")
   void breedNatureMatchesTheSpec(
@@ -357,10 +378,17 @@ class UnleashedDogBreedTest {
       final int tameSuccessChance,
       final boolean breedsOnlyWithOwnBreed,
       final boolean growsThroughStages,
-      final boolean sleepsInBeds) {
+      final boolean sleepsInBeds,
+      final boolean huntsInPacks,
+      final boolean tamesThroughTrust) {
     assertEquals(
         new UnleashedDogBreed.Nature(
-            tameSuccessChance, breedsOnlyWithOwnBreed, growsThroughStages, sleepsInBeds),
+            tameSuccessChance,
+            breedsOnlyWithOwnBreed,
+            growsThroughStages,
+            sleepsInBeds,
+            huntsInPacks,
+            tamesThroughTrust),
         breed.nature());
   }
 
@@ -409,12 +437,19 @@ class UnleashedDogBreedTest {
   void natureBuilderChangesOneTraitAtATime() {
     final UnleashedDogBreed.Nature ordinary = UnleashedDogBreed.Nature.ORDINARY;
     assertEquals(
-        new UnleashedDogBreed.Nature(9, false, false, true), ordinary.withTameSuccessChance(9));
+        new UnleashedDogBreed.Nature(3, true, false, true, false, false),
+        ordinary.breedingOnlyWithOwnBreed());
     assertEquals(
-        new UnleashedDogBreed.Nature(3, true, false, true), ordinary.breedingOnlyWithOwnBreed());
+        new UnleashedDogBreed.Nature(3, false, true, true, false, false),
+        ordinary.growingThroughStages());
     assertEquals(
-        new UnleashedDogBreed.Nature(3, false, true, true), ordinary.growingThroughStages());
+        new UnleashedDogBreed.Nature(3, false, false, false, false, false),
+        ordinary.sleepingOutsideBeds());
     assertEquals(
-        new UnleashedDogBreed.Nature(3, false, false, false), ordinary.sleepingOutsideBeds());
+        new UnleashedDogBreed.Nature(3, false, false, true, true, false),
+        ordinary.huntingInPacks());
+    assertEquals(
+        new UnleashedDogBreed.Nature(3, false, false, true, false, true),
+        ordinary.tamingThroughTrust());
   }
 }

@@ -153,4 +153,41 @@ class DireWolfGrowthStageTest {
         "growth.dogs-unleashed.direwolf." + stage.name().toLowerCase(Locale.ROOT),
         stage.translationKey());
   }
+
+  static Stream<Arguments> jumps() {
+    return Stream.of(
+        Arguments.of(DireWolfGrowthStage.PUP, 1.0, false),
+        Arguments.of(DireWolfGrowthStage.YEARLING, 1.0, false),
+        Arguments.of(DireWolfGrowthStage.ADULT, 1.0, false),
+        Arguments.of(DireWolfGrowthStage.PRIME, 1.5, true),
+        Arguments.of(DireWolfGrowthStage.ALPHA, 2.0, true));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("jumps")
+  @DisplayName("primes clear fences and 1.5 blocks, alphas 2 blocks, younger wolves one block")
+  void stageJumpClearance(
+      final DireWolfGrowthStage stage, final double clearance, final boolean clearsFences) {
+    assertEquals(clearance, stage.jumpClearance(), 1e-9);
+    assertEquals(clearsFences, stage.clearsFences());
+    assertEquals(clearsFences, stage.leapsHigh());
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = DireWolfGrowthStage.class,
+      names = {"PUP", "YEARLING", "ADULT"})
+  @DisplayName("stages below prime keep the vanilla jump")
+  void youngerStagesKeepTheVanillaJump(final DireWolfGrowthStage stage) {
+    assertEquals(DogJumpPhysics.VANILLA_JUMP_STRENGTH, stage.jumpStrength(), 1e-9);
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = DireWolfGrowthStage.class,
+      names = {"PRIME", "ALPHA"})
+  @DisplayName("a prime or alpha jump peaks above its clearance")
+  void highJumpsPeakAboveTheirClearance(final DireWolfGrowthStage stage) {
+    assertTrue(DogJumpPhysics.peakHeight(stage.jumpStrength()) > stage.jumpClearance());
+  }
 }

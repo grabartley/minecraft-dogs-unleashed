@@ -23,7 +23,22 @@ class OpenDogInspectPayloadTest {
             samplePet(UnleashedDogBreed.HUSKY, ""),
             false,
             "",
-            List.of(new BreedShare(UnleashedDogBreed.HUSKY, 1.0f))),
+            List.of(new BreedShare(UnleashedDogBreed.HUSKY, 1.0f)),
+            WildTrustView.NONE),
+        Arguments.of(
+            "wild dire wolf pup",
+            samplePet(UnleashedDogBreed.DIRE_WOLF, ""),
+            false,
+            "",
+            List.of(new BreedShare(UnleashedDogBreed.DIRE_WOLF, 1.0f)),
+            WildTrustView.building(45)),
+        Arguments.of(
+            "wild dire wolf adult",
+            samplePet(UnleashedDogBreed.DIRE_WOLF, ""),
+            false,
+            "",
+            List.of(new BreedShare(UnleashedDogBreed.DIRE_WOLF, 1.0f)),
+            WildTrustView.TOO_WILD),
         Arguments.of(
             "tamed dog with owner",
             samplePet(UnleashedDogBreed.BEAGLE, "Rex"),
@@ -31,13 +46,15 @@ class OpenDogInspectPayloadTest {
             "Steve",
             List.of(
                 new BreedShare(UnleashedDogBreed.BEAGLE, 0.75f),
-                new BreedShare(UnleashedDogBreed.HUSKY, 0.25f))),
+                new BreedShare(UnleashedDogBreed.HUSKY, 0.25f)),
+            WildTrustView.NONE),
         Arguments.of(
             "tamed dog with unknown owner",
             samplePet(UnleashedDogBreed.SHIBA_INU, "小白"),
             true,
             "",
-            List.of(new BreedShare(UnleashedDogBreed.SHIBA_INU, 1.0f))));
+            List.of(new BreedShare(UnleashedDogBreed.SHIBA_INU, 1.0f)),
+            WildTrustView.NONE));
   }
 
   @ParameterizedTest(name = "{0}")
@@ -48,9 +65,10 @@ class OpenDogInspectPayloadTest {
       final PetSyncData pet,
       final boolean tamed,
       final String ownerName,
-      final List<BreedShare> composition) {
+      final List<BreedShare> composition,
+      final WildTrustView trust) {
     final OpenDogInspectPayload payload =
-        new OpenDogInspectPayload(pet, tamed, ownerName, composition);
+        new OpenDogInspectPayload(pet, tamed, ownerName, composition, trust);
     final RegistryByteBuf buf = newBuf();
     OpenDogInspectPayload.CODEC.encode(buf, payload);
     assertEquals(payload, OpenDogInspectPayload.CODEC.decode(buf));

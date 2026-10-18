@@ -19,6 +19,7 @@ import net.minecraft.util.math.BlockPos;
 public final class PetData {
 
   private static final int DEFAULT_COLLAR_COLOR_ID = DyeColor.RED.getId();
+  private static final float PERCENT = 100.0f;
 
   private final UUID petId;
   private final UUID ownerId;
@@ -43,6 +44,7 @@ public final class PetData {
   private int growthStage;
   private int growthBattlesWon;
   private int growthTicksInStage;
+  private int staminaPercent;
 
   public PetData(
       UUID petId,
@@ -179,6 +181,10 @@ public final class PetData {
     return growthStage;
   }
 
+  public int getStaminaPercent() {
+    return staminaPercent;
+  }
+
   public int getGrowthBattlesWon() {
     return growthBattlesWon;
   }
@@ -219,6 +225,7 @@ public final class PetData {
     this.growthStage = dog.getGrowth().stage().number();
     this.growthBattlesWon = dog.getGrowth().battlesWon();
     this.growthTicksInStage = dog.getGrowth().ticksInStage();
+    this.staminaPercent = Math.round(dog.getRiding().staminaFraction() * PERCENT);
     final DogGenome dogGenome = dog.getGenome();
     this.genome = dogGenome;
     this.composition = dogGenome != null ? dogGenome.composition() : List.of();
@@ -270,6 +277,7 @@ public final class PetData {
     nbt.putInt(ModNbtKeys.GROWTH_STAGE, growthStage);
     nbt.putInt(ModNbtKeys.GROWTH_BATTLES_WON, growthBattlesWon);
     nbt.putInt(ModNbtKeys.GROWTH_TICKS_IN_STAGE, growthTicksInStage);
+    nbt.putInt(ModNbtKeys.STAMINA, staminaPercent);
     if (!composition.isEmpty()) {
       nbt.put(ModNbtKeys.COMPOSITION, DogGenome.compositionToNbt(composition));
     }
@@ -330,6 +338,7 @@ public final class PetData {
     pet.growthStage = nbt.getInt(ModNbtKeys.GROWTH_STAGE);
     pet.growthBattlesWon = nbt.getInt(ModNbtKeys.GROWTH_BATTLES_WON);
     pet.growthTicksInStage = nbt.getInt(ModNbtKeys.GROWTH_TICKS_IN_STAGE);
+    pet.staminaPercent = nbt.getInt(ModNbtKeys.STAMINA);
     if (nbt.contains(ModNbtKeys.COMPOSITION, NbtElement.COMPOUND_TYPE)) {
       pet.composition = DogGenome.compositionFromNbt(nbt.getCompound(ModNbtKeys.COMPOSITION));
     }

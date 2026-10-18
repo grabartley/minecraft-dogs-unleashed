@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.screen;
 
 import com.grahambartley.dogsunleashed.config.DireWolfSettings;
+import com.grahambartley.dogsunleashed.config.DireWolfStaminaSettings;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.config.SyncedServerConfig;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
@@ -238,6 +239,53 @@ public final class DogsUnleashedConfigScreen extends Screen {
             });
     list.addRow(this.smallestPackSlider);
     list.addRow(this.largestPackSlider);
+    list.addRow(
+        booleanRow(
+            canEdit,
+            "screen.dogs-unleashed.settings.direwolf.packhunting",
+            "screen.dogs-unleashed.settings.direwolf.packhunting.tooltip",
+            this.direWolf.packs().hunt(),
+            value ->
+                this.direWolf = this.direWolf.withPacks(this.direWolf.packs().withHunt(value))));
+    list.addRow(
+        booleanRow(
+            canEdit,
+            "screen.dogs-unleashed.settings.direwolf.packdefence",
+            "screen.dogs-unleashed.settings.direwolf.packdefence.tooltip",
+            this.direWolf.packs().defend(),
+            value ->
+                this.direWolf = this.direWolf.withPacks(this.direWolf.packs().withDefend(value))));
+    list.addRow(
+        booleanRow(
+            canEdit,
+            "screen.dogs-unleashed.settings.direwolf.staminadrain",
+            "screen.dogs-unleashed.settings.direwolf.staminadrain.tooltip",
+            this.direWolf.stamina().drains(),
+            value ->
+                this.direWolf =
+                    this.direWolf.withStamina(this.direWolf.stamina().withDrains(value))));
+    list.addRow(
+        percentSliderRow(
+            canEdit,
+            Text.translatable("screen.dogs-unleashed.settings.direwolf.staminacapacity"),
+            Text.translatable("screen.dogs-unleashed.settings.direwolf.staminacapacity.tooltip"),
+            DireWolfStaminaSettings.PERCENT_MIN,
+            DireWolfStaminaSettings.PERCENT_MAX,
+            this.direWolf.stamina().capacityPercent(),
+            value ->
+                this.direWolf =
+                    this.direWolf.withStamina(this.direWolf.stamina().withCapacityPercent(value))));
+    list.addRow(
+        percentSliderRow(
+            canEdit,
+            Text.translatable("screen.dogs-unleashed.settings.direwolf.staminarecovery"),
+            Text.translatable("screen.dogs-unleashed.settings.direwolf.staminarecovery.tooltip"),
+            DireWolfStaminaSettings.PERCENT_MIN,
+            DireWolfStaminaSettings.PERCENT_MAX,
+            this.direWolf.stamina().recoveryPercent(),
+            value ->
+                this.direWolf =
+                    this.direWolf.withStamina(this.direWolf.stamina().withRecoveryPercent(value))));
 
     list.addRow(sectionHeader("screen.dogs-unleashed.settings.sounds"));
     list.addRow(

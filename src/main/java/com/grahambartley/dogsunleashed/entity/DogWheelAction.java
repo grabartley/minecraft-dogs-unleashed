@@ -11,7 +11,8 @@ public enum DogWheelAction {
   GUARD(5, DogCommand.GUARD, null),
   FREE_ROAM(6, DogCommand.FREE_ROAM, null),
   GO_TO_BED(7, null, "command.dogs-unleashed.go_to_bed"),
-  EQUIPMENT(8, null, "command.dogs-unleashed.equipment");
+  EQUIPMENT(8, null, "command.dogs-unleashed.equipment"),
+  RIDE(9, null, "command.dogs-unleashed.ride");
 
   private final int id;
   private final DogCommand command;

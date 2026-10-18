@@ -53,6 +53,7 @@ public class DogCommandWheelScreen extends Screen {
   private final UUID dogId;
   private final boolean hasBed;
   private final String dogName;
+  private final String rideRefusalKey;
   private final ItemStack[] icons;
   private DogCommand currentCommand;
   private int rejectedIndex = -1;
@@ -63,6 +64,7 @@ public class DogCommandWheelScreen extends Screen {
     this.dogId = payload.dogId();
     this.hasBed = payload.hasBed();
     this.dogName = payload.dogName();
+    this.rideRefusalKey = payload.rideRefusalKey();
     this.currentCommand = DogCommand.fromId(payload.currentCommandId());
     this.icons =
         new ItemStack[] {
@@ -74,7 +76,8 @@ public class DogCommandWheelScreen extends Screen {
           new ItemStack(Items.SHIELD),
           new ItemStack(Items.GRASS_BLOCK),
           new ItemStack(Items.RED_BED),
-          new ItemStack(Items.WOLF_ARMOR)
+          new ItemStack(Items.WOLF_ARMOR),
+          new ItemStack(Items.SADDLE)
         };
   }
 
@@ -237,7 +240,7 @@ public class DogCommandWheelScreen extends Screen {
       if (this.isDisabled(action)) {
         context.drawCenteredTextWithShadow(
             this.textRenderer,
-            Text.translatable("screen.dogs-unleashed.command_wheel.no_bed"),
+            Text.translatable(this.disabledHintKey(action)),
             centerX,
             centerY - this.textRenderer.fontHeight / 2,
             DISABLED_HINT_COLOR);
@@ -281,7 +284,7 @@ public class DogCommandWheelScreen extends Screen {
 
   @Override
   public boolean keyPressed(final int keyCode, final int scanCode, final int modifiers) {
-    final int index = keyCode - GLFW.GLFW_KEY_1;
+    final int index = keyCode == GLFW.GLFW_KEY_0 ? ACTIONS.length - 1 : keyCode - GLFW.GLFW_KEY_1;
     if (index >= 0 && index < ACTIONS.length) {
       this.selectAction(index);
       return true;
@@ -309,7 +312,17 @@ public class DogCommandWheelScreen extends Screen {
   }
 
   private boolean isDisabled(final DogWheelAction action) {
-    return action == DogWheelAction.GO_TO_BED && !this.hasBed;
+    return switch (action) {
+      case GO_TO_BED -> !this.hasBed;
+      case RIDE -> !this.rideRefusalKey.isEmpty();
+      default -> false;
+    };
+  }
+
+  private String disabledHintKey(final DogWheelAction action) {
+    return action == DogWheelAction.RIDE
+        ? this.rideRefusalKey
+        : "screen.dogs-unleashed.command_wheel.no_bed";
   }
 
   private int hoveredSector(final double mouseX, final double mouseY) {

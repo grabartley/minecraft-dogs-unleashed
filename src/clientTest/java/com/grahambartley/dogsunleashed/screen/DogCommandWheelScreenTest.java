@@ -7,6 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class DogCommandWheelScreenTest {
 
@@ -104,5 +105,17 @@ class DogCommandWheelScreenTest {
   void hubShowsHoveredThenRejectedAction(
       final String label, final int hovered, final int rejected, final int expected) {
     assertEquals(expected, DogCommandWheelScreen.hubIndex(hovered, rejected));
+  }
+
+  @ParameterizedTest(name = "sector {0} of 10")
+  @ValueSource(ints = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9})
+  @DisplayName("with ten actions, the centre of every sector selects that sector")
+  void tenSectorsEachSelectThemselves(final int sector) {
+    final double angle = -Math.PI / 2 + sector * 2 * Math.PI / 10;
+    final double radius = (INNER + OUTER) / 2.0;
+    assertEquals(
+        sector,
+        DogCommandWheelScreen.sectorIndexAt(
+            Math.cos(angle) * radius, Math.sin(angle) * radius, 10, INNER, OUTER));
   }
 }

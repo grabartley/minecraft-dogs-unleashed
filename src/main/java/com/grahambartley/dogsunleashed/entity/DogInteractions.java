@@ -258,6 +258,9 @@ public final class DogInteractions {
   }
 
   private ActionResult tryTame(final PlayerEntity player, final ItemStack itemStack) {
+    if (this.dog.getTrust().applies()) {
+      return this.dog.getTrust().feed(player, itemStack);
+    }
     itemStack.decrementUnlessCreative(1, player);
     if (this.dog.getRandom().nextInt(this.dog.getBreed().nature().tameSuccessChance()) == 0) {
       this.tame(player);

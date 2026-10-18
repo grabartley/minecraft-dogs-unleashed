@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
+import com.grahambartley.dogsunleashed.network.payload.RidingView;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -82,7 +83,8 @@ class DogStatsPanelTest {
         DogFurStage.NATURAL.ordinal(),
         movementSpeed,
         attackDamage,
-        List.of());
+        List.of(),
+        RidingView.NONE);
   }
 
   @Test

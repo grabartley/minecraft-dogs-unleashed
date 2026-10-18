@@ -38,10 +38,8 @@ animated. You can tame them, give them commands, play fetch, put them to bed, an
 
 Breeds differ in size, health, speed and bite. Some coats are rarer than others.
 
-The dire wolf is the rare one. It only roams the coldest peaks, slopes and ice fields, always in a pack with pups. A pup
-grows into an adult bigger than any other dog, then a prime the size of a horse. To raise an alpha, bigger still, your
-prime has to win 20 battles beside you and then eat an Enchanted Golden Apple. Dire wolves are harder to tame, they
-bark and howl, and they only breed with each other. Tame one of every coat to earn "Winter is Coming".
+The dire wolf is the rare one. It roams the coldest peaks in packs that hunt together and never forgive a player who
+hurts one of them. Earn a pup's trust and it grows into a wolf the size of a horse that you can ride.
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/main/docs/all%20huskies.png" alt="Husky coat variants" width="800">
@@ -65,6 +63,10 @@ bark and howl, and they only breed with each other. Tame one of every coat to ea
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/main/docs/allshibas.png" alt="Shiba Inu coat variants" width="800">
+</p>
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/main/docs/alldirewolves.png" alt="Dire Wolf coat variants" width="800">
 </p>
 
 ## What you can do
@@ -125,6 +127,11 @@ only operators can.
 | Dire Wolf Growth Speed    | 100%    | How fast dire wolves grow up, from 0% to 500%. 0% stops them growing.             |
 | Alpha Battles             | 20      | Fights a prime must win beside you before it can become an alpha, from 1 to 200.  |
 | Smallest / Largest Pack   | 5 / 10  | How many dire wolves a wild pack has, from 4 to 16.                               |
+| Wild Packs Hunt           | On      | Whether wild dire wolves hunt animals, skeletons and zombies. Penned animals are safe. |
+| Packs Defend Each Other   | On      | Whether a wild pack attacks anything that hurts one of them, and goes after players it holds a grudge against. |
+| Riding Stamina Drain      | On      | Off lets you sprint on a dire wolf for as long as you like.                       |
+| Riding Stamina            | 100%    | How long a dire wolf can sprint, from 25% to 400%.                                |
+| Stamina Recovery          | 100%    | How fast a dire wolf gets its stamina back, from 25% to 400%.                     |
 
 </details>
 
@@ -153,6 +160,11 @@ Every subcommand needs operator permission.
 /dogsunleashed config direwolf battles <1..200>
 /dogsunleashed config direwolf smallestpack <4..16>
 /dogsunleashed config direwolf largestpack <4..16>
+/dogsunleashed config direwolf packhunting <true|false>
+/dogsunleashed config direwolf packdefence <true|false>
+/dogsunleashed config direwolf staminadrain <true|false>
+/dogsunleashed config direwolf staminacapacity <25..400>
+/dogsunleashed config direwolf staminarecovery <25..400>
 /dogsunleashed config reset
 /dogsunleashed list <player>
 /dogsunleashed summon <player> <petId>
@@ -205,7 +217,8 @@ Dogs Unleashed is released under the [MIT License](LICENSE).
 The Dog Whistle sound is cut from [Soft whistle.ogg](https://commons.wikimedia.org/wiki/File:Soft_whistle.ogg) by
 stilgar, released into the public domain via pdsounds.org. The dire wolf howl is made from
 [Cooper Creek solitary wolf howl](https://freesound.org/people/betchkal/sounds/500646/) by betchkal, and its barks
-from [Barking dog #1](https://bigsoundbank.com/barking-dog-s0916.html) by Joseph Sardin (BigSoundBank). Both are
+from [Barking dog #1](https://bigsoundbank.com/barking-dog-s0916.html) by Joseph Sardin (BigSoundBank), and its growls
+from [Dog Growl - Beast / Creature](https://freesound.org/people/coldvet/sounds/404920/) by coldvet. All three are
 released under [CC0](https://creativecommons.org/publicdomain/zero/1.0/). Every other asset is original work.
 
 If you enjoy Dogs Unleashed, a star on GitHub or a coffee on Ko-fi helps a lot.

@@ -9,12 +9,12 @@ import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.ai.pathing.MobNavigation;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.mob.Monster;
-import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -39,6 +39,8 @@ public final class DogGrowth {
       Identifier.of(DogsUnleashed.MOD_ID, "growth_stage_attack_damage");
   public static final Identifier ARMOR_MODIFIER_ID =
       Identifier.of(DogsUnleashed.MOD_ID, "growth_stage_armor");
+  public static final Identifier JUMP_STRENGTH_MODIFIER_ID =
+      Identifier.of(DogsUnleashed.MOD_ID, "growth_stage_jump_strength");
 
   private static final int EVOLVE_PARTICLES = 60;
 
@@ -206,10 +208,21 @@ public final class DogGrowth {
         ATTACK_DAMAGE_MODIFIER_ID,
         stage.attackDamage() - base.attackDamage());
     this.overwrite(EntityAttributes.GENERIC_ARMOR, ARMOR_MODIFIER_ID, stage.armor());
+    this.overwrite(
+        EntityAttributes.GENERIC_JUMP_STRENGTH,
+        JUMP_STRENGTH_MODIFIER_ID,
+        stage.jumpStrength() - DogJumpPhysics.VANILLA_JUMP_STRENGTH);
+    if (this.dog.getNavigation() instanceof MobNavigation navigation) {
+      navigation.setCanWalkOverFences(stage.clearsFences());
+    }
     this.dog.setHealth(
         DogGrowthRules.healthAfterStageChange(
             this.dog.getHealth(), previousMaxHealth, this.dog.getMaxHealth()));
     this.dog.calculateDimensions();
+  }
+
+  public double pathClimbHeight() {
+    return this.applies() && this.stage().leapsHigh() ? this.stage().jumpClearance() : 0.0;
   }
 
   EntityDimensions dimensions(final EntityDimensions base) {
@@ -225,10 +238,7 @@ public final class DogGrowth {
     if (!this.applies() || !assignsPackStage(reason)) {
       return entityData;
     }
-    final PassiveEntity.PassiveData pack =
-        entityData instanceof PassiveEntity.PassiveData passiveData
-            ? passiveData
-            : new PassiveEntity.PassiveData(false);
+    final WildPackData pack = DogPack.startOrJoin(entityData);
     this.packMemberIndex = pack.getSpawnedCount();
     return pack;
   }

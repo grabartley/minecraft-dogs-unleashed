@@ -57,7 +57,8 @@ class PetSyncDataTest {
             0,
             0.3f,
             5.0f,
-            List.of());
+            List.of(),
+            RidingView.NONE);
     final RegistryByteBuf buf = newBuf();
     PetSyncData.CODEC.encode(buf, pet);
 

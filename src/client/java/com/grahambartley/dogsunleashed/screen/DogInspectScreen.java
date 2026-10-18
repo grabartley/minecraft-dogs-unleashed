@@ -6,6 +6,7 @@ import com.grahambartley.dogsunleashed.entity.variant.DogRarityClassifier;
 import com.grahambartley.dogsunleashed.entity.variant.UnleashedDogCoat;
 import com.grahambartley.dogsunleashed.network.payload.OpenDogInspectPayload;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
+import com.grahambartley.dogsunleashed.network.payload.WildTrustView;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -15,6 +16,7 @@ public class DogInspectScreen extends Screen {
 
   static final int CARD_WIDTH = 236;
   static final int CARD_HEIGHT = 200;
+  static final int TRUST_ROW_HEIGHT = 14;
   static final int CARD_PADDING = 10;
   static final int PORTRAIT_SIZE = 56;
   private static final int HEADER_LINE_HEIGHT = 12;
@@ -41,10 +43,11 @@ public class DogInspectScreen extends Screen {
       final DrawContext context, final int mouseX, final int mouseY, final float delta) {
     super.render(context, mouseX, mouseY, delta);
 
+    final int cardHeight = cardHeight(data.trust());
     final int cardX = cardLeft(this.width);
-    final int cardY = cardTop(this.height);
-    context.fill(cardX, cardY, cardX + CARD_WIDTH, cardY + CARD_HEIGHT, CARD_BACKGROUND);
-    context.drawBorder(cardX, cardY, CARD_WIDTH, CARD_HEIGHT, CARD_BORDER);
+    final int cardY = cardTop(this.height, cardHeight);
+    context.fill(cardX, cardY, cardX + CARD_WIDTH, cardY + cardHeight, CARD_BACKGROUND);
+    context.drawBorder(cardX, cardY, CARD_WIDTH, cardHeight, CARD_BORDER);
 
     final PetSyncData pet = data.pet();
     final int portraitX = cardX + CARD_PADDING;
@@ -135,14 +138,37 @@ public class DogInspectScreen extends Screen {
             DogTraitFormat.furLine(pet),
             VALUE_COLOR);
 
-    DogStatsPanel.drawForPet(context, this.textRenderer, pet, infoX, infoY, INFO_LABEL_WIDTH);
+    infoY =
+        DogStatsPanel.drawForPet(context, this.textRenderer, pet, infoX, infoY, INFO_LABEL_WIDTH);
+    this.drawTrust(context, infoX, infoY);
 
     context.drawCenteredTextWithShadow(
         this.textRenderer,
         Text.translatable("screen.dogs-unleashed.dog_inspect.close_hint"),
         cardX + CARD_WIDTH / 2,
-        cardY + CARD_HEIGHT - CARD_PADDING - this.textRenderer.fontHeight + 2,
+        cardY + cardHeight - CARD_PADDING - this.textRenderer.fontHeight + 2,
         HINT_COLOR);
+  }
+
+  private void drawTrust(final DrawContext context, final int x, final int y) {
+    switch (data.trust().kind()) {
+      case BUILDING ->
+          DogStatsPanel.drawTrustRow(
+              context, this.textRenderer, data.trust().trust(), x, y, INFO_LABEL_WIDTH);
+      case TOO_WILD -> this.drawWildLine(context, "too_wild", x, y);
+      case SHUNNED -> this.drawWildLine(context, "shunned", x, y);
+      case NONE -> {}
+    }
+  }
+
+  private void drawWildLine(final DrawContext context, final String key, final int x, final int y) {
+    context.drawText(
+        this.textRenderer,
+        Text.translatable("screen.dogs-unleashed.dog_inspect." + key),
+        x,
+        y,
+        WILD_COLOR,
+        true);
   }
 
   private String displayName() {
@@ -194,8 +220,12 @@ public class DogInspectScreen extends Screen {
     return (screenWidth - CARD_WIDTH) / 2;
   }
 
-  static int cardTop(final int screenHeight) {
-    return (screenHeight - CARD_HEIGHT) / 2 - 10;
+  static int cardHeight(final WildTrustView trust) {
+    return trust.kind() == WildTrustView.Kind.NONE ? CARD_HEIGHT : CARD_HEIGHT + TRUST_ROW_HEIGHT;
+  }
+
+  static int cardTop(final int screenHeight, final int cardHeight) {
+    return (screenHeight - cardHeight) / 2 - 10;
   }
 
   @Override

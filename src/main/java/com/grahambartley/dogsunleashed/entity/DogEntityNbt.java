@@ -76,6 +76,9 @@ public final class DogEntityNbt {
     this.dog.getEquipmentHolder().writeNbt(nbt);
     this.dog.getFur().writeNbt(nbt);
     this.dog.getGrowth().writeNbt(nbt);
+    this.dog.getPack().writeNbt(nbt);
+    this.dog.getTrust().writeNbt(nbt);
+    this.dog.getRiding().writeNbt(nbt);
   }
 
   void readNbt(final NbtCompound nbt) {
@@ -133,6 +136,9 @@ public final class DogEntityNbt {
     this.dog.getEquipmentHolder().readNbt(nbt);
     this.dog.getFur().readNbt(nbt);
     this.dog.getGrowth().readNbt(nbt);
+    this.dog.getPack().readNbt(nbt);
+    this.dog.getTrust().readNbt(nbt);
+    this.dog.getRiding().readNbt(nbt);
     this.dog.getUndeadState().applyAttributeScaling();
   }
 }

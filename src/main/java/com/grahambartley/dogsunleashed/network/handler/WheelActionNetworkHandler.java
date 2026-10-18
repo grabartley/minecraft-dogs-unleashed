@@ -59,6 +59,15 @@ public final class WheelActionNetworkHandler {
         player.sendMessage(Text.translatable(replyKey, dogName), true);
       }
       case EQUIPMENT -> player.openHandledScreen(dog);
+      case RIDE -> {
+        final String refusal = dog.getRiding().refusalKey(player);
+        if (refusal != null || !dog.getRiding().mount(player)) {
+          player.sendMessage(
+              Text.translatable(
+                  refusal != null ? refusal : "screen.dogs-unleashed.command_wheel.ride.busy"),
+              true);
+        }
+      }
       default -> {}
     }
   }

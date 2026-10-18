@@ -8,7 +8,12 @@ import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 
 public record OpenCommandWheelPayload(
-    int entityId, UUID dogId, int currentCommandId, boolean hasBed, String dogName)
+    int entityId,
+    UUID dogId,
+    int currentCommandId,
+    boolean hasBed,
+    String dogName,
+    String rideRefusalKey)
     implements CustomPayload {
 
   public static final Identifier PACKET_ID =
@@ -29,10 +34,20 @@ public record OpenCommandWheelPayload(
     buf.writeVarInt(this.currentCommandId);
     buf.writeBoolean(this.hasBed);
     buf.writeString(this.dogName);
+    buf.writeString(this.rideRefusalKey);
+  }
+
+  public boolean rideable() {
+    return this.rideRefusalKey.isEmpty();
   }
 
   private static OpenCommandWheelPayload read(final RegistryByteBuf buf) {
     return new OpenCommandWheelPayload(
-        buf.readVarInt(), buf.readUuid(), buf.readVarInt(), buf.readBoolean(), buf.readString());
+        buf.readVarInt(),
+        buf.readUuid(),
+        buf.readVarInt(),
+        buf.readBoolean(),
+        buf.readString(),
+        buf.readString());
   }
 }

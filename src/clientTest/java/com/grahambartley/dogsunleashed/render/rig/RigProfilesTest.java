@@ -79,6 +79,27 @@ class RigProfilesTest {
     }
   }
 
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("rigs")
+  @DisplayName("a rideable rig leans its rider further at a gallop than at rest")
+  void ridersLeanIntoTheGallop(final UnleashedDogBreed rig) {
+    final RigProfile profile = BUNDLED.profileOf(rig);
+    if (!profile.seats().isEmpty()) {
+      assertTrue(profile.riderPose().gallop().lean() > profile.riderPose().rest().lean(), rig + "");
+    }
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("rigs")
+  @DisplayName("every seat a profile names is a bone in that rig")
+  void seatsExistInTheRig(final UnleashedDogBreed rig) {
+    final Set<String> bones = new HashSet<>();
+    collect(ShippedRigs.model(rig.serializedId()).topLevelBones(), bones);
+    final List<String> seats = BUNDLED.profileOf(rig).seats();
+    assertTrue(
+        bones.containsAll(seats), rig + " seats " + seats + " are not all bones in " + bones);
+  }
+
   @ParameterizedTest(name = "{0} {1}")
   @MethodSource("rigsAndBodySlots")
   @DisplayName("every rig names at least one bone for every body slot")
