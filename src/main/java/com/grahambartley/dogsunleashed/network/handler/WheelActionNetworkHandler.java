@@ -87,7 +87,7 @@ public final class WheelActionNetworkHandler {
     switch (action) {
       case GO_TO_BED -> {
         final BlockPos bedPos = dog.getSleepController().getAssignedBedPos().orElse(null);
-        if (bedPos == null) {
+        if (bedPos == null || dog.getSleepController().releaseSpotIfTaken(bedPos)) {
           return;
         }
         final String replyKey =

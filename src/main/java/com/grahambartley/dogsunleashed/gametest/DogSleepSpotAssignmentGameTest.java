@@ -109,13 +109,33 @@ public final class DogSleepSpotAssignmentGameTest implements FabricGameTest {
           final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
           final UnleashedDogEntity stale = staleDogBesideCurrent(context, owner);
 
-          context.assertFalse(
-              stale.getSleepController().holdsSpot(context.getAbsolutePos(REL_SPOT)),
-              "A dog still claims the " + spot.name() + " another dog holds");
+          context.assertTrue(
+              stale.getSleepController().releaseSpotIfTaken(context.getAbsolutePos(REL_SPOT)),
+              "A dog kept its claim on the " + spot.name() + " another dog holds");
           context.assertTrue(
               stale.getSleepController().getAssignedBedPos().isEmpty(),
               "A dog kept its link to the " + spot.name() + " another dog holds");
           context.complete();
+        });
+  }
+
+  @CustomTestProvider
+  public List<TestFunction> aStaleDogAsleepInATakenSpotWakesAndLetsGo() {
+    return perSpot(
+        "astaledogasleepinatakenspotwakesandletsgo",
+        (context, spot) -> {
+          final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+          final UnleashedDogEntity stale = staleDogBesideCurrent(context, owner);
+          stale.getSleepController().startSleepingInBed(context.getAbsolutePos(REL_SPOT));
+          stale.setAiDisabled(false);
+
+          context.runAtEveryTick(
+              () -> {
+                if (!stale.getSleepController().isSleepingInBed()
+                    && stale.getSleepController().getAssignedBedPos().isEmpty()) {
+                  context.complete();
+                }
+              });
         });
   }
 

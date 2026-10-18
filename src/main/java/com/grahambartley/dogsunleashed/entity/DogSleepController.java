@@ -38,13 +38,13 @@ public final class DogSleepController {
     this.wakeFrom(leaving);
   }
 
-  public boolean holdsSpot(final BlockPos spotPos) {
+  public boolean releaseSpotIfTaken(final BlockPos spotPos) {
     if (this.dog.getWorld().getBlockEntity(spotPos) instanceof AssignedDogHolder holder
         && DogSleepSpotHandover.isTakenByAnother(holder.getAssignedDogUuid(), this.dog.getUuid())) {
       this.clearAssignedBed();
-      return false;
+      return true;
     }
-    return true;
+    return false;
   }
 
   public boolean canSleepNow() {

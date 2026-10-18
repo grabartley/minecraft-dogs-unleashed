@@ -68,7 +68,8 @@ public class AutoSleepGoal extends Goal {
   private boolean isValidBed(BlockPos pos) {
     final World world = this.dog.getWorld();
     final BlockState state = world.getBlockState(pos);
-    return state.isIn(ModBlockTags.DOG_BEDS) && this.dog.getSleepController().holdsSpot(pos);
+    return state.isIn(ModBlockTags.DOG_BEDS)
+        && !this.dog.getSleepController().releaseSpotIfTaken(pos);
   }
 
   private boolean isWithinRange(BlockPos bedPos) {

@@ -130,7 +130,7 @@ public final class DogSleepSpotAssignment {
     }
     final ServerPlayerEntity displacedOwner =
         world.getServer().getPlayerManager().getPlayer(displacedPet.getOwnerId());
-    if (displacedOwner != null && displacedOwner != assigner) {
+    if (displacedOwner != null && !displacedOwner.getUuid().equals(assigner.getUuid())) {
       displacedOwner.sendMessage(
           Text.translatable(
               "message.dogs-unleashed.bed_taken", displacedPet.getName(), dogName(world, newDog)),
