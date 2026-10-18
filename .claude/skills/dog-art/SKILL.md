@@ -169,6 +169,10 @@ assumption that produced it: the reference is always the shipped asset on `main`
   10 units tall and scaled up by `RenderTransforms` in `UnleashedDogBreed`. Keep the idiom when adding
   cubes to a rig; a cube with no inflate on a small rig lands at a fraction of the texel density and
   looks blurry beside its neighbours. `check` flags that as `DENSITY`.
+- Parts that only show in one clip are parked inside the head and moved out by that clip. The
+  eyelids work this way, and so do the dire wolf's four fangs: they sit inside the snout and jaw
+  and only `growl` slides them out. Every other clip leaves them hidden, so a rest-pose render
+  must stay pixel-identical after adding a parked part.
 - Zero-width cubes are flat planes and the artist uses them: the shiba inu carries six `fur`
   planes behind the rump that draw at every fur stage because its profile lists no fur slots.
   `FurLook` hides a bone only when the profile names it under `fur_shaggy` or `fur_overgrown`.
