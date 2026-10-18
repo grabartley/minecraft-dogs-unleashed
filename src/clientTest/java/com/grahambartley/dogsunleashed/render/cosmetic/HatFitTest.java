@@ -9,6 +9,8 @@ import com.google.gson.JsonParser;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.item.cosmetic.DogCosmetic;
 import com.grahambartley.dogsunleashed.render.rig.CubeGeometry;
+import com.grahambartley.dogsunleashed.render.rig.HeadTopLocator;
+import com.grahambartley.dogsunleashed.render.rig.HeadTopLocator.HeadTop;
 import com.grahambartley.dogsunleashed.render.rig.LivePose;
 import com.grahambartley.dogsunleashed.render.rig.PoseClearance;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile;
@@ -63,13 +65,51 @@ class HatFitTest {
         .filter(rig -> rig != UnleashedDogBreed.CROSS_BREED);
   }
 
-  @Test
-  @DisplayName("the hat is sized from the head width")
-  void widthFollowsTheHead() {
-    final HatFit fit = fitOf(UnleashedDogBreed.HUSKY, DogCosmetic.STRAW_HAT);
+  private static CubeGeometry.Bounds box(
+      final float minX,
+      final float minY,
+      final float minZ,
+      final float maxX,
+      final float maxY,
+      final float maxZ) {
+    final CubeGeometry.Bounds bounds = new CubeGeometry.Bounds();
+    bounds.include(new Vector3f(minX, minY, minZ));
+    bounds.include(new Vector3f(maxX, maxY, maxZ));
+    return bounds;
+  }
 
-    assertEquals(
-        CosmeticFit.hatWidth(DogCosmetic.STRAW_HAT, fit.top().headWidth()), fit.width(), EPSILON);
+  private static HeadTop topWith(final List<HeadTopLocator.RisingEar> ears) {
+    return new HeadTop(
+        "head", new Vector3f(), new Quaternionf(), 4.0f, new Vector3f(0, 1, 0), ears);
+  }
+
+  @Test
+  @DisplayName("an ear under the hat's footprint is hidden and one outside it is kept")
+  void earsUnderTheHatAreHidden() {
+    final HeadTop top =
+        topWith(
+            List.of(
+                new HeadTopLocator.RisingEar(Set.of("inner"), box(0.5f, 1, -0.5f, 1.5f, 3, 0.5f)),
+                new HeadTopLocator.RisingEar(Set.of("outer"), box(2.5f, 1, -0.5f, 3.5f, 3, 0.5f))));
+
+    assertEquals(Set.of("inner"), HatFit.earsUnder(top, 2.0f));
+    assertEquals(Set.of("inner", "outer"), HatFit.earsUnder(top, 6.0f));
+  }
+
+  @Test
+  @DisplayName("a head with no rising ears hides nothing")
+  void noRisingEarsHidesNothing() {
+    assertTrue(HatFit.earsUnder(topWith(List.of()), 10.0f).isEmpty());
+  }
+
+  @Test
+  @DisplayName("every shipped hat is as deep as it is wide, as the square footprint assumes")
+  void hatsAreSquare() {
+    for (final DogCosmetic hat : HATS) {
+      final CubeGeometry.Bounds bounds = boundsOf(ShippedRigs.model(hat.itemId()));
+      assertEquals(
+          bounds.max().x - bounds.min().x, bounds.max().z - bounds.min().z, EPSILON, hat.name());
+    }
   }
 
   @ParameterizedTest(name = "{0}")
@@ -85,7 +125,8 @@ class HatFitTest {
   @DisplayName("pointed ears that stand under a hat are hidden")
   void pointedEarsAreHidden() {
     for (final UnleashedDogBreed rig :
-        List.of(UnleashedDogBreed.HUSKY, UnleashedDogBreed.DIRE_WOLF)) {
+        List.of(
+            UnleashedDogBreed.HUSKY, UnleashedDogBreed.SHIBA_INU, UnleashedDogBreed.DIRE_WOLF)) {
       for (final DogCosmetic hat : HATS) {
         assertEquals(earsOf(BUNDLED.profileOf(rig)), fitOf(rig, hat).hiddenEars(), rig + " " + hat);
       }
@@ -95,8 +136,14 @@ class HatFitTest {
   @Test
   @DisplayName("drop ears stay visible under a hat")
   void dropEarsStay() {
-    for (final DogCosmetic hat : HATS) {
-      assertTrue(fitOf(UnleashedDogBreed.GOLDEN_RETRIEVER, hat).hiddenEars().isEmpty());
+    for (final UnleashedDogBreed rig :
+        List.of(
+            UnleashedDogBreed.GOLDEN_RETRIEVER,
+            UnleashedDogBreed.BEAGLE,
+            UnleashedDogBreed.DACHSHUND)) {
+      for (final DogCosmetic hat : HATS) {
+        assertTrue(fitOf(rig, hat).hiddenEars().isEmpty(), rig + " " + hat);
+      }
     }
   }
 
@@ -142,13 +189,18 @@ class HatFitTest {
   }
 
   private static float widthOf(final BakedGeoModel model) {
+    final CubeGeometry.Bounds bounds = boundsOf(model);
+    return bounds.max().x - bounds.min().x;
+  }
+
+  private static CubeGeometry.Bounds boundsOf(final BakedGeoModel model) {
     final CubeGeometry.Bounds bounds = new CubeGeometry.Bounds();
     for (final GeoBone bone : model.topLevelBones()) {
       final CubeGeometry.Bounds part = CubeGeometry.posedBoundsOf(bone);
       bounds.include(part.min());
       bounds.include(part.max());
     }
-    return bounds.max().x - bounds.min().x;
+    return bounds;
   }
 
   private static List<Vector3f> samplesOf(final BakedGeoModel model) {

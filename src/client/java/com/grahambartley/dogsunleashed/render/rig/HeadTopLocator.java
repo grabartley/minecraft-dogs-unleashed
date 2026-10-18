@@ -2,7 +2,6 @@ package com.grahambartley.dogsunleashed.render.rig;
 
 import com.grahambartley.dogsunleashed.render.rig.RigProfile.Slot;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -23,19 +22,19 @@ public final class HeadTopLocator {
       Vector3f crown,
       List<RisingEar> risingEars) {
 
-    public Set<String> earsUnder(final float hatWidth) {
-      final float half = hatWidth * 0.5f;
-      final Set<String> covered = new HashSet<>();
-      for (final RisingEar ear : this.risingEars) {
-        final CubeGeometry.Bounds bounds = ear.bounds();
-        if (bounds.min().x < this.crown.x + half
-            && bounds.max().x > this.crown.x - half
-            && bounds.min().z < this.crown.z + half
-            && bounds.max().z > this.crown.z - half) {
-          covered.addAll(ear.bones());
-        }
-      }
-      return Set.copyOf(covered);
+    @Override
+    public Vector3f point() {
+      return new Vector3f(this.point);
+    }
+
+    @Override
+    public Quaternionf restRotation() {
+      return new Quaternionf(this.restRotation);
+    }
+
+    @Override
+    public Vector3f crown() {
+      return new Vector3f(this.crown);
     }
   }
 

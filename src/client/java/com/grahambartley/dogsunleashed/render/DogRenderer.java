@@ -1,14 +1,10 @@
 package com.grahambartley.dogsunleashed.render;
 
 import com.grahambartley.dogsunleashed.config.SyncedServerConfig;
-import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
-import com.grahambartley.dogsunleashed.item.cosmetic.DogCosmetic;
-import com.grahambartley.dogsunleashed.item.cosmetic.DogCosmeticItem;
 import com.grahambartley.dogsunleashed.model.DogModel;
-import com.grahambartley.dogsunleashed.render.cosmetic.HatFit;
 import com.grahambartley.dogsunleashed.render.cosmetic.HatFits;
 import com.grahambartley.dogsunleashed.render.fur.FurLook;
 import com.grahambartley.dogsunleashed.render.growth.GrowthRigScale;
@@ -121,7 +117,7 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
     this.frameProfile = RigProfiles.of(animatable.getRigSourceBreed());
     this.frameStage = animatable.getFur().stage();
     this.frameArmoured = !animatable.getArmour().worn().isEmpty();
-    this.frameHiddenEars = this.earsHiddenByHat(animatable, model);
+    this.frameHiddenEars = this.hatFits.earsHiddenOn(animatable, model, this.frameProfile);
     this.frameGrowth =
         animatable.getGrowth().applies()
             ? GrowthRigScale.of(model, this.frameProfile, animatable.getGrowth().stage())
@@ -150,19 +146,6 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
         packedLight,
         packedOverlay,
         colour);
-  }
-
-  private Set<String> earsHiddenByHat(
-      final UnleashedDogEntity animatable, final BakedGeoModel model) {
-    if (animatable.isInvisible()) {
-      return Set.of();
-    }
-    return DogCosmeticItem.cosmeticOf(
-            animatable.getEquipmentHolder().getStack(DogEquipmentSlot.COSMETIC))
-        .filter(cosmetic -> cosmetic.mount() == DogCosmetic.Mount.HEAD)
-        .flatMap(hat -> this.hatFits.of(model, this.frameProfile, hat))
-        .map(HatFit::hiddenEars)
-        .orElse(Set.of());
   }
 
   private float frameScale(

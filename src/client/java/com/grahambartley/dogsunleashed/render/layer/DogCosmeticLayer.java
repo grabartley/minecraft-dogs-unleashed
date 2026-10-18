@@ -4,11 +4,11 @@ import com.google.common.collect.MapMaker;
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.item.cosmetic.DogCosmetic;
-import com.grahambartley.dogsunleashed.item.cosmetic.DogCosmeticItem;
 import com.grahambartley.dogsunleashed.render.armour.ArmourShell;
 import com.grahambartley.dogsunleashed.render.cosmetic.BandanaPrints;
 import com.grahambartley.dogsunleashed.render.cosmetic.CosmeticAssets;
 import com.grahambartley.dogsunleashed.render.cosmetic.CosmeticFit;
+import com.grahambartley.dogsunleashed.render.cosmetic.DrawnCosmetic;
 import com.grahambartley.dogsunleashed.render.cosmetic.HatFit;
 import com.grahambartley.dogsunleashed.render.cosmetic.HatFits;
 import com.grahambartley.dogsunleashed.render.rig.CharmMount;
@@ -73,8 +73,7 @@ public class DogCosmeticLayer extends GeoRenderLayer<UnleashedDogEntity> {
       final int packedOverlay) {
     this.frameModel = bakedModel;
     this.frameStack = animatable.getEquipmentHolder().getStack(DogEquipmentSlot.COSMETIC);
-    this.frameCosmetic =
-        animatable.isInvisible() ? Optional.empty() : DogCosmeticItem.cosmeticOf(this.frameStack);
+    this.frameCosmetic = DrawnCosmetic.on(animatable);
   }
 
   @Override
