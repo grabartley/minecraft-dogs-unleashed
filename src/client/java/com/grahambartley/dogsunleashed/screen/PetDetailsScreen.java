@@ -360,12 +360,12 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
       final int x =
           previewCenterX
               + Math.round(
-                  FamilyTreeScreen.nodeWorldCenterX(entry.getValue()) * PREVIEW_SCALE
+                  FamilyTreeViewport.nodeWorldCenterX(entry.getValue()) * PREVIEW_SCALE
                       - PREVIEW_NODE_SIZE / 2.0f);
       final int y =
           previewCenterY
               + Math.round(
-                  FamilyTreeScreen.nodeWorldCenterY(entry.getValue()) * PREVIEW_SCALE
+                  FamilyTreeViewport.nodeWorldCenterY(entry.getValue()) * PREVIEW_SCALE
                       - PREVIEW_NODE_SIZE / 2.0f);
       final boolean isFocus = entry.getKey().equals(focusId);
       if (isFocus) {
