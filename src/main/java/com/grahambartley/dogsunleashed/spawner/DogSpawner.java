@@ -47,7 +47,8 @@ public class DogSpawner implements SpecialSpawner {
   public int spawn(
       final ServerWorld world, final boolean spawnMonsters, final boolean spawnAnimals) {
     final DogsUnleashedConfig config = DogsUnleashed.SERVER_CONFIG;
-    if (!config.enableNaturalSpawning() || !config.capIndependentSpawningEnabled()) {
+    if (!config.spawning().enableNaturalSpawning()
+        || !config.spawning().capIndependentSpawningEnabled()) {
       return 0;
     }
     if (!spawnAnimals || !world.getGameRules().getBoolean(GameRules.DO_MOB_SPAWNING)) {
@@ -94,7 +95,8 @@ public class DogSpawner implements SpecialSpawner {
     final UnleashedDogBreed breed =
         DogSpawnRates.pickByBaseWeight(
             candidates, random.nextInt(DogSpawnRates.totalBaseWeight(candidates)));
-    if (!DogSpawnRates.keeps(config.spawnRate(breed.serializedId()), tries, random.nextDouble())) {
+    if (!DogSpawnRates.keeps(
+        config.spawning().spawnRate(breed.serializedId()), tries, random.nextDouble())) {
       return 0;
     }
     return spawnGroup(world, breed, surface);

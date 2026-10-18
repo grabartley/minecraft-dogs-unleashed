@@ -38,10 +38,10 @@ public record DireWolfSettings(
 
   public DireWolfSettings {
     growthRateMultiplierPercent =
-        clamp(growthRateMultiplierPercent, GROWTH_RATE_MIN, GROWTH_RATE_MAX);
-    battlesToEvolve = clamp(battlesToEvolve, BATTLES_MIN, BATTLES_MAX);
-    smallestPack = clamp(smallestPack, PACK_MIN, PACK_MAX);
-    largestPack = Math.max(smallestPack, clamp(largestPack, PACK_MIN, PACK_MAX));
+        ConfigBounds.clamp(growthRateMultiplierPercent, GROWTH_RATE_MIN, GROWTH_RATE_MAX);
+    battlesToEvolve = ConfigBounds.clamp(battlesToEvolve, BATTLES_MIN, BATTLES_MAX);
+    smallestPack = ConfigBounds.clamp(smallestPack, PACK_MIN, PACK_MAX);
+    largestPack = Math.max(smallestPack, ConfigBounds.clamp(largestPack, PACK_MIN, PACK_MAX));
     packs = packs == null ? DireWolfPackSettings.DEFAULTS : packs;
     stamina = stamina == null ? DireWolfStaminaSettings.DEFAULTS : stamina;
   }
@@ -104,9 +104,5 @@ public record DireWolfSettings(
     json.add(KEY_PACKS, packs.toJson());
     json.add(KEY_STAMINA, stamina.toJson());
     return json;
-  }
-
-  private static int clamp(final int value, final int min, final int max) {
-    return Math.max(min, Math.min(max, value));
   }
 }

@@ -49,9 +49,15 @@ public final class DogSpawnerGameTest implements FabricGameTest {
   private static final List<InertnessCase> INERTNESS_CASES =
       List.of(
           new InertnessCase(
-              "optedout", cfg -> cfg.withCapIndependentSpawningEnabled(false), true, false),
+              "optedout",
+              cfg -> cfg.withSpawning(cfg.spawning().withCapIndependentSpawningEnabled(false)),
+              true,
+              false),
           new InertnessCase(
-              "naturalspawningoff", cfg -> cfg.withEnableNaturalSpawning(false), true, false),
+              "naturalspawningoff",
+              cfg -> cfg.withSpawning(cfg.spawning().withEnableNaturalSpawning(false)),
+              true,
+              false),
           new InertnessCase("spawnanimalsoff", UnaryOperator.identity(), false, false),
           new InertnessCase("mobspawninggameruleoff", UnaryOperator.identity(), true, true));
 

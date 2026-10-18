@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.grahambartley.dogsunleashed.config.DireWolfSettings;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
+import com.grahambartley.dogsunleashed.config.SpawningSettings;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import java.util.List;
 import java.util.Map;
@@ -26,22 +26,8 @@ class DogSpawnRatesTest {
 
   private static DogsUnleashedConfig config(
       final int globalPercent, final Map<String, Integer> breedPercents) {
-    return new DogsUnleashedConfig(
-        true,
-        globalPercent,
-        breedPercents,
-        true,
-        true,
-        true,
-        true,
-        32,
-        1.0f,
-        1.5f,
-        true,
-        true,
-        100,
-        100,
-        DireWolfSettings.DEFAULTS);
+    return DogsUnleashedConfig.defaults()
+        .withSpawning(new SpawningSettings(true, globalPercent, breedPercents, true));
   }
 
   private static double expectedGroupsPerCycle(
@@ -58,7 +44,7 @@ class DogSpawnRatesTest {
       int kept = 0;
       for (int step = 0; step < KEEP_ROLL_STEPS; step++) {
         final double roll = (step + 0.5) / KEEP_ROLL_STEPS;
-        if (DogSpawnRates.keeps(config.spawnRate(breed.serializedId()), tries, roll)) {
+        if (DogSpawnRates.keeps(config.spawning().spawnRate(breed.serializedId()), tries, roll)) {
           kept++;
         }
       }

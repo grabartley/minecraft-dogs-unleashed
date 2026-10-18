@@ -154,7 +154,7 @@ public final class DogInteractions {
       return ActionResult.SUCCESS;
     }
 
-    if (this.dog.isLeashed() && DogsUnleashed.SERVER_CONFIG.dropLeashOnPlayMode()) {
+    if (this.dog.isLeashed() && DogsUnleashed.SERVER_CONFIG.gameplay().dropLeashOnPlayMode()) {
       this.dog.detachLeash();
     }
     playSession.endOtherNearbyPlayModes(player);

@@ -31,7 +31,7 @@ public final class DogDeathHandler {
               }
             });
 
-    if (DogsUnleashed.SERVER_CONFIG.gravesEnabled()) {
+    if (DogsUnleashed.SERVER_CONFIG.gameplay().gravesEnabled()) {
       DogGraveSpawner.spawnGrave(world, dog, bedPosToAvoid);
     }
   }

@@ -91,7 +91,7 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
 
   @Override
   public boolean hasLabel(UnleashedDogEntity animatable) {
-    return SyncedServerConfig.get().showDogNames()
+    return SyncedServerConfig.get().gameplay().showDogNames()
         && !DogCommandWheelScreen.isOpenFor(animatable.getId())
         && super.hasLabel(animatable);
   }
