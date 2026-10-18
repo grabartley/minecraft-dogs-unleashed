@@ -143,6 +143,9 @@ public final class ModNetworking {
     if (!dog.getTrust().applies()) {
       return WildTrustView.NONE;
     }
+    if (dog.getTrust().isShunnedBy(player)) {
+      return WildTrustView.SHUNNED;
+    }
     return dog.getTrust().canBeWon()
         ? WildTrustView.building(dog.getTrust().trustOf(player))
         : WildTrustView.TOO_WILD;

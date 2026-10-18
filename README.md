@@ -38,12 +38,11 @@ animated. You can tame them, give them commands, play fetch, put them to bed, an
 
 Breeds differ in size, health, speed and bite. Some coats are rarer than others.
 
-The dire wolf is the rare one. It only roams the coldest peaks, slopes and ice fields, always in a pack with pups. Wild
-packs hunt together and fight as one if you hurt any of them. Only a pup can be tamed: sneak up, feed it and hunt near
-it until it trusts you, while the adults growl if you come too close. A pup grows into an adult bigger than any other
-dog, then a prime the size of a horse that leaps fences. Ride your prime from the command wheel and sprint while its
-stamina lasts. To raise an alpha, bigger still, your prime has to win 20 battles beside you and then eat an Enchanted
-Golden Apple. Dire wolves only breed with each other. Tame one of every coat to earn "Winter is Coming".
+The dire wolf is the rare one. It roams the coldest peaks in packs that hunt together and never forgive a player who
+hurts one of them. Win a pup over with food and patience and it grows into an adult bigger than any other dog, then a
+prime the size of a horse that you can ride. Feed a prime that has won 20 battles beside you an Enchanted Golden Apple
+to raise an alpha, bigger still. Dire wolves only breed with each other. Tame one of every coat to earn "Winter is
+Coming".
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/main/docs/all%20huskies.png" alt="Husky coat variants" width="800">
@@ -67,6 +66,10 @@ Golden Apple. Dire wolves only breed with each other. Tame one of every coat to 
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/main/docs/allshibas.png" alt="Shiba Inu coat variants" width="800">
+</p>
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/main/docs/alldirewolves.png" alt="Dire Wolf coat variants" width="800">
 </p>
 
 ## What you can do

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -18,6 +19,34 @@ class DogTrustRulesTest {
     assertEquals(10, DogTrustRules.Food.BONE.gain());
     assertEquals(10, DogTrustRules.Food.COOKED_MEAT.gain());
     assertEquals(0, DogTrustRules.Food.REFUSED.gain());
+  }
+
+  @ParameterizedTest(name = "{0} -> {1}")
+  @CsvSource({
+    "mutton, RAW_MEAT",
+    "beef, RAW_MEAT",
+    "rabbit, RAW_MEAT",
+    "chicken, RAW_MEAT",
+    "porkchop, RAW_MEAT",
+    "bone, BONE",
+    "cooked_mutton, COOKED_MEAT",
+    "cooked_beef, COOKED_MEAT",
+    "cooked_rabbit, COOKED_MEAT",
+    "cooked_chicken, COOKED_MEAT",
+    "cooked_porkchop, COOKED_MEAT",
+    "rotten_flesh, REFUSED",
+    "cod, REFUSED",
+    "bread, REFUSED",
+  })
+  @DisplayName("a pup takes raw meat, bones and cooked meat and refuses everything else")
+  void foodOfItem(final String item, final DogTrustRules.Food expected) {
+    assertEquals(expected, DogTrustRules.foodOf(Identifier.ofVanilla(item)));
+  }
+
+  @Test
+  @DisplayName("a modded item with a vanilla meat's path is refused")
+  void foodNeedsTheVanillaNamespace() {
+    assertEquals(DogTrustRules.Food.REFUSED, DogTrustRules.foodOf(Identifier.of("other", "beef")));
   }
 
   @Test

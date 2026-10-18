@@ -43,6 +43,9 @@ class DogInspectScreenTest {
         DogInspectScreen.cardHeight(WildTrustView.TOO_WILD));
     assertEquals(
         DogInspectScreen.CARD_HEIGHT + DogInspectScreen.TRUST_ROW_HEIGHT,
+        DogInspectScreen.cardHeight(WildTrustView.SHUNNED));
+    assertEquals(
+        DogInspectScreen.CARD_HEIGHT + DogInspectScreen.TRUST_ROW_HEIGHT,
         DogInspectScreen.cardHeight(WildTrustView.building(10)));
   }
 

@@ -1,5 +1,8 @@
 package com.grahambartley.dogsunleashed.entity;
 
+import java.util.Map;
+import net.minecraft.util.Identifier;
+
 public final class DogTrustRules {
 
   public static final int MAX_TRUST = 100;
@@ -16,6 +19,19 @@ public final class DogTrustRules {
   public static final double FOLLOW_NEAREST = 6.0;
   public static final double FOLLOW_FARTHEST = 10.0;
   private static final int MILESTONE_STEP = 25;
+  private static final Map<Identifier, Food> FOODS =
+      Map.ofEntries(
+          Map.entry(Identifier.ofVanilla("mutton"), Food.RAW_MEAT),
+          Map.entry(Identifier.ofVanilla("beef"), Food.RAW_MEAT),
+          Map.entry(Identifier.ofVanilla("rabbit"), Food.RAW_MEAT),
+          Map.entry(Identifier.ofVanilla("chicken"), Food.RAW_MEAT),
+          Map.entry(Identifier.ofVanilla("porkchop"), Food.RAW_MEAT),
+          Map.entry(Identifier.ofVanilla("bone"), Food.BONE),
+          Map.entry(Identifier.ofVanilla("cooked_mutton"), Food.COOKED_MEAT),
+          Map.entry(Identifier.ofVanilla("cooked_beef"), Food.COOKED_MEAT),
+          Map.entry(Identifier.ofVanilla("cooked_rabbit"), Food.COOKED_MEAT),
+          Map.entry(Identifier.ofVanilla("cooked_chicken"), Food.COOKED_MEAT),
+          Map.entry(Identifier.ofVanilla("cooked_porkchop"), Food.COOKED_MEAT));
 
   public enum Food {
     RAW_MEAT(20),
@@ -51,6 +67,10 @@ public final class DogTrustRules {
   }
 
   private DogTrustRules() {}
+
+  public static Food foodOf(final Identifier itemId) {
+    return FOODS.getOrDefault(itemId, Food.REFUSED);
+  }
 
   public static int clamp(final int trust) {
     return Math.max(0, Math.min(MAX_TRUST, trust));

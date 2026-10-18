@@ -11,6 +11,7 @@ import com.grahambartley.dogsunleashed.entity.goal.FetchTemptGoal;
 import com.grahambartley.dogsunleashed.entity.goal.FollowParentDogGoal;
 import com.grahambartley.dogsunleashed.entity.goal.GuardTargetGoal;
 import com.grahambartley.dogsunleashed.entity.goal.HuntTargetGoal;
+import com.grahambartley.dogsunleashed.entity.goal.PackGrudgeGoal;
 import com.grahambartley.dogsunleashed.entity.goal.PackGuardGoal;
 import com.grahambartley.dogsunleashed.entity.goal.PackShelterGoal;
 import com.grahambartley.dogsunleashed.entity.goal.PuppyAwareWanderGoal;
@@ -100,6 +101,7 @@ public final class DogGoalRegistrar {
         4,
         new ActiveTargetGoal<>(
             dog, PlayerEntity.class, PLAYER_ANGER_TARGET_CHANCE, true, false, dog::shouldAngerAt));
+    targetSelector.add(4, new PackGrudgeGoal(dog));
     targetSelector.add(5, new UniversalAngerGoal<>(dog, true));
     targetSelector.add(6, new HuntTargetGoal(dog));
     targetSelector.add(6, new GuardTargetGoal(dog));

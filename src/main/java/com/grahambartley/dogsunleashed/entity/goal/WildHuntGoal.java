@@ -27,7 +27,7 @@ public class WildHuntGoal extends ActiveTargetGoal<LivingEntity> {
 
   @Override
   public boolean shouldContinue() {
-    return this.dog.getPack().isWildMember() && super.shouldContinue();
+    return this.dog.getPack().keepsHunting() && super.shouldContinue();
   }
 
   @Override

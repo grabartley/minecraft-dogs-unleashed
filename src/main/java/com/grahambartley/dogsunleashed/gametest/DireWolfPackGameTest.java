@@ -15,6 +15,7 @@ import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.mob.ZombieEntity;
 import net.minecraft.entity.passive.CowEntity;
 import net.minecraft.entity.passive.HorseEntity;
@@ -25,6 +26,8 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.test.AfterBatch;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.text.Text;
@@ -110,19 +113,43 @@ public final class DireWolfPackGameTest implements FabricGameTest {
     context.complete();
   }
 
-  @GameTest(templateName = RANGE, tickLimit = 20)
-  public void turningPackHuntingOffStopsTheHunt(final TestContext context) {
+  @GameTest(templateName = RANGE, tickLimit = WATCH_TICKS + 40, batchId = "pack-hunting-off")
+  public void turningPackHuntingOffMidHuntCallsItOff(final TestContext context) {
     final UnleashedDogEntity wolf = spawnPack(context, DireWolfGrowthStage.ADULT).get(0);
-    wolf.setAiDisabled(true);
-    withConfig(
-        context,
-        config ->
-            config.withDireWolf(
-                config.direWolf().withPacks(config.direWolf().packs().withHunt(false))),
-        () ->
-            context.assertFalse(
-                wolf.getPack().mayHunt(), "Hunting is off, but the wolf may still hunt"));
-    context.complete();
+    final SheepEntity sheep = context.spawnEntity(EntityType.SHEEP, REL_PREY);
+    sheep.setAiDisabled(true);
+    sheep.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(1000.0);
+    sheep.setHealth(1000.0f);
+    final MinecraftServer server = context.getWorld().getServer();
+    final DogsUnleashedConfig before = DogsUnleashed.SERVER_CONFIG;
+    final boolean[] calledOff = {false};
+    context.runAtEveryTick(
+        () -> {
+          if (!calledOff[0] && wolf.getTarget() == sheep) {
+            calledOff[0] = true;
+            ServerConfigService.update(
+                server,
+                before.withDireWolf(
+                    before.direWolf().withPacks(before.direWolf().packs().withHunt(false))));
+          }
+        });
+    context.addInstantFinalTask(
+        () -> {
+          context.assertTrue(calledOff[0], "The wolf never started hunting the sheep");
+          context.assertTrue(
+              wolf.getTarget() == null, "Hunting was turned off, but the wolf kept hunting");
+          ServerConfigService.update(server, before);
+        });
+  }
+
+  @AfterBatch(batchId = "pack-hunting-off")
+  public void restoreHunting(final ServerWorld world) {
+    ServerConfigService.update(
+        world.getServer(),
+        DogsUnleashed.SERVER_CONFIG.withDireWolf(
+            DogsUnleashed.SERVER_CONFIG
+                .direWolf()
+                .withPacks(DogsUnleashed.SERVER_CONFIG.direWolf().packs().withHunt(true))));
   }
 
   @GameTest(templateName = RANGE, tickLimit = 20)
@@ -200,7 +227,7 @@ public final class DireWolfPackGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = RANGE, tickLimit = 20)
-  public void aNaturalPackNeverHasAPrimeOrAlpha(final TestContext context) {
+  public void aNaturalPackNeverHasAnAlpha(final TestContext context) {
     final List<UnleashedDogEntity> pack = new ArrayList<>();
     for (int i = 0; i < NATURAL_PACK_SIZE; i++) {
       pack.add(context.spawnEntity(ModEntities.DIRE_WOLF, REL_WOLF.east(i % 8)));
@@ -215,7 +242,7 @@ public final class DireWolfPackGameTest implements FabricGameTest {
               SpawnReason.NATURAL,
               data);
       context.assertTrue(
-          wolf.getGrowth().stage().number() <= DireWolfGrowthStage.ADULT.number(),
+          wolf.getGrowth().stage() != DireWolfGrowthStage.ALPHA,
           "A natural pack member spawned as " + wolf.getGrowth().stage());
       context.assertTrue(
           wolf.getPack().id() != null && wolf.getPack().id().equals(pack.get(0).getPack().id()),

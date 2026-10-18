@@ -16,6 +16,7 @@ class WildTrustViewTest {
     return Stream.of(
         WildTrustView.NONE,
         WildTrustView.TOO_WILD,
+        WildTrustView.SHUNNED,
         WildTrustView.building(0),
         WildTrustView.building(73));
   }

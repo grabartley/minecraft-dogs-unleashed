@@ -163,6 +163,14 @@ public class DogInspectScreen extends Screen {
               y,
               WILD_COLOR,
               true);
+      case SHUNNED ->
+          context.drawText(
+              this.textRenderer,
+              Text.translatable("screen.dogs-unleashed.dog_inspect.shunned"),
+              x,
+              y,
+              WILD_COLOR,
+              true);
       case NONE -> {}
     }
   }

@@ -12,12 +12,11 @@ import net.minecraft.entity.passive.FoxEntity;
 import net.minecraft.entity.passive.RabbitEntity;
 import net.minecraft.entity.passive.SheepEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.ActionResult;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,25 +36,7 @@ public final class DogTrust {
   }
 
   public static DogTrustRules.Food foodOf(final ItemStack stack) {
-    final Item item = stack.getItem();
-    if (item == Items.MUTTON
-        || item == Items.BEEF
-        || item == Items.RABBIT
-        || item == Items.CHICKEN
-        || item == Items.PORKCHOP) {
-      return DogTrustRules.Food.RAW_MEAT;
-    }
-    if (item == Items.BONE) {
-      return DogTrustRules.Food.BONE;
-    }
-    if (item == Items.COOKED_MUTTON
-        || item == Items.COOKED_BEEF
-        || item == Items.COOKED_RABBIT
-        || item == Items.COOKED_CHICKEN
-        || item == Items.COOKED_PORKCHOP) {
-      return DogTrustRules.Food.COOKED_MEAT;
-    }
-    return DogTrustRules.Food.REFUSED;
+    return DogTrustRules.foodOf(Registries.ITEM.getId(stack.getItem()));
   }
 
   public static DogTrustRules.Kill killOf(final LivingEntity killed) {
@@ -83,9 +64,14 @@ public final class DogTrust {
     return this.trustByPlayer.getOrDefault(player.getUuid(), 0);
   }
 
+  public boolean isShunnedBy(final PlayerEntity player) {
+    return this.applies() && this.dog.getPack().bearsGrudge(player.getUuid());
+  }
+
   public @Nullable UUID mostTrusted() {
     return this.trustByPlayer.entrySet().stream()
         .filter(entry -> DogTrustRules.follows(entry.getValue()))
+        .filter(entry -> !this.dog.getPack().bearsGrudge(entry.getKey()))
         .max(Map.Entry.comparingByValue())
         .map(Map.Entry::getKey)
         .orElse(null);
@@ -93,7 +79,7 @@ public final class DogTrust {
 
   ActionResult feed(final PlayerEntity player, final ItemStack stack) {
     final DogTrustRules.Food food = foodOf(stack);
-    if (!this.dog.isBaby()) {
+    if (!this.dog.isBaby() || this.isShunnedBy(player)) {
       this.dog.getGrowl().warn();
       this.refuse();
       return ActionResult.SUCCESS;
@@ -114,6 +100,7 @@ public final class DogTrust {
     final DogTrustRules.Kill kill = killOf(killed);
     final long now = this.dog.getWorld().getTime();
     if (!this.canBeWon()
+        || this.isShunnedBy(player)
         || kill == DogTrustRules.Kill.OTHER
         || !DogTrustRules.cooledDown(now, this.lastKillTime, DogTrustRules.KILL_COOLDOWN_TICKS)) {
       return;

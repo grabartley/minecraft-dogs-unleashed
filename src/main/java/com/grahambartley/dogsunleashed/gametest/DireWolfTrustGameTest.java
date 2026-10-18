@@ -134,6 +134,33 @@ public final class DireWolfTrustGameTest implements FabricGameTest {
         });
   }
 
+  @GameTest(templateName = RANGE, tickLimit = 200)
+  public void aGuardingAdultFightsOnceThePlayerHurtsThePack(final TestContext context) {
+    final List<UnleashedDogEntity> pack =
+        spawnPack(
+            context, DireWolfGrowthStage.PUP, DireWolfGrowthStage.ADULT, DireWolfGrowthStage.ADULT);
+    final UnleashedDogEntity pup = pack.get(0);
+    final UnleashedDogEntity guard = pack.get(1);
+    final UnleashedDogEntity farAdult = pack.get(2);
+    pup.setAiDisabled(true);
+    farAdult.setAiDisabled(true);
+    moveTo(context, pup, REL_PUP);
+    moveTo(context, guard, REL_GUARD);
+    moveTo(context, farAdult, REL_FAR_ADULT);
+    final ServerPlayerEntity player = SurvivalTestPlayer.joinAt(context, REL_NEARBY);
+    player.setSprinting(true);
+    context.runAtTick(
+        10,
+        () -> farAdult.damage(context.getWorld().getDamageSources().playerAttack(player), 1.0f));
+    context.addInstantFinalTask(
+        () -> {
+          context.assertTrue(
+              player.getHealth() < player.getMaxHealth(),
+              "The guarding adult never bit the player who hurt its pack");
+          SurvivalTestPlayer.leave(context, player);
+        });
+  }
+
   @GameTest(templateName = RANGE, tickLimit = 120)
   public void aSneakingPlayerIsTolerated(final TestContext context) {
     final List<UnleashedDogEntity> pack =

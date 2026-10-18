@@ -44,7 +44,9 @@ public class PackGuardGoal extends Goal {
 
   @Override
   public boolean canStart() {
-    if (!this.dog.getPack().isWildMember() || !this.dog.getPack().isGrown()) {
+    if (!this.dog.getPack().isWildMember()
+        || !this.dog.getPack().isGrown()
+        || this.dog.getTarget() != null) {
       return false;
     }
     for (final UnleashedDogEntity candidate : this.dog.getPack().pupsWithin(PUP_SEARCH_RANGE)) {
@@ -70,6 +72,7 @@ public class PackGuardGoal extends Goal {
   @Override
   public boolean shouldContinue() {
     return this.guardTicks > 0
+        && this.dog.getTarget() == null
         && this.intruder != null
         && this.intruder.isAlive()
         && this.pup != null;

@@ -10,6 +10,7 @@ import net.minecraft.entity.EntityData;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.world.ServerWorld;
 import org.jetbrains.annotations.Nullable;
 
 public final class DogPack {
@@ -70,11 +71,15 @@ public final class DogPack {
   }
 
   public boolean mayHunt() {
+    return this.keepsHunting()
+        && WildPackRules.huntCooldownOver(this.dog.getWorld().getTime(), this.nextHuntTime);
+  }
+
+  public boolean keepsHunting() {
     return this.dog.getBreed().nature().huntsInPacks()
         && this.isWildMember()
         && this.isGrown()
-        && settings().hunt()
-        && WildPackRules.huntCooldownOver(this.dog.getWorld().getTime(), this.nextHuntTime);
+        && settings().hunt();
   }
 
   public void recordKill() {
@@ -84,12 +89,34 @@ public final class DogPack {
   }
 
   void onHurtBy(final @Nullable Entity attacker) {
-    if (attacker instanceof PlayerEntity player && this.dog.isBaby()) {
-      for (final UnleashedDogEntity packmate : this.packmatesWithin(WildPackRules.DEFENCE_RANGE)) {
+    if (attacker instanceof PlayerEntity player
+        && this.isWildMember()
+        && isValidThreat(player)
+        && this.dog.getWorld() instanceof ServerWorld world) {
+      WildPackGrudges.get(world.getServer()).record(this.packId, player.getUuid());
+      for (final UnleashedDogEntity packmate : this.packmatesWithin(WildPackRules.GRUDGE_RANGE)) {
         packmate.getTrust().forget(player);
       }
     }
     this.rallyAgainst(attacker);
+  }
+
+  public boolean bearsGrudge(final UUID playerId) {
+    return this.isWildMember()
+        && this.dog.getWorld() instanceof ServerWorld world
+        && WildPackGrudges.get(world.getServer()).holds(this.packId, playerId);
+  }
+
+  public boolean bearsGrudgeAgainst(final @Nullable Entity entity) {
+    return entity instanceof PlayerEntity player && this.bearsGrudge(player.getUuid());
+  }
+
+  public boolean huntsDown(final @Nullable Entity entity) {
+    return settings().defend()
+        && this.isGrown()
+        && entity instanceof PlayerEntity player
+        && isValidThreat(player)
+        && this.bearsGrudge(player.getUuid());
   }
 
   public List<UnleashedDogEntity> pupsWithin(final double range) {
@@ -112,8 +139,9 @@ public final class DogPack {
 
   public boolean isThreat(final @Nullable Entity entity) {
     return entity != null
-        && entity.getUuid().equals(this.threatId)
-        && WildPackRules.remembersThreat(this.dog.getWorld().getTime(), this.threatUntil);
+            && entity.getUuid().equals(this.threatId)
+            && WildPackRules.remembersThreat(this.dog.getWorld().getTime(), this.threatUntil)
+        || this.bearsGrudgeAgainst(entity);
   }
 
   void writeNbt(final NbtCompound nbt) {

@@ -6,10 +6,12 @@ public record WildTrustView(Kind kind, int trust) {
 
   public static final WildTrustView NONE = new WildTrustView(Kind.NONE, 0);
   public static final WildTrustView TOO_WILD = new WildTrustView(Kind.TOO_WILD, 0);
+  public static final WildTrustView SHUNNED = new WildTrustView(Kind.SHUNNED, 0);
 
   public enum Kind {
     NONE,
     TOO_WILD,
+    SHUNNED,
     BUILDING
   }
 

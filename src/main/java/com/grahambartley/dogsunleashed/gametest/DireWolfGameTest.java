@@ -188,19 +188,12 @@ public final class DireWolfGameTest implements FabricGameTest {
         pack.stream().anyMatch(wolf -> wolf.getGrowth().stage() == DireWolfGrowthStage.PUP),
         "Every pack has a pup");
     context.assertTrue(
-        pack.stream()
-                .filter(
-                    wolf ->
-                        wolf.getGrowth().stage() == DireWolfGrowthStage.YEARLING
-                            || wolf.getGrowth().stage() == DireWolfGrowthStage.ADULT)
-                .count()
+        pack.stream().filter(wolf -> wolf.getGrowth().stage() != DireWolfGrowthStage.PUP).count()
             >= 3,
-        "Every pack has at least three stage 2 or 3 adults");
+        "Every pack has at least three grown members");
     context.assertTrue(
-        pack.stream()
-            .allMatch(
-                wolf -> wolf.getGrowth().stage().number() <= DireWolfGrowthStage.ADULT.number()),
-        "No wild pack member is above stage 3");
+        pack.stream().noneMatch(wolf -> wolf.getGrowth().stage() == DireWolfGrowthStage.ALPHA),
+        "No wild pack member is an alpha");
     context.complete();
   }
 
