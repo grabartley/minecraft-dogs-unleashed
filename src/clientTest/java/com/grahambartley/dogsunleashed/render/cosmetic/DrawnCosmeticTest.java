@@ -39,6 +39,17 @@ class DrawnCosmeticTest {
   }
 
   @Test
+  @DisplayName("another cosmetic's model being loaded does not draw the worn one")
+  void otherModelsDoNotCount() {
+    assertTrue(
+        DrawnCosmetic.of(
+                false,
+                Optional.of(DogCosmetic.BANDANA),
+                id -> id.equals(CosmeticAssets.model(DogCosmetic.STRAW_HAT)))
+            .isEmpty());
+  }
+
+  @Test
   @DisplayName("no cosmetic worn means nothing drawn")
   void nothingWorn() {
     assertTrue(DrawnCosmetic.of(false, Optional.empty(), id -> true).isEmpty());

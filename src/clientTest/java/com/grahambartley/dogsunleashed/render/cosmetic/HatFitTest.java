@@ -17,6 +17,7 @@ import com.grahambartley.dogsunleashed.render.rig.RigProfile;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile.Slot;
 import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
 import com.grahambartley.dogsunleashed.render.rig.ShippedRigs;
+import com.grahambartley.dogsunleashed.render.rig.SlotBounds;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
@@ -97,6 +98,19 @@ class HatFitTest {
   }
 
   @Test
+  @DisplayName("a straw hat is 85 percent as wide as the husky's head bones")
+  void widthComesFromTheHeadBones() {
+    final BakedGeoModel husky = ShippedRigs.model("husky");
+    final CubeGeometry.Bounds head =
+        SlotBounds.of(husky, BUNDLED.profileOf(UnleashedDogBreed.HUSKY).bonesIn(Slot.HEAD));
+
+    assertEquals(
+        0.85f * (head.max().x - head.min().x),
+        fitOf(UnleashedDogBreed.HUSKY, DogCosmetic.STRAW_HAT).width(),
+        1.0e-4f);
+  }
+
+  @Test
   @DisplayName("a head with no rising ears hides nothing")
   void noRisingEarsHidesNothing() {
     assertTrue(HatFit.earsUnder(topWith(List.of()), 10.0f).isEmpty());
@@ -174,7 +188,7 @@ class HatFitTest {
     final Matrix4f hatToModel =
         LivePose.of(model.getBone(fit.top().boneName()).orElseThrow())
             .translate(fit.top().point())
-            .rotate(new Quaternionf(fit.top().restRotation()).conjugate())
+            .rotate(fit.top().restRotation().conjugate())
             .scale(scale);
     final Set<String> shownEars = earsOf(profile);
     shownEars.removeAll(fit.hiddenEars());

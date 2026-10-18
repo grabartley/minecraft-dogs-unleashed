@@ -12,7 +12,7 @@ import software.bernie.geckolib.cache.object.BakedGeoModel;
 public final class HeadTopLocator {
 
   static final float UPWARD = 0.3f;
-  static final float EAR_RISE = 0.5f / 16.0f;
+  private static final float EAR_RISE = 0.5f / 16.0f;
 
   public record HeadTop(
       String boneName,

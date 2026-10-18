@@ -24,7 +24,12 @@ public final class HatFits {
 
   public Set<String> earsHiddenOn(
       final UnleashedDogEntity dog, final BakedGeoModel model, final RigProfile profile) {
-    return DrawnCosmetic.on(dog)
+    return this.earsHiddenBy(DrawnCosmetic.on(dog), model, profile);
+  }
+
+  Set<String> earsHiddenBy(
+      final Optional<DogCosmetic> drawn, final BakedGeoModel model, final RigProfile profile) {
+    return drawn
         .filter(cosmetic -> cosmetic.mount() == DogCosmetic.Mount.HEAD)
         .flatMap(hat -> this.of(model, profile, hat))
         .map(HatFit::hiddenEars)

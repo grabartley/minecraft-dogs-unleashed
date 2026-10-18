@@ -32,7 +32,6 @@ import net.minecraft.component.type.BannerPatternsComponent;
 import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import software.bernie.geckolib.cache.GeckoLibCache;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
@@ -134,7 +133,7 @@ public class DogCosmeticLayer extends GeoRenderLayer<UnleashedDogEntity> {
     final float scale = fit.get().width() / this.widthOf(model);
     final Vector3f point = fit.get().top().point();
     poseStack.translate(point.x, point.y, point.z);
-    poseStack.multiply(new Quaternionf(fit.get().top().restRotation()).conjugate());
+    poseStack.multiply(fit.get().top().restRotation().conjugate());
     poseStack.scale(scale, scale, scale);
     return true;
   }
