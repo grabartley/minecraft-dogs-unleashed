@@ -1,7 +1,6 @@
 package com.grahambartley.dogsunleashed.render.layer;
 
 import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
-import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -13,13 +12,18 @@ public record CarriedToy(float worldPixels, float modelPixels, float centreHeigh
   public static final CarriedToy STICK = new CarriedToy(9f, 16f, 0f);
 
   public static CarriedToy of(final FetchItemType fetchType) {
-    if (fetchType == FetchTypes.FRISBEE) {
-      return FRISBEE;
+    return ofPath(fetchType == null ? null : fetchType.id().getPath());
+  }
+
+  static CarriedToy ofPath(final String path) {
+    if (path == null) {
+      return TENNIS_BALL;
     }
-    if (fetchType == FetchTypes.STICK) {
-      return STICK;
-    }
-    return TENNIS_BALL;
+    return switch (path) {
+      case "frisbee" -> FRISBEE;
+      case "stick" -> STICK;
+      default -> TENNIS_BALL;
+    };
   }
 
   public float scaleIn(final Matrix4f entityOrigin, final Matrix4f frame) {

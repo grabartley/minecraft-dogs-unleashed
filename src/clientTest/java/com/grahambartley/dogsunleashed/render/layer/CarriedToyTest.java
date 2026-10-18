@@ -61,4 +61,20 @@ class CarriedToyTest {
     assertEquals(
         toy.centreHeight(), (float) ((bounds.minY + bounds.maxY) / 2 * PIXELS_PER_BLOCK), 1e-3f);
   }
+
+  static Stream<Arguments> fetchItemPaths() {
+    return Stream.of(
+        Arguments.of("tennis_ball", CarriedToy.TENNIS_BALL),
+        Arguments.of("frisbee", CarriedToy.FRISBEE),
+        Arguments.of("stick", CarriedToy.STICK),
+        Arguments.of("bone", CarriedToy.TENNIS_BALL),
+        Arguments.of(null, CarriedToy.TENNIS_BALL));
+  }
+
+  @ParameterizedTest(name = "{0} -> {1}")
+  @MethodSource("fetchItemPaths")
+  @DisplayName("each fetch item maps to its toy, and anything unknown falls back to the ball")
+  void mapsFetchItemPathsToToys(final String path, final CarriedToy expected) {
+    assertEquals(expected, CarriedToy.ofPath(path));
+  }
 }
