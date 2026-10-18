@@ -1,5 +1,5 @@
 {
-	"format_version": "1.21.6",
+	"format_version": "1.9.0",
 	"credit": "Made with Blockbench",
 	"textures": {
 		"0": "dogs-unleashed:block/water_bowl",
@@ -53,15 +53,6 @@
 						6,
 						8,
 						7
-					],
-					"texture": "#0"
-				},
-				"up": {
-					"uv": [
-						14,
-						0,
-						16,
-						2
 					],
 					"texture": "#0"
 				},
@@ -296,15 +287,6 @@
 				12
 			],
 			"faces": {
-				"north": {
-					"uv": [
-						14,
-						0,
-						16,
-						3
-					],
-					"texture": "#0"
-				},
 				"east": {
 					"uv": [
 						2,
@@ -313,15 +295,6 @@
 						3
 					],
 					"texture": "#1"
-				},
-				"south": {
-					"uv": [
-						14,
-						0,
-						16,
-						3
-					],
-					"texture": "#0"
 				},
 				"west": {
 					"uv": [
@@ -365,29 +338,11 @@
 				12
 			],
 			"faces": {
-				"north": {
-					"uv": [
-						14,
-						0,
-						16,
-						3
-					],
-					"texture": "#0"
-				},
 				"east": {
 					"uv": [
 						2,
 						0,
 						10,
-						3
-					],
-					"texture": "#0"
-				},
-				"south": {
-					"uv": [
-						14,
-						0,
-						16,
 						3
 					],
 					"texture": "#0"

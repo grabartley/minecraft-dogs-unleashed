@@ -1,5 +1,5 @@
 {
-	"format_version": "1.21.6",
+	"format_version": "1.9.0",
 	"credit": "Made with Blockbench",
 	"textures": {
 		"0": "dogs-unleashed:block/food_bowl",
@@ -54,15 +54,6 @@
 						6,
 						8,
 						7
-					],
-					"texture": "#0"
-				},
-				"up": {
-					"uv": [
-						14,
-						0,
-						16,
-						2
 					],
 					"texture": "#0"
 				},
@@ -297,15 +288,6 @@
 				12
 			],
 			"faces": {
-				"north": {
-					"uv": [
-						14,
-						0,
-						16,
-						3
-					],
-					"texture": "#0"
-				},
 				"east": {
 					"uv": [
 						2,
@@ -314,15 +296,6 @@
 						3
 					],
 					"texture": "#1"
-				},
-				"south": {
-					"uv": [
-						14,
-						0,
-						16,
-						3
-					],
-					"texture": "#0"
 				},
 				"west": {
 					"uv": [
@@ -366,29 +339,11 @@
 				12
 			],
 			"faces": {
-				"north": {
-					"uv": [
-						14,
-						0,
-						16,
-						3
-					],
-					"texture": "#0"
-				},
 				"east": {
 					"uv": [
 						2,
 						0,
 						10,
-						3
-					],
-					"texture": "#0"
-				},
-				"south": {
-					"uv": [
-						14,
-						0,
-						16,
 						3
 					],
 					"texture": "#0"
@@ -435,52 +390,7 @@
 				12
 			],
 			"faces": {
-				"north": {
-					"uv": [
-						4,
-						0,
-						12,
-						2
-					],
-					"texture": "#2"
-				},
-				"east": {
-					"uv": [
-						4,
-						0,
-						12,
-						2
-					],
-					"texture": "#2"
-				},
-				"south": {
-					"uv": [
-						4,
-						0,
-						12,
-						2
-					],
-					"texture": "#2"
-				},
-				"west": {
-					"uv": [
-						4,
-						0,
-						12,
-						2
-					],
-					"texture": "#2"
-				},
 				"up": {
-					"uv": [
-						4,
-						4,
-						12,
-						12
-					],
-					"texture": "#2"
-				},
-				"down": {
 					"uv": [
 						4,
 						4,
