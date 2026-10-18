@@ -83,7 +83,22 @@ public final class DogPack {
     }
   }
 
-  void rallyAgainst(final @Nullable Entity attacker) {
+  void onHurtBy(final @Nullable Entity attacker) {
+    if (attacker instanceof PlayerEntity player && this.dog.isBaby()) {
+      for (final UnleashedDogEntity packmate : this.packmatesWithin(WildPackRules.DEFENCE_RANGE)) {
+        packmate.getTrust().forget(player);
+      }
+    }
+    this.rallyAgainst(attacker);
+  }
+
+  public List<UnleashedDogEntity> pupsWithin(final double range) {
+    return this.packmatesWithin(range).stream()
+        .filter(wolf -> wolf != this.dog && wolf.getTrust().canBeWon())
+        .toList();
+  }
+
+  private void rallyAgainst(final @Nullable Entity attacker) {
     if (!settings().defend()
         || !this.isWildMember()
         || !(attacker instanceof LivingEntity threat)

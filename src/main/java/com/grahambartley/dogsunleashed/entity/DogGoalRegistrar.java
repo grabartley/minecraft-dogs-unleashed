@@ -11,10 +11,12 @@ import com.grahambartley.dogsunleashed.entity.goal.FetchTemptGoal;
 import com.grahambartley.dogsunleashed.entity.goal.FollowParentDogGoal;
 import com.grahambartley.dogsunleashed.entity.goal.GuardTargetGoal;
 import com.grahambartley.dogsunleashed.entity.goal.HuntTargetGoal;
+import com.grahambartley.dogsunleashed.entity.goal.PackGuardGoal;
 import com.grahambartley.dogsunleashed.entity.goal.PackShelterGoal;
 import com.grahambartley.dogsunleashed.entity.goal.PuppyAwareWanderGoal;
 import com.grahambartley.dogsunleashed.entity.goal.ReturnToAnchorGoal;
 import com.grahambartley.dogsunleashed.entity.goal.SleepInBedGoal;
+import com.grahambartley.dogsunleashed.entity.goal.TrustFollowGoal;
 import com.grahambartley.dogsunleashed.entity.goal.WildHuntGoal;
 import java.util.EnumSet;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
@@ -60,6 +62,7 @@ public final class DogGoalRegistrar {
     goalSelector.add(4, new AutoSleepGoal(dog));
     goalSelector.add(5, new DogEscapeDangerGoal(dog, ESCAPE_DANGER_SPEED));
     goalSelector.add(5, new PackShelterGoal(dog));
+    goalSelector.add(6, new PackGuardGoal(dog));
     goalSelector.add(6, new PounceAtTargetGoal(dog, POUNCE_STRENGTH));
     goalSelector.add(7, new MeleeAttackGoal(dog, DEFAULT_GOAL_SPEED, true));
     goalSelector.add(8, new AnimalMateGoal(dog, DEFAULT_GOAL_SPEED));
@@ -84,6 +87,7 @@ public final class DogGoalRegistrar {
             HEEL_MAX_DISTANCE,
             HEEL_MIN_DISTANCE,
             EnumSet.of(DogCommand.HEEL)));
+    goalSelector.add(10, new TrustFollowGoal(dog));
     goalSelector.add(11, new FollowParentDogGoal(dog, DEFAULT_GOAL_SPEED));
     goalSelector.add(12, new PuppyAwareWanderGoal(dog, DEFAULT_GOAL_SPEED));
     goalSelector.add(13, new LookAtEntityGoal(dog, PlayerEntity.class, LOOK_AT_PLAYER_RANGE));

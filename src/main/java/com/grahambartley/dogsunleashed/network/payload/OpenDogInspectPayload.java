@@ -11,7 +11,11 @@ import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 
 public record OpenDogInspectPayload(
-    PetSyncData pet, boolean tamed, String ownerName, List<BreedShare> composition)
+    PetSyncData pet,
+    boolean tamed,
+    String ownerName,
+    List<BreedShare> composition,
+    WildTrustView trust)
     implements CustomPayload {
 
   public static final Identifier PACKET_ID =
@@ -31,6 +35,7 @@ public record OpenDogInspectPayload(
     buf.writeBoolean(this.tamed);
     buf.writeString(this.ownerName, OWNER_NAME_MAX_LENGTH);
     BreedShareCodec.writeList(buf, this.composition);
+    this.trust.write(buf);
   }
 
   private static OpenDogInspectPayload read(final RegistryByteBuf buf) {
@@ -38,6 +43,7 @@ public record OpenDogInspectPayload(
         PetSyncData.read(buf),
         buf.readBoolean(),
         buf.readString(OWNER_NAME_MAX_LENGTH),
-        BreedShareCodec.readList(buf));
+        BreedShareCodec.readList(buf),
+        WildTrustView.read(buf));
   }
 }

@@ -22,6 +22,7 @@ import com.grahambartley.dogsunleashed.network.payload.SummonPetPayload;
 import com.grahambartley.dogsunleashed.network.payload.SyncDogConnectionsPayload;
 import com.grahambartley.dogsunleashed.network.payload.SyncPetManagerStatePayload;
 import com.grahambartley.dogsunleashed.network.payload.SyncPetsPayload;
+import com.grahambartley.dogsunleashed.network.payload.WildTrustView;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import com.grahambartley.dogsunleashed.pet.PetManager;
 import com.grahambartley.dogsunleashed.pet.PetNames;
@@ -122,6 +123,21 @@ public final class ModNetworking {
             : PetManager.get(server).getBreedComposition(dog.getUuid(), dog.getBreed());
     ServerPlayNetworking.send(
         player,
-        new OpenDogInspectPayload(PetSyncData.fromDog(dog), dog.isTamed(), ownerName, composition));
+        new OpenDogInspectPayload(
+            PetSyncData.fromDog(dog),
+            dog.isTamed(),
+            ownerName,
+            composition,
+            trustView(player, dog)));
+  }
+
+  public static WildTrustView trustView(
+      final ServerPlayerEntity player, final UnleashedDogEntity dog) {
+    if (!dog.getTrust().applies()) {
+      return WildTrustView.NONE;
+    }
+    return dog.getTrust().canBeWon()
+        ? WildTrustView.building(dog.getTrust().trustOf(player))
+        : WildTrustView.TOO_WILD;
   }
 }

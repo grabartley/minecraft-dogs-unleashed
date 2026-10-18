@@ -11,6 +11,7 @@ public final class DogGrowl {
 
   private final UnleashedDogEntity dog;
   private int cooldownTicks;
+  private long lastWarnTime = Long.MIN_VALUE / 2;
 
   DogGrowl(final UnleashedDogEntity dog) {
     this.dog = dog;
@@ -38,12 +39,26 @@ public final class DogGrowl {
     final boolean startsGrowling = !this.isGrowling();
     this.setGrowling(true);
     if (startsGrowling || growlsAgain(this.cooldownTicks, this.dog.isInAttackRange(target))) {
-      this.dog.playSound(
-          sound,
-          DogsUnleashed.SERVER_CONFIG.barkVolume(),
-          DogVocalization.barkPitch(this.dog.isBaby()));
+      this.play(sound);
       this.cooldownTicks = REPEAT_TICKS;
     }
+  }
+
+  public void warn() {
+    final SoundEvent sound = this.sound();
+    final long now = this.dog.getWorld().getTime();
+    if (sound == null || now - this.lastWarnTime < REPEAT_TICKS) {
+      return;
+    }
+    this.lastWarnTime = now;
+    this.play(sound);
+  }
+
+  private void play(final SoundEvent sound) {
+    this.dog.playSound(
+        sound,
+        DogsUnleashed.SERVER_CONFIG.barkVolume(),
+        DogVocalization.barkPitch(this.dog.isBaby()));
   }
 
   private @Nullable SoundEvent sound() {

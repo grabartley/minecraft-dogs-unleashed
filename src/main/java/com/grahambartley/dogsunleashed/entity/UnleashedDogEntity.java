@@ -121,6 +121,7 @@ public class UnleashedDogEntity extends TameableEntity
   private final DogGrowth growth = new DogGrowth(this);
   private final DogPack pack = new DogPack(this);
   private final DogGrowl growl = new DogGrowl(this);
+  private final DogTrust trust = new DogTrust(this);
   private boolean spawnedByDogSpawner = false;
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -360,6 +361,10 @@ public class UnleashedDogEntity extends TameableEntity
     return this.growl;
   }
 
+  public DogTrust getTrust() {
+    return this.trust;
+  }
+
   int getTrackedGrowthStage() {
     return this.dataTracker.get(GROWTH_STAGE);
   }
@@ -561,6 +566,7 @@ public class UnleashedDogEntity extends TameableEntity
       this.fur.tick();
       this.growth.tick();
       this.growl.tick();
+      this.trust.tick();
     }
   }
 
@@ -606,7 +612,7 @@ public class UnleashedDogEntity extends TameableEntity
     }
     final boolean damaged = super.damage(source, amount);
     if (damaged && !this.getWorld().isClient) {
-      this.pack.rallyAgainst(source.getAttacker());
+      this.pack.onHurtBy(source.getAttacker());
     }
     return damaged;
   }
