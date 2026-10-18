@@ -144,7 +144,7 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
             x,
             y,
             "screen.dogs-unleashed.pet_details.breed",
-            DogTraitFormat.formatComposition(
+            DogAppearanceFormat.formatComposition(
                 composition(), breed -> Text.translatable(breed.translationKey()).getString()),
             VALUE_COLOR);
     final UnleashedDogCoat coat = DogCoats.coatOf(pet.displayBreed(), pet.coatVariant());
@@ -167,7 +167,7 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
             x,
             y,
             "screen.dogs-unleashed.pet_details.rarity",
-            DogTraitFormat.formatRarity(
+            DogAppearanceFormat.formatRarity(
                 Text.translatable(rarity.translationKey()).getString(), rarityChance),
             rarity.colorArgb());
     y =
@@ -176,7 +176,7 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
             x,
             y,
             "screen.dogs-unleashed.pet_details.fur",
-            DogTraitFormat.furLine(pet),
+            DogAppearanceFormat.furLine(pet),
             VALUE_COLOR);
     y =
         drawInfoLine(

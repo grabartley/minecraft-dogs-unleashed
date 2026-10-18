@@ -43,12 +43,12 @@ public final class DogEntityNbt {
     if (genome != null) {
       nbt.put(ModNbtKeys.GENOME, genome.toNbt());
     }
-    final DogTraits traits = this.dog.getTraits();
-    if (DogCoats.hasCoatVariants(traits.rigSourceBreed())) {
-      nbt.putInt(ModNbtKeys.COAT_VARIANT, traits.coatVariantOrdinal());
+    final DogAppearance appearance = this.dog.getAppearance();
+    if (DogCoats.hasCoatVariants(appearance.rigSourceBreed())) {
+      nbt.putInt(ModNbtKeys.COAT_VARIANT, appearance.coatVariantOrdinal());
     }
-    if (traits.rigSourceBreed().hasEyeColorVariants()) {
-      nbt.putInt(ModNbtKeys.EYE_COLOR_VARIANT, traits.eyeColorVariantOrdinal());
+    if (appearance.rigSourceBreed().hasEyeColorVariants()) {
+      nbt.putInt(ModNbtKeys.EYE_COLOR_VARIANT, appearance.eyeColorVariantOrdinal());
     }
     this.dog.getAmbienceEffects().writeNbt(nbt);
     this.dog.getSleepController().writeNbt(nbt);
@@ -82,13 +82,13 @@ public final class DogEntityNbt {
         this.dog.applyGenome(genome);
       }
     }
-    final DogTraits currentTraits = this.dog.getTraits();
-    this.dog.applyTraits(
-        new DogTraits(
+    final DogAppearance currentAppearance = this.dog.getAppearance();
+    this.dog.applyAppearance(
+        new DogAppearance(
             this.dog.getRigSourceBreed(),
-            variantOrdinalOr(nbt, ModNbtKeys.COAT_VARIANT, currentTraits.coatVariantOrdinal()),
+            variantOrdinalOr(nbt, ModNbtKeys.COAT_VARIANT, currentAppearance.coatVariantOrdinal()),
             variantOrdinalOr(
-                nbt, ModNbtKeys.EYE_COLOR_VARIANT, currentTraits.eyeColorVariantOrdinal())));
+                nbt, ModNbtKeys.EYE_COLOR_VARIANT, currentAppearance.eyeColorVariantOrdinal())));
     this.dog.getAmbienceEffects().readNbt(nbt);
     this.dog.getSleepController().readNbt(nbt);
     this.dog.getPlaySession().readNbt(nbt);

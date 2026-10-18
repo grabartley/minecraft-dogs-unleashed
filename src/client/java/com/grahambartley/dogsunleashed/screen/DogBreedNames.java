@@ -16,7 +16,7 @@ public final class DogBreedNames {
     if (breed != UnleashedDogBreed.CROSS_BREED) {
       return Text.translatable(breed.translationKey());
     }
-    final List<UnleashedDogBreed> mixBreeds = DogTraitFormat.mixNameBreeds(composition);
+    final List<UnleashedDogBreed> mixBreeds = DogAppearanceFormat.mixNameBreeds(composition);
     if (mixBreeds.isEmpty()) {
       return Text.translatable(breed.translationKey());
     }

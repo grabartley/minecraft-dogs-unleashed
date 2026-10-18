@@ -1,4 +1,4 @@
 package com.grahambartley.dogsunleashed.entity;
 
-public record DogTraits(
+public record DogAppearance(
     UnleashedDogBreed rigSourceBreed, int coatVariantOrdinal, int eyeColorVariantOrdinal) {}

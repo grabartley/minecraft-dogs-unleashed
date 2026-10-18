@@ -103,7 +103,7 @@ public class DogInspectScreen extends Screen {
             infoX,
             infoY,
             "screen.dogs-unleashed.pet_details.breed",
-            DogTraitFormat.formatComposition(
+            DogAppearanceFormat.formatComposition(
                 data.composition(), breed -> Text.translatable(breed.translationKey()).getString()),
             VALUE_COLOR);
     final UnleashedDogCoat coat = DogCoats.coatOf(pet.displayBreed(), pet.coatVariant());
@@ -126,7 +126,7 @@ public class DogInspectScreen extends Screen {
             infoX,
             infoY,
             "screen.dogs-unleashed.pet_details.rarity",
-            DogTraitFormat.formatRarity(
+            DogAppearanceFormat.formatRarity(
                 Text.translatable(rarity.translationKey()).getString(), rarityChance),
             rarity.colorArgb());
     infoY =
@@ -135,7 +135,7 @@ public class DogInspectScreen extends Screen {
             infoX,
             infoY,
             "screen.dogs-unleashed.pet_details.fur",
-            DogTraitFormat.furLine(pet),
+            DogAppearanceFormat.furLine(pet),
             VALUE_COLOR);
 
     infoY =
