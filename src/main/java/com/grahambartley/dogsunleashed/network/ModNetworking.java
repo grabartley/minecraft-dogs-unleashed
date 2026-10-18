@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.network;
 
+import com.grahambartley.dogsunleashed.entity.DogWheelSubActions;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.EditServerConfigC2SPayload;
@@ -17,6 +18,7 @@ import com.grahambartley.dogsunleashed.network.payload.RequestDogConnectionsPayl
 import com.grahambartley.dogsunleashed.network.payload.RequestPetManagerStatePayload;
 import com.grahambartley.dogsunleashed.network.payload.RequestPetsPayload;
 import com.grahambartley.dogsunleashed.network.payload.SelectWheelActionPayload;
+import com.grahambartley.dogsunleashed.network.payload.SelectWheelSubActionPayload;
 import com.grahambartley.dogsunleashed.network.payload.SetPetNamePayload;
 import com.grahambartley.dogsunleashed.network.payload.SummonPetPayload;
 import com.grahambartley.dogsunleashed.network.payload.SyncDogConnectionsPayload;
@@ -54,6 +56,8 @@ public final class ModNetworking {
     PayloadTypeRegistry.playC2S()
         .register(SelectWheelActionPayload.ID, SelectWheelActionPayload.CODEC);
     PayloadTypeRegistry.playC2S()
+        .register(SelectWheelSubActionPayload.ID, SelectWheelSubActionPayload.CODEC);
+    PayloadTypeRegistry.playC2S()
         .register(RequestDogConnectionsPayload.ID, RequestDogConnectionsPayload.CODEC);
     PayloadTypeRegistry.playS2C()
         .register(SyncDogConnectionsPayload.ID, SyncDogConnectionsPayload.CODEC);
@@ -78,6 +82,8 @@ public final class ModNetworking {
     ServerPlayNetworking.registerGlobalReceiver(
         SelectWheelActionPayload.ID, WheelActionNetworkHandler::handleSelectWheelAction);
     ServerPlayNetworking.registerGlobalReceiver(
+        SelectWheelSubActionPayload.ID, WheelActionNetworkHandler::handleSelectWheelSubAction);
+    ServerPlayNetworking.registerGlobalReceiver(
         RequestDogConnectionsPayload.ID, DogConnectionsNetworkHandler::handleRequestDogConnections);
   }
 
@@ -91,7 +97,8 @@ public final class ModNetworking {
             dog.getCommand().id(),
             dog.getSleepController().getAssignedBedPos().isPresent(),
             PetNames.tamedNameOf(dog),
-            Objects.requireNonNullElse(dog.getRiding().refusalKey(player), "")));
+            Objects.requireNonNullElse(dog.getRiding().refusalKey(player), ""),
+            DogWheelSubActions.REGISTERED.statesFor(dog, player)));
   }
 
   public static void sendOpenNamingScreen(
