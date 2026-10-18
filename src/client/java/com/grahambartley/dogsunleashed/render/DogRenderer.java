@@ -1,10 +1,15 @@
 package com.grahambartley.dogsunleashed.render;
 
 import com.grahambartley.dogsunleashed.config.SyncedServerConfig;
+import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.item.cosmetic.DogCosmetic;
+import com.grahambartley.dogsunleashed.item.cosmetic.DogCosmeticItem;
 import com.grahambartley.dogsunleashed.model.DogModel;
+import com.grahambartley.dogsunleashed.render.cosmetic.HatFit;
+import com.grahambartley.dogsunleashed.render.cosmetic.HatFits;
 import com.grahambartley.dogsunleashed.render.fur.FurLook;
 import com.grahambartley.dogsunleashed.render.growth.GrowthRigScale;
 import com.grahambartley.dogsunleashed.render.layer.DogArmourLayer;
@@ -22,6 +27,7 @@ import com.grahambartley.dogsunleashed.riding.SeatedRiders;
 import com.grahambartley.dogsunleashed.screen.DogCommandWheelScreen;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import net.minecraft.client.render.Frustum;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -43,6 +49,8 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
   private RigProfile frameProfile = RigProfile.EMPTY;
   private DogFurStage frameStage = DogFurStage.NATURAL;
   private boolean frameArmoured;
+  private Set<String> frameHiddenEars = Set.of();
+  private final HatFits hatFits = new HatFits();
   private @Nullable GrowthRigScale frameGrowth;
   private final Matrix4f frameOrigin = new Matrix4f();
   private final Map<String, SeatTransform> frameSeats = new HashMap<>();
@@ -56,7 +64,7 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
     this.addRenderLayer(new DogSheetOverlayLayer(this));
     this.addRenderLayer(new DogArmourLayer(this));
     this.addRenderLayer(new DogPendantLayer(this));
-    this.addRenderLayer(new DogCosmeticLayer(this));
+    this.addRenderLayer(new DogCosmeticLayer(this, this.hatFits));
   }
 
   @Override
@@ -113,6 +121,7 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
     this.frameProfile = RigProfiles.of(animatable.getRigSourceBreed());
     this.frameStage = animatable.getFur().stage();
     this.frameArmoured = !animatable.getArmour().worn().isEmpty();
+    this.frameHiddenEars = this.earsHiddenByHat(animatable, model);
     this.frameGrowth =
         animatable.getGrowth().applies()
             ? GrowthRigScale.of(model, this.frameProfile, animatable.getGrowth().stage())
@@ -143,6 +152,19 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
         colour);
   }
 
+  private Set<String> earsHiddenByHat(
+      final UnleashedDogEntity animatable, final BakedGeoModel model) {
+    if (animatable.isInvisible()) {
+      return Set.of();
+    }
+    return DogCosmeticItem.cosmeticOf(
+            animatable.getEquipmentHolder().getStack(DogEquipmentSlot.COSMETIC))
+        .filter(cosmetic -> cosmetic.mount() == DogCosmetic.Mount.HEAD)
+        .flatMap(hat -> this.hatFits.of(model, this.frameProfile, hat))
+        .map(HatFit::hiddenEars)
+        .orElse(Set.of());
+  }
+
   private float frameScale(
       final UnleashedDogEntity animatable, final UnleashedDogBreed.RenderTransforms transforms) {
     if (this.frameGrowth != null) {
@@ -166,7 +188,8 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
       int packedLight,
       int packedOverlay,
       int colour) {
-    if (!FurLook.shows(this.frameProfile, bone.getName(), this.frameStage)
+    if (this.frameHiddenEars.contains(bone.getName())
+        || !FurLook.shows(this.frameProfile, bone.getName(), this.frameStage)
         || (this.frameArmoured
             && FurLook.flattenedByArmour(
                 this.frameProfile,

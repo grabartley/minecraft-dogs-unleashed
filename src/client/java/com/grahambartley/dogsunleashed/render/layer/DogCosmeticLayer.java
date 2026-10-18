@@ -9,12 +9,12 @@ import com.grahambartley.dogsunleashed.render.armour.ArmourShell;
 import com.grahambartley.dogsunleashed.render.cosmetic.BandanaPrints;
 import com.grahambartley.dogsunleashed.render.cosmetic.CosmeticAssets;
 import com.grahambartley.dogsunleashed.render.cosmetic.CosmeticFit;
+import com.grahambartley.dogsunleashed.render.cosmetic.HatFit;
+import com.grahambartley.dogsunleashed.render.cosmetic.HatFits;
 import com.grahambartley.dogsunleashed.render.rig.CharmMount;
 import com.grahambartley.dogsunleashed.render.rig.CollarBandLocator.CollarSpot;
 import com.grahambartley.dogsunleashed.render.rig.CollarSpots;
 import com.grahambartley.dogsunleashed.render.rig.CubeGeometry;
-import com.grahambartley.dogsunleashed.render.rig.HeadTopLocator;
-import com.grahambartley.dogsunleashed.render.rig.HeadTopLocator.HeadTop;
 import com.grahambartley.dogsunleashed.render.rig.LivePose;
 import com.grahambartley.dogsunleashed.render.rig.PoseClearance;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile;
@@ -46,7 +46,7 @@ public class DogCosmeticLayer extends GeoRenderLayer<UnleashedDogEntity> {
 
   private record Collar(CollarSpot spot, CharmMount.Sides sides, float chestWidth) {}
 
-  private final Map<BakedGeoModel, Optional<HeadTop>> heads = new MapMaker().weakKeys().makeMap();
+  private final HatFits hatFits;
   private final Map<BakedGeoModel, Optional<Collar>> collars = new MapMaker().weakKeys().makeMap();
   private final Map<BakedGeoModel, CubeGeometry.Bounds> cosmeticBounds =
       new MapMaker().weakKeys().makeMap();
@@ -55,8 +55,9 @@ public class DogCosmeticLayer extends GeoRenderLayer<UnleashedDogEntity> {
   private ItemStack frameStack = ItemStack.EMPTY;
   private Optional<DogCosmetic> frameCosmetic = Optional.empty();
 
-  public DogCosmeticLayer(final GeoRenderer<UnleashedDogEntity> renderer) {
+  public DogCosmeticLayer(final GeoRenderer<UnleashedDogEntity> renderer, final HatFits hatFits) {
     super(renderer);
+    this.hatFits = hatFits;
   }
 
   @Override
@@ -127,17 +128,14 @@ public class DogCosmeticLayer extends GeoRenderLayer<UnleashedDogEntity> {
       final RigProfile profile,
       final DogCosmetic cosmetic,
       final BakedGeoModel model) {
-    final Optional<HeadTop> top =
-        this.heads.computeIfAbsent(this.frameModel, dog -> HeadTopLocator.locate(dog, profile));
-    if (top.isEmpty() || !bone.getName().equals(top.get().boneName())) {
+    final Optional<HatFit> fit = this.hatFits.of(this.frameModel, profile, cosmetic);
+    if (fit.isEmpty() || !bone.getName().equals(fit.get().top().boneName())) {
       return false;
     }
-    final float width =
-        CosmeticFit.hatWidth(cosmetic, top.get().headWidth(), top.get().clearWidth());
-    final float scale = width / this.widthOf(model);
-    final Vector3f point = top.get().point();
+    final float scale = fit.get().width() / this.widthOf(model);
+    final Vector3f point = fit.get().top().point();
     poseStack.translate(point.x, point.y, point.z);
-    poseStack.multiply(new Quaternionf(top.get().restRotation()).conjugate());
+    poseStack.multiply(new Quaternionf(fit.get().top().restRotation()).conjugate());
     poseStack.scale(scale, scale, scale);
     return true;
   }

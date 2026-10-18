@@ -4,13 +4,10 @@ import com.grahambartley.dogsunleashed.item.cosmetic.DogCosmetic;
 
 public final class CosmeticFit {
 
-  static final float CLEAR_MARGIN = 0.9f;
-
   private CosmeticFit() {}
 
-  public static float hatWidth(
-      final DogCosmetic cosmetic, final float headWidth, final float clearWidth) {
-    return Math.min(headWidth * headShare(cosmetic), clearWidth * CLEAR_MARGIN);
+  public static float hatWidth(final DogCosmetic cosmetic, final float headWidth) {
+    return headWidth * headShare(cosmetic);
   }
 
   public static float collarWidth(final DogCosmetic cosmetic, final float chestWidth) {
