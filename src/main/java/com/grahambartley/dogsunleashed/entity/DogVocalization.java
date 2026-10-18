@@ -120,7 +120,7 @@ public final class DogVocalization {
   }
 
   private void playBark(final float pitch) {
-    this.dog.playSound(this.barkSound(), DogsUnleashed.SERVER_CONFIG.barkVolume(), pitch);
+    this.dog.playSound(this.barkSound(), DogsUnleashed.SERVER_CONFIG.sound().barkVolume(), pitch);
     if (this.dog.getRigSourceBreed().barkMovesJaw()) {
       this.dog.triggerAnim(DogAnimationKeys.BARK, DogAnimationKeys.BARK);
     }
@@ -172,7 +172,8 @@ public final class DogVocalization {
 
     if (this.canHowl() && this.dog.getRandom().nextInt(RANDOM_HOWL_CHANCE) == 0) {
       this.dog.getAnimationState().setHowling(true);
-      this.dog.playSound(this.howlSound(), DogsUnleashed.SERVER_CONFIG.howlVolume(), HOWL_PITCH);
+      this.dog.playSound(
+          this.howlSound(), DogsUnleashed.SERVER_CONFIG.sound().howlVolume(), HOWL_PITCH);
       this.howlCooldownTicks = HOWL_COOLDOWN_TICKS;
       this.howlActiveTicks = HOWL_DURATION_TICKS;
       this.triggerHowlAdvancement();

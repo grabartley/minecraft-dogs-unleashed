@@ -23,7 +23,7 @@ public class AutoSleepGoal extends Goal {
 
   @Override
   public boolean canStart() {
-    if (!DogsUnleashed.SERVER_CONFIG.autoSleepEnabled()) {
+    if (!DogsUnleashed.SERVER_CONFIG.sleep().autoSleepEnabled()) {
       return false;
     }
     if (!this.dog.isTamed()) {
@@ -73,7 +73,7 @@ public class AutoSleepGoal extends Goal {
 
   private boolean isWithinRange(BlockPos bedPos) {
     final double distance = this.dog.getBlockPos().getSquaredDistance(bedPos);
-    final double range = DogsUnleashed.SERVER_CONFIG.autoSleepRangeBlocks();
+    final double range = DogsUnleashed.SERVER_CONFIG.sleep().autoSleepRangeBlocks();
     return distance <= range * range;
   }
 

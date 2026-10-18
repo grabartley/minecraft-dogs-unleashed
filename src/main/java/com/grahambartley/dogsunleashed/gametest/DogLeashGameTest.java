@@ -140,7 +140,8 @@ public final class DogLeashGameTest implements FabricGameTest {
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = INTERACT_BATCH, tickLimit = 20)
   public void sneakFetchInteractKeepsLeashWhenDropDisabled(final TestContext context) {
     final DogsUnleashedConfig original = DogsUnleashed.SERVER_CONFIG;
-    DogsUnleashed.SERVER_CONFIG = original.withDropLeashOnPlayMode(false);
+    DogsUnleashed.SERVER_CONFIG =
+        original.withGameplay(original.gameplay().withDropLeashOnPlayMode(false));
     try {
       final ServerPlayerEntity owner = spawnOwnerAt(context, OWNER_POS);
       final UnleashedDogEntity dog =

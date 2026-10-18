@@ -77,7 +77,7 @@ public final class DogFur {
 
   void tick() {
     final DogsUnleashedConfig config = DogsUnleashed.SERVER_CONFIG;
-    if (this.dog.isBaby() || !config.furGrowthEnabled()) {
+    if (this.dog.isBaby() || !config.fur().furGrowthEnabled()) {
       return;
     }
     final FurProfile profile = this.profile();
@@ -87,7 +87,7 @@ public final class DogFur {
     }
     final OptionalInt budget =
         DogFurRules.ticksPerStage(
-            profile, this.growthRate(), config.furGrowthRateMultiplierPercent());
+            profile, this.growthRate(), config.fur().furGrowthRateMultiplierPercent());
     if (budget.isEmpty()) {
       return;
     }
@@ -123,7 +123,7 @@ public final class DogFur {
     final boolean botched =
         DogFurRules.isBotched(
             from,
-            DogsUnleashed.SERVER_CONFIG.badHairDayChanceMultiplierPercent(),
+            DogsUnleashed.SERVER_CONFIG.fur().badHairDayChanceMultiplierPercent(),
             this.dog.getRandom().nextInt(DogFurRules.PERCENT));
     final int yield = DogFurRules.shearYield(from, this.profile().shearYieldPerStage(), botched);
     this.setStage(botched ? DogFurStage.BOTCHED : DogFurStage.TRIMMED);

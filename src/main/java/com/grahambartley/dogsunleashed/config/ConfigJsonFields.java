@@ -36,19 +36,18 @@ final class ConfigJsonFields {
 
   int readInt(final String key, final int fallback, final int min, final int max) {
     final int value = readInt(key, fallback);
-    if (value < min || value > max) {
-      LOGGER.warn(
-          "Dogs Unleashed config value {}={} out of range [{}, {}], clamping",
-          key,
-          value,
-          min,
-          max);
-    }
+    ConfigBounds.warnIfOutside(key, value, min, max);
     return value;
   }
 
   float readFloat(final String key, final float fallback) {
     return (float) readNumber(key, fallback);
+  }
+
+  float readFloat(final String key, final float fallback, final float min, final float max) {
+    final float value = readFloat(key, fallback);
+    ConfigBounds.warnIfOutside(key, value, min, max);
+    return value;
   }
 
   JsonObject readObject(final String key) {

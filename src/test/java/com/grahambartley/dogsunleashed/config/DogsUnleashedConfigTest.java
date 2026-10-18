@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -28,68 +30,57 @@ class DogsUnleashedConfigTest {
   private static DogsUnleashedConfig configWithSpawnRates(
       final int globalPercent, final Map<String, Integer> breedPercents) {
     return new DogsUnleashedConfig(
-        true,
-        globalPercent,
-        breedPercents,
-        false,
-        true,
-        true,
-        true,
-        32,
-        1.0f,
-        1.5f,
-        true,
-        true,
-        100,
-        100,
+        new SpawningSettings(true, globalPercent, breedPercents, false),
+        new GameplaySettings(true, true, true),
+        new SleepSettings(true, 32),
+        new FurSettings(true, 100, 100),
+        new SoundSettings(1.0f, 1.5f),
         DireWolfSettings.DEFAULTS);
   }
 
   @Test
   @DisplayName("AUTO_SLEEP_RANGE_MIN is below AUTO_SLEEP_RANGE_MAX")
   void autoSleepRangeMinIsBelowMax() {
-    assertTrue(DogsUnleashedConfig.AUTO_SLEEP_RANGE_MIN < DogsUnleashedConfig.AUTO_SLEEP_RANGE_MAX);
+    assertTrue(SleepSettings.RANGE_MIN < SleepSettings.RANGE_MAX);
   }
 
   @Test
   @DisplayName("AUTO_SLEEP_RANGE_MIN is at least 1 block")
   void autoSleepRangeMinIsAtLeastOne() {
-    assertTrue(DogsUnleashedConfig.AUTO_SLEEP_RANGE_MIN >= 1);
+    assertTrue(SleepSettings.RANGE_MIN >= 1);
   }
 
   @Test
   @DisplayName("VOLUME_MIN is non-negative and below VOLUME_MAX")
   void volumeMinIsNonNegativeAndBelowMax() {
-    assertTrue(DogsUnleashedConfig.VOLUME_MIN >= 0.0f);
-    assertTrue(DogsUnleashedConfig.VOLUME_MIN < DogsUnleashedConfig.VOLUME_MAX);
+    assertTrue(SoundSettings.VOLUME_MIN >= 0.0f);
+    assertTrue(SoundSettings.VOLUME_MIN < SoundSettings.VOLUME_MAX);
   }
 
   @Test
   @DisplayName("SPAWN_RATE_MULTIPLIER bounds allow disabling and boosting spawns")
   void spawnRateMultiplierBoundsAllowDisablingAndBoosting() {
-    assertEquals(0, DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MIN);
-    assertTrue(
-        DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MAX
-            > DogsUnleashedConfig.DEFAULT_SPAWN_RATE_MULTIPLIER_PERCENT);
+    assertEquals(0, SpawningSettings.RATE_MIN);
+    assertTrue(SpawningSettings.RATE_MAX > SpawningSettings.DEFAULT_RATE_PERCENT);
   }
 
   @Test
   @DisplayName("defaults() returns the documented default values")
   void defaultsReturnsDocumentedValues() {
     final DogsUnleashedConfig defaults = DogsUnleashedConfig.defaults();
-    assertTrue(defaults.enableNaturalSpawning());
-    assertEquals(100, defaults.spawnRateMultiplierPercent());
-    assertTrue(defaults.capIndependentSpawningEnabled());
-    assertTrue(defaults.gravesEnabled());
-    assertTrue(defaults.dropLeashOnPlayMode());
-    assertTrue(defaults.autoSleepEnabled());
-    assertEquals(32, defaults.autoSleepRangeBlocks());
-    assertEquals(1.0f, defaults.barkVolume());
-    assertEquals(1.5f, defaults.howlVolume());
-    assertTrue(defaults.showDogNames());
-    assertTrue(defaults.furGrowthEnabled());
-    assertEquals(100, defaults.furGrowthRateMultiplierPercent());
-    assertEquals(100, defaults.badHairDayChanceMultiplierPercent());
+    assertTrue(defaults.spawning().enableNaturalSpawning());
+    assertEquals(100, defaults.spawning().spawnRateMultiplierPercent());
+    assertTrue(defaults.spawning().capIndependentSpawningEnabled());
+    assertTrue(defaults.gameplay().gravesEnabled());
+    assertTrue(defaults.gameplay().dropLeashOnPlayMode());
+    assertTrue(defaults.sleep().autoSleepEnabled());
+    assertEquals(32, defaults.sleep().autoSleepRangeBlocks());
+    assertEquals(1.0f, defaults.sound().barkVolume());
+    assertEquals(1.5f, defaults.sound().howlVolume());
+    assertTrue(defaults.gameplay().showDogNames());
+    assertTrue(defaults.fur().furGrowthEnabled());
+    assertEquals(100, defaults.fur().furGrowthRateMultiplierPercent());
+    assertEquals(100, defaults.fur().badHairDayChanceMultiplierPercent());
   }
 
   static Stream<Arguments> furMultiplierClampCases() {
@@ -107,23 +98,14 @@ class DogsUnleashedConfigTest {
   void constructorClampsFurMultipliers(final int input, final int expected) {
     final DogsUnleashedConfig config =
         new DogsUnleashedConfig(
-            true,
-            100,
-            Map.of(),
-            false,
-            true,
-            true,
-            true,
-            32,
-            1.0f,
-            1.5f,
-            true,
-            true,
-            input,
-            input,
+            new SpawningSettings(true, 100, Map.of(), false),
+            new GameplaySettings(true, true, true),
+            new SleepSettings(true, 32),
+            new FurSettings(true, input, input),
+            new SoundSettings(1.0f, 1.5f),
             DireWolfSettings.DEFAULTS);
-    assertEquals(expected, config.furGrowthRateMultiplierPercent());
-    assertEquals(expected, config.badHairDayChanceMultiplierPercent());
+    assertEquals(expected, config.fur().furGrowthRateMultiplierPercent());
+    assertEquals(expected, config.fur().badHairDayChanceMultiplierPercent());
   }
 
   @ParameterizedTest(name = "{0} defaults to 100")
@@ -131,9 +113,12 @@ class DogsUnleashedConfigTest {
   @DisplayName("defaults() carries an entry of 100 for every naturally spawning breed")
   void defaultsCarryEveryNaturallySpawningBreedAtOneHundred(final UnleashedDogBreed breed) {
     final Integer multiplier =
-        DogsUnleashedConfig.defaults().breedSpawnRateMultipliersPercent().get(breed.serializedId());
+        DogsUnleashedConfig.defaults()
+            .spawning()
+            .breedSpawnRateMultipliersPercent()
+            .get(breed.serializedId());
     if (breed.isNaturallySpawning()) {
-      assertEquals(DogsUnleashedConfig.DEFAULT_SPAWN_RATE_MULTIPLIER_PERCENT, multiplier);
+      assertEquals(SpawningSettings.DEFAULT_RATE_PERCENT, multiplier);
     } else {
       assertNull(multiplier);
     }
@@ -158,20 +143,11 @@ class DogsUnleashedConfigTest {
     final Path path = tempDir.resolve("config.json");
     final DogsUnleashedConfig original =
         new DogsUnleashedConfig(
-            false,
-            250,
-            Map.of("husky", 0, "beagle", 40),
-            false,
-            false,
-            false,
-            false,
-            64,
-            0.5f,
-            0.25f,
-            false,
-            false,
-            250,
-            0,
+            new SpawningSettings(false, 250, Map.of("husky", 0, "beagle", 40), false),
+            new GameplaySettings(false, false, false),
+            new SleepSettings(false, 64),
+            new FurSettings(false, 250, 0),
+            new SoundSettings(0.5f, 0.25f),
             new DireWolfSettings(
                 175,
                 8,
@@ -206,19 +182,19 @@ class DogsUnleashedConfigTest {
         path, "{\"barkVolume\": 0.5, \"gravesEnabled\": false}", StandardCharsets.UTF_8);
 
     final DogsUnleashedConfig loaded = DogsUnleashedConfig.load(path);
-    assertEquals(0.5f, loaded.barkVolume());
-    assertFalse(loaded.gravesEnabled());
-    assertTrue(loaded.dropLeashOnPlayMode());
-    assertTrue(loaded.enableNaturalSpawning());
-    assertEquals(100, loaded.spawnRateMultiplierPercent());
-    assertTrue(loaded.capIndependentSpawningEnabled());
+    assertEquals(0.5f, loaded.sound().barkVolume());
+    assertFalse(loaded.gameplay().gravesEnabled());
+    assertTrue(loaded.gameplay().dropLeashOnPlayMode());
+    assertTrue(loaded.spawning().enableNaturalSpawning());
+    assertEquals(100, loaded.spawning().spawnRateMultiplierPercent());
+    assertTrue(loaded.spawning().capIndependentSpawningEnabled());
     assertEquals(
-        DogsUnleashedConfig.defaults().breedSpawnRateMultipliersPercent(),
-        loaded.breedSpawnRateMultipliersPercent());
-    assertTrue(loaded.autoSleepEnabled());
-    assertEquals(32, loaded.autoSleepRangeBlocks());
-    assertEquals(1.5f, loaded.howlVolume());
-    assertTrue(loaded.showDogNames());
+        DogsUnleashedConfig.defaults().spawning().breedSpawnRateMultipliersPercent(),
+        loaded.spawning().breedSpawnRateMultipliersPercent());
+    assertTrue(loaded.sleep().autoSleepEnabled());
+    assertEquals(32, loaded.sleep().autoSleepRangeBlocks());
+    assertEquals(1.5f, loaded.sound().howlVolume());
+    assertTrue(loaded.gameplay().showDogNames());
   }
 
   static Stream<Arguments> invalidFieldCases() {
@@ -250,9 +226,12 @@ class DogsUnleashedConfigTest {
     final DogsUnleashedConfig loaded = DogsUnleashedConfig.load(path);
     final DogsUnleashedConfig expected =
         DogsUnleashedConfig.defaults()
-            .withHowlVolume(
-                key.equals("howlVolume") ? DogsUnleashedConfig.DEFAULT_HOWL_VOLUME : 0.75f)
-            .withAutoSleepEnabled(false);
+            .withSound(
+                DogsUnleashedConfig.defaults()
+                    .sound()
+                    .withHowlVolume(
+                        key.equals("howlVolume") ? SoundSettings.DEFAULTS.howlVolume() : 0.75f))
+            .withSleep(SleepSettings.DEFAULTS.withAutoSleepEnabled(false));
     assertEquals(expected, loaded);
     assertTrue(Files.exists(path), "a file with a bad field is not malformed and stays in place");
   }
@@ -282,7 +261,7 @@ class DogsUnleashedConfigTest {
     final Path path = tempDir.resolve("existing.json");
     Files.writeString(path, "{\"gravesEnabled\": false}", StandardCharsets.UTF_8);
 
-    assertFalse(DogsUnleashedConfig.loadOrCreate(path).gravesEnabled());
+    assertFalse(DogsUnleashedConfig.loadOrCreate(path).gameplay().gravesEnabled());
     assertEquals("{\"gravesEnabled\": false}", Files.readString(path, StandardCharsets.UTF_8));
   }
 
@@ -294,15 +273,13 @@ class DogsUnleashedConfigTest {
 
   static Stream<Arguments> autoSleepRangeClampCases() {
     return Stream.of(
-        Arguments.of(0, DogsUnleashedConfig.AUTO_SLEEP_RANGE_MIN),
-        Arguments.of(3, DogsUnleashedConfig.AUTO_SLEEP_RANGE_MIN),
-        Arguments.of(
-            DogsUnleashedConfig.AUTO_SLEEP_RANGE_MIN, DogsUnleashedConfig.AUTO_SLEEP_RANGE_MIN),
+        Arguments.of(0, SleepSettings.RANGE_MIN),
+        Arguments.of(3, SleepSettings.RANGE_MIN),
+        Arguments.of(SleepSettings.RANGE_MIN, SleepSettings.RANGE_MIN),
         Arguments.of(64, 64),
-        Arguments.of(
-            DogsUnleashedConfig.AUTO_SLEEP_RANGE_MAX, DogsUnleashedConfig.AUTO_SLEEP_RANGE_MAX),
-        Arguments.of(500, DogsUnleashedConfig.AUTO_SLEEP_RANGE_MAX),
-        Arguments.of(-50, DogsUnleashedConfig.AUTO_SLEEP_RANGE_MIN));
+        Arguments.of(SleepSettings.RANGE_MAX, SleepSettings.RANGE_MAX),
+        Arguments.of(500, SleepSettings.RANGE_MAX),
+        Arguments.of(-50, SleepSettings.RANGE_MIN));
   }
 
   @ParameterizedTest(name = "{0} clamps to {1}")
@@ -312,33 +289,24 @@ class DogsUnleashedConfigTest {
   void constructorClampsAutoSleepRange(final int input, final int expected) {
     final DogsUnleashedConfig config =
         new DogsUnleashedConfig(
-            true,
-            100,
-            Map.of(),
-            false,
-            true,
-            true,
-            true,
-            input,
-            1.0f,
-            1.5f,
-            true,
-            true,
-            100,
-            100,
+            new SpawningSettings(true, 100, Map.of(), false),
+            new GameplaySettings(true, true, true),
+            new SleepSettings(true, input),
+            new FurSettings(true, 100, 100),
+            new SoundSettings(1.0f, 1.5f),
             DireWolfSettings.DEFAULTS);
-    assertEquals(expected, config.autoSleepRangeBlocks());
+    assertEquals(expected, config.sleep().autoSleepRangeBlocks());
   }
 
   static Stream<Arguments> volumeClampCases() {
     return Stream.of(
-        Arguments.of(-1.0f, DogsUnleashedConfig.VOLUME_MIN),
-        Arguments.of(-0.0001f, DogsUnleashedConfig.VOLUME_MIN),
-        Arguments.of(DogsUnleashedConfig.VOLUME_MIN, DogsUnleashedConfig.VOLUME_MIN),
+        Arguments.of(-1.0f, SoundSettings.VOLUME_MIN),
+        Arguments.of(-0.0001f, SoundSettings.VOLUME_MIN),
+        Arguments.of(SoundSettings.VOLUME_MIN, SoundSettings.VOLUME_MIN),
         Arguments.of(0.5f, 0.5f),
-        Arguments.of(DogsUnleashedConfig.VOLUME_MAX, DogsUnleashedConfig.VOLUME_MAX),
-        Arguments.of(2.5f, DogsUnleashedConfig.VOLUME_MAX),
-        Arguments.of(100.0f, DogsUnleashedConfig.VOLUME_MAX));
+        Arguments.of(SoundSettings.VOLUME_MAX, SoundSettings.VOLUME_MAX),
+        Arguments.of(2.5f, SoundSettings.VOLUME_MAX),
+        Arguments.of(100.0f, SoundSettings.VOLUME_MAX));
   }
 
   @ParameterizedTest(name = "{0} clamps to {1}")
@@ -347,38 +315,25 @@ class DogsUnleashedConfigTest {
   void constructorClampsVolumes(final float input, final float expected) {
     final DogsUnleashedConfig config =
         new DogsUnleashedConfig(
-            true,
-            100,
-            Map.of(),
-            false,
-            true,
-            true,
-            true,
-            32,
-            input,
-            input,
-            true,
-            true,
-            100,
-            100,
+            new SpawningSettings(true, 100, Map.of(), false),
+            new GameplaySettings(true, true, true),
+            new SleepSettings(true, 32),
+            new FurSettings(true, 100, 100),
+            new SoundSettings(input, input),
             DireWolfSettings.DEFAULTS);
-    assertEquals(expected, config.barkVolume());
-    assertEquals(expected, config.howlVolume());
+    assertEquals(expected, config.sound().barkVolume());
+    assertEquals(expected, config.sound().howlVolume());
   }
 
   static Stream<Arguments> spawnRateClampCases() {
     return Stream.of(
-        Arguments.of(-100, DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MIN),
-        Arguments.of(-1, DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MIN),
-        Arguments.of(
-            DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MIN,
-            DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MIN),
+        Arguments.of(-100, SpawningSettings.RATE_MIN),
+        Arguments.of(-1, SpawningSettings.RATE_MIN),
+        Arguments.of(SpawningSettings.RATE_MIN, SpawningSettings.RATE_MIN),
         Arguments.of(100, 100),
-        Arguments.of(
-            DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MAX,
-            DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MAX),
-        Arguments.of(501, DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MAX),
-        Arguments.of(99999, DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MAX));
+        Arguments.of(SpawningSettings.RATE_MAX, SpawningSettings.RATE_MAX),
+        Arguments.of(501, SpawningSettings.RATE_MAX),
+        Arguments.of(99999, SpawningSettings.RATE_MAX));
   }
 
   @ParameterizedTest(name = "{0} clamps to {1}")
@@ -388,20 +343,20 @@ class DogsUnleashedConfigTest {
           + " [SPAWN_RATE_MULTIPLIER_MIN, SPAWN_RATE_MULTIPLIER_MAX]")
   void constructorClampsSpawnRateMultipliers(final int input, final int expected) {
     final DogsUnleashedConfig config = configWithSpawnRates(input, Map.of("husky", input));
-    assertEquals(expected, config.spawnRateMultiplierPercent());
-    assertEquals(expected, config.breedSpawnRateMultipliersPercent().get("husky"));
+    assertEquals(expected, config.spawning().spawnRateMultiplierPercent());
+    assertEquals(expected, config.spawning().breedSpawnRateMultipliersPercent().get("husky"));
   }
 
   @Test
   @DisplayName("constructor fills breeds missing from the map with the default multiplier")
   void constructorFillsMissingBreedsWithDefault() {
     final DogsUnleashedConfig config = configWithSpawnRates(100, Map.of("beagle", 200));
-    assertEquals(200, config.breedSpawnRateMultipliersPercent().get("beagle"));
+    assertEquals(200, config.spawning().breedSpawnRateMultipliersPercent().get("beagle"));
     for (final UnleashedDogBreed breed : UnleashedDogBreed.values()) {
       if (breed != UnleashedDogBreed.BEAGLE && breed.isNaturallySpawning()) {
         assertEquals(
-            DogsUnleashedConfig.DEFAULT_SPAWN_RATE_MULTIPLIER_PERCENT,
-            config.breedSpawnRateMultipliersPercent().get(breed.serializedId()),
+            SpawningSettings.DEFAULT_RATE_PERCENT,
+            config.spawning().breedSpawnRateMultipliersPercent().get(breed.serializedId()),
             breed.serializedId());
       }
     }
@@ -412,8 +367,8 @@ class DogsUnleashedConfigTest {
   void constructorDropsUnknownBreedKeys() {
     final DogsUnleashedConfig config =
         configWithSpawnRates(100, Map.of("chihuahua", 300, "husky", 50));
-    assertFalse(config.breedSpawnRateMultipliersPercent().containsKey("chihuahua"));
-    assertEquals(50, config.breedSpawnRateMultipliersPercent().get("husky"));
+    assertFalse(config.spawning().breedSpawnRateMultipliersPercent().containsKey("chihuahua"));
+    assertEquals(50, config.spawning().breedSpawnRateMultipliersPercent().get("husky"));
   }
 
   @Test
@@ -421,7 +376,7 @@ class DogsUnleashedConfigTest {
   void loadHonorsCapIndependentSpawningOptOut() throws IOException {
     final Path path = tempDir.resolve("capspawner.json");
     Files.writeString(path, "{\"capIndependentSpawningEnabled\": false}", StandardCharsets.UTF_8);
-    assertFalse(DogsUnleashedConfig.load(path).capIndependentSpawningEnabled());
+    assertFalse(DogsUnleashedConfig.load(path).spawning().capIndependentSpawningEnabled());
   }
 
   @Test
@@ -429,7 +384,7 @@ class DogsUnleashedConfigTest {
   void loadHonorsDropLeashOnPlayModeOptOut() throws IOException {
     final Path path = tempDir.resolve("dropleash.json");
     Files.writeString(path, "{\"dropLeashOnPlayMode\": false}", StandardCharsets.UTF_8);
-    assertFalse(DogsUnleashedConfig.load(path).dropLeashOnPlayMode());
+    assertFalse(DogsUnleashedConfig.load(path).gameplay().dropLeashOnPlayMode());
   }
 
   @Test
@@ -437,7 +392,7 @@ class DogsUnleashedConfigTest {
   void loadHonorsShowDogNamesOptOut() throws IOException {
     final Path path = tempDir.resolve("shownames.json");
     Files.writeString(path, "{\"showDogNames\": false}", StandardCharsets.UTF_8);
-    assertFalse(DogsUnleashedConfig.load(path).showDogNames());
+    assertFalse(DogsUnleashedConfig.load(path).gameplay().showDogNames());
   }
 
   @Test
@@ -453,7 +408,7 @@ class DogsUnleashedConfigTest {
             + " \"autoSleepRangeBlocks\": 32, \"barkVolume\": 1.0, \"howlVolume\": 1.5}",
         StandardCharsets.UTF_8);
 
-    assertTrue(DogsUnleashedConfig.load(path).showDogNames());
+    assertTrue(DogsUnleashedConfig.load(path).gameplay().showDogNames());
   }
 
   @Test
@@ -466,8 +421,8 @@ class DogsUnleashedConfigTest {
         StandardCharsets.UTF_8);
 
     final DogsUnleashedConfig loaded = DogsUnleashedConfig.load(path);
-    assertFalse(loaded.breedSpawnRateMultipliersPercent().containsKey("poodle"));
-    assertEquals(25, loaded.breedSpawnRateMultipliersPercent().get("beagle"));
+    assertFalse(loaded.spawning().breedSpawnRateMultipliersPercent().containsKey("poodle"));
+    assertEquals(25, loaded.spawning().breedSpawnRateMultipliersPercent().get("beagle"));
   }
 
   @Test
@@ -482,14 +437,13 @@ class DogsUnleashedConfigTest {
         StandardCharsets.UTF_8);
 
     final DogsUnleashedConfig loaded = DogsUnleashedConfig.load(path);
-    assertEquals(DogsUnleashedConfig.AUTO_SLEEP_RANGE_MAX, loaded.autoSleepRangeBlocks());
-    assertEquals(DogsUnleashedConfig.VOLUME_MIN, loaded.barkVolume());
-    assertEquals(DogsUnleashedConfig.VOLUME_MAX, loaded.howlVolume());
+    assertEquals(SleepSettings.RANGE_MAX, loaded.sleep().autoSleepRangeBlocks());
+    assertEquals(SoundSettings.VOLUME_MIN, loaded.sound().barkVolume());
+    assertEquals(SoundSettings.VOLUME_MAX, loaded.sound().howlVolume());
+    assertEquals(SpawningSettings.RATE_MAX, loaded.spawning().spawnRateMultiplierPercent());
     assertEquals(
-        DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MAX, loaded.spawnRateMultiplierPercent());
-    assertEquals(
-        DogsUnleashedConfig.SPAWN_RATE_MULTIPLIER_MIN,
-        loaded.breedSpawnRateMultipliersPercent().get("husky"));
+        SpawningSettings.RATE_MIN,
+        loaded.spawning().breedSpawnRateMultipliersPercent().get("husky"));
   }
 
   static Stream<Arguments> effectiveSpawnWeightCases() {
@@ -519,7 +473,7 @@ class DogsUnleashedConfigTest {
       final int expected) {
     final DogsUnleashedConfig config =
         configWithSpawnRates(globalPercent, Map.of("husky", breedPercent));
-    assertEquals(expected, config.effectiveSpawnWeight(baseWeight, "husky"), label);
+    assertEquals(expected, config.spawning().effectiveSpawnWeight(baseWeight, "husky"), label);
   }
 
   static Stream<Arguments> spawnRateCases() {
@@ -541,20 +495,21 @@ class DogsUnleashedConfigTest {
       final int globalPercent, final int breedPercent, final double expected) {
     final DogsUnleashedConfig config =
         configWithSpawnRates(globalPercent, Map.of("husky", breedPercent));
-    assertEquals(expected, config.spawnRate("husky"), 1e-9);
+    assertEquals(expected, config.spawning().spawnRate("husky"), 1e-9);
   }
 
   @Test
   @DisplayName("spawnRate treats an unknown breed id as the default rate")
   void spawnRateUnknownBreedUsesDefault() {
-    assertEquals(2.0, configWithSpawnRates(200, Map.of()).spawnRate("not-a-breed"), 1e-9);
+    assertEquals(
+        2.0, configWithSpawnRates(200, Map.of()).spawning().spawnRate("not-a-breed"), 1e-9);
   }
 
   @Test
   @DisplayName("effectiveSpawnWeight treats an unknown breed id as the default multiplier")
   void effectiveSpawnWeightUnknownBreedUsesDefault() {
     final DogsUnleashedConfig config = configWithSpawnRates(200, Map.of());
-    assertEquals(20, config.effectiveSpawnWeight(10, "not-a-breed"));
+    assertEquals(20, config.spawning().effectiveSpawnWeight(10, "not-a-breed"));
   }
 
   @Test
@@ -563,30 +518,74 @@ class DogsUnleashedConfigTest {
     final DogsUnleashedConfig original = DogsUnleashedConfig.defaults();
     final DogsUnleashedConfig updated =
         original
-            .withEnableNaturalSpawning(false)
-            .withSpawnRateMultiplierPercent(250)
-            .withBreedSpawnRateMultiplierPercent("beagle", 0)
-            .withCapIndependentSpawningEnabled(false)
-            .withGravesEnabled(false)
-            .withDropLeashOnPlayMode(false)
-            .withAutoSleepEnabled(false)
-            .withAutoSleepRangeBlocks(64)
-            .withBarkVolume(0.25f)
-            .withHowlVolume(0.75f)
-            .withShowDogNames(false);
+            .withSpawning(
+                original
+                    .spawning()
+                    .withEnableNaturalSpawning(false)
+                    .withSpawnRateMultiplierPercent(250)
+                    .withBreedSpawnRateMultiplierPercent("beagle", 0)
+                    .withCapIndependentSpawningEnabled(false))
+            .withGameplay(
+                original
+                    .gameplay()
+                    .withGravesEnabled(false)
+                    .withDropLeashOnPlayMode(false)
+                    .withShowDogNames(false))
+            .withSleep(original.sleep().withAutoSleepEnabled(false).withAutoSleepRangeBlocks(64))
+            .withSound(original.sound().withBarkVolume(0.25f).withHowlVolume(0.75f));
 
     assertEquals(DogsUnleashedConfig.defaults(), original);
-    assertFalse(updated.enableNaturalSpawning());
-    assertEquals(250, updated.spawnRateMultiplierPercent());
-    assertEquals(0, updated.breedSpawnRateMultipliersPercent().get("beagle"));
-    assertEquals(100, updated.breedSpawnRateMultipliersPercent().get("husky"));
-    assertFalse(updated.capIndependentSpawningEnabled());
-    assertFalse(updated.gravesEnabled());
-    assertFalse(updated.dropLeashOnPlayMode());
-    assertFalse(updated.autoSleepEnabled());
-    assertEquals(64, updated.autoSleepRangeBlocks());
-    assertEquals(0.25f, updated.barkVolume());
-    assertEquals(0.75f, updated.howlVolume());
-    assertFalse(updated.showDogNames());
+    assertFalse(updated.spawning().enableNaturalSpawning());
+    assertEquals(250, updated.spawning().spawnRateMultiplierPercent());
+    assertEquals(0, updated.spawning().breedSpawnRateMultipliersPercent().get("beagle"));
+    assertEquals(100, updated.spawning().breedSpawnRateMultipliersPercent().get("husky"));
+    assertFalse(updated.spawning().capIndependentSpawningEnabled());
+    assertFalse(updated.gameplay().gravesEnabled());
+    assertFalse(updated.gameplay().dropLeashOnPlayMode());
+    assertFalse(updated.sleep().autoSleepEnabled());
+    assertEquals(64, updated.sleep().autoSleepRangeBlocks());
+    assertEquals(0.25f, updated.sound().barkVolume());
+    assertEquals(0.75f, updated.sound().howlVolume());
+    assertFalse(updated.gameplay().showDogNames());
+  }
+
+  @Test
+  @DisplayName("a config file saved on main loads with every value kept and saves back the same")
+  void aConfigSavedOnMainLoadsAndSavesUnchanged() throws IOException {
+    final Path path = tempDir.resolve("server-config.json");
+    try (var in = getClass().getResourceAsStream("/config/server-config-saved-on-main.json")) {
+      Files.write(path, in.readAllBytes());
+    }
+    final JsonObject saved = JsonParser.parseString(Files.readString(path)).getAsJsonObject();
+
+    final DogsUnleashedConfig loaded = DogsUnleashedConfig.load(path);
+
+    assertEquals(
+        new DogsUnleashedConfig(
+            new SpawningSettings(
+                false,
+                150,
+                Map.of(
+                    "husky", 90,
+                    "dachshund", 80,
+                    "beagle", 0,
+                    "goldenretriever", 120,
+                    "shibainu", 60,
+                    "direwolf", 321),
+                false),
+            new GameplaySettings(false, false, false),
+            new SleepSettings(false, 48),
+            new FurSettings(false, 250, 40),
+            new SoundSettings(0.75f, 1.25f),
+            new DireWolfSettings(
+                500,
+                20,
+                5,
+                10,
+                new DireWolfPackSettings(false, true),
+                new DireWolfStaminaSettings(false, 150, 75))),
+        loaded);
+    assertTrue(DogsUnleashedConfig.save(path, loaded));
+    assertEquals(saved, JsonParser.parseString(Files.readString(path)).getAsJsonObject());
   }
 }

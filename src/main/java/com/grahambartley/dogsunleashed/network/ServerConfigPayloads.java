@@ -5,6 +5,11 @@ import com.grahambartley.dogsunleashed.config.DireWolfPackSettings;
 import com.grahambartley.dogsunleashed.config.DireWolfSettings;
 import com.grahambartley.dogsunleashed.config.DireWolfStaminaSettings;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
+import com.grahambartley.dogsunleashed.config.FurSettings;
+import com.grahambartley.dogsunleashed.config.GameplaySettings;
+import com.grahambartley.dogsunleashed.config.SleepSettings;
+import com.grahambartley.dogsunleashed.config.SoundSettings;
+import com.grahambartley.dogsunleashed.config.SpawningSettings;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
@@ -60,50 +65,47 @@ public final class ServerConfigPayloads {
   }
 
   private static void writeConfig(final RegistryByteBuf buf, final DogsUnleashedConfig config) {
-    buf.writeBoolean(config.enableNaturalSpawning());
-    buf.writeVarInt(config.spawnRateMultiplierPercent());
+    final SpawningSettings spawning = config.spawning();
+    buf.writeBoolean(spawning.enableNaturalSpawning());
+    buf.writeVarInt(spawning.spawnRateMultiplierPercent());
     buf.writeMap(
-        config.breedSpawnRateMultipliersPercent(),
+        spawning.breedSpawnRateMultipliersPercent(),
         PacketByteBuf::writeString,
         PacketByteBuf::writeVarInt);
-    buf.writeBoolean(config.capIndependentSpawningEnabled());
-    buf.writeBoolean(config.gravesEnabled());
-    buf.writeBoolean(config.dropLeashOnPlayMode());
-    buf.writeBoolean(config.autoSleepEnabled());
-    buf.writeInt(config.autoSleepRangeBlocks());
-    buf.writeFloat(config.barkVolume());
-    buf.writeFloat(config.howlVolume());
-    buf.writeBoolean(config.showDogNames());
-    buf.writeBoolean(config.furGrowthEnabled());
-    buf.writeVarInt(config.furGrowthRateMultiplierPercent());
-    buf.writeVarInt(config.badHairDayChanceMultiplierPercent());
-    buf.writeVarInt(config.direWolf().growthRateMultiplierPercent());
-    buf.writeVarInt(config.direWolf().battlesToEvolve());
-    buf.writeVarInt(config.direWolf().smallestPack());
-    buf.writeVarInt(config.direWolf().largestPack());
-    buf.writeBoolean(config.direWolf().packs().hunt());
-    buf.writeBoolean(config.direWolf().packs().defend());
-    buf.writeBoolean(config.direWolf().stamina().drains());
-    buf.writeVarInt(config.direWolf().stamina().capacityPercent());
-    buf.writeVarInt(config.direWolf().stamina().recoveryPercent());
+    buf.writeBoolean(spawning.capIndependentSpawningEnabled());
+    buf.writeBoolean(config.gameplay().gravesEnabled());
+    buf.writeBoolean(config.gameplay().dropLeashOnPlayMode());
+    buf.writeBoolean(config.gameplay().showDogNames());
+    buf.writeBoolean(config.sleep().autoSleepEnabled());
+    buf.writeInt(config.sleep().autoSleepRangeBlocks());
+    buf.writeBoolean(config.fur().furGrowthEnabled());
+    buf.writeVarInt(config.fur().furGrowthRateMultiplierPercent());
+    buf.writeVarInt(config.fur().badHairDayChanceMultiplierPercent());
+    buf.writeFloat(config.sound().barkVolume());
+    buf.writeFloat(config.sound().howlVolume());
+    final DireWolfSettings direWolf = config.direWolf();
+    buf.writeVarInt(direWolf.growthRateMultiplierPercent());
+    buf.writeVarInt(direWolf.battlesToEvolve());
+    buf.writeVarInt(direWolf.smallestPack());
+    buf.writeVarInt(direWolf.largestPack());
+    buf.writeBoolean(direWolf.packs().hunt());
+    buf.writeBoolean(direWolf.packs().defend());
+    buf.writeBoolean(direWolf.stamina().drains());
+    buf.writeVarInt(direWolf.stamina().capacityPercent());
+    buf.writeVarInt(direWolf.stamina().recoveryPercent());
   }
 
   private static DogsUnleashedConfig readConfig(final RegistryByteBuf buf) {
     return new DogsUnleashedConfig(
-        buf.readBoolean(),
-        buf.readVarInt(),
-        buf.readMap(PacketByteBuf::readString, PacketByteBuf::readVarInt),
-        buf.readBoolean(),
-        buf.readBoolean(),
-        buf.readBoolean(),
-        buf.readBoolean(),
-        buf.readInt(),
-        buf.readFloat(),
-        buf.readFloat(),
-        buf.readBoolean(),
-        buf.readBoolean(),
-        buf.readVarInt(),
-        buf.readVarInt(),
+        new SpawningSettings(
+            buf.readBoolean(),
+            buf.readVarInt(),
+            buf.readMap(PacketByteBuf::readString, PacketByteBuf::readVarInt),
+            buf.readBoolean()),
+        new GameplaySettings(buf.readBoolean(), buf.readBoolean(), buf.readBoolean()),
+        new SleepSettings(buf.readBoolean(), buf.readInt()),
+        new FurSettings(buf.readBoolean(), buf.readVarInt(), buf.readVarInt()),
+        new SoundSettings(buf.readFloat(), buf.readFloat()),
         new DireWolfSettings(
             buf.readVarInt(),
             buf.readVarInt(),

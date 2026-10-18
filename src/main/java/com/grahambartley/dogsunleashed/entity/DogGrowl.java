@@ -57,7 +57,7 @@ public final class DogGrowl {
   private void play(final SoundEvent sound) {
     this.dog.playSound(
         sound,
-        DogsUnleashed.SERVER_CONFIG.barkVolume(),
+        DogsUnleashed.SERVER_CONFIG.sound().barkVolume(),
         DogVocalization.barkPitch(this.dog.isBaby()));
   }
 

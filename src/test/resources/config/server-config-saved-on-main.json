@@ -1,0 +1,38 @@
+{
+  "enableNaturalSpawning": false,
+  "spawnRateMultiplierPercent": 150,
+  "breedSpawnRateMultipliersPercent": {
+    "husky": 90,
+    "dachshund": 80,
+    "beagle": 0,
+    "goldenretriever": 120,
+    "shibainu": 60,
+    "direwolf": 321
+  },
+  "capIndependentSpawningEnabled": false,
+  "gravesEnabled": false,
+  "dropLeashOnPlayMode": false,
+  "autoSleepEnabled": false,
+  "autoSleepRangeBlocks": 48,
+  "barkVolume": 0.75,
+  "howlVolume": 1.25,
+  "showDogNames": false,
+  "furGrowthEnabled": false,
+  "furGrowthRateMultiplierPercent": 250,
+  "badHairDayChanceMultiplierPercent": 40,
+  "direWolf": {
+    "growthRateMultiplierPercent": 500,
+    "battlesToEvolve": 20,
+    "smallestPack": 5,
+    "largestPack": 10,
+    "packs": {
+      "hunt": false,
+      "defend": true
+    },
+    "stamina": {
+      "drains": false,
+      "capacityPercent": 150,
+      "recoveryPercent": 75
+    }
+  }
+}

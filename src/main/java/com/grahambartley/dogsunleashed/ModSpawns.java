@@ -44,11 +44,13 @@ public class ModSpawns {
           BiomeSelectors.includeByKey(spawnSettings.biomes()),
           context -> {
             final DogsUnleashedConfig config = DogsUnleashed.SERVER_CONFIG;
-            if (!config.enableNaturalSpawning()) {
+            if (!config.spawning().enableNaturalSpawning()) {
               return;
             }
             final int weight =
-                config.effectiveSpawnWeight(spawnSettings.weight(), breed.serializedId());
+                config
+                    .spawning()
+                    .effectiveSpawnWeight(spawnSettings.weight(), breed.serializedId());
             if (weight == 0) {
               return;
             }

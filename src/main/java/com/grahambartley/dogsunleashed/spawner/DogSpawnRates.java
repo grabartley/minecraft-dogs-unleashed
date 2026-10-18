@@ -12,7 +12,7 @@ public final class DogSpawnRates {
       final List<UnleashedDogBreed> breeds, final DogsUnleashedConfig config) {
     double highestRate = 0.0;
     for (final UnleashedDogBreed breed : breeds) {
-      highestRate = Math.max(highestRate, config.spawnRate(breed.serializedId()));
+      highestRate = Math.max(highestRate, config.spawning().spawnRate(breed.serializedId()));
     }
     return (int) Math.ceil(highestRate);
   }

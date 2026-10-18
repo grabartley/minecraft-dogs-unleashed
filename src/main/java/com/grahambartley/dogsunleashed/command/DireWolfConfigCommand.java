@@ -180,7 +180,7 @@ final class DireWolfConfigCommand {
                 .executes(
                     ctx -> {
                       final boolean value = BoolArgumentType.getBool(ctx, "enabled");
-                      return DogsUnleashedCommand.applyUpdate(
+                      return ConfigSettingNodes.applyUpdate(
                           ctx,
                           DogsUnleashed.SERVER_CONFIG.withDireWolf(
                               update.apply(DogsUnleashed.SERVER_CONFIG.direWolf(), value)),
@@ -204,7 +204,7 @@ final class DireWolfConfigCommand {
       return 0;
     }
     final DireWolfSettings updated = update.apply(current, value);
-    return DogsUnleashedCommand.applyUpdate(
+    return ConfigSettingNodes.applyUpdate(
         ctx, DogsUnleashed.SERVER_CONFIG.withDireWolf(updated), label, value + unit, false);
   }
 }
