@@ -13,4 +13,8 @@ public final class DogSleepSpotHandover {
     }
     return Optional.of(currentDog);
   }
+
+  public static boolean isTakenByAnother(final UUID currentDog, final UUID dog) {
+    return displaced(currentDog, dog).isPresent();
+  }
 }

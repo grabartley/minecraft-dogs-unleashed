@@ -32,4 +32,14 @@ class DogSleepSpotHandoverTest {
       final Optional<UUID> expected) {
     assertEquals(expected, DogSleepSpotHandover.displaced(current, incoming));
   }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("handovers")
+  void aSpotIsTakenByAnotherOnlyWhenSomeoneWouldBeDisplaced(
+      final String description,
+      final UUID current,
+      final UUID incoming,
+      final Optional<UUID> expected) {
+    assertEquals(expected.isPresent(), DogSleepSpotHandover.isTakenByAnother(current, incoming));
+  }
 }

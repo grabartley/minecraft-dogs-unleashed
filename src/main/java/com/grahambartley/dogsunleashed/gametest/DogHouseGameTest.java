@@ -12,6 +12,7 @@ import com.grahambartley.dogsunleashed.block.DogSleepSpotAssignment;
 import com.grahambartley.dogsunleashed.block.entity.AssignedDogHolder;
 import com.grahambartley.dogsunleashed.block.entity.DogHouseBlockEntity;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gametest.util.DogHouseTestHelper;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
 import com.grahambartley.dogsunleashed.gametest.util.SleepBatchFixture;
@@ -72,16 +73,7 @@ public final class DogHouseGameTest implements FabricGameTest {
   }
 
   private static void placeHouse(final TestContext context) {
-    final BlockState origin =
-        ModBlocks.DOG_HOUSE
-            .getDefaultState()
-            .with(DogHouseBlock.FACING, FACING)
-            .with(DogHouseBlock.PART, DogHousePart.ORIGIN);
-    for (final DogHousePart part : DogHousePart.values()) {
-      context.setBlockState(
-          REL_ORIGIN.add(DogHouseLayout.offsetFromOrigin(part, FACING)),
-          origin.with(DogHouseBlock.PART, part));
-    }
+    DogHouseTestHelper.placeHouse(context, REL_ORIGIN, FACING);
   }
 
   private static BlockPos rel(final DogHousePart part) {
