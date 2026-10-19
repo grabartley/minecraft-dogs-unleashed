@@ -11,9 +11,9 @@ import com.grahambartley.dogsunleashed.render.rig.RigProfile.Overlay;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile.Slot;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -171,32 +171,13 @@ class RigProfilesTest {
       BUNDLED
           .profileOf(rig)
           .overlay(overlay)
-          .ifPresent(
-              id ->
-                  assertNotNull(
-                      RigProfilesTest.class.getResource(
-                          "/assets/" + id.getNamespace() + "/" + id.getPath()),
-                      rig + " names a missing overlay " + id));
+          .ifPresent(id -> assertNotNull(resource(id), rig + " names a missing overlay " + id));
     }
   }
 
   @ParameterizedTest(name = "{0}")
   @MethodSource("rigs")
-  @DisplayName("every sheet override a profile names is a texture that ships")
-  void profileSheetOverridesExist(final UnleashedDogBreed rig) {
-    BUNDLED.profileOf(rig).sheetOverrides().values().stream()
-        .flatMap(slots -> slots.values().stream())
-        .forEach(
-            id ->
-                assertNotNull(
-                    RigProfilesTest.class.getResource(
-                        "/assets/" + id.getNamespace() + "/" + id.getPath()),
-                    rig + " names a missing sheet override " + id));
-  }
-
-  @ParameterizedTest(name = "{0}")
-  @MethodSource("rigs")
-  @DisplayName("every overridden sheet fits the overlay layout and every override fits the rig")
+  @DisplayName("every sheet override ships, fits the overlay layout and fits the rig")
   void profileSheetOverridesFit(final UnleashedDogBreed rig) throws IOException {
     final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
     final int atlasWidth = (int) model.properties().textureWidth();
@@ -215,12 +196,13 @@ class RigProfilesTest {
   }
 
   private static BufferedImage image(final Identifier id) throws IOException {
-    try (InputStream in =
-        RigProfilesTest.class.getResourceAsStream(
-            "/assets/" + id.getNamespace() + "/" + id.getPath())) {
-      assertNotNull(in, "missing texture " + id);
-      return ImageIO.read(in);
-    }
+    final URL resource = resource(id);
+    assertNotNull(resource, "missing texture " + id);
+    return ImageIO.read(resource);
+  }
+
+  private static URL resource(final Identifier id) {
+    return RigProfilesTest.class.getResource("/assets/" + id.getNamespace() + "/" + id.getPath());
   }
 
   @ParameterizedTest(name = "{0}")
