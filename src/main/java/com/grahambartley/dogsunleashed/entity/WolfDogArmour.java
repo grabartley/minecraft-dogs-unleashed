@@ -1,8 +1,6 @@
 package com.grahambartley.dogsunleashed.entity;
 
 import com.grahambartley.dogsunleashed.ModArmorItems;
-import net.minecraft.component.EnchantmentEffectComponentTypes;
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.passive.WolfEntity;
@@ -41,7 +39,9 @@ public final class WolfDogArmour {
       return null;
     }
     final ItemStack held = player.getStackInHand(hand);
-    if (ModArmorItems.isDogArmour(held) && wolf.getBodyArmor().isEmpty() && !wolf.isBaby()) {
+    if (ModArmorItems.isDogArmour(held)
+        && wolf.getBodyArmor().isEmpty()
+        && DogEquipmentSlot.ARMOUR.fits(wolf.isBaby())) {
       wolf.equipBodyArmor(held.copyWithCount(1));
       held.decrementUnlessCreative(1, player);
       return ActionResult.SUCCESS;
@@ -58,9 +58,7 @@ public final class WolfDogArmour {
   private static ActionResult shear(
       final WolfEntity wolf, final PlayerEntity player, final Hand hand, final ItemStack shears) {
     final ItemStack armour = wolf.getBodyArmor();
-    if (EnchantmentHelper.hasAnyEnchantmentsWith(
-            armour, EnchantmentEffectComponentTypes.PREVENT_ARMOR_CHANGE)
-        && !player.isCreative()) {
+    if (!DogEquipmentSlot.ARMOUR.releases(DogArmour.isBindingCursed(armour), player.isCreative())) {
       return ActionResult.PASS;
     }
     shears.damage(1, player, LivingEntity.getSlotForHand(hand));

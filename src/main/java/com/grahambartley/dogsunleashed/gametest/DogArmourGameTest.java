@@ -26,6 +26,8 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.LeveledCauldronBlock;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.DyedColorComponent;
+import net.minecraft.enchantment.Enchantments;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ArmorMaterials;
 import net.minecraft.item.DyeItem;
@@ -37,7 +39,9 @@ import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.recipe.input.CraftingRecipeInput;
 import net.minecraft.recipe.input.SmithingRecipeInput;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.ItemTags;
+import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.CustomTestProvider;
@@ -51,6 +55,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.GameMode;
 
 public final class DogArmourGameTest implements FabricGameTest {
 
@@ -60,6 +65,7 @@ public final class DogArmourGameTest implements FabricGameTest {
   private static final float HIT = 4.0f;
   private static final float BIG_HIT = 20.0f;
   private static final int ARMOUR_APPLIED_TICK = 2;
+  private static final int ARMOUR_SLOT_INDEX = DogEquipmentSlot.ARMOUR.ordinal();
 
   private record Armour(String id, Item item, Item repairItem, int mendedPerItem) {}
 
@@ -190,6 +196,124 @@ public final class DogArmourGameTest implements FabricGameTest {
         "Shift-clicking " + armour.id() + " in the equipment screen should put it on the dog");
     context.assertTrue(owner.getInventory().getStack(0).isEmpty(), "It should leave the hotbar");
     context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void aPuppyRefusesArmourFromTheHand(final TestContext context) {
+    final ServerPlayerEntity owner = PendantTestHelper.survivalOwnerAt(context, OWNER_POS);
+    final UnleashedDogEntity puppy = PendantTestHelper.dogWearing(context, null, owner, DOG_POS);
+    puppy.setBaby(true);
+    owner.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.WOLF_ARMOR));
+
+    puppy.interactMob(owner, Hand.MAIN_HAND);
+
+    context.assertTrue(puppy.getArmour().worn().isEmpty(), "A puppy is too small for armour");
+    context.assertEquals(
+        owner.getStackInHand(Hand.MAIN_HAND).getCount(), 1, "The armour stays in the hand");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void aPuppyRefusesArmourInTheGearScreen(final TestContext context) {
+    final ServerPlayerEntity owner = PendantTestHelper.survivalOwnerAt(context, OWNER_POS);
+    final UnleashedDogEntity puppy = PendantTestHelper.dogWearing(context, null, owner, DOG_POS);
+    puppy.setBaby(true);
+    owner.getInventory().setStack(0, new ItemStack(Items.WOLF_ARMOR));
+    final DogEquipmentScreenHandler handler = openHandler(owner, puppy);
+
+    handler.onSlotClick(FIRST_HOTBAR_SLOT_INDEX, 0, SlotActionType.QUICK_MOVE, owner);
+    context.assertTrue(puppy.getArmour().worn().isEmpty(), "Shift-click cannot fit a puppy");
+
+    owner.getInventory().setStack(0, new ItemStack(Items.WOLF_ARMOR));
+    handler.onSlotClick(FIRST_HOTBAR_SLOT_INDEX, 0, SlotActionType.PICKUP, owner);
+    handler.onSlotClick(ARMOUR_SLOT_INDEX, 0, SlotActionType.PICKUP, owner);
+
+    context.assertTrue(puppy.getArmour().worn().isEmpty(), "Placing cannot fit a puppy");
+    context.assertTrue(
+        handler.getCursorStack().isOf(Items.WOLF_ARMOR), "The armour stays with the owner");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void bindingKeepsArmourOnInTheGearScreen(final TestContext context) {
+    final PlayerEntity owner = survivalPlayerAt(context);
+    final UnleashedDogEntity dog = PendantTestHelper.dogWearing(context, null, owner, DOG_POS);
+    dog.getEquipmentHolder().setStack(DogEquipmentSlot.ARMOUR, bound(context, Items.WOLF_ARMOR));
+    owner.getInventory().setStack(0, new ItemStack(ModArmorItems.of(DogArmorTier.IRON)));
+    final DogEquipmentScreenHandler handler = openHandler(owner, dog);
+
+    for (final SlotActionType click :
+        List.of(
+            SlotActionType.QUICK_MOVE,
+            SlotActionType.PICKUP,
+            SlotActionType.THROW,
+            SlotActionType.SWAP)) {
+      handler.onSlotClick(ARMOUR_SLOT_INDEX, 0, click, owner);
+      context.assertTrue(
+          dog.getArmour().worn().isOf(Items.WOLF_ARMOR), "Cursed armour survives " + click);
+    }
+    handler.onSlotClick(FIRST_HOTBAR_SLOT_INDEX, 0, SlotActionType.PICKUP, owner);
+    handler.onSlotClick(ARMOUR_SLOT_INDEX, 0, SlotActionType.PICKUP, owner);
+
+    context.assertTrue(
+        dog.getArmour().worn().isOf(Items.WOLF_ARMOR), "Cursed armour survives a swap");
+    context.assertTrue(
+        handler.getCursorStack().isOf(ModArmorItems.of(DogArmorTier.IRON)),
+        "Cursed armour cannot be swapped out");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void creativeModeTakesCursedArmourOff(final TestContext context) {
+    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final UnleashedDogEntity dog = PendantTestHelper.dogWearing(context, null, owner, DOG_POS);
+    dog.getEquipmentHolder().setStack(DogEquipmentSlot.ARMOUR, bound(context, Items.WOLF_ARMOR));
+    final DogEquipmentScreenHandler handler = openHandler(owner, dog);
+
+    handler.onSlotClick(ARMOUR_SLOT_INDEX, 0, SlotActionType.PICKUP, owner);
+
+    context.assertTrue(dog.getArmour().worn().isEmpty(), "Creative mode ignores the curse");
+    context.assertTrue(handler.getCursorStack().isOf(Items.WOLF_ARMOR), "It lands on the cursor");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void bindingStopsArmourBeingSwappedFromTheHand(final TestContext context) {
+    final PlayerEntity owner = survivalPlayerAt(context);
+    final UnleashedDogEntity dog = PendantTestHelper.dogWearing(context, null, owner, DOG_POS);
+    dog.getEquipmentHolder().setStack(DogEquipmentSlot.ARMOUR, bound(context, Items.WOLF_ARMOR));
+    final Item iron = ModArmorItems.of(DogArmorTier.IRON);
+    owner.setStackInHand(Hand.MAIN_HAND, new ItemStack(iron));
+
+    dog.interactMob(owner, Hand.MAIN_HAND);
+
+    context.assertTrue(
+        dog.getArmour().worn().isOf(Items.WOLF_ARMOR), "Cursed armour stays on the dog");
+    context.assertTrue(owner.getStackInHand(Hand.MAIN_HAND).isOf(iron), "The swap is refused");
+    context.complete();
+  }
+
+  private static PlayerEntity survivalPlayerAt(final TestContext context) {
+    final PlayerEntity player = context.createMockPlayer(GameMode.SURVIVAL);
+    PendantTestHelper.placeAt(context, player, OWNER_POS);
+    return player;
+  }
+
+  private static DogEquipmentScreenHandler openHandler(
+      final PlayerEntity owner, final UnleashedDogEntity dog) {
+    return new DogEquipmentScreenHandler(1, owner.getInventory(), dog);
+  }
+
+  private static ItemStack bound(final TestContext context, final Item armour) {
+    final ItemStack stack = new ItemStack(armour);
+    stack.addEnchantment(
+        context
+            .getWorld()
+            .getRegistryManager()
+            .get(RegistryKeys.ENCHANTMENT)
+            .entryOf(Enchantments.BINDING_CURSE),
+        1);
+    return stack;
   }
 
   @CustomTestProvider
