@@ -1,0 +1,8 @@
+{
+  "parent": "dogs-unleashed:block/template_statue_base",
+  "textures": {
+    "particle": "minecraft:block/smooth_stone",
+    "trim": "minecraft:block/smooth_stone",
+    "panel": "minecraft:block/stone"
+  }
+}
