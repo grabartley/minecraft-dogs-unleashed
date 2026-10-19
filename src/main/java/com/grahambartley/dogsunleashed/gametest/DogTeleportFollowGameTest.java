@@ -35,21 +35,21 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
   private static final long ASSERT_TICK = 25;
 
   @CustomTestProvider
-  public List<TestFunction> longDistanceTeleportBringsOnlyFollowingDogsPerCommand() {
+  public List<TestFunction> longDistanceTeleportBringsOnlyFollowingDogs() {
     return Arrays.stream(DogCommand.values())
         .map(
             command ->
                 GeneratedGameTest.of(
                     "defaultBatch",
-                    "dogteleportfollowgametest.longdistanceteleportbringsonlyfollowingdogs."
+                    "dogteleportfollowgametest.longDistanceTeleportBringsOnlyFollowingDogs."
                         + command.serializedName(),
                     TELEPORT_ARENA,
                     40,
-                    context -> longDistanceTeleportMovesDogOnlyWhenFollowing(context, command)))
+                    context -> longDistanceTeleportBringsOnlyFollowingDogs(context, command)))
         .toList();
   }
 
-  private static void longDistanceTeleportMovesDogOnlyWhenFollowing(
+  private static void longDistanceTeleportBringsOnlyFollowingDogs(
       TestContext context, DogCommand command) {
     final ServerPlayerEntity owner = placePlayer(context, LONG_TELEPORT_START);
     final UnleashedDogEntity husky = spawnRegisteredDog(context, owner, DOG_START);
@@ -66,37 +66,19 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
           final UnleashedDogEntity dog = summonedDog(context, dogId);
           context.assertTrue(dog != null, "Dog must still exist in the world");
           if (shouldCome) {
+            final double distance = Math.sqrt(dog.squaredDistanceTo(owner));
             context.assertTrue(
-                dog.squaredDistanceTo(owner) <= 16.0,
-                "A " + command.serializedName() + " dog should come with its owner");
+                distance <= 4.0,
+                "A "
+                    + command.serializedName()
+                    + " dog should be beside its owner, but was "
+                    + distance
+                    + " blocks away");
           } else {
             context.assertTrue(
                 dog.getPos().squaredDistanceTo(dogStartPos) < 0.01,
                 "A " + command.serializedName() + " dog should stay where it was left");
           }
-          context.complete();
-        });
-  }
-
-  @GameTest(templateName = TELEPORT_ARENA, tickLimit = 40)
-  public void longDistanceTeleportBringsActiveDogToOwner(TestContext context) {
-    final ServerPlayerEntity owner = placePlayer(context, LONG_TELEPORT_START);
-    final UnleashedDogEntity husky = spawnRegisteredDog(context, owner, DOG_START);
-
-    context.runAtTick(TELEPORT_TICK, () -> teleport(context, owner, LONG_TELEPORT_DESTINATION));
-
-    final UUID dogId = husky.getUuid();
-    context.runAtTick(
-        ASSERT_TICK,
-        () -> {
-          final UnleashedDogEntity dog = summonedDog(context, dogId);
-          context.assertTrue(dog != null, "Summoned dog must exist in the world");
-          final double distance = Math.sqrt(dog.squaredDistanceTo(owner));
-          context.assertTrue(
-              distance <= 4.0,
-              "Active dog should be beside its owner after a long-distance teleport, but was "
-                  + distance
-                  + " blocks away");
           context.complete();
         });
   }
