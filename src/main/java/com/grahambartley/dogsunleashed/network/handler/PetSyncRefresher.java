@@ -19,7 +19,7 @@ public final class PetSyncRefresher {
       final MinecraftServer server, final PetManager petManager, final List<PetData> pets) {
     for (final PetData pet : pets) {
       if (pet.isAlive()) {
-        final UnleashedDogEntity dog = PetLocationService.findDog(server, pet);
+        final UnleashedDogEntity dog = PetLocationService.findLoadedDog(server, pet);
         if (dog != null) {
           final float newHealth = dog.getHealth();
           final BlockPos newPos = dog.getBlockPos();

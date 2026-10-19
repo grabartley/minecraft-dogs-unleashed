@@ -82,6 +82,8 @@
       "com.grahambartley.dogsunleashed.gametest.DogStrangerInteractionGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogGenesGameTest",
       "com.grahambartley.dogsunleashed.gametest.PetManagerConnectionsGameTest",
+      "com.grahambartley.dogsunleashed.gametest.PetManagerSummonGameTest",
+      "com.grahambartley.dogsunleashed.gametest.PetSyncRefresherGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogWetnessGameTest",
       "com.grahambartley.dogsunleashed.gametest.ResurrectionRitualGameTest",
       "com.grahambartley.dogsunleashed.gametest.UndeadDogGameTest",
