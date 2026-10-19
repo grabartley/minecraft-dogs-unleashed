@@ -39,7 +39,9 @@ public final class WolfDogArmour {
       return null;
     }
     final ItemStack held = player.getStackInHand(hand);
-    if (ModArmorItems.isDogArmour(held) && wolf.getBodyArmor().isEmpty() && !wolf.isBaby()) {
+    if (ModArmorItems.isDogArmour(held)
+        && wolf.getBodyArmor().isEmpty()
+        && DogEquipmentSlot.ARMOUR.fits(wolf.isBaby())) {
       wolf.equipBodyArmor(held.copyWithCount(1));
       held.decrementUnlessCreative(1, player);
       return ActionResult.SUCCESS;

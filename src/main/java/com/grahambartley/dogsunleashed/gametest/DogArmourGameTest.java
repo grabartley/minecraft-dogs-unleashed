@@ -242,14 +242,21 @@ public final class DogArmourGameTest implements FabricGameTest {
     owner.getInventory().setStack(0, new ItemStack(ModArmorItems.of(DogArmorTier.IRON)));
     final DogEquipmentScreenHandler handler = openHandler(owner, dog);
 
-    handler.onSlotClick(ARMOUR_SLOT_INDEX, 0, SlotActionType.QUICK_MOVE, owner);
-    handler.onSlotClick(ARMOUR_SLOT_INDEX, 0, SlotActionType.PICKUP, owner);
-    handler.onSlotClick(ARMOUR_SLOT_INDEX, 0, SlotActionType.THROW, owner);
+    for (final SlotActionType click :
+        List.of(
+            SlotActionType.QUICK_MOVE,
+            SlotActionType.PICKUP,
+            SlotActionType.THROW,
+            SlotActionType.SWAP)) {
+      handler.onSlotClick(ARMOUR_SLOT_INDEX, 0, click, owner);
+      context.assertTrue(
+          dog.getArmour().worn().isOf(Items.WOLF_ARMOR), "Cursed armour survives " + click);
+    }
     handler.onSlotClick(FIRST_HOTBAR_SLOT_INDEX, 0, SlotActionType.PICKUP, owner);
     handler.onSlotClick(ARMOUR_SLOT_INDEX, 0, SlotActionType.PICKUP, owner);
 
     context.assertTrue(
-        dog.getArmour().worn().isOf(Items.WOLF_ARMOR), "Cursed armour stays on the dog");
+        dog.getArmour().worn().isOf(Items.WOLF_ARMOR), "Cursed armour survives a swap");
     context.assertTrue(
         handler.getCursorStack().isOf(ModArmorItems.of(DogArmorTier.IRON)),
         "Cursed armour cannot be swapped out");
