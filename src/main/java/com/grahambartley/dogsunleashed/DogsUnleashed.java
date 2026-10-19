@@ -13,6 +13,7 @@ import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.entity.DogPlaySession;
 import com.grahambartley.dogsunleashed.listener.DogBattleListener;
 import com.grahambartley.dogsunleashed.listener.DogDimensionChangeListener;
+import com.grahambartley.dogsunleashed.listener.OwnerDeathListener;
 import com.grahambartley.dogsunleashed.listener.PendantEffectListener;
 import com.grahambartley.dogsunleashed.listener.PetLocationSyncListener;
 import com.grahambartley.dogsunleashed.listener.PlayerDimensionChangeListener;
@@ -71,6 +72,7 @@ public class DogsUnleashed implements ModInitializer {
     ResurrectionRitualListener.initialize();
     PendantEffectListener.initialize();
     DogBattleListener.initialize();
+    OwnerDeathListener.initialize();
 
     ServerLifecycleEvents.SERVER_STARTING.register(ServerConfigService::loadFromWorld);
 

@@ -12,6 +12,7 @@ import com.grahambartley.dogsunleashed.entity.goal.FollowParentDogGoal;
 import com.grahambartley.dogsunleashed.entity.goal.GroundNapGoal;
 import com.grahambartley.dogsunleashed.entity.goal.GuardTargetGoal;
 import com.grahambartley.dogsunleashed.entity.goal.HuntTargetGoal;
+import com.grahambartley.dogsunleashed.entity.goal.KeepWatchGoal;
 import com.grahambartley.dogsunleashed.entity.goal.PackGrudgeGoal;
 import com.grahambartley.dogsunleashed.entity.goal.PackGuardGoal;
 import com.grahambartley.dogsunleashed.entity.goal.PackShelterGoal;
@@ -73,6 +74,7 @@ public final class DogGoalRegistrar {
         9, new TemptGoal(dog, DEFAULT_GOAL_SPEED, DogFoods.attentionIngredient(), false));
     goalSelector.add(
         9, new FetchTemptGoal(dog, DEFAULT_GOAL_SPEED, FetchTypes.asIngredient(), false));
+    goalSelector.add(9, new KeepWatchGoal(dog));
     goalSelector.add(10, new ReturnToAnchorGoal(dog));
     goalSelector.add(
         10,

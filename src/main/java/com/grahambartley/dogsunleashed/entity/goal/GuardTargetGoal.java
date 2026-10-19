@@ -1,6 +1,8 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
+import com.grahambartley.dogsunleashed.entity.DeathWatchRules;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
+import com.grahambartley.dogsunleashed.entity.DogDeathWatch;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
@@ -50,11 +52,18 @@ public class GuardTargetGoal extends ActiveTargetGoal<HostileEntity> {
       return false;
     }
     final BlockPos anchor = dog.getCommandController().getAnchorPos();
+    final double radius = guardRadius(dog);
     return anchor != null
         && target.squaredDistanceTo(
                 anchor.getX() + POSITION_CENTER_OFFSET,
                 anchor.getY() + POSITION_CENTER_OFFSET,
                 anchor.getZ() + POSITION_CENTER_OFFSET)
-            <= GUARD_RADIUS * GUARD_RADIUS;
+            <= radius * radius;
+  }
+
+  private static double guardRadius(final UnleashedDogEntity dog) {
+    return dog.getComponents().get(DogDeathWatch.class).isKeepingWatch()
+        ? DeathWatchRules.GUARD_RADIUS
+        : GUARD_RADIUS;
   }
 }
