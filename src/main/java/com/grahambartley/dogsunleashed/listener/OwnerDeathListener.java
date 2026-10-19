@@ -9,10 +9,9 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec3d;
 
 public final class OwnerDeathListener {
-
-  private static final double POSITION_CENTER_OFFSET = 0.5;
 
   private OwnerDeathListener() {}
 
@@ -20,7 +19,8 @@ public final class OwnerDeathListener {
     ServerLivingEntityEvents.AFTER_DEATH.register(
         (entity, damageSource) -> {
           if (entity instanceof PlayerEntity player
-              && player.getWorld() instanceof ServerWorld world) {
+              && player.getWorld() instanceof ServerWorld world
+              && DeathWatchRules.isGuardable(player.getBlockY(), world.getBottomY())) {
             gatherDogsAt(world, player.getUuid(), player.getBlockPos());
           }
         });
@@ -47,9 +47,6 @@ public final class OwnerDeathListener {
                 dog.getCommand().followsOwnerOnRelocation(),
                 dog.getComponents().get(DogDeathWatch.class).isKeepingWatch(),
                 dog.isLeashed(),
-                dog.squaredDistanceTo(
-                    spot.getX() + POSITION_CENTER_OFFSET,
-                    spot.getY(),
-                    spot.getZ() + POSITION_CENTER_OFFSET)));
+                dog.squaredDistanceTo(Vec3d.ofBottomCenter(spot))));
   }
 }

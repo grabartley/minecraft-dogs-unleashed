@@ -6,11 +6,11 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.EnumSet;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 
 public class KeepWatchGoal extends Goal {
 
   private static final double MOVE_SPEED = 1.0;
-  private static final double POSITION_CENTER_OFFSET = 0.5;
   private static final int REPATH_INTERVAL_TICKS = 10;
 
   private final UnleashedDogEntity dog;
@@ -50,9 +50,8 @@ public class KeepWatchGoal extends Goal {
     if (spot == null) {
       return;
     }
-    final double x = spot.getX() + POSITION_CENTER_OFFSET;
-    final double z = spot.getZ() + POSITION_CENTER_OFFSET;
-    if (DeathWatchRules.hasArrived(this.dog.squaredDistanceTo(x, spot.getY(), z))) {
+    final Vec3d target = Vec3d.ofBottomCenter(spot);
+    if (DeathWatchRules.hasArrived(this.dog.getPos().subtract(target).horizontalLengthSquared())) {
       this.dog.getNavigation().stop();
       this.dog.setInSittingPose(true);
       return;
@@ -62,7 +61,7 @@ public class KeepWatchGoal extends Goal {
       return;
     }
     this.repathCooldown = REPATH_INTERVAL_TICKS;
-    this.dog.getNavigation().startMovingTo(x, spot.getY(), z, MOVE_SPEED);
+    this.dog.getNavigation().startMovingTo(target.x, target.y, target.z, MOVE_SPEED);
   }
 
   @Override

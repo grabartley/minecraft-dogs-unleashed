@@ -45,13 +45,15 @@ class DeathWatchRulesTest {
     "false, 0, false, KEEP_WATCH",
     "false, 0, true, KEEP_WATCH",
     "false, 10000, false, KEEP_WATCH",
-    "true, 10000, false, CALL_OUT",
-    "true, 10000, true, KEEP_WATCH",
+    "true, 2304, false, CALL_OUT",
+    "true, 2304.01, false, KEEP_WATCH",
+    "true, 10000, false, KEEP_WATCH",
+    "true, 2000, true, KEEP_WATCH",
     "true, 64.01, false, CALL_OUT",
     "true, 64, false, STAND_DOWN",
     "true, 0, true, STAND_DOWN"
   })
-  void nextCallsOutOnceTheOwnerLivesAgainAndStandsDownWhenTheyComeClose(
+  void nextCallsOutOnceWhenTheOwnerIsAliveWithinHearingAndStandsDownWhenTheyComeClose(
       final boolean ownerAliveHere,
       final double ownerSquaredDistanceToSpot,
       final boolean calledOut,
@@ -64,6 +66,13 @@ class DeathWatchRulesTest {
   void hasArrivedWithinArrivalDistanceOfTheSpot(
       final double squaredDistanceToSpot, final boolean arrived) {
     assertEquals(arrived, DeathWatchRules.hasArrived(squaredDistanceToSpot));
+  }
+
+  @ParameterizedTest
+  @CsvSource({"-64, -64, true", "100, -64, true", "-65, -64, false", "-200, 0, false"})
+  void isGuardableOnlyAboveTheBottomOfTheWorld(
+      final int spotY, final int worldBottomY, final boolean guardable) {
+    assertEquals(guardable, DeathWatchRules.isGuardable(spotY, worldBottomY));
   }
 
   @ParameterizedTest

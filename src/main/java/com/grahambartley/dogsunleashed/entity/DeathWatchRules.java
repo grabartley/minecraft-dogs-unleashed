@@ -5,6 +5,7 @@ public final class DeathWatchRules {
   public static final double GATHER_RANGE = 32.0;
   public static final double GUARD_RADIUS = 8.0;
   public static final double RELIEF_RANGE = 8.0;
+  public static final double HEARING_RANGE = 48.0;
   public static final double ARRIVAL_DISTANCE = 1.5;
 
   private DeathWatchRules() {}
@@ -41,11 +42,18 @@ public final class DeathWatchRules {
     if (ownerSquaredDistanceToSpot <= RELIEF_RANGE * RELIEF_RANGE) {
       return Step.STAND_DOWN;
     }
-    return calledOut ? Step.KEEP_WATCH : Step.CALL_OUT;
+    if (calledOut || ownerSquaredDistanceToSpot > HEARING_RANGE * HEARING_RANGE) {
+      return Step.KEEP_WATCH;
+    }
+    return Step.CALL_OUT;
   }
 
-  public static boolean hasArrived(final double squaredDistanceToSpot) {
-    return squaredDistanceToSpot <= ARRIVAL_DISTANCE * ARRIVAL_DISTANCE;
+  public static boolean hasArrived(final double squaredHorizontalDistanceToSpot) {
+    return squaredHorizontalDistanceToSpot <= ARRIVAL_DISTANCE * ARRIVAL_DISTANCE;
+  }
+
+  public static boolean isGuardable(final int spotY, final int worldBottomY) {
+    return spotY >= worldBottomY;
   }
 
   public static DogCommand commandAfterWatch(final DogCommand commandBefore) {

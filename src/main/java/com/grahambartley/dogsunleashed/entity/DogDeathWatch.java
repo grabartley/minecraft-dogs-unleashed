@@ -6,12 +6,12 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 public final class DogDeathWatch extends DogComponent {
 
   private static final int CHECK_INTERVAL_TICKS = 10;
-  private static final double POSITION_CENTER_OFFSET = 0.5;
 
   private final UnleashedDogEntity dog;
   private boolean watching;
@@ -35,6 +35,16 @@ public final class DogDeathWatch extends DogComponent {
     this.dog.getCommandController().guardAt(spot, dimension);
   }
 
+  public boolean hasCalledOut() {
+    return this.calledOut;
+  }
+
+  public void standDown() {
+    if (this.watching) {
+      this.dog.getCommandController().apply(this.commandBefore);
+    }
+  }
+
   void end() {
     this.watching = false;
     this.calledOut = false;
@@ -49,19 +59,14 @@ public final class DogDeathWatch extends DogComponent {
     final LivingEntity owner = this.dog.getOwner();
     final boolean ownerAliveHere = spot != null && owner != null && owner.isAlive();
     final double ownerDistance =
-        ownerAliveHere
-            ? owner.squaredDistanceTo(
-                spot.getX() + POSITION_CENTER_OFFSET,
-                spot.getY(),
-                spot.getZ() + POSITION_CENTER_OFFSET)
-            : Double.MAX_VALUE;
+        ownerAliveHere ? owner.squaredDistanceTo(Vec3d.ofBottomCenter(spot)) : Double.MAX_VALUE;
     switch (DeathWatchRules.next(ownerAliveHere, ownerDistance, this.calledOut)) {
       case CALL_OUT -> {
         this.calledOut = true;
         this.dog.getVocalization().callOut();
       }
       case STAND_DOWN -> {
-        this.dog.getCommandController().apply(this.commandBefore);
+        this.standDown();
         this.dog.getCommandController().acknowledge();
       }
       case KEEP_WATCH -> {}

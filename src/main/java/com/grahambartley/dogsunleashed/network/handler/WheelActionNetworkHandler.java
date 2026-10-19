@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.network.handler;
 
 import com.grahambartley.dogsunleashed.entity.DogCommand;
+import com.grahambartley.dogsunleashed.entity.DogDeathWatch;
 import com.grahambartley.dogsunleashed.entity.DogSleepController;
 import com.grahambartley.dogsunleashed.entity.DogWheelAction;
 import com.grahambartley.dogsunleashed.entity.DogWheelSubAction;
@@ -90,6 +91,7 @@ public final class WheelActionNetworkHandler {
         if (bedPos == null || dog.getSleepController().releaseSpotIfTaken(bedPos)) {
           return;
         }
+        dog.getComponents().get(DogDeathWatch.class).standDown();
         final String replyKey =
             dog.getSleepController().commandToSleep(bedPos)
                 ? "block.dogs-unleashed.dog_bed.sleep_command"
