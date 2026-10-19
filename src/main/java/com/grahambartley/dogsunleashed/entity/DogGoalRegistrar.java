@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
 import com.grahambartley.dogsunleashed.entity.goal.AutoSleepGoal;
 import com.grahambartley.dogsunleashed.entity.goal.CommandFollowOwnerGoal;
 import com.grahambartley.dogsunleashed.entity.goal.DogEscapeDangerGoal;
+import com.grahambartley.dogsunleashed.entity.goal.DogSitGoal;
 import com.grahambartley.dogsunleashed.entity.goal.FetchChaseGoal;
 import com.grahambartley.dogsunleashed.entity.goal.FetchRetrieveGoal;
 import com.grahambartley.dogsunleashed.entity.goal.FetchReturnGoal;
@@ -31,7 +32,6 @@ import net.minecraft.entity.ai.goal.LookAtEntityGoal;
 import net.minecraft.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.entity.ai.goal.PounceAtTargetGoal;
 import net.minecraft.entity.ai.goal.RevengeGoal;
-import net.minecraft.entity.ai.goal.SitGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.goal.TemptGoal;
 import net.minecraft.entity.ai.goal.TrackOwnerAttackerGoal;
@@ -57,7 +57,7 @@ public final class DogGoalRegistrar {
       final GoalSelector goalSelector,
       final GoalSelector targetSelector) {
     goalSelector.add(1, new SwimGoal(dog));
-    goalSelector.add(2, new SitGoal(dog));
+    goalSelector.add(2, new DogSitGoal(dog));
     goalSelector.add(3, new SleepInBedGoal(dog));
     goalSelector.add(3, new FetchChaseGoal(dog));
     goalSelector.add(3, new FetchRetrieveGoal(dog));

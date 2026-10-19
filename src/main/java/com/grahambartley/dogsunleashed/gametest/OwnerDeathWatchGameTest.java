@@ -10,6 +10,7 @@ import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import com.grahambartley.dogsunleashed.gametest.util.SleepBatchFixture;
 import com.grahambartley.dogsunleashed.gametest.util.SurvivalTestPlayer;
+import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -186,6 +187,28 @@ public final class OwnerDeathWatchGameTest implements FabricGameTest {
                 context.assertTrue(
                     zombie[0].getHealth() < zombie[0].getMaxHealth(),
                     "A dog lying at the spot should get up and bite a zombie near it"))
+        .completeIfSuccessful();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT * 2)
+  public void watchingDogFightsWhileItsOwnerIsGone(final TestContext context) {
+    final UnleashedDogEntity dog =
+        DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, REL_DOG, UUID.randomUUID());
+    watchOf(dog).keepWatchAt(context.getAbsolutePos(REL_SPOT), context.getWorld().getRegistryKey());
+    final ZombieEntity zombie = context.spawnEntity(EntityType.ZOMBIE, REL_NEAR_THREAT);
+    zombie.setAiDisabled(true);
+
+    context
+        .createTimedTaskRunner()
+        .createAndAdd(
+            () ->
+                context.assertTrue(
+                    zombie.getHealth() < zombie.getMaxHealth(),
+                    "A dog keeping watch for a dead owner should still bite a zombie near the"
+                        + " spot, sitting="
+                        + dog.isInSittingPose()
+                        + " target="
+                        + dog.getTarget()))
         .completeIfSuccessful();
   }
 
