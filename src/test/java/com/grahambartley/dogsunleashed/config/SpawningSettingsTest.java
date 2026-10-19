@@ -187,7 +187,12 @@ class SpawningSettingsTest {
             "cap independent spawning toggled",
             base.withCapIndependentSpawningEnabled(false),
             false),
-        Arguments.of("same values set again", base.withSpawnRateMultiplierPercent(100), false));
+        Arguments.of("same global rate set again", base.withSpawnRateMultiplierPercent(100), false),
+        Arguments.of(
+            "same breed rate set again",
+            base.withBreedSpawnRateMultiplierPercent("beagle", 100),
+            false),
+        Arguments.of("same toggle set again", base.withEnableNaturalSpawning(true), false));
   }
 
   @ParameterizedTest(name = "{0}")
