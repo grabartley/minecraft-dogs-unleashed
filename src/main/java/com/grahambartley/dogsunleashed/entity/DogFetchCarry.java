@@ -39,6 +39,17 @@ public final class DogFetchCarry {
     }
   }
 
+  public boolean isCarryingFetchedItem() {
+    return this.isCarrying() && this.activeType() == null && !this.carriedStack().isEmpty();
+  }
+
+  void dropFetchedItem() {
+    if (this.isCarryingFetchedItem()) {
+      this.dog.dropStack(this.carriedStack());
+      this.setCarrying(false);
+    }
+  }
+
   public ItemStack carriedStack() {
     return this.dog.getDataTracker().get(UnleashedDogEntity.CARRIED_FETCH_ITEM_STACK);
   }

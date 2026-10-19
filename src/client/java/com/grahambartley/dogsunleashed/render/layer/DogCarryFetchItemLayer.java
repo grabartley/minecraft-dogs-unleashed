@@ -21,6 +21,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RotationAxis;
 import org.joml.Matrix4f;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
@@ -32,6 +33,7 @@ import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
 public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockAndItemGeoLayer<T> {
   private static final int FULL_BRIGHT_COLOR = 0xFFFFFFFF;
   private static final float NO_PARTIAL_TICK = 1.0f;
+  private static final float ITEM_SIDEWAYS_DEGREES = 90.0f;
 
   private final GeoBlockRenderer<TennisBallBlockEntity> tennisBallRenderer;
   private final TennisBallBlockEntity tennisBallDummy;
@@ -66,6 +68,9 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
       return null;
     }
 
+    if (animatable.getFetchCarry().isCarryingFetchedItem()) {
+      return animatable.getFetchCarry().carriedStack().copy();
+    }
     var fetchItemType = animatable.getFetchCarry().activeType();
     if (fetchItemType == null) {
       return null;
@@ -84,6 +89,18 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
       float partialTick,
       int packedLight,
       int packedOverlay) {
+    if (animatable.getFetchCarry().isCarryingFetchedItem()) {
+      this.renderFetchedItem(
+          poseStack,
+          bone,
+          stack,
+          animatable,
+          bufferSource,
+          partialTick,
+          packedLight,
+          packedOverlay);
+      return;
+    }
     FetchItemType fetchType = animatable.getFetchCarry().activeType();
     if (fetchType == null) {
       return;
@@ -127,6 +144,25 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
       return;
     }
 
+    super.renderStackForBone(
+        poseStack, bone, stack, animatable, bufferSource, partialTick, packedLight, packedOverlay);
+  }
+
+  private void renderFetchedItem(
+      MatrixStack poseStack,
+      GeoBone bone,
+      ItemStack stack,
+      T animatable,
+      VertexConsumerProvider bufferSource,
+      float partialTick,
+      int packedLight,
+      int packedOverlay) {
+    CarryProfile profile = animatable.getRigSourceBreed().carryProfileFor(null);
+    MouthFrame.level(poseStack, bone);
+    poseStack.translate(0.0, profile.verticalOffset(), profile.forwardOffset());
+    float scale = CarriedToy.ITEM.scaleIn(this.entityOrigin, poseStack.peek().getPositionMatrix());
+    poseStack.scale(scale, scale, scale);
+    poseStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(ITEM_SIDEWAYS_DEGREES));
     super.renderStackForBone(
         poseStack, bone, stack, animatable, bufferSource, partialTick, packedLight, packedOverlay);
   }

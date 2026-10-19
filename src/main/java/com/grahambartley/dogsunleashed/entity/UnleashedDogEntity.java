@@ -114,7 +114,11 @@ public class UnleashedDogEntity extends DogMountEntity
   private final DogInteractions interactions = new DogInteractions(this);
   private final DogCommandController commandController = new DogCommandController(this);
   private final DogComponents components =
-      DogComponents.of(new DogTreatBuffState(this), new DogSpawnerOrigin(), new DogCollar(this));
+      DogComponents.of(
+          new DogTreatBuffState(this),
+          new DogSpawnerOrigin(),
+          new DogCollar(this),
+          new DogPointedOrders(this));
   private final DogGenomeCache genomeCache = new DogGenomeCache(this);
   private final DogUndeadState undeadState = new DogUndeadState(this);
   private final DogCuring curing = new DogCuring(this);

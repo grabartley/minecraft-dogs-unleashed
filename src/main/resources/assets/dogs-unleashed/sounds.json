@@ -76,5 +76,15 @@
     "sounds": [
       "dogs-unleashed:item/dog_whistle/blow1"
     ]
+  },
+  "item.dog_whistle.point": {
+    "subtitle": "subtitles.dogs-unleashed.dog_whistle.point",
+    "sounds": [
+      {
+        "name": "dogs-unleashed:item/dog_whistle/blow1",
+        "pitch": 1.5,
+        "volume": 0.8
+      }
+    ]
   }
 }

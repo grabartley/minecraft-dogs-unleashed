@@ -68,15 +68,20 @@ public class FetchReturnGoal extends Goal {
 
     double distToOwner = this.dog.squaredDistanceTo(player);
     if (distToOwner <= CLOSE_ENOUGH_DISTANCE * CLOSE_ENOUGH_DISTANCE) {
-      FetchItemType fetchItemType = this.getActiveFetchType();
-      this.placeReturnedFetchItem(player, fetchItemType);
+      final Text returnedName;
+      if (this.dog.getFetchCarry().isCarryingFetchedItem()) {
+        final ItemStack carried = this.dog.getFetchCarry().carriedStack();
+        returnedName = carried.getName();
+        this.dropAtOwner(player, carried.copy());
+      } else {
+        FetchItemType fetchItemType = this.getActiveFetchType();
+        this.placeReturnedFetchItem(player, fetchItemType);
+        returnedName = fetchItemType.item().getName();
+      }
 
       final String dogName = this.dog.getDisplayName().getString();
       player.sendMessage(
-          Text.translatable(
-              "message.dogs-unleashed.play_fetch_returned",
-              dogName,
-              fetchItemType.item().getName()),
+          Text.translatable("message.dogs-unleashed.play_fetch_returned", dogName, returnedName),
           true);
 
       if (player instanceof ServerPlayerEntity serverPlayer) {
@@ -109,6 +114,10 @@ public class FetchReturnGoal extends Goal {
 
     ItemStack carried = this.dog.getFetchCarry().carriedStack();
     ItemStack dropStack = carried.isEmpty() ? new ItemStack(fetchItemType.item()) : carried.copy();
+    this.dropAtOwner(player, dropStack);
+  }
+
+  private void dropAtOwner(PlayerEntity player, ItemStack dropStack) {
     ItemEntity itemEntity =
         new ItemEntity(
             this.dog.getWorld(),

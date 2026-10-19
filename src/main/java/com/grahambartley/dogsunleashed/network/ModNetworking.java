@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.network;
 import com.grahambartley.dogsunleashed.entity.DogWheelSubActions;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
+import com.grahambartley.dogsunleashed.item.WhistlePointing;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.EditServerConfigC2SPayload;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.SyncServerConfigS2CPayload;
 import com.grahambartley.dogsunleashed.network.handler.DogConnectionsNetworkHandler;
@@ -14,6 +15,7 @@ import com.grahambartley.dogsunleashed.network.payload.OpenCommandWheelPayload;
 import com.grahambartley.dogsunleashed.network.payload.OpenDogInspectPayload;
 import com.grahambartley.dogsunleashed.network.payload.OpenNamingScreenPayload;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
+import com.grahambartley.dogsunleashed.network.payload.PointWithWhistlePayload;
 import com.grahambartley.dogsunleashed.network.payload.RequestDogConnectionsPayload;
 import com.grahambartley.dogsunleashed.network.payload.RequestPetManagerStatePayload;
 import com.grahambartley.dogsunleashed.network.payload.RequestPetsPayload;
@@ -43,6 +45,8 @@ public final class ModNetworking {
   public static void registerPayloads() {
     PayloadTypeRegistry.playC2S().register(SetPetNamePayload.ID, SetPetNamePayload.CODEC);
     PayloadTypeRegistry.playC2S().register(SummonPetPayload.ID, SummonPetPayload.CODEC);
+    PayloadTypeRegistry.playC2S()
+        .register(PointWithWhistlePayload.ID, PointWithWhistlePayload.CODEC);
     PayloadTypeRegistry.playC2S().register(RequestPetsPayload.ID, RequestPetsPayload.CODEC);
     PayloadTypeRegistry.playC2S()
         .register(RequestPetManagerStatePayload.ID, RequestPetManagerStatePayload.CODEC);
@@ -73,6 +77,9 @@ public final class ModNetworking {
         SetPetNamePayload.ID, PetManagerNetworkHandler::handleSetPetName);
     ServerPlayNetworking.registerGlobalReceiver(
         SummonPetPayload.ID, PetManagerNetworkHandler::handleSummonPet);
+    ServerPlayNetworking.registerGlobalReceiver(
+        PointWithWhistlePayload.ID,
+        (payload, context) -> WhistlePointing.point(context.player(), payload));
     ServerPlayNetworking.registerGlobalReceiver(
         RequestPetsPayload.ID, PetManagerNetworkHandler::handleRequestPets);
     ServerPlayNetworking.registerGlobalReceiver(

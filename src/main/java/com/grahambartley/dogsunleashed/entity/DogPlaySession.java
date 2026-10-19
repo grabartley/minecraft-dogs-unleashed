@@ -120,6 +120,7 @@ public final class DogPlaySession {
   }
 
   public void endPlayMode() {
+    this.dog.getFetchCarry().dropFetchedItem();
     ActivePlaySessions.clear(
         ACTIVE_PLAY_SESSIONS, this.inPlayMode, this.getPlayPartnerPlayerUuid(), this.dog.getUuid());
     this.inPlayMode = false;

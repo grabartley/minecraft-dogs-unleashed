@@ -32,6 +32,7 @@ import com.grahambartley.dogsunleashed.render.rig.SlotRegions;
 import com.grahambartley.dogsunleashed.riding.RideInputSync;
 import com.grahambartley.dogsunleashed.riding.RideStaminaHud;
 import com.grahambartley.dogsunleashed.screen.DogEquipmentScreen;
+import com.grahambartley.dogsunleashed.whistle.WhistlePointer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
@@ -112,6 +113,7 @@ public class DogsUnleashedClient implements ClientModInitializer {
         });
 
     HandledScreens.register(ModScreenHandlers.DOG_EQUIPMENT, DogEquipmentScreen::new);
+    WhistlePointer.register();
 
     final ResourceManagerHelper resources =
         ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES);
