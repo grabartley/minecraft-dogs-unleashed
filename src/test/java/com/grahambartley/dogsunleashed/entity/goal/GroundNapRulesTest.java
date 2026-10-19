@@ -25,8 +25,9 @@ class GroundNapRulesTest {
   }
 
   @ParameterizedTest
-  @CsvSource({"0, 0", "1000, 1000", "8399, 8399", "8400, 0", "-1, 8399"})
-  void dueOffsetLeavesRoomForAWholeNapBeforeThePeriodEnds(final long seed, final long offset) {
+  @CsvSource({"0, 0", "1000, 1000", "5999, 5999", "6000, 0", "-1, 5999"})
+  void dueOffsetLeavesEveryDogTwoMinutesToStartAWholeNapBeforeThePeriodEnds(
+      final long seed, final long offset) {
     assertEquals(offset, GroundNapRules.dueOffset(seed));
   }
 

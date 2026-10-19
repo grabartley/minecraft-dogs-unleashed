@@ -15,6 +15,7 @@ import net.minecraft.test.BeforeBatch;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 
 public final class DireWolfNapGameTest implements FabricGameTest {
 
@@ -22,13 +23,14 @@ public final class DireWolfNapGameTest implements FabricGameTest {
   private static final String WAKE_BATCH = "ground-nap-hostile";
   private static final String BREED_BATCH = "ground-nap-breed";
   private static final String COMMAND_BATCH = "ground-nap-command";
-  private static final long LATE_AFTERNOON = GroundNapRules.PERIOD_TICKS - GroundNapRules.NAP_TICKS;
+  private static final String OWNER_BATCH = "ground-nap-owner";
+  private static final long NOON = GroundNapRules.PERIOD_TICKS / 2;
   private static final BlockPos REL_DOG = new BlockPos(3, 2, 3);
   private static final int SETTLE_TICKS = 40;
 
   @BeforeBatch(batchId = WAKE_BATCH)
   public void beforeHostileBatch(final ServerWorld world) {
-    pinLateAfternoon(world);
+    pinNoon(world);
   }
 
   @AfterBatch(batchId = WAKE_BATCH)
@@ -38,7 +40,7 @@ public final class DireWolfNapGameTest implements FabricGameTest {
 
   @BeforeBatch(batchId = BREED_BATCH)
   public void beforeBreedBatch(final ServerWorld world) {
-    pinLateAfternoon(world);
+    pinNoon(world);
   }
 
   @AfterBatch(batchId = BREED_BATCH)
@@ -48,11 +50,21 @@ public final class DireWolfNapGameTest implements FabricGameTest {
 
   @BeforeBatch(batchId = COMMAND_BATCH)
   public void beforeCommandBatch(final ServerWorld world) {
-    pinLateAfternoon(world);
+    pinNoon(world);
   }
 
   @AfterBatch(batchId = COMMAND_BATCH)
   public void afterCommandBatch(final ServerWorld world) {
+    SleepBatchFixture.teardown(world);
+  }
+
+  @BeforeBatch(batchId = OWNER_BATCH)
+  public void beforeOwnerBatch(final ServerWorld world) {
+    pinNoon(world);
+  }
+
+  @AfterBatch(batchId = OWNER_BATCH)
+  public void afterOwnerBatch(final ServerWorld world) {
     SleepBatchFixture.teardown(world);
   }
 
@@ -113,9 +125,38 @@ public final class DireWolfNapGameTest implements FabricGameTest {
         });
   }
 
-  private static void pinLateAfternoon(final ServerWorld world) {
+  @GameTest(templateName = ARENA, batchId = OWNER_BATCH, tickLimit = 100)
+  public void aFollowingDireWolfWakesWhenItsOwnerWalksAway(final TestContext context) {
+    final UnleashedDogEntity wolf = context.spawnEntity(ModEntities.DIRE_WOLF, REL_DOG);
+    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final Vec3d beside = context.getAbsolute(Vec3d.ofBottomCenter(REL_DOG.east(2)));
+    owner.refreshPositionAndAngles(beside.x, beside.y, beside.z, 0.0f, 0.0f);
+    wolf.setTamed(true, true);
+    wolf.setOwnerUuid(owner.getUuid());
+    wolf.getCommandController().apply(DogCommand.FOLLOW);
+
+    context.runAtTick(
+        SETTLE_TICKS,
+        () -> {
+          context.assertTrue(
+              wolf.getSleepController().isNapping(),
+              "A following dire wolf beside its owner should nap");
+          owner.refreshPositionAndAngles(
+              beside.x + GroundNapRules.OWNER_NEARBY_RANGE + 2, beside.y, beside.z, 0.0f, 0.0f);
+        });
+    context.runAtTick(
+        SETTLE_TICKS + 5,
+        () -> {
+          context.assertFalse(
+              wolf.getSleepController().isNapping(),
+              "A following dire wolf should wake when its owner walks away");
+          context.complete();
+        });
+  }
+
+  private static void pinNoon(final ServerWorld world) {
     SleepBatchFixture.prepare(world);
-    world.setTimeOfDay(LATE_AFTERNOON);
+    world.setTimeOfDay(NOON);
   }
 
   private static UnleashedDogEntity spawnStayingDog(

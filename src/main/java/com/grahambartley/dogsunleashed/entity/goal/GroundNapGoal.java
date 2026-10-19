@@ -84,9 +84,8 @@ public class GroundNapGoal extends Goal {
     final LivingEntity owner = this.dog.getOwner();
     return this.dog.getCommand().followsOwnerOnRelocation()
         && owner != null
-        && (owner.getWorld() != this.dog.getWorld()
-            || owner.squaredDistanceTo(this.dog)
-                > GroundNapRules.OWNER_NEARBY_RANGE * GroundNapRules.OWNER_NEARBY_RANGE);
+        && owner.squaredDistanceTo(this.dog)
+            > GroundNapRules.OWNER_NEARBY_RANGE * GroundNapRules.OWNER_NEARBY_RANGE;
   }
 
   private boolean isHostileNearby() {

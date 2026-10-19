@@ -8,6 +8,7 @@ public final class GroundNapRules {
 
   public static final long NAP_TICKS = 3 * 60 * 20;
   public static final long PERIOD_TICKS = DogSleepWindow.DAY_LENGTH_TICKS / 2;
+  public static final long START_GRACE_TICKS = 2 * 60 * 20;
   public static final long HURT_CALM_TICKS = 30 * 20;
   public static final double HOSTILE_RANGE = 16.0;
   public static final long HOSTILE_CHECK_TICKS = 10;
@@ -24,7 +25,7 @@ public final class GroundNapRules {
   }
 
   public static long dueOffset(final long seed) {
-    return Math.floorMod(seed, PERIOD_TICKS - NAP_TICKS);
+    return Math.floorMod(seed, PERIOD_TICKS - NAP_TICKS - START_GRACE_TICKS);
   }
 
   public static boolean isDue(final long timeOfDay, final long lastNappedPeriod, final long seed) {
