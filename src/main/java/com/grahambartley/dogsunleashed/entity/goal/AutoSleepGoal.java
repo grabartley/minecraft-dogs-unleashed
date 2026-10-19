@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.entity.goal;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModBlockTags;
+import com.grahambartley.dogsunleashed.entity.DogDeathWatch;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.EnumSet;
 import net.minecraft.block.BlockState;
@@ -33,6 +34,9 @@ public class AutoSleepGoal extends Goal {
       return false;
     }
     if (this.dog.isInSittingPose()) {
+      return false;
+    }
+    if (this.dog.getComponents().get(DogDeathWatch.class).isKeepingWatch()) {
       return false;
     }
     if (this.dog.getSleepController().isCommandedToSleep()) {

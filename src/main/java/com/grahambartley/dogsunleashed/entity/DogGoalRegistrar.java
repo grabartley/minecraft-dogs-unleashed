@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
 import com.grahambartley.dogsunleashed.entity.goal.AutoSleepGoal;
 import com.grahambartley.dogsunleashed.entity.goal.CommandFollowOwnerGoal;
 import com.grahambartley.dogsunleashed.entity.goal.DogEscapeDangerGoal;
+import com.grahambartley.dogsunleashed.entity.goal.DogSitGoal;
 import com.grahambartley.dogsunleashed.entity.goal.FetchChaseGoal;
 import com.grahambartley.dogsunleashed.entity.goal.FetchRetrieveGoal;
 import com.grahambartley.dogsunleashed.entity.goal.FetchReturnGoal;
@@ -12,6 +13,7 @@ import com.grahambartley.dogsunleashed.entity.goal.FollowParentDogGoal;
 import com.grahambartley.dogsunleashed.entity.goal.GroundNapGoal;
 import com.grahambartley.dogsunleashed.entity.goal.GuardTargetGoal;
 import com.grahambartley.dogsunleashed.entity.goal.HuntTargetGoal;
+import com.grahambartley.dogsunleashed.entity.goal.KeepWatchGoal;
 import com.grahambartley.dogsunleashed.entity.goal.PackGrudgeGoal;
 import com.grahambartley.dogsunleashed.entity.goal.PackGuardGoal;
 import com.grahambartley.dogsunleashed.entity.goal.PackShelterGoal;
@@ -30,7 +32,6 @@ import net.minecraft.entity.ai.goal.LookAtEntityGoal;
 import net.minecraft.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.entity.ai.goal.PounceAtTargetGoal;
 import net.minecraft.entity.ai.goal.RevengeGoal;
-import net.minecraft.entity.ai.goal.SitGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.goal.TemptGoal;
 import net.minecraft.entity.ai.goal.TrackOwnerAttackerGoal;
@@ -56,7 +57,7 @@ public final class DogGoalRegistrar {
       final GoalSelector goalSelector,
       final GoalSelector targetSelector) {
     goalSelector.add(1, new SwimGoal(dog));
-    goalSelector.add(2, new SitGoal(dog));
+    goalSelector.add(2, new DogSitGoal(dog));
     goalSelector.add(3, new SleepInBedGoal(dog));
     goalSelector.add(3, new FetchChaseGoal(dog));
     goalSelector.add(3, new FetchRetrieveGoal(dog));
@@ -69,6 +70,7 @@ public final class DogGoalRegistrar {
     goalSelector.add(6, new PounceAtTargetGoal(dog, POUNCE_STRENGTH));
     goalSelector.add(7, new MeleeAttackGoal(dog, DEFAULT_GOAL_SPEED, true));
     goalSelector.add(8, new AnimalMateGoal(dog, DEFAULT_GOAL_SPEED));
+    goalSelector.add(8, new KeepWatchGoal(dog));
     goalSelector.add(
         9, new TemptGoal(dog, DEFAULT_GOAL_SPEED, DogFoods.attentionIngredient(), false));
     goalSelector.add(

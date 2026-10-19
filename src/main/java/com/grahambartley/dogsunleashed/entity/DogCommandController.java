@@ -42,21 +42,37 @@ public final class DogCommandController {
     if (!this.dog.isTamed()) {
       return;
     }
-    if (this.dog.getSleepController().isAsleep()
-        || this.dog.getSleepController().isCommandedToSleep()) {
-      this.dog.getSleepController().markManuallyWoken();
-      this.dog.wakeUp();
-    }
+    this.wakeIfSleeping();
+    this.dog.getComponents().get(DogDeathWatch.class).end();
     this.dog.getDataTracker().set(UnleashedDogEntity.COMMAND, command.id());
     if (command.isAnchored()) {
       this.anchorAt(this.dog.getBlockPos(), this.dog.getWorld().getRegistryKey());
     } else {
       this.clearAnchor();
     }
+    this.settle(command);
+  }
+
+  void guardAt(final BlockPos spot, final RegistryKey<World> dimension) {
+    this.wakeIfSleeping();
+    this.dog.getDataTracker().set(UnleashedDogEntity.COMMAND, DogCommand.GUARD.id());
+    this.anchorAt(spot, dimension);
+    this.settle(DogCommand.GUARD);
+  }
+
+  private void settle(final DogCommand command) {
     this.dog.setSitting(command == DogCommand.SIT);
     this.dog.stopJumping();
     this.dog.getNavigation().stop();
     this.dog.setTarget(null);
+  }
+
+  private void wakeIfSleeping() {
+    if (this.dog.getSleepController().isAsleep()
+        || this.dog.getSleepController().isCommandedToSleep()) {
+      this.dog.getSleepController().markManuallyWoken();
+      this.dog.wakeUp();
+    }
   }
 
   public void acknowledge() {

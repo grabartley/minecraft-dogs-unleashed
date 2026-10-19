@@ -120,7 +120,11 @@ public final class DogVocalization {
   }
 
   private void playBark(final float pitch) {
-    this.dog.playSound(this.barkSound(), DogsUnleashed.SERVER_CONFIG.sound().barkVolume(), pitch);
+    this.playBark(pitch, DogsUnleashed.SERVER_CONFIG.sound().barkVolume());
+  }
+
+  private void playBark(final float pitch, final float volume) {
+    this.dog.playSound(this.barkSound(), volume, pitch);
     if (this.dog.getRigSourceBreed().barkMovesJaw()) {
       this.dog.triggerAnim(DogAnimationKeys.BARK, DogAnimationKeys.BARK);
     }
@@ -171,13 +175,30 @@ public final class DogVocalization {
     }
 
     if (this.canHowl() && this.dog.getRandom().nextInt(RANDOM_HOWL_CHANCE) == 0) {
-      this.dog.getAnimationState().setHowling(true);
-      this.dog.playSound(
-          this.howlSound(), DogsUnleashed.SERVER_CONFIG.sound().howlVolume(), HOWL_PITCH);
-      this.howlCooldownTicks = HOWL_COOLDOWN_TICKS;
-      this.howlActiveTicks = HOWL_DURATION_TICKS;
+      this.howl();
       this.triggerHowlAdvancement();
     }
+  }
+
+  void callOut() {
+    if (this.dog.getVoiceBreed().howls() && !this.dog.isUndead()) {
+      this.howl(DeathWatchRules.callOutVolume(DogsUnleashed.SERVER_CONFIG.sound().howlVolume()));
+    } else if (this.barkSound() != null) {
+      this.playBark(
+          this.getBarkPitch(),
+          DeathWatchRules.callOutVolume(DogsUnleashed.SERVER_CONFIG.sound().barkVolume()));
+    }
+  }
+
+  private void howl() {
+    this.howl(DogsUnleashed.SERVER_CONFIG.sound().howlVolume());
+  }
+
+  private void howl(final float volume) {
+    this.dog.getAnimationState().setHowling(true);
+    this.dog.playSound(this.howlSound(), volume, HOWL_PITCH);
+    this.howlCooldownTicks = HOWL_COOLDOWN_TICKS;
+    this.howlActiveTicks = HOWL_DURATION_TICKS;
   }
 
   private void triggerHowlAdvancement() {
