@@ -71,6 +71,7 @@ public final class WhistlePointing {
     }
     final Optional<Vec3d> marker = order(dog, target.get());
     if (marker.isEmpty()) {
+      tell(player, Text.translatable("message.dogs-unleashed.whistle.no_spot", bound.getName()));
       return;
     }
     player.getItemCooldownManager().set(ModItems.DOG_WHISTLE, DogWhistleItem.BLOW_COOLDOWN_TICKS);

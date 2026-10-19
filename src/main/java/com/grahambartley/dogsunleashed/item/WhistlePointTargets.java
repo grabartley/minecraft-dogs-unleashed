@@ -117,7 +117,9 @@ public final class WhistlePointTargets {
   private static PointedKind kindOf(final Entity entity, final ServerPlayerEntity player) {
     if (entity instanceof ItemEntity item) {
       final Entity claimant = item.getOwner();
-      return claimant == null || claimant == player ? PointedKind.ITEM : PointedKind.OTHER;
+      return claimant instanceof PlayerEntity && claimant != player
+          ? PointedKind.OTHER
+          : PointedKind.ITEM;
     }
     if (entity instanceof PlayerEntity) {
       return PointedKind.PLAYER;

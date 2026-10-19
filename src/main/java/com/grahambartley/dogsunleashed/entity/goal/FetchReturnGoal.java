@@ -90,7 +90,9 @@ public class FetchReturnGoal extends Goal {
       }
 
       this.dog.getFetchCarry().setCarrying(false);
-      this.dog.getPlaySession().setActiveFetchBlockPos(null);
+      if (!pointedFetch) {
+        this.dog.getPlaySession().setActiveFetchBlockPos(null);
+      }
     }
   }
 

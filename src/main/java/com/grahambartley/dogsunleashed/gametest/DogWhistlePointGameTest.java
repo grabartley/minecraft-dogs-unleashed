@@ -42,6 +42,7 @@ public final class DogWhistlePointGameTest implements FabricGameTest {
   private static final BlockPos FAR_FLOOR = new BlockPos(5, 1, 5);
   private static final BlockPos TARGET_SPOT = new BlockPos(5, 2, 5);
   private static final double RECALL_DISTANCE = 4.0;
+  private static final double OWNER_DROP_RADIUS = 3.0;
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 20)
   public void pointingAtABlockTellsTheDogToStayThere(TestContext context) {
@@ -245,9 +246,9 @@ public final class DogWhistlePointGameTest implements FabricGameTest {
     final UnleashedDogEntity dog = spawnBoundDog(context, owner, false);
     final ZombieEntity first = spawnStill(context, EntityType.ZOMBIE, new BlockPos(5, 2, 1));
     final ZombieEntity second = spawnStill(context, EntityType.ZOMBIE, TARGET_SPOT);
-    dog.setTarget(first);
 
     WhistlePointing.point(owner, PointWithWhistlePayload.atEntity(Hand.MAIN_HAND, second.getId()));
+    dog.setTarget(first);
 
     context.runAtEveryTick(
         () -> {
@@ -266,9 +267,13 @@ public final class DogWhistlePointGameTest implements FabricGameTest {
 
     WhistlePointing.point(owner, PointWithWhistlePayload.atEntity(Hand.MAIN_HAND, diamond.getId()));
 
+    final boolean[] pickedUp = {false};
     context.runAtEveryTick(
         () -> {
-          if (!dog.getFetchCarry().isCarrying() && countDiamonds(context) == 1) {
+          pickedUp[0] |= dog.getFetchCarry().isCarryingFetchedItem();
+          if (pickedUp[0]
+              && !dog.getFetchCarry().isCarrying()
+              && diamondsNear(context, owner, OWNER_DROP_RADIUS) == 1) {
             context.complete();
           }
         });
@@ -301,6 +306,9 @@ public final class DogWhistlePointGameTest implements FabricGameTest {
             dog, context.getWorld(), Vec3d.ofBottomCenter(context.getAbsolutePos(PLAYER_CORNER)));
 
     context.assertTrue(
+        context.getWorld().getEntity(summoned.getUuid()) == summoned,
+        "The summoned dog should be the one now in the world");
+    context.assertTrue(
         summoned.getFetchCarry().carriedStack().isOf(Items.DIAMOND),
         "The summoned dog should still carry the fetched item");
     context.assertTrue(
@@ -313,6 +321,17 @@ public final class DogWhistlePointGameTest implements FabricGameTest {
     dog.getFetchCarry().setActiveType(null);
     dog.getFetchCarry().setCarriedStack(new ItemStack(Items.DIAMOND));
     dog.getFetchCarry().setCarrying(true);
+  }
+
+  private static int diamondsNear(
+      final TestContext context, final ServerPlayerEntity owner, final double radius) {
+    return context
+        .getWorld()
+        .getEntitiesByClass(
+            ItemEntity.class,
+            owner.getBoundingBox().expand(radius),
+            item -> item.getStack().isOf(Items.DIAMOND))
+        .size();
   }
 
   private static int countDiamonds(final TestContext context) {
