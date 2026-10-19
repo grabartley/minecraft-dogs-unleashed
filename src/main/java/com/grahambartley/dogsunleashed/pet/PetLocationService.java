@@ -60,7 +60,7 @@ public final class PetLocationService {
     return !dog.isRemoved()
         && dog.getCommand().followsOwnerOnRelocation()
         && !dog.isInSittingPose()
-        && !dog.getSleepController().isSleepingInBed()
+        && !dog.getSleepController().isAsleep()
         && !isBesideOwner(dog, player);
   }
 

@@ -23,7 +23,7 @@ public final class DogAnimationControllers {
             "movement",
             0,
             state -> {
-              if (state.getAnimatable().getSleepController().isSleepingInBed()) {
+              if (state.getAnimatable().getSleepController().isAsleep()) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.SLEEP));
               }
               if (state.getAnimatable().isInSittingPose()) {
@@ -46,7 +46,7 @@ public final class DogAnimationControllers {
             state -> {
               final UnleashedDogEntity animatable = state.getAnimatable();
               if (animatable.getAnimationState().getTailWagTimerTicks() > 0
-                  && !animatable.getSleepController().isSleepingInBed()) {
+                  && !animatable.getSleepController().isAsleep()) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("tail_wag"));
               }
               return PlayState.STOP;

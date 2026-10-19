@@ -30,7 +30,7 @@ public class ReturnToAnchorGoal extends Goal {
     if (!this.dog.getCommand().isAnchored()) {
       return false;
     }
-    if (this.dog.isInSittingPose() || this.dog.getSleepController().isSleepingInBed()) {
+    if (this.dog.isInSittingPose() || this.dog.getSleepController().isAsleep()) {
       return false;
     }
     final BlockPos anchor = this.dog.getCommandController().getAnchorPos();

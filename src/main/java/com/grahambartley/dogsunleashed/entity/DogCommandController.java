@@ -42,7 +42,7 @@ public final class DogCommandController {
     if (!this.dog.isTamed()) {
       return;
     }
-    if (this.dog.getSleepController().isSleepingInBed()
+    if (this.dog.getSleepController().isAsleep()
         || this.dog.getSleepController().isCommandedToSleep()) {
       this.dog.getSleepController().markManuallyWoken();
       this.dog.wakeUp();

@@ -8,6 +8,7 @@ import com.grahambartley.dogsunleashed.block.DogSleepSpotAnchor;
 import com.grahambartley.dogsunleashed.block.DogSleepSpotHandover;
 import com.grahambartley.dogsunleashed.block.entity.AssignedDogHolder;
 import com.grahambartley.dogsunleashed.entity.goal.DogSleepWindow;
+import com.grahambartley.dogsunleashed.entity.goal.GroundNapRules;
 import java.util.Optional;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryKey;
@@ -29,6 +30,7 @@ public final class DogSleepController {
   private long autoSleepSuppressedFrom = NOT_SUPPRESSED;
   private long autoSleepSuppressedUntil = NOT_SUPPRESSED;
   private @Nullable RegistryKey<World> bedDimension = null;
+  private long lastHurtAt = GroundNapRules.NEVER;
 
   DogSleepController(final UnleashedDogEntity dog) {
     this.dog = dog;
@@ -98,6 +100,27 @@ public final class DogSleepController {
     }
   }
 
+  public void startNapping() {
+    this.dog.getDataTracker().set(UnleashedDogEntity.NAPPING, true);
+    this.dog.getNavigation().stop();
+  }
+
+  public boolean isNapping() {
+    return this.dog.getDataTracker().get(UnleashedDogEntity.NAPPING);
+  }
+
+  public boolean isAsleep() {
+    return this.isSleepingInBed() || this.isNapping();
+  }
+
+  void recordHurt() {
+    this.lastHurtAt = this.dog.getWorld().getTime();
+  }
+
+  public long getLastHurtAt() {
+    return this.lastHurtAt;
+  }
+
   public void holdSleepPose(final BlockPos bedPos) {
     final DogSleepPose pose =
         DogSleepSpotAnchor.poseFor(this.dog.getWorld(), bedPos, this.dog.getYaw());
@@ -123,6 +146,7 @@ public final class DogSleepController {
     this.dog.setNoGravity(false);
     this.dog.getDataTracker().set(UnleashedDogEntity.SLEEPING_IN_BED, false);
     this.dog.getDataTracker().set(UnleashedDogEntity.COMMANDED_TO_SLEEP, false);
+    this.dog.getDataTracker().set(UnleashedDogEntity.NAPPING, false);
     this.dog.getAmbienceEffects().releaseBirthWakeHearts();
   }
 

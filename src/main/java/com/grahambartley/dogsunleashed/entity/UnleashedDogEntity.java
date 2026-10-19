@@ -92,6 +92,7 @@ public class UnleashedDogEntity extends DogMountEntity
   static final TrackedData<Integer> COMMAND = data(INTEGER);
   static final TrackedData<Integer> FUR_STAGE = data(INTEGER);
   static final TrackedData<Integer> GROWTH_STAGE = data(INTEGER);
+  static final TrackedData<Boolean> NAPPING = data(BOOLEAN);
 
   private static <T> TrackedData<T> data(final TrackedDataHandler<T> handler) {
     return DataTracker.registerData(UnleashedDogEntity.class, handler);
@@ -283,6 +284,7 @@ public class UnleashedDogEntity extends DogMountEntity
     builder.add(GENOME, new NbtCompound());
     builder.add(FUR_STAGE, DogFurStage.NATURAL.ordinal());
     builder.add(GROWTH_STAGE, DireWolfGrowthStage.YEARLING.number());
+    builder.add(NAPPING, false);
   }
 
   public DogCommand getCommand() {
@@ -528,6 +530,7 @@ public class UnleashedDogEntity extends DogMountEntity
     }
     final boolean damaged = super.damage(source, amount);
     if (damaged && !this.getWorld().isClient) {
+      this.sleep.recordHurt();
       this.pack.onHurtBy(source.getAttacker());
     }
     return damaged;
