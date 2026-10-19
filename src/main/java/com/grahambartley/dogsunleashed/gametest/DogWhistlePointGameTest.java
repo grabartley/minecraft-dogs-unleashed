@@ -240,6 +240,24 @@ public final class DogWhistlePointGameTest implements FabricGameTest {
     context.complete();
   }
 
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 20)
+  public void pointingAtTheSideOfShortGrassSendsTheDogIntoIt(TestContext context) {
+    final ServerPlayerEntity owner = placeOwner(context);
+    final UnleashedDogEntity dog = spawnBoundDog(context, owner, true);
+    context.setBlockState(TARGET_SPOT, Blocks.SHORT_GRASS);
+
+    WhistlePointing.point(
+        owner,
+        PointWithWhistlePayload.atBlock(
+            Hand.MAIN_HAND, context.getAbsolutePos(TARGET_SPOT), Direction.NORTH));
+
+    context.assertTrue(
+        context.getAbsolutePos(TARGET_SPOT).equals(dog.getCommandController().getAnchorPos()),
+        "Pointing at the side of a grass tuft should send the dog into it, but its spot is "
+            + dog.getCommandController().getAnchorPos());
+    context.complete();
+  }
+
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 60)
   public void anAttackOrderReplacesTheCurrentTarget(TestContext context) {
     final ServerPlayerEntity owner = placeOwner(context);

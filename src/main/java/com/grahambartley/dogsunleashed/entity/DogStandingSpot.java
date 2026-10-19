@@ -20,6 +20,9 @@ public final class DogStandingSpot {
       final Entity dog, final BlockPos pos, final Direction side) {
     final BlockPos beside = pos.offset(side);
     final List<BlockPos> candidates = new ArrayList<>();
+    if (dog.getWorld().getBlockState(pos).getCollisionShape(dog.getWorld(), pos).isEmpty()) {
+      candidates.add(pos);
+    }
     for (int drop = 0; drop <= MAX_DROP_TO_GROUND; drop++) {
       candidates.add(beside.down(drop));
     }

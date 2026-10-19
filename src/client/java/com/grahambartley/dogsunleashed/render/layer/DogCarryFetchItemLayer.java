@@ -33,7 +33,7 @@ import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
 public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockAndItemGeoLayer<T> {
   private static final int FULL_BRIGHT_COLOR = 0xFFFFFFFF;
   private static final float NO_PARTIAL_TICK = 1.0f;
-  private static final float ITEM_SIDEWAYS_DEGREES = 90.0f;
+  private static final float ITEM_FLAT_DEGREES = 90.0f;
 
   private final GeoBlockRenderer<TennisBallBlockEntity> tennisBallRenderer;
   private final TennisBallBlockEntity tennisBallDummy;
@@ -162,7 +162,7 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
     poseStack.translate(0.0, profile.verticalOffset(), profile.forwardOffset());
     float scale = CarriedToy.ITEM.scaleIn(this.entityOrigin, poseStack.peek().getPositionMatrix());
     poseStack.scale(scale, scale, scale);
-    poseStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(ITEM_SIDEWAYS_DEGREES));
+    poseStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(ITEM_FLAT_DEGREES));
     super.renderStackForBone(
         poseStack, bone, stack, animatable, bufferSource, partialTick, packedLight, packedOverlay);
   }
