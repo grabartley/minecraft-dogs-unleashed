@@ -100,14 +100,7 @@ public final class PetLocationService {
       }
     }
 
-    for (final ServerWorld world : server.getWorlds()) {
-      if (world == knownWorld) continue;
-      final UnleashedDogEntity dog = findInWorld(world, petData.getPetId());
-      if (dog != null) {
-        return dog;
-      }
-    }
-    return null;
+    return findLoadedDog(server, petData);
   }
 
   public static void loadAndSummon(
