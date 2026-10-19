@@ -12,6 +12,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.stat.Stats;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.DyeColor;
@@ -74,7 +75,25 @@ public final class FrisbeeBlockGameTest implements FabricGameTest {
     player.changeGameMode(GameMode.SURVIVAL);
     player.interactionManager.tryBreakBlock(context.getAbsolutePos(FRISBEE_POS));
 
+    context.assertEquals(
+        player.getStatHandler().getStat(Stats.MINED, ModBlocks.FRISBEE), 1, "frisbees mined");
     expectOneColouredFrisbeeDropped(context);
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void aFrisbeeBrokenInCreativeDropsNothing(final TestContext context) {
+    placeColouredFrisbee(context);
+    @SuppressWarnings("removal")
+    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+    player.interactionManager.tryBreakBlock(context.getAbsolutePos(FRISBEE_POS));
+
+    context.runAtTick(
+        SETTLE_TICK,
+        () -> {
+          context.dontExpectBlock(ModBlocks.FRISBEE, FRISBEE_POS);
+          context.assertTrue(droppedFrisbees(context).isEmpty(), "creative breaks drop nothing");
+          context.complete();
+        });
   }
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)

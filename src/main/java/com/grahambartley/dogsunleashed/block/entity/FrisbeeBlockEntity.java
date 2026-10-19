@@ -74,12 +74,6 @@ public class FrisbeeBlockEntity extends BlockEntity
   }
 
   @Override
-  protected void readComponents(BlockEntity.ComponentsAccess components) {
-    super.readComponents(components);
-    this.color = components.getOrDefault(ModComponents.FRISBEE_COLOR, DyeColor.WHITE);
-  }
-
-  @Override
   public Packet<ClientPlayPacketListener> toUpdatePacket() {
     return BlockEntityUpdateS2CPacket.create(this);
   }
