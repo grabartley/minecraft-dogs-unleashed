@@ -6,7 +6,8 @@ public enum DogCosmetic {
   BANDANA("bandana", Mount.COLLAR, OptionalInt.of(0xB02E26), true),
   COLLAR_BOW("collar_bow", Mount.COLLAR, OptionalInt.of(0xF38BAA), false),
   PARTY_HAT("party_hat", Mount.HEAD, OptionalInt.empty(), false),
-  STRAW_HAT("straw_hat", Mount.HEAD, OptionalInt.empty(), false);
+  STRAW_HAT("straw_hat", Mount.HEAD, OptionalInt.empty(), false),
+  ROSETTE("rosette", Mount.COLLAR, OptionalInt.empty(), false);
 
   public enum Mount {
     HEAD,

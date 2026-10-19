@@ -15,14 +15,26 @@ import org.junit.jupiter.params.provider.CsvSource;
 class DogCosmeticTest {
 
   @ParameterizedTest(name = "{0} sits on the {1}")
-  @CsvSource({"BANDANA, COLLAR", "COLLAR_BOW, COLLAR", "PARTY_HAT, HEAD", "STRAW_HAT, HEAD"})
+  @CsvSource({
+    "BANDANA, COLLAR",
+    "COLLAR_BOW, COLLAR",
+    "PARTY_HAT, HEAD",
+    "STRAW_HAT, HEAD",
+    "ROSETTE, COLLAR"
+  })
   @DisplayName("hats sit on the head and cloth sits on the collar")
   void mountMatchesWhereItIsWorn(final DogCosmetic cosmetic, final DogCosmetic.Mount mount) {
     assertEquals(mount, cosmetic.mount());
   }
 
   @ParameterizedTest(name = "{0} dyeable={1}")
-  @CsvSource({"BANDANA, true", "COLLAR_BOW, true", "PARTY_HAT, false", "STRAW_HAT, false"})
+  @CsvSource({
+    "BANDANA, true",
+    "COLLAR_BOW, true",
+    "PARTY_HAT, false",
+    "STRAW_HAT, false",
+    "ROSETTE, false"
+  })
   @DisplayName("only the cloth cosmetics take dye")
   void clothTakesDye(final DogCosmetic cosmetic, final boolean dyeable) {
     assertEquals(dyeable, cosmetic.isDyeable());
@@ -40,6 +52,7 @@ class DogCosmeticTest {
   void undyeableDrawsUntinted() {
     assertEquals(0xFFFFFF, DogCosmetic.PARTY_HAT.undyedColor());
     assertEquals(0xFFFFFF, DogCosmetic.STRAW_HAT.undyedColor());
+    assertEquals(0xFFFFFF, DogCosmetic.ROSETTE.undyedColor());
   }
 
   @Test
@@ -49,6 +62,7 @@ class DogCosmeticTest {
     assertFalse(DogCosmetic.COLLAR_BOW.takesBannerPatterns());
     assertFalse(DogCosmetic.PARTY_HAT.takesBannerPatterns());
     assertFalse(DogCosmetic.STRAW_HAT.takesBannerPatterns());
+    assertFalse(DogCosmetic.ROSETTE.takesBannerPatterns());
   }
 
   @Test
