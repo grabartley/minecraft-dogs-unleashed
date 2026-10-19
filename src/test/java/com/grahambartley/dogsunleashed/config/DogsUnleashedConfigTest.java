@@ -90,6 +90,19 @@ class DogsUnleashedConfigTest {
     assertEquals(original, DogsUnleashedConfig.load(path));
   }
 
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(strings = {"NaN", "Infinity", "-Infinity"})
+  @DisplayName("load() refuses volumes that are not finite and keeps the defaults")
+  void loadRefusesNonFiniteVolumes(final String value) throws IOException {
+    final Path path = tempDir.resolve("nonfinite.json");
+    Files.writeString(
+        path,
+        "{\"barkVolume\": " + value + ", \"howlVolume\": " + value + "}",
+        StandardCharsets.UTF_8);
+
+    assertEquals(SoundSettings.DEFAULTS, DogsUnleashedConfig.load(path).sound());
+  }
+
   @Test
   @DisplayName("load() with malformed JSON returns defaults and renames the broken file")
   void loadMalformedJsonReturnsDefaultsAndBacksUp() throws IOException {

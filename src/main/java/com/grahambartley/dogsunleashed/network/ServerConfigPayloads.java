@@ -10,6 +10,10 @@ import com.grahambartley.dogsunleashed.config.GameplaySettings;
 import com.grahambartley.dogsunleashed.config.SleepSettings;
 import com.grahambartley.dogsunleashed.config.SoundSettings;
 import com.grahambartley.dogsunleashed.config.SpawningSettings;
+import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import io.netty.handler.codec.DecoderException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
@@ -21,6 +25,8 @@ public final class ServerConfigPayloads {
       Identifier.of(DogsUnleashed.MOD_ID, "sync_server_config");
   public static final Identifier EDIT_SERVER_CONFIG_ID =
       Identifier.of(DogsUnleashed.MOD_ID, "edit_server_config");
+
+  static final int BREED_RATES_MAX_SIZE = UnleashedDogBreed.values().length;
 
   private ServerConfigPayloads() {}
 
@@ -95,13 +101,23 @@ public final class ServerConfigPayloads {
     buf.writeVarInt(direWolf.stamina().recoveryPercent());
   }
 
+  static Map<String, Integer> readBreedRates(final PacketByteBuf buf) {
+    return buf.readMap(
+        size -> {
+          if (size > BREED_RATES_MAX_SIZE) {
+            throw new DecoderException(
+                "Breed spawn rate map has " + size + " entries, over " + BREED_RATES_MAX_SIZE);
+          }
+          return new LinkedHashMap<>(size);
+        },
+        PacketByteBuf::readString,
+        PacketByteBuf::readVarInt);
+  }
+
   private static DogsUnleashedConfig readConfig(final RegistryByteBuf buf) {
     final SpawningSettings spawning =
         new SpawningSettings(
-            buf.readBoolean(),
-            buf.readVarInt(),
-            buf.readMap(PacketByteBuf::readString, PacketByteBuf::readVarInt),
-            buf.readBoolean());
+            buf.readBoolean(), buf.readVarInt(), readBreedRates(buf), buf.readBoolean());
     final boolean gravesEnabled = buf.readBoolean();
     final boolean dropLeashOnPlayMode = buf.readBoolean();
     final SleepSettings sleep = new SleepSettings(buf.readBoolean(), buf.readInt());

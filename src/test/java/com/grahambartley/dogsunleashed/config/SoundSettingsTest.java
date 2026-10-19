@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class SoundSettingsTest {
 
@@ -61,5 +62,12 @@ class SoundSettingsTest {
     final SoundSettings config = new SoundSettings(input, input);
     assertEquals(expected, config.barkVolume());
     assertEquals(expected, config.howlVolume());
+  }
+
+  @ParameterizedTest(name = "{0} falls back to the defaults")
+  @ValueSource(floats = {Float.NaN, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY})
+  @DisplayName("volumes that are not finite are refused and replaced by the defaults")
+  void constructorRefusesNonFiniteVolumes(final float input) {
+    assertEquals(SoundSettings.DEFAULTS, new SoundSettings(input, input));
   }
 }

@@ -85,6 +85,7 @@
       "com.grahambartley.dogsunleashed.gametest.ResurrectionRitualGameTest",
       "com.grahambartley.dogsunleashed.gametest.UndeadDogGameTest",
       "com.grahambartley.dogsunleashed.gametest.ServerConfigEditPermissionGameTest",
+      "com.grahambartley.dogsunleashed.gametest.ServerConfigPayloadGameTest",
       "com.grahambartley.dogsunleashed.gametest.ModEntitiesGameTest",
       "com.grahambartley.dogsunleashed.gametest.PendantItemGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogArmourGameTest",

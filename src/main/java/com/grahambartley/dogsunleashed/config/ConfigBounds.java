@@ -12,7 +12,11 @@ public final class ConfigBounds {
     return Math.max(min, Math.min(max, value));
   }
 
-  public static float clamp(final float value, final float min, final float max) {
+  public static float clamp(
+      final float value, final float min, final float max, final float fallback) {
+    if (!Float.isFinite(value)) {
+      return fallback;
+    }
     return Math.max(min, Math.min(max, value));
   }
 
