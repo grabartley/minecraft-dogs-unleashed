@@ -21,16 +21,14 @@ final class ConfigSettingNodes {
 
   static LiteralArgumentBuilder<ServerCommandSource> toggle(
       final String name,
-      final BiFunction<DogsUnleashedConfig, Boolean, DogsUnleashedConfig> update,
-      final boolean restartNote) {
-    return toggle(name, name, update, restartNote);
+      final BiFunction<DogsUnleashedConfig, Boolean, DogsUnleashedConfig> update) {
+    return toggle(name, name, update);
   }
 
   static LiteralArgumentBuilder<ServerCommandSource> toggle(
       final String name,
       final String label,
-      final BiFunction<DogsUnleashedConfig, Boolean, DogsUnleashedConfig> update,
-      final boolean restartNote) {
+      final BiFunction<DogsUnleashedConfig, Boolean, DogsUnleashedConfig> update) {
     return CommandManager.literal(name)
         .then(
             CommandManager.argument("enabled", BoolArgumentType.bool())
@@ -41,8 +39,7 @@ final class ConfigSettingNodes {
                           ctx,
                           update.apply(DogsUnleashed.SERVER_CONFIG, value),
                           label,
-                          Boolean.toString(value),
-                          restartNote);
+                          Boolean.toString(value));
                     }));
   }
 
@@ -52,10 +49,9 @@ final class ConfigSettingNodes {
       final int min,
       final int max,
       final BiFunction<DogsUnleashedConfig, Integer, DogsUnleashedConfig> update,
-      final IntFunction<String> display,
-      final boolean restartNote) {
+      final IntFunction<String> display) {
     return CommandManager.literal(name)
-        .then(intArgument(name, argument, min, max, update, display, restartNote));
+        .then(intArgument(name, argument, min, max, update, display));
   }
 
   static RequiredArgumentBuilder<ServerCommandSource, Integer> intArgument(
@@ -64,8 +60,7 @@ final class ConfigSettingNodes {
       final int min,
       final int max,
       final BiFunction<DogsUnleashedConfig, Integer, DogsUnleashedConfig> update,
-      final IntFunction<String> display,
-      final boolean restartNote) {
+      final IntFunction<String> display) {
     return CommandManager.argument(argument, IntegerArgumentType.integer(min, max))
         .executes(
             ctx -> {
@@ -74,8 +69,7 @@ final class ConfigSettingNodes {
                   ctx,
                   update.apply(DogsUnleashed.SERVER_CONFIG, value),
                   label,
-                  display.apply(value),
-                  restartNote);
+                  display.apply(value));
             });
   }
 
@@ -94,8 +88,7 @@ final class ConfigSettingNodes {
                           ctx,
                           update.apply(DogsUnleashed.SERVER_CONFIG, value),
                           name,
-                          String.format("%.2f", value),
-                          false);
+                          String.format("%.2f", value));
                     }));
   }
 
@@ -103,9 +96,10 @@ final class ConfigSettingNodes {
       final CommandContext<ServerCommandSource> ctx,
       final DogsUnleashedConfig updated,
       final String label,
-      final String displayValue,
-      final boolean restartNote) {
+      final String displayValue) {
     final ServerCommandSource source = ctx.getSource();
+    final boolean biomeSpawnsChanged =
+        DogsUnleashed.SERVER_CONFIG.spawning().biomeSpawnsDifferFrom(updated.spawning());
     final boolean ok = ServerConfigService.update(source.getServer(), updated);
     if (!ok) {
       source.sendError(Text.translatable("command.dogs-unleashed.update.failed"));
@@ -114,7 +108,7 @@ final class ConfigSettingNodes {
     source.sendFeedback(
         () -> Text.translatable("command.dogs-unleashed.update.success", label, displayValue),
         true);
-    if (restartNote) {
+    if (biomeSpawnsChanged) {
       source.sendFeedback(
           () -> Text.translatable("command.dogs-unleashed.update.restart_note"), false);
     }

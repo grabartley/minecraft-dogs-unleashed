@@ -16,20 +16,17 @@ final class GameplayConfigCommand {
             ConfigSettingNodes.toggle(
                 "graves",
                 (current, value) ->
-                    current.withGameplay(current.gameplay().withGravesEnabled(value)),
-                false))
+                    current.withGameplay(current.gameplay().withGravesEnabled(value))))
         .then(
             ConfigSettingNodes.toggle(
                 "dropleashonplay",
                 (current, value) ->
-                    current.withGameplay(current.gameplay().withDropLeashOnPlayMode(value)),
-                false))
+                    current.withGameplay(current.gameplay().withDropLeashOnPlayMode(value))))
         .then(
             ConfigSettingNodes.toggle(
                 "shownames",
                 (current, value) ->
-                    current.withGameplay(current.gameplay().withShowDogNames(value)),
-                false));
+                    current.withGameplay(current.gameplay().withShowDogNames(value))));
   }
 
   static List<Text> helpLines() {

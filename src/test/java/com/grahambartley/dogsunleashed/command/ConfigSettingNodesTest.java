@@ -18,7 +18,7 @@ class ConfigSettingNodesTest {
   @DisplayName("a toggle takes one true or false argument")
   void toggleTakesABoolean() {
     final CommandNode<ServerCommandSource> node =
-        ConfigSettingNodes.toggle("graves", (config, value) -> config, false).build();
+        ConfigSettingNodes.toggle("graves", (config, value) -> config).build();
     assertEquals("graves", node.getName());
     assertInstanceOf(BoolArgumentType.class, onlyArgument(node).getType());
   }
@@ -28,13 +28,7 @@ class ConfigSettingNodesTest {
   void intSettingKeepsItsBounds() {
     final CommandNode<ServerCommandSource> node =
         ConfigSettingNodes.intSetting(
-                "autosleeprange",
-                "blocks",
-                4,
-                128,
-                (config, value) -> config,
-                Integer::toString,
-                false)
+                "autosleeprange", "blocks", 4, 128, (config, value) -> config, Integer::toString)
             .build();
     final ArgumentCommandNode<ServerCommandSource, ?> argument = onlyArgument(node);
     assertEquals("blocks", argument.getName());

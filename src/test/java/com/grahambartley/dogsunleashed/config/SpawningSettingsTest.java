@@ -175,4 +175,27 @@ class SpawningSettingsTest {
     final SpawningSettings config = settings(200, Map.of());
     assertEquals(20, config.effectiveSpawnWeight(10, "not-a-breed"));
   }
+
+  static Stream<Arguments> biomeSpawnChanges() {
+    final SpawningSettings base = SpawningSettings.DEFAULTS;
+    return Stream.of(
+        Arguments.of("natural spawning toggled", base.withEnableNaturalSpawning(false), true),
+        Arguments.of("global rate changed", base.withSpawnRateMultiplierPercent(150), true),
+        Arguments.of(
+            "one breed rate changed", base.withBreedSpawnRateMultiplierPercent("beagle", 0), true),
+        Arguments.of(
+            "cap independent spawning toggled",
+            base.withCapIndependentSpawningEnabled(false),
+            false),
+        Arguments.of("same values set again", base.withSpawnRateMultiplierPercent(100), false));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("biomeSpawnChanges")
+  @DisplayName("only settings that biome spawns read count as a biome spawn change")
+  void biomeSpawnsDifferFrom(
+      final String change, final SpawningSettings updated, final boolean expected) {
+    assertEquals(expected, SpawningSettings.DEFAULTS.biomeSpawnsDifferFrom(updated));
+    assertEquals(expected, updated.biomeSpawnsDifferFrom(SpawningSettings.DEFAULTS));
+  }
 }

@@ -123,8 +123,7 @@ public final class DogsUnleashedCommand {
   }
 
   private static int resetAll(final CommandContext<ServerCommandSource> ctx) {
-    return ConfigSettingNodes.applyUpdate(
-        ctx, DogsUnleashedConfig.defaults(), "all", "defaults", true);
+    return ConfigSettingNodes.applyUpdate(ctx, DogsUnleashedConfig.defaults(), "all", "defaults");
   }
 
   private static int listPets(final CommandContext<ServerCommandSource> ctx)

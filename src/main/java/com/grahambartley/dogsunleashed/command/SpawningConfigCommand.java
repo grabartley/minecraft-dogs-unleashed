@@ -20,16 +20,14 @@ final class SpawningConfigCommand {
             ConfigSettingNodes.toggle(
                 "spawn",
                 (current, value) ->
-                    current.withSpawning(current.spawning().withEnableNaturalSpawning(value)),
-                true))
+                    current.withSpawning(current.spawning().withEnableNaturalSpawning(value))))
         .then(spawnRateNode())
         .then(
             ConfigSettingNodes.toggle(
                 "capindependentspawning",
                 (current, value) ->
                     current.withSpawning(
-                        current.spawning().withCapIndependentSpawningEnabled(value)),
-                false));
+                        current.spawning().withCapIndependentSpawningEnabled(value))));
   }
 
   static List<Text> helpLines() {
@@ -82,8 +80,7 @@ final class SpawningConfigCommand {
                         SpawningSettings.RATE_MIN,
                         SpawningSettings.RATE_MAX,
                         (current, value) -> withBreedRate(current, breed, value),
-                        value -> value + "%",
-                        true)));
+                        value -> value + "%")));
       }
     }
     return node.then(
@@ -94,8 +91,7 @@ final class SpawningConfigCommand {
             SpawningSettings.RATE_MAX,
             (current, value) ->
                 current.withSpawning(current.spawning().withSpawnRateMultiplierPercent(value)),
-            value -> value + "%",
-            true));
+            value -> value + "%"));
   }
 
   private static DogsUnleashedConfig withBreedRate(
