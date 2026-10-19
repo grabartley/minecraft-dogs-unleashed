@@ -12,15 +12,20 @@ public final class ConfigBounds {
     return Math.max(min, Math.min(max, value));
   }
 
-  public static float clamp(final float value, final float min, final float max) {
+  public static float clamp(
+      final float value, final float min, final float max, final float fallback) {
+    if (!Float.isFinite(value)) {
+      return fallback;
+    }
     return Math.max(min, Math.min(max, value));
   }
 
   static void warnIfOutside(
       final String key, final Number value, final Number min, final Number max) {
-    if (value.doubleValue() < min.doubleValue() || value.doubleValue() > max.doubleValue()) {
+    final double number = value.doubleValue();
+    if (!Double.isFinite(number) || number < min.doubleValue() || number > max.doubleValue()) {
       LOGGER.warn(
-          "Dogs Unleashed config value {}={} out of range [{}, {}], clamping",
+          "Dogs Unleashed config value {}={} out of range [{}, {}], correcting",
           key,
           value,
           min,

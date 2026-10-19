@@ -7,14 +7,18 @@ public record SoundSettings(float barkVolume, float howlVolume) {
   public static final float VOLUME_MIN = 0.0f;
   public static final float VOLUME_MAX = 2.0f;
 
-  public static final SoundSettings DEFAULTS = new SoundSettings(1.0f, 1.5f);
+  public static final float DEFAULT_BARK_VOLUME = 1.0f;
+  public static final float DEFAULT_HOWL_VOLUME = 1.5f;
+
+  public static final SoundSettings DEFAULTS =
+      new SoundSettings(DEFAULT_BARK_VOLUME, DEFAULT_HOWL_VOLUME);
 
   static final String KEY_BARK_VOLUME = "barkVolume";
   static final String KEY_HOWL_VOLUME = "howlVolume";
 
   public SoundSettings {
-    barkVolume = ConfigBounds.clamp(barkVolume, VOLUME_MIN, VOLUME_MAX);
-    howlVolume = ConfigBounds.clamp(howlVolume, VOLUME_MIN, VOLUME_MAX);
+    barkVolume = ConfigBounds.clamp(barkVolume, VOLUME_MIN, VOLUME_MAX, DEFAULT_BARK_VOLUME);
+    howlVolume = ConfigBounds.clamp(howlVolume, VOLUME_MIN, VOLUME_MAX, DEFAULT_HOWL_VOLUME);
   }
 
   public SoundSettings withBarkVolume(final float value) {
