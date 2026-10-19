@@ -176,8 +176,7 @@ final class DireWolfConfigCommand {
     return ConfigSettingNodes.toggle(
         name,
         "direwolf " + name,
-        (config, value) -> config.withDireWolf(update.apply(config.direWolf(), value)),
-        false);
+        (config, value) -> config.withDireWolf(update.apply(config.direWolf(), value)));
   }
 
   private static int apply(
@@ -195,6 +194,6 @@ final class DireWolfConfigCommand {
     }
     final DireWolfSettings updated = update.apply(current, value);
     return ConfigSettingNodes.applyUpdate(
-        ctx, DogsUnleashed.SERVER_CONFIG.withDireWolf(updated), label, value + unit, false);
+        ctx, DogsUnleashed.SERVER_CONFIG.withDireWolf(updated), label, value + unit);
   }
 }

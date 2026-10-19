@@ -15,8 +15,7 @@ final class SleepConfigCommand {
         .then(
             ConfigSettingNodes.toggle(
                 "autosleep",
-                (current, value) -> current.withSleep(current.sleep().withAutoSleepEnabled(value)),
-                false))
+                (current, value) -> current.withSleep(current.sleep().withAutoSleepEnabled(value))))
         .then(
             ConfigSettingNodes.intSetting(
                 "autosleeprange",
@@ -25,8 +24,7 @@ final class SleepConfigCommand {
                 SleepSettings.RANGE_MAX,
                 (current, value) ->
                     current.withSleep(current.sleep().withAutoSleepRangeBlocks(value)),
-                Integer::toString,
-                false));
+                Integer::toString));
   }
 
   static List<Text> helpLines() {

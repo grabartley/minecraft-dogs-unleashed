@@ -48,6 +48,12 @@ public record SpawningSettings(
     return (int) Math.max(1L, scaled);
   }
 
+  public boolean biomeSpawnsDifferFrom(final SpawningSettings other) {
+    return enableNaturalSpawning != other.enableNaturalSpawning
+        || spawnRateMultiplierPercent != other.spawnRateMultiplierPercent
+        || !breedSpawnRateMultipliersPercent.equals(other.breedSpawnRateMultipliersPercent);
+  }
+
   private int breedSpawnRatePercent(final String breedSerializedId) {
     return breedSpawnRateMultipliersPercent.getOrDefault(breedSerializedId, DEFAULT_RATE_PERCENT);
   }

@@ -110,8 +110,8 @@ only operators can.
 
 | Setting                   | Default | What it does                                                                      |
 |---------------------------|---------|-----------------------------------------------------------------------------------|
-| Spawn Dogs in the Wild    | On      | Whether dogs spawn in their biomes, in new chunks and near you. New chunks change after a world restart. |
-| Spawn Rate                | 100%    | How many dogs spawn, from 0% to 500%. 200% is about twice as many. New chunks change after a world restart. |
+| Spawn Dogs in the Wild    | On      | Whether dogs spawn in their biomes, in new chunks and near you. Biome spawns change after a world restart. |
+| Spawn Rate                | 100%    | How many dogs spawn, from 0% to 500%. 200% is about twice as many. Biome spawns change after a world restart. |
 | Spawn Rate (per breed)    | 100%    | The same, for one breed. It multiplies with Spawn Rate.                           |
 | Spawn Near Players        | On      | Keeps wild dogs of every breed turning up near you, even in well-explored areas.  |
 | Dog Graves on Death       | On      | Whether a tamed dog leaves a grave when it dies. Its gear drops either way.                        |

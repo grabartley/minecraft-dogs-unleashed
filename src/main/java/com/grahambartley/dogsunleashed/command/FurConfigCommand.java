@@ -15,8 +15,7 @@ final class FurConfigCommand {
         .then(
             ConfigSettingNodes.toggle(
                 "furgrowth",
-                (current, value) -> current.withFur(current.fur().withFurGrowthEnabled(value)),
-                false))
+                (current, value) -> current.withFur(current.fur().withFurGrowthEnabled(value))))
         .then(
             ConfigSettingNodes.intSetting(
                 "furgrowthrate",
@@ -25,8 +24,7 @@ final class FurConfigCommand {
                 FurSettings.PERCENT_MAX,
                 (current, value) ->
                     current.withFur(current.fur().withFurGrowthRateMultiplierPercent(value)),
-                value -> value + "%",
-                false))
+                value -> value + "%"))
         .then(
             ConfigSettingNodes.intSetting(
                 "badhairdaychance",
@@ -35,8 +33,7 @@ final class FurConfigCommand {
                 FurSettings.PERCENT_MAX,
                 (current, value) ->
                     current.withFur(current.fur().withBadHairDayChanceMultiplierPercent(value)),
-                value -> value + "%",
-                false));
+                value -> value + "%"));
   }
 
   static List<Text> helpLines() {
