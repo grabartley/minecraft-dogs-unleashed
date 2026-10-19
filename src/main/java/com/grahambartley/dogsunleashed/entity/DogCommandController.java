@@ -1,6 +1,8 @@
 package com.grahambartley.dogsunleashed.entity;
 
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 public final class DogCommandController {
@@ -8,13 +10,23 @@ public final class DogCommandController {
   private final UnleashedDogEntity dog;
 
   private @Nullable BlockPos anchorPos = null;
+  private @Nullable RegistryKey<World> anchorDimension = null;
 
   DogCommandController(final UnleashedDogEntity dog) {
     this.dog = dog;
   }
 
   public @Nullable BlockPos getAnchorPos() {
+    final RegistryKey<World> here = this.dog.getWorld().getRegistryKey();
+    if (this.anchorPos != null && !SavedDimension.isHere(this.anchorDimension, here)) {
+      this.anchorAt(this.dog.getBlockPos(), here);
+    }
     return this.anchorPos;
+  }
+
+  @Nullable
+  RegistryKey<World> getAnchorDimension() {
+    return this.anchorDimension;
   }
 
   public void apply(final DogCommand command) {
@@ -27,7 +39,11 @@ public final class DogCommandController {
       this.dog.wakeUp();
     }
     this.dog.getDataTracker().set(UnleashedDogEntity.COMMAND, command.id());
-    this.anchorPos = command.isAnchored() ? this.dog.getBlockPos() : null;
+    if (command.isAnchored()) {
+      this.anchorAt(this.dog.getBlockPos(), this.dog.getWorld().getRegistryKey());
+    } else {
+      this.anchorAt(null, null);
+    }
     this.dog.setSitting(command == DogCommand.SIT);
     this.dog.stopJumping();
     this.dog.getNavigation().stop();
@@ -50,7 +66,13 @@ public final class DogCommandController {
     this.dog.getDataTracker().set(UnleashedDogEntity.COMMAND, command.id());
   }
 
-  void setAnchorPosFromSave(final BlockPos savedAnchorPos) {
-    this.anchorPos = savedAnchorPos;
+  void setAnchorFromSave(final BlockPos savedAnchorPos, final RegistryKey<World> savedDimension) {
+    this.anchorAt(savedAnchorPos, savedDimension);
+  }
+
+  private void anchorAt(
+      final @Nullable BlockPos pos, final @Nullable RegistryKey<World> dimension) {
+    this.anchorPos = pos;
+    this.anchorDimension = dimension;
   }
 }

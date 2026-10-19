@@ -10,6 +10,7 @@ import com.grahambartley.dogsunleashed.block.entity.AssignedDogHolder;
 import com.grahambartley.dogsunleashed.entity.goal.DogSleepWindow;
 import java.util.Optional;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -27,6 +28,7 @@ public final class DogSleepController {
 
   private long autoSleepSuppressedFrom = NOT_SUPPRESSED;
   private long autoSleepSuppressedUntil = NOT_SUPPRESSED;
+  private @Nullable RegistryKey<World> bedDimension = null;
 
   DogSleepController(final UnleashedDogEntity dog) {
     this.dog = dog;
@@ -142,12 +144,13 @@ public final class DogSleepController {
 
   void writeNbt(final NbtCompound nbt) {
     nbt.putBoolean(ModNbtKeys.SLEEPING_IN_BED, this.isSleepingInBed());
-    this.getAssignedBedPos()
+    this.getBedPosInAnyDimension()
         .ifPresent(
             pos -> {
               nbt.putInt(ModNbtKeys.BED_POS_X, pos.getX());
               nbt.putInt(ModNbtKeys.BED_POS_Y, pos.getY());
               nbt.putInt(ModNbtKeys.BED_POS_Z, pos.getZ());
+              SavedDimension.write(nbt, ModNbtKeys.BED_DIMENSION, this.bedDimension);
             });
   }
 
@@ -160,11 +163,13 @@ public final class DogSleepController {
     if (nbt.contains(ModNbtKeys.BED_POS_X)
         && nbt.contains(ModNbtKeys.BED_POS_Y)
         && nbt.contains(ModNbtKeys.BED_POS_Z)) {
-      this.setAssignedBedPos(
+      this.setBedPos(
           new BlockPos(
               nbt.getInt(ModNbtKeys.BED_POS_X),
               nbt.getInt(ModNbtKeys.BED_POS_Y),
-              nbt.getInt(ModNbtKeys.BED_POS_Z)));
+              nbt.getInt(ModNbtKeys.BED_POS_Z)),
+          SavedDimension.readOr(
+              nbt, ModNbtKeys.BED_DIMENSION, this.dog.getWorld().getRegistryKey()));
     }
   }
 
@@ -173,10 +178,22 @@ public final class DogSleepController {
   }
 
   public Optional<BlockPos> getAssignedBedPos() {
-    return this.dog.getDataTracker().get(UnleashedDogEntity.ASSIGNED_BED_POS);
+    return SavedDimension.isHere(this.bedDimension, this.dog.getWorld().getRegistryKey())
+        ? this.getBedPosInAnyDimension()
+        : Optional.empty();
   }
 
   public void setAssignedBedPos(final @Nullable BlockPos pos) {
+    this.setBedPos(pos, pos == null ? null : this.dog.getWorld().getRegistryKey());
+  }
+
+  private Optional<BlockPos> getBedPosInAnyDimension() {
+    return this.dog.getDataTracker().get(UnleashedDogEntity.ASSIGNED_BED_POS);
+  }
+
+  private void setBedPos(
+      final @Nullable BlockPos pos, final @Nullable RegistryKey<World> dimension) {
+    this.bedDimension = dimension;
     this.dog.getDataTracker().set(UnleashedDogEntity.ASSIGNED_BED_POS, Optional.ofNullable(pos));
   }
 

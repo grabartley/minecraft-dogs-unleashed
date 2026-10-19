@@ -60,6 +60,10 @@ public final class DogEntityNbt {
       nbt.putInt(ModNbtKeys.COMMAND_ANCHOR_X, anchor.getX());
       nbt.putInt(ModNbtKeys.COMMAND_ANCHOR_Y, anchor.getY());
       nbt.putInt(ModNbtKeys.COMMAND_ANCHOR_Z, anchor.getZ());
+      SavedDimension.write(
+          nbt,
+          ModNbtKeys.COMMAND_ANCHOR_DIMENSION,
+          this.dog.getCommandController().getAnchorDimension());
     }
     nbt.putInt(ModNbtKeys.CURING_TICKS, this.dog.getCuring().getRemainingTicks());
     if (this.dog.getCuring().getCurerId() != null) {
@@ -106,7 +110,12 @@ public final class DogEntityNbt {
     }
     final BlockPos anchor = commandAnchorFrom(nbt);
     if (anchor != null) {
-      this.dog.getCommandController().setAnchorPosFromSave(anchor);
+      this.dog
+          .getCommandController()
+          .setAnchorFromSave(
+              anchor,
+              SavedDimension.readOr(
+                  nbt, ModNbtKeys.COMMAND_ANCHOR_DIMENSION, this.dog.getWorld().getRegistryKey()));
     }
     this.dog
         .getCuring()

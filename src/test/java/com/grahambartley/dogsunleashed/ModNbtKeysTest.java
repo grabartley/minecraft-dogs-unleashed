@@ -58,6 +58,7 @@ class ModNbtKeysTest {
         Arguments.of("SLEEPING_IN_BED", ModNbtKeys.SLEEPING_IN_BED, "SleepingInBed"),
         Arguments.of("BED_POS_X", ModNbtKeys.BED_POS_X, "BedPosX"),
         Arguments.of("BED_POS_Y", ModNbtKeys.BED_POS_Y, "BedPosY"),
+        Arguments.of("BED_DIMENSION", ModNbtKeys.BED_DIMENSION, "BedDimension"),
         Arguments.of("BED_POS_Z", ModNbtKeys.BED_POS_Z, "BedPosZ"),
         Arguments.of("CARRYING_BALL", ModNbtKeys.CARRYING_BALL, "CarryingBall"),
         Arguments.of("TREAT_BUFF_TICKS", ModNbtKeys.TREAT_BUFF_TICKS, "TreatBuffTicks"),
@@ -65,6 +66,10 @@ class ModNbtKeysTest {
         Arguments.of("COMMAND_ANCHOR_X", ModNbtKeys.COMMAND_ANCHOR_X, "CommandAnchorX"),
         Arguments.of("COMMAND_ANCHOR_Y", ModNbtKeys.COMMAND_ANCHOR_Y, "CommandAnchorY"),
         Arguments.of("COMMAND_ANCHOR_Z", ModNbtKeys.COMMAND_ANCHOR_Z, "CommandAnchorZ"),
+        Arguments.of(
+            "COMMAND_ANCHOR_DIMENSION",
+            ModNbtKeys.COMMAND_ANCHOR_DIMENSION,
+            "CommandAnchorDimension"),
         Arguments.of("ACTIVE_FETCH_TYPE_ID", ModNbtKeys.ACTIVE_FETCH_TYPE_ID, "ActiveFetchTypeId"),
         Arguments.of("SECOND_PARENT_DOG_ID", ModNbtKeys.SECOND_PARENT_DOG_ID, "SecondParentDogId"),
         Arguments.of(
