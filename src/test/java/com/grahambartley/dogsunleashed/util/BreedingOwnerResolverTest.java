@@ -13,6 +13,7 @@ class BreedingOwnerResolverTest {
 
   private static final UUID PRIMARY = UUID.fromString("11111111-1111-1111-1111-111111111111");
   private static final UUID SECONDARY = UUID.fromString("22222222-2222-2222-2222-222222222222");
+  private static final UUID STRANGER = UUID.fromString("33333333-3333-3333-3333-333333333333");
 
   static Stream<Arguments> inheritanceCases() {
     return Stream.of(
@@ -28,5 +29,30 @@ class BreedingOwnerResolverTest {
   void resolveInheritedOwnerUuidPrefersPrimary(
       final String label, final UUID primary, final UUID secondary, final UUID expected) {
     assertEquals(expected, BreedingOwnerResolver.resolveInheritedOwnerUuid(primary, secondary));
+  }
+
+  static Stream<Arguments> newbornCases() {
+    return Stream.of(
+        Arguments.of("primary owner bred them -> primary", PRIMARY, PRIMARY, SECONDARY, PRIMARY),
+        Arguments.of(
+            "secondary owner bred them -> secondary", SECONDARY, PRIMARY, SECONDARY, SECONDARY),
+        Arguments.of("stranger bred them -> primary", STRANGER, PRIMARY, SECONDARY, PRIMARY),
+        Arguments.of(
+            "stranger, no primary owner -> secondary", STRANGER, null, SECONDARY, SECONDARY),
+        Arguments.of("nobody bred them -> primary", null, PRIMARY, SECONDARY, PRIMARY),
+        Arguments.of("stranger, no owners -> null", STRANGER, null, null, null));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("newbornCases")
+  @DisplayName("a newborn goes to the breeding player only when they own a parent")
+  void resolveNewbornOwnerUuidNeverPicksAStranger(
+      final String label,
+      final UUID lovingPlayer,
+      final UUID primary,
+      final UUID secondary,
+      final UUID expected) {
+    assertEquals(
+        expected, BreedingOwnerResolver.resolveNewbornOwnerUuid(lovingPlayer, primary, secondary));
   }
 }

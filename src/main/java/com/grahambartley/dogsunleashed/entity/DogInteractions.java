@@ -39,6 +39,10 @@ public final class DogInteractions {
     return owner || !tamed || sneaking;
   }
 
+  public static boolean mayStartLove(final boolean owner, final boolean baby) {
+    return owner || baby;
+  }
+
   ActionResult interact(final PlayerEntity player, final Hand hand) {
     final ItemStack itemStack = player.getStackInHand(hand);
 
@@ -111,6 +115,7 @@ public final class DogInteractions {
                 () -> this.tryCure(player, itemStack),
                 () -> this.tryFeedTreat(player, itemStack),
                 () -> this.tryHeal(player, itemStack),
+                () -> this.tryRefuseStrangerLove(player, itemStack),
                 () -> this.tryDyeCollar(player, itemStack),
                 () -> this.tryRepairArmour(player, itemStack),
                 () -> this.tryDirectEquip(player, hand, itemStack),
@@ -201,9 +206,18 @@ public final class DogInteractions {
     return ActionResult.SUCCESS;
   }
 
+  private @Nullable ActionResult tryRefuseStrangerLove(
+      final PlayerEntity player, final ItemStack itemStack) {
+    if (!this.dog.isBreedingItem(itemStack)
+        || mayStartLove(this.dog.isOwner(player), this.dog.isBaby())) {
+      return null;
+    }
+    return ActionResult.PASS;
+  }
+
   private @Nullable ActionResult tryDyeCollar(
       final PlayerEntity player, final ItemStack itemStack) {
-    if (!(itemStack.getItem() instanceof DyeItem dyeItem)) {
+    if (!this.dog.isOwner(player) || !(itemStack.getItem() instanceof DyeItem dyeItem)) {
       return null;
     }
     this.dog.getComponents().get(DogCollar.class).setColor(dyeItem.getColor());

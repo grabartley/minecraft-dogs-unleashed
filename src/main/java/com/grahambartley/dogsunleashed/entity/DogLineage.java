@@ -84,17 +84,17 @@ public final class DogLineage {
     }
     baby.getAppearanceRoller().inheritAppearance(this.dog, partner);
     final PlayerEntity lovingPlayer = this.dog.getLovingPlayer();
-    if (lovingPlayer != null) {
+    final UUID newbornOwnerUuid =
+        BreedingOwnerResolver.resolveNewbornOwnerUuid(
+            lovingPlayer == null ? null : lovingPlayer.getUuid(),
+            this.dog.getOwnerUuid(),
+            partner.getOwnerUuid());
+    if (lovingPlayer != null && lovingPlayer.getUuid().equals(newbornOwnerUuid)) {
       baby.getInteractions().adoptNewborn(lovingPlayer);
-    } else {
-      final UUID inheritedOwnerUuid =
-          BreedingOwnerResolver.resolveInheritedOwnerUuid(
-              this.dog.getOwnerUuid(), partner.getOwnerUuid());
-      if (inheritedOwnerUuid != null) {
-        baby.setOwnerUuid(inheritedOwnerUuid);
-        baby.setTamed(true, true);
-        PetRegistrar.registerPetFor(baby, inheritedOwnerUuid);
-      }
+    } else if (newbornOwnerUuid != null) {
+      baby.setOwnerUuid(newbornOwnerUuid);
+      baby.setTamed(true, true);
+      PetRegistrar.registerPetFor(baby, newbornOwnerUuid);
     }
     return baby;
   }
