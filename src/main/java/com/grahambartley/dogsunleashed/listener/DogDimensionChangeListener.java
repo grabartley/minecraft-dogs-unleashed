@@ -10,7 +10,7 @@ public final class DogDimensionChangeListener {
   public static void initialize() {
     ServerEntityWorldChangeEvents.AFTER_ENTITY_CHANGE_WORLD.register(
         (original, moved, origin, destination) -> {
-          if (moved instanceof UnleashedDogEntity dog) {
+          if (origin != destination && moved instanceof UnleashedDogEntity dog) {
             dog.getCommandController().anchorWhereItArrived();
           }
         });

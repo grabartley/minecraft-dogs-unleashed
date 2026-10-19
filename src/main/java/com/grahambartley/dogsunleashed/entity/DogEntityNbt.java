@@ -55,7 +55,7 @@ public final class DogEntityNbt {
     this.dog.getPlaySession().writeNbt(nbt);
     this.dog.getComponents().writeNbt(nbt);
     nbt.putInt(ModNbtKeys.COMMAND_MODE, this.dog.getCommand().id());
-    final BlockPos anchor = this.dog.getCommandController().getAnchorPos();
+    final BlockPos anchor = this.dog.getCommandController().getAnchorPosInAnyDimension();
     if (anchor != null) {
       nbt.putInt(ModNbtKeys.COMMAND_ANCHOR_X, anchor.getX());
       nbt.putInt(ModNbtKeys.COMMAND_ANCHOR_Y, anchor.getY());

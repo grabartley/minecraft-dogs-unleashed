@@ -29,6 +29,11 @@ public final class DogCommandController {
   }
 
   @Nullable
+  BlockPos getAnchorPosInAnyDimension() {
+    return this.anchorPos;
+  }
+
+  @Nullable
   RegistryKey<World> getAnchorDimension() {
     return this.anchorDimension;
   }
