@@ -1,0 +1,227 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"particle": "block/cut_copper",
+		"trim": "block/cut_copper",
+		"panel": "block/copper_block"
+	},
+	"elements": [
+		{
+			"name": "plinth",
+			"from": [
+				0,
+				0,
+				0
+			],
+			"to": [
+				16,
+				2,
+				16
+			],
+			"rotation": {
+				"angle": 0,
+				"axis": "y",
+				"origin": [
+					8,
+					1,
+					8
+				]
+			},
+			"faces": {
+				"north": {
+					"uv": [
+						0,
+						14,
+						16,
+						16
+					],
+					"texture": "#trim"
+				},
+				"east": {
+					"uv": [
+						0,
+						14,
+						16,
+						16
+					],
+					"texture": "#trim"
+				},
+				"south": {
+					"uv": [
+						0,
+						14,
+						16,
+						16
+					],
+					"texture": "#trim"
+				},
+				"west": {
+					"uv": [
+						0,
+						14,
+						16,
+						16
+					],
+					"texture": "#trim"
+				},
+				"up": {
+					"uv": [
+						0,
+						0,
+						16,
+						16
+					],
+					"texture": "#trim"
+				},
+				"down": {
+					"uv": [
+						0,
+						0,
+						16,
+						16
+					],
+					"texture": "#trim"
+				}
+			}
+		},
+		{
+			"name": "cap",
+			"from": [
+				0,
+				6,
+				0
+			],
+			"to": [
+				16,
+				8,
+				16
+			],
+			"rotation": {
+				"angle": 0,
+				"axis": "y",
+				"origin": [
+					8,
+					7,
+					8
+				]
+			},
+			"faces": {
+				"north": {
+					"uv": [
+						0,
+						0,
+						16,
+						2
+					],
+					"texture": "#trim"
+				},
+				"east": {
+					"uv": [
+						0,
+						0,
+						16,
+						2
+					],
+					"texture": "#trim"
+				},
+				"south": {
+					"uv": [
+						0,
+						0,
+						16,
+						2
+					],
+					"texture": "#trim"
+				},
+				"west": {
+					"uv": [
+						0,
+						0,
+						16,
+						2
+					],
+					"texture": "#trim"
+				},
+				"up": {
+					"uv": [
+						0,
+						0,
+						16,
+						16
+					],
+					"texture": "#trim"
+				},
+				"down": {
+					"uv": [
+						0,
+						0,
+						16,
+						16
+					],
+					"texture": "#trim"
+				}
+			}
+		},
+		{
+			"name": "die",
+			"from": [
+				2,
+				2,
+				2
+			],
+			"to": [
+				14,
+				6,
+				14
+			],
+			"rotation": {
+				"angle": 0,
+				"axis": "y",
+				"origin": [
+					8,
+					4,
+					8
+				]
+			},
+			"faces": {
+				"north": {
+					"uv": [
+						2,
+						6,
+						14,
+						10
+					],
+					"texture": "#panel"
+				},
+				"east": {
+					"uv": [
+						2,
+						6,
+						14,
+						10
+					],
+					"texture": "#panel"
+				},
+				"south": {
+					"uv": [
+						2,
+						6,
+						14,
+						10
+					],
+					"texture": "#panel"
+				},
+				"west": {
+					"uv": [
+						2,
+						6,
+						14,
+						10
+					],
+					"texture": "#panel"
+				}
+			}
+		}
+	]
+}

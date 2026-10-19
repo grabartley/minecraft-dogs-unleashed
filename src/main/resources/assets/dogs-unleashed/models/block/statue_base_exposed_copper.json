@@ -1,0 +1,8 @@
+{
+  "parent": "dogs-unleashed:block/template_statue_base",
+  "textures": {
+    "particle": "minecraft:block/exposed_cut_copper",
+    "trim": "minecraft:block/exposed_cut_copper",
+    "panel": "minecraft:block/exposed_copper"
+  }
+}
