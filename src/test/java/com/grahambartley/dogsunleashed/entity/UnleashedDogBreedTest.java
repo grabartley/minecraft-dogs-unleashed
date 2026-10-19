@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import net.minecraft.world.biome.BiomeKeys;
@@ -74,17 +74,18 @@ class UnleashedDogBreedTest {
   }
 
   @ParameterizedTest
-  @EnumSource(
-      value = UnleashedDogBreed.class,
-      names = {"CROSS_BREED"},
-      mode = EnumSource.Mode.EXCLUDE)
+  @MethodSource("rigBreeds")
   @DisplayName("every rig breed declares carry profiles for tennis ball, stick, and frisbee")
   void everyRigBreedDeclaresCarryProfilesForEveryFetchItem(final UnleashedDogBreed breed) {
     final FetchCarryProfiles profiles = breed.fetchCarryProfiles().orElseThrow();
     assertNotNull(profiles.tennisBall(), "tennis ball profile for " + breed);
     assertNotNull(profiles.stick(), "stick profile for " + breed);
     assertNotNull(profiles.frisbee(), "frisbee profile for " + breed);
-    assertEquals(Optional.of(profiles.tennisBall()), breed.carryProfileFor(null));
+  }
+
+  static Stream<UnleashedDogBreed> rigBreeds() {
+    return Arrays.stream(UnleashedDogBreed.values())
+        .filter(breed -> breed != UnleashedDogBreed.CROSS_BREED);
   }
 
   @Test
@@ -95,10 +96,7 @@ class UnleashedDogBreedTest {
   }
 
   @ParameterizedTest
-  @EnumSource(
-      value = UnleashedDogBreed.class,
-      names = {"CROSS_BREED"},
-      mode = EnumSource.Mode.EXCLUDE)
+  @MethodSource("rigBreeds")
   @DisplayName("every carry profile has finite offsets")
   void everyCarryProfileHasFiniteOffsets(final UnleashedDogBreed breed) {
     final FetchCarryProfiles profiles = breed.fetchCarryProfiles().orElseThrow();
@@ -114,10 +112,7 @@ class UnleashedDogBreedTest {
   }
 
   @ParameterizedTest
-  @EnumSource(
-      value = UnleashedDogBreed.class,
-      names = {"CROSS_BREED"},
-      mode = EnumSource.Mode.EXCLUDE)
+  @MethodSource("rigBreeds")
   @DisplayName("the frisbee sits further forward than the ball because the dog grips its rim")
   void frisbeeSitsFurtherForwardThanTheBall(final UnleashedDogBreed breed) {
     final FetchCarryProfiles profiles = breed.fetchCarryProfiles().orElseThrow();

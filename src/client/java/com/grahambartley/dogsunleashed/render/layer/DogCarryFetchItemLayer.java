@@ -13,7 +13,6 @@ import com.grahambartley.dogsunleashed.model.FrisbeeModel;
 import com.grahambartley.dogsunleashed.model.StickModel;
 import com.grahambartley.dogsunleashed.model.TennisBallModel;
 import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
-import java.util.Optional;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -89,11 +88,10 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
     if (fetchType == null) {
       return;
     }
-    Optional<CarryProfile> carryProfile = animatable.getRigSourceBreed().carryProfileFor(fetchType);
-    if (carryProfile.isEmpty()) {
+    CarryProfile profile = animatable.getRigSourceBreed().carryProfileFor(fetchType).orElse(null);
+    if (profile == null) {
       return;
     }
-    CarryProfile profile = carryProfile.get();
     MouthFrame.level(poseStack, bone);
     poseStack.translate(0.0, profile.verticalOffset(), profile.forwardOffset());
     CarriedToy toy = CarriedToy.of(fetchType);
