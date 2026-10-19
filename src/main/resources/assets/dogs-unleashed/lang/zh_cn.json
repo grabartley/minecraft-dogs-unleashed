@@ -219,7 +219,7 @@
   "command.dogs-unleashed.status.howlvolume": "- howlvolume=%s",
   "command.dogs-unleashed.update.failed": "保存 Dogs Unleashed 配置更新失败。",
   "command.dogs-unleashed.update.success": "%s 已设置为 %s",
-  "command.dogs-unleashed.update.restart_note": "注意：capindependentspawning 会立即应用更改。生物群系生成（新区块中以及原版动物生成）在重启世界后才会更改。",
+  "command.dogs-unleashed.update.restart_note": "注意：玩家附近的生成（capindependentspawning）会立即应用更改。生物群系生成（新区块中以及原版动物生成）在重启世界后才会更改。",
   "command.dogs-unleashed.list.header": "%s 拥有 %s 只宠物：",
   "command.dogs-unleashed.list.empty": "%s 没有已注册的宠物。",
   "command.dogs-unleashed.list.entry": "- %s [%s] id=%s | %s | dim=%s | pos=%s",

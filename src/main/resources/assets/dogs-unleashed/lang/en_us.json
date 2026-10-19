@@ -219,7 +219,7 @@
   "command.dogs-unleashed.status.howlvolume": "- howlvolume=%s",
   "command.dogs-unleashed.update.failed": "Failed to persist Dogs Unleashed config update.",
   "command.dogs-unleashed.update.success": "%s set to %s",
-  "command.dogs-unleashed.update.restart_note": "Note: capindependentspawning follows the change right away. Biome spawns, in new chunks and from vanilla's animal spawning, change after a world restart.",
+  "command.dogs-unleashed.update.restart_note": "Note: spawning near players (capindependentspawning) follows the change right away. Biome spawns, in new chunks and from vanilla's animal spawning, change after a world restart.",
   "command.dogs-unleashed.list.header": "%s has %s pet(s):",
   "command.dogs-unleashed.list.empty": "%s has no registered pets.",
   "command.dogs-unleashed.list.entry": "- %s [%s] id=%s | %s | dim=%s | pos=%s",
