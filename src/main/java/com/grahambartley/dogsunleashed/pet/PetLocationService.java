@@ -70,6 +70,17 @@ public final class PetLocationService {
   }
 
   @Nullable
+  public static UnleashedDogEntity findLoadedDog(MinecraftServer server, PetData petData) {
+    for (final ServerWorld world : server.getWorlds()) {
+      final UnleashedDogEntity dog = findInWorld(world, petData.getPetId());
+      if (dog != null) {
+        return dog;
+      }
+    }
+    return null;
+  }
+
+  @Nullable
   public static UnleashedDogEntity findDog(MinecraftServer server, PetData petData) {
     final BlockPos lastPos = petData.getLastKnownPosition();
     final ServerWorld knownWorld = getKnownWorld(server, petData);
@@ -89,14 +100,7 @@ public final class PetLocationService {
       }
     }
 
-    for (final ServerWorld world : server.getWorlds()) {
-      if (world == knownWorld) continue;
-      final UnleashedDogEntity dog = findInWorld(world, petData.getPetId());
-      if (dog != null) {
-        return dog;
-      }
-    }
-    return null;
+    return findLoadedDog(server, petData);
   }
 
   public static void loadAndSummon(

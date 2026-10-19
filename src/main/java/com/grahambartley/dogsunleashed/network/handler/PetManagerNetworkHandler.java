@@ -3,7 +3,6 @@ package com.grahambartley.dogsunleashed.network.handler;
 import static com.grahambartley.dogsunleashed.network.PacketLimits.REQUEST_PETS_SEARCH_QUERY_MAX_LENGTH;
 import static com.grahambartley.dogsunleashed.network.PacketLimits.SET_PET_NAME_NAME_MAX_LENGTH;
 
-import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
 import com.grahambartley.dogsunleashed.network.payload.RequestPetManagerStatePayload;
@@ -13,9 +12,9 @@ import com.grahambartley.dogsunleashed.network.payload.SummonPetPayload;
 import com.grahambartley.dogsunleashed.network.payload.SyncPetManagerStatePayload;
 import com.grahambartley.dogsunleashed.network.payload.SyncPetsPayload;
 import com.grahambartley.dogsunleashed.pet.PetData;
-import com.grahambartley.dogsunleashed.pet.PetLocationService;
 import com.grahambartley.dogsunleashed.pet.PetManager;
 import com.grahambartley.dogsunleashed.pet.PetManagerPreferencesState;
+import com.grahambartley.dogsunleashed.pet.PetManagerSummon;
 import java.util.List;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.MinecraftServer;
@@ -58,24 +57,7 @@ public final class PetManagerNetworkHandler {
 
   public static void handleSummonPet(
       final SummonPetPayload payload, final ServerPlayNetworking.Context context) {
-    final ServerPlayerEntity player = context.player();
-    final ServerWorld playerWorld = player.getServerWorld();
-
-    final PetData petData =
-        PetManager.get(playerWorld.getServer()).getPet(player.getUuid(), payload.petId());
-    if (petData == null) {
-      DogsUnleashed.log.warn(
-          "[PetSummon] Summon requested for unknown pet {} by {}",
-          payload.petId(),
-          player.getUuid());
-      return;
-    }
-    if (!petData.isAlive()) {
-      player.sendMessage(
-          Text.translatable("message.dogs-unleashed.summon_deceased", petData.getName()), true);
-      return;
-    }
-    PetLocationService.loadAndSummon(playerWorld.getServer(), petData, player);
+    PetManagerSummon.summon(context.player(), payload.petId());
   }
 
   public static void handleRequestPets(
