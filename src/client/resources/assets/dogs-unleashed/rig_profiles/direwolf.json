@@ -93,5 +93,12 @@
       "right_leg": [-58, 24, 6],
       "left_leg": [-58, -24, -6]
     }
+  },
+  "sheet_overrides": {
+    "dogs-unleashed:textures/entity/overlay/grey_muzzle.png": {
+      "mouth": "dogs-unleashed:textures/entity/overlay/grey_muzzle_direwolf_mouth.png",
+      "head": "dogs-unleashed:textures/entity/overlay/grey_muzzle_direwolf_head.png",
+      "eyes": "dogs-unleashed:textures/entity/overlay/grey_muzzle_direwolf_eyes.png"
+    }
   }
 }
