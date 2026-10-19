@@ -15,6 +15,7 @@ public final class DogGrowthRules {
   static final int PACK_YEARLING_CHANCE = 40;
   static final int LEADER_PRIME_CHANCE = 20;
   static final int PACK_PRIME_CHANCE = 5;
+  static final int VANILLA_PUP_AGE_STEP = 1;
 
   private DogGrowthRules() {}
 
@@ -58,6 +59,18 @@ public final class DogGrowthRules {
     return stage.growsWithTime()
         && growthRatePercent > 0
         && (long) ticksInStage * growthRatePercent >= (long) stage.ticksToGrow() * PERCENT;
+  }
+
+  public static int pupGrowthTicks(final int growthProgress) {
+    return growthProgress / PERCENT;
+  }
+
+  public static int pupGrowthRemainder(final int growthProgress) {
+    return growthProgress % PERCENT;
+  }
+
+  public static int pupAgeBeforeVanillaTick(final int breedingAge, final int growthTicks) {
+    return Math.min(breedingAge + growthTicks, 0) - VANILLA_PUP_AGE_STEP;
   }
 
   public static int battlesStillNeeded(final int battlesWon, final int battlesToEvolve) {

@@ -402,7 +402,7 @@
   "screen.dogs-unleashed.settings.badhairdaychance.tooltip": "Fréquence à laquelle une coupe tourne mal. 100% est la valeur normale, 0% signifie que chaque coupe est réussie.",
   "screen.dogs-unleashed.settings.direwolf": "Loups terribles",
   "screen.dogs-unleashed.settings.direwolf.growthrate": "Vitesse de croissance",
-  "screen.dogs-unleashed.settings.direwolf.growthrate.tooltip": "Vitesse à laquelle un loup terrible passe de jeune loup à adulte, puis d'adulte à aguerri. 0% les empêche de grandir d'eux-mêmes.",
+  "screen.dogs-unleashed.settings.direwolf.growthrate.tooltip": "Vitesse à laquelle un loup terrible passe de louveteau à jeune loup, de jeune loup à adulte, puis d'adulte à aguerri. 0% les empêche de grandir d'eux-mêmes.",
   "screen.dogs-unleashed.settings.direwolf.battles": "Combats pour l'alpha",
   "screen.dogs-unleashed.settings.direwolf.battles.tooltip": "Nombre de créatures hostiles qu'un aguerri apprivoisé doit vaincre près de son propriétaire avant qu'une pomme dorée enchantée en fasse un alpha.",
   "screen.dogs-unleashed.settings.direwolf.smallestpack": "Plus petite meute",

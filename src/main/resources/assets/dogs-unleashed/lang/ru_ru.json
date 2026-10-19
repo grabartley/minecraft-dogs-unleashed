@@ -402,7 +402,7 @@
   "screen.dogs-unleashed.settings.badhairdaychance.tooltip": "Как часто стрижка не удаётся. 100% является обычным шансом, при 0% каждая стрижка аккуратная.",
   "screen.dogs-unleashed.settings.direwolf": "Ужасные волки",
   "screen.dogs-unleashed.settings.direwolf.growthrate": "Скорость роста",
-  "screen.dogs-unleashed.settings.direwolf.growthrate.tooltip": "Как быстро ужасный волк вырастает из переярка во взрослого и из взрослого в матёрого. При 0% они не растут сами.",
+  "screen.dogs-unleashed.settings.direwolf.growthrate.tooltip": "Как быстро ужасный волк вырастает из щенка в переярка, из переярка во взрослого и из взрослого в матёрого. При 0% они не растут сами.",
   "screen.dogs-unleashed.settings.direwolf.battles": "Битвы до вожака",
   "screen.dogs-unleashed.settings.direwolf.battles.tooltip": "Сколько враждебных мобов должен победить приручённый матёрый волк рядом с хозяином, прежде чем зачарованное золотое яблоко сделает его вожаком.",
   "screen.dogs-unleashed.settings.direwolf.smallestpack": "Мин. размер стаи",

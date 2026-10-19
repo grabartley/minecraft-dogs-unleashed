@@ -479,6 +479,12 @@ public class UnleashedDogEntity extends DogMountEntity
   }
 
   @Override
+  public void tickMovement() {
+    this.growth.agePup();
+    super.tickMovement();
+  }
+
+  @Override
   public void tick() {
     super.tick();
     if (!this.getWorld().isClient) {

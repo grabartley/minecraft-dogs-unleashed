@@ -402,7 +402,7 @@
   "screen.dogs-unleashed.settings.badhairdaychance.tooltip": "修剪失败的频率。100%为正常，0%表示每次修剪都完美。",
   "screen.dogs-unleashed.settings.direwolf": "恐狼",
   "screen.dogs-unleashed.settings.direwolf.growthrate": "成长速度",
-  "screen.dogs-unleashed.settings.direwolf.growthrate.tooltip": "恐狼从少年狼长成成年狼、从成年狼长成壮年狼的速度。0%将使它们不再自行成长。",
+  "screen.dogs-unleashed.settings.direwolf.growthrate.tooltip": "恐狼从幼狼长成少年狼、从少年狼长成成年狼、从成年狼长成壮年狼的速度。0%将使它们不再自行成长。",
   "screen.dogs-unleashed.settings.direwolf.battles": "头狼战斗次数",
   "screen.dogs-unleashed.settings.direwolf.battles.tooltip": "驯服的壮年狼需要在主人附近击败多少敌对生物，附魔金苹果才能让它成为头狼。",
   "screen.dogs-unleashed.settings.direwolf.smallestpack": "最小狼群",
