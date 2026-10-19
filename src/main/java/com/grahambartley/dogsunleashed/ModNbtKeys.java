@@ -48,6 +48,7 @@ public final class ModNbtKeys {
   public static final String BED_POS_X = "BedPosX";
   public static final String BED_POS_Y = "BedPosY";
   public static final String BED_POS_Z = "BedPosZ";
+  public static final String BED_DIMENSION = "BedDimension";
   public static final String CARRYING_BALL = "CarryingBall";
   public static final String ACTIVE_FETCH_TYPE_ID = "ActiveFetchTypeId";
   public static final String CARRIED_FETCH_ITEM_STACK = "CarriedFetchItemStack";
@@ -62,6 +63,7 @@ public final class ModNbtKeys {
   public static final String COMMAND_ANCHOR_X = "CommandAnchorX";
   public static final String COMMAND_ANCHOR_Y = "CommandAnchorY";
   public static final String COMMAND_ANCHOR_Z = "CommandAnchorZ";
+  public static final String COMMAND_ANCHOR_DIMENSION = "CommandAnchorDimension";
   public static final String CURING_TICKS = "CuringTicks";
   public static final String CURING_PLAYER_ID = "CuringPlayerId";
   public static final String FUR_STAGE = "FurStage";
