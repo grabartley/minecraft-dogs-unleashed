@@ -5,17 +5,21 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 import net.minecraft.world.biome.BiomeKeys;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
+@ExtendWith(MinecraftBootstrapExtension.class)
 class UnleashedDogBreedTest {
 
   static Stream<Arguments> serializedIdAliases() {
@@ -70,21 +74,32 @@ class UnleashedDogBreedTest {
   }
 
   @ParameterizedTest
-  @EnumSource(UnleashedDogBreed.class)
-  @DisplayName("every breed declares carry profiles for tennis ball, stick, and frisbee")
-  void everyBreedDeclaresCarryProfilesForEveryFetchItem(final UnleashedDogBreed breed) {
-    final FetchCarryProfiles profiles = breed.fetchCarryProfiles();
-    assertNotNull(profiles, "fetchCarryProfiles for " + breed);
+  @MethodSource("rigBreeds")
+  @DisplayName("every rig breed declares carry profiles for tennis ball, stick, and frisbee")
+  void everyRigBreedDeclaresCarryProfilesForEveryFetchItem(final UnleashedDogBreed breed) {
+    final FetchCarryProfiles profiles = breed.fetchCarryProfiles().orElseThrow();
     assertNotNull(profiles.tennisBall(), "tennis ball profile for " + breed);
     assertNotNull(profiles.stick(), "stick profile for " + breed);
     assertNotNull(profiles.frisbee(), "frisbee profile for " + breed);
   }
 
+  static Stream<UnleashedDogBreed> rigBreeds() {
+    return Arrays.stream(UnleashedDogBreed.values())
+        .filter(breed -> breed != UnleashedDogBreed.CROSS_BREED);
+  }
+
+  @Test
+  @DisplayName("the cross-breed declares no carry profiles because it renders with another rig")
+  void crossBreedDeclaresNoCarryProfiles() {
+    assertTrue(UnleashedDogBreed.CROSS_BREED.fetchCarryProfiles().isEmpty());
+    assertTrue(UnleashedDogBreed.CROSS_BREED.carryProfileFor(null).isEmpty());
+  }
+
   @ParameterizedTest
-  @EnumSource(UnleashedDogBreed.class)
+  @MethodSource("rigBreeds")
   @DisplayName("every carry profile has finite offsets")
   void everyCarryProfileHasFiniteOffsets(final UnleashedDogBreed breed) {
-    final FetchCarryProfiles profiles = breed.fetchCarryProfiles();
+    final FetchCarryProfiles profiles = breed.fetchCarryProfiles().orElseThrow();
     for (final CarryProfile profile :
         List.of(profiles.tennisBall(), profiles.stick(), profiles.frisbee())) {
       assertTrue(
@@ -97,10 +112,10 @@ class UnleashedDogBreedTest {
   }
 
   @ParameterizedTest
-  @EnumSource(UnleashedDogBreed.class)
+  @MethodSource("rigBreeds")
   @DisplayName("the frisbee sits further forward than the ball because the dog grips its rim")
   void frisbeeSitsFurtherForwardThanTheBall(final UnleashedDogBreed breed) {
-    final FetchCarryProfiles profiles = breed.fetchCarryProfiles();
+    final FetchCarryProfiles profiles = breed.fetchCarryProfiles().orElseThrow();
     assertTrue(
         Math.abs(profiles.frisbee().forwardOffset())
             > Math.abs(profiles.tennisBall().forwardOffset()),
