@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.item.cosmetic.DogCosmetic;
+import com.grahambartley.dogsunleashed.item.cosmetic.MobHead;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -53,5 +54,18 @@ class DrawnCosmeticTest {
   @DisplayName("no cosmetic worn means nothing drawn")
   void nothingWorn() {
     assertTrue(DrawnCosmetic.of(false, Optional.empty(), id -> true).isEmpty());
+  }
+
+  @Test
+  @DisplayName("an invisible dog draws no mob head")
+  void invisibleDogDrawsNoMobHead() {
+    assertTrue(DrawnCosmetic.mobHeadOf(true, Optional.of(MobHead.CREEPER)).isEmpty());
+  }
+
+  @Test
+  @DisplayName("a visible dog draws the mob head it wears")
+  void visibleDogDrawsItsMobHead() {
+    assertEquals(
+        Optional.of(MobHead.CREEPER), DrawnCosmetic.mobHeadOf(false, Optional.of(MobHead.CREEPER)));
   }
 }

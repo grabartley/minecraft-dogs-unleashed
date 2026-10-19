@@ -1,11 +1,13 @@
 package com.grahambartley.dogsunleashed.render;
 
+import com.google.common.collect.Sets;
 import com.grahambartley.dogsunleashed.config.SyncedServerConfig;
 import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.model.DogModel;
 import com.grahambartley.dogsunleashed.render.cosmetic.HatFits;
+import com.grahambartley.dogsunleashed.render.cosmetic.MobHeadFits;
 import com.grahambartley.dogsunleashed.render.fur.FurLook;
 import com.grahambartley.dogsunleashed.render.growth.GrowthRigScale;
 import com.grahambartley.dogsunleashed.render.layer.DogArmourLayer;
@@ -13,6 +15,7 @@ import com.grahambartley.dogsunleashed.render.layer.DogCarryFetchItemLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogCollarLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogCosmeticLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogFurOverlayLayer;
+import com.grahambartley.dogsunleashed.render.layer.DogMobHeadLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogPendantLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogSheetOverlayLayer;
 import com.grahambartley.dogsunleashed.render.layer.UndeadEyeGlowLayer;
@@ -47,6 +50,7 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
   private boolean frameArmoured;
   private Set<String> frameHiddenEars = Set.of();
   private final HatFits hatFits = new HatFits();
+  private final MobHeadFits mobHeadFits = new MobHeadFits();
   private @Nullable GrowthRigScale frameGrowth;
   private final Matrix4f frameOrigin = new Matrix4f();
   private final Map<String, SeatTransform> frameSeats = new HashMap<>();
@@ -61,6 +65,7 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
     this.addRenderLayer(new DogArmourLayer(this));
     this.addRenderLayer(new DogPendantLayer(this));
     this.addRenderLayer(new DogCosmeticLayer(this, this.hatFits));
+    this.addRenderLayer(new DogMobHeadLayer(this, this.mobHeadFits, context));
   }
 
   @Override
@@ -117,7 +122,10 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
     this.frameProfile = RigProfiles.of(animatable.getRigSourceBreed());
     this.frameStage = animatable.getFur().stage();
     this.frameArmoured = !animatable.getArmour().worn().isEmpty();
-    this.frameHiddenEars = this.hatFits.earsHiddenOn(animatable, model, this.frameProfile);
+    this.frameHiddenEars =
+        Sets.union(
+            this.hatFits.earsHiddenOn(animatable, model, this.frameProfile),
+            this.mobHeadFits.earsHiddenOn(animatable, model, this.frameProfile));
     this.frameGrowth =
         animatable.getGrowth().applies()
             ? GrowthRigScale.of(model, this.frameProfile, animatable.getGrowth().stage())

@@ -2,11 +2,13 @@ package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModCosmeticItems;
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
+import com.grahambartley.dogsunleashed.entity.DogVocalization;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import com.grahambartley.dogsunleashed.item.cosmetic.DogCosmetic;
 import com.grahambartley.dogsunleashed.item.cosmetic.DogCosmeticItem;
+import com.grahambartley.dogsunleashed.item.cosmetic.MobHead;
 import java.util.List;
 import java.util.Optional;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -15,6 +17,7 @@ import net.minecraft.block.entity.BannerPatterns;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.BannerPatternsComponent;
 import net.minecraft.component.type.DyedColorComponent;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -178,5 +181,82 @@ public final class DogCosmeticGameTest implements FabricGameTest {
         .getFirstMatch(RecipeType.CRAFTING, input, world)
         .map(entry -> entry.value().craft(input, world.getRegistryManager()))
         .orElse(ItemStack.EMPTY);
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void everyMobHeadFitsTheCosmeticSlotAndNoOther(final TestContext context) {
+    for (final MobHead head : MobHead.values()) {
+      final ItemStack stack = new ItemStack(head.item());
+      context.assertTrue(
+          DogEquipmentSlot.COSMETIC.canHold(stack), head + " should fit the cosmetic slot");
+      context.assertFalse(
+          DogEquipmentSlot.PENDANT.canHold(stack), head + " should not fit the pendant slot");
+      context.assertTrue(
+          DogEquipmentSlot.directEquipSlotFor(stack) == null,
+          head + " should only go on through the gear screen");
+      context.assertTrue(
+          MobHead.of(stack).equals(Optional.of(head)), head + " stack should name its head");
+    }
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void aWornCarvedPumpkinIsCosmeticOnly(final TestContext context) {
+    final UnleashedDogEntity bare =
+        DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS);
+    bare.setAiDisabled(true);
+    final UnleashedDogEntity dressed =
+        DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS);
+    dressed.setAiDisabled(true);
+    dressed
+        .getEquipmentHolder()
+        .setStack(DogEquipmentSlot.COSMETIC, new ItemStack(Items.CARVED_PUMPKIN));
+
+    context.assertTrue(
+        MobHead.of(dressed.getEquipmentHolder().getStack(DogEquipmentSlot.COSMETIC))
+            .equals(Optional.of(MobHead.CARVED_PUMPKIN)),
+        "The dog should wear the carved pumpkin");
+    context.assertTrue(
+        dressed.getEquippedStack(EquipmentSlot.HEAD).isEmpty(),
+        "A worn pumpkin should not take the vanilla head slot that endermen check");
+    context.assertTrue(
+        dressed.getArmor() == bare.getArmor(), "A worn pumpkin should give no armour");
+    context.assertTrue(
+        dressed.getMaxHealth() == bare.getMaxHealth(), "A worn pumpkin should give no health");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void aRealBarkRestartsTheBarkClock(final TestContext context) {
+    final UnleashedDogEntity dog =
+        DogTestHelper.spawnTamedDog(context, DogTestData.BEAGLE, DOG_POS);
+    dog.setAiDisabled(true);
+    context.assertTrue(
+        dog.getVocalization().ticksSinceBark(0.0f) > 1000.0f,
+        "A dog that never barked should read as long past its last bark");
+
+    dog.damage(dog.getDamageSources().generic(), 1.0f);
+
+    context.assertTrue(
+        dog.getVocalization().getBarkCooldownTicks() > 0, "A hurt beagle should have barked");
+    context.assertTrue(
+        dog.getVocalization().ticksSinceBark(0.5f) == 0.5f,
+        "A bark should restart the bark clock but reads "
+            + dog.getVocalization().ticksSinceBark(0.5f));
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void aBarkStatusRestartsTheBarkClockOnTheClient(final TestContext context) {
+    final UnleashedDogEntity dog = DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS);
+    dog.setAiDisabled(true);
+
+    dog.handleStatus(DogVocalization.BARK_STATUS);
+
+    context.assertTrue(
+        dog.getVocalization().ticksSinceBark(0.5f) == 0.5f,
+        "A bark status should restart the bark clock but reads "
+            + dog.getVocalization().ticksSinceBark(0.5f));
+    context.complete();
   }
 }

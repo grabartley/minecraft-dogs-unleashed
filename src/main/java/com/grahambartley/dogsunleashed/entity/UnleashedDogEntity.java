@@ -307,6 +307,15 @@ public class UnleashedDogEntity extends DogMountEntity
     return this.vocalization;
   }
 
+  @Override
+  public void handleStatus(final byte status) {
+    if (status == DogVocalization.BARK_STATUS) {
+      this.vocalization.heardBark();
+    } else {
+      super.handleStatus(status);
+    }
+  }
+
   public DogAmbienceEffects getAmbienceEffects() {
     return this.ambience;
   }

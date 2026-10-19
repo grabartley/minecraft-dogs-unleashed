@@ -127,6 +127,17 @@ public final class CubeGeometry {
           && point.z < this.max.z;
     }
 
+    public boolean overlaps(final Bounds other) {
+      return !this.isEmpty()
+          && !other.isEmpty()
+          && this.min.x < other.max.x
+          && this.max.x > other.min.x
+          && this.min.y < other.max.y
+          && this.max.y > other.min.y
+          && this.min.z < other.max.z
+          && this.max.z > other.min.z;
+    }
+
     public boolean containsXy(final float x, final float y) {
       return x >= this.min.x && x <= this.max.x && y >= this.min.y && y <= this.max.y;
     }
