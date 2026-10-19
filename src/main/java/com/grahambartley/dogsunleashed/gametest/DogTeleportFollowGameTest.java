@@ -1,12 +1,16 @@
 package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModEntities;
+import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import com.grahambartley.dogsunleashed.pet.PetLocationService;
 import com.grahambartley.dogsunleashed.pet.PetManager;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -14,8 +18,10 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.test.CustomTestProvider;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
+import net.minecraft.test.TestFunction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
@@ -28,10 +34,28 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
   private static final long TELEPORT_TICK = 5;
   private static final long ASSERT_TICK = 25;
 
-  @GameTest(templateName = TELEPORT_ARENA, tickLimit = 40)
-  public void longDistanceTeleportBringsActiveDogToOwner(TestContext context) {
+  @CustomTestProvider
+  public List<TestFunction> longDistanceTeleportBringsOnlyFollowingDogs() {
+    return Arrays.stream(DogCommand.values())
+        .map(
+            command ->
+                GeneratedGameTest.of(
+                    "defaultBatch",
+                    "dogteleportfollowgametest.longDistanceTeleportBringsOnlyFollowingDogs."
+                        + command.serializedName(),
+                    TELEPORT_ARENA,
+                    40,
+                    context -> longDistanceTeleportBringsOnlyFollowingDogs(context, command)))
+        .toList();
+  }
+
+  private static void longDistanceTeleportBringsOnlyFollowingDogs(
+      TestContext context, DogCommand command) {
     final ServerPlayerEntity owner = placePlayer(context, LONG_TELEPORT_START);
     final UnleashedDogEntity husky = spawnRegisteredDog(context, owner, DOG_START);
+    husky.getCommandController().apply(command);
+    final Vec3d dogStartPos = husky.getPos();
+    final boolean shouldCome = command == DogCommand.FOLLOW || command == DogCommand.HEEL;
 
     context.runAtTick(TELEPORT_TICK, () -> teleport(context, owner, LONG_TELEPORT_DESTINATION));
 
@@ -40,13 +64,21 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
         ASSERT_TICK,
         () -> {
           final UnleashedDogEntity dog = summonedDog(context, dogId);
-          context.assertTrue(dog != null, "Summoned dog must exist in the world");
-          final double distance = Math.sqrt(dog.squaredDistanceTo(owner));
-          context.assertTrue(
-              distance <= 4.0,
-              "Active dog should be beside its owner after a long-distance teleport, but was "
-                  + distance
-                  + " blocks away");
+          context.assertTrue(dog != null, "Dog must still exist in the world");
+          if (shouldCome) {
+            final double distance = Math.sqrt(dog.squaredDistanceTo(owner));
+            context.assertTrue(
+                distance <= 4.0,
+                "A "
+                    + command.serializedName()
+                    + " dog should be beside its owner, but was "
+                    + distance
+                    + " blocks away");
+          } else {
+            context.assertTrue(
+                dog.getPos().squaredDistanceTo(dogStartPos) < 0.01,
+                "A " + command.serializedName() + " dog should stay where it was left");
+          }
           context.complete();
         });
   }

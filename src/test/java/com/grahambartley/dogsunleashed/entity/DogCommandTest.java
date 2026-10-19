@@ -69,14 +69,14 @@ class DogCommandTest {
         Arguments.of(DogCommand.HEEL, true),
         Arguments.of(DogCommand.STAY, false),
         Arguments.of(DogCommand.SIT, false),
-        Arguments.of(DogCommand.HUNT, true),
+        Arguments.of(DogCommand.HUNT, false),
         Arguments.of(DogCommand.GUARD, false),
-        Arguments.of(DogCommand.FREE_ROAM, true));
+        Arguments.of(DogCommand.FREE_ROAM, false));
   }
 
   @ParameterizedTest(name = "{0} follows={1}")
   @MethodSource("relocationCommands")
-  @DisplayName("anchored and sitting commands opt out of owner-relocation summons")
+  @DisplayName("only Follow and Heel dogs come along on owner relocation")
   void relocationCommands(final DogCommand command, final boolean expected) {
     assertEquals(expected, command.followsOwnerOnRelocation());
   }
