@@ -16,7 +16,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class WhistlePointRulesTest {
 
-  private static final MobFacts ZOMBIE = new MobFacts(false, false, false, false, true, false);
+  private static final MobFacts ZOMBIE =
+      new MobFacts(false, false, false, false, true, false, false);
 
   @ParameterizedTest(name = "{0} -> {2}")
   @MethodSource("pointedEntities")
@@ -34,37 +35,42 @@ class WhistlePointRulesTest {
         Arguments.of(
             "named zombie",
             PointedKind.MOB,
-            new MobFacts(false, false, true, false, true, false),
+            new MobFacts(false, false, true, false, true, false, false),
             Order.ATTACK),
         Arguments.of(
             "wild wolf",
             PointedKind.MOB,
-            new MobFacts(false, false, false, false, false, true),
+            new MobFacts(false, false, false, false, false, true, false),
             Order.ATTACK),
         Arguments.of(
             "named wolf",
             PointedKind.MOB,
-            new MobFacts(false, false, true, false, false, true),
+            new MobFacts(false, false, true, false, false, true, false),
             Order.NONE),
         Arguments.of(
             "leashed llama",
             PointedKind.MOB,
-            new MobFacts(false, false, false, true, false, true),
+            new MobFacts(false, false, false, true, false, true, false),
             Order.NONE),
         Arguments.of(
             "tamed wolf",
             PointedKind.MOB,
-            new MobFacts(false, true, false, false, false, true),
+            new MobFacts(false, true, false, false, false, true, false),
             Order.NONE),
         Arguments.of(
             "villager or iron golem",
             PointedKind.MOB,
-            new MobFacts(true, false, false, false, false, true),
+            new MobFacts(true, false, false, false, false, true, false),
+            Order.NONE),
+        Arguments.of(
+            "creeper",
+            PointedKind.MOB,
+            new MobFacts(false, false, false, false, true, false, true),
             Order.NONE),
         Arguments.of(
             "cow",
             PointedKind.MOB,
-            new MobFacts(false, false, false, false, false, false),
+            new MobFacts(false, false, false, false, false, false, false),
             Order.NONE));
   }
 

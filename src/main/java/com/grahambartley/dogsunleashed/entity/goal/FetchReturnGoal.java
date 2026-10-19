@@ -69,7 +69,8 @@ public class FetchReturnGoal extends Goal {
     double distToOwner = this.dog.squaredDistanceTo(player);
     if (distToOwner <= CLOSE_ENOUGH_DISTANCE * CLOSE_ENOUGH_DISTANCE) {
       final Text returnedName;
-      if (this.dog.getFetchCarry().isCarryingFetchedItem()) {
+      final boolean pointedFetch = this.dog.getFetchCarry().isCarryingFetchedItem();
+      if (pointedFetch) {
         final ItemStack carried = this.dog.getFetchCarry().carriedStack();
         returnedName = carried.getName();
         this.dropAtOwner(player, carried.copy());
@@ -84,7 +85,7 @@ public class FetchReturnGoal extends Goal {
           Text.translatable("message.dogs-unleashed.play_fetch_returned", dogName, returnedName),
           true);
 
-      if (player instanceof ServerPlayerEntity serverPlayer) {
+      if (!pointedFetch && player instanceof ServerPlayerEntity serverPlayer) {
         FetchReturnedCriterion.INSTANCE.trigger(serverPlayer);
       }
 

@@ -8,9 +8,10 @@ import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 
-public record PointWithWhistlePayload(boolean mainHand, int entityId, BlockPos blockPos)
-    implements CustomPayload {
+public record PointWithWhistlePayload(
+    boolean mainHand, int entityId, BlockPos blockPos, Direction side) implements CustomPayload {
 
   public static final int NO_ENTITY = -1;
 
@@ -26,14 +27,18 @@ public record PointWithWhistlePayload(boolean mainHand, int entityId, BlockPos b
           PointWithWhistlePayload::entityId,
           BlockPos.PACKET_CODEC,
           PointWithWhistlePayload::blockPos,
+          Direction.PACKET_CODEC,
+          PointWithWhistlePayload::side,
           PointWithWhistlePayload::new);
 
-  public static PointWithWhistlePayload atBlock(final Hand hand, final BlockPos pos) {
-    return new PointWithWhistlePayload(hand == Hand.MAIN_HAND, NO_ENTITY, pos);
+  public static PointWithWhistlePayload atBlock(
+      final Hand hand, final BlockPos pos, final Direction side) {
+    return new PointWithWhistlePayload(hand == Hand.MAIN_HAND, NO_ENTITY, pos, side);
   }
 
   public static PointWithWhistlePayload atEntity(final Hand hand, final int entityId) {
-    return new PointWithWhistlePayload(hand == Hand.MAIN_HAND, entityId, BlockPos.ORIGIN);
+    return new PointWithWhistlePayload(
+        hand == Hand.MAIN_HAND, entityId, BlockPos.ORIGIN, Direction.UP);
   }
 
   public Hand hand() {

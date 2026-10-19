@@ -25,6 +25,9 @@ public final class DogFetchCarry {
   }
 
   public void setActiveType(final @Nullable FetchItemType activeFetchType) {
+    if (this.isCarryingFetchedItem()) {
+      return;
+    }
     this.setActiveTypeId(DogPlaySession.fetchTypeIdOf(activeFetchType));
   }
 

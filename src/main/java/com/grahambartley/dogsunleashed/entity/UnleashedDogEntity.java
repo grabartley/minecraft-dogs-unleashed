@@ -556,6 +556,7 @@ public class UnleashedDogEntity extends DogMountEntity
 
   @Override
   public void onDeath(DamageSource damageSource) {
+    this.fetchCarry.dropFetchedItem();
     this.play.endPlayMode();
     super.onDeath(damageSource);
 

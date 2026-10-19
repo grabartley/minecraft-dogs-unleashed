@@ -72,7 +72,8 @@ hurts one of them. Earn a pup's trust and it grows into a wolf the size of a hor
 ## What you can do
 
 - **Give real commands.** Right-click your dog to open a command wheel: Follow, Heel, Stay, Sit, Hunt, Guard, Free Roam
-and Go to Bed. Or sneak and blow its whistle at something to send it there, set it on a mob, or have it fetch a dropped item. Hunting dogs leave your other pets, villagers and golems alone, but name your farm animals to keep them safe.
+and Go to Bed. Or sneak and blow its whistle at something to send it there, set it on a mob, or have it fetch a dropped
+item. Hunting dogs leave your other pets, villagers and golems alone, but name your farm animals to keep them safe.
 - **Play fetch.** Throw a stick, a tennis ball or a frisbee. Your dog chases it, picks it up and brings it back to you.
 - **Give them a bed.** Craft a dog bed or a dog house in any colour and assign it. Your dog goes to bed by itself at
 night. Dire wolves are too big for either and nap on the ground instead, once by day and once by night.

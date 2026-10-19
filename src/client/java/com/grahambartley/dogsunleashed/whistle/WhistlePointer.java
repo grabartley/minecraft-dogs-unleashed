@@ -67,7 +67,8 @@ public final class WhistlePointer {
     return Optional.of(
         itemNear(player, block.getPos())
             .map(item -> PointWithWhistlePayload.atEntity(hand, item.getId()))
-            .orElseGet(() -> PointWithWhistlePayload.atBlock(hand, block.getBlockPos())));
+            .orElseGet(
+                () -> PointWithWhistlePayload.atBlock(hand, block.getBlockPos(), block.getSide())));
   }
 
   private static boolean isPointable(final Entity entity) {

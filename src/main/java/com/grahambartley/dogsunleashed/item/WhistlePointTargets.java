@@ -1,18 +1,16 @@
 package com.grahambartley.dogsunleashed.item;
 
 import com.grahambartley.dogsunleashed.entity.DogFriendlyTargetPolicy;
-import com.grahambartley.dogsunleashed.entity.DogStandingSpot;
-import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.item.WhistlePointRules.MobFacts;
 import com.grahambartley.dogsunleashed.item.WhistlePointRules.Order;
 import com.grahambartley.dogsunleashed.item.WhistlePointRules.PointedKind;
 import com.grahambartley.dogsunleashed.network.payload.PointWithWhistlePayload;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.mob.Angerable;
+import net.minecraft.entity.mob.CreeperEntity;
+import net.minecraft.entity.mob.GhastEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.Monster;
 import net.minecraft.entity.passive.AbstractHorseEntity;
@@ -27,12 +25,13 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.RaycastContext;
 
 public final class WhistlePointTargets {
 
-  private static final double FACE_INSET = 0.49;
-  private static final int MAX_DROP_TO_GROUND = 4;
+  private static final double FACE_INSET = 0.01;
 
   private WhistlePointTargets() {}
 
@@ -40,7 +39,7 @@ public final class WhistlePointTargets {
       final ServerPlayerEntity player, final PointWithWhistlePayload payload) {
     return payload.pointsAtEntity()
         ? resolveEntity(player, payload.entityId())
-        : resolveBlock(player, payload.blockPos());
+        : resolveBlock(player, payload.blockPos(), payload.side());
   }
 
   private static Optional<WhistlePointTarget> resolveEntity(
@@ -55,14 +54,14 @@ public final class WhistlePointTargets {
         || !player.canSee(entity)) {
       return Optional.empty();
     }
-    final Order order = WhistlePointRules.orderForEntity(kindOf(entity), factsOf(entity));
+    final Order order = WhistlePointRules.orderForEntity(kindOf(entity, player), factsOf(entity));
     return order == Order.NONE
         ? Optional.empty()
         : Optional.of(WhistlePointTarget.atEntity(order, entity));
   }
 
   private static Optional<WhistlePointTarget> resolveBlock(
-      final ServerPlayerEntity player, final BlockPos pos) {
+      final ServerPlayerEntity player, final BlockPos pos, final Direction aimedSide) {
     final ServerWorld world = player.getServerWorld();
     if (!world.isChunkLoaded(pos) || world.getBlockState(pos).isAir()) {
       return Optional.empty();
@@ -71,13 +70,23 @@ public final class WhistlePointTargets {
     if (!WhistlePointRules.inRange(eye.squaredDistanceTo(Vec3d.ofCenter(pos)))) {
       return Optional.empty();
     }
+    if (seesFace(player, eye, pos, aimedSide)) {
+      return Optional.of(WhistlePointTarget.atBlock(pos, aimedSide));
+    }
     for (final Direction face : Direction.values()) {
-      final BlockHitResult hit = raycast(player, eye, faceCentre(pos, face));
-      if (hit.getType() == HitResult.Type.BLOCK && hit.getBlockPos().equals(pos)) {
-        return Optional.of(WhistlePointTarget.atBlock(pos, hit.getSide()));
+      if (seesFace(player, eye, pos, face)) {
+        return Optional.of(WhistlePointTarget.atBlock(pos, face));
       }
     }
     return Optional.empty();
+  }
+
+  private static boolean seesFace(
+      final ServerPlayerEntity player, final Vec3d eye, final BlockPos pos, final Direction face) {
+    final BlockHitResult hit = raycast(player, eye, faceCentre(player, pos, face));
+    return hit.getType() == HitResult.Type.BLOCK
+        && hit.getBlockPos().equals(pos)
+        && hit.getSide() == face;
   }
 
   private static BlockHitResult raycast(
@@ -88,35 +97,27 @@ public final class WhistlePointTargets {
             new RaycastContext(
                 from,
                 to,
-                RaycastContext.ShapeType.COLLIDER,
+                RaycastContext.ShapeType.OUTLINE,
                 RaycastContext.FluidHandling.NONE,
                 player));
   }
 
-  private static Vec3d faceCentre(final BlockPos pos, final Direction face) {
-    return Vec3d.ofCenter(pos)
-        .add(
-            face.getOffsetX() * FACE_INSET,
-            face.getOffsetY() * FACE_INSET,
-            face.getOffsetZ() * FACE_INSET);
+  private static Vec3d faceCentre(
+      final ServerPlayerEntity player, final BlockPos pos, final Direction face) {
+    final VoxelShape shape =
+        player.getServerWorld().getBlockState(pos).getOutlineShape(player.getServerWorld(), pos);
+    final Box box = (shape.isEmpty() ? VoxelShapes.fullCube() : shape).getBoundingBox().offset(pos);
+    final Vec3d centre = box.getCenter();
+    return centre.add(
+        face.getOffsetX() * (box.getLengthX() / 2 - FACE_INSET),
+        face.getOffsetY() * (box.getLengthY() / 2 - FACE_INSET),
+        face.getOffsetZ() * (box.getLengthZ() / 2 - FACE_INSET));
   }
 
-  public static BlockPos standingSpot(
-      final UnleashedDogEntity dog, final BlockPos pos, final Direction side) {
-    final BlockPos beside = pos.offset(side);
-    final List<BlockPos> candidates = new ArrayList<>();
-    for (int drop = 0; drop <= MAX_DROP_TO_GROUND; drop++) {
-      candidates.add(beside.down(drop));
-    }
-    candidates.add(pos.up());
-    return DogStandingSpot.firstSafe(dog.getWorld(), dog, candidates)
-        .map(BlockPos::ofFloored)
-        .orElse(beside);
-  }
-
-  private static PointedKind kindOf(final Entity entity) {
-    if (entity instanceof ItemEntity) {
-      return PointedKind.ITEM;
+  private static PointedKind kindOf(final Entity entity, final ServerPlayerEntity player) {
+    if (entity instanceof ItemEntity item) {
+      final Entity claimant = item.getOwner();
+      return claimant == null || claimant == player ? PointedKind.ITEM : PointedKind.OTHER;
     }
     if (entity instanceof PlayerEntity) {
       return PointedKind.PLAYER;
@@ -134,7 +135,8 @@ public final class WhistlePointTargets {
         entity.hasCustomName(),
         entity instanceof MobEntity mob && mob.isLeashed(),
         entity instanceof Monster,
-        entity instanceof Angerable);
+        entity instanceof Angerable,
+        entity instanceof CreeperEntity || entity instanceof GhastEntity);
   }
 
   private static Vec3d closestPoint(final Box box, final Vec3d from) {

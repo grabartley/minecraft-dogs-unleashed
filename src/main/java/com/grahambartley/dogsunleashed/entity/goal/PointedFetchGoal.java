@@ -14,9 +14,11 @@ public class PointedFetchGoal extends Goal {
   private static final float LOOK_YAW = 10.0f;
   private static final float LOOK_PITCH = 10.0f;
   private static final int REPATH_INTERVAL_TICKS = 10;
+  private static final int MAX_FETCH_TICKS = 600;
 
   private final UnleashedDogEntity dog;
   private int repathCooldown;
+  private int fetchTicks;
 
   public PointedFetchGoal(final UnleashedDogEntity dog) {
     this.dog = dog;
@@ -45,6 +47,7 @@ public class PointedFetchGoal extends Goal {
   @Override
   public void start() {
     this.repathCooldown = 0;
+    this.fetchTicks = 0;
   }
 
   @Override
@@ -53,8 +56,13 @@ public class PointedFetchGoal extends Goal {
     if (item == null) {
       return;
     }
+    if (++this.fetchTicks > MAX_FETCH_TICKS) {
+      this.orders().clearFetch();
+      return;
+    }
     this.dog.getLookControl().lookAt(item, LOOK_YAW, LOOK_PITCH);
-    if (this.dog.squaredDistanceTo(item) <= PICKUP_DISTANCE * PICKUP_DISTANCE) {
+    if (!item.cannotPickup()
+        && this.dog.squaredDistanceTo(item) <= PICKUP_DISTANCE * PICKUP_DISTANCE) {
       this.pickUp(item);
       return;
     }

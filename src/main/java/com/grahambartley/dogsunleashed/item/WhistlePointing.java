@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.ModSounds;
 import com.grahambartley.dogsunleashed.entity.DogPointedOrders;
+import com.grahambartley.dogsunleashed.entity.DogStandingSpot;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.item.WhistlePointRules.Unavailable;
 import com.grahambartley.dogsunleashed.network.payload.PointWithWhistlePayload;
@@ -11,6 +12,7 @@ import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLocationService;
 import com.grahambartley.dogsunleashed.pet.PetManager;
 import java.util.Optional;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
@@ -35,7 +37,8 @@ public final class WhistlePointing {
 
   public static void point(final ServerPlayerEntity player, final PointWithWhistlePayload payload) {
     final ItemStack whistle = player.getStackInHand(payload.hand());
-    if (!whistle.isOf(ModItems.DOG_WHISTLE)
+    if (player.isSpectator()
+        || !whistle.isOf(ModItems.DOG_WHISTLE)
         || player.getItemCooldownManager().isCoolingDown(ModItems.DOG_WHISTLE)) {
       return;
     }
@@ -66,29 +69,41 @@ public final class WhistlePointing {
       tell(player, Text.translatable(unavailable.get().messageKey(), bound.getName()));
       return;
     }
-    final Vec3d marker = order(dog, target.get());
+    final Optional<Vec3d> marker = order(dog, target.get());
+    if (marker.isEmpty()) {
+      return;
+    }
     player.getItemCooldownManager().set(ModItems.DOG_WHISTLE, DogWhistleItem.BLOW_COOLDOWN_TICKS);
     playPointNote(player);
-    showMarker(player, marker);
+    showMarker(player, marker.get());
     dog.getCommandController().acknowledge();
   }
 
-  public static Vec3d order(final UnleashedDogEntity dog, final WhistlePointTarget target) {
+  public static Optional<Vec3d> order(
+      final UnleashedDogEntity dog, final WhistlePointTarget target) {
     final DogPointedOrders orders = dog.getComponents().get(DogPointedOrders.class);
     switch (target.order()) {
       case ATTACK -> orders.attack((LivingEntity) target.entity());
       case FETCH -> orders.fetch((ItemEntity) target.entity());
       case GO_THERE -> {
-        final BlockPos spot =
-            WhistlePointTargets.standingSpot(dog, target.blockPos(), target.side());
-        dog.getCommandController().goTo(spot);
-        return Vec3d.ofBottomCenter(spot).add(0.0, SPOT_MARKER_LIFT, 0.0);
+        final Optional<BlockPos> spot =
+            DogStandingSpot.besideFace(dog, target.blockPos(), target.side());
+        spot.ifPresent(dog.getCommandController()::goTo);
+        return spot.map(WhistlePointing::markerOver);
       }
-      case NONE -> {}
+      case NONE -> {
+        return Optional.empty();
+      }
     }
-    return target.entity() == null
-        ? Vec3d.ofCenter(target.blockPos())
-        : target.entity().getPos().add(0.0, target.entity().getHeight() + ENTITY_MARKER_LIFT, 0.0);
+    return Optional.of(markerOver(target.entity()));
+  }
+
+  private static Vec3d markerOver(final BlockPos spot) {
+    return Vec3d.ofBottomCenter(spot).add(0.0, SPOT_MARKER_LIFT, 0.0);
+  }
+
+  private static Vec3d markerOver(final Entity entity) {
+    return entity.getPos().add(0.0, entity.getHeight() + ENTITY_MARKER_LIFT, 0.0);
   }
 
   private static @Nullable UnleashedDogEntity dogNear(

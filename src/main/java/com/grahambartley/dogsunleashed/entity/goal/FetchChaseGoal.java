@@ -33,7 +33,8 @@ public class FetchChaseGoal extends Goal {
         || this.dog.isLeashed()) {
       return false;
     }
-    if (this.dog.getPlaySession().getActiveFetchBlockPos() != null) {
+    if (this.dog.getPlaySession().getActiveFetchBlockPos() != null
+        || this.dog.getFetchCarry().isCarrying()) {
       return false;
     }
     return this.findTargetBall();

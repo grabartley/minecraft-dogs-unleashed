@@ -45,7 +45,8 @@ public final class WhistlePointRules {
       boolean named,
       boolean leashed,
       boolean hostile,
-      boolean neutral) {}
+      boolean neutral,
+      boolean unsafe) {}
 
   public static Order orderForEntity(final PointedKind kind, final MobFacts mob) {
     return switch (kind) {
@@ -56,7 +57,7 @@ public final class WhistlePointRules {
   }
 
   static Order orderForMob(final MobFacts mob) {
-    if (mob.friendlyType() || mob.tamed()) {
+    if (mob.friendlyType() || mob.tamed() || mob.unsafe()) {
       return Order.NONE;
     }
     if (mob.hostile()) {
