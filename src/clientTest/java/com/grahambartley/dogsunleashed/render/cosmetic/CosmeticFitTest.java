@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.grahambartley.dogsunleashed.item.cosmetic.DogCosmetic;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 class CosmeticFitTest {
 
@@ -18,12 +20,24 @@ class CosmeticFitTest {
     assertEquals(0.5f * 4.0f, CosmeticFit.hatWidth(DogCosmetic.PARTY_HAT, 4.0f), EPSILON);
   }
 
-  @Test
-  @DisplayName("a bow is narrower than a bandana on the same chest")
-  void bowIsNarrowerThanBandana() {
+  @ParameterizedTest(name = "{0}")
+  @EnumSource(
+      value = DogCosmetic.class,
+      names = {"COLLAR_BOW", "ROSETTE"})
+  @DisplayName("a bow or rosette is narrower than a bandana on the same chest")
+  void collarPieceIsNarrowerThanBandana(final DogCosmetic cosmetic) {
     assertTrue(
-        CosmeticFit.collarWidth(DogCosmetic.COLLAR_BOW, 3.0f)
+        CosmeticFit.collarWidth(cosmetic, 3.0f)
             < CosmeticFit.collarWidth(DogCosmetic.BANDANA, 3.0f));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @EnumSource(
+      value = DogCosmetic.class,
+      names = {"BANDANA", "COLLAR_BOW", "ROSETTE"})
+  @DisplayName("collar cosmetics take no head width")
+  void collarCosmeticsTakeNoHeadWidth(final DogCosmetic cosmetic) {
+    assertEquals(0.0f, CosmeticFit.hatWidth(cosmetic, 4.0f), EPSILON);
   }
 
   @Test

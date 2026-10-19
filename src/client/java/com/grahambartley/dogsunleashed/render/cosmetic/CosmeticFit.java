@@ -18,7 +18,7 @@ public final class CosmeticFit {
     return switch (cosmetic) {
       case STRAW_HAT -> 0.85f;
       case PARTY_HAT -> 0.5f;
-      case BANDANA, COLLAR_BOW -> 0.0f;
+      case BANDANA, COLLAR_BOW, ROSETTE -> 0.0f;
     };
   }
 
@@ -26,6 +26,7 @@ public final class CosmeticFit {
     return switch (cosmetic) {
       case BANDANA -> 0.9f;
       case COLLAR_BOW -> 0.6f;
+      case ROSETTE -> 0.55f;
       case PARTY_HAT, STRAW_HAT -> 0.0f;
     };
   }
