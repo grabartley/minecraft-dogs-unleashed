@@ -6,8 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import com.grahambartley.dogsunleashed.render.overlay.OverlaySheet;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile.Overlay;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile.Slot;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -20,6 +24,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+import javax.imageio.ImageIO;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -186,6 +192,35 @@ class RigProfilesTest {
                     RigProfilesTest.class.getResource(
                         "/assets/" + id.getNamespace() + "/" + id.getPath()),
                     rig + " names a missing sheet override " + id));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("rigs")
+  @DisplayName("every overridden sheet fits the overlay layout and every override fits the rig")
+  void profileSheetOverridesFit(final UnleashedDogBreed rig) throws IOException {
+    final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
+    final int atlasWidth = (int) model.properties().textureWidth();
+    final int atlasHeight = (int) model.properties().textureHeight();
+    for (final Map.Entry<Identifier, Map<Slot, Identifier>> sheet :
+        BUNDLED.profileOf(rig).sheetOverrides().entrySet()) {
+      final BufferedImage layout = image(sheet.getKey());
+      assertEquals(OverlaySheet.WIDTH, layout.getWidth(), sheet.getKey() + " width");
+      assertEquals(OverlaySheet.HEIGHT, layout.getHeight(), sheet.getKey() + " height");
+      for (final Identifier override : sheet.getValue().values()) {
+        final BufferedImage image = image(override);
+        assertEquals(atlasWidth, image.getWidth(), rig + " " + override + " width");
+        assertEquals(atlasHeight, image.getHeight(), rig + " " + override + " height");
+      }
+    }
+  }
+
+  private static BufferedImage image(final Identifier id) throws IOException {
+    try (InputStream in =
+        RigProfilesTest.class.getResourceAsStream(
+            "/assets/" + id.getNamespace() + "/" + id.getPath())) {
+      assertNotNull(in, "missing texture " + id);
+      return ImageIO.read(in);
+    }
   }
 
   @ParameterizedTest(name = "{0}")
