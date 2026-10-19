@@ -17,11 +17,15 @@ public final class DogCommandController {
   }
 
   public @Nullable BlockPos getAnchorPos() {
-    final RegistryKey<World> here = this.dog.getWorld().getRegistryKey();
-    if (this.anchorPos != null && !SavedDimension.isHere(this.anchorDimension, here)) {
-      this.anchorAt(this.dog.getBlockPos(), here);
+    return SavedDimension.isHere(this.anchorDimension, this.dog.getWorld().getRegistryKey())
+        ? this.anchorPos
+        : null;
+  }
+
+  public void anchorWhereItArrived() {
+    if (this.anchorPos != null) {
+      this.anchorAt(this.dog.getBlockPos(), this.dog.getWorld().getRegistryKey());
     }
-    return this.anchorPos;
   }
 
   @Nullable
