@@ -42,6 +42,19 @@ class DogGrowthRulesTest {
     assertEquals(expected, DogGrowthRules.packStage(member, roll));
   }
 
+  @ParameterizedTest(name = "stage {0}, base {1}, scale {2} -> {3}")
+  @CsvSource({
+    "40.0, 30.0, 1.0, 10.0",
+    "40.0, 30.0, 0.5, 5.0",
+    "20.0, 30.0, 0.5, -5.0",
+    "6.0, 6.0, 0.5, 0.0"
+  })
+  @DisplayName("a stage bonus is the gap to the breed base, scaled like the base")
+  void stageBonusScalesTheGapToTheBase(
+      final double stageValue, final double breedBase, final double scale, final double expected) {
+    assertEquals(expected, DogGrowthRules.stageBonus(stageValue, breedBase, scale), 1.0e-9);
+  }
+
   @Test
   @DisplayName("no wild pack member is ever an alpha")
   void noWildMemberIsAnAlpha() {

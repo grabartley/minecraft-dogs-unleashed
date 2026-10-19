@@ -2,7 +2,9 @@ package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.ModSounds;
+import com.grahambartley.dogsunleashed.entity.DireWolfGrowthStage;
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
+import com.grahambartley.dogsunleashed.entity.DogGrowth;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.pet.PetData;
@@ -15,11 +17,16 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.attribute.EntityAttribute;
+import net.minecraft.entity.attribute.EntityAttributeModifier;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.test.AfterBatch;
@@ -27,6 +34,7 @@ import net.minecraft.test.BeforeBatch;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.GameRules;
@@ -256,6 +264,72 @@ public final class UndeadDogGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
+  public void anUndeadDireWolfHasHalfItsStageStatsAtEveryStage(final TestContext context) {
+    final UnleashedDogEntity wolf = context.spawnEntity(ModEntities.ZOMBIE_DIRE_WOLF, REL_DOG);
+    wolf.setAiDisabled(true);
+    wolf.getUndeadState().applyAttributeScaling();
+    for (final DireWolfGrowthStage stage : DireWolfGrowthStage.values()) {
+      wolf.getGrowth().setStage(stage);
+      assertStats(context, wolf, stage, 0.5, "An undead " + stage);
+    }
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
+  public void anUndeadDireWolfSavedWithTheFullStageBonusLoadsAtHalfStats(
+      final TestContext context) {
+    final DireWolfGrowthStage stage = DireWolfGrowthStage.ADULT;
+    final UnleashedDogBreed.Attributes base = UnleashedDogBreed.DIRE_WOLF.attributes();
+    final UnleashedDogEntity wolf = context.spawnEntity(ModEntities.ZOMBIE_DIRE_WOLF, REL_DOG);
+    wolf.setAiDisabled(true);
+    wolf.getGrowth().setStage(stage);
+    wolf.getUndeadState().applyAttributeScaling();
+    overwriteBonus(
+        wolf,
+        EntityAttributes.GENERIC_MAX_HEALTH,
+        DogGrowth.MAX_HEALTH_MODIFIER_ID,
+        stage.maxHealth() - base.maxHealth());
+    overwriteBonus(
+        wolf,
+        EntityAttributes.GENERIC_ATTACK_DAMAGE,
+        DogGrowth.ATTACK_DAMAGE_MODIFIER_ID,
+        stage.attackDamage() - base.attackDamage());
+    wolf.setHealth(wolf.getMaxHealth());
+    final UnleashedDogEntity reloaded =
+        context.spawnEntity(ModEntities.ZOMBIE_DIRE_WOLF, REL_DOG.east(2));
+    reloaded.setAiDisabled(true);
+
+    reloaded.readNbt(wolf.writeNbt(new NbtCompound()));
+
+    assertStats(context, reloaded, stage, 0.5, "An undead adult loaded from an old save");
+    context.assertTrue(
+        reloaded.getHealth() <= reloaded.getMaxHealth(),
+        "Health " + reloaded.getHealth() + " must be capped at " + reloaded.getMaxHealth());
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
+  public void aCuredDireWolfGetsItsFullStageStatsBack(final TestContext context) {
+    final UnleashedDogEntity wolf = context.spawnEntity(ModEntities.ZOMBIE_DIRE_WOLF, REL_DOG);
+    wolf.setAiDisabled(true);
+    wolf.getGrowth().setStage(DireWolfGrowthStage.PRIME);
+    wolf.getUndeadState().applyAttributeScaling();
+    final UUID uuid = wolf.getUuid();
+
+    wolf.getCuring().restoreFromSave(1, null);
+
+    context.waitAndRun(
+        5,
+        () -> {
+          final UnleashedDogEntity cured = dogByUuid(context, uuid);
+          context.assertTrue(
+              cured != null && !cured.isUndead(), "The dire wolf should have been cured");
+          assertStats(context, cured, DireWolfGrowthStage.PRIME, 1.0, "A cured prime");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
   public void aLivingDogCannotBeCured(final TestContext context) {
     final UnleashedDogEntity dog = context.spawnEntity(ModEntities.HUSKY, REL_DOG);
     dog.setAiDisabled(true);
@@ -394,6 +468,32 @@ public final class UndeadDogGameTest implements FabricGameTest {
     pet.syncFrom(dog);
     PetManager.get(world.getServer()).registerPet(pet);
     return pet;
+  }
+
+  private static void assertStats(
+      final TestContext context,
+      final UnleashedDogEntity wolf,
+      final DireWolfGrowthStage stage,
+      final double scale,
+      final String label) {
+    final double health = wolf.getMaxHealth();
+    final double damage = wolf.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
+    context.assertTrue(
+        Math.abs(health - stage.maxHealth() * scale) < 0.001,
+        label + " should have " + stage.maxHealth() * scale + " max health, not " + health);
+    context.assertTrue(
+        Math.abs(damage - stage.attackDamage() * scale) < 0.001,
+        label + " should deal " + stage.attackDamage() * scale + " damage, not " + damage);
+  }
+
+  private static void overwriteBonus(
+      final UnleashedDogEntity wolf,
+      final RegistryEntry<EntityAttribute> attribute,
+      final Identifier id,
+      final double amount) {
+    wolf.getAttributeInstance(attribute)
+        .overwritePersistentModifier(
+            new EntityAttributeModifier(id, amount, EntityAttributeModifier.Operation.ADD_VALUE));
   }
 
   private static UnleashedDogEntity dogByUuid(final TestContext context, final UUID uuid) {
