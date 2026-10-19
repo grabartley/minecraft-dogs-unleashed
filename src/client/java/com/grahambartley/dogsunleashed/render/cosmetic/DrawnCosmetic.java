@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.item.cosmetic.DogCosmetic;
 import com.grahambartley.dogsunleashed.item.cosmetic.DogCosmeticItem;
+import com.grahambartley.dogsunleashed.item.cosmetic.MobHead;
 import java.util.Optional;
 import java.util.function.Predicate;
 import net.minecraft.util.Identifier;
@@ -18,6 +19,16 @@ public final class DrawnCosmetic {
         dog.isInvisible(),
         DogCosmeticItem.cosmeticOf(dog.getEquipmentHolder().getStack(DogEquipmentSlot.COSMETIC)),
         GeckoLibCache.getBakedModels()::containsKey);
+  }
+
+  public static Optional<MobHead> mobHeadOn(final UnleashedDogEntity dog) {
+    return mobHeadOf(
+        dog.isInvisible(),
+        MobHead.of(dog.getEquipmentHolder().getStack(DogEquipmentSlot.COSMETIC)));
+  }
+
+  static Optional<MobHead> mobHeadOf(final boolean invisible, final Optional<MobHead> worn) {
+    return invisible ? Optional.empty() : worn;
   }
 
   static Optional<DogCosmetic> of(

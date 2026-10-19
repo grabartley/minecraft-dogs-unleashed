@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.render.cosmetic;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.item.cosmetic.MobHead;
@@ -38,11 +39,22 @@ class MobHeadMotionTest {
   }
 
   @Test
-  @DisplayName("the dragon jaw opens and shuts once per bark, as a powered dragon head does")
+  @DisplayName(
+      "the dragon jaw opens and shuts exactly once per bark, as a powered dragon head does")
   void dragonJawOpensOnce() {
-    for (float tick = 0.0f; tick <= MobHeadMotion.BARK_TICKS; tick += 0.25f) {
-      assertTrue(dragonJawPitch(MobHeadMotion.progress(MobHead.DRAGON, 0.0f, tick)) >= -EPSILON);
+    int openings = 0;
+    boolean open = false;
+    for (float tick = 0.0f; tick <= MobHeadMotion.BARK_TICKS + 5.0f; tick += 0.1f) {
+      final boolean nowOpen =
+          dragonJawPitch(MobHeadMotion.progress(MobHead.DRAGON, 0.0f, tick)) > 0.2f;
+      if (nowOpen && !open) {
+        openings++;
+      }
+      open = nowOpen;
     }
+
+    assertEquals(1, openings);
+    assertFalse(open);
   }
 
   @Test

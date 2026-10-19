@@ -2,13 +2,16 @@ package com.grahambartley.dogsunleashed.render.layer;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.item.cosmetic.MobHead;
+import com.grahambartley.dogsunleashed.render.cosmetic.DrawnCosmetic;
 import com.grahambartley.dogsunleashed.render.cosmetic.MobHeadFit;
 import com.grahambartley.dogsunleashed.render.cosmetic.MobHeadFits;
 import com.grahambartley.dogsunleashed.render.cosmetic.MobHeadMotion;
 import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
 import net.minecraft.block.AbstractSkullBlock;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SkullBlock;
 import net.minecraft.client.render.OverlayTexture;
@@ -34,6 +37,8 @@ public class DogMobHeadLayer extends GeoRenderLayer<UnleashedDogEntity> {
 
   private final MobHeadFits fits;
   private final Map<SkullBlock.SkullType, SkullBlockEntityModel> skullModels;
+  private final Map<MobHead, SkullBlock.SkullType> skullTypes = new EnumMap<>(MobHead.class);
+  private final Map<MobHead, BlockState> blockStates = new EnumMap<>(MobHead.class);
   private final BlockRenderManager blocks;
 
   private Optional<MobHead> frameHead = Optional.empty();
@@ -47,6 +52,14 @@ public class DogMobHeadLayer extends GeoRenderLayer<UnleashedDogEntity> {
     this.fits = fits;
     this.skullModels = SkullBlockEntityRenderer.getModels(context.getModelLoader());
     this.blocks = context.getBlockRenderManager();
+    for (final MobHead head : MobHead.values()) {
+      final Block block = ((BlockItem) head.item()).getBlock();
+      if (block instanceof AbstractSkullBlock skull) {
+        this.skullTypes.put(head, skull.getSkullType());
+      } else {
+        this.blockStates.put(head, block.getDefaultState());
+      }
+    }
   }
 
   @Override
@@ -60,11 +73,10 @@ public class DogMobHeadLayer extends GeoRenderLayer<UnleashedDogEntity> {
       final float partialTick,
       final int packedLight,
       final int packedOverlay) {
-    this.frameHead = MobHeadFits.drawnOn(animatable);
+    this.frameHead = DrawnCosmetic.mobHeadOn(animatable);
     this.frameFit =
-        this.frameHead.isEmpty()
-            ? Optional.empty()
-            : this.fits.of(bakedModel, RigProfiles.of(animatable.getRigSourceBreed()));
+        this.frameHead.flatMap(
+            head -> this.fits.of(bakedModel, RigProfiles.of(animatable.getRigSourceBreed()), head));
   }
 
   @Override
@@ -89,10 +101,18 @@ public class DogMobHeadLayer extends GeoRenderLayer<UnleashedDogEntity> {
     final Vector3f base = fit.base();
     poseStack.translate(base.x, base.y, base.z);
     poseStack.multiply(fit.restRotation().conjugate());
+    final float scale = fit.edge() / (head.isSkull() ? SKULL_EDGE : BLOCK_EDGE);
+    poseStack.scale(scale, scale, scale * fit.depthStretch());
+    poseStack.translate(-0.5f, 0.0f, -0.5f);
     if (head.isSkull()) {
-      this.drawSkull(poseStack, animatable, head, fit, bufferSource, partialTick, packedLight);
+      this.drawSkull(poseStack, animatable, head, bufferSource, partialTick, packedLight);
     } else {
-      this.drawBlock(poseStack, head, fit, bufferSource, packedLight);
+      this.blocks.renderBlockAsEntity(
+          this.blockStates.get(head),
+          poseStack,
+          bufferSource,
+          packedLight,
+          OverlayTexture.DEFAULT_UV);
     }
     poseStack.pop();
   }
@@ -101,15 +121,10 @@ public class DogMobHeadLayer extends GeoRenderLayer<UnleashedDogEntity> {
       final MatrixStack poseStack,
       final UnleashedDogEntity animatable,
       final MobHead head,
-      final MobHeadFit fit,
       final VertexConsumerProvider bufferSource,
       final float partialTick,
       final int packedLight) {
-    final SkullBlock.SkullType type =
-        ((AbstractSkullBlock) ((BlockItem) head.item()).getBlock()).getSkullType();
-    final float scale = fit.edge() / SKULL_EDGE;
-    poseStack.scale(scale, scale, scale * stretchOf(head, fit));
-    poseStack.translate(-0.5f, 0.0f, -0.5f);
+    final SkullBlock.SkullType type = this.skullTypes.get(head);
     SkullBlockEntityRenderer.renderSkull(
         null,
         0.0f,
@@ -122,23 +137,5 @@ public class DogMobHeadLayer extends GeoRenderLayer<UnleashedDogEntity> {
         packedLight,
         this.skullModels.get(type),
         SkullBlockEntityRenderer.getRenderLayer(type, null));
-  }
-
-  private static float stretchOf(final MobHead head, final MobHeadFit fit) {
-    return head.stretchesOverTheMuzzle() ? fit.depthStretch() : 1.0f;
-  }
-
-  private void drawBlock(
-      final MatrixStack poseStack,
-      final MobHead head,
-      final MobHeadFit fit,
-      final VertexConsumerProvider bufferSource,
-      final int packedLight) {
-    final BlockState state = ((BlockItem) head.item()).getBlock().getDefaultState();
-    final float scale = fit.edge() / BLOCK_EDGE;
-    poseStack.scale(scale, scale, scale * stretchOf(head, fit));
-    poseStack.translate(-0.5f, 0.0f, -0.5f);
-    this.blocks.renderBlockAsEntity(
-        state, poseStack, bufferSource, packedLight, OverlayTexture.DEFAULT_UV);
   }
 }

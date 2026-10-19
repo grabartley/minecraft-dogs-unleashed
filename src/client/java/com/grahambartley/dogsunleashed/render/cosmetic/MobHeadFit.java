@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.render.cosmetic;
 
+import com.grahambartley.dogsunleashed.item.cosmetic.MobHead;
 import com.grahambartley.dogsunleashed.render.rig.CubeGeometry;
 import com.grahambartley.dogsunleashed.render.rig.HeadTopLocator;
 import com.grahambartley.dogsunleashed.render.rig.RestPose;
@@ -19,7 +20,7 @@ public record MobHeadFit(
     Vector3f base,
     Quaternionf restRotation,
     float edge,
-    float depth,
+    float depthStretch,
     Set<String> hiddenEars) {
 
   static final float VANILLA_MARGIN = 1.1875f;
@@ -34,25 +35,20 @@ public record MobHeadFit(
     return new Quaternionf(this.restRotation);
   }
 
-  public static Optional<MobHeadFit> of(final BakedGeoModel dog, final RigProfile profile) {
-    final List<CubeGeometry.Face> faces = SlotBounds.facesIn(dog, profile.bonesIn(Slot.HEAD));
-    if (faces.isEmpty()) {
+  public static Optional<MobHeadFit> of(
+      final BakedGeoModel dog, final RigProfile profile, final MobHead head) {
+    final CubeGeometry.Bounds muzzle = muzzleOf(dog, profile);
+    if (muzzle.isEmpty()) {
       return Optional.empty();
     }
-    final CubeGeometry.Bounds head = SlotBounds.boundsOf(faces);
-    final CubeGeometry.Bounds mouth = SlotBounds.of(dog, profile.bonesIn(Slot.MOUTH));
-    if (!mouth.isEmpty()) {
-      head.include(mouth.min());
-      head.include(mouth.max());
-    }
-    final float edge = edgeFor(head);
-    final float depth = depthFor(head, edge);
-    final Vector3f base = baseOf(head, edge);
-    final CubeGeometry.Bounds box = boxOf(base, edge, depth);
+    final float edge = edgeFor(muzzle);
+    final float depthStretch = head.stretchesOverTheMuzzle() ? depthStretchFor(muzzle, edge) : 1.0f;
+    final Vector3f base = baseOf(muzzle, edge);
+    final CubeGeometry.Bounds drawn = MobHeadShape.placed(head, base, edge, depthStretch);
     final Set<String> hidden = new HashSet<>();
     for (final Slot ear : List.of(Slot.EAR_LEFT, Slot.EAR_RIGHT)) {
       final Set<String> bones = profile.bonesIn(ear);
-      if (overlaps(SlotBounds.of(dog, bones), box)) {
+      if (SlotBounds.of(dog, bones).overlaps(drawn)) {
         hidden.addAll(bones);
       }
     }
@@ -65,9 +61,22 @@ public record MobHeadFit(
                   pose.local(base),
                   pose.rotation(),
                   edge,
-                  depth,
+                  depthStretch,
                   Set.copyOf(hidden));
             });
+  }
+
+  static CubeGeometry.Bounds muzzleOf(final BakedGeoModel dog, final RigProfile profile) {
+    final CubeGeometry.Bounds muzzle = SlotBounds.of(dog, profile.bonesIn(Slot.HEAD));
+    if (muzzle.isEmpty()) {
+      return muzzle;
+    }
+    final CubeGeometry.Bounds mouth = SlotBounds.of(dog, profile.bonesIn(Slot.MOUTH));
+    if (!mouth.isEmpty()) {
+      muzzle.include(mouth.min());
+      muzzle.include(mouth.max());
+    }
+    return muzzle;
   }
 
   static float edgeFor(final CubeGeometry.Bounds head) {
@@ -75,36 +84,12 @@ public record MobHeadFit(
     return Math.max(size.x, size.y) * VANILLA_MARGIN;
   }
 
-  static float depthFor(final CubeGeometry.Bounds head, final float edge) {
-    return Math.max(edge, (head.max().z - head.min().z) * VANILLA_MARGIN);
-  }
-
-  public float depthStretch() {
-    return this.depth / this.edge;
+  static float depthStretchFor(final CubeGeometry.Bounds head, final float edge) {
+    return Math.max(1.0f, (head.max().z - head.min().z) * VANILLA_MARGIN / edge);
   }
 
   static Vector3f baseOf(final CubeGeometry.Bounds head, final float edge) {
     final Vector3f centre = head.center();
     return new Vector3f(centre.x, centre.y - edge * 0.5f, centre.z);
-  }
-
-  static CubeGeometry.Bounds boxOf(final Vector3f base, final float edge, final float depth) {
-    final float half = edge * 0.5f;
-    final float halfDepth = depth * 0.5f;
-    final CubeGeometry.Bounds box = new CubeGeometry.Bounds();
-    box.include(new Vector3f(base.x - half, base.y, base.z - halfDepth));
-    box.include(new Vector3f(base.x + half, base.y + edge, base.z + halfDepth));
-    return box;
-  }
-
-  static boolean overlaps(final CubeGeometry.Bounds a, final CubeGeometry.Bounds b) {
-    return !a.isEmpty()
-        && !b.isEmpty()
-        && a.min().x < b.max().x
-        && a.max().x > b.min().x
-        && a.min().y < b.max().y
-        && a.max().y > b.min().y
-        && a.min().z < b.max().z
-        && a.max().z > b.min().z;
   }
 }

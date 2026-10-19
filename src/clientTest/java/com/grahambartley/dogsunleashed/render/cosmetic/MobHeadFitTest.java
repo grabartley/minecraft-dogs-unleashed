@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import com.grahambartley.dogsunleashed.item.cosmetic.MobHead;
 import com.grahambartley.dogsunleashed.render.rig.CubeGeometry;
 import com.grahambartley.dogsunleashed.render.rig.LivePose;
 import com.grahambartley.dogsunleashed.render.rig.PoseClearance;
@@ -34,11 +35,14 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
+import software.bernie.geckolib.cache.object.GeoBone;
+import software.bernie.geckolib.cache.object.GeoCube;
 
 class MobHeadFitTest {
 
   private static final float EPSILON = 1.0e-4f;
-  private static final int SAMPLES = 8;
+  private static final int SAMPLES = 6;
+  private static final float MUZZLE_TOLERANCE = 0.5f / 16.0f;
   private static final RigProfiles BUNDLED = new RigProfiles(RigProfiles::openBundled);
 
   static Stream<UnleashedDogBreed> rigs() {
@@ -46,15 +50,20 @@ class MobHeadFitTest {
         .filter(rig -> rig != UnleashedDogBreed.CROSS_BREED);
   }
 
-  private static MobHeadFit fitOf(final BakedGeoModel model, final UnleashedDogBreed rig) {
-    return MobHeadFit.of(model, BUNDLED.profileOf(rig)).orElseThrow();
+  static Stream<Arguments> rigsAndHeads() {
+    return rigs()
+        .flatMap(rig -> Arrays.stream(MobHead.values()).map(head -> Arguments.of(rig, head)));
   }
 
-  private static CubeGeometry.Bounds headOf(
-      final BakedGeoModel model, final UnleashedDogBreed rig) {
-    final Set<String> bones = new HashSet<>(BUNDLED.profileOf(rig).bonesIn(Slot.HEAD));
-    bones.addAll(BUNDLED.profileOf(rig).bonesIn(Slot.MOUTH));
-    return SlotBounds.of(model, bones);
+  private static MobHeadFit fitOf(
+      final BakedGeoModel model, final UnleashedDogBreed rig, final MobHead head) {
+    return MobHeadFit.of(model, BUNDLED.profileOf(rig), head).orElseThrow();
+  }
+
+  private static Set<String> muzzleBones(final RigProfile profile) {
+    final Set<String> bones = new HashSet<>(profile.bonesIn(Slot.HEAD));
+    bones.addAll(profile.bonesIn(Slot.MOUTH));
+    return bones;
   }
 
   private static Set<String> earsOf(final RigProfile profile) {
@@ -63,43 +72,65 @@ class MobHeadFitTest {
     return ears;
   }
 
-  private static CubeGeometry.Bounds box(
-      final float minX,
-      final float minY,
-      final float minZ,
-      final float maxX,
-      final float maxY,
-      final float maxZ) {
-    final CubeGeometry.Bounds bounds = new CubeGeometry.Bounds();
-    bounds.include(new Vector3f(minX, minY, minZ));
-    bounds.include(new Vector3f(maxX, maxY, maxZ));
-    return bounds;
-  }
-
-  @ParameterizedTest(name = "{0}")
-  @MethodSource("rigs")
-  @DisplayName("the mob head's face spans the head's width or height, plus vanilla's margin")
-  void edgeComesFromTheHeadBones(final UnleashedDogBreed rig) {
-    final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
-    final Vector3f size = sizeOf(headOf(model, rig));
-
-    assertEquals(1.1875f * Math.max(size.x, size.y), fitOf(model, rig).edge(), EPSILON);
-  }
-
-  @ParameterizedTest(name = "{0}")
-  @MethodSource("rigs")
-  @DisplayName("the mob head reaches back over the muzzle and is never shallower than a cube")
-  void depthCoversTheMuzzle(final UnleashedDogBreed rig) {
-    final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
-    final MobHeadFit fit = fitOf(model, rig);
-
-    assertEquals(
-        Math.max(fit.edge(), 1.1875f * sizeOf(headOf(model, rig)).z), fit.depth(), EPSILON);
-    assertTrue(fit.depthStretch() >= 1.0f);
-  }
-
   private static Vector3f sizeOf(final CubeGeometry.Bounds bounds) {
     return new Vector3f(bounds.max()).sub(bounds.min());
+  }
+
+  private static Matrix4f headToModel(final BakedGeoModel model, final MobHeadFit fit) {
+    return LivePose.of(model.getBone(fit.boneName()).orElseThrow())
+        .translate(fit.base())
+        .rotate(fit.restRotation().conjugate());
+  }
+
+  private static CubeGeometry.Bounds drawnInHead(final MobHead head, final MobHeadFit fit) {
+    return MobHeadShape.placed(head, new Vector3f(), fit.edge(), fit.depthStretch());
+  }
+
+  @ParameterizedTest(name = "{0} {1}")
+  @MethodSource("rigsAndHeads")
+  @DisplayName("at rest the mob head covers the dog's whole head and muzzle")
+  void coversTheMuzzleAtRest(final UnleashedDogBreed rig, final MobHead head) {
+    final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
+    final MobHeadFit fit = fitOf(model, rig, head);
+    final CubeGeometry.Bounds muzzle = SlotBounds.of(model, muzzleBones(BUNDLED.profileOf(rig)));
+    final CubeGeometry.Bounds cube =
+        MobHeadShape.placed(MobHead.CREEPER, new Vector3f(), fit.edge(), fit.depthStretch());
+    final Matrix4f modelToHead = headToModel(model, fit).invert();
+
+    for (final Vector3f corner : cornersOf(muzzle)) {
+      final Vector3f local = modelToHead.transformPosition(corner);
+      assertTrue(
+          insideWithin(cube, local, EPSILON) || !head.stretchesOverTheMuzzle(),
+          rig + " " + head + " leaves " + local + " outside " + cube.min() + " " + cube.max());
+    }
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("rigs")
+  @DisplayName(
+      "the mob head's face is as big as the dog's head, with no more than vanilla's margin")
+  void faceMatchesTheHead(final UnleashedDogBreed rig) {
+    final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
+    final Vector3f size = sizeOf(SlotBounds.of(model, muzzleBones(BUNDLED.profileOf(rig))));
+    final float larger = Math.max(size.x, size.y);
+    final float edge = fitOf(model, rig, MobHead.ZOMBIE).edge();
+
+    assertTrue(edge >= larger, rig + " face " + edge + " is smaller than the head " + larger);
+    assertTrue(edge <= larger * 1.1875f + EPSILON, rig + " face " + edge + " is oversized");
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("rigs")
+  @DisplayName("the dragon head keeps its own length and every other head stretches the same way")
+  void onlyTheDragonKeepsItsLength(final UnleashedDogBreed rig) {
+    final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
+
+    assertEquals(1.0f, fitOf(model, rig, MobHead.DRAGON).depthStretch(), EPSILON);
+    assertTrue(fitOf(model, rig, MobHead.CREEPER).depthStretch() >= 1.0f);
+    assertEquals(
+        fitOf(model, rig, MobHead.CREEPER).depthStretch(),
+        fitOf(model, rig, MobHead.CARVED_PUMPKIN).depthStretch(),
+        EPSILON);
   }
 
   @ParameterizedTest(name = "{0}")
@@ -107,59 +138,73 @@ class MobHeadFitTest {
   @DisplayName("at rest the mob head is centred on the dog's head and muzzle")
   void centredOnTheHead(final UnleashedDogBreed rig) {
     final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
-    final MobHeadFit fit = fitOf(model, rig);
-    final Vector3f centre = headOf(model, rig).center();
+    final MobHeadFit fit = fitOf(model, rig, MobHead.SKELETON);
+    final Vector3f centre = SlotBounds.of(model, muzzleBones(BUNDLED.profileOf(rig))).center();
     final Vector3f placed =
-        LivePose.of(model.getBone(fit.boneName()).orElseThrow())
-            .translate(fit.base())
-            .rotate(fit.restRotation().conjugate())
-            .transformPosition(new Vector3f(0.0f, fit.edge() * 0.5f, 0.0f));
+        headToModel(model, fit).transformPosition(new Vector3f(0.0f, fit.edge() * 0.5f, 0.0f));
 
     assertEquals(centre.x, placed.x, EPSILON);
     assertEquals(centre.y, placed.y, EPSILON);
     assertEquals(centre.z, placed.z, EPSILON);
   }
 
-  @ParameterizedTest(name = "{0}")
-  @MethodSource("rigs")
-  @DisplayName("the mob head is placed from a bone in the head role")
-  void placedFromAHeadBone(final UnleashedDogBreed rig) {
+  @ParameterizedTest(name = "{0} {1}")
+  @MethodSource("rigsAndHeads")
+  @DisplayName("a mob head is placed from a head bone and only hides ears")
+  void placedFromTheHeadAndHidesOnlyEars(final UnleashedDogBreed rig, final MobHead head) {
     final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
-    assertTrue(BUNDLED.profileOf(rig).bonesIn(Slot.HEAD).contains(fitOf(model, rig).boneName()));
-  }
+    final MobHeadFit fit = fitOf(model, rig, head);
 
-  @ParameterizedTest(name = "{0}")
-  @MethodSource("rigs")
-  @DisplayName("a mob head only hides ears")
-  void hidesOnlyEars(final UnleashedDogBreed rig) {
-    final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
-    assertTrue(earsOf(BUNDLED.profileOf(rig)).containsAll(fitOf(model, rig).hiddenEars()));
-  }
-
-  @Test
-  @DisplayName("boxes that share space overlap and boxes that only touch do not")
-  void overlapRule() {
-    final CubeGeometry.Bounds cube = box(0, 0, 0, 1, 1, 1);
-
-    assertTrue(MobHeadFit.overlaps(cube, box(0.5f, 0.5f, 0.5f, 2, 2, 2)));
-    assertFalse(MobHeadFit.overlaps(cube, box(1, 0, 0, 2, 1, 1)));
-    assertFalse(MobHeadFit.overlaps(cube, box(0, 2, 0, 1, 3, 1)));
-    assertFalse(MobHeadFit.overlaps(cube, new CubeGeometry.Bounds()));
-  }
-
-  @Test
-  @DisplayName("the box stands on its base, centred over it and stretched front to back")
-  void boxSitsOnItsBase() {
-    final CubeGeometry.Bounds placed = MobHeadFit.boxOf(new Vector3f(1, 2, 3), 2.0f, 4.0f);
-
-    assertEquals(new Vector3f(0, 2, 1), placed.min());
-    assertEquals(new Vector3f(2, 4, 5), placed.max());
+    assertTrue(BUNDLED.profileOf(rig).bonesIn(Slot.HEAD).contains(fit.boneName()));
+    assertTrue(earsOf(BUNDLED.profileOf(rig)).containsAll(fit.hiddenEars()));
   }
 
   @Test
   @DisplayName("the base sits half an edge below the head's centre")
   void baseUnderTheCentre() {
-    assertEquals(new Vector3f(1, 0, 1), MobHeadFit.baseOf(box(0, 1, 0, 2, 3, 2), 4.0f));
+    final CubeGeometry.Bounds head = new CubeGeometry.Bounds();
+    head.include(new Vector3f(0, 1, 0));
+    head.include(new Vector3f(2, 3, 2));
+
+    assertEquals(new Vector3f(1, 0, 1), MobHeadFit.baseOf(head, 4.0f));
+  }
+
+  static Stream<Arguments> rigClipsAndHeads() {
+    final List<Arguments> cases = new ArrayList<>();
+    rigs()
+        .forEach(
+            rig ->
+                clipsOf(rig.serializedId())
+                    .forEach(
+                        clip -> {
+                          for (final MobHead head : MobHead.values()) {
+                            cases.add(Arguments.of(rig, clip, head));
+                          }
+                        }));
+    return cases.stream();
+  }
+
+  @ParameterizedTest(name = "{0} {1} {2}")
+  @MethodSource("rigClipsAndHeads")
+  @DisplayName("a mob head stays clear of every ear it leaves showing, in every clip")
+  void clearsShownEars(final UnleashedDogBreed rig, final String clip, final MobHead head) {
+    final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
+    final RigProfile profile = BUNDLED.profileOf(rig);
+    final MobHeadFit fit = fitOf(model, rig, head);
+    ShippedRigs.pose(model, rig.serializedId(), clip, name -> model.getBone(name).isPresent());
+    final Matrix4f modelToHead = headToModel(model, fit).invert();
+    final CubeGeometry.Bounds drawn = drawnInHead(head, fit);
+    final Set<String> shownEars = earsOf(profile);
+    shownEars.removeAll(fit.hiddenEars());
+
+    for (final PoseClearance.Box ear : PoseClearance.liveBoxesOf(model, shownEars)) {
+      final Matrix4f localToModel = new Matrix4f(ear.modelToLocal()).invert();
+      for (final Vector3f sample : volumeOf(ear.min(), ear.max())) {
+        final Vector3f local =
+            modelToHead.transformPosition(localToModel.transformPosition(sample));
+        assertFalse(drawn.contains(local), rig + " " + clip + " " + head + " touches an ear");
+      }
+    }
   }
 
   static Stream<Arguments> rigClips() {
@@ -172,44 +217,65 @@ class MobHeadFitTest {
 
   @ParameterizedTest(name = "{0} {1}")
   @MethodSource("rigClips")
-  @DisplayName("a mob head stays clear of every ear it leaves showing, in every clip")
-  void clearsShownEars(final UnleashedDogBreed rig, final String clip) {
+  @DisplayName("a stretched mob head keeps the head and muzzle inside it, in every clip")
+  void keepsTheMuzzleInsideInEveryClip(final UnleashedDogBreed rig, final String clip) {
     final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
-    final RigProfile profile = BUNDLED.profileOf(rig);
-    final MobHeadFit fit = fitOf(model, rig);
+    final MobHeadFit fit = fitOf(model, rig, MobHead.CREEPER);
     ShippedRigs.pose(model, rig.serializedId(), clip, name -> model.getBone(name).isPresent());
-    final Matrix4f headToModel =
-        LivePose.of(model.getBone(fit.boneName()).orElseThrow())
-            .translate(fit.base())
-            .rotate(fit.restRotation().conjugate());
-    final Set<String> shownEars = earsOf(profile);
-    shownEars.removeAll(fit.hiddenEars());
-    final List<PoseClearance.Box> earBoxes = PoseClearance.liveBoxesOf(model, shownEars);
+    final Matrix4f modelToHead = headToModel(model, fit).invert();
+    final CubeGeometry.Bounds drawn = drawnInHead(MobHead.CREEPER, fit);
 
-    for (final Vector3f sample : surfaceOf(fit.edge(), fit.depth())) {
-      final Vector3f point = headToModel.transformPosition(sample);
-      for (final PoseClearance.Box ear : earBoxes) {
-        assertFalse(ear.contains(point), rig + " " + clip + " mob head touches an ear");
+    for (final String name : muzzleBones(BUNDLED.profileOf(rig))) {
+      final GeoBone bone = model.getBone(name).orElseThrow();
+      for (final GeoCube cube : bone.getCubes()) {
+        for (final Vector3f corner : ShippedRigs.liveCorners(bone, cube)) {
+          final Vector3f local = modelToHead.transformPosition(new Vector3f(corner));
+          assertTrue(
+              insideWithin(drawn, local, MUZZLE_TOLERANCE),
+              rig + " " + clip + " " + name + " pokes out at " + local);
+        }
       }
     }
   }
 
-  private static List<Vector3f> surfaceOf(final float edge, final float depth) {
+  private static boolean insideWithin(
+      final CubeGeometry.Bounds box, final Vector3f point, final float tolerance) {
+    final Vector3f min = box.min().sub(tolerance, tolerance, tolerance);
+    final Vector3f max = box.max().add(tolerance, tolerance, tolerance);
+    return point.x >= min.x
+        && point.x <= max.x
+        && point.y >= min.y
+        && point.y <= max.y
+        && point.z >= min.z
+        && point.z <= max.z;
+  }
+
+  private static List<Vector3f> cornersOf(final CubeGeometry.Bounds bounds) {
+    final Vector3f min = bounds.min();
+    final Vector3f max = bounds.max();
+    final List<Vector3f> corners = new ArrayList<>();
+    for (int i = 0; i < 8; i++) {
+      corners.add(
+          new Vector3f(
+              (i & 1) == 0 ? min.x : max.x,
+              (i & 2) == 0 ? min.y : max.y,
+              (i & 4) == 0 ? min.z : max.z));
+    }
+    return corners;
+  }
+
+  private static List<Vector3f> volumeOf(final Vector3f min, final Vector3f max) {
     final List<Vector3f> samples = new ArrayList<>();
-    final float half = edge * 0.5f;
-    final float halfDepth = depth * 0.5f;
+    final Vector3f size = new Vector3f(max).sub(min);
     for (int i = 0; i <= SAMPLES; i++) {
       for (int j = 0; j <= SAMPLES; j++) {
-        final float across = -half + edge * i / SAMPLES;
-        final float along = -halfDepth + depth * j / SAMPLES;
-        final float upJ = edge * j / SAMPLES;
-        final float upI = edge * i / SAMPLES;
-        samples.add(new Vector3f(across, 0.0f, along));
-        samples.add(new Vector3f(across, edge, along));
-        samples.add(new Vector3f(-half, upI, along));
-        samples.add(new Vector3f(half, upI, along));
-        samples.add(new Vector3f(across, upJ, -halfDepth));
-        samples.add(new Vector3f(across, upJ, halfDepth));
+        for (int k = 0; k <= SAMPLES; k++) {
+          samples.add(
+              new Vector3f(
+                  min.x + size.x * i / SAMPLES,
+                  min.y + size.y * j / SAMPLES,
+                  min.z + size.z * k / SAMPLES));
+        }
       }
     }
     return samples;

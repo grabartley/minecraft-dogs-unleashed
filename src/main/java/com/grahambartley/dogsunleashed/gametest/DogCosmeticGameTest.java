@@ -227,12 +227,29 @@ public final class DogCosmeticGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
-  public void aBarkStatusRestartsTheBarkClock(final TestContext context) {
-    final UnleashedDogEntity dog = DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS);
+  public void aRealBarkRestartsTheBarkClock(final TestContext context) {
+    final UnleashedDogEntity dog =
+        DogTestHelper.spawnTamedDog(context, DogTestData.BEAGLE, DOG_POS);
     dog.setAiDisabled(true);
     context.assertTrue(
         dog.getVocalization().ticksSinceBark(0.0f) > 1000.0f,
         "A dog that never barked should read as long past its last bark");
+
+    dog.damage(dog.getDamageSources().generic(), 1.0f);
+
+    context.assertTrue(
+        dog.getVocalization().getBarkCooldownTicks() > 0, "A hurt beagle should have barked");
+    context.assertTrue(
+        dog.getVocalization().ticksSinceBark(0.5f) == 0.5f,
+        "A bark should restart the bark clock but reads "
+            + dog.getVocalization().ticksSinceBark(0.5f));
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void aBarkStatusRestartsTheBarkClockOnTheClient(final TestContext context) {
+    final UnleashedDogEntity dog = DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS);
+    dog.setAiDisabled(true);
 
     dog.handleStatus(DogVocalization.BARK_STATUS);
 

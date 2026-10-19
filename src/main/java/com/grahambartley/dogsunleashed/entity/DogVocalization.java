@@ -137,6 +137,7 @@ public final class DogVocalization {
 
   private void playBark(final float pitch, final float volume) {
     this.dog.playSound(this.barkSound(), volume, pitch);
+    this.heardBark();
     this.dog.getWorld().sendEntityStatus(this.dog, BARK_STATUS);
     if (this.dog.getRigSourceBreed().barkMovesJaw()) {
       this.dog.triggerAnim(DogAnimationKeys.BARK, DogAnimationKeys.BARK);
