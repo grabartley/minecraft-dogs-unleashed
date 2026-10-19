@@ -69,6 +69,13 @@ class DeathWatchRulesTest {
   }
 
   @ParameterizedTest
+  @CsvSource({"0, 0", "-1, 0", "0.5, 3", "1, 3", "1.5, 3", "3, 3", "4, 4"})
+  void callOutVolumeCarriesAcrossHearingRangeUnlessMuted(
+      final float configuredVolume, final float volume) {
+    assertEquals(volume, DeathWatchRules.callOutVolume(configuredVolume));
+  }
+
+  @ParameterizedTest
   @CsvSource({"-64, -64, true", "100, -64, true", "-65, -64, false", "-200, 0, false"})
   void isGuardableOnlyAboveTheBottomOfTheWorld(
       final int spotY, final int worldBottomY, final boolean guardable) {

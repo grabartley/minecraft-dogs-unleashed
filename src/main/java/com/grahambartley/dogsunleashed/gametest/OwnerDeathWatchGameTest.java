@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModBlocks;
+import com.grahambartley.dogsunleashed.ModConstants;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.DogDeathWatch;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
@@ -27,6 +28,7 @@ public final class OwnerDeathWatchGameTest implements FabricGameTest {
 
   private static final String BATCH = "owner-death-watch";
   private static final String NIGHT_BATCH = "owner-death-watch-night";
+  private static final String DAY_BATCH = "owner-death-watch-day";
   private static final String ARENA = "dogs-unleashed:teleport_arena";
   private static final int FLOOR_Y = 2;
   private static final BlockPos REL_DOG = new BlockPos(2, FLOOR_Y, 2);
@@ -37,7 +39,7 @@ public final class OwnerDeathWatchGameTest implements FabricGameTest {
   private static final BlockPos REL_OWNER_CLOSE = new BlockPos(7, FLOOR_Y, 2);
   private static final BlockPos REL_BED = new BlockPos(1, FLOOR_Y, 2);
   private static final int OBSERVATION_TICK = 100;
-  private static final int SETTLE_TICK = 60;
+  private static final long DAY_TIME = 6000L;
   private static final int TICK_LIMIT = 120;
 
   private static DogDeathWatch watchOf(final UnleashedDogEntity dog) {
@@ -59,6 +61,17 @@ public final class OwnerDeathWatchGameTest implements FabricGameTest {
 
   @AfterBatch(batchId = NIGHT_BATCH)
   public void afterNightBatch(final ServerWorld world) {
+    SleepBatchFixture.teardown(world);
+  }
+
+  @BeforeBatch(batchId = DAY_BATCH)
+  public void beforeDayBatch(final ServerWorld world) {
+    SleepBatchFixture.prepare(world);
+    world.setTimeOfDay(DAY_TIME);
+  }
+
+  @AfterBatch(batchId = DAY_BATCH)
+  public void afterDayBatch(final ServerWorld world) {
     SleepBatchFixture.teardown(world);
   }
 
@@ -153,28 +166,26 @@ public final class OwnerDeathWatchGameTest implements FabricGameTest {
         .completeIfSuccessful();
   }
 
-  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT + SETTLE_TICK)
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT * 2)
   public void dogLyingAtTheSpotGetsUpToFightAHostile(final TestContext context) {
     final UnleashedDogEntity dog =
         dogWatchingSpot(context, ownerAt(context, REL_OWNER_AWAY), DogCommand.FOLLOW);
     final ZombieEntity[] zombie = new ZombieEntity[1];
-    context.runAtTick(
-        SETTLE_TICK,
-        () -> {
-          context.assertTrue(dog.isInSittingPose(), "The dog should be lying at the spot first");
-          zombie[0] = context.spawnEntity(EntityType.ZOMBIE, REL_NEAR_THREAT);
-          zombie[0].setAiDisabled(true);
-        });
 
     context
         .createTimedTaskRunner()
         .createAndAdd(
+            () -> context.assertTrue(dog.isInSittingPose(), "The dog should lie down first"))
+        .createAndAdd(
             () -> {
-              context.assertTrue(zombie[0] != null, "The zombie has not arrived yet");
-              context.assertTrue(
-                  zombie[0].getHealth() < zombie[0].getMaxHealth(),
-                  "A dog lying at the spot should get up and bite a zombie near it");
+              zombie[0] = context.spawnEntity(EntityType.ZOMBIE, REL_NEAR_THREAT);
+              zombie[0].setAiDisabled(true);
             })
+        .createAndAdd(
+            () ->
+                context.assertTrue(
+                    zombie[0].getHealth() < zombie[0].getMaxHealth(),
+                    "A dog lying at the spot should get up and bite a zombie near it"))
         .completeIfSuccessful();
   }
 
@@ -248,10 +259,14 @@ public final class OwnerDeathWatchGameTest implements FabricGameTest {
     context
         .createTimedTaskRunner()
         .createAndAdd(
+            () -> context.assertTrue(watchOf(dog).hasCalledOut(), "The beagle should call out"))
+        .createAndAdd(
+            0,
             () -> {
-              context.assertTrue(watchOf(dog).hasCalledOut(), "The beagle should call out");
               context.assertTrue(
-                  dog.getVocalization().getBarkCooldownTicks() > 0, "The beagle should bark");
+                  dog.getVocalization().getBarkCooldownTicks() == ModConstants.BARK_COOLDOWN_TICKS,
+                  "The beagle should bark as it calls out, cooldown="
+                      + dog.getVocalization().getBarkCooldownTicks());
               context.assertFalse(dog.getAnimationState().isHowling(), "A beagle should not howl");
             })
         .completeIfSuccessful();
@@ -349,5 +364,36 @@ public final class OwnerDeathWatchGameTest implements FabricGameTest {
                     restored.getCommand() == DogCommand.HEEL,
                     "A reloaded dog should go back to HEEL, was " + restored.getCommand()))
         .completeIfSuccessful();
+  }
+
+  @GameTest(templateName = ARENA, batchId = NIGHT_BATCH, tickLimit = 20)
+  public void sendingAWatchingDogToBedEndsTheWatch(final TestContext context) {
+    context.setBlockState(REL_BED, ModBlocks.DOG_BED.getDefaultState());
+    final UnleashedDogEntity dog =
+        dogWatchingSpot(context, ownerAt(context, REL_OWNER_AWAY), DogCommand.HEEL);
+    dog.setAiDisabled(true);
+
+    context.assertTrue(
+        dog.getSleepController().commandToSleep(context.getAbsolutePos(REL_BED)),
+        "The dog should accept the bed at night");
+
+    context.assertFalse(watchOf(dog).isKeepingWatch(), "Going to bed should end the watch");
+    context.assertTrue(dog.getCommand() == DogCommand.HEEL, "The dog should be back on HEEL");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = DAY_BATCH, tickLimit = 20)
+  public void aDogRefusingBedByDayKeepsWatch(final TestContext context) {
+    context.setBlockState(REL_BED, ModBlocks.DOG_BED.getDefaultState());
+    final UnleashedDogEntity dog =
+        dogWatchingSpot(context, ownerAt(context, REL_OWNER_AWAY), DogCommand.HEEL);
+    dog.setAiDisabled(true);
+
+    context.assertFalse(
+        dog.getSleepController().commandToSleep(context.getAbsolutePos(REL_BED)),
+        "The dog should refuse the bed by day");
+
+    context.assertTrue(watchOf(dog).isKeepingWatch(), "A refused bed should leave the watch");
+    context.complete();
   }
 }

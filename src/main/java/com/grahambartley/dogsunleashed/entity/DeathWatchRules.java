@@ -7,6 +7,7 @@ public final class DeathWatchRules {
   public static final double RELIEF_RANGE = 8.0;
   public static final double HEARING_RANGE = 48.0;
   public static final double ARRIVAL_DISTANCE = 1.5;
+  private static final float BLOCKS_PER_UNIT_VOLUME = 16.0f;
 
   private DeathWatchRules() {}
 
@@ -46,6 +47,12 @@ public final class DeathWatchRules {
       return Step.KEEP_WATCH;
     }
     return Step.CALL_OUT;
+  }
+
+  public static float callOutVolume(final float configuredVolume) {
+    return configuredVolume <= 0.0f
+        ? 0.0f
+        : Math.max(configuredVolume, (float) HEARING_RANGE / BLOCKS_PER_UNIT_VOLUME);
   }
 
   public static boolean hasArrived(final double squaredHorizontalDistanceToSpot) {

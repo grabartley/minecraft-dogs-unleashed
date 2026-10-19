@@ -61,6 +61,7 @@ public final class DogSleepController {
     if (!this.dog.isTamed() || !this.canSleepNow()) {
       return false;
     }
+    this.dog.getComponents().get(DogDeathWatch.class).standDown();
     this.setAssignedBedPos(bedPos);
     this.dog.getCommandController().demoteSitToFollow();
     this.autoSleepSuppressedUntil = NOT_SUPPRESSED;
