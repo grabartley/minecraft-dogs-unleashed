@@ -95,7 +95,7 @@ public final class DogVocalization {
     return isBarkReady(
         this.barkSound() != null,
         this.dog.isDead(),
-        this.dog.getSleepController().isSleepingInBed(),
+        this.dog.getSleepController().isAsleep(),
         this.barkCooldownTicks);
   }
 
@@ -148,7 +148,7 @@ public final class DogVocalization {
   private boolean canHowl() {
     return isHowlConditionMet(
             this.dog.isDead(),
-            this.dog.getSleepController().isSleepingInBed(),
+            this.dog.getSleepController().isAsleep(),
             this.dog.getWorld().isDay(),
             this.dog.getWorld().getMoonPhase())
         && this.howlCooldownTicks <= 0;

@@ -10,8 +10,7 @@ final class DogServerTick {
 
   static void run(final UnleashedDogEntity dog) {
     if (dog.isLeashed()
-        && (dog.getSleepController().isSleepingInBed()
-            || dog.getSleepController().isCommandedToSleep())) {
+        && (dog.getSleepController().isAsleep() || dog.getSleepController().isCommandedToSleep())) {
       dog.wakeUp();
     }
     final PlayerEntity nearbyPlayer = dog.getWorld().getClosestPlayer(dog, NEARBY_PLAYER_RANGE);

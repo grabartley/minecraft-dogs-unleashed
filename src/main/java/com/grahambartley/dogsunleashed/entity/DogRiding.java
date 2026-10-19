@@ -83,6 +83,9 @@ public final class DogRiding {
     if (!this.canCarry(player) || !this.isWithinReach(player)) {
       return false;
     }
+    if (this.dog.getSleepController().isNapping()) {
+      this.dog.wakeUp();
+    }
     this.dog.getNavigation().stop();
     this.dog.setTarget(null);
     return player.startRiding(this.dog);
