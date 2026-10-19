@@ -1,4 +1,23 @@
 {
   "type": "minecraft:block",
-  "pools": []
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "dogs-unleashed:frisbee",
+          "functions": [
+            {
+              "function": "minecraft:copy_components",
+              "source": "block_entity",
+              "include": [
+                "dogs-unleashed:frisbee_color"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }
