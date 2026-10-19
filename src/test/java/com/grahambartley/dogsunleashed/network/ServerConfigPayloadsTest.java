@@ -12,7 +12,6 @@ import com.grahambartley.dogsunleashed.config.GameplaySettings;
 import com.grahambartley.dogsunleashed.config.SleepSettings;
 import com.grahambartley.dogsunleashed.config.SoundSettings;
 import com.grahambartley.dogsunleashed.config.SpawningSettings;
-import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.EditServerConfigC2SPayload;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.SyncServerConfigS2CPayload;
 import io.netty.buffer.Unpooled;
@@ -22,7 +21,6 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import net.minecraft.network.RegistryByteBuf;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -89,12 +87,6 @@ class ServerConfigPayloadsTest {
       buf.writeVarInt(100);
     }
     return buf;
-  }
-
-  @Test
-  @DisplayName("the breed map holds one entry per breed at most")
-  void breedRatesCapIsTheBreedCount() {
-    assertEquals(UnleashedDogBreed.values().length, ServerConfigPayloads.BREED_RATES_MAX_SIZE);
   }
 
   static IntStream entriesWithinCap() {

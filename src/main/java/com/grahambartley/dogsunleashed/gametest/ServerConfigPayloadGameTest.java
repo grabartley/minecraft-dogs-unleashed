@@ -30,6 +30,10 @@ public final class ServerConfigPayloadGameTest implements FabricGameTest {
     defaultVolumes.writeFloat(SoundSettings.DEFAULT_HOWL_VOLUME);
     final int offset = ByteBufUtil.indexOf(defaultVolumes, buf);
     context.assertTrue(offset >= 0, "The edit packet must carry the default volumes");
+    context.assertTrue(
+        ByteBufUtil.indexOf(defaultVolumes, buf.slice(offset + 1, buf.writerIndex() - offset - 1))
+            < 0,
+        "The default volumes must appear once in the edit packet");
     buf.setFloat(offset, bark);
     buf.setFloat(offset + Float.BYTES, howl);
     return buf;

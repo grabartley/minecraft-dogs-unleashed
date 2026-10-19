@@ -22,10 +22,9 @@ public final class ConfigBounds {
 
   static void warnIfOutside(
       final String key, final Number value, final Number min, final Number max) {
-    final double number = value.doubleValue();
-    if (!Double.isFinite(number) || number < min.doubleValue() || number > max.doubleValue()) {
+    if (value.doubleValue() < min.doubleValue() || value.doubleValue() > max.doubleValue()) {
       LOGGER.warn(
-          "Dogs Unleashed config value {}={} out of range [{}, {}], correcting",
+          "Dogs Unleashed config value {}={} out of range [{}, {}], clamping",
           key,
           value,
           min,
