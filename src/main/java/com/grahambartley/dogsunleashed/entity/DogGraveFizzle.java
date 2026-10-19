@@ -20,7 +20,6 @@ public final class DogGraveFizzle {
 
   public static void play(
       final ServerWorld world, final BlockPos gravePos, final DogGraveBlockEntity grave) {
-    grave.setLost(true);
     world.playSound(
         null, gravePos, SoundEvents.BLOCK_FIRE_EXTINGUISH, SoundCategory.BLOCKS, 1.0f, 0.8f);
     world.spawnParticles(

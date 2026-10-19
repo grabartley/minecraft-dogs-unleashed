@@ -40,7 +40,10 @@ public final class ResurrectionRitualListener {
         bolt.setCosmetic(true);
         DogsUnleashed.runNextTick(() -> resurrectAt(world, gravePos));
       }
-      case FIZZLE -> DogGraveFizzle.play(world, gravePos, grave);
+      case FIZZLE -> {
+        grave.setLost(true);
+        DogGraveFizzle.play(world, gravePos, grave);
+      }
       case NOTHING -> {}
     }
   }

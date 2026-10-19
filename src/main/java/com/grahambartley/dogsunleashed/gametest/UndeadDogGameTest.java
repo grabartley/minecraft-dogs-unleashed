@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.ModSounds;
+import com.grahambartley.dogsunleashed.block.entity.DogGraveBlockEntity;
 import com.grahambartley.dogsunleashed.entity.DireWolfGrowthStage;
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.DogGrowth;
@@ -10,6 +11,8 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import com.grahambartley.dogsunleashed.pet.PetManager;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -138,6 +141,8 @@ public final class UndeadDogGameTest implements FabricGameTest {
     context.assertTrue(
         pet.getLifeState() == PetLifeState.LOST,
         "A pet that dies while undead must be lost for good, but it was " + pet.getLifeState());
+    final DogGraveBlockEntity grave = onlyGraveFor(context, dog.getUuid());
+    context.assertTrue(grave.isLost(), "A grave left by an undead death should be lost");
     context.complete();
   }
 
@@ -154,6 +159,8 @@ public final class UndeadDogGameTest implements FabricGameTest {
     context.assertTrue(
         pet.getLifeState() == PetLifeState.DECEASED,
         "A pet that dies alive should be resurrectable, but it was " + pet.getLifeState());
+    final DogGraveBlockEntity grave = onlyGraveFor(context, dog.getUuid());
+    context.assertTrue(!grave.isLost(), "A living dog's grave should still be raisable");
     context.complete();
   }
 
@@ -435,6 +442,21 @@ public final class UndeadDogGameTest implements FabricGameTest {
     final UnleashedDogEntity dog = context.spawnEntity(ModEntities.ZOMBIE_HUSKY, REL_DOG);
     dog.setAiDisabled(true);
     return dog;
+  }
+
+  private static DogGraveBlockEntity onlyGraveFor(final TestContext context, final UUID dogId) {
+    final List<DogGraveBlockEntity> graves = new ArrayList<>();
+    context.forEachRelativePos(
+        pos -> {
+          if (context.getWorld().getBlockEntity(context.getAbsolutePos(pos))
+                  instanceof DogGraveBlockEntity grave
+              && dogId.equals(grave.getDogUuid())) {
+            graves.add(grave);
+          }
+        });
+    context.assertTrue(
+        graves.size() == 1, "The dead dog should leave one grave, not " + graves.size());
+    return graves.get(0);
   }
 
   private static UnleashedDogEntity spawnOwnedUndeadDog(final TestContext context) {

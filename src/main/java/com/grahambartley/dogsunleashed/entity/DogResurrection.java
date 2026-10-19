@@ -48,7 +48,12 @@ public final class DogResurrection {
 
   private static @Nullable PetData resurrectablePet(
       final ServerWorld world, final DogGraveBlockEntity grave) {
-    return ritualOutcome(world, grave) == GraveRitualOutcome.RAISE ? buriedPet(world, grave) : null;
+    final PetData petData = buriedPet(world, grave);
+    return petData != null
+            && GraveRitualOutcome.decide(grave.hasTotem(), grave.isLost(), petData.getLifeState())
+                == GraveRitualOutcome.RAISE
+        ? petData
+        : null;
   }
 
   public static boolean resurrect(

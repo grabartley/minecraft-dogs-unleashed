@@ -13,12 +13,15 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
+import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
@@ -401,6 +404,33 @@ public final class DogGraveGameTest implements FabricGameTest {
     final DogGraveBlockEntity grave = context.getBlockEntity(REL_GRAVE);
     context.assertTrue(grave.isLost(), "A placed lost grave should stay lost");
     context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 20)
+  public void aLostGraveItemSaysItsDogCannotComeBack(final TestContext context) {
+    final ItemStack stack = new ItemStack(ModItems.DOG_GRAVE);
+    stack.set(ModComponents.DOG_GRAVE_LOST, true);
+
+    context.assertTrue(
+        hasLostLine(stack), "A lost grave's tooltip should say its dog can't come back");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 20)
+  public void aGraveItemThatIsNotLostSaysNothingAboutIt(final TestContext context) {
+    final ItemStack stack = new ItemStack(ModItems.DOG_GRAVE);
+    stack.set(ModComponents.DOG_GRAVE_NAME, "Biscuit");
+
+    context.assertTrue(!hasLostLine(stack), "Only a lost grave's tooltip should say it is lost");
+    context.complete();
+  }
+
+  private static boolean hasLostLine(final ItemStack stack) {
+    return stack.getTooltip(Item.TooltipContext.DEFAULT, null, TooltipType.BASIC).stream()
+        .anyMatch(
+            line ->
+                line.getContent() instanceof TranslatableTextContent content
+                    && "block.dogs-unleashed.dog_grave.lost".equals(content.getKey()));
   }
 
   private static void placeNamedGrave(

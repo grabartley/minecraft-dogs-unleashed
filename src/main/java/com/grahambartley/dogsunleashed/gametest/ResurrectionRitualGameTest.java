@@ -11,7 +11,6 @@ import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import com.grahambartley.dogsunleashed.pet.PetManager;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -338,51 +337,10 @@ public final class ResurrectionRitualGameTest implements FabricGameTest {
               pet.getLifeState() == PetLifeState.LOST,
               "A pet lost while undead must stay lost, but it was " + pet.getLifeState());
           context.assertTrue(grave.hasTotem(), "A refused ritual must not consume the totem");
+          context.assertTrue(grave.isLost(), "A fizzled ritual should mark the grave lost");
           context.expectBlock(ModBlocks.DOG_GRAVE, REL_GRAVE);
           context.assertTrue(
               raisedDog(context, pet.getPetId()) == null, "A refused ritual must not spawn a dog");
-          context.complete();
-        });
-  }
-
-  @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
-  public void aDogThatDiesUndeadLeavesAGraveMarkedLost(final TestContext context) {
-    final UUID dogId = killRegisteredDog(context, ModEntities.ZOMBIE_HUSKY);
-
-    context.runAtTick(
-        STRIKE_TICK,
-        () -> {
-          final DogGraveBlockEntity grave = onlyGraveFor(context, dogId);
-          context.assertTrue(grave.isLost(), "A grave left by an undead death should be lost");
-          context.complete();
-        });
-  }
-
-  @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
-  public void aDogThatDiesAliveLeavesAGraveThatIsNotLost(final TestContext context) {
-    final UUID dogId = killRegisteredDog(context, ModEntities.HUSKY);
-
-    context.runAtTick(
-        STRIKE_TICK,
-        () -> {
-          final DogGraveBlockEntity grave = onlyGraveFor(context, dogId);
-          context.assertTrue(!grave.isLost(), "A living dog's grave should still be raisable");
-          context.complete();
-        });
-  }
-
-  @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
-  public void lightningOnALostPetsUnmarkedGraveMarksItLost(final TestContext context) {
-    final PetData pet = deceasedPetWithGrave(context, "Elegy", true);
-    pet.setLifeState(PetLifeState.LOST);
-
-    context.runAtTick(STRIKE_TICK, () -> strikeRod(context));
-
-    context.runAtTick(
-        ASSERT_TICK,
-        () -> {
-          final DogGraveBlockEntity grave = context.getBlockEntity(REL_GRAVE);
-          context.assertTrue(grave.isLost(), "A fizzled ritual should mark the grave lost");
           context.complete();
         });
   }
@@ -408,46 +366,6 @@ public final class ResurrectionRitualGameTest implements FabricGameTest {
 
   private static void strikeRod(final TestContext context) {
     context.spawnEntity(EntityType.LIGHTNING_BOLT, REL_ROD);
-  }
-
-  private static UUID killRegisteredDog(
-      final TestContext context, final EntityType<UnleashedDogEntity> type) {
-    final ServerWorld world = context.getWorld();
-    final UnleashedDogEntity dog = context.spawnEntity(type, REL_DOG);
-    dog.setAiDisabled(true);
-    dog.setOwnerUuid(UUID.randomUUID());
-    dog.setTamed(true, true);
-    final PetData pet =
-        new PetData(
-            dog.getUuid(),
-            dog.getOwnerUuid(),
-            dog.getBreed(),
-            "Shade",
-            dog.getHealth(),
-            dog.getMaxHealth(),
-            dog.getBlockPos(),
-            world.getRegistryKey().getValue().toString(),
-            dog.isUndead() ? PetLifeState.UNDEAD : PetLifeState.LIVING);
-    pet.syncFrom(dog);
-    PetManager.get(world.getServer()).registerPet(pet);
-    final UUID dogId = dog.getUuid();
-    dog.kill();
-    return dogId;
-  }
-
-  private static DogGraveBlockEntity onlyGraveFor(final TestContext context, final UUID dogId) {
-    final List<DogGraveBlockEntity> graves = new ArrayList<>();
-    context.forEachRelativePos(
-        pos -> {
-          if (context.getBlockState(pos).isOf(ModBlocks.DOG_GRAVE)
-              && context.getBlockEntity(pos) instanceof DogGraveBlockEntity grave
-              && dogId.equals(grave.getDogUuid())) {
-            graves.add(grave);
-          }
-        });
-    context.assertTrue(
-        graves.size() == 1, "The dead dog should leave one grave, not " + graves.size());
-    return graves.get(0);
   }
 
   private static DogGraveBlockEntity placeGrave(final TestContext context, final UUID dogUuid) {
