@@ -11,6 +11,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -81,5 +82,31 @@ class DogUndeadStateTest {
     assertTrue(
         DogUndeadState.undeadAttackDamage(livingDamage) < livingDamage,
         breed + " undead attack damage must be below its living attack damage");
+  }
+
+  @ParameterizedTest(name = "undead {0}")
+  @CsvSource({"true, 0.5, 0.5", "false, 1.0, 1.0"})
+  @DisplayName("only an undead dog has its stats scaled down")
+  void onlyUndeadDogsAreScaled(
+      final boolean undead, final double healthScale, final double damageScale) {
+    assertEquals(healthScale, DogUndeadState.maxHealthScale(undead));
+    assertEquals(damageScale, DogUndeadState.attackDamageScale(undead));
+  }
+
+  @ParameterizedTest(name = "an undead {0} has half its living stage stats")
+  @EnumSource(DireWolfGrowthStage.class)
+  @DisplayName("a halved base plus a halved bonus is exactly half the stage's living stats")
+  void undeadStageStatsAreHalfTheLivingStage(final DireWolfGrowthStage stage) {
+    final UnleashedDogBreed.Attributes base = UnleashedDogBreed.DIRE_WOLF.attributes();
+    final double health =
+        DogUndeadState.undeadMaxHealth(base.maxHealth())
+            + DogGrowthRules.stageBonus(
+                stage.maxHealth(), base.maxHealth(), DogUndeadState.maxHealthScale(true));
+    final double damage =
+        DogUndeadState.undeadAttackDamage(base.attackDamage())
+            + DogGrowthRules.stageBonus(
+                stage.attackDamage(), base.attackDamage(), DogUndeadState.attackDamageScale(true));
+    assertEquals(stage.maxHealth() / 2.0, health, 1.0e-9, "max health");
+    assertEquals(stage.attackDamage() / 2.0, damage, 1.0e-9, "attack damage");
   }
 }

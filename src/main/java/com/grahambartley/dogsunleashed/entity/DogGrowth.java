@@ -190,13 +190,13 @@ public final class DogGrowth {
     }
     final DireWolfGrowthStage stage = this.stage();
     final UnleashedDogBreed.Attributes base = this.dog.getBreed().attributes();
-    final DogUndeadState undeadState = this.dog.getUndeadState();
+    final boolean undead = this.dog.isUndead();
     final float previousMaxHealth = this.dog.getMaxHealth();
     this.overwrite(
         EntityAttributes.GENERIC_MAX_HEALTH,
         MAX_HEALTH_MODIFIER_ID,
         DogGrowthRules.stageBonus(
-            stage.maxHealth(), base.maxHealth(), undeadState.maxHealthScale()));
+            stage.maxHealth(), base.maxHealth(), DogUndeadState.maxHealthScale(undead)));
     this.overwrite(
         EntityAttributes.GENERIC_MOVEMENT_SPEED,
         MOVEMENT_SPEED_MODIFIER_ID,
@@ -205,7 +205,7 @@ public final class DogGrowth {
         EntityAttributes.GENERIC_ATTACK_DAMAGE,
         ATTACK_DAMAGE_MODIFIER_ID,
         DogGrowthRules.stageBonus(
-            stage.attackDamage(), base.attackDamage(), undeadState.attackDamageScale()));
+            stage.attackDamage(), base.attackDamage(), DogUndeadState.attackDamageScale(undead)));
     this.overwrite(EntityAttributes.GENERIC_ARMOR, ARMOR_MODIFIER_ID, stage.armor());
     this.overwrite(
         EntityAttributes.GENERIC_JUMP_STRENGTH,

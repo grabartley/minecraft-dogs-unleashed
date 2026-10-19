@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 class DogGrowthRulesTest {
@@ -54,23 +53,6 @@ class DogGrowthRulesTest {
   void stageBonusScalesTheGapToTheBase(
       final double stageValue, final double breedBase, final double scale, final double expected) {
     assertEquals(expected, DogGrowthRules.stageBonus(stageValue, breedBase, scale), 1.0e-9);
-  }
-
-  @ParameterizedTest(name = "an undead {0} has half its living stage stats")
-  @EnumSource(DireWolfGrowthStage.class)
-  @DisplayName("a halved base plus a halved bonus is exactly half the stage's living stats")
-  void undeadStageStatsAreHalfTheLivingStage(final DireWolfGrowthStage stage) {
-    final UnleashedDogBreed.Attributes base = UnleashedDogBreed.DIRE_WOLF.attributes();
-    final double health =
-        DogUndeadState.undeadMaxHealth(base.maxHealth())
-            + DogGrowthRules.stageBonus(
-                stage.maxHealth(), base.maxHealth(), DogUndeadState.MAX_HEALTH_MULTIPLIER);
-    final double damage =
-        DogUndeadState.undeadAttackDamage(base.attackDamage())
-            + DogGrowthRules.stageBonus(
-                stage.attackDamage(), base.attackDamage(), DogUndeadState.ATTACK_DAMAGE_MULTIPLIER);
-    assertEquals(stage.maxHealth() / 2.0, health, 1.0e-9, "max health");
-    assertEquals(stage.attackDamage() / 2.0, damage, 1.0e-9, "attack damage");
   }
 
   @Test

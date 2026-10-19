@@ -19,11 +19,11 @@ public final class DogUndeadState {
   }
 
   public static double undeadMaxHealth(final double livingMaxHealth) {
-    return livingMaxHealth * MAX_HEALTH_MULTIPLIER;
+    return livingMaxHealth * maxHealthScale(true);
   }
 
   public static double undeadAttackDamage(final double livingAttackDamage) {
-    return livingAttackDamage * ATTACK_DAMAGE_MULTIPLIER;
+    return livingAttackDamage * attackDamageScale(true);
   }
 
   public static double livingMaxHealth(
@@ -58,12 +58,12 @@ public final class DogUndeadState {
     curedDog.getGrowth().refresh();
   }
 
-  public double maxHealthScale() {
-    return this.dog.isUndead() ? MAX_HEALTH_MULTIPLIER : 1.0;
+  public static double maxHealthScale(final boolean undead) {
+    return undead ? MAX_HEALTH_MULTIPLIER : 1.0;
   }
 
-  public double attackDamageScale() {
-    return this.dog.isUndead() ? ATTACK_DAMAGE_MULTIPLIER : 1.0;
+  public static double attackDamageScale(final boolean undead) {
+    return undead ? ATTACK_DAMAGE_MULTIPLIER : 1.0;
   }
 
   void tick() {
