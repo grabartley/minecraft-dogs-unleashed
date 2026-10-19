@@ -154,7 +154,7 @@ public final class DogCosmeticGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
-  public void dyeColoursClothCosmeticsButNotHats(final TestContext context) {
+  public void dyeColoursOnlyBandanasAndBows(final TestContext context) {
     for (final DogCosmetic cosmetic : DogCosmetic.values()) {
       final ItemStack result = craft(context.getWorld(), cosmetic(cosmetic));
       if (cosmetic.isDyeable()) {

@@ -22,7 +22,7 @@ class DogCosmeticTest {
     "STRAW_HAT, HEAD",
     "ROSETTE, COLLAR"
   })
-  @DisplayName("hats sit on the head and cloth sits on the collar")
+  @DisplayName("hats sit on the head and everything else on the collar")
   void mountMatchesWhereItIsWorn(final DogCosmetic cosmetic, final DogCosmetic.Mount mount) {
     assertEquals(mount, cosmetic.mount());
   }
@@ -35,7 +35,7 @@ class DogCosmeticTest {
     "STRAW_HAT, false",
     "ROSETTE, false"
   })
-  @DisplayName("only the cloth cosmetics take dye")
+  @DisplayName("only bandanas and bows take dye")
   void clothTakesDye(final DogCosmetic cosmetic, final boolean dyeable) {
     assertEquals(dyeable, cosmetic.isDyeable());
   }
