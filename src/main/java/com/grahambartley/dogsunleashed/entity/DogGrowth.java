@@ -48,7 +48,7 @@ public final class DogGrowth {
   private int ticksInStage;
   private int battlesWon;
   private int packMemberIndex = -1;
-  private int pupGrowthProgress;
+  private final PupGrowthClock pupClock = new PupGrowthClock();
 
   DogGrowth(final UnleashedDogEntity dog) {
     this.dog = dog;
@@ -75,6 +75,7 @@ public final class DogGrowth {
 
   public void setStage(final DireWolfGrowthStage stage) {
     if (stage.isPup()) {
+      this.pupClock.reset();
       this.dog.setBaby(true);
       return;
     }
@@ -108,11 +109,9 @@ public final class DogGrowth {
         || this.dog.getWorld().isClient()) {
       return;
     }
-    final int progress = this.pupGrowthProgress + settings().growthRateMultiplierPercent();
-    this.pupGrowthProgress = DogGrowthRules.pupGrowthRemainder(progress);
+    final int growthTicks = this.pupClock.tick(settings().growthRateMultiplierPercent());
     this.dog.setBreedingAge(
-        DogGrowthRules.pupAgeBeforeVanillaTick(
-            this.dog.getBreedingAge(), DogGrowthRules.pupGrowthTicks(progress)));
+        DogGrowthRules.pupAgeBeforeVanillaTick(this.dog.getBreedingAge(), growthTicks));
   }
 
   public void recordBattle(final LivingEntity defeated) {

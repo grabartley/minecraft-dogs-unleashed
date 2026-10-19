@@ -61,14 +61,6 @@ public final class DogGrowthRules {
         && (long) ticksInStage * growthRatePercent >= (long) stage.ticksToGrow() * PERCENT;
   }
 
-  public static int pupGrowthTicks(final int growthProgress) {
-    return growthProgress / PERCENT;
-  }
-
-  public static int pupGrowthRemainder(final int growthProgress) {
-    return growthProgress % PERCENT;
-  }
-
   public static int pupAgeBeforeVanillaTick(final int breedingAge, final int growthTicks) {
     return Math.min(breedingAge + growthTicks, 0) - VANILLA_PUP_AGE_STEP;
   }

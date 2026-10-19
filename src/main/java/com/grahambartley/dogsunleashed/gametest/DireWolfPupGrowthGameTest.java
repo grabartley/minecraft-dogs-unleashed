@@ -22,7 +22,9 @@ public final class DireWolfPupGrowthGameTest implements FabricGameTest {
   private static final BlockPos REL_WOLF = new BlockPos(3, 2, 3);
   private static final int STOPPED_PERCENT = 0;
   private static final int DOUBLED_PERCENT = 200;
-  private static final int TICKS_FROM_GROWN = 20;
+  private static final int STOPPED_TICKS_FROM_GROWN = 2;
+  private static final int STOPPED_CHECK_TICK = 40;
+  private static final int DOUBLED_TICKS_FROM_GROWN = 20;
 
   private static DogsUnleashedConfig configBefore;
 
@@ -46,19 +48,19 @@ public final class DireWolfPupGrowthGameTest implements FabricGameTest {
     ServerConfigService.update(world.getServer(), configBefore);
   }
 
-  @GameTest(templateName = ARENA, batchId = STOPPED_BATCH, tickLimit = 60)
+  @GameTest(templateName = ARENA, batchId = STOPPED_BATCH, tickLimit = STOPPED_CHECK_TICK + 20)
   public void aPupAboutToGrowStaysAPupAtZeroGrowthSpeed(final TestContext context) {
-    final UnleashedDogEntity pup = spawnPupTicksFromGrown(context, 2);
+    final UnleashedDogEntity pup = spawnPupTicksFromGrown(context, STOPPED_TICKS_FROM_GROWN);
 
     context.runAtTick(
-        40,
+        STOPPED_CHECK_TICK,
         () -> {
           context.assertTrue(
               pup.isBaby() && pup.getGrowth().stage() == DireWolfGrowthStage.PUP,
               "At 0% growth speed the pup should stay a pup, but it is " + pup.getGrowth().stage());
           context.assertTrue(
-              pup.getBreedingAge() == -2,
-              "At 0% growth speed the pup's age should not move from -2, but it is "
+              pup.getBreedingAge() == -STOPPED_TICKS_FROM_GROWN,
+              "At 0% growth speed the pup's age should not move, but it is "
                   + pup.getBreedingAge());
           context.complete();
         });
@@ -66,10 +68,10 @@ public final class DireWolfPupGrowthGameTest implements FabricGameTest {
 
   @GameTest(templateName = ARENA, batchId = DOUBLED_BATCH, tickLimit = 40)
   public void aPupGrowsTwiceAsFastAtDoubleGrowthSpeed(final TestContext context) {
-    final UnleashedDogEntity pup = spawnPupTicksFromGrown(context, TICKS_FROM_GROWN);
+    final UnleashedDogEntity pup = spawnPupTicksFromGrown(context, DOUBLED_TICKS_FROM_GROWN);
 
     context.runAtTick(
-        TICKS_FROM_GROWN * 3 / 4,
+        DOUBLED_TICKS_FROM_GROWN * 3 / 4,
         () -> {
           context.assertTrue(
               !pup.isBaby() && pup.getGrowth().stage() == DireWolfGrowthStage.YEARLING,

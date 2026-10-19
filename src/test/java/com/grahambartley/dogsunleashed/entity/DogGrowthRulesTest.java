@@ -151,15 +151,6 @@ class DogGrowthRulesTest {
     assertEquals(expected, DogGrowthRules.advancesStage(stage, ticks, growthRate));
   }
 
-  @ParameterizedTest(name = "progress {0} -> {1} growth ticks, {2} carried over")
-  @CsvSource({"0, 0, 0", "50, 0, 50", "100, 1, 0", "150, 1, 50", "250, 2, 50", "500, 5, 0"})
-  @DisplayName("a pup's growth speed turns into whole ticks of growth and carries the rest over")
-  void pupGrowthSplitsIntoTicksAndRemainder(
-      final int progress, final int growthTicks, final int remainder) {
-    assertEquals(growthTicks, DogGrowthRules.pupGrowthTicks(progress));
-    assertEquals(remainder, DogGrowthRules.pupGrowthRemainder(progress));
-  }
-
   @ParameterizedTest(name = "age {0} with {1} growth ticks -> {2} before vanilla adds one")
   @CsvSource({
     "-24000, 1, -24000",
@@ -175,21 +166,6 @@ class DogGrowthRulesTest {
   void pupAgeLandsOnTheScaledAgeAfterVanillaTicks(
       final int age, final int growthTicks, final int expected) {
     assertEquals(expected, DogGrowthRules.pupAgeBeforeVanillaTick(age, growthTicks));
-  }
-
-  @ParameterizedTest(name = "{0}% over {1} ticks -> {2} ticks of growth")
-  @CsvSource({"0, 1000, 0", "50, 1000, 500", "100, 1000, 1000", "200, 1000, 2000", "33, 300, 99"})
-  @DisplayName("over many ticks a pup grows by the growth speed share of vanilla aging")
-  void pupGrowsByItsGrowthSpeedOverTime(
-      final int growthRate, final int ticks, final int expectedGrowth) {
-    int progress = 0;
-    int grown = 0;
-    for (int tick = 0; tick < ticks; tick++) {
-      progress += growthRate;
-      grown += DogGrowthRules.pupGrowthTicks(progress);
-      progress = DogGrowthRules.pupGrowthRemainder(progress);
-    }
-    assertEquals(expectedGrowth, grown);
   }
 
   @ParameterizedTest(name = "{0} of {1} battles -> {2} still needed")
