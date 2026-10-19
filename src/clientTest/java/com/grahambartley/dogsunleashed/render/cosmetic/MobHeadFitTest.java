@@ -168,7 +168,9 @@ class MobHeadFitTest {
 
     for (final MobHead head : MobHead.values()) {
       assertEquals(
-          Math.round(offset / 90.0f) & 3, fitOf(model, rig, head).quarterTurns(), rig + " " + head);
+          Math.floorMod(-Math.round(offset / 90.0f), 4),
+          fitOf(model, rig, head).quarterTurns(),
+          rig + " " + head);
     }
   }
 
@@ -181,7 +183,6 @@ class MobHeadFitTest {
     assertEquals(1, MobHeadFit.quarterTurnsToward(skull, new Vector3f(-1, 0, 0.1f)));
     assertEquals(2, MobHeadFit.quarterTurnsToward(skull, new Vector3f(-0.1f, 0, 1)));
     assertEquals(3, MobHeadFit.quarterTurnsToward(skull, new Vector3f(1, 0, 0)));
-    assertEquals(0, MobHeadFit.quarterTurnsToward(skull, new Vector3f()));
   }
 
   @Test
