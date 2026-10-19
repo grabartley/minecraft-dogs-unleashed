@@ -21,6 +21,7 @@ public record MobHeadFit(
     Quaternionf restRotation,
     float edge,
     float depthStretch,
+    int quarterTurns,
     Set<String> hiddenEars) {
 
   static final float VANILLA_MARGIN = 1.1875f;
@@ -37,14 +38,19 @@ public record MobHeadFit(
 
   public static Optional<MobHeadFit> of(
       final BakedGeoModel dog, final RigProfile profile, final MobHead head) {
+    final CubeGeometry.Bounds skull = SlotBounds.of(dog, profile.bonesIn(Slot.HEAD));
     final CubeGeometry.Bounds muzzle = muzzleOf(dog, profile);
     if (muzzle.isEmpty()) {
       return Optional.empty();
     }
-    final float edge = edgeFor(muzzle);
-    final float depthStretch = head.stretchesOverTheMuzzle() ? depthStretchFor(muzzle, edge) : 1.0f;
+    final int quarterTurns = quarterTurnsToward(skull.center(), muzzle.center());
+    final Vector3f facing = facedSize(muzzle, quarterTurns);
+    final float edge = Math.max(facing.x, facing.y) * VANILLA_MARGIN;
+    final float depthStretch =
+        head.stretchesOverTheMuzzle() ? Math.max(1.0f, facing.z * VANILLA_MARGIN / edge) : 1.0f;
     final Vector3f base = baseOf(muzzle, edge);
-    final CubeGeometry.Bounds drawn = MobHeadShape.placed(head, base, edge, depthStretch);
+    final CubeGeometry.Bounds drawn =
+        turned(MobHeadShape.placed(head, new Vector3f(), edge, depthStretch), quarterTurns, base);
     final Set<String> hidden = new HashSet<>();
     for (final Slot ear : List.of(Slot.EAR_LEFT, Slot.EAR_RIGHT)) {
       final Set<String> bones = profile.bonesIn(ear);
@@ -62,6 +68,7 @@ public record MobHeadFit(
                   pose.rotation(),
                   edge,
                   depthStretch,
+                  quarterTurns,
                   Set.copyOf(hidden));
             });
   }
@@ -79,13 +86,30 @@ public record MobHeadFit(
     return muzzle;
   }
 
-  static float edgeFor(final CubeGeometry.Bounds head) {
-    final Vector3f size = new Vector3f(head.max()).sub(head.min());
-    return Math.max(size.x, size.y) * VANILLA_MARGIN;
+  public float facingYaw() {
+    return this.quarterTurns * (float) (Math.PI / 2.0);
   }
 
-  static float depthStretchFor(final CubeGeometry.Bounds head, final float edge) {
-    return Math.max(1.0f, (head.max().z - head.min().z) * VANILLA_MARGIN / edge);
+  static int quarterTurnsToward(final Vector3f skull, final Vector3f muzzle) {
+    final Vector3f ahead = new Vector3f(muzzle).sub(skull);
+    if (Math.abs(ahead.x) > Math.abs(ahead.z)) {
+      return ahead.x < 0.0f ? 1 : 3;
+    }
+    return ahead.z > 0.0f ? 2 : 0;
+  }
+
+  static Vector3f facedSize(final CubeGeometry.Bounds muzzle, final int quarterTurns) {
+    final Vector3f size = new Vector3f(muzzle.max()).sub(muzzle.min());
+    return quarterTurns % 2 == 0 ? size : new Vector3f(size.z, size.y, size.x);
+  }
+
+  static CubeGeometry.Bounds turned(
+      final CubeGeometry.Bounds box, final int quarterTurns, final Vector3f offset) {
+    final CubeGeometry.Bounds turned = new CubeGeometry.Bounds();
+    for (final Vector3f corner : List.of(box.min(), box.max())) {
+      turned.include(corner.rotateY(quarterTurns * (float) (Math.PI / 2.0)).add(offset));
+    }
+    return turned;
   }
 
   static Vector3f baseOf(final CubeGeometry.Bounds head, final float edge) {

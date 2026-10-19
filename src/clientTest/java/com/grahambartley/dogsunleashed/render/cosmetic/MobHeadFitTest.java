@@ -79,7 +79,8 @@ class MobHeadFitTest {
   private static Matrix4f headToModel(final BakedGeoModel model, final MobHeadFit fit) {
     return LivePose.of(model.getBone(fit.boneName()).orElseThrow())
         .translate(fit.base())
-        .rotate(fit.restRotation().conjugate());
+        .rotate(fit.restRotation().conjugate())
+        .rotateY(fit.facingYaw());
   }
 
   private static CubeGeometry.Bounds drawnInHead(final MobHead head, final MobHeadFit fit) {
@@ -156,6 +157,46 @@ class MobHeadFitTest {
 
     assertTrue(BUNDLED.profileOf(rig).bonesIn(Slot.HEAD).contains(fit.boneName()));
     assertTrue(earsOf(BUNDLED.profileOf(rig)).containsAll(fit.hiddenEars()));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("rigs")
+  @DisplayName("every mob head faces the way the rig's own model faces")
+  void facesTheRigsFront(final UnleashedDogBreed rig) {
+    final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
+    final float offset = rig.renderTransforms().bodyYawOffsetDegrees();
+
+    for (final MobHead head : MobHead.values()) {
+      assertEquals(
+          Math.round(offset / 90.0f) & 3, fitOf(model, rig, head).quarterTurns(), rig + " " + head);
+    }
+  }
+
+  @Test
+  @DisplayName("a head faces whichever side its muzzle sticks out of")
+  void facesTheMuzzle() {
+    final Vector3f skull = new Vector3f();
+
+    assertEquals(0, MobHeadFit.quarterTurnsToward(skull, new Vector3f(0.1f, 0, -1)));
+    assertEquals(1, MobHeadFit.quarterTurnsToward(skull, new Vector3f(-1, 0, 0.1f)));
+    assertEquals(2, MobHeadFit.quarterTurnsToward(skull, new Vector3f(-0.1f, 0, 1)));
+    assertEquals(3, MobHeadFit.quarterTurnsToward(skull, new Vector3f(1, 0, 0)));
+    assertEquals(0, MobHeadFit.quarterTurnsToward(skull, new Vector3f()));
+  }
+
+  @Test
+  @DisplayName("turning a box half way round puts its front at the back")
+  void turnedBoxSwapsFrontAndBack() {
+    final CubeGeometry.Bounds box = new CubeGeometry.Bounds();
+    box.include(new Vector3f(-1, 0, -3));
+    box.include(new Vector3f(1, 2, 1));
+
+    final CubeGeometry.Bounds turned = MobHeadFit.turned(box, 2, new Vector3f(0, 1, 0));
+
+    assertEquals(-1.0f, turned.min().x, EPSILON);
+    assertEquals(1.0f, turned.min().y, EPSILON);
+    assertEquals(-1.0f, turned.min().z, EPSILON);
+    assertEquals(3.0f, turned.max().z, EPSILON);
   }
 
   @Test

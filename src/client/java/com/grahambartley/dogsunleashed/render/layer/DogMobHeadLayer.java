@@ -24,6 +24,7 @@ import net.minecraft.client.render.block.entity.SkullBlockEntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.BlockItem;
+import net.minecraft.util.math.RotationAxis;
 import org.joml.Vector3f;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
@@ -101,6 +102,7 @@ public class DogMobHeadLayer extends GeoRenderLayer<UnleashedDogEntity> {
     final Vector3f base = fit.base();
     poseStack.translate(base.x, base.y, base.z);
     poseStack.multiply(fit.restRotation().conjugate());
+    poseStack.multiply(RotationAxis.POSITIVE_Y.rotation(fit.facingYaw()));
     final float scale = fit.edge() / (head.isSkull() ? SKULL_EDGE : BLOCK_EDGE);
     poseStack.scale(scale, scale, scale * fit.depthStretch());
     poseStack.translate(-0.5f, 0.0f, -0.5f);
