@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.entity.genome;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
@@ -202,5 +203,16 @@ class DogGenomeTest {
       final List<BreedShare> composition,
       final UnleashedDogBreed expected) {
     assertEquals(expected, DogGenome.rigBreedOf(breed, composition));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("rigBreeds")
+  @DisplayName("every rig breed has carry profiles, so a cross carries toys with its rig's")
+  void rigBreedAlwaysHasCarryProfiles(
+      final String label,
+      final UnleashedDogBreed breed,
+      final List<BreedShare> composition,
+      final UnleashedDogBreed expected) {
+    assertTrue(DogGenome.rigBreedOf(breed, composition).fetchCarryProfiles().isPresent());
   }
 }

@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.entity;
 import com.grahambartley.dogsunleashed.ModSounds;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.function.Supplier;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -141,10 +142,7 @@ public enum UnleashedDogBreed {
           .tamingThroughTrust()),
   CROSS_BREED(
       "crossbreed",
-      new FetchCarryProfiles(
-          new CarryProfile(-0.025, -0.053),
-          new CarryProfile(-0.025, -0.053),
-          new CarryProfile(-0.0125, -0.195)),
+      null,
       new SpawnEggColors(0x8B7355, 0xC4A484),
       new Dimensions(0.8f, 1.1f),
       null,
@@ -158,7 +156,7 @@ public enum UnleashedDogBreed {
   public static final UnleashedDogBreed FALLBACK_RIG = HUSKY;
 
   private final String serializedId;
-  private final FetchCarryProfiles fetchCarryProfiles;
+  private final @Nullable FetchCarryProfiles fetchCarryProfiles;
   private final SpawnEggColors spawnEggColors;
   private final Dimensions dimensions;
   private final @Nullable SpawnSettings spawnSettings;
@@ -171,7 +169,7 @@ public enum UnleashedDogBreed {
 
   UnleashedDogBreed(
       final String serializedId,
-      final FetchCarryProfiles fetchCarryProfiles,
+      final @Nullable FetchCarryProfiles fetchCarryProfiles,
       final SpawnEggColors spawnEggColors,
       final Dimensions dimensions,
       final @Nullable SpawnSettings spawnSettings,
@@ -210,12 +208,12 @@ public enum UnleashedDogBreed {
     return "geo/" + this.serializedId + ".geo.json";
   }
 
-  public FetchCarryProfiles fetchCarryProfiles() {
-    return this.fetchCarryProfiles;
+  public Optional<FetchCarryProfiles> fetchCarryProfiles() {
+    return Optional.ofNullable(this.fetchCarryProfiles);
   }
 
-  public CarryProfile carryProfileFor(final FetchItemType fetchType) {
-    return this.fetchCarryProfiles.forFetchItem(fetchType);
+  public Optional<CarryProfile> carryProfileFor(final @Nullable FetchItemType fetchType) {
+    return this.fetchCarryProfiles().map(profiles -> profiles.forFetchItem(fetchType));
   }
 
   public SpawnEggColors spawnEggColors() {
