@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 class DogGrowthRulesTest {
@@ -40,6 +41,36 @@ class DogGrowthRulesTest {
   @DisplayName("a pack is a leader that may be a prime, a pup, two more adults, then a mixed tail")
   void packMemberStage(final int member, final int roll, final DireWolfGrowthStage expected) {
     assertEquals(expected, DogGrowthRules.packStage(member, roll));
+  }
+
+  @ParameterizedTest(name = "stage {0}, base {1}, scale {2} -> {3}")
+  @CsvSource({
+    "40.0, 30.0, 1.0, 10.0",
+    "40.0, 30.0, 0.5, 5.0",
+    "20.0, 30.0, 0.5, -5.0",
+    "6.0, 6.0, 0.5, 0.0"
+  })
+  @DisplayName("a stage bonus is the gap to the breed base, scaled like the base")
+  void stageBonusScalesTheGapToTheBase(
+      final double stageValue, final double breedBase, final double scale, final double expected) {
+    assertEquals(expected, DogGrowthRules.stageBonus(stageValue, breedBase, scale), 1.0e-9);
+  }
+
+  @ParameterizedTest(name = "an undead {0} has half its living stage stats")
+  @EnumSource(DireWolfGrowthStage.class)
+  @DisplayName("a halved base plus a halved bonus is exactly half the stage's living stats")
+  void undeadStageStatsAreHalfTheLivingStage(final DireWolfGrowthStage stage) {
+    final UnleashedDogBreed.Attributes base = UnleashedDogBreed.DIRE_WOLF.attributes();
+    final double health =
+        DogUndeadState.undeadMaxHealth(base.maxHealth())
+            + DogGrowthRules.stageBonus(
+                stage.maxHealth(), base.maxHealth(), DogUndeadState.MAX_HEALTH_MULTIPLIER);
+    final double damage =
+        DogUndeadState.undeadAttackDamage(base.attackDamage())
+            + DogGrowthRules.stageBonus(
+                stage.attackDamage(), base.attackDamage(), DogUndeadState.ATTACK_DAMAGE_MULTIPLIER);
+    assertEquals(stage.maxHealth() / 2.0, health, 1.0e-9, "max health");
+    assertEquals(stage.attackDamage() / 2.0, damage, 1.0e-9, "attack damage");
   }
 
   @Test

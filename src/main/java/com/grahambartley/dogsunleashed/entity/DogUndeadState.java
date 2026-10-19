@@ -43,6 +43,7 @@ public final class DogUndeadState {
     this.setBaseValues(
         undeadMaxHealth(livingMaxHealth(this.dog.getBreed(), this.dog.getGenome())),
         undeadAttackDamage(livingAttackDamage(this.dog.getBreed(), this.dog.getGenome())));
+    this.dog.getGrowth().refresh();
     if (this.dog.getHealth() > this.dog.getMaxHealth()) {
       this.dog.setHealth(this.dog.getMaxHealth());
     }
@@ -54,6 +55,15 @@ public final class DogUndeadState {
         .setBaseValues(
             livingMaxHealth(curedDog.getBreed(), curedDog.getGenome()),
             livingAttackDamage(curedDog.getBreed(), curedDog.getGenome()));
+    curedDog.getGrowth().refresh();
+  }
+
+  public double maxHealthScale() {
+    return this.dog.isUndead() ? MAX_HEALTH_MULTIPLIER : 1.0;
+  }
+
+  public double attackDamageScale() {
+    return this.dog.isUndead() ? ATTACK_DAMAGE_MULTIPLIER : 1.0;
   }
 
   void tick() {

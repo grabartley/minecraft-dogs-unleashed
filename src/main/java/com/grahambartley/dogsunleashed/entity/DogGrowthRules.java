@@ -48,6 +48,11 @@ public final class DogGrowthRules {
     return Math.min(newMaxHealth, grown);
   }
 
+  public static double stageBonus(
+      final double stageValue, final double breedBase, final double scale) {
+    return (stageValue - breedBase) * scale;
+  }
+
   public static boolean advancesStage(
       final DireWolfGrowthStage stage, final int ticksInStage, final int growthRatePercent) {
     return stage.growsWithTime()
