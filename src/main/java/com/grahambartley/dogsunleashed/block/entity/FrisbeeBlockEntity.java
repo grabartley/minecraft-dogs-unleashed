@@ -5,6 +5,7 @@ import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchCarriedItemProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.component.ComponentMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
@@ -64,6 +65,18 @@ public class FrisbeeBlockEntity extends BlockEntity
     if (nbt.contains(NBT_COLOR)) {
       this.color = DyeColor.byId(nbt.getInt(NBT_COLOR));
     }
+  }
+
+  @Override
+  protected void addComponents(ComponentMap.Builder builder) {
+    super.addComponents(builder);
+    builder.add(ModComponents.FRISBEE_COLOR, this.color);
+  }
+
+  @Override
+  protected void readComponents(BlockEntity.ComponentsAccess components) {
+    super.readComponents(components);
+    this.color = components.getOrDefault(ModComponents.FRISBEE_COLOR, DyeColor.WHITE);
   }
 
   @Override
