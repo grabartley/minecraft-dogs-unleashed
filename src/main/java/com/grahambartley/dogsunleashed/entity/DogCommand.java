@@ -38,7 +38,7 @@ public enum DogCommand {
   }
 
   public boolean followsOwnerOnRelocation() {
-    return this == FOLLOW || this == HEEL || this == HUNT || this == FREE_ROAM;
+    return this == FOLLOW || this == HEEL;
   }
 
   public static DogCommand fromId(final int id) {
