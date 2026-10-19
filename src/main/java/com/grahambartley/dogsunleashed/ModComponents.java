@@ -45,6 +45,15 @@ public class ModComponents {
               .packetCodec(PacketCodecs.STRING)
               .build());
 
+  public static final ComponentType<Boolean> DOG_GRAVE_LOST =
+      Registry.register(
+          Registries.DATA_COMPONENT_TYPE,
+          Identifier.of(DogsUnleashed.MOD_ID, "dog_grave_lost"),
+          ComponentType.<Boolean>builder()
+              .codec(Codec.BOOL)
+              .packetCodec(PacketCodecs.BOOL)
+              .build());
+
   public static final ComponentType<DyeColor> DOG_GRAVE_FLOWER_COLOR =
       Registry.register(
           Registries.DATA_COMPONENT_TYPE,

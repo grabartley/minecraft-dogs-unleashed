@@ -32,17 +32,23 @@ public final class DogResurrection {
 
   private DogResurrection() {}
 
-  public static boolean canResurrect(final ServerWorld world, final DogGraveBlockEntity grave) {
-    return resurrectablePet(world, grave) != null;
+  public static GraveRitualOutcome ritualOutcome(
+      final ServerWorld world, final DogGraveBlockEntity grave) {
+    final PetData petData = buriedPet(world, grave);
+    return GraveRitualOutcome.decide(
+        grave.hasTotem(), grave.isLost(), petData != null ? petData.getLifeState() : null);
+  }
+
+  private static @Nullable PetData buriedPet(
+      final ServerWorld world, final DogGraveBlockEntity grave) {
+    return grave.getDogUuid() == null
+        ? null
+        : PetManager.get(world.getServer()).getPetByEntityId(grave.getDogUuid());
   }
 
   private static @Nullable PetData resurrectablePet(
       final ServerWorld world, final DogGraveBlockEntity grave) {
-    if (!grave.hasTotem() || grave.getDogUuid() == null) {
-      return null;
-    }
-    final PetData petData = PetManager.get(world.getServer()).getPetByEntityId(grave.getDogUuid());
-    return petData != null && petData.getLifeState().isResurrectable() ? petData : null;
+    return ritualOutcome(world, grave) == GraveRitualOutcome.RAISE ? buriedPet(world, grave) : null;
   }
 
   public static boolean resurrect(

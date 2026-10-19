@@ -367,6 +367,42 @@ public final class DogGraveGameTest implements FabricGameTest {
     context.complete();
   }
 
+  @GameTest(templateName = ARENA, tickLimit = 40)
+  public void aLostGraveMinedWithAPickaxeStaysLost(final TestContext context) {
+    placeNamedGrave(context, UUID.randomUUID(), "Biscuit", DyeColor.PINK);
+    final DogGraveBlockEntity placed = context.getBlockEntity(REL_GRAVE);
+    placed.setLost(true);
+
+    breakGraveAsSurvivalPlayer(context, new ItemStack(Items.IRON_PICKAXE));
+
+    context.runAtTick(
+        10,
+        () -> {
+          final List<ItemStack> graves = droppedGraves(context);
+          context.assertTrue(graves.size() == 1, "A pickaxe should drop exactly one grave");
+          context.assertTrue(
+              Boolean.TRUE.equals(graves.get(0).get(ModComponents.DOG_GRAVE_LOST)),
+              "The dropped grave should still say its dog is lost");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 40)
+  public void placingALostGraveItemKeepsItLost(final TestContext context) {
+    final ItemStack stack = new ItemStack(ModItems.DOG_GRAVE);
+    stack.set(ModComponents.DOG_GRAVE_UUID, UUID.randomUUID());
+    stack.set(ModComponents.DOG_GRAVE_LOST, true);
+
+    final PlayerEntity player = context.createMockPlayer(GameMode.SURVIVAL);
+    player.setStackInHand(Hand.MAIN_HAND, stack);
+
+    context.useStackOnBlock(player, stack, REL_GRAVE.down(), Direction.UP);
+
+    final DogGraveBlockEntity grave = context.getBlockEntity(REL_GRAVE);
+    context.assertTrue(grave.isLost(), "A placed lost grave should stay lost");
+    context.complete();
+  }
+
   private static void placeNamedGrave(
       final TestContext context, final UUID dogUuid, final String name, final DyeColor flower) {
     context.setBlockState(REL_GRAVE, ModBlocks.DOG_GRAVE.getDefaultState());
