@@ -51,6 +51,7 @@ public final class DogGraveSpawner {
       final String dogName = petData != null ? petData.getName() : dog.getName().getString();
 
       graveEntity.setDogName(dogName);
+      graveEntity.setLost(dog.isUndead());
     }
   }
 

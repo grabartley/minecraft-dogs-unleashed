@@ -7,6 +7,7 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 public class DogGraveItem extends BlockItem {
 
@@ -29,7 +30,12 @@ public class DogGraveItem extends BlockItem {
     super.appendTooltip(stack, context, tooltip, type);
     final String dogName = stack.getOrDefault(ModComponents.DOG_GRAVE_NAME, "");
     if (!dogName.isEmpty()) {
-      tooltip.add(Text.literal(dogName).formatted(net.minecraft.util.Formatting.GRAY));
+      tooltip.add(Text.literal(dogName).formatted(Formatting.GRAY));
+    }
+    if (stack.getOrDefault(ModComponents.DOG_GRAVE_LOST, false)) {
+      tooltip.add(
+          Text.translatable("block.dogs-unleashed.dog_grave.lost")
+              .formatted(Formatting.DARK_GRAY, Formatting.ITALIC));
     }
   }
 }

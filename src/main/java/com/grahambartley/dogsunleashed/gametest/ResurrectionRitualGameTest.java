@@ -337,9 +337,29 @@ public final class ResurrectionRitualGameTest implements FabricGameTest {
               pet.getLifeState() == PetLifeState.LOST,
               "A pet lost while undead must stay lost, but it was " + pet.getLifeState());
           context.assertTrue(grave.hasTotem(), "A refused ritual must not consume the totem");
+          context.assertTrue(grave.isLost(), "A fizzled ritual should mark the grave lost");
           context.expectBlock(ModBlocks.DOG_GRAVE, REL_GRAVE);
           context.assertTrue(
               raisedDog(context, pet.getPetId()) == null, "A refused ritual must not spawn a dog");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
+  public void lightningOnAGraveMarkedLostRaisesNothing(final TestContext context) {
+    final PetData pet = deceasedPetWithGrave(context, "Nocturne", true);
+    final DogGraveBlockEntity grave = context.getBlockEntity(REL_GRAVE);
+    grave.setLost(true);
+
+    context.runAtTick(STRIKE_TICK, () -> strikeRod(context));
+
+    context.runAtTick(
+        ASSERT_TICK,
+        () -> {
+          context.assertTrue(grave.hasTotem(), "A fizzled ritual must not consume the totem");
+          context.expectBlock(ModBlocks.DOG_GRAVE, REL_GRAVE);
+          context.assertTrue(
+              raisedDog(context, pet.getPetId()) == null, "A lost grave must not raise a dog");
           context.complete();
         });
   }

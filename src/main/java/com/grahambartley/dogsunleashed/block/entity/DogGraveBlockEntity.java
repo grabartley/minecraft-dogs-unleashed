@@ -23,6 +23,7 @@ public class DogGraveBlockEntity extends BlockEntity implements GeoBlockEntity {
   private static final String NBT_DOG_UUID = "DogUuid";
   private static final String NBT_DOG_NAME = "DogName";
   private static final String NBT_FLOWER_COLOR = "FlowerColor";
+  private static final String NBT_LOST = "Lost";
   private static final String NBT_HAS_TOTEM = "HasTotem";
   private static final String NBT_TOTEM_INSTALLER_ID = "TotemInstallerId";
 
@@ -30,6 +31,7 @@ public class DogGraveBlockEntity extends BlockEntity implements GeoBlockEntity {
   private UUID dogUuid = null;
   private String dogName = "";
   private DyeColor flowerColor = DyeColor.RED;
+  private boolean lost = false;
   private boolean hasTotem = false;
   private UUID totemInstallerId = null;
 
@@ -73,6 +75,18 @@ public class DogGraveBlockEntity extends BlockEntity implements GeoBlockEntity {
     }
   }
 
+  public boolean isLost() {
+    return this.lost;
+  }
+
+  public void setLost(boolean lost) {
+    this.lost = lost;
+    this.markDirty();
+    if (this.world != null) {
+      this.world.updateListeners(this.pos, this.getCachedState(), this.getCachedState(), 3);
+    }
+  }
+
   public boolean hasTotem() {
     return this.hasTotem;
   }
@@ -106,6 +120,7 @@ public class DogGraveBlockEntity extends BlockEntity implements GeoBlockEntity {
     }
     nbt.putString(NBT_DOG_NAME, this.dogName);
     nbt.putInt(NBT_FLOWER_COLOR, this.flowerColor.getId());
+    nbt.putBoolean(NBT_LOST, this.lost);
     nbt.putBoolean(NBT_HAS_TOTEM, this.hasTotem);
     if (this.totemInstallerId != null) {
       nbt.putUuid(NBT_TOTEM_INSTALLER_ID, this.totemInstallerId);
@@ -126,6 +141,7 @@ public class DogGraveBlockEntity extends BlockEntity implements GeoBlockEntity {
     if (nbt.contains(NBT_FLOWER_COLOR)) {
       this.flowerColor = DyeColor.byId(nbt.getInt(NBT_FLOWER_COLOR));
     }
+    this.lost = nbt.getBoolean(NBT_LOST);
     this.hasTotem = nbt.getBoolean(NBT_HAS_TOTEM);
     this.totemInstallerId =
         nbt.containsUuid(NBT_TOTEM_INSTALLER_ID) ? nbt.getUuid(NBT_TOTEM_INSTALLER_ID) : null;
@@ -137,6 +153,7 @@ public class DogGraveBlockEntity extends BlockEntity implements GeoBlockEntity {
     this.dogUuid = components.get(ModComponents.DOG_GRAVE_UUID);
     this.dogName = components.getOrDefault(ModComponents.DOG_GRAVE_NAME, "");
     this.flowerColor = components.getOrDefault(ModComponents.DOG_GRAVE_FLOWER_COLOR, DyeColor.RED);
+    this.lost = components.getOrDefault(ModComponents.DOG_GRAVE_LOST, false);
   }
 
   @Override
@@ -149,6 +166,9 @@ public class DogGraveBlockEntity extends BlockEntity implements GeoBlockEntity {
       builder.add(ModComponents.DOG_GRAVE_NAME, this.dogName);
     }
     builder.add(ModComponents.DOG_GRAVE_FLOWER_COLOR, this.flowerColor);
+    if (this.lost) {
+      builder.add(ModComponents.DOG_GRAVE_LOST, true);
+    }
   }
 
   @Override
@@ -156,6 +176,7 @@ public class DogGraveBlockEntity extends BlockEntity implements GeoBlockEntity {
     nbt.remove(NBT_DOG_UUID);
     nbt.remove(NBT_DOG_NAME);
     nbt.remove(NBT_FLOWER_COLOR);
+    nbt.remove(NBT_LOST);
   }
 
   @Override

@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.listener;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.block.entity.DogGraveBlockEntity;
+import com.grahambartley.dogsunleashed.entity.DogGraveFizzle;
 import com.grahambartley.dogsunleashed.entity.DogResurrection;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.minecraft.block.Blocks;
@@ -30,13 +31,21 @@ public final class ResurrectionRitualListener {
       return;
     }
     final BlockPos gravePos = rodPos.down();
-    if (!(world.getBlockEntity(gravePos) instanceof DogGraveBlockEntity grave)
-        || !DogResurrection.canResurrect(world, grave)) {
+    if (!(world.getBlockEntity(gravePos) instanceof DogGraveBlockEntity grave)) {
       return;
     }
 
-    bolt.setCosmetic(true);
-    DogsUnleashed.runNextTick(() -> resurrectAt(world, gravePos));
+    switch (DogResurrection.ritualOutcome(world, grave)) {
+      case RAISE -> {
+        bolt.setCosmetic(true);
+        DogsUnleashed.runNextTick(() -> resurrectAt(world, gravePos));
+      }
+      case FIZZLE -> {
+        grave.setLost(true);
+        DogGraveFizzle.play(world, gravePos, grave);
+      }
+      case NOTHING -> {}
+    }
   }
 
   private static void resurrectAt(final ServerWorld world, final BlockPos gravePos) {

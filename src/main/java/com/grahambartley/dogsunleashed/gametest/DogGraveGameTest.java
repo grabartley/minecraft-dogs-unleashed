@@ -13,12 +13,15 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
+import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
@@ -365,6 +368,69 @@ public final class DogGraveGameTest implements FabricGameTest {
     context.assertTrue("Biscuit".equals(grave.getDogName()), "Name should be restored");
     context.assertTrue(DyeColor.PINK == grave.getFlowerColor(), "Flower color should be restored");
     context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 40)
+  public void aLostGraveMinedWithAPickaxeStaysLost(final TestContext context) {
+    placeNamedGrave(context, UUID.randomUUID(), "Biscuit", DyeColor.PINK);
+    final DogGraveBlockEntity placed = context.getBlockEntity(REL_GRAVE);
+    placed.setLost(true);
+
+    breakGraveAsSurvivalPlayer(context, new ItemStack(Items.IRON_PICKAXE));
+
+    context.runAtTick(
+        10,
+        () -> {
+          final List<ItemStack> graves = droppedGraves(context);
+          context.assertTrue(graves.size() == 1, "A pickaxe should drop exactly one grave");
+          context.assertTrue(
+              Boolean.TRUE.equals(graves.get(0).get(ModComponents.DOG_GRAVE_LOST)),
+              "The dropped grave should still say its dog is lost");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 40)
+  public void placingALostGraveItemKeepsItLost(final TestContext context) {
+    final ItemStack stack = new ItemStack(ModItems.DOG_GRAVE);
+    stack.set(ModComponents.DOG_GRAVE_UUID, UUID.randomUUID());
+    stack.set(ModComponents.DOG_GRAVE_LOST, true);
+
+    final PlayerEntity player = context.createMockPlayer(GameMode.SURVIVAL);
+    player.setStackInHand(Hand.MAIN_HAND, stack);
+
+    context.useStackOnBlock(player, stack, REL_GRAVE.down(), Direction.UP);
+
+    final DogGraveBlockEntity grave = context.getBlockEntity(REL_GRAVE);
+    context.assertTrue(grave.isLost(), "A placed lost grave should stay lost");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 20)
+  public void aLostGraveItemSaysItsDogCannotComeBack(final TestContext context) {
+    final ItemStack stack = new ItemStack(ModItems.DOG_GRAVE);
+    stack.set(ModComponents.DOG_GRAVE_LOST, true);
+
+    context.assertTrue(
+        hasLostLine(stack), "A lost grave's tooltip should say its dog can't come back");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 20)
+  public void aGraveItemThatIsNotLostSaysNothingAboutIt(final TestContext context) {
+    final ItemStack stack = new ItemStack(ModItems.DOG_GRAVE);
+    stack.set(ModComponents.DOG_GRAVE_NAME, "Biscuit");
+
+    context.assertTrue(!hasLostLine(stack), "Only a lost grave's tooltip should say it is lost");
+    context.complete();
+  }
+
+  private static boolean hasLostLine(final ItemStack stack) {
+    return stack.getTooltip(Item.TooltipContext.DEFAULT, null, TooltipType.BASIC).stream()
+        .anyMatch(
+            line ->
+                line.getContent() instanceof TranslatableTextContent content
+                    && "block.dogs-unleashed.dog_grave.lost".equals(content.getKey()));
   }
 
   private static void placeNamedGrave(

@@ -15,7 +15,8 @@
               "include": [
                 "dogs-unleashed:dog_grave_uuid",
                 "dogs-unleashed:dog_grave_name",
-                "dogs-unleashed:dog_grave_flower_color"
+                "dogs-unleashed:dog_grave_flower_color",
+                "dogs-unleashed:dog_grave_lost"
               ]
             }
           ]
