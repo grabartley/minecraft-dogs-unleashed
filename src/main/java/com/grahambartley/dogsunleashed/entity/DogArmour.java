@@ -1,5 +1,7 @@
 package com.grahambartley.dogsunleashed.entity;
 
+import net.minecraft.component.EnchantmentEffectComponentTypes;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.DamageUtil;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -27,6 +29,11 @@ public final class DogArmour {
 
   DogArmour(final MobEntity wearer) {
     this.wearer = wearer;
+  }
+
+  static boolean isBindingCursed(final ItemStack armour) {
+    return EnchantmentHelper.hasAnyEnchantmentsWith(
+        armour, EnchantmentEffectComponentTypes.PREVENT_ARMOR_CHANGE);
   }
 
   public ItemStack worn() {

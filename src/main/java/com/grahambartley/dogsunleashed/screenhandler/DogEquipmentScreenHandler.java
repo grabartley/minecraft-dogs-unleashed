@@ -140,5 +140,10 @@ public class DogEquipmentScreenHandler extends ScreenHandler {
     public boolean canInsert(final ItemStack stack) {
       return this.equipment.isValid(this.getIndex(), stack);
     }
+
+    @Override
+    public boolean canTakeItems(final PlayerEntity player) {
+      return this.equipment.canTake(this.getIndex(), player);
+    }
   }
 }

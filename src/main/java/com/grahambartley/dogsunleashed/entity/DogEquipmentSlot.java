@@ -45,6 +45,14 @@ public enum DogEquipmentSlot {
     return !stack.isEmpty() && this.acceptedItems.test(stack);
   }
 
+  public boolean fits(final boolean wearerIsBaby) {
+    return this != ARMOUR || !wearerIsBaby;
+  }
+
+  public boolean releases(final boolean bindingCursed, final boolean creative) {
+    return this != ARMOUR || !bindingCursed || creative;
+  }
+
   public static @Nullable DogEquipmentSlot fromId(final String id) {
     for (final DogEquipmentSlot slot : values()) {
       if (slot.id.equals(id)) {

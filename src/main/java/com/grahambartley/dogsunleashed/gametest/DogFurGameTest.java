@@ -27,6 +27,7 @@ import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.advancement.AdvancementEntry;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
@@ -269,18 +270,22 @@ public final class DogFurGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
-  public void shearsTakeArmourOffBeforeTheyTouchTheCoat(final TestContext context) {
+  public void shearsTrimAnArmouredDogAndLeaveTheArmourOn(final TestContext context) {
     final ServerPlayerEntity owner = PendantTestHelper.survivalOwnerAt(context, OWNER_POS);
     final UnleashedDogEntity dog = ownedDog(context, DogTestData.HUSKY, owner);
-    dog.getEquipmentHolder()
-        .setStack(DogEquipmentSlot.ARMOUR, new ItemStack(ModArmorItems.of(DogArmorTier.IRON)));
+    final Item armour = ModArmorItems.of(DogArmorTier.IRON);
+    dog.getEquipmentHolder().setStack(DogEquipmentSlot.ARMOUR, new ItemStack(armour));
     seed(dog, DogFurStage.SHAGGY, 0);
     owner.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.SHEARS));
 
-    dog.interactMob(owner, Hand.MAIN_HAND);
+    withConfig(
+        config -> config.withFur(config.fur().withBadHairDayChanceMultiplierPercent(NO_BOTCH)),
+        () -> dog.interactMob(owner, Hand.MAIN_HAND));
 
-    context.assertTrue(dog.getArmour().worn().isEmpty(), "The first snip takes the armour off");
-    context.assertTrue(dog.getFur().stage() == DogFurStage.SHAGGY, "The coat is left alone");
+    context.assertTrue(dog.getArmour().worn().isOf(armour), "The armour stays on");
+    context.assertTrue(dog.getFur().stage() == DogFurStage.TRIMMED, "The coat is trimmed");
+    context.assertFalse(
+        owner.getInventory().contains(new ItemStack(armour)), "No armour reaches the owner");
     context.complete();
   }
 

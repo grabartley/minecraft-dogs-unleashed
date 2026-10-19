@@ -92,7 +92,12 @@ public class DogEquipmentInventory implements Inventory {
 
   @Override
   public boolean isValid(final int index, final ItemStack stack) {
-    return SLOTS[index].canHold(stack);
+    return SLOTS[index].canHold(stack)
+        && (this.dog == null || this.dog.getEquipmentHolder().fits(SLOTS[index]));
+  }
+
+  public boolean canTake(final int index, final PlayerEntity player) {
+    return this.dog == null || this.dog.getEquipmentHolder().releases(SLOTS[index], player);
   }
 
   @Override

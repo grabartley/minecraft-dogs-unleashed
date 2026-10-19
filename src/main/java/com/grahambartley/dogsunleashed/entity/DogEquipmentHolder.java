@@ -3,17 +3,14 @@ package com.grahambartley.dogsunleashed.entity;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.screenhandler.DogEquipmentScreenHandler;
 import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ShearsItem;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
 import org.jetbrains.annotations.Nullable;
 
 public final class DogEquipmentHolder {
@@ -32,22 +29,6 @@ public final class DogEquipmentHolder {
   }
 
   private record PersistedSlot(DogEquipmentSlot slot, String nbtKey) {}
-
-  public enum DirectEquipOutcome {
-    IGNORED,
-    SHEAR_OFF_ARMOUR,
-    EQUIP
-  }
-
-  public static DirectEquipOutcome directEquipOutcome(
-      final boolean holdingShears,
-      final boolean armourEquipped,
-      final @Nullable DogEquipmentSlot targetSlot) {
-    if (holdingShears) {
-      return armourEquipped ? DirectEquipOutcome.SHEAR_OFF_ARMOUR : DirectEquipOutcome.IGNORED;
-    }
-    return targetSlot == null ? DirectEquipOutcome.IGNORED : DirectEquipOutcome.EQUIP;
-  }
 
   public static boolean isArmourSlot(final EquipmentSlot slot) {
     return slot == EquipmentSlot.BODY;
@@ -87,28 +68,21 @@ public final class DogEquipmentHolder {
     }
   }
 
-  @Nullable
-  ActionResult tryDirectEquip(
-      final PlayerEntity player, final Hand hand, final ItemStack heldStack) {
-    final DogEquipmentSlot targetSlot = DogEquipmentSlot.directEquipSlotFor(heldStack);
-    return switch (directEquipOutcome(
-        heldStack.getItem() instanceof ShearsItem,
-        !this.getStack(DogEquipmentSlot.ARMOUR).isEmpty(),
-        targetSlot)) {
-      case IGNORED -> null;
-      case SHEAR_OFF_ARMOUR -> this.shearOffArmour(player, hand, heldStack);
-      case EQUIP -> this.equipFromHand(player, targetSlot, heldStack);
-    };
+  public boolean fits(final DogEquipmentSlot slot) {
+    return slot.fits(this.dog.isBaby());
   }
 
-  private ActionResult shearOffArmour(
-      final PlayerEntity player, final Hand hand, final ItemStack shears) {
-    final ItemStack equippedArmour = this.getStack(DogEquipmentSlot.ARMOUR);
-    this.setStack(DogEquipmentSlot.ARMOUR, ItemStack.EMPTY);
-    shears.damage(1, player, LivingEntity.getSlotForHand(hand));
-    player.giveItemStack(equippedArmour);
-    this.dog.playSoundIfNotSilent(SoundEvents.ITEM_ARMOR_UNEQUIP_WOLF);
-    return ActionResult.SUCCESS;
+  public boolean releases(final DogEquipmentSlot slot, final PlayerEntity player) {
+    return slot.releases(DogArmour.isBindingCursed(this.getStack(slot)), player.isCreative());
+  }
+
+  @Nullable
+  ActionResult tryDirectEquip(final PlayerEntity player, final ItemStack heldStack) {
+    final DogEquipmentSlot targetSlot = DogEquipmentSlot.directEquipSlotFor(heldStack);
+    if (targetSlot == null || !this.fits(targetSlot) || !this.releases(targetSlot, player)) {
+      return null;
+    }
+    return this.equipFromHand(player, targetSlot, heldStack);
   }
 
   private ActionResult equipFromHand(

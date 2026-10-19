@@ -11,6 +11,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -52,5 +53,38 @@ class DogEquipmentSlotTest {
     assertEquals(expected, slot.translationKey());
     assertEquals(expected + ".empty", slot.emptyHintTranslationKey());
     assertEquals(expected + ".glyph", slot.glyphTranslationKey());
+  }
+
+  @ParameterizedTest(name = "{0}, baby {1} -> fits {2}")
+  @CsvSource({
+    "ARMOUR, false, true",
+    "ARMOUR, true, false",
+    "PENDANT, false, true",
+    "PENDANT, true, true",
+    "COSMETIC, false, true",
+    "COSMETIC, true, true"
+  })
+  @DisplayName("only grown dogs can wear armour, while every other slot fits a puppy")
+  void onlyArmourNeedsAGrownDog(
+      final DogEquipmentSlot slot, final boolean wearerIsBaby, final boolean expected) {
+    assertEquals(expected, slot.fits(wearerIsBaby));
+  }
+
+  @ParameterizedTest(name = "{0}, cursed {1}, creative {2} -> releases {3}")
+  @CsvSource({
+    "ARMOUR, false, false, true",
+    "ARMOUR, false, true, true",
+    "ARMOUR, true, false, false",
+    "ARMOUR, true, true, true",
+    "PENDANT, true, false, true",
+    "COSMETIC, true, false, true"
+  })
+  @DisplayName("Curse of Binding keeps armour on outside creative mode")
+  void bindingHoldsArmourOutsideCreative(
+      final DogEquipmentSlot slot,
+      final boolean bindingCursed,
+      final boolean creative,
+      final boolean expected) {
+    assertEquals(expected, slot.releases(bindingCursed, creative));
   }
 }

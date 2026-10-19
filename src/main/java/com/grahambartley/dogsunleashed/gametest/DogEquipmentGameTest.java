@@ -47,9 +47,9 @@ public final class DogEquipmentGameTest implements FabricGameTest {
   }
 
   @CustomTestProvider
-  public Collection<TestFunction> shearsRemoveArmourPerBreed() {
+  public Collection<TestFunction> shearsLeaveArmourOnPerBreed() {
     return generatePerBreed(
-        "shearsremovearmour", TICK_LIMIT, DogEquipmentGameTest::testShearsRemoveArmour);
+        "shearsleavearmouron", TICK_LIMIT, DogEquipmentGameTest::testShearsLeaveArmourOn);
   }
 
   @CustomTestProvider
@@ -76,7 +76,7 @@ public final class DogEquipmentGameTest implements FabricGameTest {
     context.complete();
   }
 
-  private static void testShearsRemoveArmour(final TestContext context, final DogTestData data) {
+  private static void testShearsLeaveArmourOn(final TestContext context, final DogTestData data) {
     final ServerPlayerEntity owner = survivalOwnerAt(context, OWNER_POS);
     final UnleashedDogEntity dog = spawnOwnedDog(context, data, owner);
     dog.getEquipmentHolder().setStack(DogEquipmentSlot.ARMOUR, new ItemStack(Items.WOLF_ARMOR));
@@ -85,11 +85,11 @@ public final class DogEquipmentGameTest implements FabricGameTest {
     dog.interactMob(owner, Hand.MAIN_HAND);
 
     context.assertTrue(
-        dog.getEquipmentHolder().getStack(DogEquipmentSlot.ARMOUR).isEmpty(),
-        "Shearing should empty the armour slot");
-    context.assertTrue(
-        inventoryHolds(owner, Items.WOLF_ARMOR, 0),
-        "Shearing should return the armour to the owner");
+        dog.getEquipmentHolder().getStack(DogEquipmentSlot.ARMOUR).isOf(Items.WOLF_ARMOR),
+        "Shears should leave the armour on");
+    context.assertFalse(
+        owner.getInventory().contains(new ItemStack(Items.WOLF_ARMOR)),
+        "Shears should not hand the armour to the owner");
     context.complete();
   }
 
