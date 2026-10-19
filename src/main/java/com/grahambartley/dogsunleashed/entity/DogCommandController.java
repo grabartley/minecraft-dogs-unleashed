@@ -42,7 +42,7 @@ public final class DogCommandController {
     if (command.isAnchored()) {
       this.anchorAt(this.dog.getBlockPos(), this.dog.getWorld().getRegistryKey());
     } else {
-      this.anchorAt(null, null);
+      this.clearAnchor();
     }
     this.dog.setSitting(command == DogCommand.SIT);
     this.dog.stopJumping();
@@ -70,9 +70,13 @@ public final class DogCommandController {
     this.anchorAt(savedAnchorPos, savedDimension);
   }
 
-  private void anchorAt(
-      final @Nullable BlockPos pos, final @Nullable RegistryKey<World> dimension) {
+  private void anchorAt(final BlockPos pos, final RegistryKey<World> dimension) {
     this.anchorPos = pos;
     this.anchorDimension = dimension;
+  }
+
+  private void clearAnchor() {
+    this.anchorPos = null;
+    this.anchorDimension = null;
   }
 }
