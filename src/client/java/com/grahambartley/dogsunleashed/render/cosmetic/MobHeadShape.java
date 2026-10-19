@@ -6,15 +6,17 @@ import org.joml.Vector3f;
 
 public final class MobHeadShape {
 
+  private static final float SKULL_PIXELS = 8.0f;
+
   private MobHeadShape() {}
 
   public static CubeGeometry.Bounds footprint(final MobHead head) {
     return switch (head) {
-      case PIGLIN -> box(-1.0625f, 0.0f, -0.625f, 1.0625f, 1.0f, 0.5f);
-      case DRAGON -> box(-0.75f, -0.5625f, -2.25f, 0.75f, 1.875f, 0.5625f);
-      case ZOMBIE -> box(-0.53125f, -0.03125f, -0.53125f, 0.53125f, 1.03125f, 0.53125f);
+      case PIGLIN -> pixels(-8.5f, 0.0f, -5.0f, 8.5f, 8.0f, 4.0f);
+      case DRAGON -> pixels(-6.0f, -4.5f, -18.0f, 6.0f, 15.0f, 4.5f);
+      case ZOMBIE -> pixels(-4.25f, -0.25f, -4.25f, 4.25f, 8.25f, 4.25f);
       case SKELETON, WITHER_SKELETON, CREEPER, CARVED_PUMPKIN ->
-          box(-0.5f, 0.0f, -0.5f, 0.5f, 1.0f, 0.5f);
+          pixels(-4.0f, 0.0f, -4.0f, 4.0f, 8.0f, 4.0f);
     };
   }
 
@@ -28,7 +30,7 @@ public final class MobHeadShape {
     return placed;
   }
 
-  private static CubeGeometry.Bounds box(
+  private static CubeGeometry.Bounds pixels(
       final float minX,
       final float minY,
       final float minZ,
@@ -36,8 +38,8 @@ public final class MobHeadShape {
       final float maxY,
       final float maxZ) {
     final CubeGeometry.Bounds bounds = new CubeGeometry.Bounds();
-    bounds.include(new Vector3f(minX, minY, minZ));
-    bounds.include(new Vector3f(maxX, maxY, maxZ));
+    bounds.include(new Vector3f(minX, minY, minZ).div(SKULL_PIXELS));
+    bounds.include(new Vector3f(maxX, maxY, maxZ).div(SKULL_PIXELS));
     return bounds;
   }
 }

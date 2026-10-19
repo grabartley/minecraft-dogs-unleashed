@@ -1,7 +1,7 @@
 package com.grahambartley.dogsunleashed.render.cosmetic;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -39,9 +39,12 @@ class MobHeadFitsTest {
     final MobHeadFits fits = new MobHeadFits();
     final BakedGeoModel dog = ShippedRigs.model("husky");
 
-    assertNotEquals(
-        fits.of(dog, HUSKY, MobHead.CREEPER).orElseThrow(),
-        fits.of(dog, HUSKY, MobHead.DRAGON).orElseThrow());
+    final MobHeadFit creeper = fits.of(dog, HUSKY, MobHead.CREEPER).orElseThrow();
+    final MobHeadFit dragon = fits.of(dog, HUSKY, MobHead.DRAGON).orElseThrow();
+
+    assertNotSame(creeper, dragon);
+    assertEquals(1.0f, dragon.depthStretch());
+    assertTrue(creeper.depthStretch() > 1.0f);
   }
 
   @ParameterizedTest(name = "{0}")

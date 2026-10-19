@@ -54,8 +54,8 @@ public class DogMobHeadLayer extends GeoRenderLayer<UnleashedDogEntity> {
     this.blocks = context.getBlockRenderManager();
     for (final MobHead head : MobHead.values()) {
       final Block block = ((BlockItem) head.item()).getBlock();
-      if (block instanceof AbstractSkullBlock skull) {
-        this.skullTypes.put(head, skull.getSkullType());
+      if (head.isSkull()) {
+        this.skullTypes.put(head, ((AbstractSkullBlock) block).getSkullType());
       } else {
         this.blockStates.put(head, block.getDefaultState());
       }

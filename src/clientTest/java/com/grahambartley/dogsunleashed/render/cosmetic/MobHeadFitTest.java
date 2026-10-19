@@ -86,22 +86,21 @@ class MobHeadFitTest {
     return MobHeadShape.placed(head, new Vector3f(), fit.edge(), fit.depthStretch());
   }
 
-  @ParameterizedTest(name = "{0} {1}")
-  @MethodSource("rigsAndHeads")
-  @DisplayName("at rest the mob head covers the dog's whole head and muzzle")
-  void coversTheMuzzleAtRest(final UnleashedDogBreed rig, final MobHead head) {
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("rigs")
+  @DisplayName("at rest a stretched mob head covers the dog's whole head and muzzle")
+  void coversTheMuzzleAtRest(final UnleashedDogBreed rig) {
     final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
-    final MobHeadFit fit = fitOf(model, rig, head);
+    final MobHeadFit fit = fitOf(model, rig, MobHead.CREEPER);
     final CubeGeometry.Bounds muzzle = SlotBounds.of(model, muzzleBones(BUNDLED.profileOf(rig)));
-    final CubeGeometry.Bounds cube =
-        MobHeadShape.placed(MobHead.CREEPER, new Vector3f(), fit.edge(), fit.depthStretch());
+    final CubeGeometry.Bounds cube = drawnInHead(MobHead.CREEPER, fit);
     final Matrix4f modelToHead = headToModel(model, fit).invert();
 
     for (final Vector3f corner : cornersOf(muzzle)) {
       final Vector3f local = modelToHead.transformPosition(corner);
       assertTrue(
-          insideWithin(cube, local, EPSILON) || !head.stretchesOverTheMuzzle(),
-          rig + " " + head + " leaves " + local + " outside " + cube.min() + " " + cube.max());
+          insideWithin(cube, local, EPSILON),
+          rig + " leaves " + local + " outside " + cube.min() + " " + cube.max());
     }
   }
 
