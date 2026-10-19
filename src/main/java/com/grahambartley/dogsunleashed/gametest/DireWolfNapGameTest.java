@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.gametest;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.goal.GroundNapRules;
 import com.grahambartley.dogsunleashed.gametest.util.SleepBatchFixture;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.EntityType;
@@ -21,7 +22,7 @@ public final class DireWolfNapGameTest implements FabricGameTest {
   private static final String WAKE_BATCH = "ground-nap-hostile";
   private static final String BREED_BATCH = "ground-nap-breed";
   private static final String COMMAND_BATCH = "ground-nap-command";
-  private static final long LATE_AFTERNOON = 9000;
+  private static final long LATE_AFTERNOON = GroundNapRules.PERIOD_TICKS - GroundNapRules.NAP_TICKS;
   private static final BlockPos REL_DOG = new BlockPos(3, 2, 3);
   private static final int SETTLE_TICKS = 40;
 
@@ -98,7 +99,7 @@ public final class DireWolfNapGameTest implements FabricGameTest {
         () -> {
           context.assertTrue(
               wolf.getSleepController().isNapping(), "An idle tamed dire wolf should nap");
-          wolf.getCommandController().apply(DogCommand.FOLLOW);
+          wolf.getCommandController().apply(DogCommand.STAY);
           context.assertFalse(
               wolf.getSleepController().isNapping(), "A command should wake the dire wolf");
         });

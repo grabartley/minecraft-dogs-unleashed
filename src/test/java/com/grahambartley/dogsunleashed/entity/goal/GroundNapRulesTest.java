@@ -16,17 +16,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 class GroundNapRulesTest {
 
   private static final GroundNapRules.Situation CALM_AND_IDLE =
-      new GroundNapRules.Situation(false, true, false, false, false, false, false, false);
-
-  @Test
-  void aNapLastsThreeMinutes() {
-    assertEquals(3600, GroundNapRules.NAP_TICKS);
-  }
-
-  @Test
-  void theDayAndTheNightAreEachOnePeriod() {
-    assertEquals(12000, GroundNapRules.PERIOD_TICKS);
-  }
+      new GroundNapRules.Situation(false, true, false, false, false, false, false, false, false);
 
   @ParameterizedTest
   @CsvSource({"0, 0", "11999, 0", "12000, 1", "23999, 1", "24000, 2", "36500, 3", "-1, -1"})
@@ -44,14 +34,16 @@ class GroundNapRulesTest {
   @CsvSource({
     "999, -9223372036854775808, 1000, false",
     "1000, -9223372036854775808, 1000, true",
-    "11999, -9223372036854775808, 1000, true",
+    "8400, -9223372036854775808, 1000, true",
+    "8401, -9223372036854775808, 1000, false",
+    "11999, -9223372036854775808, 1000, false",
     "5000, 0, 1000, false",
     "13000, 0, 1000, true",
     "12500, 0, 1000, false",
     "25000, 1, 1000, true",
     "25000, 2, 1000, false"
   })
-  void isDueOnceThePeriodReachesTheDogsOffsetAndItHasNotNappedInIt(
+  void isDueFromTheDogsOffsetUntilANapWouldRunPastThePeriodOnceAPeriod(
       final long timeOfDay, final long lastNappedPeriod, final long seed, final boolean due) {
     assertEquals(due, GroundNapRules.isDue(timeOfDay, lastNappedPeriod, seed));
   }
@@ -95,22 +87,32 @@ class GroundNapRulesTest {
     return Stream.of(
         Arguments.of(
             "has a target",
-            new GroundNapRules.Situation(false, true, true, false, false, false, false, false)),
+            new GroundNapRules.Situation(
+                false, true, true, false, false, false, false, false, false)),
         Arguments.of(
             "hostile nearby",
-            new GroundNapRules.Situation(false, true, false, true, false, false, false, false)),
+            new GroundNapRules.Situation(
+                false, true, false, true, false, false, false, false, false)),
         Arguments.of(
             "hurt recently",
-            new GroundNapRules.Situation(false, true, false, false, true, false, false, false)),
+            new GroundNapRules.Situation(
+                false, true, false, false, true, false, false, false, false)),
         Arguments.of(
             "ridden",
-            new GroundNapRules.Situation(false, true, false, false, false, true, false, false)),
+            new GroundNapRules.Situation(
+                false, true, false, false, false, true, false, false, false)),
         Arguments.of(
             "leashed",
-            new GroundNapRules.Situation(false, true, false, false, false, false, true, false)),
+            new GroundNapRules.Situation(
+                false, true, false, false, false, false, true, false, false)),
         Arguments.of(
             "playing",
-            new GroundNapRules.Situation(false, true, false, false, false, false, false, true)));
+            new GroundNapRules.Situation(
+                false, true, false, false, false, false, false, true, false)),
+        Arguments.of(
+            "owner walked away",
+            new GroundNapRules.Situation(
+                false, true, false, false, false, false, false, false, true)));
   }
 
   @ParameterizedTest(name = "{0}")
@@ -125,10 +127,12 @@ class GroundNapRulesTest {
     return Stream.of(
         Arguments.of(
             "busy",
-            new GroundNapRules.Situation(true, true, false, false, false, false, false, false)),
+            new GroundNapRules.Situation(
+                true, true, false, false, false, false, false, false, false)),
         Arguments.of(
             "off the ground",
-            new GroundNapRules.Situation(false, false, false, false, false, false, false, false)));
+            new GroundNapRules.Situation(
+                false, false, false, false, false, false, false, false, false)));
   }
 
   @ParameterizedTest(name = "{0}")

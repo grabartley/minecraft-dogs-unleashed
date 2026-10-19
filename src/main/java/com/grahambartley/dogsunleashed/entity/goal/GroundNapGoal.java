@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.entity.goal;
 import com.grahambartley.dogsunleashed.entity.DogSleepController;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.EnumSet;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.Monster;
@@ -13,6 +14,8 @@ public class GroundNapGoal extends Goal {
   private final UnleashedDogEntity dog;
   private long lastNappedPeriod = GroundNapRules.NEVER;
   private long startedAt;
+  private long hostileCheckedAt = GroundNapRules.NEVER;
+  private boolean hostileNearby;
 
   public GroundNapGoal(final UnleashedDogEntity dog) {
     this.dog = dog;
@@ -73,10 +76,30 @@ public class GroundNapGoal extends Goal {
             this.dog.getWorld().getTime(), this.dog.getSleepController().getLastHurtAt()),
         this.dog.hasPassengers(),
         this.dog.isLeashed(),
-        this.dog.getPlaySession().isInPlayMode());
+        this.dog.getPlaySession().isInPlayMode(),
+        this.isOwnerAway());
+  }
+
+  private boolean isOwnerAway() {
+    final LivingEntity owner = this.dog.getOwner();
+    return this.dog.getCommand().followsOwnerOnRelocation()
+        && owner != null
+        && (owner.getWorld() != this.dog.getWorld()
+            || owner.squaredDistanceTo(this.dog)
+                > GroundNapRules.OWNER_NEARBY_RANGE * GroundNapRules.OWNER_NEARBY_RANGE);
   }
 
   private boolean isHostileNearby() {
+    final long now = this.dog.getWorld().getTime();
+    if (this.hostileCheckedAt == GroundNapRules.NEVER
+        || now - this.hostileCheckedAt >= GroundNapRules.HOSTILE_CHECK_TICKS) {
+      this.hostileCheckedAt = now;
+      this.hostileNearby = this.scanForHostiles();
+    }
+    return this.hostileNearby;
+  }
+
+  private boolean scanForHostiles() {
     return !this.dog
         .getWorld()
         .getEntitiesByClass(

@@ -10,6 +10,8 @@ public final class GroundNapRules {
   public static final long PERIOD_TICKS = DogSleepWindow.DAY_LENGTH_TICKS / 2;
   public static final long HURT_CALM_TICKS = 30 * 20;
   public static final double HOSTILE_RANGE = 16.0;
+  public static final long HOSTILE_CHECK_TICKS = 10;
+  public static final double OWNER_NEARBY_RANGE = 10.0;
   public static final long NEVER = Long.MIN_VALUE;
 
   private static final Set<DogCommand> NAPPING_COMMANDS =
@@ -26,8 +28,10 @@ public final class GroundNapRules {
   }
 
   public static boolean isDue(final long timeOfDay, final long lastNappedPeriod, final long seed) {
+    final long intoPeriod = Math.floorMod(timeOfDay, PERIOD_TICKS);
     return periodOf(timeOfDay) != lastNappedPeriod
-        && Math.floorMod(timeOfDay, PERIOD_TICKS) >= dueOffset(seed);
+        && intoPeriod >= dueOffset(seed)
+        && intoPeriod <= PERIOD_TICKS - NAP_TICKS;
   }
 
   public static boolean isOver(final long now, final long startedAt) {
@@ -50,7 +54,8 @@ public final class GroundNapRules {
       boolean hurtRecently,
       boolean ridden,
       boolean leashed,
-      boolean playing) {
+      boolean playing,
+      boolean ownerAway) {
 
     public boolean isCalm() {
       return !this.hasTarget
@@ -58,7 +63,8 @@ public final class GroundNapRules {
           && !this.hurtRecently
           && !this.ridden
           && !this.leashed
-          && !this.playing;
+          && !this.playing
+          && !this.ownerAway;
     }
 
     public boolean allowsNapToStart() {
