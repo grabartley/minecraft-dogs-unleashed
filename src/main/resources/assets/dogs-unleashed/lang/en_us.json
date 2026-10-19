@@ -403,7 +403,7 @@
   "screen.dogs-unleashed.settings.badhairdaychance.tooltip": "How often a trim goes wrong. 100% is normal, 0% means every trim is clean.",
   "screen.dogs-unleashed.settings.direwolf": "Dire Wolves",
   "screen.dogs-unleashed.settings.direwolf.growthrate": "Growth Speed",
-  "screen.dogs-unleashed.settings.direwolf.growthrate.tooltip": "How fast a dire wolf grows from yearling to adult and from adult to prime. 0% stops them growing on their own.",
+  "screen.dogs-unleashed.settings.direwolf.growthrate.tooltip": "How fast a dire wolf grows from pup to yearling, from yearling to adult and from adult to prime. 0% stops them growing on their own.",
   "screen.dogs-unleashed.settings.direwolf.battles": "Alpha Battles",
   "screen.dogs-unleashed.settings.direwolf.battles.tooltip": "How many hostile mobs a tamed prime must defeat near its owner before an Enchanted Golden Apple turns it into an Alpha.",
   "screen.dogs-unleashed.settings.direwolf.smallestpack": "Smallest Pack",

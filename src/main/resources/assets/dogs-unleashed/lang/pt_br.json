@@ -402,7 +402,7 @@
   "screen.dogs-unleashed.settings.badhairdaychance.tooltip": "Com que frequência uma tosa dá errado. 100% é o normal, 0% significa que toda tosa sai perfeita.",
   "screen.dogs-unleashed.settings.direwolf": "Lobos-terríveis",
   "screen.dogs-unleashed.settings.direwolf.growthrate": "Velocidade de crescimento",
-  "screen.dogs-unleashed.settings.direwolf.growthrate.tooltip": "A rapidez com que um lobo-terrível cresce de jovem para adulto e de adulto para maduro. 0% impede que cresçam sozinhos.",
+  "screen.dogs-unleashed.settings.direwolf.growthrate.tooltip": "A rapidez com que um lobo-terrível cresce de filhote para jovem, de jovem para adulto e de adulto para maduro. 0% impede que cresçam sozinhos.",
   "screen.dogs-unleashed.settings.direwolf.battles": "Batalhas para alfa",
   "screen.dogs-unleashed.settings.direwolf.battles.tooltip": "Quantas criaturas hostis um maduro domesticado precisa derrotar perto do dono antes que uma Maçã dourada encantada o transforme em alfa.",
   "screen.dogs-unleashed.settings.direwolf.smallestpack": "Menor matilha",

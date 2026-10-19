@@ -402,7 +402,7 @@
   "screen.dogs-unleashed.settings.badhairdaychance.tooltip": "Wie oft eine Schur misslingt. 100% ist normal, 0% bedeutet, jede Schur gelingt.",
   "screen.dogs-unleashed.settings.direwolf": "Schreckenswölfe",
   "screen.dogs-unleashed.settings.direwolf.growthrate": "Wachstumstempo",
-  "screen.dogs-unleashed.settings.direwolf.growthrate.tooltip": "Wie schnell ein Schreckenswolf vom Jährling zum ausgewachsenen Wolf und von dort zum Prachtwolf heranwächst. 0% stoppt das eigenständige Wachstum.",
+  "screen.dogs-unleashed.settings.direwolf.growthrate.tooltip": "Wie schnell ein Schreckenswolf vom Welpen zum Jährling, vom Jährling zum ausgewachsenen Wolf und von dort zum Prachtwolf heranwächst. 0% stoppt das eigenständige Wachstum.",
   "screen.dogs-unleashed.settings.direwolf.battles": "Alpha-Kämpfe",
   "screen.dogs-unleashed.settings.direwolf.battles.tooltip": "Wie viele feindliche Kreaturen ein gezähmter Prachtwolf in der Nähe seines Besitzers besiegen muss, bevor ein verzauberter goldener Apfel ihn zum Alpha macht.",
   "screen.dogs-unleashed.settings.direwolf.smallestpack": "Kleinstes Rudel",

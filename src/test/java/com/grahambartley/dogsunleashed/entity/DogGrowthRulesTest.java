@@ -151,6 +151,23 @@ class DogGrowthRulesTest {
     assertEquals(expected, DogGrowthRules.advancesStage(stage, ticks, growthRate));
   }
 
+  @ParameterizedTest(name = "age {0} with {1} growth ticks -> {2} before vanilla adds one")
+  @CsvSource({
+    "-24000, 1, -24000",
+    "-24000, 0, -24001",
+    "-2, 0, -3",
+    "-1, 0, -2",
+    "-1, 1, -1",
+    "-24000, 5, -23996",
+    "-3, 5, -1",
+  })
+  @DisplayName(
+      "a pup's age is set so vanilla's one tick of aging lands on the scaled age, never past grown")
+  void pupAgeLandsOnTheScaledAgeAfterVanillaTicks(
+      final int age, final int growthTicks, final int expected) {
+    assertEquals(expected, DogGrowthRules.pupAgeBeforeVanillaTick(age, growthTicks));
+  }
+
   @ParameterizedTest(name = "{0} of {1} battles -> {2} still needed")
   @CsvSource({"0, 20, 20", "7, 20, 13", "19, 20, 1", "20, 20, 0", "35, 20, 0", "3, 5, 2"})
   @DisplayName("an evolution needs the configured number of battles won beside the owner")

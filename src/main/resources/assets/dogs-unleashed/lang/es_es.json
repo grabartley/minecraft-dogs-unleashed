@@ -402,7 +402,7 @@
   "screen.dogs-unleashed.settings.badhairdaychance.tooltip": "Con qué frecuencia sale mal un corte. 100% es lo normal y 0% significa que todos los cortes salen bien.",
   "screen.dogs-unleashed.settings.direwolf": "Lobos terribles",
   "screen.dogs-unleashed.settings.direwolf.growthrate": "Velocidad de crecimiento",
-  "screen.dogs-unleashed.settings.direwolf.growthrate.tooltip": "Lo rápido que un lobo terrible pasa de joven a adulto y de adulto a la plenitud. 0% hace que no crezcan por sí solos.",
+  "screen.dogs-unleashed.settings.direwolf.growthrate.tooltip": "Lo rápido que un lobo terrible pasa de cachorro a joven, de joven a adulto y de adulto a la plenitud. 0% hace que no crezcan por sí solos.",
   "screen.dogs-unleashed.settings.direwolf.battles": "Batallas para alfa",
   "screen.dogs-unleashed.settings.direwolf.battles.tooltip": "Cuántas criaturas hostiles debe derrotar un lobo en plenitud domesticado cerca de su dueño antes de que una manzana de oro encantada lo convierta en alfa.",
   "screen.dogs-unleashed.settings.direwolf.smallestpack": "Manada mínima",
