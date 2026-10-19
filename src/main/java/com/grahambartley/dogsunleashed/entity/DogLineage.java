@@ -84,7 +84,9 @@ public final class DogLineage {
     }
     baby.getAppearanceRoller().inheritAppearance(this.dog, partner);
     final PlayerEntity lovingPlayer = this.dog.getLovingPlayer();
-    if (lovingPlayer != null) {
+    if (lovingPlayer != null
+        && BreedingOwnerResolver.ownsAParent(
+            lovingPlayer.getUuid(), this.dog.getOwnerUuid(), partner.getOwnerUuid())) {
       baby.getInteractions().adoptNewborn(lovingPlayer);
     } else {
       final UUID inheritedOwnerUuid =

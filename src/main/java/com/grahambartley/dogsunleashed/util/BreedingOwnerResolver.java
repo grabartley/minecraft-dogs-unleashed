@@ -10,4 +10,12 @@ public final class BreedingOwnerResolver {
       final @Nullable UUID primaryOwnerUuid, final @Nullable UUID secondaryOwnerUuid) {
     return primaryOwnerUuid != null ? primaryOwnerUuid : secondaryOwnerUuid;
   }
+
+  public static boolean ownsAParent(
+      final @Nullable UUID playerUuid,
+      final @Nullable UUID primaryOwnerUuid,
+      final @Nullable UUID secondaryOwnerUuid) {
+    return playerUuid != null
+        && (playerUuid.equals(primaryOwnerUuid) || playerUuid.equals(secondaryOwnerUuid));
+  }
 }
