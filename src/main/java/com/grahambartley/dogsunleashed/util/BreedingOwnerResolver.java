@@ -11,15 +11,11 @@ public final class BreedingOwnerResolver {
     return primaryOwnerUuid != null ? primaryOwnerUuid : secondaryOwnerUuid;
   }
 
-  public static @Nullable UUID resolveNewbornOwnerUuid(
-      final @Nullable UUID lovingPlayerUuid,
+  public static boolean ownsAParent(
+      final @Nullable UUID playerUuid,
       final @Nullable UUID primaryOwnerUuid,
       final @Nullable UUID secondaryOwnerUuid) {
-    if (lovingPlayerUuid != null
-        && (lovingPlayerUuid.equals(primaryOwnerUuid)
-            || lovingPlayerUuid.equals(secondaryOwnerUuid))) {
-      return lovingPlayerUuid;
-    }
-    return resolveInheritedOwnerUuid(primaryOwnerUuid, secondaryOwnerUuid);
+    return playerUuid != null
+        && (playerUuid.equals(primaryOwnerUuid) || playerUuid.equals(secondaryOwnerUuid));
   }
 }

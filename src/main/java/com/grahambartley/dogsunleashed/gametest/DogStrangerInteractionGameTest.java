@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.entity.DogCollar;
+import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.item.ItemStack;
@@ -35,10 +36,10 @@ public final class DogStrangerInteractionGameTest implements FabricGameTest {
 
     dog.interactMob(stranger, Hand.MAIN_HAND);
 
-    context.assertTrue(
-        dog.getComponents().get(DogCollar.class).getColor() == before,
-        "A stranger's dye must not change the collar, but it became "
-            + dog.getComponents().get(DogCollar.class).getColor());
+    context.assertEquals(
+        before,
+        dog.getComponents().get(DogCollar.class).getColor(),
+        "A stranger's dye must not change the collar");
     context.assertEquals(
         HELD_STACK_COUNT,
         stranger.getStackInHand(Hand.MAIN_HAND).getCount(),
@@ -54,10 +55,10 @@ public final class DogStrangerInteractionGameTest implements FabricGameTest {
 
     dog.interactMob(owner, Hand.MAIN_HAND);
 
-    context.assertTrue(
-        dog.getComponents().get(DogCollar.class).getColor() == DyeColor.BLUE,
-        "The owner's dye should turn the collar blue, but it is "
-            + dog.getComponents().get(DogCollar.class).getColor());
+    context.assertEquals(
+        DyeColor.BLUE,
+        dog.getComponents().get(DogCollar.class).getColor(),
+        "The owner's dye should turn the collar blue");
     context.complete();
   }
 
@@ -119,10 +120,30 @@ public final class DogStrangerInteractionGameTest implements FabricGameTest {
     final UnleashedDogEntity puppy =
         (UnleashedDogEntity) dog.createChild(context.getWorld(), partner);
 
-    context.assertTrue(
-        owner.getUuid().equals(puppy.getOwnerUuid()),
-        "The puppy should belong to its parents' owner, but belongs to " + puppy.getOwnerUuid());
+    context.assertEquals(
+        owner.getUuid(), puppy.getOwnerUuid(), "The puppy should belong to its parents' owner");
     context.assertTrue(puppy.isTamed(), "The puppy should be born tamed");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 20)
+  public void puppyIsAdoptedByTheBreederWhoOwnsOneParent(TestContext context) {
+    final ServerPlayerEntity firstOwner = survivalPlayerAt(context, OWNER_POS);
+    final ServerPlayerEntity secondOwner = survivalPlayerAt(context, STRANGER_POS);
+    final UnleashedDogEntity dog = spawnOwnedDog(context, firstOwner, DOG_POS);
+    final UnleashedDogEntity partner = spawnOwnedDog(context, secondOwner, PARTNER_POS);
+    dog.lovePlayer(secondOwner);
+    partner.lovePlayer(secondOwner);
+
+    final UnleashedDogEntity puppy =
+        (UnleashedDogEntity) dog.createChild(context.getWorld(), partner);
+
+    context.assertEquals(
+        secondOwner.getUuid(),
+        puppy.getOwnerUuid(),
+        "The puppy should belong to the breeder who owns a parent");
+    context.assertEquals(
+        DogCommand.SIT, puppy.getCommand(), "An adopted newborn should be told to sit");
     context.complete();
   }
 

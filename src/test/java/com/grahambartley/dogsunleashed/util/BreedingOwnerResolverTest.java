@@ -31,28 +31,25 @@ class BreedingOwnerResolverTest {
     assertEquals(expected, BreedingOwnerResolver.resolveInheritedOwnerUuid(primary, secondary));
   }
 
-  static Stream<Arguments> newbornCases() {
+  static Stream<Arguments> ownsAParentCases() {
     return Stream.of(
-        Arguments.of("primary owner bred them -> primary", PRIMARY, PRIMARY, SECONDARY, PRIMARY),
-        Arguments.of(
-            "secondary owner bred them -> secondary", SECONDARY, PRIMARY, SECONDARY, SECONDARY),
-        Arguments.of("stranger bred them -> primary", STRANGER, PRIMARY, SECONDARY, PRIMARY),
-        Arguments.of(
-            "stranger, no primary owner -> secondary", STRANGER, null, SECONDARY, SECONDARY),
-        Arguments.of("nobody bred them -> primary", null, PRIMARY, SECONDARY, PRIMARY),
-        Arguments.of("stranger, no owners -> null", STRANGER, null, null, null));
+        Arguments.of("owner of the primary parent", PRIMARY, PRIMARY, SECONDARY, true),
+        Arguments.of("owner of the secondary parent", SECONDARY, PRIMARY, SECONDARY, true),
+        Arguments.of("a stranger", STRANGER, PRIMARY, SECONDARY, false),
+        Arguments.of("a stranger when no parent has an owner", STRANGER, null, null, false),
+        Arguments.of("no player", null, PRIMARY, SECONDARY, false),
+        Arguments.of("no player and no owners", null, null, null, false));
   }
 
   @ParameterizedTest(name = "{0}")
-  @MethodSource("newbornCases")
-  @DisplayName("a newborn goes to the breeding player only when they own a parent")
-  void resolveNewbornOwnerUuidNeverPicksAStranger(
+  @MethodSource("ownsAParentCases")
+  @DisplayName("a player owns a parent only when they own one of the two")
+  void ownsAParentMatchesEitherOwner(
       final String label,
-      final UUID lovingPlayer,
+      final UUID player,
       final UUID primary,
       final UUID secondary,
-      final UUID expected) {
-    assertEquals(
-        expected, BreedingOwnerResolver.resolveNewbornOwnerUuid(lovingPlayer, primary, secondary));
+      final boolean expected) {
+    assertEquals(expected, BreedingOwnerResolver.ownsAParent(player, primary, secondary));
   }
 }

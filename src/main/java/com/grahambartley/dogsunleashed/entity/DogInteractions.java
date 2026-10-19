@@ -39,7 +39,7 @@ public final class DogInteractions {
     return owner || !tamed || sneaking;
   }
 
-  public static boolean mayStartLove(final boolean owner, final boolean baby) {
+  public static boolean mayFeedBreedingItem(final boolean owner, final boolean baby) {
     return owner || baby;
   }
 
@@ -115,7 +115,7 @@ public final class DogInteractions {
                 () -> this.tryCure(player, itemStack),
                 () -> this.tryFeedTreat(player, itemStack),
                 () -> this.tryHeal(player, itemStack),
-                () -> this.tryRefuseStrangerLove(player, itemStack),
+                () -> this.tryRefuseStrangerBreedingFood(player, itemStack),
                 () -> this.tryDyeCollar(player, itemStack),
                 () -> this.tryRepairArmour(player, itemStack),
                 () -> this.tryDirectEquip(player, hand, itemStack),
@@ -206,10 +206,10 @@ public final class DogInteractions {
     return ActionResult.SUCCESS;
   }
 
-  private @Nullable ActionResult tryRefuseStrangerLove(
+  private @Nullable ActionResult tryRefuseStrangerBreedingFood(
       final PlayerEntity player, final ItemStack itemStack) {
     if (!this.dog.isBreedingItem(itemStack)
-        || mayStartLove(this.dog.isOwner(player), this.dog.isBaby())) {
+        || mayFeedBreedingItem(this.dog.isOwner(player), this.dog.isBaby())) {
       return null;
     }
     return ActionResult.PASS;

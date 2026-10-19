@@ -32,7 +32,7 @@ class DogInteractionsTest {
     assertEquals(expected, DogInteractions.shouldConsumeOnClient(owner, tamed, sneaking));
   }
 
-  static Stream<Arguments> loveCases() {
+  static Stream<Arguments> breedingFoodCases() {
     return Stream.of(
         Arguments.of("the owner feeding their adult dog", true, false, true),
         Arguments.of("the owner feeding their puppy", true, true, true),
@@ -41,10 +41,10 @@ class DogInteractionsTest {
   }
 
   @ParameterizedTest(name = "{0}")
-  @MethodSource("loveCases")
-  @DisplayName("Only the owner can start breeding, anyone may feed a puppy")
-  void onlyTheOwnerStartsLove(
+  @MethodSource("breedingFoodCases")
+  @DisplayName("Only the owner can feed breeding food to an adult dog, anyone may feed a puppy")
+  void onlyTheOwnerFeedsAnAdultBreedingFood(
       final String description, final boolean owner, final boolean baby, final boolean expected) {
-    assertEquals(expected, DogInteractions.mayStartLove(owner, baby));
+    assertEquals(expected, DogInteractions.mayFeedBreedingItem(owner, baby));
   }
 }
