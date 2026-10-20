@@ -125,7 +125,7 @@ public final class DogStatueGameTest implements FabricGameTest {
             petId,
             player.getUuid(),
             UnleashedDogBreed.BEAGLE,
-            "Bentley",
+            "Pepper",
             0.0f,
             20.0f,
             context.getAbsolutePos(REL_GRAVE),
@@ -135,6 +135,7 @@ public final class DogStatueGameTest implements FabricGameTest {
     context.setBlockState(REL_GRAVE, ModBlocks.DOG_GRAVE.getDefaultState());
     final DogGraveBlockEntity grave = context.getBlockEntity(REL_GRAVE);
     grave.setDogUuid(petId);
+    grave.setDogName("Bentley");
 
     context.useBlock(REL_BASE, player);
 
