@@ -8,6 +8,7 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.scent.ScentPhase;
 import com.grahambartley.dogsunleashed.entity.scent.ScentProgress;
 import com.grahambartley.dogsunleashed.entity.scent.ScentRules;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
@@ -297,7 +298,7 @@ public final class DogScentGameTest implements FabricGameTest {
   }
 
   private static ServerPlayerEntity placeOwner(final TestContext context) {
-    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity player = CreativeTestPlayer.join(context);
     final BlockPos absolute = context.getAbsolutePos(OWNER_SPOT);
     player.requestTeleport(absolute.getX() + 0.5, absolute.getY(), absolute.getZ() + 0.5);
     return player;

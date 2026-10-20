@@ -9,6 +9,7 @@ import com.grahambartley.dogsunleashed.entity.burial.BoneCaches;
 import com.grahambartley.dogsunleashed.entity.burial.BoneThieves;
 import com.grahambartley.dogsunleashed.entity.goal.ChaseBoneThiefGoal;
 import com.grahambartley.dogsunleashed.entity.goal.FoxRaidCacheGoal;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import java.util.Optional;
 import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -312,7 +313,7 @@ public final class FoxBoneRaidGameTest implements FabricGameTest {
   }
 
   private static UnleashedDogEntity spawnOwnedDog(final TestContext context) {
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     owner.changeGameMode(GameMode.SURVIVAL);
     final BlockPos spot = context.getAbsolutePos(OWNER_SPOT);
     owner.requestTeleport(spot.getX() + 0.5, spot.getY(), spot.getZ() + 0.5);

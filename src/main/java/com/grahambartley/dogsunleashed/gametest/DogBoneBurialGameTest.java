@@ -8,6 +8,7 @@ import com.grahambartley.dogsunleashed.entity.burial.BoneCache;
 import com.grahambartley.dogsunleashed.entity.burial.BoneCacheRules;
 import com.grahambartley.dogsunleashed.entity.burial.BoneCaches;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.Blocks;
@@ -237,7 +238,7 @@ public final class DogBoneBurialGameTest implements FabricGameTest {
   }
 
   private static ServerPlayerEntity placeOwner(final TestContext context) {
-    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity player = CreativeTestPlayer.join(context);
     player.changeGameMode(GameMode.SURVIVAL);
     final BlockPos absolute = context.getAbsolutePos(OWNER_SPOT);
     player.requestTeleport(absolute.getX() + 0.5, absolute.getY(), absolute.getZ() + 0.5);

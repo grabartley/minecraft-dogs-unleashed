@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModPendantItems;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
 import com.grahambartley.dogsunleashed.item.pendant.PendantType;
 import java.util.Arrays;
@@ -56,7 +57,7 @@ public final class RecipeUnlockGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = TICK_LIMIT)
   public void holdingABlankPendantUnlocksEveryPendantRecipe(final TestContext context) {
-    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity player = CreativeTestPlayer.join(context);
     final List<Identifier> pendants =
         Arrays.stream(PendantType.values())
             .map(type -> Identifier.of(DogsUnleashed.MOD_ID, type.itemId()))
@@ -89,7 +90,7 @@ public final class RecipeUnlockGameTest implements FabricGameTest {
   }
 
   private static void testBlankPendantUnlocksFrom(final TestContext context, final Item item) {
-    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity player = CreativeTestPlayer.join(context);
     context.assertFalse(
         hasRecipe(player, BLANK_PENDANT_RECIPE), "Blank Pendant should start locked");
 

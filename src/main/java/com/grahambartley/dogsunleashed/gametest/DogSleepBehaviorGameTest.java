@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.goal.DogSleepWindow;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.SleepBatchFixture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -294,8 +295,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
     final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relBedPos);
     husky.setTamed(true, true);
     husky.setInvulnerable(true);
-    @SuppressWarnings("removal")
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     husky.setOwnerUuid(owner.getUuid());
     final AtomicBoolean armedForWake = new AtomicBoolean(false);
 
@@ -348,8 +348,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
     final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relBedPos);
     husky.setTamed(true, true);
-    @SuppressWarnings("removal")
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     husky.setOwnerUuid(owner.getUuid());
 
     context.runAtTick(
@@ -412,8 +411,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
 
     final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(2, 1, 2));
     husky.setTamed(true, true);
-    @SuppressWarnings("removal")
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     husky.setOwnerUuid(owner.getUuid());
 
     context.runAtTick(
@@ -450,8 +448,7 @@ public final class DogSleepBehaviorGameTest implements FabricGameTest {
     final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, relBedPos);
     husky.setTamed(true, true);
     husky.setInvulnerable(true);
-    @SuppressWarnings("removal")
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     husky.setOwnerUuid(owner.getUuid());
     final AtomicBoolean armedForAutoSleep = new AtomicBoolean(false);
     final AtomicBoolean hasAutoSlept = new AtomicBoolean(false);

@@ -5,6 +5,7 @@ import static com.grahambartley.dogsunleashed.gametest.util.PendantTestHelper.DO
 import static com.grahambartley.dogsunleashed.gametest.util.PendantTestHelper.OWNER_POS;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
 import com.grahambartley.dogsunleashed.gametest.util.PendantTestHelper;
 import com.grahambartley.dogsunleashed.item.pendant.PendantFamily;
@@ -284,7 +285,7 @@ public final class PendantWardingGameTest implements FabricGameTest {
 
   private static void assertCreeperFlees(
       final TestContext context, final PendantType ward, final boolean expectFlee) {
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     PendantTestHelper.placeAt(context, owner, OWNER_POS);
     PendantTestHelper.dogWearing(context, ward, owner, DOG_POS);
     final CreeperEntity creeper = context.spawnEntity(EntityType.CREEPER, new BlockPos(2, 2, 3));

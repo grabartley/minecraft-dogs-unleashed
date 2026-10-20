@@ -6,6 +6,7 @@ import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.DogDeathWatch;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.goal.AutoSleepGoal;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import com.grahambartley.dogsunleashed.gametest.util.SleepBatchFixture;
@@ -48,7 +49,7 @@ public final class OwnerDeathWatchGameTest implements FabricGameTest {
   }
 
   private static ServerPlayerEntity ownerAt(final TestContext context, final BlockPos rel) {
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     final Vec3d pos = Vec3d.ofBottomCenter(context.getAbsolutePos(rel));
     owner.refreshPositionAndAngles(pos.x, pos.y, pos.z, 0f, 0f);
     return owner;

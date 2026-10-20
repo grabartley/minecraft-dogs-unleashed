@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.gametest;
 import com.grahambartley.dogsunleashed.ModCostumeItems;
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
@@ -459,7 +460,7 @@ public final class DogCostumeGameTest implements FabricGameTest {
 
   private static ServerPlayerEntity survivalPlayerAt(
       final TestContext context, final BlockPos relativePos) {
-    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity player = CreativeTestPlayer.join(context);
     player.changeGameMode(GameMode.SURVIVAL);
     final BlockPos absolutePos = context.getAbsolutePos(relativePos);
     player.refreshPositionAndAngles(

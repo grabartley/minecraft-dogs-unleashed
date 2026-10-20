@@ -5,6 +5,7 @@ import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import com.grahambartley.dogsunleashed.pet.PetManager;
@@ -131,7 +132,7 @@ public final class DogWhistleGameTest implements FabricGameTest {
   @GameTest(templateName = "dogs-unleashed:dog_arena", batchId = "dog-whistle", tickLimit = 40)
   public void aWhistleCannotBindToSomeoneElsesDog(TestContext context) {
     final ServerPlayerEntity owner = placeOwner(context);
-    final ServerPlayerEntity stranger = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity stranger = CreativeTestPlayer.join(context);
     final UnleashedDogEntity dog = spawnRegisteredDog(context, stranger, FAR_CORNER, "Scout");
     final ItemStack whistle = giveWhistle(owner);
 
@@ -179,7 +180,7 @@ public final class DogWhistleGameTest implements FabricGameTest {
   }
 
   private static ServerPlayerEntity placeOwner(TestContext context) {
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     final BlockPos absolute = context.getAbsolutePos(PLAYER_CORNER);
     owner.requestTeleport(absolute.getX() + 0.5, absolute.getY(), absolute.getZ() + 0.5);
     return owner;

@@ -12,6 +12,7 @@ import com.grahambartley.dogsunleashed.block.DogSleepSpotAssignment;
 import com.grahambartley.dogsunleashed.block.entity.AssignedDogHolder;
 import com.grahambartley.dogsunleashed.block.entity.DogHouseBlockEntity;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.DogHouseTestHelper;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
@@ -81,7 +82,7 @@ public final class DogHouseGameTest implements FabricGameTest {
   }
 
   private static UnleashedDogEntity sleepingDog(final TestContext context, final BlockPos relBed) {
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     final UnleashedDogEntity dog = context.spawnEntity(ModEntities.HUSKY, relBed);
     dog.setTamed(true, true);
     dog.setOwnerUuid(owner.getUuid());
@@ -207,7 +208,7 @@ public final class DogHouseGameTest implements FabricGameTest {
   private static void assertSleepsOnTheCushionCentre(
       final TestContext context, final BiConsumer<UnleashedDogEntity, BlockPos> sendToBed) {
     placeHouse(context);
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     final UnleashedDogEntity dog =
         context.spawnEntity(ModEntities.SHIBA_INU, REL_ORIGIN.offset(FACING));
     dog.setTamed(true, true);

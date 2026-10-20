@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.gametest;
 import com.grahambartley.dogsunleashed.entity.DogWheelSubAction;
 import com.grahambartley.dogsunleashed.entity.DogWheelSubActions;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import com.grahambartley.dogsunleashed.network.ModNetworking;
@@ -32,7 +33,7 @@ public final class DogWheelSubActionGameTest implements FabricGameTest {
       List<String> runs) {}
 
   private static Fixture fixture(final TestContext context, final String refusalKey) {
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(
             context, DogTestData.HUSKY, new BlockPos(0, 1, 0), owner.getUuid());
@@ -71,7 +72,7 @@ public final class DogWheelSubActionGameTest implements FabricGameTest {
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = 20)
   public void strangerCannotRunASubAction(final TestContext context) {
     final Fixture fixture = fixture(context, null);
-    final ServerPlayerEntity stranger = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity stranger = CreativeTestPlayer.join(context);
 
     WheelActionNetworkHandler.selectSubAction(
         fixture.registry(),

@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.goal.GroundNapRules;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.SleepBatchFixture;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.EntityType;
@@ -128,7 +129,7 @@ public final class DireWolfNapGameTest implements FabricGameTest {
   @GameTest(templateName = ARENA, batchId = OWNER_BATCH, tickLimit = 100)
   public void aFollowingDireWolfWakesWhenItsOwnerWalksAway(final TestContext context) {
     final UnleashedDogEntity wolf = context.spawnEntity(ModEntities.DIRE_WOLF, REL_DOG);
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     final Vec3d beside = context.getAbsolute(Vec3d.ofBottomCenter(REL_DOG.east(2)));
     owner.refreshPositionAndAngles(beside.x, beside.y, beside.z, 0.0f, 0.0f);
     wolf.setTamed(true, true);
@@ -162,7 +163,7 @@ public final class DireWolfNapGameTest implements FabricGameTest {
   private static UnleashedDogEntity spawnStayingDog(
       final TestContext context, final EntityType<UnleashedDogEntity> type) {
     final UnleashedDogEntity dog = context.spawnEntity(type, REL_DOG);
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     dog.setTamed(true, true);
     dog.setOwnerUuid(owner.getUuid());
     dog.getCommandController().apply(DogCommand.STAY);

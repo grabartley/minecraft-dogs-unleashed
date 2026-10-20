@@ -7,6 +7,7 @@ import static com.grahambartley.dogsunleashed.gametest.util.PendantTestHelper.OW
 import com.grahambartley.dogsunleashed.ModArmorItems;
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
 import com.grahambartley.dogsunleashed.gametest.util.PendantTestHelper;
 import com.grahambartley.dogsunleashed.item.armor.DogArmorTier;
@@ -265,7 +266,7 @@ public final class DogArmourGameTest implements FabricGameTest {
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
   public void creativeModeTakesCursedArmourOff(final TestContext context) {
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     final UnleashedDogEntity dog = PendantTestHelper.dogWearing(context, null, owner, DOG_POS);
     dog.getEquipmentHolder().setStack(DogEquipmentSlot.ARMOUR, bound(context, Items.WOLF_ARMOR));
     final DogEquipmentScreenHandler handler = openHandler(owner, dog);

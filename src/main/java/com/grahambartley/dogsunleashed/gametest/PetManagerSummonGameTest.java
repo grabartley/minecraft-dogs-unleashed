@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.gametest;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.item.DogWhistleItem;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
@@ -75,7 +76,7 @@ public final class PetManagerSummonGameTest implements FabricGameTest {
   }
 
   private static ServerPlayerEntity placeOwner(TestContext context) {
-    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity player = CreativeTestPlayer.join(context);
     final Vec3d absolutePos = context.getAbsolute(OWNER_POS);
     player.refreshPositionAndAngles(absolutePos.x, absolutePos.y, absolutePos.z, 0.0F, 0.0F);
     return player;

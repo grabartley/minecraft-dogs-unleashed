@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.gametest;
 
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.server.ServerConfigEditPermission;
 import com.grahambartley.dogsunleashed.server.ServerConfigService;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -15,7 +16,7 @@ public final class ServerConfigEditPermissionGameTest implements FabricGameTest 
 
   @GameTest(templateName = ARENA, tickLimit = 20)
   public void operatorCanEditSettings(final TestContext context) {
-    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity player = CreativeTestPlayer.join(context);
     final OperatorList operators = player.getServer().getPlayerManager().getOpList();
     operators.add(
         new OperatorEntry(player.getGameProfile(), ServerConfigService.OP_PERMISSION_LEVEL, false));
@@ -31,7 +32,7 @@ public final class ServerConfigEditPermissionGameTest implements FabricGameTest 
 
   @GameTest(templateName = ARENA, tickLimit = 20)
   public void nonOperatorWhoIsNotHostCannotEditSettings(final TestContext context) {
-    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity player = CreativeTestPlayer.join(context);
     context.assertFalse(
         player.getServer().isHost(player.getGameProfile()),
         "The test server must not treat the mock player as its host");
@@ -43,7 +44,7 @@ public final class ServerConfigEditPermissionGameTest implements FabricGameTest 
 
   @GameTest(templateName = ARENA, tickLimit = 20)
   public void nonOperatorWithNoLocalServerCannotEditSettings(final TestContext context) {
-    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity player = CreativeTestPlayer.join(context);
     context.assertFalse(
         ServerConfigEditPermission.canEdit(player, null),
         "Without a local server only operator permission can grant edits");

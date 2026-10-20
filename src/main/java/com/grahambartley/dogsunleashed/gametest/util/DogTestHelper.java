@@ -68,7 +68,7 @@ public final class DogTestHelper {
   }
 
   public static ServerPlayerEntity mockPlayerStandingClearInArena(TestContext context) {
-    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity player = CreativeTestPlayer.join(context);
     final Vec3d clear = Vec3d.ofBottomCenter(context.getAbsolutePos(ARENA_CLEAR_STANDING_POS));
     player.refreshPositionAndAngles(clear.x, clear.y, clear.z, 0.0f, 0.0f);
     return player;
