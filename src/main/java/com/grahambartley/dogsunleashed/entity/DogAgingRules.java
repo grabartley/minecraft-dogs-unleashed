@@ -31,8 +31,11 @@ public final class DogAgingRules {
   }
 
   public static boolean isSenior(
-      final boolean enabled, final long adultAgeTicks, final int seniorAfterDays) {
-    return enabled && adultAgeTicks >= seniorAgeTicks(seniorAfterDays);
+      final boolean enabled,
+      final boolean undead,
+      final long adultAgeTicks,
+      final int seniorAfterDays) {
+    return enabled && !undead && adultAgeTicks >= seniorAgeTicks(seniorAfterDays);
   }
 
   public static boolean inheritsLegacy(final boolean parentASenior, final boolean parentBSenior) {

@@ -119,6 +119,9 @@ public final class DogResurrection {
             petData.getGrowthBattlesWon(),
             petData.getGrowthTicksInStage());
     dog.getFur().setStage(DogFurStage.fromOrdinal(petData.getFurStage()));
+    dog.getComponents()
+        .get(DogAging.class)
+        .restore(petData.getAdultAgeTicks(), petData.hasSeniorParent());
     dog.setCustomName(Text.literal(petData.getName()));
     dog.setCustomNameVisible(true);
     dog.setOwnerUuid(petData.getOwnerId());

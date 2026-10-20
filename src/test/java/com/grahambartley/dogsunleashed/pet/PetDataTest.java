@@ -208,17 +208,24 @@ class PetDataTest {
                 new PortraitLook(BASE_BABY, baseCollar(), BASE_COAT, BASE_EYE, BASE_FUR, true)));
   }
 
-  @ParameterizedTest(name = "age {0} ticks, senior {1}")
-  @CsvSource({"0, false", "24000, false", "2400000, true", "9000000000, true"})
-  @DisplayName("the adult age and senior flag survive a save and reload")
-  void ageRoundTrips(final long ageTicks, final boolean senior) {
+  @ParameterizedTest(name = "age {0} ticks, senior {1}, senior parent {2}")
+  @CsvSource({
+    "0, false, false",
+    "24000, false, true",
+    "2400000, true, false",
+    "9000000000, true, true"
+  })
+  @DisplayName("the adult age, senior flag and legacy survive a save and reload")
+  void ageRoundTrips(final long ageTicks, final boolean senior, final boolean seniorParent) {
     final NbtCompound nbt = baselinePet().toNbt();
     nbt.putLong(ModNbtKeys.ADULT_AGE_TICKS, ageTicks);
     nbt.putBoolean(ModNbtKeys.SENIOR, senior);
+    nbt.putBoolean(ModNbtKeys.SENIOR_PARENT, seniorParent);
     final PetData reloaded = PetData.fromNbt(PetData.fromNbt(nbt).toNbt());
     assertEquals(ageTicks, reloaded.getAdultAgeTicks());
     assertEquals(senior, reloaded.isSenior());
     assertEquals(senior, reloaded.portraitLook().senior());
+    assertEquals(seniorParent, reloaded.hasSeniorParent());
   }
 
   @Test

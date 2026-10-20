@@ -37,7 +37,7 @@ public class GroundNapGoal extends Goal {
             this.dog.getWorld().getTimeOfDay(),
             this.lastNappedPeriod,
             this.dog.getUuid().getLeastSignificantBits(),
-            this.napTicks())
+            this.currentNapTicks())
         && this.situation().allowsNapToStart();
   }
 
@@ -54,7 +54,7 @@ public class GroundNapGoal extends Goal {
     final World world = this.dog.getWorld();
     this.lastNappedPeriod = GroundNapRules.periodOf(world.getTimeOfDay());
     this.startedAt = world.getTime();
-    this.napTicks = this.napTicks();
+    this.napTicks = this.currentNapTicks();
     this.dog.getSleepController().startNapping();
   }
 
@@ -74,7 +74,7 @@ public class GroundNapGoal extends Goal {
     return this.dog.getComponents().get(DogAging.class).isSenior();
   }
 
-  private long napTicks() {
+  private long currentNapTicks() {
     return GroundNapRules.napTicks(this.isSenior());
   }
 

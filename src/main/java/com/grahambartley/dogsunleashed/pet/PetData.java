@@ -53,6 +53,7 @@ public final class PetData {
   private int staminaPercent;
   private long adultAgeTicks;
   private boolean senior;
+  private boolean seniorParent;
 
   public PetData(
       UUID petId,
@@ -215,6 +216,10 @@ public final class PetData {
     return senior;
   }
 
+  public boolean hasSeniorParent() {
+    return seniorParent;
+  }
+
   public int getGrowthBattlesWon() {
     return growthBattlesWon;
   }
@@ -259,6 +264,7 @@ public final class PetData {
     final DogAging aging = dog.getComponents().get(DogAging.class);
     this.adultAgeTicks = aging.adultAgeTicks();
     this.senior = aging.isSenior();
+    this.seniorParent = aging.hasSeniorParent();
     final DogGenome dogGenome = dog.getGenome();
     this.genome = dogGenome;
     this.composition = dogGenome != null ? dogGenome.composition() : List.of();
@@ -314,6 +320,7 @@ public final class PetData {
     nbt.putInt(ModNbtKeys.STAMINA, staminaPercent);
     nbt.putLong(ModNbtKeys.ADULT_AGE_TICKS, adultAgeTicks);
     nbt.putBoolean(ModNbtKeys.SENIOR, senior);
+    nbt.putBoolean(ModNbtKeys.SENIOR_PARENT, seniorParent);
     if (!composition.isEmpty()) {
       nbt.put(ModNbtKeys.COMPOSITION, DogGenome.compositionToNbt(composition));
     }
@@ -380,6 +387,7 @@ public final class PetData {
     pet.staminaPercent = nbt.getInt(ModNbtKeys.STAMINA);
     pet.adultAgeTicks = Math.max(0L, nbt.getLong(ModNbtKeys.ADULT_AGE_TICKS));
     pet.senior = nbt.getBoolean(ModNbtKeys.SENIOR);
+    pet.seniorParent = nbt.getBoolean(ModNbtKeys.SENIOR_PARENT);
     if (nbt.contains(ModNbtKeys.COMPOSITION, NbtElement.COMPOUND_TYPE)) {
       pet.composition = DogGenome.compositionFromNbt(nbt.getCompound(ModNbtKeys.COMPOSITION));
     }

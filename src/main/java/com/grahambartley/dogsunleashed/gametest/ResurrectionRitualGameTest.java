@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.gametest;
 import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.block.entity.DogGraveBlockEntity;
+import com.grahambartley.dogsunleashed.entity.DogAging;
 import com.grahambartley.dogsunleashed.entity.DogCollar;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
@@ -41,6 +42,7 @@ public final class ResurrectionRitualGameTest implements FabricGameTest {
   private static final int STRIKE_TICK = 5;
   private static final int ASSERT_TICK = 20;
   private static final int TICK_LIMIT = 100;
+  private static final long ADULT_AGE_TICKS = 123_456L;
 
   private static final DogGenome GENOME =
       new DogGenome(
@@ -171,6 +173,10 @@ public final class ResurrectionRitualGameTest implements FabricGameTest {
           context.assertTrue(
               GENOME.equals(dog.getGenome()),
               "Genome should survive the ritual, but was " + dog.getGenome());
+          context.assertTrue(
+              dog.getComponents().get(DogAging.class).adultAgeTicks() == ADULT_AGE_TICKS,
+              "Age should survive the ritual, but was "
+                  + dog.getComponents().get(DogAging.class).adultAgeTicks());
           context.assertTrue(
               pet.getOwnerId().equals(dog.getOwnerUuid()),
               "The raised dog should still belong to its owner");
@@ -384,6 +390,7 @@ public final class ResurrectionRitualGameTest implements FabricGameTest {
     dog.setAiDisabled(true);
     dog.applyGenome(GENOME);
     dog.getComponents().get(DogCollar.class).setColor(COLLAR);
+    dog.getComponents().get(DogAging.class).setAdultAgeTicks(ADULT_AGE_TICKS);
     dog.setOwnerUuid(ownerId);
     dog.setTamed(true, true);
 

@@ -40,6 +40,11 @@ public final class DogAging extends DogComponent {
     return this.seniorParent;
   }
 
+  void restore(final long adultAgeTicks, final boolean seniorParent) {
+    this.setAdultAgeTicks(adultAgeTicks);
+    this.seniorParent = seniorParent;
+  }
+
   void inheritLegacy(final DogAging parentA, final DogAging parentB) {
     this.seniorParent = DogAgingRules.inheritsLegacy(parentA.isSenior(), parentB.isSenior());
   }
@@ -60,7 +65,10 @@ public final class DogAging extends DogComponent {
     }
     this.showSenior(
         DogAgingRules.isSenior(
-            settings.dogAgingEnabled(), this.adultAgeTicks, settings.seniorAfterDays()));
+            settings.dogAgingEnabled(),
+            this.dog.isUndead(),
+            this.adultAgeTicks,
+            settings.seniorAfterDays()));
   }
 
   private void showSenior(final boolean senior) {

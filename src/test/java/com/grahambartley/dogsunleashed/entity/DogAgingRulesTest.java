@@ -53,20 +53,25 @@ class DogAgingRulesTest {
     assertEquals(expected, DogAgingRules.ages(enabled, baby, undead, stage, growsThroughStages));
   }
 
-  @ParameterizedTest(name = "enabled {0}, age {1} ticks, senior after {2} days -> {3}")
+  @ParameterizedTest(name = "enabled {0}, undead {1}, age {2} ticks, senior after {3} days -> {4}")
   @CsvSource({
-    "true, 0, 1, false",
-    "true, 23999, 1, false",
-    "true, 24000, 1, true",
-    "true, 2399999, 100, false",
-    "true, 2400000, 100, true",
-    "false, 2400000, 100, false",
-    "false, 99999999, 1, false"
+    "true, false, 0, 1, false",
+    "true, false, 23999, 1, false",
+    "true, false, 24000, 1, true",
+    "true, false, 2399999, 100, false",
+    "true, false, 2400000, 100, true",
+    "false, false, 2400000, 100, false",
+    "false, false, 99999999, 1, false",
+    "true, true, 2400000, 100, false"
   })
-  @DisplayName("a dog is senior once its adult age reaches the configured days")
+  @DisplayName("a living dog is senior once its adult age reaches the configured days")
   void isSenior(
-      final boolean enabled, final long ageTicks, final int days, final boolean expected) {
-    assertEquals(expected, DogAgingRules.isSenior(enabled, ageTicks, days));
+      final boolean enabled,
+      final boolean undead,
+      final long ageTicks,
+      final int days,
+      final boolean expected) {
+    assertEquals(expected, DogAgingRules.isSenior(enabled, undead, ageTicks, days));
   }
 
   @ParameterizedTest(name = "parents senior {0} and {1} -> legacy {2}")

@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModEntities;
+import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.config.AgingSettings;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.entity.DireWolfGrowthStage;
@@ -196,6 +197,27 @@ public final class DogAgingGameTest implements FabricGameTest {
     context.assertTrue(
         aging(loaded).adultAgeTicks() == SENIOR_AGE + 123, "The adult age was lost on reload");
     context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = AGING_ON, tickLimit = 20)
+  public void timeWhileUnloadedCountsOnReload(final TestContext context) {
+    final UnleashedDogEntity dog = still(context, ModEntities.BEAGLE, REL_DOG);
+    final NbtCompound nbt = new NbtCompound();
+    dog.writeNbt(nbt);
+    nbt.putLong(ModNbtKeys.ADULT_AGE_TICKS, 0L);
+    nbt.putLong(ModNbtKeys.AGE_LAST_SEEN_TIME, context.getWorld().getTime() - SENIOR_AGE);
+    final UnleashedDogEntity loaded = still(context, ModEntities.BEAGLE, REL_MATE);
+    loaded.readNbt(nbt);
+
+    context.runAtTick(
+        5,
+        () -> {
+          context.assertTrue(
+              aging(loaded).adultAgeTicks() >= SENIOR_AGE,
+              "A day away should count, but the age is " + aging(loaded).adultAgeTicks());
+          context.assertTrue(aging(loaded).isSenior(), "A day away made the adult senior");
+          context.complete();
+        });
   }
 
   @GameTest(templateName = ARENA, batchId = AGING_OFF, tickLimit = 40)

@@ -1,6 +1,9 @@
 package com.grahambartley.dogsunleashed.network.payload;
 
+import com.grahambartley.dogsunleashed.DogsUnleashed;
+import com.grahambartley.dogsunleashed.config.AgingSettings;
 import com.grahambartley.dogsunleashed.entity.DogAging;
+import com.grahambartley.dogsunleashed.entity.DogAgingRules;
 import com.grahambartley.dogsunleashed.entity.DogCollar;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
@@ -63,7 +66,7 @@ public record PetSyncData(
         petData.getComposition(),
         RidingView.of(petData.getBreed(), petData.getGrowthStage(), petData.getStaminaPercent()),
         exploring,
-        petData.isSenior());
+        seniorOf(petData));
   }
 
   public static PetSyncData fromDog(final UnleashedDogEntity dog) {
@@ -94,6 +97,15 @@ public record PetSyncData(
             Math.round(dog.getRiding().staminaFraction() * 100.0f)),
         false,
         dog.getComponents().get(DogAging.class).isSenior());
+  }
+
+  static boolean seniorOf(final PetData petData) {
+    final AgingSettings aging = DogsUnleashed.SERVER_CONFIG.aging();
+    return DogAgingRules.isSenior(
+        aging.dogAgingEnabled(),
+        petData.getLifeState() == PetLifeState.UNDEAD,
+        petData.getAdultAgeTicks(),
+        aging.seniorAfterDays());
   }
 
   public boolean alive() {
