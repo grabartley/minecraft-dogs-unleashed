@@ -108,6 +108,18 @@ public final class DogAnimationControllers {
                 }));
 
     controllers.add(
+        new AnimationController<>(
+            dog,
+            "bone_dig",
+            SCENT_TRANSITION_TICKS,
+            state -> {
+              if (dog.getComponents().get(DogBoneBurial.class).isDigging()) {
+                return state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.DIG));
+              }
+              return PlayState.STOP;
+            }));
+
+    controllers.add(
         new AnimationController<>(dog, DogAnimationKeys.BARK, 0, state -> PlayState.STOP)
             .triggerableAnim(
                 DogAnimationKeys.BARK, RawAnimation.begin().thenPlay(DogAnimationKeys.BARK)));

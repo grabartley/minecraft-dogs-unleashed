@@ -82,6 +82,11 @@ public final class ModNbtKeys {
   public static final String GRUDGES = "Grudges";
   public static final String GRUDGE_PLAYERS = "Players";
   public static final String STAMINA = "RidingStamina";
+  public static final String BONE_CACHES = "BoneCaches";
+  public static final String BONE_CACHE_POS = "Pos";
+  public static final String BONE_CACHE_OWNER = "Owner";
+  public static final String BONE_CACHE_DOG = "Dog";
+  public static final String BONE_CACHE_BURIED_AT = "BuriedAt";
 
   private ModNbtKeys() {}
 }

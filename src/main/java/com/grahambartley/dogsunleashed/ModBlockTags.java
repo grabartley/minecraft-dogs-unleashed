@@ -13,6 +13,9 @@ public class ModBlockTags {
   public static final TagKey<Block> DOG_BEDS =
       TagKey.of(RegistryKeys.BLOCK, Identifier.of(DogsUnleashed.MOD_ID, "dog_beds"));
 
+  public static final TagKey<Block> BONE_BURIAL_GROUND =
+      TagKey.of(RegistryKeys.BLOCK, Identifier.of(DogsUnleashed.MOD_ID, "bone_burial_ground"));
+
   public static TagKey<Block> spawnableOn(final Identifier entityTypeId) {
     return TagKey.of(RegistryKeys.BLOCK, entityTypeId.withPrefixedPath("spawnable_on/"));
   }
