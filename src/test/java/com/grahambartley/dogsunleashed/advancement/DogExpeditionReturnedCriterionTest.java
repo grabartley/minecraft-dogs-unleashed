@@ -11,7 +11,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 class DogExpeditionReturnedCriterionTest {
 
   @Test
-  @DisplayName("the criterion is registered under dogs-unleashed:dog_expedition_returned")
+  @DisplayName("the criterion id is dogs-unleashed:dog_expedition_returned")
   void exposesItsIdentifier() {
     assertEquals(
         "dogs-unleashed:dog_expedition_returned", DogExpeditionReturnedCriterion.ID.toString());

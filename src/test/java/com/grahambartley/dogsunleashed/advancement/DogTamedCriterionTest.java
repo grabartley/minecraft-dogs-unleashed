@@ -13,7 +13,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 class DogTamedCriterionTest {
 
   @Test
-  @DisplayName("the criterion is registered under dogs-unleashed:dog_tamed")
+  @DisplayName("the criterion id is dogs-unleashed:dog_tamed")
   void exposesItsIdentifier() {
     assertEquals("dogs-unleashed:dog_tamed", DogTamedCriterion.ID.toString());
   }
