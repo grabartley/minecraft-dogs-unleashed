@@ -20,7 +20,10 @@ class ModBlockEntitiesTest {
   static Stream<Arguments> blockEntities() {
     return Stream.of(
         Arguments.of("dog_grave", ModBlockEntities.DOG_GRAVE, ModBlocks.DOG_GRAVE),
-        Arguments.of("food_bowl", ModBlockEntities.FOOD_BOWL, ModBlocks.FOOD_BOWL));
+        Arguments.of("food_bowl", ModBlockEntities.FOOD_BOWL, ModBlocks.FOOD_BOWL),
+        Arguments.of("dog_statue", ModBlockEntities.DOG_STATUE, ModStatueBlocks.STONE),
+        Arguments.of(
+            "dog_statue", ModBlockEntities.DOG_STATUE, ModStatueBlocks.WAXED_OXIDIZED_COPPER));
   }
 
   @ParameterizedTest(name = "dogs-unleashed:{0} is registered for its block")

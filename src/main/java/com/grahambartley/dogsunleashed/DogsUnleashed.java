@@ -63,6 +63,7 @@ public class DogsUnleashed implements ModInitializer {
     ModComponents.initialize();
     ModAttachments.initialize();
     ModBlocks.initialize();
+    ModStatueBlocks.initialize();
     ModBlockEntities.initialize();
     ModPointsOfInterest.initialize();
     ModEntities.initialize();

@@ -1,14 +1,14 @@
 package com.grahambartley.dogsunleashed.render.coat;
 
 import static com.grahambartley.dogsunleashed.DogsUnleashed.MOD_ID;
+import static com.grahambartley.dogsunleashed.render.coat.CoatImages.abgr;
+import static com.grahambartley.dogsunleashed.render.coat.CoatImages.alpha;
+import static com.grahambartley.dogsunleashed.render.coat.CoatImages.blue;
+import static com.grahambartley.dogsunleashed.render.coat.CoatImages.green;
+import static com.grahambartley.dogsunleashed.render.coat.CoatImages.red;
 
 import com.grahambartley.dogsunleashed.render.rig.Texel;
-import java.io.IOException;
-import java.io.InputStream;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
-import net.minecraft.client.texture.NativeImageBackedTexture;
-import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,22 +30,13 @@ public final class UndeadCoatTextures {
   }
 
   private static @Nullable Identifier decay(final Identifier living, final UndeadDogEyes eyes) {
-    final SourcePixels source = sourceOf(living);
-    if (source == null) {
-      return null;
-    }
-    try {
-      final NativeImage image = decayedImage(source.image(), eyes);
-      final Identifier id =
-          Identifier.of(MOD_ID, "undead/" + living.getNamespace() + "/" + living.getPath());
-      MinecraftClient.getInstance()
-          .getTextureManager()
-          .registerTexture(id, new NativeImageBackedTexture(image));
-      return id;
-    } finally {
-      if (source.owned()) {
-        source.image().close();
+    try (CoatImages.Source source = CoatImages.read(living)) {
+      if (source == null) {
+        return null;
       }
+      return CoatImages.register(
+          Identifier.of(MOD_ID, "undead/" + living.getNamespace() + "/" + living.getPath()),
+          decayedImage(source.image(), eyes));
     }
   }
 
@@ -89,48 +80,5 @@ public final class UndeadCoatTextures {
       return false;
     }
     return alpha(source.getColor(x, y)) == 0;
-  }
-
-  private record SourcePixels(NativeImage image, boolean owned) {}
-
-  private static @Nullable SourcePixels sourceOf(final Identifier living) {
-    final MinecraftClient client = MinecraftClient.getInstance();
-    if (client == null) {
-      return null;
-    }
-    final Resource resource = client.getResourceManager().getResource(living).orElse(null);
-    if (resource != null) {
-      try (InputStream stream = resource.getInputStream()) {
-        return new SourcePixels(NativeImage.read(stream), true);
-      } catch (final IOException exception) {
-        return null;
-      }
-    }
-    if (client.getTextureManager().getTexture(living)
-            instanceof NativeImageBackedTexture dynamicTexture
-        && dynamicTexture.getImage() != null) {
-      return new SourcePixels(dynamicTexture.getImage(), false);
-    }
-    return null;
-  }
-
-  private static int abgr(final int a, final int r, final int g, final int b) {
-    return (a << 24) | (b << 16) | (g << 8) | r;
-  }
-
-  private static int alpha(final int abgr) {
-    return (abgr >>> 24) & 0xFF;
-  }
-
-  private static int red(final int abgr) {
-    return abgr & 0xFF;
-  }
-
-  private static int green(final int abgr) {
-    return (abgr >>> 8) & 0xFF;
-  }
-
-  private static int blue(final int abgr) {
-    return (abgr >>> 16) & 0xFF;
   }
 }

@@ -12,7 +12,7 @@ public final class DogAnimationState {
     return this.dog.getDataTracker().get(UnleashedDogEntity.HOWLING);
   }
 
-  void setHowling(final boolean howling) {
+  public void setHowling(final boolean howling) {
     this.dog.getDataTracker().set(UnleashedDogEntity.HOWLING, howling);
   }
 

@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    "dogs-unleashed:statue_base_copper",
+    "dogs-unleashed:statue_base_exposed_copper",
+    "dogs-unleashed:statue_base_weathered_copper",
+    "dogs-unleashed:statue_base_oxidized_copper",
+    "dogs-unleashed:statue_base_waxed_copper",
+    "dogs-unleashed:statue_base_waxed_exposed_copper",
+    "dogs-unleashed:statue_base_waxed_weathered_copper",
+    "dogs-unleashed:statue_base_waxed_oxidized_copper"
+  ]
+}

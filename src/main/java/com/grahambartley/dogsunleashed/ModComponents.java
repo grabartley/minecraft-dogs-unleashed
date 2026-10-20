@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed;
 
+import com.grahambartley.dogsunleashed.block.DogStatue;
 import com.mojang.serialization.Codec;
 import java.util.UUID;
 import net.minecraft.component.ComponentType;
@@ -85,6 +86,15 @@ public class ModComponents {
           ComponentType.<String>builder()
               .codec(Codec.STRING)
               .packetCodec(PacketCodecs.STRING)
+              .build());
+
+  public static final ComponentType<DogStatue> DOG_STATUE =
+      Registry.register(
+          Registries.DATA_COMPONENT_TYPE,
+          Identifier.of(DogsUnleashed.MOD_ID, "dog_statue"),
+          ComponentType.<DogStatue>builder()
+              .codec(DogStatue.CODEC)
+              .packetCodec(DogStatue.PACKET_CODEC)
               .build());
 
   public static void initialize() {}

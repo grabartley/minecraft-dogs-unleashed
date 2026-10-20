@@ -3,10 +3,12 @@ package com.grahambartley.dogsunleashed;
 import com.grahambartley.dogsunleashed.block.entity.DogBedBlockEntity;
 import com.grahambartley.dogsunleashed.block.entity.DogGraveBlockEntity;
 import com.grahambartley.dogsunleashed.block.entity.DogHouseBlockEntity;
+import com.grahambartley.dogsunleashed.block.entity.DogStatueBlockEntity;
 import com.grahambartley.dogsunleashed.block.entity.FoodBowlBlockEntity;
 import com.grahambartley.dogsunleashed.block.entity.FrisbeeBlockEntity;
 import com.grahambartley.dogsunleashed.block.entity.StickBlockEntity;
 import com.grahambartley.dogsunleashed.block.entity.TennisBallBlockEntity;
+import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -56,6 +58,14 @@ public class ModBlockEntities {
           Registries.BLOCK_ENTITY_TYPE,
           Identifier.of(DogsUnleashed.MOD_ID, "food_bowl"),
           BlockEntityType.Builder.create(FoodBowlBlockEntity::new, ModBlocks.FOOD_BOWL).build());
+
+  public static final BlockEntityType<DogStatueBlockEntity> DOG_STATUE =
+      Registry.register(
+          Registries.BLOCK_ENTITY_TYPE,
+          Identifier.of(DogsUnleashed.MOD_ID, "dog_statue"),
+          BlockEntityType.Builder.create(
+                  DogStatueBlockEntity::new, ModStatueBlocks.all().toArray(Block[]::new))
+              .build());
 
   public static void initialize() {}
 }
