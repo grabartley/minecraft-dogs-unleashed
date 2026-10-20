@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,12 +48,23 @@ class DogEquipmentSlotTest {
 
   @ParameterizedTest(name = "{0}")
   @EnumSource(DogEquipmentSlot.class)
-  @DisplayName("every slot exposes distinct label, hint, and glyph keys under one prefix")
+  @DisplayName("every slot exposes distinct label and hint keys under one prefix")
   void translationKeysAreDerivedFromId(final DogEquipmentSlot slot) {
     final String expected = "screen.dogs-unleashed.dog_equipment.slot." + slot.id();
     assertEquals(expected, slot.translationKey());
     assertEquals(expected + ".empty", slot.emptyHintTranslationKey());
-    assertEquals(expected + ".glyph", slot.glyphTranslationKey());
+  }
+
+  @ParameterizedTest(name = "{0} -> {1}")
+  @CsvSource({
+    "ARMOUR, ''",
+    "PENDANT, dogs-unleashed:item/empty_slot_pendant",
+    "COSMETIC, dogs-unleashed:item/empty_slot_cosmetic"
+  })
+  @DisplayName("pendant and cosmetic slots show their own empty icon, armour keeps vanilla's")
+  void emptyIconMatchesTheSlot(final DogEquipmentSlot slot, final String expected) {
+    final Identifier icon = slot.emptyIcon();
+    assertEquals(expected, icon == null ? "" : icon.toString());
   }
 
   @ParameterizedTest(name = "{0}, baby {1} -> fits {2}")

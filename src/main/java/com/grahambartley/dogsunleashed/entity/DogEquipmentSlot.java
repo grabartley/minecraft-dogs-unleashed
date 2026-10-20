@@ -1,27 +1,36 @@
 package com.grahambartley.dogsunleashed.entity;
 
+import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModItemTags;
 import java.util.function.Predicate;
 import net.minecraft.item.AnimalArmorItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 public enum DogEquipmentSlot {
   ARMOUR(
       "armour",
+      null,
       stack ->
           stack.getItem() instanceof AnimalArmorItem armour
               && armour.getType() == AnimalArmorItem.Type.CANINE),
-  PENDANT("pendant", stack -> stack.isIn(ModItemTags.PENDANTS)),
-  COSMETIC("cosmetic", stack -> stack.isIn(ModItemTags.DOG_COSMETICS));
+  PENDANT("pendant", "item/empty_slot_pendant", stack -> stack.isIn(ModItemTags.PENDANTS)),
+  COSMETIC("cosmetic", "item/empty_slot_cosmetic", stack -> stack.isIn(ModItemTags.DOG_COSMETICS));
 
   private static final String TRANSLATION_KEY_PREFIX = "screen.dogs-unleashed.dog_equipment.slot.";
 
   private final String id;
+  private final @Nullable Identifier emptyIcon;
   private final Predicate<ItemStack> acceptedItems;
 
-  DogEquipmentSlot(final String id, final Predicate<ItemStack> acceptedItems) {
+  DogEquipmentSlot(
+      final String id,
+      final @Nullable String emptyIconPath,
+      final Predicate<ItemStack> acceptedItems) {
     this.id = id;
+    this.emptyIcon =
+        emptyIconPath == null ? null : Identifier.of(DogsUnleashed.MOD_ID, emptyIconPath);
     this.acceptedItems = acceptedItems;
   }
 
@@ -37,8 +46,8 @@ public enum DogEquipmentSlot {
     return TRANSLATION_KEY_PREFIX + this.id + ".empty";
   }
 
-  public String glyphTranslationKey() {
-    return TRANSLATION_KEY_PREFIX + this.id + ".glyph";
+  public @Nullable Identifier emptyIcon() {
+    return this.emptyIcon;
   }
 
   public boolean canHold(final ItemStack stack) {

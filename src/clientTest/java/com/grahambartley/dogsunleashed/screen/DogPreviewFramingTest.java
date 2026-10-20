@@ -8,7 +8,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-class DogPortraitRendererTest {
+class DogPreviewFramingTest {
 
   static Stream<Arguments> sizes() {
     return Stream.of(
@@ -23,7 +23,7 @@ class DogPortraitRendererTest {
   @DisplayName("the dog's drawn height fills the same share of the box for every breed")
   void sizesTheDogToFillTheBox(
       final String label, final int boxSize, final float portraitHeight, final int expected) {
-    assertEquals(expected, DogPortraitRenderer.portraitRenderSize(boxSize, portraitHeight));
+    assertEquals(expected, DogPreviewFraming.renderSize(boxSize, portraitHeight));
   }
 
   static Stream<Arguments> pivots() {
@@ -38,6 +38,6 @@ class DogPortraitRendererTest {
   @DisplayName("the pivot sits at the middle of the drawn dog rather than its hitbox")
   void centresOnTheDrawnDog(
       final String label, final float portraitHeight, final float hitbox, final float expected) {
-    assertEquals(expected, DogPortraitRenderer.pivotOffset(portraitHeight, hitbox), 0.0001f);
+    assertEquals(expected, DogPreviewFraming.pivotOffset(portraitHeight, hitbox), 0.0001f);
   }
 }
