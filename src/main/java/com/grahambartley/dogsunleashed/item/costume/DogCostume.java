@@ -1,5 +1,7 @@
 package com.grahambartley.dogsunleashed.item.costume;
 
+import java.util.OptionalInt;
+
 public enum DogCostume {
   SPIDER("spider"),
   ZOMBIE("zombie"),
@@ -10,7 +12,7 @@ public enum DogCostume {
   CREEPER("creeper"),
   WITHER("wither"),
   WARDEN("warden"),
-  SHEEP("sheep", true),
+  SHEEP("sheep", OptionalInt.of(0xFFFFFF)),
   MOOSHROOM("mooshroom"),
   CHICKEN("chicken"),
   AXOLOTL("axolotl"),
@@ -19,18 +21,16 @@ public enum DogCostume {
   TURTLE("turtle"),
   ALLAY("allay");
 
-  public static final int UNDYED_COLOR = 0xFFFFFF;
-
   private final String mob;
-  private final boolean dyeable;
+  private final OptionalInt undyedColor;
 
   DogCostume(final String mob) {
-    this(mob, false);
+    this(mob, OptionalInt.empty());
   }
 
-  DogCostume(final String mob, final boolean dyeable) {
+  DogCostume(final String mob, final OptionalInt undyedColor) {
     this.mob = mob;
-    this.dyeable = dyeable;
+    this.undyedColor = undyedColor;
   }
 
   public String mob() {
@@ -42,6 +42,10 @@ public enum DogCostume {
   }
 
   public boolean isDyeable() {
-    return this.dyeable;
+    return this.undyedColor.isPresent();
+  }
+
+  public int undyedColor() {
+    return this.undyedColor.orElse(0xFFFFFF);
   }
 }

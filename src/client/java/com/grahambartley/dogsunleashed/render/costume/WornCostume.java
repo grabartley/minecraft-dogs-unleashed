@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.render.costume;
 
+import com.grahambartley.dogsunleashed.ModCostumeItems;
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.item.costume.DogCostume;
@@ -10,6 +11,8 @@ import net.minecraft.registry.Registries;
 import net.minecraft.util.math.ColorHelper;
 
 public final class WornCostume {
+
+  private static final int UNTINTED = 0xFFFFFFFF;
 
   private WornCostume() {}
 
@@ -23,8 +26,13 @@ public final class WornCostume {
   }
 
   public static int tintOf(final UnleashedDogEntity dog) {
-    return ColorHelper.Argb.fullAlpha(
-        DyedColorComponent.getColor(
-            dog.getEquipmentHolder().getStack(DogEquipmentSlot.COSTUME), DogCostume.UNDYED_COLOR));
+    final ItemStack costume = dog.getEquipmentHolder().getStack(DogEquipmentSlot.COSTUME);
+    return ModCostumeItems.costumeOf(costume)
+        .filter(DogCostume::isDyeable)
+        .map(
+            dyeable ->
+                ColorHelper.Argb.fullAlpha(
+                    DyedColorComponent.getColor(costume, dyeable.undyedColor())))
+        .orElse(UNTINTED);
   }
 }

@@ -47,4 +47,11 @@ class DogCostumeTest {
   void onlyTheSheepTakesDye(final DogCostume costume, final boolean dyeable) {
     assertEquals(dyeable, costume.isDyeable());
   }
+
+  @ParameterizedTest(name = "{0} undyed colour {1}")
+  @CsvSource({"SHEEP, 16777215", "SPIDER, 16777215"})
+  @DisplayName("an undyed costume draws untinted")
+  void undyedCostumesAreUntinted(final DogCostume costume, final int undyed) {
+    assertEquals(undyed, costume.undyedColor());
+  }
 }

@@ -400,7 +400,7 @@ public final class DogCostumeGameTest implements FabricGameTest {
                 NONE));
     context.assertTrue(
         dyed.isOf(ModCostumeItems.of(DogCostume.SHEEP))
-            && DyedColorComponent.getColor(dyed, DogCostume.UNDYED_COLOR)
+            && DyedColorComponent.getColor(dyed, DogCostume.SHEEP.undyedColor())
                 == ColorHelper.Argb.fullAlpha(RED_DYE_COLOR),
         "A sheep costume and red dye should craft a red sheep costume but made " + dyed);
     context.complete();
