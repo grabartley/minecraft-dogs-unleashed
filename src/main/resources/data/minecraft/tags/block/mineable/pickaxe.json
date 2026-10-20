@@ -3,6 +3,16 @@
   "values": [
     "dogs-unleashed:dog_grave",
     "dogs-unleashed:food_bowl",
-    "dogs-unleashed:water_bowl"
+    "dogs-unleashed:water_bowl",
+    "dogs-unleashed:statue_base_stone",
+    "dogs-unleashed:statue_base_gold",
+    "dogs-unleashed:statue_base_copper",
+    "dogs-unleashed:statue_base_exposed_copper",
+    "dogs-unleashed:statue_base_weathered_copper",
+    "dogs-unleashed:statue_base_oxidized_copper",
+    "dogs-unleashed:statue_base_waxed_copper",
+    "dogs-unleashed:statue_base_waxed_exposed_copper",
+    "dogs-unleashed:statue_base_waxed_weathered_copper",
+    "dogs-unleashed:statue_base_waxed_oxidized_copper"
   ]
 }

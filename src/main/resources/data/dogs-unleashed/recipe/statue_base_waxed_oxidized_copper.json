@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "statue_base_waxed_oxidized_copper",
+  "ingredients": [
+    {
+      "item": "dogs-unleashed:statue_base_oxidized_copper"
+    },
+    {
+      "item": "minecraft:honeycomb"
+    }
+  ],
+  "result": {
+    "id": "dogs-unleashed:statue_base_waxed_oxidized_copper",
+    "count": 1
+  }
+}

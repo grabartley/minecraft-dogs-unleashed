@@ -13,6 +13,7 @@ import com.grahambartley.dogsunleashed.render.DogGraveItemRenderer;
 import com.grahambartley.dogsunleashed.render.DogHouseBlockEntityRenderer;
 import com.grahambartley.dogsunleashed.render.DogHouseItemRenderer;
 import com.grahambartley.dogsunleashed.render.DogRenderer;
+import com.grahambartley.dogsunleashed.render.DogStatueBlockEntityRenderer;
 import com.grahambartley.dogsunleashed.render.DogWhistleItemRenderer;
 import com.grahambartley.dogsunleashed.render.FrisbeeBlockEntityRenderer;
 import com.grahambartley.dogsunleashed.render.FrisbeeItemRenderer;
@@ -35,6 +36,7 @@ import com.grahambartley.dogsunleashed.render.overlay.SeniorMuzzle;
 import com.grahambartley.dogsunleashed.render.pawprint.PawPrints;
 import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
 import com.grahambartley.dogsunleashed.render.rig.SlotRegions;
+import com.grahambartley.dogsunleashed.render.statue.StatueCoatTextures;
 import com.grahambartley.dogsunleashed.riding.RideInputSync;
 import com.grahambartley.dogsunleashed.riding.RideStaminaHud;
 import com.grahambartley.dogsunleashed.screen.DogEquipmentScreen;
@@ -100,6 +102,8 @@ public class DogsUnleashedClient implements ClientModInitializer {
     BlockEntityRendererFactories.register(ModBlockEntities.STICK, StickBlockEntityRenderer::new);
     BlockEntityRendererFactories.register(
         ModBlockEntities.FRISBEE, FrisbeeBlockEntityRenderer::new);
+    BlockEntityRendererFactories.register(
+        ModBlockEntities.DOG_STATUE, DogStatueBlockEntityRenderer::new);
 
     BuiltinItemRendererRegistry.INSTANCE.register(ModBlocks.DOG_BED, new DogBedItemRenderer());
     BuiltinItemRendererRegistry.INSTANCE.register(ModBlocks.DOG_GRAVE, new DogGraveItemRenderer());
@@ -132,6 +136,12 @@ public class DogsUnleashedClient implements ClientModInitializer {
             UndeadCoatTextures.RELOADER_ID,
             () ->
                 UndeadCoatTextures.cache()
+                    .clear(MinecraftClient.getInstance().getTextureManager())));
+    resources.registerReloadListener(
+        new CacheReloader(
+            StatueCoatTextures.RELOADER_ID,
+            () ->
+                StatueCoatTextures.cache()
                     .clear(MinecraftClient.getInstance().getTextureManager())));
     resources.registerReloadListener(
         new CacheReloader(RigProfiles.RELOADER_ID, RigProfiles.shared()::clear));

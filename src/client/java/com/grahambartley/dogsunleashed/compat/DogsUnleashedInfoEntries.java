@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.compat;
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.ModItems;
+import com.grahambartley.dogsunleashed.ModStatueBlocks;
 import com.grahambartley.dogsunleashed.entity.DogFoods;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import java.util.ArrayList;
@@ -54,6 +55,8 @@ public final class DogsUnleashedInfoEntries {
     definitions.add(dyed("dog_bed", () -> ModItems.DOG_BED, () -> ModComponents.DOG_BED_COLOR));
     definitions.add(item("dog_house", () -> ModItems.DOG_HOUSE));
     definitions.add(item("dog_grave", () -> ModItems.DOG_GRAVE));
+    definitions.add(
+        text("dog_statue", () -> ModStatueBlocks.all().stream().map(ItemStack::new).toList()));
     definitions.add(item("dog_treat", () -> ModItems.DOG_TREAT));
     definitions.add(item("dog_whistle", () -> ModItems.DOG_WHISTLE));
     definitions.add(text("taming_food", () -> matchingStacks(DogFoods.tamingIngredient())));

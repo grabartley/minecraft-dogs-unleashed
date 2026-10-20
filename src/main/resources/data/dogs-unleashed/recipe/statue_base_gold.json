@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "SSS",
+    " C ",
+    "SSS"
+  ],
+  "key": {
+    "S": {
+      "item": "minecraft:gold_ingot"
+    },
+    "C": {
+      "item": "minecraft:gold_block"
+    }
+  },
+  "result": {
+    "id": "dogs-unleashed:statue_base_gold",
+    "count": 1
+  }
+}

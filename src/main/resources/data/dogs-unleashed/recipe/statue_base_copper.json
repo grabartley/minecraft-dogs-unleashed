@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "SSS",
+    " C ",
+    "SSS"
+  ],
+  "key": {
+    "S": {
+      "item": "minecraft:cut_copper_slab"
+    },
+    "C": {
+      "item": "minecraft:copper_block"
+    }
+  },
+  "result": {
+    "id": "dogs-unleashed:statue_base_copper",
+    "count": 1
+  }
+}

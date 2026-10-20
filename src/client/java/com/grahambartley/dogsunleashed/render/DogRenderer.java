@@ -58,7 +58,7 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
   private final Map<String, SeatTransform> frameSeats = new HashMap<>();
 
   public DogRenderer(EntityRendererFactory.Context context) {
-    super(context, new DogModel());
+    this(context, new DogModel());
     final DogCollarLayer collar = new DogCollarLayer(this);
     this.addRenderLayer(collar);
     this.addRenderLayer(new DogCarryFetchItemLayer<>(this, this.frameOrigin));
@@ -71,6 +71,10 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
     this.addRenderLayer(new DogPendantLayer(this));
     this.addRenderLayer(new DogCosmeticLayer(this, this.hatFits));
     this.addRenderLayer(new DogMobHeadLayer(this, this.mobHeadFits, context));
+  }
+
+  protected DogRenderer(final EntityRendererFactory.Context context, final DogModel model) {
+    super(context, model);
   }
 
   @Override
