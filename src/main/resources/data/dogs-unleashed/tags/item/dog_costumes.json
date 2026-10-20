@@ -1,4 +1,10 @@
 {
   "replace": false,
-  "values": []
+  "values": [
+    "dogs-unleashed:spider_costume",
+    "dogs-unleashed:zombie_costume",
+    "dogs-unleashed:skeleton_costume",
+    "dogs-unleashed:enderman_costume",
+    "dogs-unleashed:bee_costume"
+  ]
 }

@@ -4,6 +4,7 @@ import com.google.common.collect.MapMaker;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.render.costume.CostumeAssets;
 import com.grahambartley.dogsunleashed.render.costume.CostumePartFit;
+import com.grahambartley.dogsunleashed.render.costume.CostumePartsAnimator;
 import com.grahambartley.dogsunleashed.render.costume.WornCostume;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile.Slot;
@@ -30,6 +31,7 @@ public class DogCostumePartsLayer extends GeoRenderLayer<UnleashedDogEntity> {
 
   private final Map<BakedGeoModel, Map<Slot, Optional<SlotAnchor>>> anchors =
       new MapMaker().weakKeys().makeMap();
+  private final CostumePartsAnimator animator = new CostumePartsAnimator();
 
   private @Nullable BakedGeoModel frameParts;
   private @Nullable RenderLayer frameLayer;
@@ -59,6 +61,9 @@ public class DogCostumePartsLayer extends GeoRenderLayer<UnleashedDogEntity> {
         this.frameParts == null
             ? null
             : RenderLayer.getEntityCutoutNoCull(costume.get().partsTexture());
+    if (this.frameParts != null) {
+      this.animator.animate(animatable, costume.get(), partialTick);
+    }
     this.frameModel = bakedModel;
     this.frameProfile = RigProfiles.of(animatable.getRigSourceBreed());
     this.frameYaw = animatable.getRigSourceBreed().renderTransforms().bodyYawOffsetDegrees();
