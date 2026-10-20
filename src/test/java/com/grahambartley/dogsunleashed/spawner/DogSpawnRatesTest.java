@@ -27,7 +27,7 @@ class DogSpawnRatesTest {
   private static DogsUnleashedConfig config(
       final int globalPercent, final Map<String, Integer> breedPercents) {
     return DogsUnleashedConfig.defaults()
-        .withSpawning(new SpawningSettings(true, globalPercent, breedPercents, true));
+        .withSpawning(new SpawningSettings(true, globalPercent, breedPercents, true, true, true));
   }
 
   private static double expectedGroupsPerCycle(

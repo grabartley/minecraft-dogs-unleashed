@@ -80,6 +80,8 @@ public final class ServerConfigPayloads {
         PacketByteBuf::writeString,
         PacketByteBuf::writeVarInt);
     buf.writeBoolean(spawning.capIndependentSpawningEnabled());
+    buf.writeBoolean(spawning.villageStrays());
+    buf.writeBoolean(spawning.traderPuppies());
     buf.writeBoolean(config.gameplay().gravesEnabled());
     buf.writeBoolean(config.gameplay().dropLeashOnPlayMode());
     buf.writeBoolean(config.sleep().autoSleepEnabled());
@@ -121,7 +123,12 @@ public final class ServerConfigPayloads {
   private static DogsUnleashedConfig readConfig(final RegistryByteBuf buf) {
     final SpawningSettings spawning =
         new SpawningSettings(
-            buf.readBoolean(), buf.readVarInt(), readBreedRates(buf), buf.readBoolean());
+            buf.readBoolean(),
+            buf.readVarInt(),
+            readBreedRates(buf),
+            buf.readBoolean(),
+            buf.readBoolean(),
+            buf.readBoolean());
     final boolean gravesEnabled = buf.readBoolean();
     final boolean dropLeashOnPlayMode = buf.readBoolean();
     final SleepSettings sleep = new SleepSettings(buf.readBoolean(), buf.readInt());

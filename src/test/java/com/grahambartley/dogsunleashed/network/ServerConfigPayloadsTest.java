@@ -44,9 +44,18 @@ class ServerConfigPayloadsTest {
             DogsUnleashedConfig.defaults()
                 .withGameplay(DogsUnleashedConfig.defaults().gameplay().withMuddyDogs(false))),
         Arguments.of(
+            "village strays off",
+            DogsUnleashedConfig.defaults()
+                .withSpawning(DogsUnleashedConfig.defaults().spawning().withVillageStrays(false))),
+        Arguments.of(
+            "trader puppies off",
+            DogsUnleashedConfig.defaults()
+                .withSpawning(DogsUnleashedConfig.defaults().spawning().withTraderPuppies(false))),
+        Arguments.of(
             "every field flipped off the default",
             new DogsUnleashedConfig(
-                new SpawningSettings(false, 250, Map.of("husky", 0, "beagle", 40), false),
+                new SpawningSettings(
+                    false, 250, Map.of("husky", 0, "beagle", 40), false, false, false),
                 new GameplaySettings(false, false, false, false),
                 new SleepSettings(false, 64),
                 new FurSettings(false, 250, 0),

@@ -53,6 +53,18 @@ final class SpawningConfigSection {
             KEY + "capindependentspawning.tooltip",
             this.settings.capIndependentSpawningEnabled(),
             value -> this.settings = this.settings.withCapIndependentSpawningEnabled(value)));
+    list.addRow(
+        rows.toggle(
+            KEY + "villagestrays",
+            KEY + "villagestrays.tooltip",
+            this.settings.villageStrays(),
+            value -> this.settings = this.settings.withVillageStrays(value)));
+    list.addRow(
+        rows.toggle(
+            KEY + "traderpuppies",
+            KEY + "traderpuppies.tooltip",
+            this.settings.traderPuppies(),
+            value -> this.settings = this.settings.withTraderPuppies(value)));
   }
 
   SpawningSettings settings() {

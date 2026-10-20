@@ -27,7 +27,17 @@ final class SpawningConfigCommand {
                 "capindependentspawning",
                 (current, value) ->
                     current.withSpawning(
-                        current.spawning().withCapIndependentSpawningEnabled(value))));
+                        current.spawning().withCapIndependentSpawningEnabled(value))))
+        .then(
+            ConfigSettingNodes.toggle(
+                "villagestrays",
+                (current, value) ->
+                    current.withSpawning(current.spawning().withVillageStrays(value))))
+        .then(
+            ConfigSettingNodes.toggle(
+                "traderpuppies",
+                (current, value) ->
+                    current.withSpawning(current.spawning().withTraderPuppies(value))));
   }
 
   static List<Text> helpLines() {
@@ -41,7 +51,9 @@ final class SpawningConfigCommand {
             "command.dogs-unleashed.help.spawnratebreed",
             SpawningSettings.RATE_MIN,
             SpawningSettings.RATE_MAX),
-        Text.translatable("command.dogs-unleashed.help.capindependentspawning"));
+        Text.translatable("command.dogs-unleashed.help.capindependentspawning"),
+        Text.translatable("command.dogs-unleashed.help.villagestrays"),
+        Text.translatable("command.dogs-unleashed.help.traderpuppies"));
   }
 
   static List<Text> statusLines(final SpawningSettings settings) {
@@ -64,6 +76,10 @@ final class SpawningConfigCommand {
         Text.translatable(
             "command.dogs-unleashed.status.capindependentspawning",
             settings.capIndependentSpawningEnabled()));
+    lines.add(
+        Text.translatable("command.dogs-unleashed.status.villagestrays", settings.villageStrays()));
+    lines.add(
+        Text.translatable("command.dogs-unleashed.status.traderpuppies", settings.traderPuppies()));
     return lines;
   }
 

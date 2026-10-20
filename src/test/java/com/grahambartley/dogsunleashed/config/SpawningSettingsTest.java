@@ -20,7 +20,7 @@ class SpawningSettingsTest {
 
   private static SpawningSettings settings(
       final int globalPercent, final Map<String, Integer> breedPercents) {
-    return new SpawningSettings(true, globalPercent, breedPercents, false);
+    return new SpawningSettings(true, globalPercent, breedPercents, false, true, true);
   }
 
   @Test
@@ -36,13 +36,24 @@ class SpawningSettingsTest {
             .get("beagle"));
     assertFalse(base.withCapIndependentSpawningEnabled(false).capIndependentSpawningEnabled());
     assertTrue(base.withCapIndependentSpawningEnabled(false).enableNaturalSpawning());
+    assertFalse(base.withVillageStrays(false).villageStrays());
+    assertTrue(base.withVillageStrays(false).traderPuppies());
+    assertFalse(base.withTraderPuppies(false).traderPuppies());
+    assertTrue(base.withTraderPuppies(false).villageStrays());
+  }
+
+  @Test
+  @DisplayName("strays and trader puppies are on by default")
+  void straysAndTraderPuppiesDefaultOn() {
+    assertTrue(SpawningSettings.DEFAULTS.villageStrays());
+    assertTrue(SpawningSettings.DEFAULTS.traderPuppies());
   }
 
   @Test
   @DisplayName("the settings survive a JSON round trip under their flat keys")
   void jsonRoundTrips() {
     final SpawningSettings settings =
-        new SpawningSettings(false, 150, Map.of("beagle", 0, "direwolf", 321), false);
+        new SpawningSettings(false, 150, Map.of("beagle", 0, "direwolf", 321), false, false, false);
     final JsonObject root = new JsonObject();
     settings.writeJson(root);
     assertEquals(

@@ -18,6 +18,7 @@ public final class DogTrustRules {
   public static final double FOLLOW_RANGE = 24.0;
   public static final double FOLLOW_NEAREST = 6.0;
   public static final double FOLLOW_FARTHEST = 10.0;
+  public static final int STRAY_FEED_MULTIPLIER = 2;
   private static final int MILESTONE_STEP = 25;
   private static final Map<Identifier, Food> FOODS =
       Map.ofEntries(
@@ -70,6 +71,14 @@ public final class DogTrustRules {
 
   public static Food foodOf(final Identifier itemId) {
     return FOODS.getOrDefault(itemId, Food.REFUSED);
+  }
+
+  public static int feedGain(final Food food, final boolean stray) {
+    return stray ? food.gain() * STRAY_FEED_MULTIPLIER : food.gain();
+  }
+
+  public static boolean isWary(final boolean stray) {
+    return !stray;
   }
 
   public static int clamp(final int trust) {

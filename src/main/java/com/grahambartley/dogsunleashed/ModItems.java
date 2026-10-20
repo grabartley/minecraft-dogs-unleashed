@@ -7,6 +7,7 @@ import com.grahambartley.dogsunleashed.item.DogHouseItem;
 import com.grahambartley.dogsunleashed.item.DogTreatItem;
 import com.grahambartley.dogsunleashed.item.DogWhistleItem;
 import com.grahambartley.dogsunleashed.item.FrisbeeItem;
+import com.grahambartley.dogsunleashed.item.PuppyBasketItem;
 import com.grahambartley.dogsunleashed.item.StickThrowHandler;
 import com.grahambartley.dogsunleashed.item.TennisBallItem;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
@@ -63,6 +64,12 @@ public class ModItems {
           Registries.ITEM,
           Identifier.of(DogsUnleashed.MOD_ID, "dog_treat"),
           new DogTreatItem(new Item.Settings().maxCount(16)));
+
+  public static final Item PUPPY_BASKET =
+      Registry.register(
+          Registries.ITEM,
+          Identifier.of(DogsUnleashed.MOD_ID, "puppy_basket"),
+          new PuppyBasketItem(new Item.Settings().maxCount(1)));
 
   public static final Item DOG_GRAVE =
       Registry.register(
@@ -160,6 +167,8 @@ public class ModItems {
             });
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS)
         .register(entries -> entries.add(DOG_WHISTLE));
+    ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS)
+        .register(entries -> entries.add(PUPPY_BASKET));
     StickThrowHandler.register();
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL)
         .register(

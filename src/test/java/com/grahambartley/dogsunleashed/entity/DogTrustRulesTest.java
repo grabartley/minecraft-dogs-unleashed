@@ -49,6 +49,27 @@ class DogTrustRulesTest {
     assertEquals(DogTrustRules.Food.REFUSED, DogTrustRules.foodOf(Identifier.of("other", "beef")));
   }
 
+  @ParameterizedTest(name = "{0}, stray {1} -> {2}")
+  @CsvSource({
+    "RAW_MEAT, false, 20",
+    "RAW_MEAT, true, 40",
+    "BONE, false, 10",
+    "BONE, true, 20",
+    "COOKED_MEAT, true, 20",
+    "REFUSED, true, 0",
+  })
+  @DisplayName("a stray earns trust twice as fast from the same food")
+  void feedGain(final DogTrustRules.Food food, final boolean stray, final int expected) {
+    assertEquals(expected, DogTrustRules.feedGain(food, stray));
+  }
+
+  @ParameterizedTest(name = "stray {0} -> wary {1}")
+  @CsvSource({"false, true", "true, false"})
+  @DisplayName("only a wild pup is wary, so a stray is never spooked and never forgets")
+  void isWary(final boolean stray, final boolean wary) {
+    assertEquals(wary, DogTrustRules.isWary(stray));
+  }
+
   @Test
   @DisplayName("hostile kills earn more than small prey, other kills earn nothing")
   void killGains() {
