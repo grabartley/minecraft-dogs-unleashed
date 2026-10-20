@@ -33,7 +33,7 @@ public class DogCostumePartsLayer extends GeoRenderLayer<UnleashedDogEntity> {
 
   private @Nullable BakedGeoModel frameParts;
   private @Nullable RenderLayer frameLayer;
-  private BakedGeoModel frameModel;
+  private @Nullable BakedGeoModel frameModel;
   private RigProfile frameProfile = RigProfile.EMPTY;
   private float frameYaw;
 
