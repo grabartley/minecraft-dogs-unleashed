@@ -72,4 +72,15 @@ public final class GroundNapRules {
       return this.isCalm() && !this.busy && this.onSolidGround;
     }
   }
+
+  public static boolean hostileCheckDue(final long now, final long checkedAt) {
+    return checkedAt == NEVER || now - checkedAt >= HOSTILE_CHECK_TICKS;
+  }
+
+  public static boolean isOwnerAway(
+      final boolean followsOwner, final boolean hasOwner, final double ownerSquaredDistance) {
+    return followsOwner
+        && hasOwner
+        && ownerSquaredDistance > OWNER_NEARBY_RANGE * OWNER_NEARBY_RANGE;
+  }
 }

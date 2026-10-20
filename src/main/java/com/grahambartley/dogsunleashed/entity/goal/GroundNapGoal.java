@@ -82,16 +82,15 @@ public class GroundNapGoal extends Goal {
 
   private boolean isOwnerAway() {
     final LivingEntity owner = this.dog.getOwner();
-    return this.dog.getCommand().followsOwnerOnRelocation()
-        && owner != null
-        && owner.squaredDistanceTo(this.dog)
-            > GroundNapRules.OWNER_NEARBY_RANGE * GroundNapRules.OWNER_NEARBY_RANGE;
+    return GroundNapRules.isOwnerAway(
+        this.dog.getCommand().followsOwnerOnRelocation(),
+        owner != null,
+        owner != null ? owner.squaredDistanceTo(this.dog) : 0.0);
   }
 
   private boolean isHostileNearby() {
     final long now = this.dog.getWorld().getTime();
-    if (this.hostileCheckedAt == GroundNapRules.NEVER
-        || now - this.hostileCheckedAt >= GroundNapRules.HOSTILE_CHECK_TICKS) {
+    if (GroundNapRules.hostileCheckDue(now, this.hostileCheckedAt)) {
       this.hostileCheckedAt = now;
       this.hostileNearby = this.scanForHostiles();
     }

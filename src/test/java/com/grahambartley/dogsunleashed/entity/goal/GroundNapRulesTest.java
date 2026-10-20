@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -142,5 +143,31 @@ class GroundNapRulesTest {
       final String name, final GroundNapRules.Situation situation) {
     assertTrue(situation.isCalm());
     assertFalse(situation.allowsNapToStart());
+  }
+
+  @ParameterizedTest(name = "now {0}, checked {1} -> {2}")
+  @CsvSource({
+    "100, -9223372036854775808, true",
+    "100, 91, false",
+    "100, 90, true",
+    "100, 100, false",
+    "100, 0, true"
+  })
+  @DisplayName("the hostile scan runs on the first tick and then every half second")
+  void hostileCheckDueEveryTenTicks(final long now, final long checkedAt, final boolean due) {
+    assertEquals(due, GroundNapRules.hostileCheckDue(now, checkedAt));
+  }
+
+  @ParameterizedTest(name = "follows={0}, owner={1}, distance² {2} -> {3}")
+  @CsvSource({
+    "true, true, 101.0, true",
+    "true, true, 100.0, false",
+    "false, true, 400.0, false",
+    "true, false, 400.0, false"
+  })
+  @DisplayName("the owner is away only past ten blocks from a dog that follows them")
+  void ownerAwayPastTenBlocks(
+      final boolean follows, final boolean hasOwner, final double distance, final boolean away) {
+    assertEquals(away, GroundNapRules.isOwnerAway(follows, hasOwner, distance));
   }
 }

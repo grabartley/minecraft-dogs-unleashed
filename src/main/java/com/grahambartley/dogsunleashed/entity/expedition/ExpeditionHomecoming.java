@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.advancement.DogExpeditionReturnedCriterion;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.DogRecreation;
+import com.grahambartley.dogsunleashed.entity.Headings;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLocationService;
@@ -22,7 +23,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 public final class ExpeditionHomecoming {
@@ -66,8 +66,7 @@ public final class ExpeditionHomecoming {
     final Vec3d spot = beside != null ? beside : owner.getPos();
     final float facingOwner =
         beside != null
-            ? (float) Math.toDegrees(MathHelper.atan2(owner.getZ() - spot.z, owner.getX() - spot.x))
-                - 90.0f
+            ? Headings.yawToward(spot.x, spot.z, owner.getX(), owner.getZ())
             : owner.getYaw() + 180.0f;
     dog.refreshPositionAndAngles(spot.x, spot.y, spot.z, facingOwner, 0.0f);
     dog.setBodyYaw(facingOwner);

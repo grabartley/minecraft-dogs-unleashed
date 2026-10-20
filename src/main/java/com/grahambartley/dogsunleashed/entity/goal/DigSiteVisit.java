@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
+import com.grahambartley.dogsunleashed.entity.Headings;
 import com.grahambartley.dogsunleashed.entity.burial.BoneCacheRules;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.block.BlockState;
@@ -9,7 +10,6 @@ import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 final class DigSiteVisit {
@@ -22,7 +22,6 @@ final class DigSiteVisit {
   }
 
   private static final double SPEED = 1.0;
-  private static final double REACH = 1.5;
   private static final int MAX_WALK_TICKS = 600;
   private static final int REPATH_INTERVAL_TICKS = 10;
   private static final int EFFECT_INTERVAL_TICKS = 5;
@@ -80,9 +79,9 @@ final class DigSiteVisit {
   }
 
   private void faceGround() {
-    final double dx = this.ground.getX() + 0.5 - this.mob.getX();
-    final double dz = this.ground.getZ() + 0.5 - this.mob.getZ();
-    final float yaw = (float) (MathHelper.atan2(dz, dx) * MathHelper.DEGREES_PER_RADIAN) - 90.0F;
+    final float yaw =
+        Headings.yawToward(
+            this.mob.getX(), this.mob.getZ(), this.ground.getX() + 0.5, this.ground.getZ() + 0.5);
     this.mob.setYaw(yaw);
     this.mob.setBodyYaw(yaw);
     this.mob.setHeadYaw(yaw);
@@ -111,9 +110,6 @@ final class DigSiteVisit {
   }
 
   private boolean isBeside() {
-    final double dx = this.mob.getX() - (this.ground.getX() + 0.5);
-    final double dz = this.mob.getZ() - (this.ground.getZ() + 0.5);
-    final double dy = this.mob.getY() - (this.ground.getY() + 1);
-    return Math.hypot(dx, dz) <= REACH && Math.abs(dy) <= REACH;
+    return DigSiteRules.isBeside(this.ground, this.mob.getX(), this.mob.getY(), this.mob.getZ());
   }
 }
