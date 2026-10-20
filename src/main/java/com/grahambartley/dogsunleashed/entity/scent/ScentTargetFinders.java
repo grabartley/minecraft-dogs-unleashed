@@ -9,7 +9,7 @@ import net.minecraft.world.gen.structure.Structure;
 
 public final class ScentTargetFinders {
 
-  static final int STRUCTURE_SEARCH_RADIUS = 3;
+  private static final int STRUCTURE_SEARCH_RADIUS = 3;
 
   private ScentTargetFinders() {}
 

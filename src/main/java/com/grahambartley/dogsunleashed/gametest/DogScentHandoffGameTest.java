@@ -18,10 +18,10 @@ import net.minecraft.test.TestContext;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 
-public final class DogMapScentGameTest implements FabricGameTest {
+public final class DogScentHandoffGameTest implements FabricGameTest {
 
   private static final String ARENA = "dogs-unleashed:dog_arena";
-  private static final String BATCH = "dog-map-scent";
+  private static final String BATCH = "dog-scent-handoff";
   private static final BlockPos OWNER_SPOT = new BlockPos(1, 2, 3);
   private static final BlockPos DOG_START = new BlockPos(1, 2, 1);
   private static final BlockPos MARK = new BlockPos(5, 2, 5);
@@ -69,6 +69,24 @@ public final class DogMapScentGameTest implements FabricGameTest {
     give(dog, owner, map);
 
     context.assertFalse(scent(dog).isTracking(), "Giving the map again should stop it");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 20)
+  public void aMapWithAnotherMarkSendsTheDogThereInstead(TestContext context) {
+    final ServerPlayerEntity owner = placeOwner(context);
+    final UnleashedDogEntity dog = spawnOwnedDog(context, owner);
+    dog.setAiDisabled(true);
+    final BlockPos first = context.getAbsolutePos(MARK);
+    final BlockPos second = first.add(40, 0, -25);
+
+    give(dog, owner, treasureMap(first));
+    give(dog, owner, treasureMap(second));
+
+    context.assertTrue(scent(dog).isTracking(), "A map with a new mark should keep the dog going");
+    context.assertTrue(
+        new ScentLandmark(second.getX(), second.getZ()).equals(scent(dog).landmark()),
+        "The dog should head for the new mark, not " + scent(dog).landmark());
     context.complete();
   }
 

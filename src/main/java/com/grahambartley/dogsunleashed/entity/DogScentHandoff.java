@@ -27,13 +27,13 @@ final class DogScentHandoff {
     if ((!map && !itemStack.isIn(ModItemTags.SCENT_ITEMS)) || DogFoods.isTamingItem(itemStack)) {
       return null;
     }
-    final DogScent scent = this.scent();
-    if (scent.isTrackingItem(itemStack)) {
-      scent.stop();
-      DogInteractions.tell(this.dog, player, "message.dogs-unleashed.scent.stop");
-      return ActionResult.SUCCESS;
+    if (map) {
+      return this.tryFollowMap(player, itemStack);
     }
-    return map ? this.tryFollowMap(player, itemStack) : this.tryFollowScent(player, itemStack);
+    if (this.scent().isTrackingItem(itemStack)) {
+      return this.callOff(player);
+    }
+    return this.tryFollowScent(player, itemStack);
   }
 
   private @Nullable ActionResult tryFollowMap(
@@ -42,6 +42,9 @@ final class DogScentHandoff {
         ScentLandmark.nearest(MapScentMarks.of(itemStack), this.dog.getX(), this.dog.getZ());
     if (mark.isEmpty()) {
       return null;
+    }
+    if (this.scent().isTrackingItem(itemStack) && mark.get().equals(this.scent().landmark())) {
+      return this.callOff(player);
     }
     this.readyToLead();
     this.scent().followMark(mark.get(), itemStack.getItem());
@@ -61,6 +64,12 @@ final class DogScentHandoff {
     this.scent().start(rule.get().registryKey().getValue(), itemStack.getItem());
     this.scent().cues().sniff();
     DogInteractions.tell(this.dog, player, "message.dogs-unleashed.scent.start");
+    return ActionResult.SUCCESS;
+  }
+
+  private ActionResult callOff(final PlayerEntity player) {
+    this.scent().stop();
+    DogInteractions.tell(this.dog, player, "message.dogs-unleashed.scent.stop");
     return ActionResult.SUCCESS;
   }
 

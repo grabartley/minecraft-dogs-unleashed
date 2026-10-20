@@ -88,16 +88,12 @@ public final class DogScent extends DogComponent {
     this.dog.getDataTracker().set(UnleashedDogEntity.SCENT_PHASE, phase.id());
   }
 
-  void start(final Identifier rule, final Item item) {
-    this.begin(rule, item);
-  }
-
   void followMark(final ScentLandmark mark, final Item item) {
-    this.begin(null, item);
+    this.start(null, item);
     this.landmarks.remember(mark);
   }
 
-  private void begin(final @Nullable Identifier rule, final Item item) {
+  void start(final @Nullable Identifier rule, final Item item) {
     this.ruleId = rule;
     this.scentItem = item;
     this.landmarks.clear();
@@ -140,7 +136,7 @@ public final class DogScent extends DogComponent {
     if (item == null || !Registries.ITEM.containsId(item) || (rule == null && mark == null)) {
       return;
     }
-    this.begin(rule, Registries.ITEM.get(item));
+    this.start(rule, Registries.ITEM.get(item));
     if (mark != null) {
       this.landmarks.remember(mark);
     }
