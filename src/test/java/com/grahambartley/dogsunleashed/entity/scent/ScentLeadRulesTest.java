@@ -27,7 +27,9 @@ class ScentLeadRulesTest {
         Arguments.of(
             "a dig site underfoot", ScentTargetKind.SUSPICIOUS_BLOCK, 1.5, 1.6, false, true),
         Arguments.of("a dig site nearby", ScentTargetKind.SUSPICIOUS_BLOCK, 1.6, 1.6, true, false),
-        Arguments.of("a map mark underfoot", ScentTargetKind.LANDMARK, 1.0, 30.0, false, true),
+        Arguments.of("a map mark underfoot", ScentTargetKind.LANDMARK, 0.4, 30.0, false, true),
+        Arguments.of(
+            "walking diagonally next to a mark", ScentTargetKind.LANDMARK, 0.9, 0.9, false, false),
         Arguments.of("walking past a map mark", ScentTargetKind.LANDMARK, 1.3, 1.3, false, false),
         Arguments.of(
             "stopped beside a mark it cannot stand on",
@@ -70,5 +72,12 @@ class ScentLeadRulesTest {
   @DisplayName("a far target is approached one leg of at most 16 blocks at a time")
   void farTargetsAreWalkedInLegs(final double distance, final double fraction) {
     assertEquals(fraction, ScentLeadRules.legFraction(distance), 1.0E-9);
+  }
+
+  @ParameterizedTest(name = "{0} -> reach {1}")
+  @CsvSource({"ENTITY, 1", "BLOCK, 1", "SUSPICIOUS_BLOCK, 1", "LANDMARK, 0"})
+  @DisplayName("the path ends on a map mark but next to a mob or block")
+  void pathEndsOnTheMarkOnly(final ScentTargetKind kind, final int reach) {
+    assertEquals(reach, ScentLeadRules.pathReach(kind));
   }
 }

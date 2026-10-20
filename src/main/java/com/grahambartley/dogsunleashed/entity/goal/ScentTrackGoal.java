@@ -147,14 +147,16 @@ public class ScentTrackGoal extends Goal {
     this.dog.getLookControl().lookAt(target.x, target.y, target.z, LOOK_SPEED, LOOK_SPEED);
     if (--this.repathCooldown <= 0) {
       this.repathCooldown = REPATH_INTERVAL_TICKS;
-      this.moveToward(target, horizontal);
+      this.moveToward(target, horizontal, kind);
     }
   }
 
-  private void moveToward(final Vec3d target, final double horizontal) {
+  private void moveToward(final Vec3d target, final double horizontal, final ScentTargetKind kind) {
     final double fraction = ScentLeadRules.legFraction(horizontal);
     if (fraction >= 1.0) {
-      this.dog.getNavigation().startMovingTo(target.x, target.y, target.z, LEAD_SPEED);
+      this.dog
+          .getNavigation()
+          .startMovingTo(target.x, target.y, target.z, ScentLeadRules.pathReach(kind), LEAD_SPEED);
       return;
     }
     final int x = MathHelper.floor(this.dog.getX() + (target.x - this.dog.getX()) * fraction);
