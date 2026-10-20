@@ -1,5 +1,7 @@
 package com.grahambartley.dogsunleashed.entity.scent;
 
+import java.util.List;
+import java.util.Optional;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BrushableBlockEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -57,20 +59,19 @@ final class SuspiciousBlockScentFinder implements ScentTargetFinder {
     if (chunk == null) {
       return ScentShellScan.NO_MATCH;
     }
-    final long maxSquared = (long) this.range * this.range;
-    long nearest = ScentShellScan.NO_MATCH;
-    for (final BlockEntity blockEntity : chunk.getBlockEntities().values()) {
-      final BlockPos pos = blockEntity.getPos();
-      final long squared = (long) pos.getSquaredDistance(this.origin);
-      if (blockEntity instanceof BrushableBlockEntity
-          && squared <= maxSquared
-          && (nearest == ScentShellScan.NO_MATCH || squared < nearest)) {
-        nearest = squared;
-        if (this.found == null || squared < (long) this.found.getSquaredDistance(this.origin)) {
-          this.found = pos.toImmutable();
-        }
-      }
+    final List<BlockPos> brushable =
+        chunk.getBlockEntities().values().stream()
+            .filter(BrushableBlockEntity.class::isInstance)
+            .map(BlockEntity::getPos)
+            .toList();
+    final Optional<BlockPos> nearest =
+        SuspiciousScanRules.nearestWithin(this.origin, this.range, brushable);
+    if (nearest.isEmpty()) {
+      return ScentShellScan.NO_MATCH;
     }
-    return nearest;
+    if (SuspiciousScanRules.isCloser(this.origin, nearest.get(), this.found)) {
+      this.found = nearest.get().toImmutable();
+    }
+    return SuspiciousScanRules.squaredDistance(this.origin, nearest.get());
   }
 }

@@ -112,4 +112,21 @@ class WhistlePointRulesTest {
   void rangeIsSixtyFourBlocks(final double distance, final boolean expected) {
     assertEquals(expected, WhistlePointRules.inRange(distance * distance));
   }
+
+  @ParameterizedTest(name = "item={0} claimed={1} player={2} mob={3} -> {4}")
+  @CsvSource({
+    "true, false, false, false, ITEM",
+    "true, true, false, false, OTHER",
+    "false, false, true, false, PLAYER",
+    "false, false, false, true, MOB",
+    "false, false, false, false, OTHER"
+  })
+  void kindOfSortsThePointedThing(
+      final boolean item,
+      final boolean claimedByAnotherPlayer,
+      final boolean player,
+      final boolean mob,
+      final PointedKind expected) {
+    assertEquals(expected, WhistlePointRules.kindOf(item, claimedByAnotherPlayer, player, mob));
+  }
 }

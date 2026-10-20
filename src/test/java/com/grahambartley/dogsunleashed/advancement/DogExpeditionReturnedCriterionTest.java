@@ -4,10 +4,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 class DogExpeditionReturnedCriterionTest {
+
+  @Test
+  @DisplayName("the criterion id is dogs-unleashed:dog_expedition_returned")
+  void exposesItsIdentifier() {
+    assertEquals(
+        "dogs-unleashed:dog_expedition_returned", DogExpeditionReturnedCriterion.ID.toString());
+  }
 
   @ParameterizedTest(name = "wants rare={0}, find rare={1} -> {2}")
   @CsvSource({

@@ -9,10 +9,10 @@ import com.grahambartley.dogsunleashed.entity.scent.ScentShellScan;
 import com.grahambartley.dogsunleashed.entity.scent.ScentTargetFinder;
 import com.grahambartley.dogsunleashed.entity.scent.ScentTargetKind;
 import java.util.EnumSet;
+import java.util.Optional;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Heightmap;
 import org.jetbrains.annotations.Nullable;
@@ -147,20 +147,21 @@ public class ScentTrackGoal extends Goal {
     this.dog.getLookControl().lookAt(target.x, target.y, target.z, LOOK_SPEED, LOOK_SPEED);
     if (--this.repathCooldown <= 0) {
       this.repathCooldown = REPATH_INTERVAL_TICKS;
-      this.moveToward(target, horizontal, kind);
+      this.moveToward(target, kind);
     }
   }
 
-  private void moveToward(final Vec3d target, final double horizontal, final ScentTargetKind kind) {
-    final double fraction = ScentLeadRules.legFraction(horizontal);
-    if (fraction >= 1.0) {
+  private void moveToward(final Vec3d target, final ScentTargetKind kind) {
+    final Optional<ScentLeadRules.Waypoint> waypoint =
+        ScentLeadRules.legWaypoint(this.dog.getX(), this.dog.getZ(), target.x, target.z);
+    if (waypoint.isEmpty()) {
       this.dog
           .getNavigation()
           .startMovingTo(target.x, target.y, target.z, ScentLeadRules.pathReach(kind), LEAD_SPEED);
       return;
     }
-    final int x = MathHelper.floor(this.dog.getX() + (target.x - this.dog.getX()) * fraction);
-    final int z = MathHelper.floor(this.dog.getZ() + (target.z - this.dog.getZ()) * fraction);
+    final int x = waypoint.get().x();
+    final int z = waypoint.get().z();
     final int y = this.world().getTopY(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, x, z);
     this.dog.getNavigation().startMovingTo(x + 0.5, y, z + 0.5, LEAD_SPEED);
   }

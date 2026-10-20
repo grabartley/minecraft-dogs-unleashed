@@ -42,3 +42,4 @@ TODO.md
 .claude/worktrees/
 .codex/
 *.bbmodel
+.playwright-mcp/
