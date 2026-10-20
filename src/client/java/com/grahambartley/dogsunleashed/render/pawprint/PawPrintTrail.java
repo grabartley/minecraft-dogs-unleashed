@@ -5,6 +5,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public final class PawPrintTrail {
 
@@ -41,6 +42,10 @@ public final class PawPrintTrail {
 
   public void forget(final int dogId) {
     this.lastSteps.remove(dogId);
+  }
+
+  public void keepOnly(final Set<Integer> dogIds) {
+    this.lastSteps.keySet().retainAll(dogIds);
   }
 
   public void advance() {

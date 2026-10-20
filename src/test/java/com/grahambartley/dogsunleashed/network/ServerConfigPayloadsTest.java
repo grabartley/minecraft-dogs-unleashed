@@ -40,6 +40,10 @@ class ServerConfigPayloadsTest {
             DogsUnleashedConfig.defaults()
                 .withGameplay(DogsUnleashedConfig.defaults().gameplay().withShowDogNames(false))),
         Arguments.of(
+            "muddy dogs off",
+            DogsUnleashedConfig.defaults()
+                .withGameplay(DogsUnleashedConfig.defaults().gameplay().withMuddyDogs(false))),
+        Arguments.of(
             "every field flipped off the default",
             new DogsUnleashedConfig(
                 new SpawningSettings(false, 250, Map.of("husky", 0, "beagle", 40), false),

@@ -45,7 +45,10 @@ public final class DogMud extends DogComponent {
     final BlockPos pos = this.dog.getBlockPos();
     final BlockState feet = world.getBlockState(pos);
     final BlockState ground = this.dog.getSteppingBlockState();
-    if (this.state.muddy() && this.washInCauldron(world, pos, feet, ground)) {
+    final boolean enabled = DogsUnleashed.SERVER_CONFIG.gameplay().muddyDogs();
+    if (enabled && this.state.muddy() && isWaterCauldron(feet)) {
+      LeveledCauldronBlock.decrementFluidLevel(feet, world, pos);
+      this.wash();
       return;
     }
     final boolean inWater = this.dog.isTouchingWater();
@@ -53,12 +56,7 @@ public final class DogMud extends DogComponent {
     final boolean dirtying =
         DogMudGround.dirties(
             idOf(feet), idOf(ground), swamp, this.dog.isOnGround() && world.hasRain(pos));
-    this.apply(
-        DogMudRules.next(
-            this.state,
-            DogsUnleashed.SERVER_CONFIG.gameplay().muddyDogs(),
-            dirtying,
-            inWater && !swamp));
+    this.apply(DogMudRules.next(this.state, enabled, dirtying, inWater && !swamp));
   }
 
   void spatterShake(final ServerWorld world) {
@@ -77,19 +75,6 @@ public final class DogMud extends DogComponent {
             0.0);
       }
     }
-  }
-
-  private boolean washInCauldron(
-      final World world, final BlockPos pos, final BlockState feet, final BlockState ground) {
-    if (isWaterCauldron(feet)) {
-      LeveledCauldronBlock.decrementFluidLevel(feet, world, pos);
-    } else if (isWaterCauldron(ground)) {
-      LeveledCauldronBlock.decrementFluidLevel(ground, world, this.dog.getSteppingPos());
-    } else {
-      return false;
-    }
-    this.wash();
-    return true;
   }
 
   private static boolean isWaterCauldron(final BlockState state) {

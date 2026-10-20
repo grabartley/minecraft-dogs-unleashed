@@ -2,6 +2,8 @@ package com.grahambartley.dogsunleashed.render.pawprint;
 
 import com.grahambartley.dogsunleashed.entity.DogMud;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import java.util.HashSet;
+import java.util.Set;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
@@ -32,11 +34,14 @@ public final class PawPrints {
       return;
     }
     TRAIL.advance();
+    final Set<Integer> seen = new HashSet<>();
     for (final Entity entity : world.getEntities()) {
       if (entity instanceof UnleashedDogEntity dog) {
+        seen.add(dog.getId());
         step(dog);
       }
     }
+    TRAIL.keepOnly(seen);
   }
 
   private static void step(final UnleashedDogEntity dog) {

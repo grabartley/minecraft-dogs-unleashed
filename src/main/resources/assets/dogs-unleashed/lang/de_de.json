@@ -195,7 +195,7 @@
   "screen.dogs-unleashed.settings.shownames": "Hundenamen anzeigen",
   "screen.dogs-unleashed.settings.shownames.tooltip": "Wenn aktiviert, schwebt der Name eines benannten Hundes über seinem Kopf. Deaktiviere dies, um alle Hundenamen in der Welt auszublenden, ohne etwas umzubenennen.",
   "screen.dogs-unleashed.settings.muddydogs": "Schmutzige Hunde",
-  "screen.dogs-unleashed.settings.muddydogs.tooltip": "Wenn aktiviert, werden Hunde auf Schlamm, in Sumpfwasser oder bei Regen auf weichem Boden schmutzig und hinterlassen Pfotenabdrücke, bis sie in einem Wasserkessel oder beim Schwimmen gewaschen werden. Deaktiviere dies, um alle Hunde sauber zu halten.",
+  "screen.dogs-unleashed.settings.muddydogs.tooltip": "Wenn aktiviert, werden Hunde auf Schlamm, in Sumpfwasser oder bei Regen auf weichem Boden schmutzig und hinterlassen Pfotenabdrücke, bis du sie in einem Wasserkessel wäschst oder sie schwimmen gehen. Deaktiviere dies, um alle Hunde sauber zu halten.",
   "screen.dogs-unleashed.settings.spawnrate": "Spawn-Rate",
   "screen.dogs-unleashed.settings.spawnrate.tooltip": "Wie oft alle Rassen in der Wildnis spawnen, verglichen mit dem Standard. 200% sind etwa doppelt so viele Hunde, 50% etwa halb so viele und 0% gar keine. Gilt sowohl beim Generieren neuer Chunks als auch für das Spawnen in Spielernähe. „In Spielernähe spawnen“ übernimmt die Änderung sofort. Biom-Spawns (in neuen Chunks und beim Vanilla-Tierspawnen) ändern sich erst nach einem Weltneustart.",
   "screen.dogs-unleashed.settings.spawnrate.breed": "%s Spawn-Rate",

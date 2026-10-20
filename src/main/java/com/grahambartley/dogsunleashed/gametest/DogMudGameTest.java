@@ -67,12 +67,12 @@ public final class DogMudGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = ARENA, batchId = MUD_ON, tickLimit = 60)
-  public void aDogOnStoneStaysClean(final TestContext context) {
+  public void aDogOnBareFloorStaysClean(final TestContext context) {
     final UnleashedDogEntity dog = still(context, Vec3d.of(REL_STAND).add(0.5, 0.0, 0.5));
     context.runAtTick(
         MUDDY_BY,
         () -> {
-          context.assertFalse(mud(dog).isMuddy(), "A dog on a dry stone floor stays clean");
+          context.assertFalse(mud(dog).isMuddy(), "A dog on a dry bedrock floor stays clean");
           context.complete();
         });
   }

@@ -195,7 +195,7 @@
   "screen.dogs-unleashed.settings.shownames": "Mostrar nomes dos cachorros",
   "screen.dogs-unleashed.settings.shownames.tooltip": "Quando ativado, um cachorro com nome mostra o nome flutuando acima da cabeça. Desative para esconder o nome de todos os cachorros do mundo sem renomear nenhum.",
   "screen.dogs-unleashed.settings.muddydogs": "Cachorros enlameados",
-  "screen.dogs-unleashed.settings.muddydogs.tooltip": "Quando ativado, os cachorros se sujam na lama, na água do pântano ou na chuva sobre terra macia, e deixam pegadas até serem lavados num caldeirão com água ou nadando. Desative para manter todos os cachorros limpos.",
+  "screen.dogs-unleashed.settings.muddydogs.tooltip": "Quando ativado, os cachorros se sujam na lama, na água do pântano ou na chuva sobre terra macia, e deixam pegadas até você lavá-los num caldeirão com água ou eles irem nadar. Desative para manter todos os cachorros limpos.",
   "screen.dogs-unleashed.settings.spawnrate": "Taxa de surgimento",
   "screen.dogs-unleashed.settings.spawnrate.tooltip": "Com que frequência todas as raças surgem na natureza, comparado com o padrão. 200% são cerca de duas vezes mais cachorros, 50% cerca da metade e 0% nenhum. Vale tanto quando chunks novos são gerados quanto para o surgimento perto dos jogadores. “Surgir perto dos jogadores” aplica a mudança na hora. Os surgimentos por bioma, em chunks novos e pelo surgimento de animais do vanilla, mudam depois de reiniciar o mundo.",
   "screen.dogs-unleashed.settings.spawnrate.breed": "Taxa de surgimento: %s",

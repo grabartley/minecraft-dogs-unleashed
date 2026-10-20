@@ -195,7 +195,7 @@
   "screen.dogs-unleashed.settings.shownames": "Show Dog Names",
   "screen.dogs-unleashed.settings.shownames.tooltip": "When enabled, a named dog shows its name floating above its head. Disable to hide every dog name in the world without renaming anything.",
   "screen.dogs-unleashed.settings.muddydogs": "Muddy Dogs",
-  "screen.dogs-unleashed.settings.muddydogs.tooltip": "When enabled, dogs get muddy on mud, in swamp water or out in the rain on soft ground, and leave paw prints until they are washed in a water cauldron or a swim. Disable to keep every dog clean.",
+  "screen.dogs-unleashed.settings.muddydogs.tooltip": "When enabled, dogs get muddy on mud, in swamp water or out in the rain on soft ground, and leave paw prints until you wash them in a water cauldron or they go for a swim. Disable to keep every dog clean.",
   "screen.dogs-unleashed.settings.spawnrate": "Spawn Rate",
   "screen.dogs-unleashed.settings.spawnrate.tooltip": "How often every breed spawns in the wild, compared with the default. 200% is about twice as many dogs, 50% about half, and 0% none at all. It applies both when new chunks generate and to spawning near players. Spawn Near Players follows the change right away. Biome spawns, in new chunks and from vanilla's animal spawning, change after a world restart.",
   "screen.dogs-unleashed.settings.spawnrate.breed": "%s Spawn Rate",

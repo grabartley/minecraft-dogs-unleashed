@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -75,6 +76,18 @@ class PawPrintTrailTest {
     trail.forget(1);
     trail.step(1, 0.1, 64, 0, 0, 0.6f);
     assertEquals(2, trail.prints().size());
+  }
+
+  @Test
+  @DisplayName("a dog that is gone loses its stride but its prints stay to fade")
+  void keepOnlyDropsGoneDogs() {
+    final PawPrintTrail trail = new PawPrintTrail();
+    trail.step(1, 0, 64, 0, 0, 0.6f);
+    trail.step(2, 5, 64, 0, 0, 0.6f);
+    trail.keepOnly(Set.of(2));
+    trail.step(1, 0.1, 64, 0, 0, 0.6f);
+    trail.step(2, 5.1, 64, 0, 0, 0.6f);
+    assertEquals(3, trail.prints().size());
   }
 
   @Test

@@ -195,7 +195,7 @@
   "screen.dogs-unleashed.settings.shownames": "Afficher les noms des chiens",
   "screen.dogs-unleashed.settings.shownames.tooltip": "Lorsque activé, un chien nommé affiche son nom au-dessus de sa tête. Désactivez pour masquer les noms de tous les chiens du monde sans rien renommer.",
   "screen.dogs-unleashed.settings.muddydogs": "Chiens boueux",
-  "screen.dogs-unleashed.settings.muddydogs.tooltip": "Lorsque activé, les chiens se salissent dans la boue, dans l'eau des marais ou sous la pluie sur un sol meuble, et laissent des empreintes jusqu'à ce qu'ils soient lavés dans un chaudron d'eau ou en nageant. Désactivez pour garder tous les chiens propres.",
+  "screen.dogs-unleashed.settings.muddydogs.tooltip": "Lorsque activé, les chiens se salissent dans la boue, dans l'eau des marais ou sous la pluie sur un sol meuble, et laissent des empreintes jusqu'à ce que vous les laviez dans un chaudron d'eau ou qu'ils aillent nager. Désactivez pour garder tous les chiens propres.",
   "screen.dogs-unleashed.settings.spawnrate": "Taux d'apparition",
   "screen.dogs-unleashed.settings.spawnrate.tooltip": "La fréquence d'apparition de toutes les races dans la nature, comparée à la valeur par défaut. 200% donne environ deux fois plus de chiens, 50% environ moitié moins et 0% aucun. S'applique à la génération des nouveaux chunks et à l'apparition près des joueurs. « Apparition près des joueurs » applique le changement tout de suite. Les apparitions de biome, dans les nouveaux chunks et par l'apparition vanilla des animaux, changent après un redémarrage du monde.",
   "screen.dogs-unleashed.settings.spawnrate.breed": "Taux d'apparition : %s",
