@@ -13,7 +13,9 @@ public record SpawningSettings(
     boolean enableNaturalSpawning,
     int spawnRateMultiplierPercent,
     Map<String, Integer> breedSpawnRateMultipliersPercent,
-    boolean capIndependentSpawningEnabled) {
+    boolean capIndependentSpawningEnabled,
+    boolean villageStrays,
+    boolean traderPuppies) {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SpawningSettings.class);
 
@@ -22,12 +24,14 @@ public record SpawningSettings(
   public static final int DEFAULT_RATE_PERCENT = 100;
 
   public static final SpawningSettings DEFAULTS =
-      new SpawningSettings(true, DEFAULT_RATE_PERCENT, Map.of(), true);
+      new SpawningSettings(true, DEFAULT_RATE_PERCENT, Map.of(), true, true, true);
 
   static final String KEY_ENABLE_NATURAL_SPAWNING = "enableNaturalSpawning";
   static final String KEY_SPAWN_RATE_MULTIPLIER_PERCENT = "spawnRateMultiplierPercent";
   static final String KEY_BREED_SPAWN_RATE_MULTIPLIERS_PERCENT = "breedSpawnRateMultipliersPercent";
   static final String KEY_CAP_INDEPENDENT_SPAWNING_ENABLED = "capIndependentSpawningEnabled";
+  static final String KEY_VILLAGE_STRAYS = "villageStrays";
+  static final String KEY_TRADER_PUPPIES = "traderPuppies";
 
   public SpawningSettings {
     spawnRateMultiplierPercent = ConfigBounds.clamp(spawnRateMultiplierPercent, RATE_MIN, RATE_MAX);
@@ -63,7 +67,9 @@ public record SpawningSettings(
         value,
         spawnRateMultiplierPercent,
         breedSpawnRateMultipliersPercent,
-        capIndependentSpawningEnabled);
+        capIndependentSpawningEnabled,
+        villageStrays,
+        traderPuppies);
   }
 
   public SpawningSettings withSpawnRateMultiplierPercent(final int value) {
@@ -71,7 +77,9 @@ public record SpawningSettings(
         enableNaturalSpawning,
         value,
         breedSpawnRateMultipliersPercent,
-        capIndependentSpawningEnabled);
+        capIndependentSpawningEnabled,
+        villageStrays,
+        traderPuppies);
   }
 
   public SpawningSettings withBreedSpawnRateMultiplierPercent(
@@ -79,12 +87,42 @@ public record SpawningSettings(
     final Map<String, Integer> updated = new LinkedHashMap<>(breedSpawnRateMultipliersPercent);
     updated.put(breedSerializedId, value);
     return new SpawningSettings(
-        enableNaturalSpawning, spawnRateMultiplierPercent, updated, capIndependentSpawningEnabled);
+        enableNaturalSpawning,
+        spawnRateMultiplierPercent,
+        updated,
+        capIndependentSpawningEnabled,
+        villageStrays,
+        traderPuppies);
   }
 
   public SpawningSettings withCapIndependentSpawningEnabled(final boolean value) {
     return new SpawningSettings(
-        enableNaturalSpawning, spawnRateMultiplierPercent, breedSpawnRateMultipliersPercent, value);
+        enableNaturalSpawning,
+        spawnRateMultiplierPercent,
+        breedSpawnRateMultipliersPercent,
+        value,
+        villageStrays,
+        traderPuppies);
+  }
+
+  public SpawningSettings withVillageStrays(final boolean value) {
+    return new SpawningSettings(
+        enableNaturalSpawning,
+        spawnRateMultiplierPercent,
+        breedSpawnRateMultipliersPercent,
+        capIndependentSpawningEnabled,
+        value,
+        traderPuppies);
+  }
+
+  public SpawningSettings withTraderPuppies(final boolean value) {
+    return new SpawningSettings(
+        enableNaturalSpawning,
+        spawnRateMultiplierPercent,
+        breedSpawnRateMultipliersPercent,
+        capIndependentSpawningEnabled,
+        villageStrays,
+        value);
   }
 
   static SpawningSettings fromJson(final ConfigJsonFields fields) {
@@ -97,7 +135,9 @@ public record SpawningSettings(
             RATE_MAX),
         fields.readIntMap(KEY_BREED_SPAWN_RATE_MULTIPLIERS_PERCENT),
         fields.readBoolean(
-            KEY_CAP_INDEPENDENT_SPAWNING_ENABLED, DEFAULTS.capIndependentSpawningEnabled));
+            KEY_CAP_INDEPENDENT_SPAWNING_ENABLED, DEFAULTS.capIndependentSpawningEnabled),
+        fields.readBoolean(KEY_VILLAGE_STRAYS, DEFAULTS.villageStrays),
+        fields.readBoolean(KEY_TRADER_PUPPIES, DEFAULTS.traderPuppies));
   }
 
   void writeJson(final JsonObject root) {
@@ -107,6 +147,8 @@ public record SpawningSettings(
     breedSpawnRateMultipliersPercent.forEach(breedRates::addProperty);
     root.add(KEY_BREED_SPAWN_RATE_MULTIPLIERS_PERCENT, breedRates);
     root.addProperty(KEY_CAP_INDEPENDENT_SPAWNING_ENABLED, capIndependentSpawningEnabled);
+    root.addProperty(KEY_VILLAGE_STRAYS, villageStrays);
+    root.addProperty(KEY_TRADER_PUPPIES, traderPuppies);
   }
 
   private static Map<String, Integer> normalizedBreedMultipliers(

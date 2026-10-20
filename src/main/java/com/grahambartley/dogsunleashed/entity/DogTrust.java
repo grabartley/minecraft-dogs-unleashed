@@ -30,6 +30,7 @@ public final class DogTrust {
   private long lastFeedTime = Long.MIN_VALUE / 2;
   private long lastKillTime = Long.MIN_VALUE / 2;
   private int decayTicks;
+  private boolean stray;
 
   DogTrust(final UnleashedDogEntity dog) {
     this.dog = dog;
@@ -53,11 +54,20 @@ public final class DogTrust {
   }
 
   public boolean applies() {
-    return this.dog.getBreed().nature().tamesThroughTrust() && !this.dog.isTamed();
+    return DogTrustRules.applies(
+        this.dog.getBreed().nature().tamesThroughTrust(), this.stray, this.dog.isTamed());
   }
 
   public boolean canBeWon() {
-    return this.applies() && this.dog.isBaby();
+    return DogTrustRules.canBeWon(this.applies(), this.dog.isBaby(), this.stray);
+  }
+
+  public boolean isStray() {
+    return this.stray;
+  }
+
+  public void markStray() {
+    this.stray = true;
   }
 
   public int trustOf(final PlayerEntity player) {
@@ -82,7 +92,7 @@ public final class DogTrust {
 
   ActionResult feed(final PlayerEntity player, final ItemStack stack) {
     final DogTrustRules.Food food = foodOf(stack);
-    if (!this.dog.isBaby() || this.isShunnedBy(player)) {
+    if (!this.canBeWon() || this.isShunnedBy(player)) {
       this.dog.getGrowl().warn();
       this.refuse();
       return ActionResult.SUCCESS;
@@ -95,7 +105,7 @@ public final class DogTrust {
     }
     stack.decrementUnlessCreative(1, player);
     this.lastFeedTime = now;
-    this.gain(player, food.gain());
+    this.gain(player, DogTrustRules.feedGain(food, this.stray));
     return ActionResult.SUCCESS;
   }
 
@@ -113,7 +123,9 @@ public final class DogTrust {
   }
 
   public void spook(final PlayerEntity player) {
-    if (this.canBeWon() && this.trustByPlayer.containsKey(player.getUuid())) {
+    if (this.canBeWon()
+        && DogTrustRules.isWary(this.stray)
+        && this.trustByPlayer.containsKey(player.getUuid())) {
       this.set(player.getUuid(), this.trustOf(player) - DogTrustRules.SPOOK_LOSS);
     }
   }
@@ -123,7 +135,7 @@ public final class DogTrust {
   }
 
   void tick() {
-    if (!this.canBeWon() || this.trustByPlayer.isEmpty()) {
+    if (!this.canBeWon() || !DogTrustRules.isWary(this.stray) || this.trustByPlayer.isEmpty()) {
       return;
     }
     if (++this.decayTicks < DogTrustRules.DECAY_INTERVAL_TICKS) {
@@ -139,6 +151,9 @@ public final class DogTrust {
   }
 
   void writeNbt(final NbtCompound nbt) {
+    if (this.stray) {
+      nbt.putBoolean(ModNbtKeys.STRAY, true);
+    }
     if (this.trustByPlayer.isEmpty()) {
       return;
     }
@@ -154,6 +169,7 @@ public final class DogTrust {
   }
 
   void readNbt(final NbtCompound nbt) {
+    this.stray = nbt.getBoolean(ModNbtKeys.STRAY);
     this.trustByPlayer.clear();
     for (final NbtElement element : nbt.getList(ModNbtKeys.TRUST, NbtElement.COMPOUND_TYPE)) {
       final NbtCompound entry = (NbtCompound) element;

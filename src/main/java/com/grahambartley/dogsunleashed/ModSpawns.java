@@ -6,6 +6,7 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.WildPackFounding;
 import com.grahambartley.dogsunleashed.mixin.ServerWorldSpawnersAccessor;
 import com.grahambartley.dogsunleashed.spawner.DogSpawner;
+import com.grahambartley.dogsunleashed.spawner.StraySpawner;
 import java.util.ArrayList;
 import java.util.List;
 import net.fabricmc.fabric.api.biome.v1.BiomeModification;
@@ -75,6 +76,7 @@ public class ModSpawns {
           final List<SpecialSpawner> spawners =
               new ArrayList<>(accessor.dogsUnleashed$getSpawners());
           spawners.add(new DogSpawner());
+          spawners.add(new StraySpawner());
           accessor.dogsUnleashed$setSpawners(List.copyOf(spawners));
         });
   }

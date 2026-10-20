@@ -27,7 +27,7 @@ class DogsUnleashedConfigTest {
   private static DogsUnleashedConfig configWithSpawnRates(
       final int globalPercent, final Map<String, Integer> breedPercents) {
     return new DogsUnleashedConfig(
-        new SpawningSettings(true, globalPercent, breedPercents, false),
+        new SpawningSettings(true, globalPercent, breedPercents, false, true, true),
         new GameplaySettings(true, true, true, true),
         new SleepSettings(true, 32),
         new FurSettings(true, 100, 100),
@@ -51,6 +51,8 @@ class DogsUnleashedConfigTest {
     assertEquals(1.5f, defaults.sound().howlVolume());
     assertTrue(defaults.gameplay().showDogNames());
     assertTrue(defaults.gameplay().muddyDogs());
+    assertTrue(defaults.spawning().villageStrays());
+    assertTrue(defaults.spawning().traderPuppies());
     assertTrue(defaults.fur().furGrowthEnabled());
     assertEquals(100, defaults.fur().furGrowthRateMultiplierPercent());
     assertEquals(100, defaults.fur().badHairDayChanceMultiplierPercent());
@@ -75,7 +77,7 @@ class DogsUnleashedConfigTest {
     final Path path = tempDir.resolve("config.json");
     final DogsUnleashedConfig original =
         new DogsUnleashedConfig(
-            new SpawningSettings(false, 250, Map.of("husky", 0, "beagle", 40), false),
+            new SpawningSettings(false, 250, Map.of("husky", 0, "beagle", 40), false, false, false),
             new GameplaySettings(false, false, false, false),
             new SleepSettings(false, 64),
             new FurSettings(false, 250, 0),
@@ -154,6 +156,8 @@ class DogsUnleashedConfigTest {
         Arguments.of("gravesEnabled", "\"yes\""),
         Arguments.of("showDogNames", "1"),
         Arguments.of("muddyDogs", "\"wet\""),
+        Arguments.of("villageStrays", "2"),
+        Arguments.of("traderPuppies", "\"maybe\""),
         Arguments.of("enableNaturalSpawning", "{}"),
         Arguments.of("breedSpawnRateMultipliersPercent", "{\"beagle\": \"high\"}"),
         Arguments.of("breedSpawnRateMultipliersPercent", "[]"));
@@ -356,7 +360,9 @@ class DogsUnleashedConfigTest {
                     "goldenretriever", 120,
                     "shibainu", 60,
                     "direwolf", 321),
-                false),
+                false,
+                true,
+                true),
             new GameplaySettings(false, false, false, true),
             new SleepSettings(false, 48),
             new FurSettings(false, 250, 40),
@@ -374,6 +380,8 @@ class DogsUnleashedConfigTest {
     saved.addProperty("dogAgingEnabled", false);
     saved.addProperty("seniorAfterDays", 100);
     saved.addProperty("muddyDogs", true);
+    saved.addProperty("villageStrays", true);
+    saved.addProperty("traderPuppies", true);
     assertEquals(saved, JsonParser.parseString(Files.readString(path)).getAsJsonObject());
   }
 }

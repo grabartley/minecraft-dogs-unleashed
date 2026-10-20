@@ -92,6 +92,7 @@ public final class ModNbtKeys {
   public static final String BOND_LAST_NEAR_OWNER = "BondLastNearOwner";
   public static final String WILD_PACK_ID = "WildPackId";
   public static final String TRUST = "WildTrust";
+  public static final String STRAY = "Stray";
   public static final String GRUDGES = "Grudges";
   public static final String GRUDGE_PLAYERS = "Players";
   public static final String STAMINA = "RidingStamina";

@@ -36,7 +36,8 @@ animated. You can tame them, give them commands, play fetch, put them to bed, an
 | **Shiba Inu**        | Cherry groves                             | 3: red, black and sesame  |
 | **Dire Wolf**        | Packs in the coldest peaks and ice fields | 6, from smoke grey to albino white |
 
-Breeds differ in size, health, speed and bite. Some coats are rarer than others.
+Breeds differ in size, health, speed and bite. Some coats are rarer than others. Friendly strays also wander into
+villages, and the wandering trader sometimes sells a puppy in a basket.
 
 The dire wolf is the rare one. It roams the coldest peaks in packs that hunt together and never forgive a player who
 hurts one of them. Earn a pup's trust and it grows into a wolf the size of a horse that you can ride.
@@ -123,6 +124,8 @@ only operators can.
 | Spawn Rate                | 100%    | How many dogs spawn, from 0% to 500%. 200% is about twice as many. Biome spawns change after a world restart. |
 | Spawn Rate (per breed)    | 100%    | The same, for one breed. It multiplies with Spawn Rate.                           |
 | Spawn Near Players        | On      | Keeps wild dogs of every breed turning up near you, even in well-explored areas.  |
+| Village Strays            | On      | Whether stray dogs turn up in villages, two at most per village. Feed one to win it over. |
+| Trader Puppies            | On      | Whether the wandering trader sometimes sells a Puppy Basket with a tamed puppy inside. |
 | Dog Graves on Death       | On      | Whether a tamed dog leaves a grave when it dies. Its gear drops either way.                        |
 | Drop Leash on Play Mode   | On      | Off keeps the lead on, and fetch waits until you take it off.                     |
 | Show Dog Names            | On      | Shows or hides name tags above dogs.                                              |
@@ -158,6 +161,8 @@ Every subcommand needs operator permission.
 /dogsunleashed config spawnrate <0..500>
 /dogsunleashed config spawnrate <breed> <0..500>
 /dogsunleashed config capindependentspawning <true|false>
+/dogsunleashed config villagestrays <true|false>
+/dogsunleashed config traderpuppies <true|false>
 /dogsunleashed config graves <true|false>
 /dogsunleashed config dropleashonplay <true|false>
 /dogsunleashed config shownames <true|false>

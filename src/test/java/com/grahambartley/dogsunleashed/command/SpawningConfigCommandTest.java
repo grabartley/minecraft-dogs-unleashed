@@ -23,6 +23,8 @@ class SpawningConfigCommandTest {
     assertArrayEquals(
         new Object[] {SpawningSettings.RATE_MIN, SpawningSettings.RATE_MAX}, args(lines.get(2)));
     assertEquals("command.dogs-unleashed.help.capindependentspawning", key(lines.get(3)));
+    assertEquals("command.dogs-unleashed.help.villagestrays", key(lines.get(4)));
+    assertEquals("command.dogs-unleashed.help.traderpuppies", key(lines.get(5)));
   }
 
   @Test
@@ -30,10 +32,15 @@ class SpawningConfigCommandTest {
   void statusLines() {
     final List<Text> lines =
         SpawningConfigCommand.statusLines(
-            new SpawningSettings(false, 150, Map.of("beagle", 0), true));
+            new SpawningSettings(false, 150, Map.of("beagle", 0), true, false, true));
     assertArrayEquals(new Object[] {false}, args(lines.get(0)));
     assertArrayEquals(new Object[] {150}, args(lines.get(1)));
-    assertEquals("command.dogs-unleashed.status.capindependentspawning", key(lines.getLast()));
+    assertEquals(
+        "command.dogs-unleashed.status.capindependentspawning", key(lines.get(lines.size() - 3)));
+    assertArrayEquals(new Object[] {true}, args(lines.get(lines.size() - 3)));
+    assertEquals("command.dogs-unleashed.status.villagestrays", key(lines.get(lines.size() - 2)));
+    assertArrayEquals(new Object[] {false}, args(lines.get(lines.size() - 2)));
+    assertEquals("command.dogs-unleashed.status.traderpuppies", key(lines.getLast()));
     assertArrayEquals(new Object[] {true}, args(lines.getLast()));
     assertEquals(
         List.of(0),
