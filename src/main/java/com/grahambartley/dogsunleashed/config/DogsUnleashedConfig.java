@@ -22,7 +22,8 @@ public record DogsUnleashedConfig(
     SleepSettings sleep,
     FurSettings fur,
     SoundSettings sound,
-    DireWolfSettings direWolf) {
+    DireWolfSettings direWolf,
+    AgingSettings aging) {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DogsUnleashedConfig.class);
   private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -36,6 +37,7 @@ public record DogsUnleashedConfig(
     fur = fur == null ? FurSettings.DEFAULTS : fur;
     sound = sound == null ? SoundSettings.DEFAULTS : sound;
     direWolf = direWolf == null ? DireWolfSettings.DEFAULTS : direWolf;
+    aging = aging == null ? AgingSettings.DEFAULTS : aging;
   }
 
   public static DogsUnleashedConfig defaults() {
@@ -45,31 +47,36 @@ public record DogsUnleashedConfig(
         SleepSettings.DEFAULTS,
         FurSettings.DEFAULTS,
         SoundSettings.DEFAULTS,
-        DireWolfSettings.DEFAULTS);
+        DireWolfSettings.DEFAULTS,
+        AgingSettings.DEFAULTS);
   }
 
   public DogsUnleashedConfig withSpawning(final SpawningSettings value) {
-    return new DogsUnleashedConfig(value, gameplay, sleep, fur, sound, direWolf);
+    return new DogsUnleashedConfig(value, gameplay, sleep, fur, sound, direWolf, aging);
   }
 
   public DogsUnleashedConfig withGameplay(final GameplaySettings value) {
-    return new DogsUnleashedConfig(spawning, value, sleep, fur, sound, direWolf);
+    return new DogsUnleashedConfig(spawning, value, sleep, fur, sound, direWolf, aging);
   }
 
   public DogsUnleashedConfig withSleep(final SleepSettings value) {
-    return new DogsUnleashedConfig(spawning, gameplay, value, fur, sound, direWolf);
+    return new DogsUnleashedConfig(spawning, gameplay, value, fur, sound, direWolf, aging);
   }
 
   public DogsUnleashedConfig withFur(final FurSettings value) {
-    return new DogsUnleashedConfig(spawning, gameplay, sleep, value, sound, direWolf);
+    return new DogsUnleashedConfig(spawning, gameplay, sleep, value, sound, direWolf, aging);
   }
 
   public DogsUnleashedConfig withSound(final SoundSettings value) {
-    return new DogsUnleashedConfig(spawning, gameplay, sleep, fur, value, direWolf);
+    return new DogsUnleashedConfig(spawning, gameplay, sleep, fur, value, direWolf, aging);
   }
 
   public DogsUnleashedConfig withDireWolf(final DireWolfSettings value) {
-    return new DogsUnleashedConfig(spawning, gameplay, sleep, fur, sound, value);
+    return new DogsUnleashedConfig(spawning, gameplay, sleep, fur, sound, value, aging);
+  }
+
+  public DogsUnleashedConfig withAging(final AgingSettings value) {
+    return new DogsUnleashedConfig(spawning, gameplay, sleep, fur, sound, direWolf, value);
   }
 
   public static DogsUnleashedConfig load(Path path) {
@@ -138,7 +145,8 @@ public record DogsUnleashedConfig(
         SleepSettings.fromJson(fields),
         FurSettings.fromJson(fields),
         SoundSettings.fromJson(fields),
-        DireWolfSettings.fromJson(fields.readObject(KEY_DIRE_WOLF)));
+        DireWolfSettings.fromJson(fields.readObject(KEY_DIRE_WOLF)),
+        AgingSettings.fromJson(fields));
   }
 
   static JsonObject toJson(DogsUnleashedConfig config) {
@@ -148,6 +156,7 @@ public record DogsUnleashedConfig(
     config.sleep.writeJson(root);
     config.sound.writeJson(root);
     config.fur.writeJson(root);
+    config.aging.writeJson(root);
     root.add(KEY_DIRE_WOLF, config.direWolf.toJson());
     return root;
   }

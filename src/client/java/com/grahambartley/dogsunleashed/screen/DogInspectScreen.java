@@ -86,10 +86,7 @@ public class DogInspectScreen extends Screen {
     headerY += HEADER_LINE_HEIGHT;
     context.drawText(
         this.textRenderer,
-        Text.translatable(
-            pet.baby()
-                ? "screen.dogs-unleashed.pet_details.age_baby"
-                : "screen.dogs-unleashed.pet_details.age_adult"),
+        Text.translatable(pet.age().translationKey()),
         headerX,
         headerY,
         LABEL_COLOR,

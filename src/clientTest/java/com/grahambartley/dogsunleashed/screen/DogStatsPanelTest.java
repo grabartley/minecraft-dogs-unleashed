@@ -85,6 +85,7 @@ class DogStatsPanelTest {
         attackDamage,
         List.of(),
         RidingView.NONE,
+        false,
         false);
   }
 

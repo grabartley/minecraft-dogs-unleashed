@@ -74,6 +74,11 @@ public final class DogLineage {
     baby.setBaby(true);
     baby.getLineage().setParentDogUuid(this.dog.getUuid());
     baby.getLineage().setSecondParentDogUuid(partner.getUuid());
+    baby.getComponents()
+        .get(DogAging.class)
+        .inheritLegacy(
+            this.dog.getComponents().get(DogAging.class),
+            partner.getComponents().get(DogAging.class));
     if (childBreed == UnleashedDogBreed.CROSS_BREED) {
       baby.applyGenome(
           DogGenomeCombiner.combine(

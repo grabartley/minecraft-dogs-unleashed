@@ -356,13 +356,14 @@ public class PetManagerScreen extends Screen {
     context.drawText(this.textRenderer, breedName, textX, y + 18, 0xAAAAAA, false);
 
     final Text statusLabel = PetLifeStateDisplay.statusLabel(pet);
-    if (pet.alive() && statusLabel != null) {
+    final Text rowTag = PetLifeStateDisplay.rowTag(pet);
+    if (pet.alive() && rowTag != null) {
       context.drawText(
           this.textRenderer,
-          statusLabel,
-          textX + textMaxWidth - this.textRenderer.getWidth(statusLabel),
+          rowTag,
+          textX + textMaxWidth - this.textRenderer.getWidth(rowTag),
           y + 18,
-          PetLifeStateDisplay.statusColor(pet),
+          PetLifeStateDisplay.rowTagColor(pet),
           false);
     }
 

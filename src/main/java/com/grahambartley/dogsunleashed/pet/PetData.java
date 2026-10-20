@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.pet;
 
 import com.grahambartley.dogsunleashed.ModNbtKeys;
+import com.grahambartley.dogsunleashed.entity.DogAging;
 import com.grahambartley.dogsunleashed.entity.DogAppearance;
 import com.grahambartley.dogsunleashed.entity.DogCollar;
 import com.grahambartley.dogsunleashed.entity.DogFurStage;
@@ -50,6 +51,9 @@ public final class PetData {
   private int growthBattlesWon;
   private int growthTicksInStage;
   private int staminaPercent;
+  private long adultAgeTicks;
+  private boolean senior;
+  private boolean seniorParent;
 
   public PetData(
       UUID petId,
@@ -204,6 +208,18 @@ public final class PetData {
     return staminaPercent;
   }
 
+  public long getAdultAgeTicks() {
+    return adultAgeTicks;
+  }
+
+  public boolean isSenior() {
+    return senior;
+  }
+
+  public boolean hasSeniorParent() {
+    return seniorParent;
+  }
+
   public int getGrowthBattlesWon() {
     return growthBattlesWon;
   }
@@ -245,6 +261,10 @@ public final class PetData {
     this.growthBattlesWon = dog.getGrowth().battlesWon();
     this.growthTicksInStage = dog.getGrowth().ticksInStage();
     this.staminaPercent = Math.round(dog.getRiding().staminaFraction() * PERCENT);
+    final DogAging aging = dog.getComponents().get(DogAging.class);
+    this.adultAgeTicks = aging.adultAgeTicks();
+    this.senior = aging.isSenior();
+    this.seniorParent = aging.hasSeniorParent();
     final DogGenome dogGenome = dog.getGenome();
     this.genome = dogGenome;
     this.composition = dogGenome != null ? dogGenome.composition() : List.of();
@@ -263,7 +283,7 @@ public final class PetData {
   }
 
   public PortraitLook portraitLook() {
-    return new PortraitLook(baby, collarColor, coatVariant, huskyEyeVariant, furStage);
+    return new PortraitLook(baby, collarColor, coatVariant, huskyEyeVariant, furStage, senior);
   }
 
   public boolean differsFrom(
@@ -298,6 +318,9 @@ public final class PetData {
     nbt.putInt(ModNbtKeys.GROWTH_BATTLES_WON, growthBattlesWon);
     nbt.putInt(ModNbtKeys.GROWTH_TICKS_IN_STAGE, growthTicksInStage);
     nbt.putInt(ModNbtKeys.STAMINA, staminaPercent);
+    nbt.putLong(ModNbtKeys.ADULT_AGE_TICKS, adultAgeTicks);
+    nbt.putBoolean(ModNbtKeys.SENIOR, senior);
+    nbt.putBoolean(ModNbtKeys.SENIOR_PARENT, seniorParent);
     if (!composition.isEmpty()) {
       nbt.put(ModNbtKeys.COMPOSITION, DogGenome.compositionToNbt(composition));
     }
@@ -362,6 +385,9 @@ public final class PetData {
     pet.growthBattlesWon = nbt.getInt(ModNbtKeys.GROWTH_BATTLES_WON);
     pet.growthTicksInStage = nbt.getInt(ModNbtKeys.GROWTH_TICKS_IN_STAGE);
     pet.staminaPercent = nbt.getInt(ModNbtKeys.STAMINA);
+    pet.adultAgeTicks = Math.max(0L, nbt.getLong(ModNbtKeys.ADULT_AGE_TICKS));
+    pet.senior = nbt.getBoolean(ModNbtKeys.SENIOR);
+    pet.seniorParent = nbt.getBoolean(ModNbtKeys.SENIOR_PARENT);
     if (nbt.contains(ModNbtKeys.COMPOSITION, NbtElement.COMPOUND_TYPE)) {
       pet.composition = DogGenome.compositionFromNbt(nbt.getCompound(ModNbtKeys.COMPOSITION));
     }

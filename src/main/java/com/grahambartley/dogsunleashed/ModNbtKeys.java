@@ -78,6 +78,10 @@ public final class ModNbtKeys {
   public static final String GROWTH_STAGE = "GrowthStage";
   public static final String GROWTH_TICKS_IN_STAGE = "GrowthTicksInStage";
   public static final String GROWTH_BATTLES_WON = "GrowthBattlesWon";
+  public static final String ADULT_AGE_TICKS = "AdultAgeTicks";
+  public static final String AGE_LAST_SEEN_TIME = "AgeLastSeenTime";
+  public static final String SENIOR = "Senior";
+  public static final String SENIOR_PARENT = "SeniorParent";
   public static final String WILD_PACK_ID = "WildPackId";
   public static final String TRUST = "WildTrust";
   public static final String GRUDGES = "Grudges";
