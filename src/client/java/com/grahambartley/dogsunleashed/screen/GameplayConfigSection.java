@@ -34,6 +34,12 @@ final class GameplayConfigSection {
             KEY + "shownames.tooltip",
             this.settings.showDogNames(),
             value -> this.settings = this.settings.withShowDogNames(value)));
+    list.addRow(
+        rows.toggle(
+            KEY + "muddydogs",
+            KEY + "muddydogs.tooltip",
+            this.settings.muddyDogs(),
+            value -> this.settings = this.settings.withMuddyDogs(value)));
   }
 
   GameplaySettings settings() {

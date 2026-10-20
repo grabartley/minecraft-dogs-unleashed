@@ -87,6 +87,7 @@ public final class ServerConfigPayloads {
     buf.writeFloat(config.sound().barkVolume());
     buf.writeFloat(config.sound().howlVolume());
     buf.writeBoolean(config.gameplay().showDogNames());
+    buf.writeBoolean(config.gameplay().muddyDogs());
     buf.writeBoolean(config.fur().furGrowthEnabled());
     buf.writeVarInt(config.fur().furGrowthRateMultiplierPercent());
     buf.writeVarInt(config.fur().badHairDayChanceMultiplierPercent());
@@ -126,7 +127,8 @@ public final class ServerConfigPayloads {
     final SleepSettings sleep = new SleepSettings(buf.readBoolean(), buf.readInt());
     final SoundSettings sound = new SoundSettings(buf.readFloat(), buf.readFloat());
     final GameplaySettings gameplay =
-        new GameplaySettings(gravesEnabled, dropLeashOnPlayMode, buf.readBoolean());
+        new GameplaySettings(
+            gravesEnabled, dropLeashOnPlayMode, buf.readBoolean(), buf.readBoolean());
     final FurSettings fur = new FurSettings(buf.readBoolean(), buf.readVarInt(), buf.readVarInt());
     return new DogsUnleashedConfig(
         spawning,

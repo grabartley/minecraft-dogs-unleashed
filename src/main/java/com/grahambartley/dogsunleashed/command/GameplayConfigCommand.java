@@ -26,14 +26,19 @@ final class GameplayConfigCommand {
             ConfigSettingNodes.toggle(
                 "shownames",
                 (current, value) ->
-                    current.withGameplay(current.gameplay().withShowDogNames(value))));
+                    current.withGameplay(current.gameplay().withShowDogNames(value))))
+        .then(
+            ConfigSettingNodes.toggle(
+                "muddydogs",
+                (current, value) -> current.withGameplay(current.gameplay().withMuddyDogs(value))));
   }
 
   static List<Text> helpLines() {
     return List.of(
         Text.translatable("command.dogs-unleashed.help.graves"),
         Text.translatable("command.dogs-unleashed.help.dropleashonplay"),
-        Text.translatable("command.dogs-unleashed.help.shownames"));
+        Text.translatable("command.dogs-unleashed.help.shownames"),
+        Text.translatable("command.dogs-unleashed.help.muddydogs"));
   }
 
   static List<Text> statusLines(final GameplaySettings settings) {
@@ -41,6 +46,7 @@ final class GameplayConfigCommand {
         Text.translatable("command.dogs-unleashed.status.graves", settings.gravesEnabled()),
         Text.translatable(
             "command.dogs-unleashed.status.dropleashonplay", settings.dropLeashOnPlayMode()),
-        Text.translatable("command.dogs-unleashed.status.shownames", settings.showDogNames()));
+        Text.translatable("command.dogs-unleashed.status.shownames", settings.showDogNames()),
+        Text.translatable("command.dogs-unleashed.status.muddydogs", settings.muddyDogs()));
   }
 }

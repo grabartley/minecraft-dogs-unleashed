@@ -125,6 +125,7 @@ only operators can.
 | Dog Graves on Death       | On      | Whether a tamed dog leaves a grave when it dies. Its gear drops either way.                        |
 | Drop Leash on Play Mode   | On      | Off keeps the lead on, and fetch waits until you take it off.                     |
 | Show Dog Names            | On      | Shows or hides name tags above dogs.                                              |
+| Muddy Dogs                | On      | Whether dogs get muddy and leave paw prints. Off keeps every dog clean.           |
 | Auto-Sleep at Night       | On      | Whether dogs go to bed by themselves.                                             |
 | Auto-Sleep Range (blocks) | 32      | How far from its bed a dog can be and still go to sleep, from 4 to 128.           |
 | Bark Volume               | 1.0     | How loud barks are, from 0.0 to 2.0.                                              |
@@ -159,6 +160,7 @@ Every subcommand needs operator permission.
 /dogsunleashed config graves <true|false>
 /dogsunleashed config dropleashonplay <true|false>
 /dogsunleashed config shownames <true|false>
+/dogsunleashed config muddydogs <true|false>
 /dogsunleashed config autosleep <true|false>
 /dogsunleashed config autosleeprange <4..128>
 /dogsunleashed config barkvolume <0.0..2.0>

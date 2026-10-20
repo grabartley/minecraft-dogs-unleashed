@@ -43,7 +43,7 @@ class ServerConfigPayloadsTest {
             "every field flipped off the default",
             new DogsUnleashedConfig(
                 new SpawningSettings(false, 250, Map.of("husky", 0, "beagle", 40), false),
-                new GameplaySettings(false, false, false),
+                new GameplaySettings(false, false, false, false),
                 new SleepSettings(false, 64),
                 new FurSettings(false, 250, 0),
                 new SoundSettings(0.5f, 0.25f),

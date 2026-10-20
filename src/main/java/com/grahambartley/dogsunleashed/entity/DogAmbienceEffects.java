@@ -190,6 +190,7 @@ public final class DogAmbienceEffects {
         SHAKE_PARTICLE_SPREAD,
         SHAKE_PARTICLE_SPREAD,
         SHAKE_PARTICLE_SPEED);
+    this.dog.getComponents().get(DogMud.class).spatterShake(serverWorld);
   }
 
   private void spawnHeartParticles(final ServerWorld serverWorld) {
