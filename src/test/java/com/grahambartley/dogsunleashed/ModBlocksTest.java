@@ -15,7 +15,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(MinecraftBootstrapExtension.class)
-class ModContentRegistrationTest {
+class ModBlocksTest {
 
   private static Identifier modId(final String path) {
     return Identifier.of(DogsUnleashed.MOD_ID, path);

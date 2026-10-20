@@ -1,12 +1,9 @@
-package com.grahambartley.dogsunleashed.sound;
+package com.grahambartley.dogsunleashed;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.grahambartley.dogsunleashed.DogsUnleashed;
-import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
-import com.grahambartley.dogsunleashed.ModSounds;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import java.util.stream.Stream;
 import net.minecraft.registry.Registries;
@@ -20,7 +17,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(MinecraftBootstrapExtension.class)
-class DogSoundRegistrationTest {
+class ModSoundsTest {
 
   static Stream<Arguments> barkingBreeds() {
     return Stream.of(
