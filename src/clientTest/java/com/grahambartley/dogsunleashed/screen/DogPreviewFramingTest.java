@@ -58,7 +58,8 @@ class DogPreviewFramingTest {
         Arguments.of("model as tall as its hitbox", 1.1f, 1.1f, 1.0f, -0.12f),
         Arguments.of("short model lowers the pivot", 0.57f, 1.1f, 1.0f, -0.385f),
         Arguments.of("tall model raises the pivot", 1.31f, 1.1f, 1.0f, -0.015f),
-        Arguments.of("a half-size dog keeps its feet on the floor", 0.5f, 0.5f, 0.5f, -0.06f));
+        Arguments.of(
+            "a half-size dog scales its depth below the origin", 0.5f, 0.5f, 0.5f, -0.06f));
   }
 
   @ParameterizedTest(name = "{0}")
