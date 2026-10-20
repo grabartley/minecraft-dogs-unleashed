@@ -4,8 +4,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
+import com.grahambartley.dogsunleashed.network.payload.RidingView;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableTextContent;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -81,5 +88,81 @@ class PetLifeStateDisplayTest {
         Arguments.of(PetLifeState.UNDEAD, PetLifeStateDisplay.UNDEAD_COLOR),
         Arguments.of(PetLifeState.DECEASED, PetLifeStateDisplay.GONE_COLOR),
         Arguments.of(PetLifeState.LOST, PetLifeStateDisplay.GONE_COLOR));
+  }
+
+  static Stream<Arguments> rowTagCases() {
+    return Stream.of(
+        Arguments.of(PetLifeState.LIVING, false, false, false, null, 0),
+        Arguments.of(
+            PetLifeState.LIVING,
+            false,
+            true,
+            false,
+            "screen.dogs-unleashed.pet_details.age_senior",
+            PetLifeStateDisplay.SENIOR_COLOR),
+        Arguments.of(PetLifeState.LIVING, true, true, false, null, 0),
+        Arguments.of(
+            PetLifeState.LIVING,
+            false,
+            true,
+            true,
+            "screen.dogs-unleashed.pet_manager.exploring",
+            PetLifeStateDisplay.EXPLORING_COLOR),
+        Arguments.of(
+            PetLifeState.UNDEAD,
+            false,
+            true,
+            false,
+            "screen.dogs-unleashed.pet_manager.undead",
+            PetLifeStateDisplay.UNDEAD_COLOR));
+  }
+
+  @ParameterizedTest(name = "{0}, baby {1}, senior {2}, exploring {3} -> {4}")
+  @MethodSource("rowTagCases")
+  @DisplayName("a pet manager row tags seniors unless a life state or expedition takes the slot")
+  void rowTagPrefersStatusThenSenior(
+      final PetLifeState lifeState,
+      final boolean baby,
+      final boolean senior,
+      final boolean exploring,
+      final String expectedKey,
+      final int expectedColor) {
+    final PetSyncData pet = pet(lifeState, baby, senior, exploring);
+    final Text tag = PetLifeStateDisplay.rowTag(pet);
+    if (expectedKey == null) {
+      assertNull(tag);
+      return;
+    }
+    assertEquals(expectedKey, ((TranslatableTextContent) tag.getContent()).getKey());
+    assertEquals(expectedColor, PetLifeStateDisplay.rowTagColor(pet));
+  }
+
+  private static PetSyncData pet(
+      final PetLifeState lifeState,
+      final boolean baby,
+      final boolean senior,
+      final boolean exploring) {
+    return new PetSyncData(
+        UUID.randomUUID().toString(),
+        UnleashedDogBreed.BEAGLE,
+        "Old Tom",
+        10.0f,
+        20.0f,
+        0,
+        64,
+        0,
+        "minecraft:overworld",
+        lifeState,
+        baby,
+        0,
+        0,
+        0,
+        0,
+        0.3f,
+        2.0f,
+        List.of(),
+        RidingView.NONE,
+        exploring,
+        senior);
   }
 }

@@ -1,10 +1,15 @@
 package com.grahambartley.dogsunleashed.network.payload;
 
+import com.grahambartley.dogsunleashed.DogsUnleashed;
+import com.grahambartley.dogsunleashed.config.AgingSettings;
+import com.grahambartley.dogsunleashed.entity.DogAging;
+import com.grahambartley.dogsunleashed.entity.DogAgingRules;
 import com.grahambartley.dogsunleashed.entity.DogCollar;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
+import com.grahambartley.dogsunleashed.pet.PetAge;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import java.util.List;
@@ -33,7 +38,8 @@ public record PetSyncData(
     float attackDamage,
     List<BreedShare> composition,
     RidingView riding,
-    boolean exploring) {
+    boolean exploring,
+    boolean senior) {
 
   public static final PacketCodec<RegistryByteBuf, PetSyncData> CODEC =
       PacketCodec.of(PetSyncData::write, PetSyncData::read);
@@ -59,7 +65,8 @@ public record PetSyncData(
         petData.getAttackDamage(),
         petData.getComposition(),
         RidingView.of(petData.getBreed(), petData.getGrowthStage(), petData.getStaminaPercent()),
-        exploring);
+        exploring,
+        seniorOf(petData));
   }
 
   public static PetSyncData fromDog(final UnleashedDogEntity dog) {
@@ -88,7 +95,17 @@ public record PetSyncData(
             dog.getBreed(),
             dog.getGrowth().stage().number(),
             Math.round(dog.getRiding().staminaFraction() * 100.0f)),
-        false);
+        false,
+        dog.getComponents().get(DogAging.class).isSenior());
+  }
+
+  static boolean seniorOf(final PetData petData) {
+    final AgingSettings aging = DogsUnleashed.SERVER_CONFIG.aging();
+    return DogAgingRules.isSenior(
+        aging.dogAgingEnabled(),
+        petData.getLifeState() == PetLifeState.UNDEAD,
+        petData.getAdultAgeTicks(),
+        aging.seniorAfterDays());
   }
 
   public boolean alive() {
@@ -101,6 +118,10 @@ public record PetSyncData(
 
   public boolean undead() {
     return this.lifeState == PetLifeState.UNDEAD;
+  }
+
+  public PetAge age() {
+    return PetAge.of(this.baby, this.senior);
   }
 
   public UnleashedDogBreed displayBreed() {
@@ -131,6 +152,7 @@ public record PetSyncData(
     BreedShareCodec.writeList(buf, this.composition);
     this.riding.write(buf);
     buf.writeBoolean(this.exploring);
+    buf.writeBoolean(this.senior);
   }
 
   static PetSyncData read(final RegistryByteBuf buf) {
@@ -154,6 +176,7 @@ public record PetSyncData(
         buf.readFloat(),
         BreedShareCodec.readList(buf),
         RidingView.read(buf),
+        buf.readBoolean(),
         buf.readBoolean());
   }
 }

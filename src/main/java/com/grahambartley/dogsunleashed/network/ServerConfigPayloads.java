@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.network;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
+import com.grahambartley.dogsunleashed.config.AgingSettings;
 import com.grahambartley.dogsunleashed.config.DireWolfPackSettings;
 import com.grahambartley.dogsunleashed.config.DireWolfSettings;
 import com.grahambartley.dogsunleashed.config.DireWolfStaminaSettings;
@@ -99,6 +100,8 @@ public final class ServerConfigPayloads {
     buf.writeBoolean(direWolf.stamina().drains());
     buf.writeVarInt(direWolf.stamina().capacityPercent());
     buf.writeVarInt(direWolf.stamina().recoveryPercent());
+    buf.writeBoolean(config.aging().dogAgingEnabled());
+    buf.writeVarInt(config.aging().seniorAfterDays());
   }
 
   static Map<String, Integer> readBreedRates(final PacketByteBuf buf) {
@@ -137,6 +140,7 @@ public final class ServerConfigPayloads {
             buf.readVarInt(),
             buf.readVarInt(),
             new DireWolfPackSettings(buf.readBoolean(), buf.readBoolean()),
-            new DireWolfStaminaSettings(buf.readBoolean(), buf.readVarInt(), buf.readVarInt())));
+            new DireWolfStaminaSettings(buf.readBoolean(), buf.readVarInt(), buf.readVarInt())),
+        new AgingSettings(buf.readBoolean(), buf.readVarInt()));
   }
 }

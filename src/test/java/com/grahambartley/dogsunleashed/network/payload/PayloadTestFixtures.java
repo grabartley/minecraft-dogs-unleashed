@@ -50,6 +50,7 @@ final class PayloadTestFixtures {
         3.5f,
         composition,
         RidingView.NONE,
+        false,
         false);
   }
 }

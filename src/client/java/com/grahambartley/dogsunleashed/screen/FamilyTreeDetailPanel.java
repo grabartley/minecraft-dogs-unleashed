@@ -78,15 +78,7 @@ final class FamilyTreeDetailPanel {
         false);
     textY += 12;
     context.drawText(
-        textRenderer,
-        Text.translatable(
-            pet.baby()
-                ? "screen.dogs-unleashed.pet_details.age_baby"
-                : "screen.dogs-unleashed.pet_details.age_adult"),
-        textX,
-        textY,
-        0xAAAAAA,
-        false);
+        textRenderer, Text.translatable(pet.age().translationKey()), textX, textY, 0xAAAAAA, false);
     renderGenes(context, textRenderer, dog, textX, textY + GENES_GAP, screenHeight);
   }
 

@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.network;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.grahambartley.dogsunleashed.config.AgingSettings;
 import com.grahambartley.dogsunleashed.config.DireWolfPackSettings;
 import com.grahambartley.dogsunleashed.config.DireWolfSettings;
 import com.grahambartley.dogsunleashed.config.DireWolfStaminaSettings;
@@ -52,7 +53,8 @@ class ServerConfigPayloadsTest {
                     6,
                     9,
                     new DireWolfPackSettings(false, true),
-                    new DireWolfStaminaSettings(false, 150, 60)))));
+                    new DireWolfStaminaSettings(false, 150, 60)),
+                new AgingSettings(true, 42))));
   }
 
   @ParameterizedTest(name = "{0}")

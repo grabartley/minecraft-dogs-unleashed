@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -76,7 +77,8 @@ class PetDataTest {
       final int fur) {
     assertTrue(
         baselinePet()
-            .differsFrom(health, pos, dimension, new PortraitLook(baby, collar, coat, eye, fur)),
+            .differsFrom(
+                health, pos, dimension, new PortraitLook(baby, collar, coat, eye, fur, false)),
         "expected differsFrom to flag a change in " + changedField);
   }
 
@@ -184,7 +186,7 @@ class PetDataTest {
                 BASE_HEALTH,
                 equalPos,
                 BASE_DIM,
-                new PortraitLook(BASE_BABY, baseCollar(), BASE_COAT, BASE_EYE, BASE_FUR)),
+                new PortraitLook(BASE_BABY, baseCollar(), BASE_COAT, BASE_EYE, BASE_FUR, false)),
         "expected differsFrom to report no change for an unchanged pet (" + label + ")");
   }
 
@@ -192,6 +194,49 @@ class PetDataTest {
     return Stream.of(
         Arguments.of("same instance", BASE_POS),
         Arguments.of("equal-by-value instance", new BlockPos(10, 64, -20)));
+  }
+
+  @Test
+  @DisplayName("differsFrom returns true when the dog turns senior")
+  void differsFromDetectsTurningSenior() {
+    assertTrue(
+        baselinePet()
+            .differsFrom(
+                BASE_HEALTH,
+                BASE_POS,
+                BASE_DIM,
+                new PortraitLook(BASE_BABY, baseCollar(), BASE_COAT, BASE_EYE, BASE_FUR, true)));
+  }
+
+  @ParameterizedTest(name = "age {0} ticks, senior {1}, senior parent {2}")
+  @CsvSource({
+    "0, false, false",
+    "24000, false, true",
+    "2400000, true, false",
+    "9000000000, true, true"
+  })
+  @DisplayName("the adult age, senior flag and legacy survive a save and reload")
+  void ageRoundTrips(final long ageTicks, final boolean senior, final boolean seniorParent) {
+    final NbtCompound nbt = baselinePet().toNbt();
+    nbt.putLong(ModNbtKeys.ADULT_AGE_TICKS, ageTicks);
+    nbt.putBoolean(ModNbtKeys.SENIOR, senior);
+    nbt.putBoolean(ModNbtKeys.SENIOR_PARENT, seniorParent);
+    final PetData reloaded = PetData.fromNbt(PetData.fromNbt(nbt).toNbt());
+    assertEquals(ageTicks, reloaded.getAdultAgeTicks());
+    assertEquals(senior, reloaded.isSenior());
+    assertEquals(senior, reloaded.portraitLook().senior());
+    assertEquals(seniorParent, reloaded.hasSeniorParent());
+  }
+
+  @Test
+  @DisplayName("a pet saved before aging loads as a young adult")
+  void legacySaveIsNotSenior() {
+    final NbtCompound nbt = baselinePet().toNbt();
+    nbt.remove(ModNbtKeys.ADULT_AGE_TICKS);
+    nbt.remove(ModNbtKeys.SENIOR);
+    final PetData reloaded = PetData.fromNbt(nbt);
+    assertEquals(0L, reloaded.getAdultAgeTicks());
+    assertFalse(reloaded.isSenior());
   }
 
   @Test

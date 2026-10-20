@@ -214,11 +214,7 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
               x,
               y,
               "screen.dogs-unleashed.pet_details.age",
-              Text.translatable(
-                      pet.baby()
-                          ? "screen.dogs-unleashed.pet_details.age_baby"
-                          : "screen.dogs-unleashed.pet_details.age_adult")
-                  .getString(),
+              Text.translatable(pet.age().translationKey()).getString(),
               VALUE_COLOR);
       if (pet.riding().kind() != RidingView.Kind.NONE) {
         y =

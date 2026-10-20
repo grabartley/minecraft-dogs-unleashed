@@ -66,6 +66,7 @@ public final class DogsUnleashedCommand {
     GameplayConfigCommand.addTo(config);
     SleepConfigCommand.addTo(config);
     FurConfigCommand.addTo(config);
+    AgingConfigCommand.addTo(config);
     SoundConfigCommand.addTo(config);
     return config
         .then(DireWolfConfigCommand.node())
@@ -92,6 +93,7 @@ public final class DogsUnleashedCommand {
     lines.addAll(GameplayConfigCommand.helpLines());
     lines.addAll(SleepConfigCommand.helpLines());
     lines.addAll(FurConfigCommand.helpLines());
+    lines.addAll(AgingConfigCommand.helpLines());
     lines.addAll(SoundConfigCommand.helpLines());
     lines.addAll(DireWolfConfigCommand.helpLines());
     lines.addAll(
@@ -119,6 +121,7 @@ public final class DogsUnleashedCommand {
     lines.addAll(SleepConfigCommand.statusLines(config.sleep()));
     lines.addAll(SoundConfigCommand.statusLines(config.sound()));
     lines.addAll(FurConfigCommand.statusLines(config.fur()));
+    lines.addAll(AgingConfigCommand.statusLines(config.aging()));
     lines.addAll(DireWolfConfigCommand.statusLines(config.direWolf()));
     return lines;
   }

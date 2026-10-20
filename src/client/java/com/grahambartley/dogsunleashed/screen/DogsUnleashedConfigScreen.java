@@ -25,6 +25,7 @@ public final class DogsUnleashedConfigScreen extends Screen {
   private final GameplayConfigSection gameplay;
   private final SleepConfigSection sleep;
   private final GroomingConfigSection grooming;
+  private final AgingConfigSection aging;
   private final DireWolfConfigSection direWolf;
   private final SoundConfigSection sound;
 
@@ -39,6 +40,7 @@ public final class DogsUnleashedConfigScreen extends Screen {
     this.gameplay = new GameplayConfigSection(current.gameplay(), this.spawning);
     this.sleep = new SleepConfigSection(current.sleep());
     this.grooming = new GroomingConfigSection(current.fur());
+    this.aging = new AgingConfigSection(current.aging());
     this.direWolf = new DireWolfConfigSection(current.direWolf());
     this.sound = new SoundConfigSection(current.sound());
   }
@@ -56,6 +58,7 @@ public final class DogsUnleashedConfigScreen extends Screen {
     this.spawning.addTo(list, rows);
     this.sleep.addTo(list, rows);
     this.grooming.addTo(list, rows);
+    this.aging.addTo(list, rows);
     this.direWolf.addTo(list, rows);
     this.sound.addTo(list, rows);
     addDrawableChild(list);
@@ -91,7 +94,8 @@ public final class DogsUnleashedConfigScreen extends Screen {
             this.sleep.settings(),
             this.grooming.settings(),
             this.sound.settings(),
-            this.direWolf.settings());
+            this.direWolf.settings(),
+            this.aging.settings());
     ClientPlayNetworking.send(new EditServerConfigC2SPayload(updated));
     close();
   }

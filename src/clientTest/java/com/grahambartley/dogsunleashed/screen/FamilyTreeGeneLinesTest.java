@@ -107,6 +107,7 @@ class FamilyTreeGeneLinesTest {
             4f,
             List.of(),
             RidingView.NONE,
+            false,
             false),
         "owner",
         "Owner",

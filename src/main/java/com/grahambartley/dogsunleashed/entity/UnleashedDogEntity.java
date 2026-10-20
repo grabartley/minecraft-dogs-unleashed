@@ -96,6 +96,7 @@ public class UnleashedDogEntity extends DogMountEntity
   static final TrackedData<Boolean> NAPPING = data(BOOLEAN);
   static final TrackedData<Integer> SCENT_PHASE = data(INTEGER);
   static final TrackedData<Boolean> BONE_DIGGING = data(BOOLEAN);
+  static final TrackedData<Boolean> SENIOR = data(BOOLEAN);
 
   private static <T> TrackedData<T> data(final TrackedDataHandler<T> handler) {
     return DataTracker.registerData(UnleashedDogEntity.class, handler);
@@ -124,7 +125,8 @@ public class UnleashedDogEntity extends DogMountEntity
           new DogPointedOrders(this),
           new DogDeathWatch(this),
           new DogScent(this),
-          new DogBoneBurial(this));
+          new DogBoneBurial(this),
+          new DogAging(this));
   private final DogGenomeCache genomeCache = new DogGenomeCache(this);
   private final DogUndeadState undeadState = new DogUndeadState(this);
   private final DogCuring curing = new DogCuring(this);

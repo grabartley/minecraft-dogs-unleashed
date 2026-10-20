@@ -38,5 +38,6 @@ final class DogTrackedDefaults {
     builder.add(UnleashedDogEntity.NAPPING, false);
     builder.add(UnleashedDogEntity.SCENT_PHASE, ScentPhase.NONE.id());
     builder.add(UnleashedDogEntity.BONE_DIGGING, false);
+    builder.add(UnleashedDogEntity.SENIOR, false);
   }
 }

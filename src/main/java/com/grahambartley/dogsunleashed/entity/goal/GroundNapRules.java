@@ -8,6 +8,7 @@ import java.util.Set;
 public final class GroundNapRules {
 
   public static final long NAP_TICKS = 3 * 60 * 20;
+  public static final long SENIOR_NAP_TICKS = NAP_TICKS * 2;
   public static final long PERIOD_TICKS = DogSleepWindow.DAY_LENGTH_TICKS / 2;
   public static final long START_GRACE_TICKS = 2 * 60 * 20;
   public static final long HURT_CALM_TICKS = 30 * 20;
@@ -25,19 +26,28 @@ public final class GroundNapRules {
     return Math.floorDiv(timeOfDay, PERIOD_TICKS);
   }
 
-  public static long dueOffset(final long seed) {
-    return Math.floorMod(seed, PERIOD_TICKS - NAP_TICKS - START_GRACE_TICKS);
+  public static long napTicks(final boolean senior) {
+    return senior ? SENIOR_NAP_TICKS : NAP_TICKS;
   }
 
-  public static boolean isDue(final long timeOfDay, final long lastNappedPeriod, final long seed) {
+  public static boolean napsOnGround(final boolean sleepsInBeds, final boolean senior) {
+    return !sleepsInBeds || senior;
+  }
+
+  public static long dueOffset(final long seed, final long napTicks) {
+    return Math.floorMod(seed, PERIOD_TICKS - napTicks - START_GRACE_TICKS);
+  }
+
+  public static boolean isDue(
+      final long timeOfDay, final long lastNappedPeriod, final long seed, final long napTicks) {
     final long intoPeriod = Math.floorMod(timeOfDay, PERIOD_TICKS);
     return periodOf(timeOfDay) != lastNappedPeriod
-        && intoPeriod >= dueOffset(seed)
-        && intoPeriod <= PERIOD_TICKS - NAP_TICKS;
+        && intoPeriod >= dueOffset(seed, napTicks)
+        && intoPeriod <= PERIOD_TICKS - napTicks;
   }
 
-  public static boolean isOver(final long now, final long startedAt) {
-    return now - startedAt >= NAP_TICKS;
+  public static boolean isOver(final long now, final long startedAt, final long napTicks) {
+    return now - startedAt >= napTicks;
   }
 
   public static boolean isHurtRecently(final long now, final long lastHurtAt) {

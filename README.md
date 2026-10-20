@@ -90,6 +90,7 @@ carefully, or your dog ends up with a bad hair day until it grows back.
 Pet Manager to see and summon your whole pack.
 - **Raise a family.** Any two living tamed dogs can have puppies, and mixed parents give a mixed breed puppy. Dire wolves only breed with dire wolves. Puppies inherit
 their parents' coat and eye genes, so two parents can carry a rare coat and pass it on. Every dog has a family tree you can explore.
+Turn on Dog Aging and your dogs grow old with you, going grey around the muzzle and napping more, but never dying of age.
 - **Bring them back.** A tamed dog that dies leaves a grave. Put a totem in it and a lightning rod above it, then wait
 for lightning to strike it. Your dog comes back undead and burns in daylight unless it has shade, armour, or a fire pendant. Cure it the same way you
 cure a zombie villager. If it dies while undead, it is gone for good, unless it wears a Pendant of Loyalty.
@@ -131,6 +132,8 @@ only operators can.
 | Fur Growth                | On      | Whether coats grow out. Off keeps every coat as it is. Shears still work.          |
 | Fur Growth Speed          | 100%    | How fast coats grow, from 0% to 500%.                                             |
 | Bad Haircut Chance        | 100%    | How often a trim goes wrong, from 0% to 500%. 0% means every trim is clean.       |
+| Dog Aging                 | Off     | Whether adult dogs grow old. Seniors go grey around the muzzle, slow down a little and nap more. They never die of age. |
+| Senior Age (days)         | 100     | How many in-game days an adult lives before it becomes a senior, from 1 to 1000.  |
 | Dire Wolf Growth Speed    | 100%    | How fast dire wolves grow up, from 0% to 500%. 0% stops them growing.             |
 | Alpha Battles             | 20      | Fights a prime must win beside you before it can become an alpha, from 1 to 200.  |
 | Smallest / Largest Pack   | 5 / 10  | How many dire wolves every wild pack has, from 4 to 16.                           |
@@ -163,6 +166,8 @@ Every subcommand needs operator permission.
 /dogsunleashed config furgrowth <true|false>
 /dogsunleashed config furgrowthrate <0..500>
 /dogsunleashed config badhairdaychance <0..500>
+/dogsunleashed config dogaging <true|false>
+/dogsunleashed config senioragedays <1..1000>
 /dogsunleashed config direwolf growthrate <0..500>
 /dogsunleashed config direwolf battles <1..200>
 /dogsunleashed config direwolf smallestpack <4..16>
