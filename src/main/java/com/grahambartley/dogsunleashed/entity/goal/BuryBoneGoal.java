@@ -61,7 +61,7 @@ public class BuryBoneGoal extends Goal {
   private void search() {
     this.visit =
         BurialGround.pickSpot(this.world(), this.dog.getBlockPos(), this.dog.getRandom())
-            .map(ground -> new DigSiteVisit(this.dog, ground))
+            .map(ground -> new DigSiteVisit(this.dog, ground, this.burial()::setDigging))
             .filter(DigSiteVisit::canReach)
             .orElse(null);
     if (this.visit == null && ++this.searchTicks >= SEARCH_TICKS) {

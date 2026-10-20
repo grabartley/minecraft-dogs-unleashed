@@ -3,6 +3,8 @@
 	"package": "com.grahambartley.dogsunleashed.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
+		"FoxEntityAccessor",
+		"FoxEntityMixin",
 		"LandPathNodeMakerMixin",
 		"LevelStorageMixin",
 		"LoomBannerSlotMixin",
