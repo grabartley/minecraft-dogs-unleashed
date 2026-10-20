@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.block;
 
 import com.grahambartley.dogsunleashed.block.entity.FoodBowlBlockEntity;
+import com.grahambartley.dogsunleashed.entity.DogFoods;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
@@ -27,7 +28,6 @@ public class FoodBowlBlock extends BlockWithEntity {
 
   public static final MapCodec<FoodBowlBlock> CODEC = createCodec(FoodBowlBlock::new);
   public static final EnumProperty<BowlFill> FILL = EnumProperty.of("fill", BowlFill.class);
-  static final VoxelShape SHAPE = Block.createCuboidShape(2.0, 0.0, 2.0, 14.0, 5.0, 14.0);
 
   public FoodBowlBlock(final Settings settings) {
     super(settings);
@@ -52,7 +52,7 @@ public class FoodBowlBlock extends BlockWithEntity {
   @Override
   protected VoxelShape getOutlineShape(
       final BlockState state, final BlockView world, final BlockPos pos, final ShapeContext ctx) {
-    return SHAPE;
+    return DogBowlShape.SHAPE;
   }
 
   @Override
@@ -68,7 +68,7 @@ public class FoodBowlBlock extends BlockWithEntity {
       return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
     if (world.isClient) {
-      return bowl.isValid(0, stack)
+      return DogFoods.isBreedingItem(stack) && state.get(FILL) != BowlFill.FULL
           ? ItemActionResult.SUCCESS
           : ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }

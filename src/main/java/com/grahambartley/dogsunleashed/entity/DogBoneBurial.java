@@ -84,18 +84,9 @@ public final class DogBoneBurial extends DogComponent {
   }
 
   public boolean isFreeToDig() {
-    final DogPointedOrders orders = this.dog.getComponents().get(DogPointedOrders.class);
     return this.dog.getOwner() != null
         && BoneCacheRules.buriesOn(this.dog.getCommand())
-        && this.dog.getTarget() == null
-        && !this.dog.isInSittingPose()
-        && !this.dog.isLeashed()
-        && !this.dog.getSleepController().isAsleep()
-        && !this.dog.getPlaySession().isInPlayMode()
-        && !this.dog.getComponents().get(DogScent.class).isTracking()
-        && orders.attackTarget() == null
-        && orders.fetchItem() == null
-        && !this.dog.getCommandController().isHeadingToAnchor();
+        && DogIdleness.isFreeForChores(this.dog);
   }
 
   private void carryBone() {

@@ -15,6 +15,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.HopperBlockEntity;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.PotionContentsComponent;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -37,6 +38,8 @@ public final class DogBowlGameTest implements FabricGameTest {
   private static final int HOPPER_FOOD = 20;
   private static final int BOWL_FOOD = 4;
   private static final int MEALS_TO_WATCH = 2;
+  private static final int WATCH_TICKS = 240;
+  private static final int BURN_TICKS = 400;
 
   private static UnleashedDogEntity hurtDog(final TestContext context) {
     final ServerPlayerEntity owner = DogTestHelper.mockPlayerStandingClearInArena(context);
@@ -119,13 +122,32 @@ public final class DogBowlGameTest implements FabricGameTest {
         });
   }
 
-  @GameTest(templateName = ARENA, tickLimit = 200, batchId = "bowl-idle")
+  @GameTest(templateName = ARENA, tickLimit = 260, batchId = "bowl-idle")
   public void aDogAtFullHealthLeavesTheBowlAlone(final TestContext context) {
     final FoodBowlBlockEntity bowl = placeFoodBowl(context, BOWL_FOOD);
     final UnleashedDogEntity dog = hurtDog(context);
     dog.setHealth(dog.getMaxHealth());
-    context.addInstantFinalTask(
-        () -> context.assertTrue(bowl.foodCount() == BOWL_FOOD, "A healthy dog ate from the bowl"));
+    context.runAtTick(
+        WATCH_TICKS,
+        () -> {
+          context.assertTrue(bowl.foodCount() == BOWL_FOOD, "A healthy dog ate from the bowl");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 260, batchId = "bowl-burning")
+  public void aBurningDogLeavesTheBowlAlone(final TestContext context) {
+    final FoodBowlBlockEntity bowl = placeFoodBowl(context, BOWL_FOOD);
+    final UnleashedDogEntity dog = hurtDog(context);
+    dog.addStatusEffect(new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, BURN_TICKS));
+    dog.setFireTicks(BURN_TICKS);
+    context.runAtTick(
+        WATCH_TICKS,
+        () -> {
+          context.assertTrue(dog.isOnFire(), "The dog stopped burning before the check");
+          context.assertTrue(bowl.foodCount() == BOWL_FOOD, "A burning dog stopped to eat");
+          context.complete();
+        });
   }
 
   @GameTest(templateName = ARENA, tickLimit = 20)

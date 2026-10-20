@@ -10,6 +10,8 @@ import com.grahambartley.dogsunleashed.ModItems;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.registry.BuiltinRegistries;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import org.junit.jupiter.api.DisplayName;
@@ -106,5 +108,20 @@ class FoodBowlBlockEntityTest {
     assertTrue(bowl.takeOne(stack -> stack.isOf(Items.BEEF)).isEmpty());
     assertFalse(bowl.hasFood(stack -> stack.isOf(Items.BEEF)));
     assertEquals(2, bowl.foodCount());
+  }
+
+  @ParameterizedTest(name = "{0} beef and {1} chicken survive a save and load")
+  @CsvSource({"0, 0", "3, 0", "7, 9"})
+  @DisplayName("the food in a bowl is kept when the world is saved")
+  void foodSurvivesASaveAndLoad(final int beef, final int chicken) {
+    final RegistryWrapper.WrapperLookup lookup = BuiltinRegistries.createWrapperLookup();
+    final FoodBowlBlockEntity saved = bowl();
+    saved.addFood(new ItemStack(Items.BEEF, beef));
+    saved.addFood(new ItemStack(Items.CHICKEN, chicken));
+    final FoodBowlBlockEntity loaded = bowl();
+    loaded.read(saved.createNbt(lookup), lookup);
+    assertEquals(beef + chicken, loaded.foodCount());
+    assertEquals(beef > 0, loaded.hasFood(stack -> stack.isOf(Items.BEEF)));
+    assertEquals(chicken > 0, loaded.hasFood(stack -> stack.isOf(Items.CHICKEN)));
   }
 }

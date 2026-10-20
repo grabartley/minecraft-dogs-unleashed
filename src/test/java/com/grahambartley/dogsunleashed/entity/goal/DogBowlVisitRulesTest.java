@@ -48,4 +48,28 @@ class DogBowlVisitRulesTest {
       final double x, final double y, final double z, final boolean expected) {
     assertEquals(expected, DogBowlVisitRules.isBeside(0, 64, 0, x, y, z));
   }
+
+  @ParameterizedTest(name = "on fire {0}, attacked {1}, freezing {2} -> safe {3}")
+  @CsvSource({
+    "false, false, false, true",
+    "true, false, false, false",
+    "false, true, false, false",
+    "false, false, true, false"
+  })
+  @DisplayName("a dog in danger gets to safety before it goes to a bowl")
+  void dangerComesBeforeABowl(
+      final boolean onFire,
+      final boolean attacked,
+      final boolean freezing,
+      final boolean expected) {
+    assertEquals(expected, DogBowlVisitRules.isSafe(onFire, attacked, freezing));
+  }
+
+  @ParameterizedTest(name = "anchored {0}, bowl {1} blocks from the post -> within post {2}")
+  @CsvSource({"false, 16, true", "true, 0, true", "true, 8, true", "true, 8.5, false"})
+  @DisplayName("a staying or guarding dog only uses bowls close to its post")
+  void anchoredDogsStayNearTheirPost(
+      final boolean anchored, final double distance, final boolean expected) {
+    assertEquals(expected, DogBowlVisitRules.isWithinPost(anchored, distance * distance));
+  }
 }

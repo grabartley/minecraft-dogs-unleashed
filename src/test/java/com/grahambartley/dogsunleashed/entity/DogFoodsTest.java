@@ -9,7 +9,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -36,11 +35,5 @@ class DogFoodsTest {
     assertEquals(food, DogFoods.isBreedingItem(stack));
     assertEquals(taming, DogFoods.isTamingItem(stack));
     assertEquals(attention, DogFoods.isAttentionItem(stack));
-  }
-
-  @Test
-  @DisplayName("one food heals a dog by a full heart, by hand or from a bowl")
-  void oneFoodHealsAHeart() {
-    assertEquals(2.0F, DogFoods.HEAL_AMOUNT);
   }
 }

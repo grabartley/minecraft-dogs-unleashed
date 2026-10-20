@@ -49,7 +49,7 @@ public class WaterBowlBlock extends Block {
   @Override
   protected VoxelShape getOutlineShape(
       final BlockState state, final BlockView world, final BlockPos pos, final ShapeContext ctx) {
-    return FoodBowlBlock.SHAPE;
+    return DogBowlShape.SHAPE;
   }
 
   public static boolean hasWater(final BlockState state) {

@@ -65,12 +65,6 @@ public class FoodBowlBlockEntity extends BlockEntity implements SidedInventory {
   }
 
   private void insertOne(final ItemStack one) {
-    for (final ItemStack stack : this.stacks) {
-      if (!stack.isEmpty() && ItemStack.areItemsAndComponentsEqual(stack, one)) {
-        stack.increment(1);
-        return;
-      }
-    }
     for (int slot = 0; slot < this.stacks.size(); slot++) {
       if (this.stacks.get(slot).isEmpty()) {
         this.stacks.set(slot, one);
@@ -112,6 +106,11 @@ public class FoodBowlBlockEntity extends BlockEntity implements SidedInventory {
   @Override
   public boolean isValid(final int slot, final ItemStack stack) {
     return DogFoods.isBreedingItem(stack) && DogBowlRules.foodRoom(this.foodCount()) > 0;
+  }
+
+  @Override
+  public int getMaxCountPerStack() {
+    return 1;
   }
 
   @Override

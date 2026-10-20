@@ -9,9 +9,10 @@ public final class DogBowlVisitRules {
 
   public static final int SEARCH_RANGE = 16;
   public static final int REGENERATION_TICKS = 200;
+  static final double POST_RANGE = 8.0;
   static final int SEARCH_INTERVAL_TICKS = 20;
-  static final int MEAL_COOLDOWN_TICKS = 60;
-  static final int UNREACHABLE_COOLDOWN_TICKS = 600;
+  static final int MEAL_COOLDOWN_TICKS = 100;
+  static final int UNREACHABLE_COOLDOWN_TICKS = 1200;
   static final int MEAL_TICKS = 30;
   static final int MAX_WALK_TICKS = 400;
   static final int PATH_CHECKS_PER_SEARCH = 3;
@@ -29,6 +30,16 @@ public final class DogBowlVisitRules {
       return false;
     }
     return bowl == Bowl.FOOD || !regenerating;
+  }
+
+  public static boolean isSafe(
+      final boolean onFire, final boolean recentlyAttacked, final boolean freezing) {
+    return !onFire && !recentlyAttacked && !freezing;
+  }
+
+  public static boolean isWithinPost(
+      final boolean anchored, final double squaredDistanceFromAnchor) {
+    return !anchored || squaredDistanceFromAnchor <= POST_RANGE * POST_RANGE;
   }
 
   public static boolean isBeside(
