@@ -32,6 +32,8 @@
   "message.dogs-unleashed.not_sleepy": "%s 现在还不困",
   "block.dogs-unleashed.dog_bed.no_dog_nearby": "附近没有驯服的狗",
   "block.dogs-unleashed.dog_house": "狗屋",
+  "block.dogs-unleashed.food_bowl": "食盆",
+  "block.dogs-unleashed.water_bowl": "水盆",
   "block.dogs-unleashed.dog_house.colored": "%s狗屋",
   "block.dogs-unleashed.dog_house.unassigned": "%s不再分配到这间狗屋",
   "block.dogs-unleashed.dog_house.sleep_command": "%s要去睡觉了",

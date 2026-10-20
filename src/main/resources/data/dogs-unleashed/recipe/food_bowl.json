@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "minecraft:bowl" },
+    { "item": "minecraft:terracotta" },
+    { "item": "minecraft:bone" }
+  ],
+  "result": {
+    "id": "dogs-unleashed:food_bowl",
+    "count": 1
+  }
+}

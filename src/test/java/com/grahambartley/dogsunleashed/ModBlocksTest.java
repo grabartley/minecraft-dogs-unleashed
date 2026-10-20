@@ -23,7 +23,10 @@ class ModBlocksTest {
 
   static Stream<Arguments> registeredBlocks() {
     return Stream.of(
-        Arguments.of("dog_bed", ModBlocks.DOG_BED), Arguments.of("dog_grave", ModBlocks.DOG_GRAVE));
+        Arguments.of("dog_bed", ModBlocks.DOG_BED),
+        Arguments.of("dog_grave", ModBlocks.DOG_GRAVE),
+        Arguments.of("food_bowl", ModBlocks.FOOD_BOWL),
+        Arguments.of("water_bowl", ModBlocks.WATER_BOWL));
   }
 
   @ParameterizedTest(name = "block dogs-unleashed:{0} is registered")

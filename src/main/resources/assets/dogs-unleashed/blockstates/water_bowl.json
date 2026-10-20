@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "drinks=0": {
+      "model": "dogs-unleashed:block/water_bowl_empty"
+    },
+    "drinks=1": {
+      "model": "dogs-unleashed:block/water_bowl_full"
+    },
+    "drinks=2": {
+      "model": "dogs-unleashed:block/water_bowl_full"
+    },
+    "drinks=3": {
+      "model": "dogs-unleashed:block/water_bowl_full"
+    }
+  }
+}

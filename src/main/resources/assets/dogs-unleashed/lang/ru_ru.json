@@ -32,6 +32,8 @@
   "message.dogs-unleashed.not_sleepy": "%s сейчас не хочет спать",
   "block.dogs-unleashed.dog_bed.no_dog_nearby": "Поблизости нет приручённой собаки",
   "block.dogs-unleashed.dog_house": "Собачья будка",
+  "block.dogs-unleashed.food_bowl": "Миска для еды",
+  "block.dogs-unleashed.water_bowl": "Миска для воды",
   "block.dogs-unleashed.dog_house.colored": "Собачья будка (%s)",
   "block.dogs-unleashed.dog_house.unassigned": "%s больше не привязан к этой будке",
   "block.dogs-unleashed.dog_house.sleep_command": "%s идёт спать",

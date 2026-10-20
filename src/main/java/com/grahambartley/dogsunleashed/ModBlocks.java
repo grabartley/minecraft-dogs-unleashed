@@ -3,9 +3,11 @@ package com.grahambartley.dogsunleashed;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
 import com.grahambartley.dogsunleashed.block.DogGraveBlock;
 import com.grahambartley.dogsunleashed.block.DogHouseBlock;
+import com.grahambartley.dogsunleashed.block.FoodBowlBlock;
 import com.grahambartley.dogsunleashed.block.FrisbeeBlock;
 import com.grahambartley.dogsunleashed.block.StickBlock;
 import com.grahambartley.dogsunleashed.block.TennisBallBlock;
+import com.grahambartley.dogsunleashed.block.WaterBowlBlock;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.MapColor;
@@ -86,6 +88,32 @@ public class ModBlocks {
                   .sounds(BlockSoundGroup.WOOL)
                   .nonOpaque()
                   .noCollision()
+                  .pistonBehavior(PistonBehavior.DESTROY)));
+
+  public static final Block FOOD_BOWL =
+      Registry.register(
+          Registries.BLOCK,
+          Identifier.of(DogsUnleashed.MOD_ID, "food_bowl"),
+          new FoodBowlBlock(
+              AbstractBlock.Settings.create()
+                  .mapColor(MapColor.TERRACOTTA_ORANGE)
+                  .strength(1.25f)
+                  .requiresTool()
+                  .sounds(BlockSoundGroup.DECORATED_POT)
+                  .nonOpaque()
+                  .pistonBehavior(PistonBehavior.DESTROY)));
+
+  public static final Block WATER_BOWL =
+      Registry.register(
+          Registries.BLOCK,
+          Identifier.of(DogsUnleashed.MOD_ID, "water_bowl"),
+          new WaterBowlBlock(
+              AbstractBlock.Settings.create()
+                  .mapColor(MapColor.TERRACOTTA_BLUE)
+                  .strength(1.25f)
+                  .requiresTool()
+                  .sounds(BlockSoundGroup.DECORATED_POT)
+                  .nonOpaque()
                   .pistonBehavior(PistonBehavior.DESTROY)));
 
   public static void initialize() {}

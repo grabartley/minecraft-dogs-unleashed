@@ -32,6 +32,8 @@
   "message.dogs-unleashed.not_sleepy": "%s não está com sono agora",
   "block.dogs-unleashed.dog_bed.no_dog_nearby": "Nenhum cachorro domesticado por perto",
   "block.dogs-unleashed.dog_house": "Casinha de cachorro",
+  "block.dogs-unleashed.food_bowl": "Pote de ração",
+  "block.dogs-unleashed.water_bowl": "Pote de água",
   "block.dogs-unleashed.dog_house.colored": "Casinha de cachorro %s",
   "block.dogs-unleashed.dog_house.unassigned": "%s não está mais atribuído a esta casinha",
   "block.dogs-unleashed.dog_house.sleep_command": "%s está indo dormir",

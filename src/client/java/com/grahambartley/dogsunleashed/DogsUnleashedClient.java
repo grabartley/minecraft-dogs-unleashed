@@ -22,6 +22,7 @@ import com.grahambartley.dogsunleashed.render.StickProjectileRenderer;
 import com.grahambartley.dogsunleashed.render.TennisBallBlockEntityRenderer;
 import com.grahambartley.dogsunleashed.render.TennisBallItemRenderer;
 import com.grahambartley.dogsunleashed.render.TennisBallProjectileRenderer;
+import com.grahambartley.dogsunleashed.render.WaterBowlTint;
 import com.grahambartley.dogsunleashed.render.armour.ArmourLook;
 import com.grahambartley.dogsunleashed.render.coat.UndeadCoatTextures;
 import com.grahambartley.dogsunleashed.render.coat.UndeadEyeGlows;
@@ -159,6 +160,7 @@ public class DogsUnleashedClient implements ClientModInitializer {
     KeybindDiscoveryNudge.register();
     RideInputSync.register();
     RideStaminaHud.register();
+    WaterBowlTint.register();
   }
 
   private static void registerDyeTint(final Item item, final int undyedColor) {

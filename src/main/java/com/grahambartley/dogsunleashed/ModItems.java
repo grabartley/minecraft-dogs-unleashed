@@ -11,6 +11,7 @@ import com.grahambartley.dogsunleashed.item.PuppyBasketItem;
 import com.grahambartley.dogsunleashed.item.StickThrowHandler;
 import com.grahambartley.dogsunleashed.item.TennisBallItem;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
@@ -52,6 +53,18 @@ public class ModItems {
           Registries.ITEM,
           Identifier.of(DogsUnleashed.MOD_ID, "dog_house"),
           new DogHouseItem(ModBlocks.DOG_HOUSE, new Item.Settings()));
+
+  public static final Item FOOD_BOWL =
+      Registry.register(
+          Registries.ITEM,
+          Identifier.of(DogsUnleashed.MOD_ID, "food_bowl"),
+          new BlockItem(ModBlocks.FOOD_BOWL, new Item.Settings()));
+
+  public static final Item WATER_BOWL =
+      Registry.register(
+          Registries.ITEM,
+          Identifier.of(DogsUnleashed.MOD_ID, "water_bowl"),
+          new BlockItem(ModBlocks.WATER_BOWL, new Item.Settings()));
 
   public static final Item DOG_FUR =
       Registry.register(
@@ -187,6 +200,12 @@ public class ModItems {
                 stack.set(ModComponents.DOG_HOUSE_COLOR, color);
                 entries.add(stack);
               }
+            });
+    ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL)
+        .register(
+            entries -> {
+              entries.add(FOOD_BOWL);
+              entries.add(WATER_BOWL);
             });
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS)
         .register(entries -> entries.add(HUSKY_SPAWN_EGG));
