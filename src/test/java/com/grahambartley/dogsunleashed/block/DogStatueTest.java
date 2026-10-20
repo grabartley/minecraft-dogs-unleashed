@@ -77,7 +77,20 @@ class DogStatueTest {
     final String name = "a".repeat(DogStatue.MAX_NAME_LENGTH - 1) + "\uD83D\uDC36" + "b";
     final String engraved =
         DogStatue.carved(statueOf(UnleashedDogBreed.HUSKY, DogStatuePose.SIT).look(), name).name();
-    assertEquals("a".repeat(DogStatue.MAX_NAME_LENGTH - 1) + "\uD83D\uDC36", engraved);
+    assertEquals("a".repeat(DogStatue.MAX_NAME_LENGTH - 1), engraved);
+    assertEquals(
+        engraved,
+        DogStatue.CODEC
+            .parse(
+                NbtOps.INSTANCE,
+                DogStatue.CODEC
+                    .encodeStart(
+                        NbtOps.INSTANCE,
+                        DogStatue.carved(
+                            statueOf(UnleashedDogBreed.HUSKY, DogStatuePose.SIT).look(), name))
+                    .getOrThrow())
+            .getOrThrow()
+            .name());
   }
 
   @Test

@@ -57,9 +57,11 @@ public final class DogStatueBlockEntityRenderer
       final int overlay) {
     final DogStatue statue = base.statue();
     final BlockState state = base.getCachedState();
-    if (statue == null
-        || base.getWorld() == null
-        || !(state.getBlock() instanceof DogStatueBlock block)) {
+    if (statue == null) {
+      this.figures.forget(base);
+      return;
+    }
+    if (base.getWorld() == null || !(state.getBlock() instanceof DogStatueBlock block)) {
       return;
     }
     final Direction facing = state.get(DogStatueBlock.FACING);

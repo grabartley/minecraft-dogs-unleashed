@@ -68,6 +68,10 @@ public final class StatueFigures {
     return figure;
   }
 
+  public void forget(final DogStatueBlockEntity base) {
+    this.figures.remove(base.getPos());
+  }
+
   private static @Nullable UnleashedDogEntity carve(
       final World world, final BlockPos pos, final DogStatue statue) {
     final EntityType<UnleashedDogEntity> type = ModEntities.getDogEntityType(statue.look().breed());
