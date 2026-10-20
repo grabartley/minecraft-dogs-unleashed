@@ -248,6 +248,26 @@ public final class DogScentGameTest implements FabricGameTest {
     context.complete();
   }
 
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 300)
+  public void aFoundScentIsNotSavedAgain(TestContext context) {
+    final ServerPlayerEntity owner = placeOwner(context);
+    final UnleashedDogEntity dog = spawnOwnedDog(context, owner);
+    spawnStill(context, EntityType.COW, TARGET_SPOT);
+    give(dog, owner, Items.LEATHER);
+
+    context.runAtEveryTick(
+        () -> {
+          if (scent(dog).phase() == ScentPhase.POINTING) {
+            final NbtCompound saved = new NbtCompound();
+            dog.writeCustomDataToNbt(saved);
+            context.assertFalse(
+                saved.contains("ScentRule"),
+                "A dog that already found its target must not search again after a reload");
+            context.complete();
+          }
+        });
+  }
+
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 20)
   public void everyScentItemHasARule(TestContext context) {
     for (final RegistryEntry<Item> item : Registries.ITEM.iterateEntries(ModItemTags.SCENT_ITEMS)) {

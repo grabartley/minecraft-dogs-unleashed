@@ -158,6 +158,7 @@ public class ScentTrackGoal extends Goal {
     this.stage = Stage.ARRIVED;
     this.holdTicks = ARRIVAL_TICKS;
     this.dog.getNavigation().stop();
+    this.scent().settle();
     this.scent().setPhase(ScentLeadRules.arrivalPhase(kind));
     this.scent().cues().found();
   }
@@ -166,6 +167,7 @@ public class ScentTrackGoal extends Goal {
     this.stage = Stage.GIVING_UP;
     this.holdTicks = GIVE_UP_TICKS;
     this.dog.getNavigation().stop();
+    this.scent().settle();
     this.scent().setPhase(ScentPhase.NONE);
     this.scent().cues().whine();
   }

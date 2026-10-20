@@ -24,6 +24,7 @@ public final class DogScent extends DogComponent {
   private @Nullable Identifier ruleId;
   private @Nullable Item scentItem;
   private int generation;
+  private boolean settled;
 
   DogScent(final UnleashedDogEntity dog) {
     this.dog = dog;
@@ -69,7 +70,12 @@ public final class DogScent extends DogComponent {
   void start(final Identifier rule, final Item item) {
     this.ruleId = rule;
     this.scentItem = item;
+    this.settled = false;
     this.generation++;
+  }
+
+  public void settle() {
+    this.settled = true;
   }
 
   public void stop() {
@@ -80,7 +86,7 @@ public final class DogScent extends DogComponent {
 
   @Override
   void writeNbt(final NbtCompound nbt) {
-    if (this.ruleId != null && this.scentItem != null) {
+    if (this.ruleId != null && this.scentItem != null && !this.settled) {
       nbt.putString(ModNbtKeys.SCENT_RULE, this.ruleId.toString());
       nbt.putString(ModNbtKeys.SCENT_ITEM, Registries.ITEM.getId(this.scentItem).toString());
     }
