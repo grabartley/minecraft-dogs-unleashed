@@ -6,6 +6,7 @@ import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.DogScent;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.scent.ScentPhase;
+import com.grahambartley.dogsunleashed.entity.scent.ScentProgress;
 import com.grahambartley.dogsunleashed.entity.scent.ScentRules;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.Blocks;
@@ -133,6 +134,27 @@ public final class DogScentGameTest implements FabricGameTest {
               scent(dog).phase() != ScentPhase.POINTING,
               "A dog with a target should fight, not lead to the cow");
           context.complete();
+        });
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 2600)
+  public void aDogLeftWaitingForItsOwnerGivesUp(TestContext context) {
+    final ServerPlayerEntity owner = placeOwner(context);
+    final UnleashedDogEntity dog = spawnOwnedDog(context, owner);
+    spawnStill(context, EntityType.COW, TARGET_SPOT);
+    give(dog, owner, Items.LEATHER);
+    final BlockPos far = context.getAbsolutePos(OWNER_SPOT).add(0, 0, -30);
+    owner.requestTeleport(far.getX() + 0.5, far.getY(), far.getZ() + 0.5);
+
+    context.runAtEveryTick(
+        () -> {
+          if (!scent(dog).isTracking()) {
+            context.assertTrue(
+                context.getTick() >= ScentProgress.GIVE_UP_TICKS,
+                "The dog should wait for its owner before giving up, but gave up at tick "
+                    + context.getTick());
+            context.complete();
+          }
         });
   }
 

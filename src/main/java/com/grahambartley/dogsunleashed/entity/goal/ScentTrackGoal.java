@@ -72,7 +72,9 @@ public class ScentTrackGoal extends Goal {
     this.finder = null;
     this.rule = null;
     this.generation = -1;
-    if (this.scent().isTracking()) {
+    if (this.stage == Stage.ARRIVED || this.stage == Stage.GIVING_UP) {
+      this.scent().stop();
+    } else if (this.scent().isTracking()) {
       this.scent().setPhase(ScentPhase.NONE);
     }
   }
@@ -135,15 +137,14 @@ public class ScentTrackGoal extends Goal {
       return;
     }
     final LivingEntity owner = this.dog.getOwner();
-    if (owner != null && ScentLeadRules.shouldWaitForOwner(this.dog.distanceTo(owner))) {
-      this.progress.reset();
-      this.dog.getNavigation().stop();
-      this.dog.getLookControl().lookAt(owner, LOOK_SPEED, LOOK_SPEED);
-      return;
-    }
     this.progress.record(distance);
     if (this.progress.hasStalled()) {
       this.giveUp();
+      return;
+    }
+    if (owner != null && ScentLeadRules.shouldWaitForOwner(this.dog.distanceTo(owner))) {
+      this.dog.getNavigation().stop();
+      this.dog.getLookControl().lookAt(owner, LOOK_SPEED, LOOK_SPEED);
       return;
     }
     this.dog.getLookControl().lookAt(target.x, target.y, target.z, LOOK_SPEED, LOOK_SPEED);
