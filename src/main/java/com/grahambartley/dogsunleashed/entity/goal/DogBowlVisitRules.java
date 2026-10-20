@@ -3,8 +3,8 @@ package com.grahambartley.dogsunleashed.entity.goal;
 public final class DogBowlVisitRules {
 
   public enum Bowl {
-    FOOD,
-    WATER
+    WATER,
+    FOOD
   }
 
   public static final int SEARCH_RANGE = 16;

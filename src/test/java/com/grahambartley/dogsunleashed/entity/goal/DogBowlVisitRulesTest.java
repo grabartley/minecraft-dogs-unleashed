@@ -3,7 +3,9 @@ package com.grahambartley.dogsunleashed.entity.goal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.grahambartley.dogsunleashed.entity.goal.DogBowlVisitRules.Bowl;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -71,5 +73,11 @@ class DogBowlVisitRulesTest {
   void anchoredDogsStayNearTheirPost(
       final boolean anchored, final double distance, final boolean expected) {
     assertEquals(expected, DogBowlVisitRules.isWithinPost(anchored, distance * distance));
+  }
+
+  @Test
+  @DisplayName("a hurt dog drinks first for regeneration, then eats while it heals")
+  void waterComesBeforeFood() {
+    assertEquals(List.of(Bowl.WATER, Bowl.FOOD), List.of(Bowl.values()));
   }
 }

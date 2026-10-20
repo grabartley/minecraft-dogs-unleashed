@@ -124,4 +124,17 @@ class FoodBowlBlockEntityTest {
     assertEquals(beef > 0, loaded.hasFood(stack -> stack.isOf(Items.BEEF)));
     assertEquals(chicken > 0, loaded.hasFood(stack -> stack.isOf(Items.CHICKEN)));
   }
+
+  @ParameterizedTest(name = "a client sees {0} foods in a bowl it just loaded")
+  @CsvSource({"0", "9", "16"})
+  @DisplayName("clients get the bowl's food, so they know whether a hand of food fits")
+  void clientsGetTheFood(final int food) {
+    final RegistryWrapper.WrapperLookup lookup = BuiltinRegistries.createWrapperLookup();
+    final FoodBowlBlockEntity server = bowl();
+    server.addFood(new ItemStack(Items.BEEF, food));
+    final FoodBowlBlockEntity client = bowl();
+    client.read(server.toInitialChunkDataNbt(lookup), lookup);
+    assertEquals(food, client.foodCount());
+    assertEquals(food < 16, client.isValid(0, new ItemStack(Items.BEEF)));
+  }
 }

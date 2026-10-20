@@ -13,6 +13,9 @@ import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
@@ -85,6 +88,7 @@ public class FoodBowlBlockEntity extends BlockEntity implements SidedInventory {
           this.world.setBlockState(this.pos, filled);
         }
       }
+      this.world.updateListeners(this.pos, this.getCachedState(), this.getCachedState(), 3);
     }
   }
 
@@ -156,6 +160,16 @@ public class FoodBowlBlockEntity extends BlockEntity implements SidedInventory {
   @Override
   public void clear() {
     this.stacks.clear();
+  }
+
+  @Override
+  public Packet<ClientPlayPacketListener> toUpdatePacket() {
+    return BlockEntityUpdateS2CPacket.create(this);
+  }
+
+  @Override
+  public NbtCompound toInitialChunkDataNbt(final RegistryWrapper.WrapperLookup lookup) {
+    return this.createNbt(lookup);
   }
 
   @Override
