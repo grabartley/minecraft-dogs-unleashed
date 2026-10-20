@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "R",
+    "K"
+  ],
+  "key": {
+    "R": {
+      "item": "minecraft:wither_rose"
+    },
+    "K": {
+      "item": "minecraft:black_wool"
+    }
+  },
+  "result": {
+    "id": "dogs-unleashed:wither_costume",
+    "count": 1
+  }
+}

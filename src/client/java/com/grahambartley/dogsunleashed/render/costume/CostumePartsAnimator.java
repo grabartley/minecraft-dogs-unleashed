@@ -49,7 +49,9 @@ public final class CostumePartsAnimator {
     final AnimatableManager<UnleashedDogEntity> manager =
         this.managers
             .computeIfAbsent(dog, key -> new HashMap<>())
-            .computeIfAbsent(assets.partsModel(), id -> new AnimatableManager<>(dog));
+            .computeIfAbsent(
+                assets.partsModel(),
+                id -> CostumeMotionControllers.addTo(new AnimatableManager<>(dog), dog));
     final double tick = dog.getTick(dog);
     final AnimationState<UnleashedDogEntity> state =
         new AnimationState<>(dog, NO_LIMB_SWING, NO_LIMB_SWING, partialTick, false);

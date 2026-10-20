@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.minecraft.block.cauldron.CauldronBehavior;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.registry.Registries;
@@ -35,6 +36,14 @@ public final class ModCostumeItems {
   }
 
   public static void initialize() {
+    COSTUMES.forEach(
+        (costume, item) -> {
+          if (costume.isDyeable()) {
+            CauldronBehavior.WATER_CAULDRON_BEHAVIOR
+                .map()
+                .put(item, CauldronBehavior.CLEAN_DYEABLE_ITEM);
+          }
+        });
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS)
         .register(entries -> COSTUMES.values().forEach(entries::add));
   }

@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed;
 import com.grahambartley.dogsunleashed.config.SyncedServerConfig;
 import com.grahambartley.dogsunleashed.item.armor.DogArmorTier;
 import com.grahambartley.dogsunleashed.item.cosmetic.DogCosmetic;
+import com.grahambartley.dogsunleashed.item.costume.DogCostume;
 import com.grahambartley.dogsunleashed.network.ModNetworkingClient;
 import com.grahambartley.dogsunleashed.render.CacheReloader;
 import com.grahambartley.dogsunleashed.render.DogBedBlockEntityRenderer;
@@ -68,6 +69,17 @@ public class DogsUnleashedClient implements ClientModInitializer {
                     : ColorHelper.Argb.fullAlpha(
                         DyedColorComponent.getColor(stack, cosmetic.undyedColor())),
             ModCosmeticItems.of(cosmetic));
+      }
+    }
+    for (final DogCostume costume : DogCostume.values()) {
+      if (costume.isDyeable()) {
+        ColorProviderRegistry.ITEM.register(
+            (stack, tintIndex) ->
+                tintIndex > 0
+                    ? -1
+                    : ColorHelper.Argb.fullAlpha(
+                        DyedColorComponent.getColor(stack, DogCostume.UNDYED_COLOR)),
+            ModCostumeItems.of(costume));
       }
     }
     EntityRendererRegistry.register(ModEntities.HUSKY, DogRenderer::new);

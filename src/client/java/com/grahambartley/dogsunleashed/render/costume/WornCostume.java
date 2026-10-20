@@ -2,9 +2,12 @@ package com.grahambartley.dogsunleashed.render.costume;
 
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.item.costume.DogCostume;
 import java.util.Optional;
+import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
+import net.minecraft.util.math.ColorHelper;
 
 public final class WornCostume {
 
@@ -17,5 +20,11 @@ public final class WornCostume {
       return Optional.empty();
     }
     return Optional.of(CostumeAssets.of(Registries.ITEM.getId(costume.getItem())));
+  }
+
+  public static int tintOf(final UnleashedDogEntity dog) {
+    return ColorHelper.Argb.fullAlpha(
+        DyedColorComponent.getColor(
+            dog.getEquipmentHolder().getStack(DogEquipmentSlot.COSTUME), DogCostume.UNDYED_COLOR));
   }
 }

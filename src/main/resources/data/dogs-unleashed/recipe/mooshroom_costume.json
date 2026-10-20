@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "M M",
+    "MRM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:red_mushroom"
+    },
+    "R": {
+      "item": "minecraft:red_wool"
+    }
+  },
+  "result": {
+    "id": "dogs-unleashed:mooshroom_costume",
+    "count": 1
+  }
+}

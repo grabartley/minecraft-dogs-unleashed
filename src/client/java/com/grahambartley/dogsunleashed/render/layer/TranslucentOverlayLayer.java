@@ -55,6 +55,28 @@ public abstract class TranslucentOverlayLayer extends GeoRenderLayer<UnleashedDo
       final float partialTick,
       final int packedLight,
       final int packedOverlay) {
+    this.drawOverlays(
+        overlays,
+        poseStack,
+        animatable,
+        bakedModel,
+        bufferSource,
+        partialTick,
+        packedLight,
+        packedOverlay,
+        OPAQUE_WHITE);
+  }
+
+  protected void drawOverlays(
+      final List<Identifier> overlays,
+      final MatrixStack poseStack,
+      final UnleashedDogEntity animatable,
+      final BakedGeoModel bakedModel,
+      final VertexConsumerProvider bufferSource,
+      final float partialTick,
+      final int packedLight,
+      final int packedOverlay,
+      final int color) {
     for (final Identifier overlay : overlays) {
       final RenderLayer layer = RenderLayer.getEntityTranslucent(overlay);
       this.getRenderer()
@@ -68,7 +90,7 @@ public abstract class TranslucentOverlayLayer extends GeoRenderLayer<UnleashedDo
               partialTick,
               packedLight,
               packedOverlay,
-              OPAQUE_WHITE);
+              color);
     }
   }
 }

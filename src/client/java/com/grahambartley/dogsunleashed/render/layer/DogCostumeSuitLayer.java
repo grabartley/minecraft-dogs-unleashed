@@ -55,7 +55,8 @@ public class DogCostumeSuitLayer extends TranslucentOverlayLayer {
         bufferSource,
         partialTick,
         packedLight,
-        packedOverlay);
+        packedOverlay,
+        WornCostume.tintOf(animatable));
     this.collar.render(
         poseStack,
         animatable,
