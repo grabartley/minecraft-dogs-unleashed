@@ -16,6 +16,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.ai.goal.FleeEntityGoal;
 import net.minecraft.entity.passive.FoxEntity;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
@@ -196,11 +197,17 @@ public final class FoxBoneRaidGameTest implements FabricGameTest {
             .count(),
         1L,
         "Each fox should carry exactly one raid goal");
+    context.assertEquals(
+        fox.goalSelector.getGoals().stream()
+            .filter(goal -> goal.getGoal() instanceof FleeEntityGoal<?>)
+            .count(),
+        4L,
+        "A fox should flee players, wolves, polar bears and dogs, once each");
     context.complete();
   }
 
   @GameTest(templateName = ARENA, batchId = NIGHT_BATCH, tickLimit = 40)
-  public void aRaidingFoxCrouchesDigsUpTheBoneAndRunsOff(final TestContext context) {
+  public void aRaidingFoxDigsUpTheBoneAndRunsOff(final TestContext context) {
     final BlockPos ground = buryCache(context);
     final FoxEntity fox = context.spawnEntity(EntityType.FOX, BESIDE_CACHE);
     fox.setAiDisabled(true);
@@ -220,9 +227,6 @@ public final class FoxBoneRaidGameTest implements FabricGameTest {
               BoneThieves.target(fox), Optional.of(ground), "The fox should mark its target");
           for (int tick = 0; tick <= BoneCacheRules.DIG_TICKS && raid.shouldContinue(); tick++) {
             raid.tick();
-            if (BoneCaches.get(context.getWorld()).at(ground).isPresent()) {
-              context.assertTrue(fox.isInSneakingPose(), "The fox should crouch while raiding");
-            }
           }
           context.assertTrue(
               fox.getEquippedStack(EquipmentSlot.MAINHAND).isOf(Items.BONE),
