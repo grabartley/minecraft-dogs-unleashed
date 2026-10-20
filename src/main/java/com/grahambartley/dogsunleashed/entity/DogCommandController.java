@@ -11,6 +11,7 @@ public final class DogCommandController {
 
   private @Nullable BlockPos anchorPos = null;
   private @Nullable RegistryKey<World> anchorDimension = null;
+  private boolean headingToAnchor = false;
 
   DogCommandController(final UnleashedDogEntity dog) {
     this.dog = dog;
@@ -20,6 +21,20 @@ public final class DogCommandController {
     return SavedDimension.isHere(this.anchorDimension, this.dog.getWorld().getRegistryKey())
         ? this.anchorPos
         : null;
+  }
+
+  public void goTo(final BlockPos pos) {
+    this.apply(DogCommand.STAY);
+    this.anchorAt(pos, this.dog.getWorld().getRegistryKey());
+    this.headingToAnchor = true;
+  }
+
+  public boolean isHeadingToAnchor() {
+    return this.headingToAnchor && this.getAnchorPos() != null;
+  }
+
+  public void arrivedAtAnchor() {
+    this.headingToAnchor = false;
   }
 
   public void anchorWhereItArrived() {
@@ -45,6 +60,8 @@ public final class DogCommandController {
     this.wakeIfSleeping();
     this.dog.getComponents().get(DogDeathWatch.class).end();
     this.dog.getDataTracker().set(UnleashedDogEntity.COMMAND, command.id());
+    this.dog.getComponents().get(DogPointedOrders.class).clear();
+    this.headingToAnchor = false;
     if (command.isAnchored()) {
       this.anchorAt(this.dog.getBlockPos(), this.dog.getWorld().getRegistryKey());
     } else {

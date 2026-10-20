@@ -125,6 +125,9 @@ public final class DogPlaySession {
     this.inPlayMode = false;
     this.dog.getDataTracker().set(UnleashedDogEntity.PLAY_PARTNER_UUID, Optional.empty());
     this.activeFetchBlockPos = null;
+    if (this.dog.getFetchCarry().isCarryingFetchedItem()) {
+      return;
+    }
     this.dog.getFetchCarry().setActiveType(null);
     this.dog.getFetchCarry().setCarrying(false);
   }

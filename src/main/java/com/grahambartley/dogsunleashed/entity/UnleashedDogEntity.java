@@ -118,6 +118,7 @@ public class UnleashedDogEntity extends DogMountEntity
           new DogTreatBuffState(this),
           new DogSpawnerOrigin(),
           new DogCollar(this),
+          new DogPointedOrders(this),
           new DogDeathWatch(this));
   private final DogGenomeCache genomeCache = new DogGenomeCache(this);
   private final DogUndeadState undeadState = new DogUndeadState(this);
@@ -571,6 +572,7 @@ public class UnleashedDogEntity extends DogMountEntity
 
   @Override
   public void onDeath(DamageSource damageSource) {
+    this.fetchCarry.dropFetchedItem();
     this.play.endPlayMode();
     super.onDeath(damageSource);
 

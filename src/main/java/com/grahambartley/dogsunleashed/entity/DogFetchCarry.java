@@ -25,6 +25,9 @@ public final class DogFetchCarry {
   }
 
   public void setActiveType(final @Nullable FetchItemType activeFetchType) {
+    if (this.isCarryingFetchedItem()) {
+      return;
+    }
     this.setActiveTypeId(DogPlaySession.fetchTypeIdOf(activeFetchType));
   }
 
@@ -36,6 +39,17 @@ public final class DogFetchCarry {
     this.dog.getDataTracker().set(UnleashedDogEntity.IS_CARRYING_FETCH_ITEM, carrying);
     if (!carrying) {
       this.dog.getDataTracker().set(UnleashedDogEntity.CARRIED_FETCH_ITEM_STACK, ItemStack.EMPTY);
+    }
+  }
+
+  public boolean isCarryingFetchedItem() {
+    return this.isCarrying() && this.activeType() == null && !this.carriedStack().isEmpty();
+  }
+
+  void dropFetchedItem() {
+    if (this.isCarryingFetchedItem()) {
+      this.dog.dropStack(this.carriedStack());
+      this.setCarrying(false);
     }
   }
 

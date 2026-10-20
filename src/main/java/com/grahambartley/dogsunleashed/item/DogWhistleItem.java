@@ -43,6 +43,9 @@ public class DogWhistleItem extends Item implements GeoItem {
   public TypedActionResult<ItemStack> use(
       final World world, final PlayerEntity user, final Hand hand) {
     final ItemStack stack = user.getStackInHand(hand);
+    if (user.isSneaking()) {
+      return TypedActionResult.success(stack, world.isClient);
+    }
     if (!(user instanceof ServerPlayerEntity player)) {
       return TypedActionResult.success(stack, world.isClient);
     }

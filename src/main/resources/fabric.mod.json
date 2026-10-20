@@ -38,6 +38,7 @@
       "com.grahambartley.dogsunleashed.gametest.DogCosmeticGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogDimensionChangeGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogWheelSubActionGameTest",
+      "com.grahambartley.dogsunleashed.gametest.DogWhistlePointGameTest",
       "com.grahambartley.dogsunleashed.gametest.DireWolfGameTest",
       "com.grahambartley.dogsunleashed.gametest.DireWolfPupGrowthGameTest",
       "com.grahambartley.dogsunleashed.gametest.DireWolfJumpGameTest",

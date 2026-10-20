@@ -10,12 +10,15 @@ public class ReturnToAnchorGoal extends Goal {
   private static final double MOVE_SPEED = 1.0;
   private static final double START_DISTANCE = 8.0;
   private static final double STOP_DISTANCE = 4.0;
+  private static final double ARRIVE_DISTANCE = 1.0;
   private static final double POSITION_CENTER_OFFSET = 0.5;
   private static final int REPATH_INTERVAL_TICKS = 10;
+  private static final int MAX_TRAVEL_TICKS = 600;
 
   private final UnleashedDogEntity dog;
   private BlockPos anchorPos;
   private int repathCooldown;
+  private int travelTicks;
 
   public ReturnToAnchorGoal(final UnleashedDogEntity dog) {
     this.dog = dog;
@@ -37,7 +40,9 @@ public class ReturnToAnchorGoal extends Goal {
     if (anchor == null) {
       return false;
     }
-    if (this.dog.getBlockPos().getSquaredDistance(anchor) <= START_DISTANCE * START_DISTANCE) {
+    final double startDistance = this.isHeading() ? ARRIVE_DISTANCE : START_DISTANCE;
+    if (this.dog.getBlockPos().getSquaredDistance(anchor) <= startDistance * startDistance) {
+      this.dog.getCommandController().arrivedAtAnchor();
       return false;
     }
     this.anchorPos = anchor;
@@ -49,17 +54,28 @@ public class ReturnToAnchorGoal extends Goal {
     if (!this.dog.getCommand().isAnchored() || this.anchorPos == null) {
       return false;
     }
-    return this.dog.getBlockPos().getSquaredDistance(this.anchorPos)
-        > STOP_DISTANCE * STOP_DISTANCE;
+    final double stopDistance = this.isHeading() ? ARRIVE_DISTANCE : STOP_DISTANCE;
+    return this.dog.getBlockPos().getSquaredDistance(this.anchorPos) > stopDistance * stopDistance;
+  }
+
+  private boolean isHeading() {
+    return this.dog.getCommandController().isHeadingToAnchor();
   }
 
   @Override
   public void start() {
     this.repathCooldown = 0;
+    this.travelTicks = 0;
   }
 
   @Override
   public void tick() {
+    if (this.isHeading() && ++this.travelTicks > MAX_TRAVEL_TICKS) {
+      this.dog.getCommandController().anchorWhereItArrived();
+      this.dog.getCommandController().arrivedAtAnchor();
+      this.anchorPos = this.dog.getCommandController().getAnchorPos();
+      return;
+    }
     if (this.repathCooldown-- > 0) {
       return;
     }

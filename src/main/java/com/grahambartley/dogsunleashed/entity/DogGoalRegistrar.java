@@ -17,6 +17,8 @@ import com.grahambartley.dogsunleashed.entity.goal.KeepWatchGoal;
 import com.grahambartley.dogsunleashed.entity.goal.PackGrudgeGoal;
 import com.grahambartley.dogsunleashed.entity.goal.PackGuardGoal;
 import com.grahambartley.dogsunleashed.entity.goal.PackShelterGoal;
+import com.grahambartley.dogsunleashed.entity.goal.PointedAttackGoal;
+import com.grahambartley.dogsunleashed.entity.goal.PointedFetchGoal;
 import com.grahambartley.dogsunleashed.entity.goal.PuppyAwareWanderGoal;
 import com.grahambartley.dogsunleashed.entity.goal.ReturnToAnchorGoal;
 import com.grahambartley.dogsunleashed.entity.goal.SleepInBedGoal;
@@ -62,6 +64,7 @@ public final class DogGoalRegistrar {
     goalSelector.add(3, new FetchChaseGoal(dog));
     goalSelector.add(3, new FetchRetrieveGoal(dog));
     goalSelector.add(3, new FetchReturnGoal(dog));
+    goalSelector.add(3, new PointedFetchGoal(dog));
     goalSelector.add(4, new AutoSleepGoal(dog));
     goalSelector.add(4, new GroundNapGoal(dog));
     goalSelector.add(5, new DogEscapeDangerGoal(dog, ESCAPE_DANGER_SPEED));
@@ -98,6 +101,7 @@ public final class DogGoalRegistrar {
     goalSelector.add(13, new LookAtEntityGoal(dog, PlayerEntity.class, LOOK_AT_PLAYER_RANGE));
     goalSelector.add(14, new LookAroundGoal(dog));
 
+    targetSelector.add(0, new PointedAttackGoal(dog));
     targetSelector.add(1, new TrackOwnerAttackerGoal(dog));
     targetSelector.add(2, new AttackWithOwnerGoal(dog));
     targetSelector.add(3, new RevengeGoal(dog, DogFriendlyTargetPolicy.FRIENDLY_TARGET_TYPES));

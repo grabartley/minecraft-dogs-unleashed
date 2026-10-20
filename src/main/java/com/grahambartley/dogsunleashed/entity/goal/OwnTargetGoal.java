@@ -22,7 +22,11 @@ public abstract class OwnTargetGoal<T extends LivingEntity> extends ActiveTarget
 
   @Override
   public boolean canStart() {
-    return this.mob.getTarget() == null && super.canStart();
+    return (this.mob.getTarget() == null || this.overridesCurrentTarget()) && super.canStart();
+  }
+
+  protected boolean overridesCurrentTarget() {
+    return false;
   }
 
   @Override

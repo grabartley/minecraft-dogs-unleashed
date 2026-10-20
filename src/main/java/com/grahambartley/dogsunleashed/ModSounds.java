@@ -19,6 +19,7 @@ public class ModSounds {
   public static final SoundEvent DIRE_WOLF_GROWL = registerSound("entity.direwolf.growl");
 
   public static final SoundEvent DOG_WHISTLE_BLOW = registerSound("item.dog_whistle.blow");
+  public static final SoundEvent DOG_WHISTLE_POINT = registerSound("item.dog_whistle.point");
 
   private static SoundEvent registerSound(final String name) {
     final Identifier id = Identifier.of(DogsUnleashed.MOD_ID, name);
