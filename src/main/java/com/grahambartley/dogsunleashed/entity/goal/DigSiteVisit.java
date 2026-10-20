@@ -9,6 +9,7 @@ import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 final class DigSiteVisit {
@@ -25,7 +26,6 @@ final class DigSiteVisit {
   private static final int MAX_WALK_TICKS = 600;
   private static final int REPATH_INTERVAL_TICKS = 10;
   private static final int EFFECT_INTERVAL_TICKS = 5;
-  private static final float LOOK_SPEED = 30.0F;
   private static final int DIG_PARTICLES = 6;
   private static final double DIG_PARTICLE_SPREAD = 0.3;
   private static final double DIG_PARTICLE_RISE = 0.1;
@@ -70,18 +70,20 @@ final class DigSiteVisit {
   }
 
   private Status dig(final ServerWorld world) {
-    this.dog
-        .getLookControl()
-        .lookAt(
-            this.ground.getX() + 0.5,
-            this.ground.getY() + 0.5,
-            this.ground.getZ() + 0.5,
-            LOOK_SPEED,
-            LOOK_SPEED);
+    this.faceGround();
     if (this.digTicks % EFFECT_INTERVAL_TICKS == 0) {
       this.digEffects(world);
     }
     return --this.digTicks <= 0 ? Status.DUG : Status.DIGGING;
+  }
+
+  private void faceGround() {
+    final double dx = this.ground.getX() + 0.5 - this.dog.getX();
+    final double dz = this.ground.getZ() + 0.5 - this.dog.getZ();
+    final float yaw = (float) (MathHelper.atan2(dz, dx) * MathHelper.DEGREES_PER_RADIAN) - 90.0F;
+    this.dog.setYaw(yaw);
+    this.dog.setBodyYaw(yaw);
+    this.dog.setHeadYaw(yaw);
   }
 
   private void digEffects(final ServerWorld world) {

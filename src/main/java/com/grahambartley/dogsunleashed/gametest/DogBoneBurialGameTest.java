@@ -31,6 +31,7 @@ public final class DogBoneBurialGameTest implements FabricGameTest {
   private static final BlockPos DIG_GROUND = new BlockPos(5, 1, 5);
   private static final int ARENA_SIZE = 7;
   private static final int FLOOR_Y = 1;
+  private static final long LEFT_ALONE_TICKS = 250;
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 20)
   public void aFreeRoamingDogTakesTheBone(TestContext context) {
@@ -186,8 +187,12 @@ public final class DogBoneBurialGameTest implements FabricGameTest {
           context.assertFalse(burial(dog).isDigging(), what + " should not be dug at");
           context.assertFalse(burial(dog).isCarryingBone(), what + " should stay buried");
         });
-    context.addFinalTask(
-        () -> context.assertTrue(caches(context).at(ground).isPresent(), what + " stays put"));
+    context.runAtTick(
+        LEFT_ALONE_TICKS,
+        () -> {
+          context.assertTrue(caches(context).at(ground).isPresent(), what + " stays put");
+          context.complete();
+        });
   }
 
   private static void assertOneBone(
