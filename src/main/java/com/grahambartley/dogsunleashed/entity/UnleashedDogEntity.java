@@ -11,7 +11,6 @@ import static net.minecraft.entity.data.TrackedDataHandlerRegistry.STRING;
 
 import com.grahambartley.dogsunleashed.ModBlockTags;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
-import com.grahambartley.dogsunleashed.entity.scent.ScentPhase;
 import com.grahambartley.dogsunleashed.entity.variant.DogCoats;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
 import com.grahambartley.dogsunleashed.entity.variant.UnleashedDogCoat;
@@ -104,7 +103,7 @@ public class UnleashedDogEntity extends DogMountEntity
   }
 
   private static final UniformIntProvider ANGER_TIME_RANGE = TimeHelper.betweenSeconds(20, 39);
-  private java.util.UUID angryAt;
+  private UUID angryAt;
 
   private final DogAnimationState animationState = new DogAnimationState(this);
   private final DogVocalization vocalization = new DogVocalization(this);
@@ -274,34 +273,7 @@ public class UnleashedDogEntity extends DogMountEntity
   @Override
   protected void initDataTracker(DataTracker.Builder builder) {
     super.initDataTracker(builder);
-    builder.add(ANGER_TIME, 0);
-    builder.add(COLLAR_COLOR, DEFAULT_COLLAR_COLOR_ID);
-    builder.add(TAIL_WAG_TIMER, 0);
-    builder.add(SHAKE_PROGRESS, 0);
-    builder.add(TREAT_BUFF_TICKS, 0);
-    builder.add(HEAD_TILTING, false);
-    builder.add(SLEEPING_IN_BED, false);
-    builder.add(COMMANDED_TO_SLEEP, false);
-    builder.add(ASSIGNED_BED_POS, Optional.empty());
-    builder.add(IS_CARRYING_FETCH_ITEM, false);
-    builder.add(ACTIVE_FETCH_TYPE_ID, DogPlaySession.NO_ACTIVE_FETCH_TYPE);
-    builder.add(CARRIED_FETCH_ITEM_STACK, ItemStack.EMPTY);
-    builder.add(PENDANT_ITEM, ItemStack.EMPTY);
-    builder.add(COSMETIC_ITEM, ItemStack.EMPTY);
-    builder.add(COSTUME_ITEM, ItemStack.EMPTY);
-    builder.add(PLAY_PARTNER_UUID, Optional.empty());
-    builder.add(COMMAND, DogCommand.FOLLOW.id());
-    builder.add(COAT_VARIANT, 0);
-    builder.add(EYE_COLOR_VARIANT, 0);
-    builder.add(HOWLING, false);
-    builder.add(GROWLING, false);
-    builder.add(GENOME, new NbtCompound());
-    builder.add(FUR_STAGE, DogFurStage.NATURAL.ordinal());
-    builder.add(GROWTH_STAGE, DireWolfGrowthStage.YEARLING.number());
-    builder.add(NAPPING, false);
-    builder.add(SCENT_PHASE, ScentPhase.NONE.id());
-    builder.add(BONE_DIGGING, false);
-    builder.add(SENIOR, false);
+    DogTrackedDefaults.addTo(builder);
   }
 
   public DogCommand getCommand() {
@@ -621,12 +593,12 @@ public class UnleashedDogEntity extends DogMountEntity
   }
 
   @Override
-  public java.util.UUID getAngryAt() {
+  public UUID getAngryAt() {
     return this.angryAt;
   }
 
   @Override
-  public void setAngryAt(java.util.UUID uuid) {
+  public void setAngryAt(UUID uuid) {
     this.angryAt = uuid;
   }
 

@@ -2,6 +2,8 @@ package com.grahambartley.dogsunleashed.entity;
 
 import com.grahambartley.dogsunleashed.ModItemTags;
 import com.grahambartley.dogsunleashed.entity.scent.MapScentMarks;
+import com.grahambartley.dogsunleashed.entity.scent.ScentHandoffRules;
+import com.grahambartley.dogsunleashed.entity.scent.ScentHandoffRules.Handoff;
 import com.grahambartley.dogsunleashed.entity.scent.ScentLandmark;
 import com.grahambartley.dogsunleashed.entity.scent.ScentRule;
 import com.grahambartley.dogsunleashed.entity.scent.ScentRules;
@@ -24,30 +26,30 @@ final class DogScentHandoff {
   @Nullable
   ActionResult tryGive(final PlayerEntity player, final ItemStack itemStack) {
     final boolean map = itemStack.isOf(Items.FILLED_MAP);
-    if ((!map && !itemStack.isIn(ModItemTags.SCENT_ITEMS)) || DogFoods.isTamingItem(itemStack)) {
-      return null;
-    }
-    if (map) {
-      return this.tryFollowMap(player, itemStack);
-    }
-    if (this.scent().isTrackingItem(itemStack)) {
-      return this.callOff(player);
-    }
-    return this.tryFollowScent(player, itemStack);
+    final Optional<ScentLandmark> mark =
+        map
+            ? ScentLandmark.nearest(MapScentMarks.of(itemStack), this.dog.getX(), this.dog.getZ())
+            : Optional.empty();
+    final Handoff handoff =
+        ScentHandoffRules.decide(
+            map,
+            itemStack.isIn(ModItemTags.SCENT_ITEMS),
+            DogFoods.isTamingItem(itemStack),
+            this.scent().isTrackingItem(itemStack),
+            mark.isPresent(),
+            mark.isPresent() && mark.get().equals(this.scent().landmark()));
+    return switch (handoff) {
+      case IGNORE -> null;
+      case CALL_OFF -> this.callOff(player);
+      case FOLLOW_MAP -> this.followMap(player, itemStack, mark.get());
+      case FOLLOW_SCENT -> this.tryFollowScent(player, itemStack);
+    };
   }
 
-  private @Nullable ActionResult tryFollowMap(
-      final PlayerEntity player, final ItemStack itemStack) {
-    final Optional<ScentLandmark> mark =
-        ScentLandmark.nearest(MapScentMarks.of(itemStack), this.dog.getX(), this.dog.getZ());
-    if (mark.isEmpty()) {
-      return null;
-    }
-    if (this.scent().isTrackingItem(itemStack) && mark.get().equals(this.scent().landmark())) {
-      return this.callOff(player);
-    }
+  private ActionResult followMap(
+      final PlayerEntity player, final ItemStack itemStack, final ScentLandmark mark) {
     this.readyToLead();
-    this.scent().followMark(mark.get(), itemStack.getItem());
+    this.scent().followMark(mark, itemStack.getItem());
     this.scent().cues().sniff();
     DogInteractions.tell(this.dog, player, "message.dogs-unleashed.scent.map");
     return ActionResult.SUCCESS;

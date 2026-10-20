@@ -10,9 +10,6 @@ import net.minecraft.util.math.random.Random;
 
 public final class BurialGround {
 
-  private static final int VERTICAL_REACH = 4;
-  private static final int TRIES = 16;
-
   private BurialGround() {}
 
   public static boolean isBurialSpot(final ServerWorld world, final BlockPos ground) {
@@ -29,19 +26,6 @@ public final class BurialGround {
 
   public static Optional<BlockPos> pickSpot(
       final ServerWorld world, final BlockPos origin, final Random random) {
-    for (int attempt = 0; attempt < TRIES; attempt++) {
-      final BlockPos column =
-          origin.add(
-              random.nextBetween(-BoneCacheRules.BURY_RADIUS, BoneCacheRules.BURY_RADIUS),
-              0,
-              random.nextBetween(-BoneCacheRules.BURY_RADIUS, BoneCacheRules.BURY_RADIUS));
-      for (int dy = VERTICAL_REACH; dy >= -VERTICAL_REACH; dy--) {
-        final BlockPos ground = column.up(dy);
-        if (isBurialSpot(world, ground)) {
-          return Optional.of(ground);
-        }
-      }
-    }
-    return Optional.empty();
+    return BurialSpotSearch.pick(origin, random, ground -> isBurialSpot(world, ground));
   }
 }

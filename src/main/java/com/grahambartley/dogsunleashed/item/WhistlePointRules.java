@@ -92,4 +92,18 @@ public final class WhistlePointRules {
   public static boolean inRange(final double squaredDistance) {
     return squaredDistance <= RANGE * RANGE;
   }
+
+  public static PointedKind kindOf(
+      final boolean item,
+      final boolean claimedByAnotherPlayer,
+      final boolean player,
+      final boolean mob) {
+    if (item) {
+      return claimedByAnotherPlayer ? PointedKind.OTHER : PointedKind.ITEM;
+    }
+    if (player) {
+      return PointedKind.PLAYER;
+    }
+    return mob ? PointedKind.MOB : PointedKind.OTHER;
+  }
 }

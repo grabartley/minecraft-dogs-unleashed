@@ -87,9 +87,8 @@ public final class DogDeathWatch extends DogComponent {
     this.watching = nbt.getBoolean(ModNbtKeys.DEATH_WATCH);
     this.calledOut = nbt.getBoolean(ModNbtKeys.DEATH_WATCH_CALLED_OUT);
     this.commandBefore =
-        nbt.contains(ModNbtKeys.DEATH_WATCH_COMMAND_BEFORE, NbtElement.NUMBER_TYPE)
-            ? DeathWatchRules.commandAfterWatch(
-                DogCommand.fromId(nbt.getInt(ModNbtKeys.DEATH_WATCH_COMMAND_BEFORE)))
-            : DogCommand.FOLLOW;
+        DeathWatchRules.restoredCommandBefore(
+            nbt.contains(ModNbtKeys.DEATH_WATCH_COMMAND_BEFORE, NbtElement.NUMBER_TYPE),
+            nbt.getInt(ModNbtKeys.DEATH_WATCH_COMMAND_BEFORE));
   }
 }

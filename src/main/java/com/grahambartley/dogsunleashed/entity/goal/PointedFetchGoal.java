@@ -10,11 +10,9 @@ import net.minecraft.item.ItemStack;
 public class PointedFetchGoal extends Goal {
 
   private static final double RETRIEVE_SPEED = 1.3;
-  private static final double PICKUP_DISTANCE = 1.5;
   private static final float LOOK_YAW = 10.0f;
   private static final float LOOK_PITCH = 10.0f;
   private static final int REPATH_INTERVAL_TICKS = 10;
-  private static final int MAX_FETCH_TICKS = 600;
 
   private final UnleashedDogEntity dog;
   private int repathCooldown;
@@ -56,13 +54,15 @@ public class PointedFetchGoal extends Goal {
     if (item == null) {
       return;
     }
-    if (++this.fetchTicks > MAX_FETCH_TICKS) {
+    final PointedFetchRules.Step step =
+        PointedFetchRules.step(
+            ++this.fetchTicks, item.cannotPickup(), this.dog.squaredDistanceTo(item));
+    if (step == PointedFetchRules.Step.GIVE_UP) {
       this.orders().clearFetch();
       return;
     }
     this.dog.getLookControl().lookAt(item, LOOK_YAW, LOOK_PITCH);
-    if (!item.cannotPickup()
-        && this.dog.squaredDistanceTo(item) <= PICKUP_DISTANCE * PICKUP_DISTANCE) {
+    if (step == PointedFetchRules.Step.PICK_UP) {
       this.pickUp(item);
       return;
     }

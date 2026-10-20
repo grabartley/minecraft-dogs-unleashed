@@ -38,6 +38,7 @@ The canonical implementations are **Loot Lock** and **Dogs Unleashed**. Follow t
 - **Single Responsibility Principle.** One class, one concern. Extract a collaborator rather than growing a class sideways.
 - **No class exceeds 700 lines.** A class approaching the limit is split along responsibility seams, into small extracted helpers.
 - **Unit tests map one to one onto classes.** A test exercising `CoatRolls` is named `CoatRollsTest` and lives in the matching package under `src/test/java`. A test named after a scenario rather than a class is a test nobody can find.
+- **A test with no class behind it is named after what it checks.** Tests that check asset files or build config, rather than a class, end in `AssetsTest` or `RuleTest` and sit in the package of the feature they guard, for example `sound/EntitySoundAssetsTest` or `NoCommentsRuleTest`.
 - **Logic worth testing has no Minecraft dependency.** Comparators, matchers, filter evaluation, and routing decisions are pure functions over plain data, so they are unit testable without a running game. Where this is possible it is not optional.
 
 ## Testing

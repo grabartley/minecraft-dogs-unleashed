@@ -1,5 +1,8 @@
 package com.grahambartley.dogsunleashed.entity.scent;
 
+import java.util.Optional;
+import net.minecraft.util.math.MathHelper;
+
 public final class ScentLeadRules {
 
   public static final double OWNER_WAIT_DISTANCE = 12.0;
@@ -34,6 +37,20 @@ public final class ScentLeadRules {
 
   public static double legFraction(final double horizontalDistance) {
     return horizontalDistance <= MAX_LEG ? 1.0 : MAX_LEG / horizontalDistance;
+  }
+
+  public record Waypoint(int x, int z) {}
+
+  public static Optional<Waypoint> legWaypoint(
+      final double fromX, final double fromZ, final double toX, final double toZ) {
+    final double fraction = legFraction(Math.hypot(toX - fromX, toZ - fromZ));
+    if (fraction >= 1.0) {
+      return Optional.empty();
+    }
+    return Optional.of(
+        new Waypoint(
+            MathHelper.floor(fromX + (toX - fromX) * fraction),
+            MathHelper.floor(fromZ + (toZ - fromZ) * fraction)));
   }
 
   public static ScentPhase arrivalPhase(final ScentTargetKind kind) {

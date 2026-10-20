@@ -23,15 +23,12 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.RaycastContext;
 
 public final class WhistlePointTargets {
-
-  private static final double FACE_INSET = 0.01;
 
   private WhistlePointTargets() {}
 
@@ -50,7 +47,7 @@ public final class WhistlePointTargets {
     }
     final Vec3d eye = player.getEyePos();
     if (!WhistlePointRules.inRange(
-            eye.squaredDistanceTo(closestPoint(entity.getBoundingBox(), eye)))
+            eye.squaredDistanceTo(WhistlePointGeometry.closestPoint(entity.getBoundingBox(), eye)))
         || !player.canSee(entity)) {
       return Optional.empty();
     }
@@ -70,10 +67,7 @@ public final class WhistlePointTargets {
     if (!WhistlePointRules.inRange(eye.squaredDistanceTo(Vec3d.ofCenter(pos)))) {
       return Optional.empty();
     }
-    if (seesFace(player, eye, pos, aimedSide)) {
-      return Optional.of(WhistlePointTarget.atBlock(pos, aimedSide));
-    }
-    for (final Direction face : Direction.values()) {
+    for (final Direction face : WhistlePointGeometry.facesToTry(aimedSide)) {
       if (seesFace(player, eye, pos, face)) {
         return Optional.of(WhistlePointTarget.atBlock(pos, face));
       }
@@ -107,24 +101,19 @@ public final class WhistlePointTargets {
     final VoxelShape shape =
         player.getServerWorld().getBlockState(pos).getOutlineShape(player.getServerWorld(), pos);
     final Box box = (shape.isEmpty() ? VoxelShapes.fullCube() : shape).getBoundingBox().offset(pos);
-    final Vec3d centre = box.getCenter();
-    return centre.add(
-        face.getOffsetX() * (box.getLengthX() / 2 - FACE_INSET),
-        face.getOffsetY() * (box.getLengthY() / 2 - FACE_INSET),
-        face.getOffsetZ() * (box.getLengthZ() / 2 - FACE_INSET));
+    return WhistlePointGeometry.faceCentre(box, face);
   }
 
   private static PointedKind kindOf(final Entity entity, final ServerPlayerEntity player) {
-    if (entity instanceof ItemEntity item) {
-      final Entity claimant = item.getOwner();
-      return claimant instanceof PlayerEntity && claimant != player
-          ? PointedKind.OTHER
-          : PointedKind.ITEM;
-    }
-    if (entity instanceof PlayerEntity) {
-      return PointedKind.PLAYER;
-    }
-    return entity instanceof MobEntity ? PointedKind.MOB : PointedKind.OTHER;
+    final boolean claimedByAnotherPlayer =
+        entity instanceof ItemEntity item
+            && item.getOwner() instanceof PlayerEntity owner
+            && owner != player;
+    return WhistlePointRules.kindOf(
+        entity instanceof ItemEntity,
+        claimedByAnotherPlayer,
+        entity instanceof PlayerEntity,
+        entity instanceof MobEntity);
   }
 
   private static MobFacts factsOf(final Entity entity) {
@@ -139,12 +128,5 @@ public final class WhistlePointTargets {
         entity instanceof Monster,
         entity instanceof Angerable,
         entity instanceof CreeperEntity || entity instanceof GhastEntity);
-  }
-
-  private static Vec3d closestPoint(final Box box, final Vec3d from) {
-    return new Vec3d(
-        MathHelper.clamp(from.x, box.minX, box.maxX),
-        MathHelper.clamp(from.y, box.minY, box.maxY),
-        MathHelper.clamp(from.z, box.minZ, box.maxZ));
   }
 }
