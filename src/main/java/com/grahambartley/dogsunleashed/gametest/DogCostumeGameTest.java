@@ -1,19 +1,34 @@
 package com.grahambartley.dogsunleashed.gametest;
 
+import com.grahambartley.dogsunleashed.ModCostumeItems;
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
+import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
+import com.grahambartley.dogsunleashed.item.costume.DogCostume;
 import com.grahambartley.dogsunleashed.screenhandler.DogEquipmentScreenHandler;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.entity.attribute.EntityAttribute;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.recipe.RecipeType;
+import net.minecraft.recipe.input.CraftingRecipeInput;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.test.CustomTestProvider;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
+import net.minecraft.test.TestFunction;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
@@ -30,6 +45,115 @@ public final class DogCostumeGameTest implements FabricGameTest {
   private static final int DEATH_TICK_LIMIT = 40;
   private static final int DEATH_ASSERT_TICK = 20;
   private static final Item COSTUME = Items.NAUTILUS_SHELL;
+  private static final int GRID_WIDTH = 3;
+  private static final int STAT_SETTLE_TICKS = 5;
+  private static final Item NONE = Items.AIR;
+
+  private static final Map<DogCostume, List<Item>> RECIPE_GRIDS =
+      Map.of(
+          DogCostume.SPIDER,
+          List.of(
+              Items.STRING,
+              Items.SPIDER_EYE,
+              Items.STRING,
+              Items.STRING,
+              Items.BLACK_WOOL,
+              Items.STRING),
+          DogCostume.ZOMBIE,
+          List.of(
+              Items.ROTTEN_FLESH,
+              NONE,
+              Items.ROTTEN_FLESH,
+              Items.ROTTEN_FLESH,
+              Items.BLUE_WOOL,
+              Items.ROTTEN_FLESH),
+          DogCostume.SKELETON,
+          List.of(Items.BONE, NONE, Items.BONE, Items.BONE, Items.WHITE_WOOL, Items.BONE),
+          DogCostume.ENDERMAN,
+          List.of(NONE, Items.ENDER_PEARL, NONE, NONE, Items.BLACK_WOOL, NONE),
+          DogCostume.BEE,
+          List.of(
+              Items.HONEYCOMB,
+              NONE,
+              Items.HONEYCOMB,
+              Items.YELLOW_WOOL,
+              Items.BLACK_WOOL,
+              Items.YELLOW_WOOL));
+
+  private static final List<RegistryEntry<EntityAttribute>> STATS =
+      List.of(
+          EntityAttributes.GENERIC_MAX_HEALTH,
+          EntityAttributes.GENERIC_ARMOR,
+          EntityAttributes.GENERIC_ARMOR_TOUGHNESS,
+          EntityAttributes.GENERIC_MOVEMENT_SPEED,
+          EntityAttributes.GENERIC_ATTACK_DAMAGE,
+          EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE);
+
+  @CustomTestProvider
+  public Collection<TestFunction> everyCostumeCraftsFromItsRecipe() {
+    return Stream.of(DogCostume.values())
+        .map(
+            costume ->
+                GeneratedGameTest.of(
+                    BATCH,
+                    "dogcostumegametest.crafts." + costume.mob(),
+                    ARENA,
+                    TICK_LIMIT,
+                    context -> {
+                      final ItemStack crafted =
+                          craft(context.getWorld(), RECIPE_GRIDS.get(costume));
+                      context.assertTrue(
+                          crafted.isOf(ModCostumeItems.of(costume)) && crafted.getCount() == 1,
+                          costume + " recipe should craft one costume but made " + crafted);
+                      context.complete();
+                    }))
+        .toList();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void everyCostumeFitsTheCostumeSlotAndNoOther(final TestContext context) {
+    for (final DogCostume costume : DogCostume.values()) {
+      final ItemStack stack = new ItemStack(ModCostumeItems.of(costume));
+      for (final DogEquipmentSlot slot : DogEquipmentSlot.values()) {
+        context.assertTrue(
+            slot.canHold(stack) == (slot == DogEquipmentSlot.COSTUME),
+            costume + " fits the " + slot + " slot: " + slot.canHold(stack));
+      }
+      context.assertEquals(
+          stack.getMaxCount(), 1, costume + " should not stack, like the other dog gear");
+    }
+    context.complete();
+  }
+
+  @CustomTestProvider
+  public Collection<TestFunction> aWornCostumeChangesNoStats() {
+    return Stream.of(DogCostume.values())
+        .map(
+            costume ->
+                GeneratedGameTest.of(
+                    BATCH,
+                    "dogcostumegametest.nostats." + costume.mob(),
+                    ARENA,
+                    TICK_LIMIT,
+                    context -> {
+                      final UnleashedDogEntity dog =
+                          DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS);
+                      dog.setAiDisabled(true);
+                      final List<Double> bare = STATS.stream().map(dog::getAttributeValue).toList();
+                      dog.getEquipmentHolder()
+                          .setStack(
+                              DogEquipmentSlot.COSTUME, new ItemStack(ModCostumeItems.of(costume)));
+                      context.runAtTick(
+                          STAT_SETTLE_TICKS,
+                          () -> {
+                            context.assertTrue(
+                                STATS.stream().map(dog::getAttributeValue).toList().equals(bare),
+                                costume + " changed the dog's stats");
+                            context.complete();
+                          });
+                    }))
+        .toList();
+  }
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
   public void costumeSlotTakesTaggedCostumesAndNothingElse(final TestContext context) {
@@ -168,6 +292,17 @@ public final class DogCostumeGameTest implements FabricGameTest {
               "Exactly one costume should drop on death");
           context.complete();
         });
+  }
+
+  private static ItemStack craft(final ServerWorld world, final List<Item> grid) {
+    final CraftingRecipeInput input =
+        CraftingRecipeInput.create(
+            GRID_WIDTH, grid.size() / GRID_WIDTH, grid.stream().map(ItemStack::new).toList());
+    return world
+        .getRecipeManager()
+        .getFirstMatch(RecipeType.CRAFTING, input, world)
+        .map(entry -> entry.value().craft(input, world.getRegistryManager()))
+        .orElse(ItemStack.EMPTY);
   }
 
   private static UnleashedDogEntity spawnOwnedDog(

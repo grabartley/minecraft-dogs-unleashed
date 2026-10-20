@@ -4,6 +4,7 @@ import com.google.common.collect.MapMaker;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.render.costume.CostumeAssets;
 import com.grahambartley.dogsunleashed.render.costume.CostumePartFit;
+import com.grahambartley.dogsunleashed.render.costume.CostumePartsAnimator;
 import com.grahambartley.dogsunleashed.render.costume.WornCostume;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile.Slot;
@@ -54,7 +55,17 @@ public class DogCostumePartsLayer extends GeoRenderLayer<UnleashedDogEntity> {
       final int packedOverlay) {
     final Optional<CostumeAssets> costume = WornCostume.on(animatable);
     this.frameParts =
-        costume.map(assets -> GeckoLibCache.getBakedModels().get(assets.partsModel())).orElse(null);
+        costume
+            .map(
+                assets -> {
+                  final BakedGeoModel parts =
+                      GeckoLibCache.getBakedModels().get(assets.partsModel());
+                  return parts == null
+                      ? null
+                      : CostumePartsAnimator.shared()
+                          .animate(animatable, assets, parts, partialTick);
+                })
+            .orElse(null);
     this.frameLayer =
         this.frameParts == null
             ? null

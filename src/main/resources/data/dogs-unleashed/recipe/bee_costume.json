@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "H H",
+    "YKY"
+  ],
+  "key": {
+    "H": {
+      "item": "minecraft:honeycomb"
+    },
+    "Y": {
+      "item": "minecraft:yellow_wool"
+    },
+    "K": {
+      "item": "minecraft:black_wool"
+    }
+  },
+  "result": {
+    "id": "dogs-unleashed:bee_costume",
+    "count": 1
+  }
+}

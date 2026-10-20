@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "B B",
+    "BWB"
+  ],
+  "key": {
+    "B": {
+      "item": "minecraft:bone"
+    },
+    "W": {
+      "item": "minecraft:white_wool"
+    }
+  },
+  "result": {
+    "id": "dogs-unleashed:skeleton_costume",
+    "count": 1
+  }
+}

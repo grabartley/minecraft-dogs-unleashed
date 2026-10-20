@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "F F",
+    "FWF"
+  ],
+  "key": {
+    "F": {
+      "item": "minecraft:rotten_flesh"
+    },
+    "W": {
+      "item": "minecraft:blue_wool"
+    }
+  },
+  "result": {
+    "id": "dogs-unleashed:zombie_costume",
+    "count": 1
+  }
+}
