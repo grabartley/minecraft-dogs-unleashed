@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.entity.goal;
 import com.grahambartley.dogsunleashed.entity.DogSleepController;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.EnumSet;
+import java.util.OptionalDouble;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.mob.MobEntity;
@@ -84,8 +85,9 @@ public class GroundNapGoal extends Goal {
     final LivingEntity owner = this.dog.getOwner();
     return GroundNapRules.isOwnerAway(
         this.dog.getCommand().followsOwnerOnRelocation(),
-        owner != null,
-        owner != null ? owner.squaredDistanceTo(this.dog) : 0.0);
+        owner != null
+            ? OptionalDouble.of(owner.squaredDistanceTo(this.dog))
+            : OptionalDouble.empty());
   }
 
   private boolean isHostileNearby() {

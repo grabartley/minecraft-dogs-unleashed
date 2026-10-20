@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.google.gson.JsonParser;
+import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
 import com.mojang.serialization.JsonOps;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -18,11 +19,13 @@ import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
+@ExtendWith(MinecraftBootstrapExtension.class)
 class ScentRuleTest {
 
   private static ScentRule rule(

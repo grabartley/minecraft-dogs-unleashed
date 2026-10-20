@@ -29,7 +29,7 @@ class BurialSpotSearchTest {
               return false;
             });
     assertTrue(spot.isEmpty());
-    assertEquals(BurialSpotSearch.TRIES * (2 * BurialSpotSearch.VERTICAL_REACH + 1), probes.get());
+    assertEquals(144, probes.get());
   }
 
   @ParameterizedTest(name = "seed {0}")

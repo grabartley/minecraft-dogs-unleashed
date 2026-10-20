@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.render.costume;
 
+import java.util.OptionalInt;
 import net.minecraft.util.math.ColorHelper;
 
 public final class CostumeTint {
@@ -8,7 +9,7 @@ public final class CostumeTint {
 
   private CostumeTint() {}
 
-  public static int argb(final boolean dyeable, final int rgb) {
-    return dyeable ? ColorHelper.Argb.fullAlpha(rgb) : UNTINTED;
+  public static int argb(final OptionalInt dyedRgb) {
+    return dyedRgb.isPresent() ? ColorHelper.Argb.fullAlpha(dyedRgb.getAsInt()) : UNTINTED;
   }
 }

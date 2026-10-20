@@ -16,33 +16,12 @@ public final class MinecraftBootstrapExtension implements BeforeAllCallback {
       return;
     }
     SharedConstants.createGameVersion();
-    try {
-      Bootstrap.initialize();
-    } catch (final Throwable ignored) {
-    }
-    try {
-      ModSounds.initialize();
-    } catch (final Throwable ignored) {
-    }
-    try {
-      ModComponents.initialize();
-    } catch (final Throwable ignored) {
-    }
-    try {
-      ModBlocks.initialize();
-    } catch (final Throwable ignored) {
-    }
-    try {
-      ModBlockEntities.initialize();
-    } catch (final Throwable ignored) {
-    }
-    try {
-      ModEntities.initialize();
-    } catch (final Throwable ignored) {
-    }
-    try {
-      ModItems.initialize();
-    } catch (final Throwable ignored) {
-    }
+    Bootstrap.initialize();
+    ModSounds.initialize();
+    ModComponents.initialize();
+    ModBlocks.initialize();
+    ModBlockEntities.initialize();
+    ModEntities.initialize();
+    ModItems.initialize();
   }
 }

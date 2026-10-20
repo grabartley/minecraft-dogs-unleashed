@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.item;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import net.minecraft.util.math.Box;
@@ -64,6 +65,19 @@ class WhistlePointGeometryTest {
         expectedY,
         WhistlePointGeometry.faceCentre(new Box(0, 0, 0, 1, 0.5, 1), Direction.UP).y,
         EPSILON);
+  }
+
+  @ParameterizedTest(name = "aimed {0}")
+  @CsvSource({
+    "NORTH, NORTH DOWN UP SOUTH WEST EAST",
+    "DOWN, DOWN UP NORTH SOUTH WEST EAST",
+    "EAST, EAST DOWN UP NORTH SOUTH WEST"
+  })
+  @DisplayName("after the aimed face the rest are tried down, up, north, south, west, east")
+  void triesTheOtherFacesInVanillaOrder(final Direction aimed, final String expected) {
+    assertEquals(
+        Arrays.stream(expected.split(" ")).map(Direction::valueOf).toList(),
+        WhistlePointGeometry.facesToTry(aimed));
   }
 
   @ParameterizedTest(name = "aimed {0}")

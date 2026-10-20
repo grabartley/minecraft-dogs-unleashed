@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.entity.DogCommand;
+import java.util.OptionalDouble;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -158,16 +159,13 @@ class GroundNapRulesTest {
     assertEquals(due, GroundNapRules.hostileCheckDue(now, checkedAt));
   }
 
-  @ParameterizedTest(name = "follows={0}, owner={1}, distance² {2} -> {3}")
-  @CsvSource({
-    "true, true, 101.0, true",
-    "true, true, 100.0, false",
-    "false, true, 400.0, false",
-    "true, false, 400.0, false"
-  })
+  @ParameterizedTest(name = "follows={0}, distance² {1} -> {2}")
+  @CsvSource({"true, 101.0, true", "true, 100.0, false", "false, 400.0, false", "true, , false"})
   @DisplayName("the owner is away only past ten blocks from a dog that follows them")
-  void ownerAwayPastTenBlocks(
-      final boolean follows, final boolean hasOwner, final double distance, final boolean away) {
-    assertEquals(away, GroundNapRules.isOwnerAway(follows, hasOwner, distance));
+  void ownerAwayPastTenBlocks(final boolean follows, final Double distance, final boolean away) {
+    assertEquals(
+        away,
+        GroundNapRules.isOwnerAway(
+            follows, distance == null ? OptionalDouble.empty() : OptionalDouble.of(distance)));
   }
 }

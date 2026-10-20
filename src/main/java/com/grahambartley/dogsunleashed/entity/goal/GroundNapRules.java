@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.entity.goal;
 
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import java.util.EnumSet;
+import java.util.OptionalDouble;
 import java.util.Set;
 
 public final class GroundNapRules {
@@ -78,9 +79,9 @@ public final class GroundNapRules {
   }
 
   public static boolean isOwnerAway(
-      final boolean followsOwner, final boolean hasOwner, final double ownerSquaredDistance) {
+      final boolean followsOwner, final OptionalDouble ownerSquaredDistance) {
     return followsOwner
-        && hasOwner
-        && ownerSquaredDistance > OWNER_NEARBY_RANGE * OWNER_NEARBY_RANGE;
+        && ownerSquaredDistance.isPresent()
+        && ownerSquaredDistance.getAsDouble() > OWNER_NEARBY_RANGE * OWNER_NEARBY_RANGE;
   }
 }
