@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.network.payload;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.grahambartley.dogsunleashed.entity.DogBondStep;
 import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
@@ -51,6 +52,7 @@ final class PayloadTestFixtures {
         composition,
         RidingView.NONE,
         false,
-        false);
+        false,
+        DogBondStep.STRANGER);
   }
 }

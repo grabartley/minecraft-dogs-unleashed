@@ -98,6 +98,7 @@ public class UnleashedDogEntity extends DogMountEntity
   static final TrackedData<Boolean> BONE_DIGGING = data(BOOLEAN);
   static final TrackedData<Boolean> SENIOR = data(BOOLEAN);
   static final TrackedData<Boolean> MUDDY = data(BOOLEAN);
+  static final TrackedData<Integer> BOND_STEP = data(INTEGER);
 
   private static <T> TrackedData<T> data(final TrackedDataHandler<T> handler) {
     return DataTracker.registerData(UnleashedDogEntity.class, handler);
@@ -128,7 +129,8 @@ public class UnleashedDogEntity extends DogMountEntity
           new DogScent(this),
           new DogBoneBurial(this),
           new DogAging(this),
-          new DogMud(this));
+          new DogMud(this),
+          new DogBond(this));
   private final DogGenomeCache genomeCache = new DogGenomeCache(this);
   private final DogUndeadState undeadState = new DogUndeadState(this);
   private final DogCuring curing = new DogCuring(this);
@@ -492,6 +494,14 @@ public class UnleashedDogEntity extends DogMountEntity
     if (!this.getWorld().isClient) {
       DogServerTick.run(this);
     }
+  }
+
+  @Override
+  public boolean shouldTryTeleportToOwner() {
+    final LivingEntity owner = this.getOwner();
+    return owner != null
+        && DogBondRules.teleportsToOwner(
+            this.components.get(DogBond.class).step(), this.distanceTo(owner));
   }
 
   @Override

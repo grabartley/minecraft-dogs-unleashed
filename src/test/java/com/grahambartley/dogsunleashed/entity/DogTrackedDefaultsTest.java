@@ -75,7 +75,8 @@ class DogTrackedDefaultsTest {
             "growth stage", UnleashedDogEntity.GROWTH_STAGE, DireWolfGrowthStage.YEARLING.number()),
         Arguments.of("fur stage", UnleashedDogEntity.FUR_STAGE, DogFurStage.NATURAL.ordinal()),
         Arguments.of("scent phase", UnleashedDogEntity.SCENT_PHASE, ScentPhase.NONE.id()),
-        Arguments.of("napping", UnleashedDogEntity.NAPPING, false));
+        Arguments.of("napping", UnleashedDogEntity.NAPPING, false),
+        Arguments.of("bond step", UnleashedDogEntity.BOND_STEP, DogBondStep.STRANGER.ordinal()));
   }
 
   @ParameterizedTest(name = "{0}")

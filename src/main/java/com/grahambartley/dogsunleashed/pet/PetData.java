@@ -3,6 +3,8 @@ package com.grahambartley.dogsunleashed.pet;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.entity.DogAging;
 import com.grahambartley.dogsunleashed.entity.DogAppearance;
+import com.grahambartley.dogsunleashed.entity.DogBond;
+import com.grahambartley.dogsunleashed.entity.DogBondRules;
 import com.grahambartley.dogsunleashed.entity.DogCollar;
 import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
@@ -54,6 +56,7 @@ public final class PetData {
   private long adultAgeTicks;
   private boolean senior;
   private boolean seniorParent;
+  private int bondPoints;
 
   public PetData(
       UUID petId,
@@ -220,6 +223,10 @@ public final class PetData {
     return seniorParent;
   }
 
+  public int getBondPoints() {
+    return bondPoints;
+  }
+
   public int getGrowthBattlesWon() {
     return growthBattlesWon;
   }
@@ -265,6 +272,7 @@ public final class PetData {
     this.adultAgeTicks = aging.adultAgeTicks();
     this.senior = aging.isSenior();
     this.seniorParent = aging.hasSeniorParent();
+    this.bondPoints = dog.getComponents().get(DogBond.class).points();
     final DogGenome dogGenome = dog.getGenome();
     this.genome = dogGenome;
     this.composition = dogGenome != null ? dogGenome.composition() : List.of();
@@ -287,8 +295,13 @@ public final class PetData {
   }
 
   public boolean differsFrom(
-      final float health, final BlockPos pos, final String dimension, final PortraitLook look) {
+      final float health,
+      final BlockPos pos,
+      final String dimension,
+      final PortraitLook look,
+      final int bondPoints) {
     return Float.compare(this.health, health) != 0
+        || this.bondPoints != bondPoints
         || !this.lastKnownPosition.equals(pos)
         || !Objects.equals(this.dimension, dimension)
         || !this.portraitLook().equals(look);
@@ -321,6 +334,7 @@ public final class PetData {
     nbt.putLong(ModNbtKeys.ADULT_AGE_TICKS, adultAgeTicks);
     nbt.putBoolean(ModNbtKeys.SENIOR, senior);
     nbt.putBoolean(ModNbtKeys.SENIOR_PARENT, seniorParent);
+    nbt.putInt(ModNbtKeys.BOND_POINTS, bondPoints);
     if (!composition.isEmpty()) {
       nbt.put(ModNbtKeys.COMPOSITION, DogGenome.compositionToNbt(composition));
     }
@@ -388,6 +402,7 @@ public final class PetData {
     pet.adultAgeTicks = Math.max(0L, nbt.getLong(ModNbtKeys.ADULT_AGE_TICKS));
     pet.senior = nbt.getBoolean(ModNbtKeys.SENIOR);
     pet.seniorParent = nbt.getBoolean(ModNbtKeys.SENIOR_PARENT);
+    pet.bondPoints = DogBondRules.clamp(nbt.getInt(ModNbtKeys.BOND_POINTS));
     if (nbt.contains(ModNbtKeys.COMPOSITION, NbtElement.COMPOUND_TYPE)) {
       pet.composition = DogGenome.compositionFromNbt(nbt.getCompound(ModNbtKeys.COMPOSITION));
     }

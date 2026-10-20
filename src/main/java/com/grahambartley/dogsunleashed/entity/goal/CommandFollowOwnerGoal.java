@@ -1,5 +1,7 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
+import com.grahambartley.dogsunleashed.entity.DogBond;
+import com.grahambartley.dogsunleashed.entity.DogBondStep;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.Set;
@@ -7,7 +9,8 @@ import net.minecraft.entity.ai.goal.FollowOwnerGoal;
 
 public class CommandFollowOwnerGoal extends FollowOwnerGoal {
 
-  private final UnleashedDogEntity dog;
+  protected final UnleashedDogEntity dog;
+  private final double speed;
   private final Set<DogCommand> activeCommands;
 
   public CommandFollowOwnerGoal(
@@ -18,6 +21,7 @@ public class CommandFollowOwnerGoal extends FollowOwnerGoal {
       final Set<DogCommand> activeCommands) {
     super(dog, speed, maxDistance, minDistance);
     this.dog = dog;
+    this.speed = speed;
     this.activeCommands = activeCommands;
   }
 
@@ -33,5 +37,15 @@ public class CommandFollowOwnerGoal extends FollowOwnerGoal {
     return !this.dog.isLeashed()
         && this.activeCommands.contains(this.dog.getCommand())
         && super.shouldContinue();
+  }
+
+  @Override
+  public void tick() {
+    super.tick();
+    this.dog.getNavigation().setSpeed(this.bond().responseSpeed(this.speed));
+  }
+
+  protected DogBondStep bond() {
+    return this.dog.getComponents().get(DogBond.class).step();
   }
 }

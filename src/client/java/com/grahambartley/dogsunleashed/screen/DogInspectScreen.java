@@ -43,7 +43,7 @@ public class DogInspectScreen extends Screen {
       final DrawContext context, final int mouseX, final int mouseY, final float delta) {
     super.render(context, mouseX, mouseY, delta);
 
-    final int cardHeight = cardHeight(data.trust());
+    final int cardHeight = cardHeight(data.trust(), data.tamed());
     final int cardX = cardLeft(this.width);
     final int cardY = cardTop(this.height, cardHeight);
     context.fill(cardX, cardY, cardX + CARD_WIDTH, cardY + cardHeight, CARD_BACKGROUND);
@@ -137,7 +137,7 @@ public class DogInspectScreen extends Screen {
 
     infoY =
         DogStatsPanel.drawForPet(context, this.textRenderer, pet, infoX, infoY, INFO_LABEL_WIDTH);
-    this.drawTrust(context, infoX, infoY);
+    this.drawRelationshipRow(context, infoX, infoY);
 
     context.drawCenteredTextWithShadow(
         this.textRenderer,
@@ -147,14 +147,26 @@ public class DogInspectScreen extends Screen {
         HINT_COLOR);
   }
 
-  private void drawTrust(final DrawContext context, final int x, final int y) {
+  private void drawRelationshipRow(final DrawContext context, final int x, final int y) {
     switch (data.trust().kind()) {
       case BUILDING ->
           DogStatsPanel.drawTrustRow(
               context, this.textRenderer, data.trust().trust(), x, y, INFO_LABEL_WIDTH);
       case TOO_WILD -> this.drawWildLine(context, "too_wild", x, y);
       case SHUNNED -> this.drawWildLine(context, "shunned", x, y);
-      case NONE -> {}
+      case NONE -> this.drawBond(context, x, y);
+    }
+  }
+
+  private void drawBond(final DrawContext context, final int x, final int y) {
+    if (data.tamed()) {
+      this.drawInfoLine(
+          context,
+          x,
+          y,
+          "screen.dogs-unleashed.pet_details.bond",
+          Text.translatable(data.pet().bond().translationKey()).getString(),
+          VALUE_COLOR);
     }
   }
 
@@ -217,8 +229,10 @@ public class DogInspectScreen extends Screen {
     return (screenWidth - CARD_WIDTH) / 2;
   }
 
-  static int cardHeight(final WildTrustView trust) {
-    return trust.kind() == WildTrustView.Kind.NONE ? CARD_HEIGHT : CARD_HEIGHT + TRUST_ROW_HEIGHT;
+  static int cardHeight(final WildTrustView trust, final boolean tamed) {
+    return trust.kind() == WildTrustView.Kind.NONE && !tamed
+        ? CARD_HEIGHT
+        : CARD_HEIGHT + TRUST_ROW_HEIGHT;
   }
 
   static int cardTop(final int screenHeight, final int cardHeight) {

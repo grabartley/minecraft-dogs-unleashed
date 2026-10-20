@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
+import com.grahambartley.dogsunleashed.entity.DogBond;
 import com.grahambartley.dogsunleashed.entity.DogPointedOrders;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.EnumSet;
@@ -70,7 +71,10 @@ public class PointedFetchGoal extends Goal {
       return;
     }
     this.repathCooldown = REPATH_INTERVAL_TICKS;
-    this.dog.getNavigation().startMovingTo(item, RETRIEVE_SPEED);
+    this.dog
+        .getNavigation()
+        .startMovingTo(
+            item, this.dog.getComponents().get(DogBond.class).step().responseSpeed(RETRIEVE_SPEED));
   }
 
   @Override

@@ -1,6 +1,8 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
 import com.grahambartley.dogsunleashed.advancement.FetchReturnedCriterion;
+import com.grahambartley.dogsunleashed.entity.DogBond;
+import com.grahambartley.dogsunleashed.entity.DogBondRules;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchCarriedItemProvider;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
@@ -87,6 +89,9 @@ public class FetchReturnGoal extends Goal {
 
       if (!pointedFetch && player instanceof ServerPlayerEntity serverPlayer) {
         FetchReturnedCriterion.INSTANCE.trigger(serverPlayer);
+      }
+      if (!pointedFetch) {
+        this.dog.getComponents().get(DogBond.class).reward(DogBondRules.Source.PLAY);
       }
 
       this.dog.getFetchCarry().setCarrying(false);

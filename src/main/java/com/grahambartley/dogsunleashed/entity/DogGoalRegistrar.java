@@ -2,9 +2,11 @@ package com.grahambartley.dogsunleashed.entity;
 
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
 import com.grahambartley.dogsunleashed.entity.goal.AutoSleepGoal;
+import com.grahambartley.dogsunleashed.entity.goal.BondFollowOwnerGoal;
 import com.grahambartley.dogsunleashed.entity.goal.BuryBoneGoal;
 import com.grahambartley.dogsunleashed.entity.goal.ChaseBoneThiefGoal;
 import com.grahambartley.dogsunleashed.entity.goal.CommandFollowOwnerGoal;
+import com.grahambartley.dogsunleashed.entity.goal.DevotedRescueGoal;
 import com.grahambartley.dogsunleashed.entity.goal.DigUpBoneGoal;
 import com.grahambartley.dogsunleashed.entity.goal.DogEscapeDangerGoal;
 import com.grahambartley.dogsunleashed.entity.goal.DogSitGoal;
@@ -82,6 +84,7 @@ public final class DogGoalRegistrar {
     goalSelector.add(7, new MeleeAttackGoal(dog, DEFAULT_GOAL_SPEED, true));
     goalSelector.add(8, new AnimalMateGoal(dog, DEFAULT_GOAL_SPEED));
     goalSelector.add(8, new KeepWatchGoal(dog));
+    goalSelector.add(8, new DevotedRescueGoal(dog));
     goalSelector.add(
         9, new TemptGoal(dog, DEFAULT_GOAL_SPEED, DogFoods.attentionIngredient(), false));
     goalSelector.add(
@@ -89,7 +92,7 @@ public final class DogGoalRegistrar {
     goalSelector.add(10, new ReturnToAnchorGoal(dog));
     goalSelector.add(
         10,
-        new CommandFollowOwnerGoal(
+        new BondFollowOwnerGoal(
             dog,
             DEFAULT_GOAL_SPEED,
             FOLLOW_OWNER_MAX_DISTANCE,

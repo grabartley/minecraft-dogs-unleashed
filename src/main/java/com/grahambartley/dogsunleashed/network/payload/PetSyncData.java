@@ -4,6 +4,8 @@ import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.config.AgingSettings;
 import com.grahambartley.dogsunleashed.entity.DogAging;
 import com.grahambartley.dogsunleashed.entity.DogAgingRules;
+import com.grahambartley.dogsunleashed.entity.DogBond;
+import com.grahambartley.dogsunleashed.entity.DogBondStep;
 import com.grahambartley.dogsunleashed.entity.DogCollar;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
@@ -39,7 +41,8 @@ public record PetSyncData(
     List<BreedShare> composition,
     RidingView riding,
     boolean exploring,
-    boolean senior) {
+    boolean senior,
+    DogBondStep bond) {
 
   public static final PacketCodec<RegistryByteBuf, PetSyncData> CODEC =
       PacketCodec.of(PetSyncData::write, PetSyncData::read);
@@ -66,7 +69,8 @@ public record PetSyncData(
         petData.getComposition(),
         RidingView.of(petData.getBreed(), petData.getGrowthStage(), petData.getStaminaPercent()),
         exploring,
-        seniorOf(petData));
+        seniorOf(petData),
+        DogBondStep.ofPoints(petData.getBondPoints()));
   }
 
   public static PetSyncData fromDog(final UnleashedDogEntity dog) {
@@ -96,7 +100,8 @@ public record PetSyncData(
             dog.getGrowth().stage().number(),
             Math.round(dog.getRiding().staminaFraction() * 100.0f)),
         false,
-        dog.getComponents().get(DogAging.class).isSenior());
+        dog.getComponents().get(DogAging.class).isSenior(),
+        dog.getComponents().get(DogBond.class).step());
   }
 
   static boolean seniorOf(final PetData petData) {
@@ -153,6 +158,7 @@ public record PetSyncData(
     this.riding.write(buf);
     buf.writeBoolean(this.exploring);
     buf.writeBoolean(this.senior);
+    buf.writeVarInt(this.bond.ordinal());
   }
 
   static PetSyncData read(final RegistryByteBuf buf) {
@@ -177,6 +183,7 @@ public record PetSyncData(
         BreedShareCodec.readList(buf),
         RidingView.read(buf),
         buf.readBoolean(),
-        buf.readBoolean());
+        buf.readBoolean(),
+        DogBondStep.byId(buf.readVarInt()));
   }
 }

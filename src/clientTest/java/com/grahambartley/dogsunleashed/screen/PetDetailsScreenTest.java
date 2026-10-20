@@ -84,7 +84,8 @@ class PetDetailsScreenTest {
   @ParameterizedTest(name = "screen height {0} shows preview {1}")
   @CsvSource({
     "240, false",
-    "300, true",
+    "300, false",
+    "360, true",
     "480, true",
     "1080, true",
   })

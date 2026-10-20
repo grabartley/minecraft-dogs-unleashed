@@ -33,6 +33,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 @ExtendWith(MinecraftBootstrapExtension.class)
 class PetDataTest {
@@ -78,7 +79,7 @@ class PetDataTest {
     assertTrue(
         baselinePet()
             .differsFrom(
-                health, pos, dimension, new PortraitLook(baby, collar, coat, eye, fur, false)),
+                health, pos, dimension, new PortraitLook(baby, collar, coat, eye, fur, false), 0),
         "expected differsFrom to flag a change in " + changedField);
   }
 
@@ -186,7 +187,8 @@ class PetDataTest {
                 BASE_HEALTH,
                 equalPos,
                 BASE_DIM,
-                new PortraitLook(BASE_BABY, baseCollar(), BASE_COAT, BASE_EYE, BASE_FUR, false)),
+                new PortraitLook(BASE_BABY, baseCollar(), BASE_COAT, BASE_EYE, BASE_FUR, false),
+                0),
         "expected differsFrom to report no change for an unchanged pet (" + label + ")");
   }
 
@@ -205,7 +207,32 @@ class PetDataTest {
                 BASE_HEALTH,
                 BASE_POS,
                 BASE_DIM,
-                new PortraitLook(BASE_BABY, baseCollar(), BASE_COAT, BASE_EYE, BASE_FUR, true)));
+                new PortraitLook(BASE_BABY, baseCollar(), BASE_COAT, BASE_EYE, BASE_FUR, true),
+                0));
+  }
+
+  @ParameterizedTest(name = "bond points {0}")
+  @ValueSource(ints = {1, 50, 700})
+  @DisplayName("differsFrom returns true when the bond grows")
+  void differsFromDetectsBondGrowth(final int bondPoints) {
+    assertTrue(
+        baselinePet()
+            .differsFrom(
+                BASE_HEALTH,
+                BASE_POS,
+                BASE_DIM,
+                new PortraitLook(BASE_BABY, baseCollar(), BASE_COAT, BASE_EYE, BASE_FUR, false),
+                bondPoints));
+  }
+
+  @ParameterizedTest(name = "saved {0} -> {1}")
+  @CsvSource({"0, 0", "120, 120", "700, 700", "5000, 700", "-3, 0"})
+  @DisplayName("bond points survive a save and reload, clamped to the bond range")
+  void bondRoundTrips(final int saved, final int expected) {
+    final NbtCompound nbt = baselinePet().toNbt();
+    nbt.putInt(ModNbtKeys.BOND_POINTS, saved);
+    final PetData reloaded = PetData.fromNbt(PetData.fromNbt(nbt).toNbt());
+    assertEquals(expected, reloaded.getBondPoints());
   }
 
   @ParameterizedTest(name = "age {0} ticks, senior {1}, senior parent {2}")

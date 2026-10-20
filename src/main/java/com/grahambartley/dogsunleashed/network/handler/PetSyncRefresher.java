@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.network.handler;
 
+import com.grahambartley.dogsunleashed.entity.DogBond;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.expedition.Expeditions;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
@@ -26,7 +27,12 @@ public final class PetSyncRefresher {
           final BlockPos newPos = dog.getBlockPos();
           final String newDim =
               ((ServerWorld) dog.getWorld()).getRegistryKey().getValue().toString();
-          if (pet.differsFrom(newHealth, newPos, newDim, PortraitLook.of(dog))) {
+          if (pet.differsFrom(
+              newHealth,
+              newPos,
+              newDim,
+              PortraitLook.of(dog),
+              dog.getComponents().get(DogBond.class).points())) {
             pet.setHealth(newHealth);
             pet.setLastKnownPosition(newPos);
             pet.setDimension(newDim);

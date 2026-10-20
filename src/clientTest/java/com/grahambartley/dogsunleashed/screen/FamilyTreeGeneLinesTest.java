@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.grahambartley.dogsunleashed.entity.DogBondStep;
 import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.genome.DogGeneLocus;
@@ -108,7 +109,8 @@ class FamilyTreeGeneLinesTest {
             List.of(),
             RidingView.NONE,
             false,
-            false),
+            false,
+            DogBondStep.STRANGER),
         "owner",
         "Owner",
         genes,

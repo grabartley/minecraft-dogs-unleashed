@@ -216,6 +216,14 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
               "screen.dogs-unleashed.pet_details.age",
               Text.translatable(pet.age().translationKey()).getString(),
               VALUE_COLOR);
+      y =
+          drawInfoLine(
+              context,
+              x,
+              y,
+              "screen.dogs-unleashed.pet_details.bond",
+              Text.translatable(pet.bond().translationKey()).getString(),
+              VALUE_COLOR);
       if (pet.riding().kind() != RidingView.Kind.NONE) {
         y =
             drawInfoLine(
@@ -398,7 +406,7 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
   }
 
   static int infoBottom(final boolean alive) {
-    final int infoLines = alive ? 7 : 5;
+    final int infoLines = alive ? 8 : 5;
     return INFO_TOP
         + infoLines * INFO_LINE_HEIGHT
         + STATS_SECTION_GAP
