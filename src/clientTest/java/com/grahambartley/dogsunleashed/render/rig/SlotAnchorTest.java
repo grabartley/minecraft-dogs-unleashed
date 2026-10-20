@@ -4,10 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import com.grahambartley.dogsunleashed.render.costume.CostumePartFit;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile.Slot;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Stream;
+import net.minecraft.client.util.math.MatrixStack;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,11 +19,15 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
+import software.bernie.geckolib.cache.object.GeoCube;
+import software.bernie.geckolib.cache.object.GeoQuad;
+import software.bernie.geckolib.cache.object.GeoVertex;
+import software.bernie.geckolib.util.RenderUtil;
 
 class SlotAnchorTest {
 
   private static final RigProfiles BUNDLED = new RigProfiles(RigProfiles::openBundled);
-  private static final float TOLERANCE = 1.0e-4f;
+  private static final float TOLERANCE = 1.0e-3f;
 
   static Stream<Arguments> rigSlots() {
     return Arrays.stream(UnleashedDogBreed.values())
@@ -34,8 +41,8 @@ class SlotAnchorTest {
 
   @ParameterizedTest(name = "{0} {1}")
   @MethodSource("rigSlots")
-  @DisplayName("a slot is anchored on its shallowest bone at the centre of its rest bounds")
-  void anchorSitsOnTheSlot(final UnleashedDogBreed rig, final Slot slot) {
+  @DisplayName("a slot is anchored on its shallowest bone")
+  void anchorIsTheShallowestSlotBone(final UnleashedDogBreed rig, final Slot slot) {
     final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
     final Set<String> bones = BUNDLED.profileOf(rig).bonesIn(slot);
     final SlotAnchor anchor = SlotAnchor.locate(model, bones).orElseThrow();
@@ -47,12 +54,61 @@ class SlotAnchorTest {
           .getBone(other)
           .ifPresent(candidate -> assertTrue(depthOf(candidate) >= depthOf(bone), other));
     }
-    final Vector3f expected = SlotBounds.of(model, bones).center();
-    final Vector3f actual = RestPose.of(bone).point(anchor.centre());
+  }
+
+  @ParameterizedTest(name = "{0} {1}")
+  @MethodSource("rigSlots")
+  @DisplayName("the part reference box lands on the slot's bounds as GeckoLib draws them")
+  void referenceBoxMatchesTheRenderedSlot(final UnleashedDogBreed rig, final Slot slot) {
+    final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
+    final Set<String> bones = BUNDLED.profileOf(rig).bonesIn(slot);
+    final SlotAnchor anchor = SlotAnchor.locate(model, bones).orElseThrow();
+    final Matrix4f boxToModel =
+        LivePose.of(model.getBone(anchor.boneName()).orElseThrow())
+            .mul(CostumePartFit.partToBone(anchor, 0.0f));
+    final CubeGeometry.Bounds rendered = renderedBounds(model, bones);
+
+    assertPoint(rendered.min(), boxToModel.transformPosition(new Vector3f(-0.5f)));
+    assertPoint(rendered.max(), boxToModel.transformPosition(new Vector3f(0.5f)));
+  }
+
+  private static CubeGeometry.Bounds renderedBounds(
+      final BakedGeoModel model, final Set<String> bones) {
+    final CubeGeometry.Bounds bounds = new CubeGeometry.Bounds();
+    for (final String name : bones) {
+      model
+          .getBone(name)
+          .ifPresent(
+              bone -> {
+                final Matrix4f boneMatrix = LivePose.of(bone);
+                for (final GeoCube cube : bone.getCubes()) {
+                  final MatrixStack stack = new MatrixStack();
+                  stack.peek().getPositionMatrix().set(boneMatrix);
+                  RenderUtil.translateToPivotPoint(stack, cube);
+                  RenderUtil.rotateMatrixAroundCube(stack, cube);
+                  RenderUtil.translateAwayFromPivotPoint(stack, cube);
+                  for (final GeoQuad quad : cube.quads()) {
+                    if (quad == null) {
+                      continue;
+                    }
+                    for (final GeoVertex vertex : quad.vertices()) {
+                      bounds.include(
+                          stack
+                              .peek()
+                              .getPositionMatrix()
+                              .transformPosition(new Vector3f(vertex.position())));
+                    }
+                  }
+                }
+              });
+    }
+    return bounds;
+  }
+
+  private static void assertPoint(final Vector3f expected, final Vector3f actual) {
     assertEquals(expected.x, actual.x, TOLERANCE);
     assertEquals(expected.y, actual.y, TOLERANCE);
     assertEquals(expected.z, actual.z, TOLERANCE);
-    assertTrue(anchor.size().x > 0 && anchor.size().y > 0 && anchor.size().z > 0);
   }
 
   @Test

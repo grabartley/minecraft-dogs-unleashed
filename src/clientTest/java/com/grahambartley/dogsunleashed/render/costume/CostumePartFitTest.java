@@ -27,7 +27,8 @@ class CostumePartFitTest {
     "0, 0, 0, 0, 1, 2, 3",
     "0, 0.5, 0.5, 0.5, 1.25, 2.125, 3.5",
     "0, -0.5, -0.5, -0.5, 0.75, 1.875, 2.5",
-    "180, 0.5, 0, 0.5, 0.75, 2, 2.5"
+    "180, 0.5, 0, 0.5, 0.75, 2, 2.5",
+    "90, 0, 0, -0.5, 1.25, 2, 3"
   })
   @DisplayName("a one-block reference box around the part origin stretches over the slot bounds")
   void referenceBoxFillsTheSlot(

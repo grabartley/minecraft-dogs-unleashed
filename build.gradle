@@ -232,6 +232,7 @@ check {
 
 jar {
 	inputs.property "archivesName", project.base.archivesName
+	exclude "resourcepacks/gametest_fixtures/**"
 
 	from("LICENSE") {
 		rename { "${it}_${inputs.properties.archivesName}"}

@@ -29,7 +29,7 @@ public final class DogCostumeGameTest implements FabricGameTest {
   private static final int TICK_LIMIT = 20;
   private static final int DEATH_TICK_LIMIT = 40;
   private static final int DEATH_ASSERT_TICK = 20;
-  private static final Item COSTUME = Items.PHANTOM_MEMBRANE;
+  private static final Item COSTUME = Items.NAUTILUS_SHELL;
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
   public void costumeSlotTakesTaggedCostumesAndNothingElse(final TestContext context) {

@@ -15,8 +15,6 @@ public final class DogSlotLayout {
   }
 
   public static int y(final int index) {
-    final int row =
-        index < LEFT_COLUMN_ROWS ? index : LEFT_COLUMN_ROWS - 1 - (index - LEFT_COLUMN_ROWS);
-    return FIRST_ROW_Y + row * SLOT_SPACING;
+    return FIRST_ROW_Y + Math.min(index, LEFT_COLUMN_ROWS - 1) * SLOT_SPACING;
   }
 }

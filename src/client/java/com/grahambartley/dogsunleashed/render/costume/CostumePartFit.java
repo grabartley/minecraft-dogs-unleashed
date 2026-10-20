@@ -15,6 +15,6 @@ public final class CostumePartFit {
         .translate(centre)
         .rotate(anchor.restRotation().conjugate())
         .scale(size)
-        .rotateY((float) Math.toRadians(rigYawDegrees));
+        .rotateY((float) Math.toRadians(-rigYawDegrees));
   }
 }
