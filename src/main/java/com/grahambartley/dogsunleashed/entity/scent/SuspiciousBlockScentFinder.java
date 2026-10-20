@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 final class SuspiciousBlockScentFinder implements ScentTargetFinder {
 
   static final int CHUNKS_PER_TICK = 8;
+  private static final int CHUNK_SIZE = 16;
 
   private final BlockPos origin;
   private final int range;
@@ -21,7 +22,7 @@ final class SuspiciousBlockScentFinder implements ScentTargetFinder {
   SuspiciousBlockScentFinder(final BlockPos origin, final int range) {
     this.origin = origin.toImmutable();
     this.range = range;
-    this.scan = new ScentShellScan(Math.ceilDiv(range, 16), 0);
+    this.scan = new ScentShellScan(Math.ceilDiv(range, CHUNK_SIZE), 0, CHUNK_SIZE);
   }
 
   @Override
@@ -41,7 +42,7 @@ final class SuspiciousBlockScentFinder implements ScentTargetFinder {
         && world.getBlockEntity(this.found) instanceof BrushableBlockEntity;
   }
 
-  private boolean searchChunk(final ServerWorld world, final int dx, final int dz) {
+  private long searchChunk(final ServerWorld world, final int dx, final int dz) {
     final WorldChunk chunk =
         world
             .getChunkManager()
@@ -49,20 +50,22 @@ final class SuspiciousBlockScentFinder implements ScentTargetFinder {
                 ChunkSectionPos.getSectionCoord(this.origin.getX()) + dx,
                 ChunkSectionPos.getSectionCoord(this.origin.getZ()) + dz);
     if (chunk == null) {
-      return false;
+      return ScentShellScan.NO_MATCH;
     }
-    final double maxSquared = (double) this.range * this.range;
-    boolean matched = false;
+    final long maxSquared = (long) this.range * this.range;
+    long nearest = ScentShellScan.NO_MATCH;
     for (final BlockEntity blockEntity : chunk.getBlockEntities().values()) {
       final BlockPos pos = blockEntity.getPos();
-      final double squared = pos.getSquaredDistance(this.origin);
+      final long squared = (long) pos.getSquaredDistance(this.origin);
       if (blockEntity instanceof BrushableBlockEntity
           && squared <= maxSquared
-          && (this.found == null || squared < this.found.getSquaredDistance(this.origin))) {
-        this.found = pos.toImmutable();
-        matched = true;
+          && (nearest == ScentShellScan.NO_MATCH || squared < nearest)) {
+        nearest = squared;
+        if (this.found == null || squared < (long) this.found.getSquaredDistance(this.origin)) {
+          this.found = pos.toImmutable();
+        }
       }
     }
-    return matched;
+    return nearest;
   }
 }

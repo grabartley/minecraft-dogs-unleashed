@@ -32,7 +32,7 @@ public final class DogScentGameTest implements FabricGameTest {
   private static final BlockPos DOG_START = new BlockPos(1, 2, 1);
   private static final BlockPos TARGET_FLOOR = new BlockPos(5, 1, 5);
   private static final BlockPos TARGET_SPOT = new BlockPos(5, 2, 5);
-  private static final double MOB_REACH = 2.5;
+  private static final double MOB_REACH = 4.0;
   private static final double BLOCK_REACH = 1.5;
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 300)
@@ -86,7 +86,7 @@ public final class DogScentGameTest implements FabricGameTest {
         });
   }
 
-  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 40)
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 80)
   public void aDogWithNothingToFindGivesUp(TestContext context) {
     final ServerPlayerEntity owner = placeOwner(context);
     final UnleashedDogEntity dog = spawnOwnedDog(context, owner);
@@ -99,6 +99,40 @@ public final class DogScentGameTest implements FabricGameTest {
           if (!scent(dog).isTracking()) {
             context.complete();
           }
+        });
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 20)
+  public void dogFoodStillFeedsInsteadOfTracking(TestContext context) {
+    final ServerPlayerEntity owner = placeOwner(context);
+    final UnleashedDogEntity dog = spawnOwnedDog(context, owner);
+    dog.setAiDisabled(true);
+
+    give(dog, owner, Items.ROTTEN_FLESH);
+
+    context.assertFalse(scent(dog).isTracking(), "Dog food must never start a scent");
+    context.assertTrue(dog.isInLove(), "Rotten flesh should still put a healthy dog in love");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 100)
+  public void aDogInAFightDoesNotLead(TestContext context) {
+    final ServerPlayerEntity owner = placeOwner(context);
+    final UnleashedDogEntity dog = spawnOwnedDog(context, owner);
+    final MobEntity cow = spawnStill(context, EntityType.COW, TARGET_SPOT);
+    final MobEntity zombie = spawnStill(context, EntityType.ZOMBIE, new BlockPos(0, 2, 5));
+    zombie.setInvulnerable(true);
+
+    give(dog, owner, Items.LEATHER);
+    dog.setTarget(zombie);
+
+    context.runAtTick(
+        60,
+        () -> {
+          context.assertTrue(
+              scent(dog).phase() != ScentPhase.POINTING,
+              "A dog with a target should fight, not lead to the cow");
+          context.complete();
         });
   }
 

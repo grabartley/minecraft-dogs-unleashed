@@ -22,12 +22,14 @@ public class ScentTrackGoal extends Goal {
   private static final double LEAD_SPEED = 1.0;
   private static final int REPATH_INTERVAL_TICKS = 10;
   private static final int ARRIVAL_TICKS = 60;
+  private static final int GIVE_UP_TICKS = 40;
   private static final float LOOK_SPEED = 30.0F;
 
   private enum Stage {
     SEARCHING,
     LEADING,
-    ARRIVED
+    ARRIVED,
+    GIVING_UP
   }
 
   private final UnleashedDogEntity dog;
@@ -37,7 +39,7 @@ public class ScentTrackGoal extends Goal {
   private Stage stage = Stage.SEARCHING;
   private int generation = -1;
   private int repathCooldown;
-  private int arrivalTicks;
+  private int holdTicks;
 
   public ScentTrackGoal(final UnleashedDogEntity dog) {
     this.dog = dog;
@@ -68,9 +70,10 @@ public class ScentTrackGoal extends Goal {
   public void stop() {
     this.dog.getNavigation().stop();
     this.finder = null;
+    this.rule = null;
     this.generation = -1;
     if (this.scent().isTracking()) {
-      this.scent().setPhase(ScentPhase.SNIFFING);
+      this.scent().setPhase(ScentPhase.NONE);
     }
   }
 
@@ -86,6 +89,7 @@ public class ScentTrackGoal extends Goal {
       case SEARCHING -> this.search(this.finder);
       case LEADING -> this.lead(this.finder, this.rule.kind());
       case ARRIVED -> this.holdPoint(this.finder);
+      case GIVING_UP -> this.holdGiveUp();
     }
   }
 
@@ -114,7 +118,7 @@ public class ScentTrackGoal extends Goal {
       this.stage = Stage.LEADING;
       this.repathCooldown = 0;
     } else if (status == ScentShellScan.Status.EXHAUSTED) {
-      this.scent().giveUp();
+      this.giveUp();
     }
   }
 
@@ -125,11 +129,6 @@ public class ScentTrackGoal extends Goal {
       return;
     }
     final double distance = this.dog.getPos().distanceTo(target);
-    this.progress.record(distance);
-    if (this.progress.hasStalled()) {
-      this.scent().giveUp();
-      return;
-    }
     final double horizontal = Math.hypot(target.x - this.dog.getX(), target.z - this.dog.getZ());
     if (ScentLeadRules.hasArrived(kind, horizontal, distance)) {
       this.arrive(kind);
@@ -137,8 +136,14 @@ public class ScentTrackGoal extends Goal {
     }
     final LivingEntity owner = this.dog.getOwner();
     if (owner != null && ScentLeadRules.shouldWaitForOwner(this.dog.distanceTo(owner))) {
+      this.progress.reset();
       this.dog.getNavigation().stop();
       this.dog.getLookControl().lookAt(owner, LOOK_SPEED, LOOK_SPEED);
+      return;
+    }
+    this.progress.record(distance);
+    if (this.progress.hasStalled()) {
+      this.giveUp();
       return;
     }
     this.dog.getLookControl().lookAt(target.x, target.y, target.z, LOOK_SPEED, LOOK_SPEED);
@@ -150,10 +155,28 @@ public class ScentTrackGoal extends Goal {
 
   private void arrive(final ScentTargetKind kind) {
     this.stage = Stage.ARRIVED;
-    this.arrivalTicks = ARRIVAL_TICKS;
+    this.holdTicks = ARRIVAL_TICKS;
     this.dog.getNavigation().stop();
     this.scent().setPhase(ScentLeadRules.arrivalPhase(kind));
-    this.scent().announceFound();
+    this.scent().cues().found();
+  }
+
+  private void giveUp() {
+    this.stage = Stage.GIVING_UP;
+    this.holdTicks = GIVE_UP_TICKS;
+    this.dog.getNavigation().stop();
+    this.scent().setPhase(ScentPhase.NONE);
+    this.scent().cues().whine();
+  }
+
+  private void holdGiveUp() {
+    final LivingEntity owner = this.dog.getOwner();
+    if (owner != null) {
+      this.dog.getLookControl().lookAt(owner, LOOK_SPEED, LOOK_SPEED);
+    }
+    if (--this.holdTicks <= 0) {
+      this.scent().stop();
+    }
   }
 
   private void holdPoint(final ScentTargetFinder activeFinder) {
@@ -161,13 +184,14 @@ public class ScentTrackGoal extends Goal {
     if (target != null) {
       this.dog.getLookControl().lookAt(target.x, target.y, target.z, LOOK_SPEED, LOOK_SPEED);
     }
-    if (--this.arrivalTicks <= 0) {
+    if (--this.holdTicks <= 0) {
       this.scent().stop();
     }
   }
 
   private boolean isFree() {
     return this.dog.getOwner() != null
+        && this.dog.getTarget() == null
         && !this.dog.isInSittingPose()
         && !this.dog.isLeashed()
         && !this.dog.getSleepController().isAsleep()

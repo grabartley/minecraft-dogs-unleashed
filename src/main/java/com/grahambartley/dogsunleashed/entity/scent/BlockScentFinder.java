@@ -25,7 +25,7 @@ final class BlockScentFinder implements ScentTargetFinder {
   @Override
   public ScentShellScan.Status advance(final ServerWorld world) {
     final ScentShellScan.Status status =
-        this.scan.advance(PROBES_PER_TICK, (dx, dy, dz) -> this.matches(world, dx, dy, dz));
+        this.scan.advance(PROBES_PER_TICK, (dx, dy, dz) -> this.matchDistance(world, dx, dy, dz));
     final ScentShellScan.Offset offset = this.scan.found();
     if (status == ScentShellScan.Status.FOUND && offset != null) {
       this.found = this.origin.add(offset.dx(), offset.dy(), offset.dz());
@@ -45,10 +45,12 @@ final class BlockScentFinder implements ScentTargetFinder {
         && this.rule.matchesBlock(world.getBlockState(this.found));
   }
 
-  private boolean matches(final ServerWorld world, final int dx, final int dy, final int dz) {
+  private long matchDistance(final ServerWorld world, final int dx, final int dy, final int dz) {
     this.probe.set(this.origin.getX() + dx, this.origin.getY() + dy, this.origin.getZ() + dz);
     return !world.isOutOfHeightLimit(this.probe)
-        && world.isChunkLoaded(this.probe)
-        && this.rule.matchesBlock(world.getBlockState(this.probe));
+            && world.isChunkLoaded(this.probe)
+            && this.rule.matchesBlock(world.getBlockState(this.probe))
+        ? new ScentShellScan.Offset(dx, dy, dz).squaredLength()
+        : ScentShellScan.NO_MATCH;
   }
 }

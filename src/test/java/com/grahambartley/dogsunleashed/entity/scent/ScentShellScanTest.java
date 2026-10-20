@@ -14,6 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 class ScentShellScanTest {
@@ -49,7 +50,7 @@ class ScentShellScanTest {
               7,
               (dx, dy, dz) -> {
                 visited.add(List.of(dx, dy, dz));
-                return false;
+                return ScentShellScan.NO_MATCH;
               });
     }
 
@@ -70,7 +71,7 @@ class ScentShellScanTest {
           budget,
           (dx, dy, dz) -> {
             probes[0]++;
-            return false;
+            return ScentShellScan.NO_MATCH;
           });
       assertTrue(probes[0] <= budget, "probed " + probes[0] + " with a budget of " + budget);
     }
@@ -90,7 +91,7 @@ class ScentShellScanTest {
           3,
           (dx, dy, dz) -> {
             rings.add(Math.max(Math.abs(dx), Math.abs(dz)));
-            return false;
+            return ScentShellScan.NO_MATCH;
           });
     }
     for (int i = 1; i < rings.size(); i++) {
@@ -121,7 +122,47 @@ class ScentShellScanTest {
   }
 
   @Test
-  @DisplayName("once a ring holds a match the scan stops before the next ring")
+  @DisplayName("a close match in the next ring beats a deep one straight below")
+  void closeNextRingBeatsDeepMatch() {
+    final ScentShellScan scan = new ScentShellScan(10, 12);
+    final Set<List<Integer>> targets = Set.of(List.of(1, -12, 0), List.of(2, 0, 0));
+
+    runToEnd(scan, targets);
+
+    assertEquals(new ScentShellScan.Offset(2, 0, 0), scan.found());
+  }
+
+  @Test
+  @DisplayName("an edge cell in the next ring beats a far corner of this one")
+  void nextRingEdgeBeatsCorner() {
+    final ScentShellScan scan = new ScentShellScan(10, 0);
+    final Set<List<Integer>> targets = Set.of(List.of(3, 0, 3), List.of(4, 0, 0));
+
+    runToEnd(scan, targets);
+
+    assertEquals(new ScentShellScan.Offset(4, 0, 0), scan.found());
+  }
+
+  @Test
+  @DisplayName("a match in the last ring is still found")
+  void matchInTheLastRingIsFound() {
+    final ScentShellScan scan = new ScentShellScan(3, 0);
+
+    runToEnd(scan, Set.of(List.of(-3, 0, 3)));
+
+    assertEquals(ScentShellScan.Status.FOUND, scan.status());
+    assertEquals(new ScentShellScan.Offset(-3, 0, 3), scan.found());
+  }
+
+  @ParameterizedTest(name = "ring {0} of {1}-block cells starts {2} blocks out")
+  @CsvSource({"0, 1, 0", "1, 1, 1", "5, 1, 5", "0, 16, 0", "1, 16, 1", "2, 16, 17", "3, 16, 33"})
+  @DisplayName("a ring's nearest spot is as far as its inner edge can be")
+  void closestSpotInARing(final int ring, final int cellSize, final long blocks) {
+    assertEquals(blocks * blocks, ScentShellScan.closestSquaredInShell(ring, cellSize));
+  }
+
+  @Test
+  @DisplayName("the scan stops once no further ring can hold anything closer")
   void stopsAtTheEndOfTheMatchingRing() {
     final ScentShellScan scan = new ScentShellScan(10, 1);
     final int[] probes = {0};
@@ -133,7 +174,7 @@ class ScentShellScanTest {
               50,
               (dx, dy, dz) -> {
                 probes[0]++;
-                return dx == 2 && dy == 0 && dz == 0;
+                return dx == 2 && dy == 0 && dz == 0 ? 4L : ScentShellScan.NO_MATCH;
               });
     }
 
@@ -152,15 +193,21 @@ class ScentShellScanTest {
   }
 
   @Test
-  @DisplayName("a negative radius or reach is refused")
+  @DisplayName("a negative radius or reach, or an empty cell, is refused")
   void negativeSizesAreRefused() {
     assertThrows(IllegalArgumentException.class, () -> new ScentShellScan(-1, 0));
     assertThrows(IllegalArgumentException.class, () -> new ScentShellScan(0, -1));
+    assertThrows(IllegalArgumentException.class, () -> new ScentShellScan(1, 0, 0));
   }
 
   private static void runToEnd(final ScentShellScan scan, final Set<List<Integer>> targets) {
     while (scan.status() == ScentShellScan.Status.SEARCHING) {
-      scan.advance(16, (dx, dy, dz) -> targets.contains(List.of(dx, dy, dz)));
+      scan.advance(
+          16,
+          (dx, dy, dz) ->
+              targets.contains(List.of(dx, dy, dz))
+                  ? new ScentShellScan.Offset(dx, dy, dz).squaredLength()
+                  : ScentShellScan.NO_MATCH);
     }
   }
 }

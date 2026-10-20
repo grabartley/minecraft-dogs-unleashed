@@ -4,6 +4,8 @@ import org.jetbrains.annotations.Nullable;
 
 public final class ScentShellScan {
 
+  public static final long NO_MATCH = -1L;
+
   public enum Status {
     SEARCHING,
     FOUND,
@@ -12,7 +14,7 @@ public final class ScentShellScan {
 
   @FunctionalInterface
   public interface Probe {
-    boolean matches(int dx, int dy, int dz);
+    long squaredDistance(int dx, int dy, int dz);
   }
 
   public record Offset(int dx, int dy, int dz) {
@@ -23,18 +25,25 @@ public final class ScentShellScan {
 
   private final int radius;
   private final int verticalReach;
+  private final int cellSize;
   private int shell;
   private int cell;
   private int dy;
   private @Nullable Offset best;
+  private long bestSquared = Long.MAX_VALUE;
   private Status status = Status.SEARCHING;
 
   public ScentShellScan(final int radius, final int verticalReach) {
-    if (radius < 0 || verticalReach < 0) {
-      throw new IllegalArgumentException("Scan radius and vertical reach must not be negative");
+    this(radius, verticalReach, 1);
+  }
+
+  public ScentShellScan(final int radius, final int verticalReach, final int cellSize) {
+    if (radius < 0 || verticalReach < 0 || cellSize < 1) {
+      throw new IllegalArgumentException("Scan radius, reach and cell size must be valid");
     }
     this.radius = radius;
     this.verticalReach = verticalReach;
+    this.cellSize = cellSize;
     this.dy = -verticalReach;
   }
 
@@ -47,14 +56,21 @@ public final class ScentShellScan {
     return side * side * (2L * verticalReach + 1);
   }
 
+  static long closestSquaredInShell(final int shell, final int cellSize) {
+    final long closest = shell == 0 ? 0L : (long) shell * cellSize - (cellSize - 1);
+    return closest * closest;
+  }
+
   public Status advance(final int budget, final Probe probe) {
     int probes = 0;
     while (this.status == Status.SEARCHING && probes < budget) {
       final int dx = cellX(this.shell, this.cell);
       final int dz = cellZ(this.shell, this.cell);
       probes++;
-      if (probe.matches(dx, this.dy, dz)) {
-        this.keepNearest(new Offset(dx, this.dy, dz));
+      final long squared = probe.squaredDistance(dx, this.dy, dz);
+      if (squared != NO_MATCH && squared < this.bestSquared) {
+        this.bestSquared = squared;
+        this.best = new Offset(dx, this.dy, dz);
       }
       this.step();
     }
@@ -69,12 +85,6 @@ public final class ScentShellScan {
     return this.best;
   }
 
-  private void keepNearest(final Offset hit) {
-    if (this.best == null || hit.squaredLength() < this.best.squaredLength()) {
-      this.best = hit;
-    }
-  }
-
   private void step() {
     if (++this.dy <= this.verticalReach) {
       return;
@@ -84,9 +94,12 @@ public final class ScentShellScan {
       return;
     }
     this.cell = 0;
-    if (this.best != null) {
+    this.shell++;
+    if (this.best != null
+        && (this.shell > this.radius
+            || closestSquaredInShell(this.shell, this.cellSize) >= this.bestSquared)) {
       this.status = Status.FOUND;
-    } else if (++this.shell > this.radius) {
+    } else if (this.shell > this.radius) {
       this.status = Status.EXHAUSTED;
     }
   }

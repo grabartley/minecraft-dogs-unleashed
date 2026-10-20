@@ -20,8 +20,8 @@ class ScentLeadRulesTest {
 
   static Stream<Arguments> arrivals() {
     return Stream.of(
-        Arguments.of("a mob within reach", ScentTargetKind.ENTITY, 1.0, 2.0, true),
-        Arguments.of("a mob just out of reach", ScentTargetKind.ENTITY, 1.0, 2.6, false),
+        Arguments.of("a mob within reach", ScentTargetKind.ENTITY, 1.0, 3.9, true),
+        Arguments.of("a mob just out of reach", ScentTargetKind.ENTITY, 1.0, 4.1, false),
         Arguments.of("an ore right below", ScentTargetKind.BLOCK, 0.5, 9.0, true),
         Arguments.of("an ore two blocks over", ScentTargetKind.BLOCK, 2.0, 2.0, false),
         Arguments.of("a dig site underfoot", ScentTargetKind.SUSPICIOUS_BLOCK, 1.5, 1.6, true),
@@ -30,7 +30,7 @@ class ScentLeadRulesTest {
 
   @ParameterizedTest(name = "{0}")
   @MethodSource("arrivals")
-  @DisplayName("a mob counts as reached up close, a block once the dog stands over it")
+  @DisplayName("a mob counts as reached from a few blocks off, a block once the dog stands over it")
   void arrivalDependsOnTheTarget(
       final String label,
       final ScentTargetKind kind,

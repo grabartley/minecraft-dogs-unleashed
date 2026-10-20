@@ -3,7 +3,7 @@ package com.grahambartley.dogsunleashed.entity.scent;
 public final class ScentLeadRules {
 
   public static final double OWNER_WAIT_DISTANCE = 12.0;
-  public static final double ENTITY_ARRIVAL_DISTANCE = 2.5;
+  public static final double ENTITY_ARRIVAL_DISTANCE = 4.0;
   public static final double BLOCK_ARRIVAL_DISTANCE = 1.5;
 
   private ScentLeadRules() {}
