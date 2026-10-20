@@ -5,16 +5,16 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.scent.ScentLeadRules;
 import com.grahambartley.dogsunleashed.entity.scent.ScentPhase;
 import com.grahambartley.dogsunleashed.entity.scent.ScentProgress;
-import com.grahambartley.dogsunleashed.entity.scent.ScentRule;
 import com.grahambartley.dogsunleashed.entity.scent.ScentShellScan;
 import com.grahambartley.dogsunleashed.entity.scent.ScentTargetFinder;
-import com.grahambartley.dogsunleashed.entity.scent.ScentTargetFinders;
 import com.grahambartley.dogsunleashed.entity.scent.ScentTargetKind;
 import java.util.EnumSet;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.Heightmap;
 import org.jetbrains.annotations.Nullable;
 
 public class ScentTrackGoal extends Goal {
@@ -35,7 +35,6 @@ public class ScentTrackGoal extends Goal {
   private final UnleashedDogEntity dog;
   private final ScentProgress progress = new ScentProgress();
   private @Nullable ScentTargetFinder finder;
-  private @Nullable ScentRule rule;
   private Stage stage = Stage.SEARCHING;
   private int generation = -1;
   private int repathCooldown;
@@ -70,7 +69,6 @@ public class ScentTrackGoal extends Goal {
   public void stop() {
     this.dog.getNavigation().stop();
     this.finder = null;
-    this.rule = null;
     this.generation = -1;
     if (this.stage == Stage.ARRIVED || this.stage == Stage.GIVING_UP) {
       this.scent().stop();
@@ -84,12 +82,12 @@ public class ScentTrackGoal extends Goal {
     if (this.scent().generation() != this.generation) {
       this.begin();
     }
-    if (this.finder == null || this.rule == null) {
+    if (this.finder == null) {
       return;
     }
     switch (this.stage) {
       case SEARCHING -> this.search(this.finder);
-      case LEADING -> this.lead(this.finder, this.rule.kind());
+      case LEADING -> this.lead(this.finder);
       case ARRIVED -> this.holdPoint(this.finder);
       case GIVING_UP -> this.holdGiveUp();
     }
@@ -97,17 +95,15 @@ public class ScentTrackGoal extends Goal {
 
   private void begin() {
     this.generation = this.scent().generation();
-    this.rule = this.scent().rule();
-    if (this.rule == null) {
-      this.scent().stop();
-      this.finder = null;
-      return;
-    }
-    this.restartSearch(this.rule);
+    this.restartSearch();
   }
 
-  private void restartSearch(final ScentRule activeRule) {
-    this.finder = ScentTargetFinders.create(activeRule, this.dog, this.scent().range());
+  private void restartSearch() {
+    this.finder = this.scent().newFinder();
+    if (this.finder == null) {
+      this.scent().stop();
+      return;
+    }
     this.stage = Stage.SEARCHING;
     this.progress.reset();
     this.scent().setPhase(ScentPhase.SNIFFING);
@@ -124,15 +120,16 @@ public class ScentTrackGoal extends Goal {
     }
   }
 
-  private void lead(final ScentTargetFinder activeFinder, final ScentTargetKind kind) {
+  private void lead(final ScentTargetFinder activeFinder) {
+    final ScentTargetKind kind = activeFinder.kind();
     final Vec3d target = activeFinder.target();
     if (target == null || !activeFinder.isStillThere(this.world())) {
-      this.restartSearch(this.rule);
+      this.restartSearch();
       return;
     }
     final double distance = this.dog.getPos().distanceTo(target);
     final double horizontal = Math.hypot(target.x - this.dog.getX(), target.z - this.dog.getZ());
-    if (ScentLeadRules.hasArrived(kind, horizontal, distance)) {
+    if (ScentLeadRules.hasArrived(kind, horizontal, distance, this.dog.getNavigation().isIdle())) {
       this.arrive(kind);
       return;
     }
@@ -150,8 +147,22 @@ public class ScentTrackGoal extends Goal {
     this.dog.getLookControl().lookAt(target.x, target.y, target.z, LOOK_SPEED, LOOK_SPEED);
     if (--this.repathCooldown <= 0) {
       this.repathCooldown = REPATH_INTERVAL_TICKS;
-      this.dog.getNavigation().startMovingTo(target.x, target.y, target.z, LEAD_SPEED);
+      this.moveToward(target, horizontal, kind);
     }
+  }
+
+  private void moveToward(final Vec3d target, final double horizontal, final ScentTargetKind kind) {
+    final double fraction = ScentLeadRules.legFraction(horizontal);
+    if (fraction >= 1.0) {
+      this.dog
+          .getNavigation()
+          .startMovingTo(target.x, target.y, target.z, ScentLeadRules.pathReach(kind), LEAD_SPEED);
+      return;
+    }
+    final int x = MathHelper.floor(this.dog.getX() + (target.x - this.dog.getX()) * fraction);
+    final int z = MathHelper.floor(this.dog.getZ() + (target.z - this.dog.getZ()) * fraction);
+    final int y = this.world().getTopY(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, x, z);
+    this.dog.getNavigation().startMovingTo(x + 0.5, y, z + 0.5, LEAD_SPEED);
   }
 
   private void arrive(final ScentTargetKind kind) {

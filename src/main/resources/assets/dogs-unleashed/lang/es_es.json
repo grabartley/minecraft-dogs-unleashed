@@ -79,6 +79,7 @@
   "message.dogs-unleashed.scent.stop": "%s dejó de rastrear",
   "message.dogs-unleashed.scent.nothing": "%s no encuentra el rastro",
   "message.dogs-unleashed.scent.found": "¡%s lo encontró!",
+  "message.dogs-unleashed.scent.map": "%s estudia el mapa y se pone en marcha",
   "message.dogs-unleashed.bone.bury": "%s se aleja trotando para enterrar el hueso",
   "message.dogs-unleashed.bone.no_spot": "%s no encuentra tierra blanda para cavar",
   "message.dogs-unleashed.bone.dug_up": "%s ha desenterrado un hueso para ti",

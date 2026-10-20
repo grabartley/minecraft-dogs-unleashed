@@ -13,12 +13,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.registry.RegistryCodecs;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntryList;
+import net.minecraft.registry.tag.TagKey;
+import net.minecraft.world.gen.structure.Structure;
 
 public record ScentRule(
     RegistryEntryList<Item> items,
     Optional<RegistryEntryList<EntityType<?>>> entities,
     Optional<RegistryEntryList<Block>> blocks,
-    boolean suspiciousBlocks) {
+    boolean suspiciousBlocks,
+    Optional<TagKey<Structure>> structures) {
 
   public static final Codec<ScentRule> CODEC =
       RecordCodecBuilder.<ScentRule>create(
@@ -36,13 +39,17 @@ public record ScentRule(
                               .forGetter(ScentRule::blocks),
                           Codec.BOOL
                               .optionalFieldOf("suspicious_blocks", false)
-                              .forGetter(ScentRule::suspiciousBlocks))
+                              .forGetter(ScentRule::suspiciousBlocks),
+                          TagKey.codec(RegistryKeys.STRUCTURE)
+                              .optionalFieldOf("structures")
+                              .forGetter(ScentRule::structures))
                       .apply(instance, ScentRule::new))
           .validate(ScentRule::validated);
 
   public ScentTargetKind kind() {
     final ScentTargetKind kind =
-        ScentTargetKind.of(entities.isPresent(), blocks.isPresent(), suspiciousBlocks);
+        ScentTargetKind.of(
+            entities.isPresent(), blocks.isPresent(), suspiciousBlocks, structures.isPresent());
     if (kind == null) {
       throw new IllegalStateException("A scent rule needs exactly one target");
     }
@@ -63,10 +70,14 @@ public record ScentRule(
 
   private static DataResult<ScentRule> validated(final ScentRule rule) {
     return ScentTargetKind.of(
-                rule.entities.isPresent(), rule.blocks.isPresent(), rule.suspiciousBlocks)
+                rule.entities.isPresent(),
+                rule.blocks.isPresent(),
+                rule.suspiciousBlocks,
+                rule.structures.isPresent())
             == null
         ? DataResult.error(
-            () -> "A scent rule needs exactly one of entities, blocks or suspicious_blocks")
+            () ->
+                "A scent rule needs exactly one of entities, blocks, suspicious_blocks or structures")
         : DataResult.success(rule);
   }
 }

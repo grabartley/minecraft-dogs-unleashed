@@ -26,6 +26,11 @@ final class SuspiciousBlockScentFinder implements ScentTargetFinder {
   }
 
   @Override
+  public ScentTargetKind kind() {
+    return ScentTargetKind.SUSPICIOUS_BLOCK;
+  }
+
+  @Override
   public ScentShellScan.Status advance(final ServerWorld world) {
     return this.scan.advance(CHUNKS_PER_TICK, (dx, dy, dz) -> this.searchChunk(world, dx, dz));
   }

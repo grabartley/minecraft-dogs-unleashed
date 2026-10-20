@@ -18,6 +18,13 @@
     "minecraft:raw_iron",
     "minecraft:raw_gold",
     "minecraft:raw_copper",
-    "minecraft:brush"
+    "minecraft:brush",
+    "minecraft:burn_pottery_sherd",
+    "minecraft:danger_pottery_sherd",
+    "minecraft:friend_pottery_sherd",
+    "minecraft:heart_pottery_sherd",
+    "minecraft:heartbreak_pottery_sherd",
+    "minecraft:howl_pottery_sherd",
+    "minecraft:sheaf_pottery_sherd"
   ]
 }
