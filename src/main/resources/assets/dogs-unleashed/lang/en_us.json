@@ -351,13 +351,10 @@
   "screen.dogs-unleashed.pet_details.riding_too_young": "Too young, rideable as a prime",
   "screen.dogs-unleashed.dog_equipment.slot.armour": "Armour",
   "screen.dogs-unleashed.dog_equipment.slot.armour.empty": "Holds canine body armour",
-  "screen.dogs-unleashed.dog_equipment.slot.armour.glyph": "A",
   "screen.dogs-unleashed.dog_equipment.slot.pendant": "Pendant",
   "screen.dogs-unleashed.dog_equipment.slot.pendant.empty": "Holds a collar pendant",
-  "screen.dogs-unleashed.dog_equipment.slot.pendant.glyph": "P",
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic": "Cosmetic",
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic.empty": "Holds a cosmetic accessory",
-  "screen.dogs-unleashed.dog_equipment.slot.cosmetic.glyph": "C",
 
   "item.dogs-unleashed.bandana": "Bandana",
   "item.dogs-unleashed.collar_bow": "Collar Bow",

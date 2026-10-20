@@ -3,11 +3,14 @@ package com.grahambartley.dogsunleashed.screenhandler;
 import com.grahambartley.dogsunleashed.ModScreenHandlers;
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 public class DogEquipmentScreenHandler extends ScreenHandler {
@@ -144,6 +147,12 @@ public class DogEquipmentScreenHandler extends ScreenHandler {
     @Override
     public boolean canTakeItems(final PlayerEntity player) {
       return this.equipment.canTake(this.getIndex(), player);
+    }
+
+    @Override
+    public @Nullable Pair<Identifier, Identifier> getBackgroundSprite() {
+      final Identifier icon = this.equipment.slotAt(this.getIndex()).emptyIcon();
+      return icon == null ? null : Pair.of(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, icon);
     }
   }
 }
