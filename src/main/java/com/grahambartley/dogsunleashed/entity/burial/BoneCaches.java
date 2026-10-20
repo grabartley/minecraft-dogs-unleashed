@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
@@ -55,17 +56,22 @@ public final class BoneCaches extends PersistentState {
 
   public Optional<BoneCache> nearestDue(
       final UUID dog, final BlockPos from, final double range, final long now) {
-    final double rangeSquared = range * range;
-    return this.byPos.values().stream()
-        .filter(cache -> cache.dog().equals(dog))
-        .filter(cache -> BoneCacheRules.isDue(cache.buriedAt(), now))
-        .filter(cache -> cache.pos().getSquaredDistance(from) <= rangeSquared)
-        .min(Comparator.comparingDouble(cache -> cache.pos().getSquaredDistance(from)));
+    return nearestOf(
+        this.byPos.values().stream()
+            .filter(cache -> cache.dog().equals(dog))
+            .filter(cache -> BoneCacheRules.isDue(cache.buriedAt(), now)),
+        from,
+        range);
   }
 
   public Optional<BoneCache> nearest(final BlockPos from, final double range) {
+    return nearestOf(this.byPos.values().stream(), from, range);
+  }
+
+  private static Optional<BoneCache> nearestOf(
+      final Stream<BoneCache> caches, final BlockPos from, final double range) {
     final double rangeSquared = range * range;
-    return this.byPos.values().stream()
+    return caches
         .filter(cache -> cache.pos().getSquaredDistance(from) <= rangeSquared)
         .min(Comparator.comparingDouble(cache -> cache.pos().getSquaredDistance(from)));
   }

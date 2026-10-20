@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.entity.burial.BoneCaches;
 import com.grahambartley.dogsunleashed.entity.burial.BoneThieves;
 import com.grahambartley.dogsunleashed.entity.burial.FoxRaidRules;
 import java.util.EnumSet;
+import java.util.function.BooleanSupplier;
 import net.minecraft.entity.ai.NoPenaltyTargeting;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.passive.FoxEntity;
@@ -22,12 +23,18 @@ public class FoxRaidCacheGoal extends Goal {
   private static final double RUN_OFF_SPEED = 1.5;
 
   private final FoxEntity fox;
+  private final BooleanSupplier raidRoll;
   private @Nullable DigSiteVisit visit;
   private int searchCooldown;
   private int runOffTicks;
 
   public FoxRaidCacheGoal(final FoxEntity fox) {
+    this(fox, () -> FoxRaidRules.rollsRaid(fox.getRandom().nextInt(FoxRaidRules.RAID_ODDS)));
+  }
+
+  public FoxRaidCacheGoal(final FoxEntity fox, final BooleanSupplier raidRoll) {
     this.fox = fox;
+    this.raidRoll = raidRoll;
     this.setControls(EnumSet.of(Goal.Control.MOVE, Goal.Control.LOOK));
   }
 
@@ -37,7 +44,7 @@ public class FoxRaidCacheGoal extends Goal {
       return false;
     }
     this.searchCooldown = SEARCH_INTERVAL_TICKS;
-    if (!FoxRaidRules.rollsRaid(this.fox.getRandom().nextInt(FoxRaidRules.RAID_ODDS))) {
+    if (!this.raidRoll.getAsBoolean()) {
       return false;
     }
     this.visit =
@@ -52,7 +59,6 @@ public class FoxRaidCacheGoal extends Goal {
   public void start() {
     if (this.visit != null) {
       BoneThieves.setTarget(this.fox, this.visit.ground());
-      this.fox.setCrouching(true);
     }
   }
 
@@ -80,6 +86,7 @@ public class FoxRaidCacheGoal extends Goal {
     if (this.visit == null) {
       return;
     }
+    this.fox.setCrouching(true);
     switch (this.visit.tick(this.world())) {
       case DUG -> this.stealAndRun(this.visit.ground());
       case UNREACHABLE -> this.visit = null;

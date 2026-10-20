@@ -5,6 +5,7 @@ import com.grahambartley.dogsunleashed.mixin.FoxEntityAccessor;
 import java.util.Objects;
 import java.util.Optional;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.passive.FoxEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -12,6 +13,8 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 
 public final class BoneThieves {
+
+  private static final int DROP_PICKUP_DELAY_TICKS = 40;
 
   private BoneThieves() {}
 
@@ -78,7 +81,11 @@ public final class BoneThieves {
     }
     final ItemStack bone = fox.getEquippedStack(EquipmentSlot.MAINHAND);
     fox.equipStack(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
-    fox.dropStack(bone);
+    final ItemEntity dropped =
+        new ItemEntity(fox.getWorld(), fox.getX(), fox.getY(), fox.getZ(), bone);
+    dropped.setPickupDelay(DROP_PICKUP_DELAY_TICKS);
+    dropped.setThrower(fox);
+    fox.getWorld().spawnEntity(dropped);
     return true;
   }
 }

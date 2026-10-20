@@ -4,9 +4,11 @@ import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.burial.BoneCache;
+import com.grahambartley.dogsunleashed.entity.burial.BoneCacheRules;
 import com.grahambartley.dogsunleashed.entity.burial.BoneCaches;
 import com.grahambartley.dogsunleashed.entity.burial.BoneThieves;
 import com.grahambartley.dogsunleashed.entity.goal.ChaseBoneThiefGoal;
+import com.grahambartley.dogsunleashed.entity.goal.FoxRaidCacheGoal;
 import java.util.Optional;
 import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -41,6 +43,7 @@ public final class FoxBoneRaidGameTest implements FabricGameTest {
   private static final BlockPos DOG_START = new BlockPos(1, 2, 1);
   private static final BlockPos FOX_START = new BlockPos(5, 2, 1);
   private static final BlockPos CACHE_GROUND = new BlockPos(5, 1, 5);
+  private static final BlockPos BESIDE_CACHE = new BlockPos(5, 2, 4);
   private static final int ARENA_SIZE = 7;
   private static final int FLOOR_Y = 1;
 
@@ -180,6 +183,69 @@ public final class FoxBoneRaidGameTest implements FabricGameTest {
         BoneThieves.steal(context.getWorld(), fox, ground), "A full mouth can't take the bone");
     context.assertTrue(
         BoneCaches.get(context.getWorld()).at(ground).isPresent(), "The bone should stay buried");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = NIGHT_BATCH, tickLimit = 20)
+  public void everyFoxGetsOneRaidGoal(final TestContext context) {
+    final FoxEntity fox = spawnFox(context);
+
+    context.assertEquals(
+        fox.goalSelector.getGoals().stream()
+            .filter(goal -> goal.getGoal() instanceof FoxRaidCacheGoal)
+            .count(),
+        1L,
+        "Each fox should carry exactly one raid goal");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = NIGHT_BATCH, tickLimit = 40)
+  public void aRaidingFoxCrouchesDigsUpTheBoneAndRunsOff(final TestContext context) {
+    final BlockPos ground = buryCache(context);
+    final FoxEntity fox = context.spawnEntity(EntityType.FOX, BESIDE_CACHE);
+    fox.setAiDisabled(true);
+
+    context.runAtTick(
+        SETTLE_TICKS,
+        () -> {
+          final FoxRaidCacheGoal raid = new FoxRaidCacheGoal(fox, () -> true);
+          fox.setOnGround(true);
+          context.assertEquals(
+              BoneThieves.pickCache(context.getWorld(), fox),
+              Optional.of(ground),
+              "The fox should pick the cache beside it");
+          context.assertTrue(raid.canStart(), "A wild fox beside a cache at night should raid it");
+          raid.start();
+          context.assertEquals(
+              BoneThieves.target(fox), Optional.of(ground), "The fox should mark its target");
+          for (int tick = 0; tick <= BoneCacheRules.DIG_TICKS && raid.shouldContinue(); tick++) {
+            raid.tick();
+            if (BoneCaches.get(context.getWorld()).at(ground).isPresent()) {
+              context.assertTrue(fox.isInSneakingPose(), "The fox should crouch while raiding");
+            }
+          }
+          context.assertTrue(
+              fox.getEquippedStack(EquipmentSlot.MAINHAND).isOf(Items.BONE),
+              "The fox should end up with the bone in its mouth");
+          assertOneBone(context, fox, ground, "after the raid");
+          context.assertFalse(fox.isInSneakingPose(), "The fox should stand up to run off");
+          raid.stop();
+          context.assertTrue(BoneThieves.target(fox).isEmpty(), "The target should clear");
+          context.assertTrue(BoneThieves.isThief(fox), "The fox still carries a stolen bone");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = ARENA, batchId = NIGHT_BATCH, tickLimit = 20)
+  public void aDogAtHeelIgnoresTheThief(final TestContext context) {
+    final BlockPos ground = buryCache(context);
+    final UnleashedDogEntity dog = spawnOwnedDog(context);
+    dog.getCommandController().apply(DogCommand.HEEL);
+    final FoxEntity fox = spawnFox(context);
+    BoneThieves.setTarget(fox, ground);
+
+    context.assertFalse(
+        new ChaseBoneThiefGoal(dog).canStart(), "A dog at heel should keep to its orders");
     context.complete();
   }
 

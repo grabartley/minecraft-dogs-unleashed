@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
+import com.grahambartley.dogsunleashed.entity.DogBoneBurial;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.burial.BoneThieves;
 import com.grahambartley.dogsunleashed.entity.burial.FoxRaidRules;
@@ -78,12 +79,8 @@ public class ChaseBoneThiefGoal extends Goal {
 
   private boolean isFreeToChase() {
     return this.dog.isTamed()
-        && this.dog.getOwner() != null
-        && this.dog.getTarget() == null
-        && !this.dog.isInSittingPose()
-        && !this.dog.isLeashed()
-        && !this.dog.getSleepController().isAsleep()
-        && !this.dog.getPlaySession().isInPlayMode();
+        && !this.dog.isOnFire()
+        && this.dog.getComponents().get(DogBoneBurial.class).isFreeToDig();
   }
 
   private @Nullable FoxEntity nearestThief() {

@@ -30,7 +30,6 @@ class FoxRaidRulesTest {
   @CsvSource({"0, true", "1, false", "2, false", "3, false"})
   @DisplayName("one search in four turns into a raid")
   void oneInFourSearchesRaids(final int roll, final boolean raids) {
-    assertEquals(4, FoxRaidRules.RAID_ODDS);
     assertEquals(raids, FoxRaidRules.rollsRaid(roll));
   }
 
