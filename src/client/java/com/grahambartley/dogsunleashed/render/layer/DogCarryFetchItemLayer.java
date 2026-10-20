@@ -34,6 +34,7 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
   private static final int FULL_BRIGHT_COLOR = 0xFFFFFFFF;
   private static final float NO_PARTIAL_TICK = 1.0f;
   private static final float ITEM_FLAT_DEGREES = 90.0f;
+  private static final float DIAGONAL_SPRITE_TO_CROSSWISE_DEGREES = -45.0f;
 
   private final GeoBlockRenderer<TennisBallBlockEntity> tennisBallRenderer;
   private final TennisBallBlockEntity tennisBallDummy;
@@ -160,7 +161,8 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
       float partialTick,
       int packedLight,
       int packedOverlay) {
-    CarryProfile profile = animatable.getRigSourceBreed().carryProfileFor(null).orElse(null);
+    CarryProfile profile =
+        animatable.getRigSourceBreed().carryProfileFor(FetchTypes.STICK).orElse(null);
     if (profile == null) {
       return;
     }
@@ -169,6 +171,8 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
     float scale = CarriedToy.ITEM.scaleIn(this.entityOrigin, poseStack.peek().getPositionMatrix());
     poseStack.scale(scale, scale, scale);
     poseStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(ITEM_FLAT_DEGREES));
+    poseStack.multiply(
+        RotationAxis.POSITIVE_Z.rotationDegrees(DIAGONAL_SPRITE_TO_CROSSWISE_DEGREES));
     super.renderStackForBone(
         poseStack, bone, stack, animatable, bufferSource, partialTick, packedLight, packedOverlay);
   }
