@@ -86,6 +86,7 @@ public class UnleashedDogEntity extends DogMountEntity
   static final TrackedData<ItemStack> CARRIED_FETCH_ITEM_STACK = data(ITEM_STACK);
   static final TrackedData<ItemStack> PENDANT_ITEM = data(ITEM_STACK);
   static final TrackedData<ItemStack> COSMETIC_ITEM = data(ITEM_STACK);
+  static final TrackedData<ItemStack> COSTUME_ITEM = data(ITEM_STACK);
 
   static final TrackedData<Optional<UUID>> PLAY_PARTNER_UUID = data(OPTIONAL_UUID);
 
@@ -280,6 +281,7 @@ public class UnleashedDogEntity extends DogMountEntity
     builder.add(CARRIED_FETCH_ITEM_STACK, ItemStack.EMPTY);
     builder.add(PENDANT_ITEM, ItemStack.EMPTY);
     builder.add(COSMETIC_ITEM, ItemStack.EMPTY);
+    builder.add(COSTUME_ITEM, ItemStack.EMPTY);
     builder.add(PLAY_PARTNER_UUID, Optional.empty());
     builder.add(COMMAND, DogCommand.FOLLOW.id());
     builder.add(COAT_VARIANT, 0);

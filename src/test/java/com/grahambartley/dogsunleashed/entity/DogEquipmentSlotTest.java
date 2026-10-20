@@ -64,9 +64,10 @@ class DogEquipmentSlotTest {
   @ParameterizedTest(name = "{0} -> {1}")
   @CsvSource({
     "PENDANT, dogs-unleashed:item/empty_slot_pendant",
-    "COSMETIC, dogs-unleashed:item/empty_slot_cosmetic"
+    "COSMETIC, dogs-unleashed:item/empty_slot_cosmetic",
+    "COSTUME, dogs-unleashed:item/empty_slot_costume"
   })
-  @DisplayName("pendant and cosmetic slots show their own empty icon")
+  @DisplayName("pendant, cosmetic and costume slots show their own empty icon")
   void emptyIconMatchesTheSlot(final DogEquipmentSlot slot, final String expected) {
     assertEquals(Identifier.of(expected), slot.emptyIcon());
   }
@@ -78,7 +79,9 @@ class DogEquipmentSlotTest {
     "PENDANT, false, true",
     "PENDANT, true, true",
     "COSMETIC, false, true",
-    "COSMETIC, true, true"
+    "COSMETIC, true, true",
+    "COSTUME, false, true",
+    "COSTUME, true, true"
   })
   @DisplayName("only grown dogs can wear armour, while every other slot fits a puppy")
   void onlyArmourNeedsAGrownDog(
@@ -93,7 +96,8 @@ class DogEquipmentSlotTest {
     "ARMOUR, true, false, false",
     "ARMOUR, true, true, true",
     "PENDANT, true, false, true",
-    "COSMETIC, true, false, true"
+    "COSMETIC, true, false, true",
+    "COSTUME, true, false, true"
   })
   @DisplayName("Curse of Binding keeps armour on outside creative mode")
   void bindingHoldsArmourOutsideCreative(

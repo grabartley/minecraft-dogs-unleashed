@@ -14,6 +14,7 @@ import com.grahambartley.dogsunleashed.render.layer.DogArmourLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogCarryFetchItemLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogCollarLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogCosmeticLayer;
+import com.grahambartley.dogsunleashed.render.layer.DogCostumeLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogFurOverlayLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogMobHeadLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogPendantLayer;
@@ -57,11 +58,13 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
 
   public DogRenderer(EntityRendererFactory.Context context) {
     super(context, new DogModel());
-    this.addRenderLayer(new DogCollarLayer(this));
+    final DogCollarLayer collar = new DogCollarLayer(this);
+    this.addRenderLayer(collar);
     this.addRenderLayer(new DogCarryFetchItemLayer<>(this, this.frameOrigin));
     this.addRenderLayer(new UndeadEyeGlowLayer(this));
     this.addRenderLayer(new DogFurOverlayLayer(this));
     this.addRenderLayer(new DogSheetOverlayLayer(this));
+    this.addRenderLayer(new DogCostumeLayer(this, collar));
     this.addRenderLayer(new DogArmourLayer(this));
     this.addRenderLayer(new DogPendantLayer(this));
     this.addRenderLayer(new DogCosmeticLayer(this, this.hatFits));

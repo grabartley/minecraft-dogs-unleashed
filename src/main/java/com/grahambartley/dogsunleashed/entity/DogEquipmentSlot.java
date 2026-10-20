@@ -16,7 +16,8 @@ public enum DogEquipmentSlot {
           stack.getItem() instanceof AnimalArmorItem armour
               && armour.getType() == AnimalArmorItem.Type.CANINE),
   PENDANT("pendant", "item/empty_slot_pendant", stack -> stack.isIn(ModItemTags.PENDANTS)),
-  COSMETIC("cosmetic", "item/empty_slot_cosmetic", stack -> stack.isIn(ModItemTags.DOG_COSMETICS));
+  COSMETIC("cosmetic", "item/empty_slot_cosmetic", stack -> stack.isIn(ModItemTags.DOG_COSMETICS)),
+  COSTUME("costume", "item/empty_slot_costume", stack -> stack.isIn(ModItemTags.DOG_COSTUMES));
 
   private static final String TRANSLATION_KEY_PREFIX = "screen.dogs-unleashed.dog_equipment.slot.";
 
@@ -77,6 +78,9 @@ public enum DogEquipmentSlot {
     }
     if (PENDANT.canHold(stack)) {
       return PENDANT;
+    }
+    if (COSTUME.canHold(stack)) {
+      return COSTUME;
     }
     return null;
   }

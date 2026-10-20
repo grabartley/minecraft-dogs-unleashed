@@ -16,9 +16,7 @@ import org.jetbrains.annotations.Nullable;
 public class DogEquipmentScreenHandler extends ScreenHandler {
 
   public static final int DOG_SLOT_COUNT = DogEquipmentInventory.SLOTS.length;
-  public static final int SLOT_SPACING = 18;
-  public static final int DOG_SLOT_X = 8;
-  public static final int FIRST_DOG_SLOT_Y = 18;
+  public static final int SLOT_SPACING = DogSlotLayout.SLOT_SPACING;
   public static final int PLAYER_INVENTORY_X = 8;
   public static final int PLAYER_INVENTORY_Y = 84;
   public static final int HOTBAR_Y = 142;
@@ -47,7 +45,7 @@ public class DogEquipmentScreenHandler extends ScreenHandler {
     for (int index = 0; index < DOG_SLOT_COUNT; index++) {
       this.addSlot(
           new DogEquipmentItemSlot(
-              this.equipment, index, DOG_SLOT_X, FIRST_DOG_SLOT_Y + index * SLOT_SPACING));
+              this.equipment, index, DogSlotLayout.x(index), DogSlotLayout.y(index)));
     }
     for (int row = 0; row < PLAYER_INVENTORY_ROWS; row++) {
       for (int column = 0; column < PLAYER_INVENTORY_COLUMNS; column++) {

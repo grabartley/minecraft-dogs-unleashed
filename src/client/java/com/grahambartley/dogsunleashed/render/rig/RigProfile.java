@@ -194,7 +194,7 @@ public record RigProfile(
     return value == Math.rint(value);
   }
 
-  private static Optional<Slot> slotOf(final String key) {
+  public static Optional<Slot> slotOf(final String key) {
     for (final Slot slot : Slot.values()) {
       if (slot.key().equals(key)) {
         return Optional.of(slot);

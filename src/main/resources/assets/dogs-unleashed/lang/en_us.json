@@ -355,6 +355,8 @@
   "screen.dogs-unleashed.dog_equipment.slot.pendant.empty": "Holds a collar pendant",
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic": "Cosmetic",
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic.empty": "Holds a cosmetic accessory",
+  "screen.dogs-unleashed.dog_equipment.slot.costume": "Costume",
+  "screen.dogs-unleashed.dog_equipment.slot.costume.empty": "Holds a mob costume",
 
   "item.dogs-unleashed.bandana": "Bandana",
   "item.dogs-unleashed.collar_bow": "Collar Bow",

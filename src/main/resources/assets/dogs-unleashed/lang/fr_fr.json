@@ -355,6 +355,8 @@
   "screen.dogs-unleashed.dog_equipment.slot.pendant.empty": "Accepte un pendentif de collier",
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic": "Cosmétique",
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic.empty": "Accepte un accessoire cosmétique",
+  "screen.dogs-unleashed.dog_equipment.slot.costume": "Costume",
+  "screen.dogs-unleashed.dog_equipment.slot.costume.empty": "Accepte un costume de créature",
   "item.dogs-unleashed.bandana": "Bandana",
   "item.dogs-unleashed.collar_bow": "Nœud de collier",
   "item.dogs-unleashed.party_hat": "Chapeau de fête",
