@@ -84,7 +84,8 @@ class DogStatsPanelTest {
         movementSpeed,
         attackDamage,
         List.of(),
-        RidingView.NONE);
+        RidingView.NONE,
+        false);
   }
 
   @Test

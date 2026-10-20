@@ -337,7 +337,7 @@ public class PetManagerScreen extends Screen {
 
     portraits.draw(context, this.textRenderer, pet, imgX, imgY, THUMBNAIL_SIZE, mouseX, mouseY);
 
-    if (pet.alive()) {
+    if (pet.summonable()) {
       renderRowSummonButton(context, x, y, mouseX, mouseY);
     }
 
@@ -355,14 +355,14 @@ public class PetManagerScreen extends Screen {
     final String breedName = DogBreedNames.displayName(pet.breed(), pet.composition()).getString();
     context.drawText(this.textRenderer, breedName, textX, y + 18, 0xAAAAAA, false);
 
-    final Text statusLabel = PetLifeStateDisplay.statusLabel(pet.lifeState());
+    final Text statusLabel = PetLifeStateDisplay.statusLabel(pet);
     if (pet.alive() && statusLabel != null) {
       context.drawText(
           this.textRenderer,
           statusLabel,
           textX + textMaxWidth - this.textRenderer.getWidth(statusLabel),
           y + 18,
-          PetLifeStateDisplay.statusColor(pet.lifeState()),
+          PetLifeStateDisplay.statusColor(pet),
           false);
     }
 
@@ -372,10 +372,15 @@ public class PetManagerScreen extends Screen {
           pet.health() > pet.maxHealth() * LOW_HEALTH_COLOR_THRESHOLD ? 0x55FF55 : 0xFF5555;
       context.drawText(this.textRenderer, healthText, textX, y + 31, healthColor, false);
 
-      final String locationText =
+      final String place =
           String.format(
               "%s (%d, %d, %d)",
               DimensionLabelFormatter.format(pet.dimension()), pet.posX(), pet.posY(), pet.posZ());
+      final String locationText =
+          pet.exploring()
+              ? Text.translatable("screen.dogs-unleashed.pet_manager.set_off_from", place)
+                  .getString()
+              : place;
       context.drawText(
           this.textRenderer,
           this.textRenderer.trimToWidth(locationText, textMaxWidth),
@@ -437,7 +442,7 @@ public class PetManagerScreen extends Screen {
             && mouseY >= entryY
             && mouseY < entryY + ENTRY_HEIGHT - 5) {
           final PetSyncData pet = pets.get(i + scrollOffset);
-          if (pet.alive() && isWithinRowSummonButton(mouseX, mouseY, listX, entryY)) {
+          if (pet.summonable() && isWithinRowSummonButton(mouseX, mouseY, listX, entryY)) {
             ModNetworkingClient.sendSummonPet(UUID.fromString(pet.petId()));
           } else {
             MinecraftClient.getInstance().setScreen(new PetDetailsScreen(this, pet));

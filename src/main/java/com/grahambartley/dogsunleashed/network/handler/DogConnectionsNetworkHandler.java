@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.network.handler;
 
 import static com.grahambartley.dogsunleashed.network.PacketLimits.CONNECTIONS_LIST_MAX_SIZE;
 
+import com.grahambartley.dogsunleashed.entity.expedition.Expeditions;
 import com.grahambartley.dogsunleashed.network.payload.ConnectionDogSyncData;
 import com.grahambartley.dogsunleashed.network.payload.GeneSyncData;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
@@ -85,7 +86,7 @@ public final class DogConnectionsNetworkHandler {
       final MinecraftServer server, final PetManager petManager, final PetData pet) {
     final boolean carriedGenesRevealed = petManager.hasChildren(pet.getPetId());
     return new ConnectionDogSyncData(
-        PetSyncData.from(pet),
+        PetSyncData.from(pet, Expeditions.get(server).isAway(pet.getPetId())),
         pet.getOwnerId().toString(),
         OwnerNameResolver.resolve(server, pet.getOwnerId()),
         GeneSyncData.visibleGenes(pet.getGenes(), pet.getRigSourceBreed(), carriedGenesRevealed),

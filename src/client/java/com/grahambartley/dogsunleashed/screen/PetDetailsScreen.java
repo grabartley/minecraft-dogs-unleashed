@@ -72,7 +72,7 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
                     button -> ModNetworkingClient.sendSummonPet(UUID.fromString(pet.petId())))
                 .dimensions(this.width / 2 - 125, actionsY, 120, 20)
                 .build());
-    summonButton.active = pet.alive();
+    summonButton.active = pet.summonable();
 
     addDrawableChild(
         ButtonWidget.builder(
@@ -186,7 +186,7 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
             "screen.dogs-unleashed.pet_details.owner",
             resolveOwnerName(),
             VALUE_COLOR);
-    final Text statusLabel = PetLifeStateDisplay.statusLabel(pet.lifeState());
+    final Text statusLabel = PetLifeStateDisplay.statusLabel(pet);
     if (statusLabel != null) {
       y =
           drawInfoLine(
@@ -195,7 +195,7 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
               y,
               "screen.dogs-unleashed.pet_details.status",
               statusLabel.getString(),
-              PetLifeStateDisplay.statusColor(pet.lifeState()));
+              PetLifeStateDisplay.statusColor(pet));
     }
     if (pet.alive()) {
       final int healthColor =

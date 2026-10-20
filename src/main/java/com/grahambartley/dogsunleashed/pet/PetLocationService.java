@@ -5,6 +5,7 @@ import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.DogStandingSpot;
 import com.grahambartley.dogsunleashed.entity.DogWorldTransfer;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.expedition.DogExpeditions;
 import java.util.Comparator;
 import java.util.function.Predicate;
 import net.minecraft.block.BlockState;
@@ -49,7 +50,7 @@ public final class PetLocationService {
 
     final MinecraftServer server = player.getServer();
     for (final PetData petData : PetManager.get(server).getPetsByOwner(player.getUuid())) {
-      if (!petData.isAlive()) {
+      if (!petData.isAlive() || DogExpeditions.isAway(server, petData)) {
         continue;
       }
       locateAndSummon(server, petData, player, false, dog -> isActivelyFollowing(dog, player));
@@ -105,6 +106,10 @@ public final class PetLocationService {
 
   public static void loadAndSummon(
       MinecraftServer server, PetData petData, ServerPlayerEntity player) {
+    if (DogExpeditions.isAway(server, petData)) {
+      player.sendMessage(Text.translatable(DogExpeditions.AWAY_KEY, petData.getName()), true);
+      return;
+    }
     locateAndSummon(server, petData, player, true, dog -> !dog.isRemoved());
   }
 
@@ -235,7 +240,7 @@ public final class PetLocationService {
   }
 
   @Nullable
-  private static Vec3d findSafeSummonPosition(
+  public static Vec3d findSafeSummonPosition(
       ServerWorld world, BlockPos center, UnleashedDogEntity dog) {
     return DogStandingSpot.firstSafe(
             world, dog, BlockPos.iterateOutwards(snapToGround(world, center), 2, 1, 2))

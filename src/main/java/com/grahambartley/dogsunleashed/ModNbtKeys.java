@@ -87,6 +87,16 @@ public final class ModNbtKeys {
   public static final String BONE_CACHE_OWNER = "Owner";
   public static final String BONE_CACHE_DOG = "Dog";
   public static final String BONE_CACHE_BURIED_AT = "BuriedAt";
+  public static final String EXPEDITIONS = "Expeditions";
+  public static final String EXPEDITION_PET = "Pet";
+  public static final String EXPEDITION_OWNER = "Owner";
+  public static final String EXPEDITION_ENTITY_TYPE = "EntityType";
+  public static final String EXPEDITION_DOG = "Dog";
+  public static final String EXPEDITION_ORIGIN_DIMENSION = "OriginDimension";
+  public static final String EXPEDITION_FIND_X = "FindX";
+  public static final String EXPEDITION_FIND_Z = "FindZ";
+  public static final String EXPEDITION_RETURN_TIME = "ReturnTime";
+  public static final String EXPEDITION_DEPARTED_AT = "DepartedAt";
 
   private ModNbtKeys() {}
 }

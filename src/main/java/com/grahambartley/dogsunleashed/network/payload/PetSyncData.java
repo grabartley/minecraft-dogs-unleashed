@@ -32,12 +32,13 @@ public record PetSyncData(
     float movementSpeed,
     float attackDamage,
     List<BreedShare> composition,
-    RidingView riding) {
+    RidingView riding,
+    boolean exploring) {
 
   public static final PacketCodec<RegistryByteBuf, PetSyncData> CODEC =
       PacketCodec.of(PetSyncData::write, PetSyncData::read);
 
-  public static PetSyncData from(final PetData petData) {
+  public static PetSyncData from(final PetData petData, final boolean exploring) {
     return new PetSyncData(
         petData.getPetId().toString(),
         petData.getBreed(),
@@ -57,7 +58,8 @@ public record PetSyncData(
         petData.getMovementSpeed(),
         petData.getAttackDamage(),
         petData.getComposition(),
-        RidingView.of(petData.getBreed(), petData.getGrowthStage(), petData.getStaminaPercent()));
+        RidingView.of(petData.getBreed(), petData.getGrowthStage(), petData.getStaminaPercent()),
+        exploring);
   }
 
   public static PetSyncData fromDog(final UnleashedDogEntity dog) {
@@ -85,11 +87,16 @@ public record PetSyncData(
         RidingView.of(
             dog.getBreed(),
             dog.getGrowth().stage().number(),
-            Math.round(dog.getRiding().staminaFraction() * 100.0f)));
+            Math.round(dog.getRiding().staminaFraction() * 100.0f)),
+        false);
   }
 
   public boolean alive() {
     return this.lifeState.isAlive();
+  }
+
+  public boolean summonable() {
+    return this.alive() && !this.exploring;
   }
 
   public boolean undead() {
@@ -123,6 +130,7 @@ public record PetSyncData(
     buf.writeFloat(this.attackDamage);
     BreedShareCodec.writeList(buf, this.composition);
     this.riding.write(buf);
+    buf.writeBoolean(this.exploring);
   }
 
   static PetSyncData read(final RegistryByteBuf buf) {
@@ -145,6 +153,7 @@ public record PetSyncData(
         buf.readFloat(),
         buf.readFloat(),
         BreedShareCodec.readList(buf),
-        RidingView.read(buf));
+        RidingView.read(buf),
+        buf.readBoolean());
   }
 }

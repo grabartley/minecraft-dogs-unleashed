@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.command;
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.expedition.DogExpeditions;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLocationService;
 import com.grahambartley.dogsunleashed.pet.PetManager;
@@ -150,6 +151,10 @@ public final class DogsUnleashedCommand {
               "command.dogs-unleashed.summon.notfound",
               target.getGameProfile().getName(),
               petId.toString()));
+      return 0;
+    }
+    if (DogExpeditions.isAway(server, pet)) {
+      source.sendError(Text.translatable(DogExpeditions.AWAY_KEY, pet.getName()));
       return 0;
     }
     PetLocationService.loadAndSummon(server, pet, target);
