@@ -140,6 +140,9 @@ public final class DogExpeditionGameTest implements FabricGameTest {
 
     context.assertEquals(back.getUuid(), dog.getUuid(), "The same dog should come home");
     context.assertTrue(back.isAlive() && !back.isRemoved(), "The dog should be back in the world");
+    context.assertFalse(
+        back.getBlockX() == owner.getBlockX() && back.getBlockZ() == owner.getBlockZ(),
+        "The dog should stand beside its owner, not inside them");
     final List<ItemStack> drops = drops(context);
     context.assertEquals(drops.size(), 2, "Stacks dropped at the owner's feet");
     final List<ItemStack> maps =

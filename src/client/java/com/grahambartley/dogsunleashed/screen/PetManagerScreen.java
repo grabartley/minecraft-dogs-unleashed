@@ -372,15 +372,10 @@ public class PetManagerScreen extends Screen {
           pet.health() > pet.maxHealth() * LOW_HEALTH_COLOR_THRESHOLD ? 0x55FF55 : 0xFF5555;
       context.drawText(this.textRenderer, healthText, textX, y + 31, healthColor, false);
 
-      final String place =
+      final String locationText =
           String.format(
               "%s (%d, %d, %d)",
               DimensionLabelFormatter.format(pet.dimension()), pet.posX(), pet.posY(), pet.posZ());
-      final String locationText =
-          pet.exploring()
-              ? Text.translatable("screen.dogs-unleashed.pet_manager.set_off_from", place)
-                  .getString()
-              : place;
       context.drawText(
           this.textRenderer,
           this.textRenderer.trimToWidth(locationText, textMaxWidth),

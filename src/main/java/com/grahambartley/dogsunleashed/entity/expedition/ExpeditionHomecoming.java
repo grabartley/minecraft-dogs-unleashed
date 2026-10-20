@@ -22,6 +22,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 public final class ExpeditionHomecoming {
@@ -62,10 +63,14 @@ public final class ExpeditionHomecoming {
       return Optional.empty();
     }
     final Vec3d spot =
-        Optional.ofNullable(
-                PetLocationService.findSafeSummonPosition(world, owner.getBlockPos(), dog))
+        Optional.ofNullable(PetLocationService.findSafeSpotBeside(world, owner.getBlockPos(), dog))
             .orElse(owner.getPos());
-    dog.refreshPositionAndAngles(spot.x, spot.y, spot.z, owner.getYaw() + 180.0f, 0.0f);
+    final float facingOwner =
+        (float) Math.toDegrees(MathHelper.atan2(owner.getZ() - spot.z, owner.getX() - spot.x))
+            - 90.0f;
+    dog.refreshPositionAndAngles(spot.x, spot.y, spot.z, facingOwner, 0.0f);
+    dog.setBodyYaw(facingOwner);
+    dog.setHeadYaw(facingOwner);
     dog.setVelocity(Vec3d.ZERO);
     dog.fallDistance = 0.0f;
     dog.setFireTicks(0);

@@ -56,7 +56,7 @@ public final class ExpeditionFinds {
     final ItemStack map =
         FilledMapItem.createMap(world, spot.getX(), spot.getZ(), MAP_SCALE, true, true);
     FilledMapItem.fillExplorationMap(world, map);
-    MapState.addDecorationsNbt(map, spot, "+", MapDecorationTypes.TARGET_X);
+    MapState.addDecorationsNbt(map, spot, "+", MapDecorationTypes.RED_X);
     map.set(DataComponentTypes.ITEM_NAME, Text.translatable(MAP_NAME_KEY));
     return map;
   }

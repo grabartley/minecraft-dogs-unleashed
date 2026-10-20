@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.pet;
 
+import com.google.common.collect.Iterables;
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.DogStandingSpot;
@@ -240,10 +241,23 @@ public final class PetLocationService {
   }
 
   @Nullable
-  public static Vec3d findSafeSummonPosition(
+  private static Vec3d findSafeSummonPosition(
       ServerWorld world, BlockPos center, UnleashedDogEntity dog) {
     return DogStandingSpot.firstSafe(
             world, dog, BlockPos.iterateOutwards(snapToGround(world, center), 2, 1, 2))
+        .orElse(null);
+  }
+
+  @Nullable
+  public static Vec3d findSafeSpotBeside(
+      ServerWorld world, BlockPos center, UnleashedDogEntity dog) {
+    final BlockPos ground = snapToGround(world, center);
+    return DogStandingSpot.firstSafe(
+            world,
+            dog,
+            Iterables.filter(
+                BlockPos.iterateOutwards(ground, 2, 1, 2),
+                pos -> pos.getX() != ground.getX() || pos.getZ() != ground.getZ()))
         .orElse(null);
   }
 
