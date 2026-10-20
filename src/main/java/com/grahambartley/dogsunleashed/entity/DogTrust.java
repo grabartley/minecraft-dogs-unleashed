@@ -54,11 +54,12 @@ public final class DogTrust {
   }
 
   public boolean applies() {
-    return (this.dog.getBreed().nature().tamesThroughTrust() || this.stray) && !this.dog.isTamed();
+    return DogTrustRules.applies(
+        this.dog.getBreed().nature().tamesThroughTrust(), this.stray, this.dog.isTamed());
   }
 
   public boolean canBeWon() {
-    return this.applies() && (this.dog.isBaby() || this.stray);
+    return DogTrustRules.canBeWon(this.applies(), this.dog.isBaby(), this.stray);
   }
 
   public boolean isStray() {

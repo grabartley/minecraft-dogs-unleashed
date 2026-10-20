@@ -1,9 +1,10 @@
-package com.grahambartley.dogsunleashed.spawner;
+package com.grahambartley.dogsunleashed.trade;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModItems;
 import java.util.Arrays;
 import java.util.List;
+import net.fabricmc.fabric.api.object.builder.v1.trade.TradeOfferHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -20,6 +21,11 @@ public final class TraderPuppyOffer implements TradeOffers.Factory {
   public static final int MAX_USES = 1;
   public static final int MERCHANT_EXPERIENCE = 1;
   public static final float PRICE_MULTIPLIER = 0.05F;
+
+  public static void register() {
+    TradeOfferHelper.registerWanderingTraderOffers(
+        RARE_POOL, factories -> factories.add(new TraderPuppyOffer()));
+  }
 
   @Override
   public @Nullable TradeOffer create(final Entity entity, final Random random) {

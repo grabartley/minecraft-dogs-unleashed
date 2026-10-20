@@ -212,7 +212,7 @@
   "screen.dogs-unleashed.settings.villagestrays": "村庄流浪狗",
   "screen.dogs-unleashed.settings.villagestrays.tooltip": "启用后，村庄里会不时出现一只流浪狗，每个村庄最多两只。它的品种取决于村庄所在的生物群系。流浪狗虽然是野生的，但很友好：喂它们来赢得信任，它们就会成为你的狗。更改立即生效。",
   "screen.dogs-unleashed.settings.traderpuppies": "商人的小狗",
-  "screen.dogs-unleashed.settings.traderpuppies.tooltip": "启用后，流浪商人有时会出售小狗篮。使用它会放出一只随机品种的小狗，并且已经被你驯服。更改对之后到来的商人生效。",
+  "screen.dogs-unleashed.settings.traderpuppies.tooltip": "启用后，流浪商人有时会出售小狗篮。使用它会放出一只随机品种的小狗，并且已经被你驯服。更改对还没有人打开过交易界面的商人生效。",
   "screen.dogs-unleashed.settings.autosleep": "夜间自动睡觉",
   "screen.dogs-unleashed.settings.autosleep.tooltip": "启用后，驯服的狗会在夜幕降临时走向其分配的床并睡到天亮。",
   "screen.dogs-unleashed.settings.autosleeprange": "自动睡觉范围（方块）",

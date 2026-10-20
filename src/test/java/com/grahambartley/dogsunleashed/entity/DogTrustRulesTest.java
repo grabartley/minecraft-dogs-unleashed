@@ -63,6 +63,39 @@ class DogTrustRulesTest {
     assertEquals(expected, DogTrustRules.feedGain(food, stray));
   }
 
+  @ParameterizedTest(name = "trust breed {0}, stray {1}, tamed {2} -> {3}")
+  @CsvSource({
+    "true, false, false, true",
+    "false, true, false, true",
+    "true, true, false, true",
+    "false, false, false, false",
+    "true, false, true, false",
+    "false, true, true, false",
+  })
+  @DisplayName("trust taming covers wild dire wolves and strays until they are tamed")
+  void applies(
+      final boolean tamesThroughTrust,
+      final boolean stray,
+      final boolean tamed,
+      final boolean expected) {
+    assertEquals(expected, DogTrustRules.applies(tamesThroughTrust, stray, tamed));
+  }
+
+  @ParameterizedTest(name = "applies {0}, baby {1}, stray {2} -> {3}")
+  @CsvSource({
+    "true, true, false, true",
+    "true, false, false, false",
+    "true, false, true, true",
+    "true, true, true, true",
+    "false, true, false, false",
+    "false, false, true, false",
+  })
+  @DisplayName("a pup or a stray can be won over, a wild adult cannot")
+  void canBeWon(
+      final boolean applies, final boolean baby, final boolean stray, final boolean expected) {
+    assertEquals(expected, DogTrustRules.canBeWon(applies, baby, stray));
+  }
+
   @ParameterizedTest(name = "stray {0} -> wary {1}")
   @CsvSource({"false, true", "true, false"})
   @DisplayName("only a wild pup is wary, so a stray is never spooked and never forgets")

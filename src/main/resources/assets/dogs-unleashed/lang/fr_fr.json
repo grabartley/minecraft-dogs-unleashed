@@ -212,7 +212,7 @@
   "screen.dogs-unleashed.settings.villagestrays": "Chiens errants des villages",
   "screen.dogs-unleashed.settings.villagestrays.tooltip": "Si activé, un chien errant apparaît de temps en temps dans un village, deux au plus par village. Sa race dépend du biome du village. Les errants sont sauvages mais amicaux : nourris-les pour gagner leur confiance et ils deviennent à toi. Les changements s'appliquent tout de suite.",
   "screen.dogs-unleashed.settings.traderpuppies": "Chiots du marchand",
-  "screen.dogs-unleashed.settings.traderpuppies.tooltip": "Si activé, le marchand ambulant vend parfois un panier à chiot. L'utiliser libère un chiot d'une race au hasard, déjà apprivoisé pour toi. Les changements concernent les marchands qui arrivent ensuite.",
+  "screen.dogs-unleashed.settings.traderpuppies.tooltip": "Si activé, le marchand ambulant vend parfois un panier à chiot. L'utiliser libère un chiot d'une race au hasard, déjà apprivoisé pour toi. Les changements concernent les marchands dont personne n'a encore ouvert les offres.",
   "screen.dogs-unleashed.settings.autosleep": "Sommeil automatique la nuit",
   "screen.dogs-unleashed.settings.autosleep.tooltip": "Lorsque activé, les chiens apprivoisés rejoignent leur panier assigné à la tombée de la nuit et dorment jusqu'au matin.",
   "screen.dogs-unleashed.settings.autosleeprange": "Portée du sommeil automatique (blocs)",

@@ -212,7 +212,7 @@
   "screen.dogs-unleashed.settings.villagestrays": "Cachorros de rua nas vilas",
   "screen.dogs-unleashed.settings.villagestrays.tooltip": "Quando ativado, de vez em quando aparece um cachorro de rua numa vila, no máximo dois por vila. A raça depende do bioma da vila. Cachorros de rua são selvagens mas amigáveis: alimente-os para ganhar a confiança deles e eles passam a ser seus. As mudanças valem na hora.",
   "screen.dogs-unleashed.settings.traderpuppies": "Filhotes do vendedor",
-  "screen.dogs-unleashed.settings.traderpuppies.tooltip": "Quando ativado, o vendedor ambulante às vezes vende uma cesta de filhote. Ao usá-la, sai um filhote de uma raça aleatória, já domesticado para você. As mudanças valem para vendedores que chegarem depois.",
+  "screen.dogs-unleashed.settings.traderpuppies.tooltip": "Quando ativado, o vendedor ambulante às vezes vende uma cesta de filhote. Ao usá-la, sai um filhote de uma raça aleatória, já domesticado para você. As mudanças valem para vendedores cujas ofertas ninguém abriu ainda.",
   "screen.dogs-unleashed.settings.autosleep": "Dormir automaticamente à noite",
   "screen.dogs-unleashed.settings.autosleep.tooltip": "Quando ativado, cachorros domesticados vão para a cama atribuída ao anoitecer e dormem até de manhã.",
   "screen.dogs-unleashed.settings.autosleeprange": "Alcance do sono automático (blocos)",

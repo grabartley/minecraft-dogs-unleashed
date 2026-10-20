@@ -5,7 +5,7 @@ import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.SurvivalTestPlayer;
-import com.grahambartley.dogsunleashed.spawner.TraderPuppyOffer;
+import com.grahambartley.dogsunleashed.trade.TraderPuppyOffer;
 import java.util.Arrays;
 import java.util.List;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;

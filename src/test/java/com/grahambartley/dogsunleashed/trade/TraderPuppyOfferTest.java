@@ -1,4 +1,4 @@
-package com.grahambartley.dogsunleashed.spawner;
+package com.grahambartley.dogsunleashed.trade;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

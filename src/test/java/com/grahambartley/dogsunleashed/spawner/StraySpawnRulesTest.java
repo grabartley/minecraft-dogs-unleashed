@@ -9,6 +9,22 @@ import org.junit.jupiter.params.provider.CsvSource;
 class StraySpawnRulesTest {
 
   @ParameterizedTest
+  @CsvSource({
+    "true, true, true, true",
+    "false, true, true, false",
+    "true, false, true, false",
+    "true, true, false, false",
+    "false, false, false, false"
+  })
+  void anAttemptNeedsTheSettingAnimalSpawningAndTheGamerule(
+      final boolean villageStrays,
+      final boolean spawnAnimals,
+      final boolean doMobSpawning,
+      final boolean expected) {
+    assertEquals(expected, StraySpawnRules.canAttempt(villageStrays, spawnAnimals, doMobSpawning));
+  }
+
+  @ParameterizedTest
   @CsvSource({"0, false", "4, false", "5, true", "20, true"})
   void aVillageNeedsMoreThanFourOccupiedHomes(final long homes, final boolean village) {
     assertEquals(village, StraySpawnRules.isVillage(homes));

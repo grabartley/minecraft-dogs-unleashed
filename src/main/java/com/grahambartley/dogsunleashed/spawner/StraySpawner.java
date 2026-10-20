@@ -8,6 +8,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.SpawnRestriction;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -27,9 +28,10 @@ public class StraySpawner implements SpecialSpawner {
   @Override
   public int spawn(
       final ServerWorld world, final boolean spawnMonsters, final boolean spawnAnimals) {
-    if (!DogsUnleashed.SERVER_CONFIG.spawning().villageStrays()
-        || !spawnAnimals
-        || !world.getGameRules().getBoolean(GameRules.DO_MOB_SPAWNING)) {
+    if (!StraySpawnRules.canAttempt(
+        DogsUnleashed.SERVER_CONFIG.spawning().villageStrays(),
+        spawnAnimals,
+        world.getGameRules().getBoolean(GameRules.DO_MOB_SPAWNING))) {
       return 0;
     }
     if (--this.cooldownTicks > 0) {
@@ -45,11 +47,9 @@ public class StraySpawner implements SpecialSpawner {
         player
             .getBlockPos()
             .add(
-                StraySpawnRules.offset(
-                    random.nextInt(StraySpawnRules.offsetRange()), random.nextBoolean()),
+                StraySpawnRules.offset(random.nextInt(), random.nextBoolean()),
                 0,
-                StraySpawnRules.offset(
-                    random.nextInt(StraySpawnRules.offsetRange()), random.nextBoolean()));
+                StraySpawnRules.offset(random.nextInt(), random.nextBoolean()));
     if (!world.isRegionLoaded(
         pos.getX() - REGION_LOADED_MARGIN_BLOCKS,
         pos.getZ() - REGION_LOADED_MARGIN_BLOCKS,
@@ -65,7 +65,8 @@ public class StraySpawner implements SpecialSpawner {
       return 0;
     }
     final UnleashedDogBreed breed =
-        StraySpawnRules.breedFor(VillagerType.forBiome(world.getBiome(pos)).toString());
+        StraySpawnRules.breedFor(
+            Registries.VILLAGER_TYPE.getId(VillagerType.forBiome(world.getBiome(pos))).getPath());
     final EntityType<? extends UnleashedDogEntity> type = ModEntities.getDogEntityType(breed);
     if (!SpawnRestriction.isSpawnPosAllowed(type, world, pos)
         || !StraySpawnRules.isVillage(occupiedHomesNear(world, pos))

@@ -212,7 +212,7 @@
   "screen.dogs-unleashed.settings.villagestrays": "Perros callejeros en aldeas",
   "screen.dogs-unleashed.settings.villagestrays.tooltip": "Si está activado, de vez en cuando aparece un perro callejero en una aldea, como mucho dos por aldea. Su raza depende del bioma de la aldea. Los callejeros son salvajes pero amistosos: dales de comer para ganarte su confianza y serán tuyos. Los cambios se aplican al instante.",
   "screen.dogs-unleashed.settings.traderpuppies": "Cachorros del comerciante",
-  "screen.dogs-unleashed.settings.traderpuppies.tooltip": "Si está activado, el comerciante ambulante a veces vende una cesta de cachorro. Al usarla sale un cachorro de una raza al azar, ya domesticado para ti. Los cambios afectan a los comerciantes que lleguen después.",
+  "screen.dogs-unleashed.settings.traderpuppies.tooltip": "Si está activado, el comerciante ambulante a veces vende una cesta de cachorro. Al usarla sale un cachorro de una raza al azar, ya domesticado para ti. Los cambios afectan a los comerciantes cuyas ofertas nadie ha abierto todavía.",
   "screen.dogs-unleashed.settings.autosleep": "Dormir automáticamente de noche",
   "screen.dogs-unleashed.settings.autosleep.tooltip": "Cuando está activado, los perros domesticados van a su cama asignada al anochecer y duermen hasta la mañana.",
   "screen.dogs-unleashed.settings.autosleeprange": "Alcance del sueño automático (bloques)",

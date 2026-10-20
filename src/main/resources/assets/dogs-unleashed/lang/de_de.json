@@ -212,7 +212,7 @@
   "screen.dogs-unleashed.settings.villagestrays": "Streuner im Dorf",
   "screen.dogs-unleashed.settings.villagestrays.tooltip": "Wenn aktiviert, taucht ab und zu ein streunender Hund in einem Dorf auf, höchstens zwei pro Dorf. Seine Rasse hängt vom Biom des Dorfes ab. Streuner sind wild, aber freundlich: Füttere sie, um ihr Vertrauen zu gewinnen, dann gehören sie dir. Änderungen wirken sofort.",
   "screen.dogs-unleashed.settings.traderpuppies": "Welpen vom Händler",
-  "screen.dogs-unleashed.settings.traderpuppies.tooltip": "Wenn aktiviert, verkauft der fahrende Händler manchmal einen Welpenkorb. Benutzt du ihn, kommt ein Welpe einer zufälligen Rasse heraus, der dir schon gezähmt gehört. Änderungen gelten für Händler, die danach ankommen.",
+  "screen.dogs-unleashed.settings.traderpuppies.tooltip": "Wenn aktiviert, verkauft der fahrende Händler manchmal einen Welpenkorb. Benutzt du ihn, kommt ein Welpe einer zufälligen Rasse heraus, der dir schon gezähmt gehört. Änderungen gelten für Händler, deren Angebote noch niemand geöffnet hat.",
   "screen.dogs-unleashed.settings.autosleep": "Auto-Schlaf bei Nacht",
   "screen.dogs-unleashed.settings.autosleep.tooltip": "Wenn aktiviert, gehen gezähmte Hunde bei Einbruch der Nacht zu ihrem zugewiesenen Bett und schlafen bis zum Morgen.",
   "screen.dogs-unleashed.settings.autosleeprange": "Auto-Schlaf-Reichweite (Blöcke)",

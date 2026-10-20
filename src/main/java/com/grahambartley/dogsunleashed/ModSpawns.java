@@ -7,7 +7,6 @@ import com.grahambartley.dogsunleashed.entity.WildPackFounding;
 import com.grahambartley.dogsunleashed.mixin.ServerWorldSpawnersAccessor;
 import com.grahambartley.dogsunleashed.spawner.DogSpawner;
 import com.grahambartley.dogsunleashed.spawner.StraySpawner;
-import com.grahambartley.dogsunleashed.spawner.TraderPuppyOffer;
 import java.util.ArrayList;
 import java.util.List;
 import net.fabricmc.fabric.api.biome.v1.BiomeModification;
@@ -15,7 +14,6 @@ import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.fabricmc.fabric.api.biome.v1.ModificationPhase;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
-import net.fabricmc.fabric.api.object.builder.v1.trade.TradeOfferHelper;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.SpawnLocationTypes;
 import net.minecraft.entity.SpawnRestriction;
@@ -68,9 +66,6 @@ public class ModSpawns {
                         spawnSettings.maxGroupSize()));
           });
     }
-
-    TradeOfferHelper.registerWanderingTraderOffers(
-        TraderPuppyOffer.RARE_POOL, factories -> factories.add(new TraderPuppyOffer()));
 
     ServerWorldEvents.LOAD.register(
         (server, world) -> {

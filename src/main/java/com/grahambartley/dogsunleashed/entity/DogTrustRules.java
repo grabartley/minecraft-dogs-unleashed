@@ -77,6 +77,15 @@ public final class DogTrustRules {
     return stray ? food.gain() * STRAY_FEED_MULTIPLIER : food.gain();
   }
 
+  public static boolean applies(
+      final boolean tamesThroughTrust, final boolean stray, final boolean tamed) {
+    return (tamesThroughTrust || stray) && !tamed;
+  }
+
+  public static boolean canBeWon(final boolean applies, final boolean baby, final boolean stray) {
+    return applies && (baby || stray);
+  }
+
   public static boolean isWary(final boolean stray) {
     return !stray;
   }

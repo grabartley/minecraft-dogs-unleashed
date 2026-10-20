@@ -167,7 +167,7 @@ public class ModItems {
             });
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS)
         .register(entries -> entries.add(DOG_WHISTLE));
-    ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS)
+    ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS)
         .register(entries -> entries.add(PUPPY_BASKET));
     StickThrowHandler.register();
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL)

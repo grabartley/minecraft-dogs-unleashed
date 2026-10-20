@@ -69,12 +69,13 @@ public final class VillageStrayGameTest implements FabricGameTest {
 
   @GameTest(templateName = ARENA, batchId = "stray-switched-off", tickLimit = 20)
   public void noStrayArrivesWhenVillageStraysIsOff(final TestContext context) {
-    final DogsUnleashedConfig before = DogsUnleashed.SERVER_CONFIG;
-    DogsUnleashed.SERVER_CONFIG = before.withSpawning(before.spawning().withVillageStrays(false));
     buildHomes(context, VILLAGE_HOMES, true);
     context.runAtTick(
         SPAWN_TICK,
         () -> {
+          final DogsUnleashedConfig before = DogsUnleashed.SERVER_CONFIG;
+          DogsUnleashed.SERVER_CONFIG =
+              before.withSpawning(before.spawning().withVillageStrays(false));
           try {
             context.assertTrue(
                 StraySpawner.trySpawnAt(context.getWorld(), spawnPos(context)) == 0,

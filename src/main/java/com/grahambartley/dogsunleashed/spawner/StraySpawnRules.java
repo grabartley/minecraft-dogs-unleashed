@@ -22,6 +22,11 @@ public final class StraySpawnRules {
 
   private StraySpawnRules() {}
 
+  public static boolean canAttempt(
+      final boolean villageStrays, final boolean spawnAnimals, final boolean doMobSpawning) {
+    return villageStrays && spawnAnimals && doMobSpawning;
+  }
+
   public static boolean isVillage(final long occupiedHomes) {
     return occupiedHomes >= MIN_OCCUPIED_HOMES;
   }
@@ -31,12 +36,9 @@ public final class StraySpawnRules {
   }
 
   public static int offset(final int roll, final boolean negative) {
-    final int magnitude = MIN_OFFSET_BLOCKS + Math.floorMod(roll, offsetRange());
+    final int magnitude =
+        MIN_OFFSET_BLOCKS + Math.floorMod(roll, MAX_OFFSET_BLOCKS - MIN_OFFSET_BLOCKS + 1);
     return negative ? -magnitude : magnitude;
-  }
-
-  public static int offsetRange() {
-    return MAX_OFFSET_BLOCKS - MIN_OFFSET_BLOCKS + 1;
   }
 
   public static UnleashedDogBreed breedFor(final String villageType) {
