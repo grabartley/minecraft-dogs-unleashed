@@ -55,16 +55,20 @@ class DogEquipmentSlotTest {
     assertEquals(expected + ".empty", slot.emptyHintTranslationKey());
   }
 
+  @Test
+  @DisplayName("armour keeps vanilla's horse armour slot art and has no icon of its own")
+  void armourHasNoEmptyIcon() {
+    assertNull(DogEquipmentSlot.ARMOUR.emptyIcon());
+  }
+
   @ParameterizedTest(name = "{0} -> {1}")
   @CsvSource({
-    "ARMOUR, ''",
     "PENDANT, dogs-unleashed:item/empty_slot_pendant",
     "COSMETIC, dogs-unleashed:item/empty_slot_cosmetic"
   })
-  @DisplayName("pendant and cosmetic slots show their own empty icon, armour keeps vanilla's")
+  @DisplayName("pendant and cosmetic slots show their own empty icon")
   void emptyIconMatchesTheSlot(final DogEquipmentSlot slot, final String expected) {
-    final Identifier icon = slot.emptyIcon();
-    assertEquals(expected, icon == null ? "" : icon.toString());
+    assertEquals(Identifier.of(expected), slot.emptyIcon());
   }
 
   @ParameterizedTest(name = "{0}, baby {1} -> fits {2}")

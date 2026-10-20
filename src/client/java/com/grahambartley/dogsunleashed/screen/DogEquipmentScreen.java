@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.screen;
 
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
+import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.screenhandler.DogEquipmentScreenHandler;
 import java.util.List;
@@ -26,9 +27,6 @@ public class DogEquipmentScreen extends HandledScreen<DogEquipmentScreenHandler>
   private static final int PREVIEW_TOP = 18;
   private static final int PREVIEW_SIZE = 52;
 
-  private float mouseX;
-  private float mouseY;
-
   public DogEquipmentScreen(
       final DogEquipmentScreenHandler handler, final PlayerInventory inventory, final Text title) {
     super(handler, inventory, title);
@@ -42,14 +40,12 @@ public class DogEquipmentScreen extends HandledScreen<DogEquipmentScreenHandler>
     for (int index = 0; index < DogEquipmentScreenHandler.DOG_SLOT_COUNT; index++) {
       this.drawDogSlot(context, index);
     }
-    this.drawDogPreview(context);
+    this.drawDogPreview(context, mouseX, mouseY);
   }
 
   @Override
   public void render(
       final DrawContext context, final int mouseX, final int mouseY, final float delta) {
-    this.mouseX = mouseX;
-    this.mouseY = mouseY;
     super.render(context, mouseX, mouseY, delta);
     this.drawMouseoverTooltip(context, mouseX, mouseY);
     this.drawEmptyDogSlotTooltip(context, mouseX, mouseY);
@@ -67,12 +63,21 @@ public class DogEquipmentScreen extends HandledScreen<DogEquipmentScreenHandler>
         SLOT_SPRITE_SIZE);
   }
 
-  private void drawDogPreview(final DrawContext context) {
+  private void drawDogPreview(final DrawContext context, final int mouseX, final int mouseY) {
     final UnleashedDogEntity dog = this.handler.dog();
     if (dog == null) {
       return;
     }
-    final float portraitHeight = dog.getRigSourceBreed().renderTransforms().portraitHeight();
+    final UnleashedDogBreed.RenderTransforms transforms =
+        dog.getRigSourceBreed().renderTransforms();
+    final float relativeSize =
+        DogPreviewFraming.sizeRelativeToAdult(
+            dog.getGrowth().applies(),
+            dog.getGrowth().stage().renderScaleMultiplier(),
+            dog.isBaby(),
+            transforms.adultScale(),
+            transforms.babyScale());
+    final float framedHeight = transforms.portraitHeight() * relativeSize;
     final int left = this.x + PREVIEW_LEFT;
     final int top = this.y + PREVIEW_TOP;
     InventoryScreen.drawEntity(
@@ -81,10 +86,10 @@ public class DogEquipmentScreen extends HandledScreen<DogEquipmentScreenHandler>
         top,
         left + PREVIEW_SIZE,
         top + PREVIEW_SIZE,
-        DogPreviewFraming.renderSize(PREVIEW_SIZE, portraitHeight),
-        DogPreviewFraming.pivotOffset(portraitHeight, dog.getHeight()),
-        this.mouseX,
-        this.mouseY,
+        DogPreviewFraming.renderSize(PREVIEW_SIZE, framedHeight),
+        DogPreviewFraming.pivotOffset(framedHeight, dog.getHeight(), relativeSize),
+        mouseX,
+        mouseY,
         dog);
   }
 

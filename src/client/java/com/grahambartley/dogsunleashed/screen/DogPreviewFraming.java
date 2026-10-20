@@ -11,7 +11,20 @@ final class DogPreviewFraming {
     return Math.max(1, Math.round(boxSize * BOX_FILL / portraitHeight));
   }
 
-  static float pivotOffset(final float portraitHeight, final float hitboxHeight) {
-    return (portraitHeight - hitboxHeight) / 2.0f - MODEL_DEPTH_BELOW_ORIGIN;
+  static float sizeRelativeToAdult(
+      final boolean growsThroughStages,
+      final float stageScale,
+      final boolean baby,
+      final float adultScale,
+      final float babyScale) {
+    if (growsThroughStages) {
+      return stageScale;
+    }
+    return baby ? babyScale / adultScale : 1.0f;
+  }
+
+  static float pivotOffset(
+      final float portraitHeight, final float hitboxHeight, final float sizeRelativeToAdult) {
+    return (portraitHeight - hitboxHeight) / 2.0f - MODEL_DEPTH_BELOW_ORIGIN * sizeRelativeToAdult;
   }
 }

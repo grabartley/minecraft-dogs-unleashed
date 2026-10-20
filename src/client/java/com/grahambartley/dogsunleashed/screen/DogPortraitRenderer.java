@@ -45,7 +45,7 @@ public final class DogPortraitRenderer {
         x + size,
         y + size,
         DogPreviewFraming.renderSize(size, portraitHeight),
-        DogPreviewFraming.pivotOffset(portraitHeight, entity.getHeight()),
+        DogPreviewFraming.pivotOffset(portraitHeight, entity.getHeight(), 1.0f),
         mouseX,
         mouseY,
         entity);
