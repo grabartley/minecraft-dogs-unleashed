@@ -22,7 +22,7 @@ public final class PendantTestHelper {
 
   public static ServerPlayerEntity survivalOwnerAt(
       final TestContext context, final BlockPos relativePos) {
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     owner.changeGameMode(GameMode.SURVIVAL);
     placeAt(context, owner, relativePos);
     return owner;

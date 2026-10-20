@@ -5,6 +5,7 @@ import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.entity.DireWolfGrowthStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.server.ServerConfigService;
 import java.util.ArrayList;
 import java.util.List;
@@ -112,7 +113,7 @@ public final class DireWolfPackGameTest implements FabricGameTest {
   public void tamedDireWolvesNeverHuntOnTheirOwn(final TestContext context) {
     final UnleashedDogEntity wolf = spawnPack(context, DireWolfGrowthStage.ADULT).get(0);
     wolf.setAiDisabled(true);
-    wolf.setOwner(context.createMockCreativeServerPlayerInWorld());
+    wolf.setOwner(CreativeTestPlayer.join(context));
     context.assertFalse(wolf.getPack().mayHunt(), "A tamed dire wolf hunts only on command");
     context.complete();
   }
@@ -203,7 +204,7 @@ public final class DireWolfPackGameTest implements FabricGameTest {
     final List<UnleashedDogEntity> pack =
         spawnPack(context, DireWolfGrowthStage.ADULT, DireWolfGrowthStage.ADULT);
     pack.forEach(wolf -> wolf.setAiDisabled(true));
-    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity player = CreativeTestPlayer.join(context);
 
     pack.get(1).damage(context.getWorld().getDamageSources().playerAttack(player), 1.0f);
 

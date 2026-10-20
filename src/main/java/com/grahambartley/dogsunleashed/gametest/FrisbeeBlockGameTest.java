@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.block.entity.FrisbeeBlockEntity;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import java.util.List;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.Blocks;
@@ -70,8 +71,7 @@ public final class FrisbeeBlockGameTest implements FabricGameTest {
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
   public void aFrisbeeBrokenByAPlayerDropsItselfInItsColour(final TestContext context) {
     placeColouredFrisbee(context);
-    @SuppressWarnings("removal")
-    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity player = CreativeTestPlayer.join(context);
     player.changeGameMode(GameMode.SURVIVAL);
     player.interactionManager.tryBreakBlock(context.getAbsolutePos(FRISBEE_POS));
 
@@ -83,8 +83,7 @@ public final class FrisbeeBlockGameTest implements FabricGameTest {
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
   public void aFrisbeeBrokenInCreativeDropsNothing(final TestContext context) {
     placeColouredFrisbee(context);
-    @SuppressWarnings("removal")
-    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity player = CreativeTestPlayer.join(context);
     player.interactionManager.tryBreakBlock(context.getAbsolutePos(FRISBEE_POS));
 
     context.runAtTick(

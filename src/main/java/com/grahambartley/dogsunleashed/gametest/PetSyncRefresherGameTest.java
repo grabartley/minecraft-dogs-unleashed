@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.gametest;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.network.handler.PetSyncRefresher;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
 import com.grahambartley.dogsunleashed.pet.PetData;
@@ -58,7 +59,7 @@ public final class PetSyncRefresherGameTest implements FabricGameTest {
 
   @GameTest(templateName = "dogs-unleashed:dog_arena", tickLimit = 20)
   public void loadedDogRefreshesItsRecordFromTheLiveEntity(TestContext context) {
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(1, 2, 1));
     husky.setAiDisabled(true);
     husky.setTamed(true, true);

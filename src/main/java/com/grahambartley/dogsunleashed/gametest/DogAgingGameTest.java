@@ -10,6 +10,7 @@ import com.grahambartley.dogsunleashed.entity.DogAging;
 import com.grahambartley.dogsunleashed.entity.DogAgingRules;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.SleepBatchFixture;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.EntityType;
@@ -170,7 +171,7 @@ public final class DogAgingGameTest implements FabricGameTest {
   @GameTest(templateName = ARENA, batchId = AGING_ON, tickLimit = 100)
   public void aSeniorDogThatSleepsInBedsNapsOnTheGround(final TestContext context) {
     final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, REL_DOG);
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     husky.setTamed(true, true);
     husky.setOwnerUuid(owner.getUuid());
     husky.getCommandController().apply(DogCommand.STAY);

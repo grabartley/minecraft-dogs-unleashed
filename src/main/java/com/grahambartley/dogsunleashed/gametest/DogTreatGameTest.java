@@ -6,6 +6,7 @@ import com.grahambartley.dogsunleashed.entity.DogFoods;
 import com.grahambartley.dogsunleashed.entity.DogTreatBuff;
 import com.grahambartley.dogsunleashed.entity.DogTreatBuffState;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
@@ -419,7 +420,7 @@ public final class DogTreatGameTest implements FabricGameTest {
 
   private static ServerPlayerEntity survivalOwnerAt(
       final TestContext context, final BlockPos relativePos) {
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     owner.changeGameMode(GameMode.SURVIVAL);
     final BlockPos absolutePos = context.getAbsolutePos(relativePos);
     owner.refreshPositionAndAngles(

@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -146,7 +147,7 @@ public final class DogWetnessGameTest implements FabricGameTest {
   }
 
   private static UnleashedDogEntity spawnStationaryDog(final TestContext context) {
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     final BlockPos absoluteOwnerPos = context.getAbsolutePos(OWNER_POS);
     owner.refreshPositionAndAngles(
         absoluteOwnerPos.getX() + 0.5,

@@ -8,6 +8,7 @@ import com.grahambartley.dogsunleashed.entity.DogWorldTransfer;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.item.DogWhistleItem;
 import com.grahambartley.dogsunleashed.item.WhistlePointing;
 import com.grahambartley.dogsunleashed.network.payload.PointWithWhistlePayload;
@@ -374,7 +375,7 @@ public final class DogWhistlePointGameTest implements FabricGameTest {
   }
 
   private static ServerPlayerEntity placeOwner(final TestContext context) {
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     final BlockPos absolute = context.getAbsolutePos(PLAYER_CORNER);
     owner.requestTeleport(absolute.getX() + 0.5, absolute.getY(), absolute.getZ() + 0.5);
     final ItemStack whistle = new ItemStack(ModItems.DOG_WHISTLE);

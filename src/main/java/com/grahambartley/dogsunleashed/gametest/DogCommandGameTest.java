@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.gametest;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -35,13 +36,13 @@ public final class DogCommandGameTest implements FabricGameTest {
 
   private static UnleashedDogEntity spawnOwnedDog(
       final TestContext context, final BlockPos relativePos) {
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     return DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, relativePos, owner.getUuid());
   }
 
   private static ServerPlayerEntity placeOwnerAt(
       final TestContext context, final UnleashedDogEntity dog, final BlockPos relativePos) {
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     dog.setOwnerUuid(owner.getUuid());
     final BlockPos absPos = context.getAbsolutePos(relativePos);
     owner.refreshPositionAndAngles(absPos.getX() + 0.5, absPos.getY(), absPos.getZ() + 0.5, 0f, 0f);

@@ -8,6 +8,7 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.WildPackGrudges;
 import com.grahambartley.dogsunleashed.entity.goal.PackGrudgeGoal;
 import com.grahambartley.dogsunleashed.entity.goal.WildHuntGoal;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.SurvivalTestPlayer;
 import com.grahambartley.dogsunleashed.network.ModNetworking;
 import com.grahambartley.dogsunleashed.network.payload.WildTrustView;
@@ -179,7 +180,7 @@ public final class DireWolfGrudgeGameTest implements FabricGameTest {
   public void aCreativePlayerNeverEarnsAGrudge(final TestContext context) {
     final UnleashedDogEntity wolf = spawnPack(context, null, DireWolfGrowthStage.ADULT).get(0);
     wolf.setAiDisabled(true);
-    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity player = CreativeTestPlayer.join(context);
     wolf.damage(context.getWorld().getDamageSources().playerAttack(player), 1.0f);
     context.assertFalse(
         wolf.getPack().bearsGrudge(player.getUuid()), "A creative player earned a grudge");

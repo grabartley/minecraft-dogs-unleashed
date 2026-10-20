@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.entity.DireWolfGrowthStage;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.SlabBlock;
@@ -72,7 +73,7 @@ public final class DireWolfJumpGameTest implements FabricGameTest {
     for (int z = 0; z < RANGE_WIDTH; z++) {
       context.setBlockState(new BlockPos(STEP_START_X, FLOOR_Y, z), Blocks.OAK_FENCE);
     }
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     final Vec3d ownerPos = context.getAbsolute(Vec3d.ofBottomCenter(REL_OWNER));
     owner.refreshPositionAndAngles(ownerPos.x, ownerPos.y, ownerPos.z, 0.0f, 0.0f);
     final UnleashedDogEntity wolf = context.spawnEntity(ModEntities.DIRE_WOLF, REL_START);

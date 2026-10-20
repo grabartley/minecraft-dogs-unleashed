@@ -5,6 +5,7 @@ import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.entity.DogPlaySession;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -165,7 +166,7 @@ public final class DogLeashGameTest implements FabricGameTest {
   }
 
   private ServerPlayerEntity spawnOwnerAt(final TestContext context, final BlockPos relativePos) {
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     final BlockPos abs = context.getAbsolutePos(relativePos);
     owner.refreshPositionAndAngles(abs.getX() + 0.5, abs.getY(), abs.getZ() + 0.5, 0f, 0f);
     return owner;

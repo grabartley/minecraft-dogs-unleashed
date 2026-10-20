@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.entity.DogCollar;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -159,7 +160,7 @@ public final class DogStrangerInteractionGameTest implements FabricGameTest {
 
   private static ServerPlayerEntity survivalPlayerAt(
       final TestContext context, final BlockPos relativePos) {
-    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity player = CreativeTestPlayer.join(context);
     player.changeGameMode(GameMode.SURVIVAL);
     final BlockPos absolutePos = context.getAbsolutePos(relativePos);
     player.refreshPositionAndAngles(

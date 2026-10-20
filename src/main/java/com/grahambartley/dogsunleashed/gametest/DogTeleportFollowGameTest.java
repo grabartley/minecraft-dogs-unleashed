@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
@@ -341,7 +342,7 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
   }
 
   private static ServerPlayerEntity placePlayer(TestContext context, Vec3d relativePos) {
-    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity player = CreativeTestPlayer.join(context);
     final Vec3d absolutePos = context.getAbsolute(relativePos);
     player.refreshPositionAndAngles(absolutePos.x, absolutePos.y, absolutePos.z, 0.0F, 0.0F);
     return player;

@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import com.grahambartley.dogsunleashed.listener.PlayerJoinReunionListener;
@@ -70,7 +71,7 @@ public final class DogReunionGameTest implements FabricGameTest {
 
   @GameTest(templateName = ARENA, tickLimit = 20)
   public void reunionListenerWagsOwnedDogNearby(TestContext context) {
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     positionOwnerAt(context, owner, new BlockPos(1, 1, 0));
 
     final UnleashedDogEntity dog =
@@ -91,7 +92,7 @@ public final class DogReunionGameTest implements FabricGameTest {
 
   @GameTest(templateName = ARENA, tickLimit = 20)
   public void reunionListenerIgnoresUntamedDog(TestContext context) {
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     positionOwnerAt(context, owner, new BlockPos(1, 1, 0));
 
     final UnleashedDogEntity strayDog =
@@ -111,7 +112,7 @@ public final class DogReunionGameTest implements FabricGameTest {
 
   @GameTest(templateName = ARENA, tickLimit = 20)
   public void reunionListenerIgnoresDogOwnedByAnotherPlayer(TestContext context) {
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     positionOwnerAt(context, owner, new BlockPos(1, 1, 0));
 
     final UnleashedDogEntity othersDog =

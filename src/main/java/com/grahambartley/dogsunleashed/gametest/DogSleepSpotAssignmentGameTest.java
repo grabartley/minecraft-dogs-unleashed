@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.block.DogSleepSpotAssignment;
 import com.grahambartley.dogsunleashed.block.entity.AssignedDogHolder;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.DogHouseTestHelper;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
@@ -59,7 +60,7 @@ public final class DogSleepSpotAssignmentGameTest implements FabricGameTest {
     return perSpot(
         "assigningaseconddogclearsthefirst",
         (context, spot) -> {
-          final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+          final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
           final UnleashedDogEntity first = tamedDog(context, owner, REL_FIRST_DOG);
           final UnleashedDogEntity second = tamedDog(context, owner, REL_SECOND_DOG);
 
@@ -86,7 +87,7 @@ public final class DogSleepSpotAssignmentGameTest implements FabricGameTest {
     return perSpot(
         "assigningaseconddogwakesthefirst",
         (context, spot) -> {
-          final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+          final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
           final UnleashedDogEntity first = tamedDog(context, owner, REL_FIRST_DOG);
           final UnleashedDogEntity second = tamedDog(context, owner, REL_SECOND_DOG);
           assign(context, owner, first);
@@ -106,7 +107,7 @@ public final class DogSleepSpotAssignmentGameTest implements FabricGameTest {
     return perSpot(
         "astaledoggivesupatakenspot",
         (context, spot) -> {
-          final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+          final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
           final UnleashedDogEntity stale = staleDogBesideCurrent(context, owner);
 
           context.assertTrue(
@@ -124,7 +125,7 @@ public final class DogSleepSpotAssignmentGameTest implements FabricGameTest {
     return perSpot(
         "astaledogasleepinatakenspotwakesandletsgo",
         (context, spot) -> {
-          final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+          final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
           final UnleashedDogEntity stale = staleDogBesideCurrent(context, owner);
           stale.getSleepController().startSleepingInBed(context.getAbsolutePos(REL_SPOT));
           stale.setAiDisabled(false);
@@ -145,7 +146,7 @@ public final class DogSleepSpotAssignmentGameTest implements FabricGameTest {
         "astaledogmovingelsewherekeepsthenewdogsspot",
         (context, spot) -> {
           context.setBlockState(REL_OTHER_BED, ModBlocks.DOG_BED.getDefaultState());
-          final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+          final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
           final UnleashedDogEntity stale = staleDogBesideCurrent(context, owner);
           final UUID current = holder(context).getAssignedDogUuid();
 
@@ -164,7 +165,7 @@ public final class DogSleepSpotAssignmentGameTest implements FabricGameTest {
     return perSpot(
         "deathfreesthespot",
         (context, spot) -> {
-          final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+          final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
           final UnleashedDogEntity dog = tamedDog(context, owner, REL_FIRST_DOG);
           assign(context, owner, dog);
 
@@ -181,7 +182,7 @@ public final class DogSleepSpotAssignmentGameTest implements FabricGameTest {
     return perSpot(
         "astaledogsdeathkeepsthenewdogsspot",
         (context, spot) -> {
-          final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+          final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
           final UnleashedDogEntity stale = staleDogBesideCurrent(context, owner);
           final UUID current = holder(context).getAssignedDogUuid();
 

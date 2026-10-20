@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.block.entity.DogGraveBlockEntity;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import java.util.List;
 import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -443,8 +444,7 @@ public final class DogGraveGameTest implements FabricGameTest {
   }
 
   private static void breakGraveAsSurvivalPlayer(final TestContext context, final ItemStack tool) {
-    @SuppressWarnings("removal")
-    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity player = CreativeTestPlayer.join(context);
     player.changeGameMode(GameMode.SURVIVAL);
     player.setStackInHand(Hand.MAIN_HAND, tool);
     player.interactionManager.tryBreakBlock(context.getAbsolutePos(REL_GRAVE));

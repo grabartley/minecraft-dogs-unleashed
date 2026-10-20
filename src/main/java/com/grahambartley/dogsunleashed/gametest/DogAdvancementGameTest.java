@@ -10,6 +10,7 @@ import com.grahambartley.dogsunleashed.advancement.PetResurrectedCriterion;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
 import com.grahambartley.dogsunleashed.entity.goal.FetchReturnGoal;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import java.util.List;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.advancement.AdvancementEntry;
@@ -50,7 +51,7 @@ public final class DogAdvancementGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void tamingUnlocksBreedAdvancements(final TestContext context) {
-    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity player = CreativeTestPlayer.join(context);
 
     final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, new BlockPos(1, 1, 0));
     final UnleashedDogEntity shiba =
@@ -73,7 +74,7 @@ public final class DogAdvancementGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void wholePackRequiresAllFiveBreeds(final TestContext context) {
-    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity player = CreativeTestPlayer.join(context);
     final AdvancementEntry wholePack = getAdvancement(context, "the_whole_pack");
 
     player.getAdvancementTracker().grantCriterion(wholePack, "tamed_husky");
@@ -97,7 +98,7 @@ public final class DogAdvancementGameTest implements FabricGameTest {
   public void customTriggersUnlockTheirAdvancements(final TestContext context) {
     final BlockPos relBedPos = new BlockPos(0, 1, 0);
     final BlockPos absBedPos = context.getAbsolutePos(relBedPos);
-    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity player = CreativeTestPlayer.join(context);
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
@@ -141,7 +142,7 @@ public final class DogAdvancementGameTest implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void resurrectionAndCureTriggersUnlockTheirAdvancements(final TestContext context) {
-    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity player = CreativeTestPlayer.join(context);
     final AdvancementEntry secondLeashOfLife = getAdvancement(context, "second_leash_of_life");
     final AdvancementEntry bestFriendAgain = getAdvancement(context, "best_friend_again");
 

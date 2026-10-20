@@ -17,6 +17,7 @@ import com.grahambartley.dogsunleashed.entity.DogResurrection;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.variant.DireWolfCoat;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.item.armor.DogArmorTier;
 import com.grahambartley.dogsunleashed.item.pendant.PendantType;
@@ -219,7 +220,7 @@ public final class DireWolfGameTest implements FabricGameTest {
 
   @GameTest(templateName = ARENA, tickLimit = 20)
   public void aPrimeEvolvesAfterTwentyBattlesAndAnEnchantedGoldenApple(final TestContext context) {
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     owner.changeGameMode(GameMode.SURVIVAL);
     final UnleashedDogEntity wolf = spawnOwnedPrime(context, owner);
     final ItemStack apple = new ItemStack(Items.ENCHANTED_GOLDEN_APPLE, 2);
@@ -249,7 +250,7 @@ public final class DireWolfGameTest implements FabricGameTest {
   public void theBattlesCommandChangesHowManyBattlesAnAlphaNeeds(final TestContext context) {
     final MinecraftServer server = context.getWorld().getServer();
     final DogsUnleashedConfig before = DogsUnleashed.SERVER_CONFIG;
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     owner.changeGameMode(GameMode.SURVIVAL);
     final UnleashedDogEntity wolf = spawnOwnedPrime(context, owner);
     final ItemStack apple = new ItemStack(Items.ENCHANTED_GOLDEN_APPLE);
@@ -275,7 +276,7 @@ public final class DireWolfGameTest implements FabricGameTest {
 
   @GameTest(templateName = ARENA, tickLimit = 20)
   public void onlyHostileKillsNearTheOwnerCountAsBattles(final TestContext context) {
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     final UnleashedDogEntity wolf = spawnOwnedPrime(context, owner);
 
     wolf.getGrowth().recordBattle(context.spawnEntity(EntityType.SHEEP, REL_WOLF.east(2)));
@@ -295,7 +296,7 @@ public final class DireWolfGameTest implements FabricGameTest {
 
   @GameTest(templateName = ARENA, tickLimit = 20)
   public void aPrimeThatKillsAZombieBesideItsOwnerWinsABattle(final TestContext context) {
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     final UnleashedDogEntity wolf = spawnOwnedPrime(context, owner);
     final ZombieEntity zombie = context.spawnEntity(EntityType.ZOMBIE, REL_WOLF.east(2));
 
@@ -310,7 +311,7 @@ public final class DireWolfGameTest implements FabricGameTest {
 
   @GameTest(templateName = ARENA, tickLimit = 20)
   public void battlesWonSurviveASaveAndReload(final TestContext context) {
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     final UnleashedDogEntity wolf = spawnOwnedPrime(context, owner);
     for (int battle = 0; battle < 7; battle++) {
       wolf.getGrowth().recordBattle(context.spawnEntity(EntityType.ZOMBIE, REL_WOLF.east(2)));
@@ -328,7 +329,7 @@ public final class DireWolfGameTest implements FabricGameTest {
 
   @GameTest(templateName = ARENA, tickLimit = 20)
   public void aDireWolfCannotBeGivenABedOrADogHouse(final TestContext context) {
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     final UnleashedDogEntity wolf = spawnWolf(context);
     wolf.setOwnerUuid(owner.getUuid());
     wolf.setTamed(true, true);
@@ -378,7 +379,7 @@ public final class DireWolfGameTest implements FabricGameTest {
 
   @GameTest(templateName = ARENA, tickLimit = 20)
   public void anAlphaWearsArmourAndAPendantFromTheEquipmentScreen(final TestContext context) {
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     owner.changeGameMode(GameMode.SURVIVAL);
     final UnleashedDogEntity wolf = spawnOwnedPrime(context, owner);
     wolf.getGrowth().setStage(DireWolfGrowthStage.ALPHA);
@@ -471,7 +472,7 @@ public final class DireWolfGameTest implements FabricGameTest {
 
   @GameTest(templateName = ARENA, tickLimit = 20)
   public void winterIsComingNeedsADireWolfOfEveryCoat(final TestContext context) {
-    final ServerPlayerEntity player = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity player = CreativeTestPlayer.join(context);
     final AdvancementEntry winter =
         context
             .getWorld()

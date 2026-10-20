@@ -11,6 +11,7 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
 import com.grahambartley.dogsunleashed.entity.goal.DevotedRescueGoal;
 import com.grahambartley.dogsunleashed.entity.goal.FetchReturnGoal;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import java.util.UUID;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityCombatEvents;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -269,7 +270,7 @@ public final class DogBondGameTest implements FabricGameTest {
   }
 
   private static ServerPlayerEntity ownerAt(final TestContext context, final Vec3d relative) {
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     owner.refreshPositionAndAngles(context.getAbsolute(relative), 0.0f, 0.0f);
     return owner;
   }

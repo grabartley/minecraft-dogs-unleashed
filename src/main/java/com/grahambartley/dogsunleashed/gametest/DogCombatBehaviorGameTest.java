@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -99,7 +100,7 @@ public final class DogCombatBehaviorGameTest implements FabricGameTest {
   }
 
   private UnleashedDogEntity spawnOwnedDog(final TestContext context) {
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS, owner.getUuid());
     final BlockPos absDogPos = context.getAbsolutePos(DOG_POS);

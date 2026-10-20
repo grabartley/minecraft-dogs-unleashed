@@ -8,6 +8,7 @@ import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
 import com.grahambartley.dogsunleashed.entity.DogPlaySession;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -253,8 +254,7 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
       dog.setBaby(true);
     }
     dog.setInvulnerable(true);
-    @SuppressWarnings("removal")
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     dog.setOwnerUuid(owner.getUuid());
     final AtomicBoolean armed = new AtomicBoolean(false);
     final AtomicBoolean hasSlept = new AtomicBoolean(false);
@@ -299,8 +299,7 @@ public final class PuppyBehaviorGameTest implements FabricGameTest {
       dog.setBaby(true);
     }
     dog.setInvulnerable(true);
-    @SuppressWarnings("removal")
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     dog.setOwnerUuid(owner.getUuid());
     final AtomicBoolean armed = new AtomicBoolean(false);
 

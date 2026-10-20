@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.SleepBatchFixture;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.EntityType;
@@ -86,8 +87,7 @@ public final class DogSleepCommandWakeGameTest implements FabricGameTest {
     dog.setBaby(baby);
     dog.setTamed(true, true);
     dog.setInvulnerable(true);
-    @SuppressWarnings("removal")
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     dog.setOwnerUuid(owner.getUuid());
     final BlockPos absOwnerPos = context.getAbsolutePos(new BlockPos(5, 2, 5));
     owner.refreshPositionAndAngles(

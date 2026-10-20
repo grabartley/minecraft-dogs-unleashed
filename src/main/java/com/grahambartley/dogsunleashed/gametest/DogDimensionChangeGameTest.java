@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.gametest;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import java.util.Optional;
@@ -24,7 +25,7 @@ public final class DogDimensionChangeGameTest implements FabricGameTest {
   private static final BlockPos NETHER_LANDING = new BlockPos(3, 70, -5);
 
   private static UnleashedDogEntity spawnOwnedDog(final TestContext context) {
-    final ServerPlayerEntity owner = context.createMockCreativeServerPlayerInWorld();
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(
             context, DogTestData.HUSKY, new BlockPos(0, 1, 0), owner.getUuid());
