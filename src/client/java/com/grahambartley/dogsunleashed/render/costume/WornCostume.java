@@ -8,11 +8,8 @@ import java.util.Optional;
 import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
-import net.minecraft.util.math.ColorHelper;
 
 public final class WornCostume {
-
-  private static final int UNTINTED = 0xFFFFFFFF;
 
   private WornCostume() {}
 
@@ -27,12 +24,12 @@ public final class WornCostume {
 
   public static int tintOf(final UnleashedDogEntity dog) {
     final ItemStack costume = dog.getEquipmentHolder().getStack(DogEquipmentSlot.COSTUME);
-    return ModCostumeItems.costumeOf(costume)
-        .filter(DogCostume::isDyeable)
-        .map(
-            dyeable ->
-                ColorHelper.Argb.fullAlpha(
-                    DyedColorComponent.getColor(costume, dyeable.undyedColor())))
-        .orElse(UNTINTED);
+    final Optional<DogCostume> dyeable =
+        ModCostumeItems.costumeOf(costume).filter(DogCostume::isDyeable);
+    return CostumeTint.argb(
+        dyeable.isPresent(),
+        dyeable
+            .map(costumeType -> DyedColorComponent.getColor(costume, costumeType.undyedColor()))
+            .orElse(0));
   }
 }
