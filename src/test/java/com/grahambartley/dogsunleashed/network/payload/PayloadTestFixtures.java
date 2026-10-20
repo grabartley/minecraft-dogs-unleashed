@@ -49,6 +49,7 @@ final class PayloadTestFixtures {
         0.29f,
         3.5f,
         composition,
-        RidingView.NONE);
+        RidingView.NONE,
+        false);
   }
 }

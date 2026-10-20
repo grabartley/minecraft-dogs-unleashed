@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed;
 
+import com.grahambartley.dogsunleashed.advancement.DogExpeditionReturnedCriterion;
 import com.grahambartley.dogsunleashed.advancement.DogHowledCriterion;
 import com.grahambartley.dogsunleashed.advancement.DogShearBotchedCriterion;
 import com.grahambartley.dogsunleashed.advancement.DogSleptInBedCriterion;
@@ -11,11 +12,13 @@ import com.grahambartley.dogsunleashed.block.DogBedBlock;
 import com.grahambartley.dogsunleashed.command.DogsUnleashedCommand;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.entity.DogPlaySession;
+import com.grahambartley.dogsunleashed.entity.expedition.DogExpeditions;
 import com.grahambartley.dogsunleashed.entity.scent.ScentRules;
 import com.grahambartley.dogsunleashed.gametest.util.GameTestFixturePack;
 import com.grahambartley.dogsunleashed.listener.BoneCacheBreakListener;
 import com.grahambartley.dogsunleashed.listener.DogBattleListener;
 import com.grahambartley.dogsunleashed.listener.DogDimensionChangeListener;
+import com.grahambartley.dogsunleashed.listener.ExpeditionListener;
 import com.grahambartley.dogsunleashed.listener.OwnerDeathListener;
 import com.grahambartley.dogsunleashed.listener.PendantEffectListener;
 import com.grahambartley.dogsunleashed.listener.PetLocationSyncListener;
@@ -52,6 +55,7 @@ public class DogsUnleashed implements ModInitializer {
     DogShearBotchedCriterion.register();
     PetResurrectedCriterion.register();
     PetCuredCriterion.register();
+    DogExpeditionReturnedCriterion.register();
 
     ModSounds.initialize();
     ModComponents.initialize();
@@ -67,6 +71,7 @@ public class DogsUnleashed implements ModInitializer {
     ModScreenHandlers.initialize();
     ModSpawns.initialize();
     ScentRules.register();
+    DogExpeditions.registerWheelAction();
     ModNetworking.registerPayloads();
     ModNetworking.registerServerReceivers();
     GameTestFixturePack.registerWhenTesting();
@@ -80,6 +85,7 @@ public class DogsUnleashed implements ModInitializer {
     DogBattleListener.initialize();
     OwnerDeathListener.initialize();
     BoneCacheBreakListener.initialize();
+    ExpeditionListener.initialize();
 
     ServerLifecycleEvents.SERVER_STARTING.register(ServerConfigService::loadFromWorld);
 

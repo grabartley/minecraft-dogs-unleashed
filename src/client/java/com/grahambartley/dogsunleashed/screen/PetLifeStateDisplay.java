@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.screen;
 
+import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
@@ -8,6 +9,7 @@ public final class PetLifeStateDisplay {
 
   public static final int UNDEAD_COLOR = 0x8FBC8F;
   public static final int GONE_COLOR = 0xFF5555;
+  public static final int EXPLORING_COLOR = 0xFFAA00;
 
   private PetLifeStateDisplay() {}
 
@@ -27,6 +29,16 @@ public final class PetLifeStateDisplay {
       case DECEASED -> Text.translatable("screen.dogs-unleashed.pet_manager.deceased");
       case LOST -> Text.translatable("screen.dogs-unleashed.pet_manager.lost");
     };
+  }
+
+  public static @Nullable Text statusLabel(final PetSyncData pet) {
+    return pet.exploring()
+        ? Text.translatable("screen.dogs-unleashed.pet_manager.exploring")
+        : statusLabel(pet.lifeState());
+  }
+
+  public static int statusColor(final PetSyncData pet) {
+    return pet.exploring() ? EXPLORING_COLOR : statusColor(pet.lifeState());
   }
 
   public static int statusColor(final PetLifeState lifeState) {

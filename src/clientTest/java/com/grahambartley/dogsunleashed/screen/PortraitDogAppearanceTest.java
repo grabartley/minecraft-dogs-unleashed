@@ -256,7 +256,8 @@ class PortraitDogAppearanceTest {
             base.movementSpeed(),
             base.attackDamage(),
             base.composition(),
-            RidingView.NONE);
+            RidingView.NONE,
+            false);
 
     assertEquals(expected, PortraitDogAppearance.of(pet).undead());
   }
@@ -295,7 +296,8 @@ class PortraitDogAppearanceTest {
         MOVEMENT_SPEED,
         ATTACK_DAMAGE,
         composition,
-        RidingView.NONE);
+        RidingView.NONE,
+        false);
   }
 
   @Test
@@ -322,7 +324,8 @@ class PortraitDogAppearanceTest {
             base.movementSpeed(),
             base.attackDamage(),
             base.composition(),
-            RidingView.NONE);
+            RidingView.NONE,
+            false);
 
     final NbtCompound nbt = PortraitDogAppearance.of(overgrown).toNbt();
 

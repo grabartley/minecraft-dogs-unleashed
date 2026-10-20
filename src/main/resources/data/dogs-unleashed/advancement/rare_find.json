@@ -1,0 +1,28 @@
+{
+  "parent": "dogs-unleashed:best_friend",
+  "display": {
+    "icon": {
+      "id": "minecraft:compass"
+    },
+    "title": {
+      "translate": "advancements.dogs-unleashed.rare_find.title"
+    },
+    "description": {
+      "translate": "advancements.dogs-unleashed.rare_find.description"
+    },
+    "frame": "goal"
+  },
+  "criteria": {
+    "rare_find_returned": {
+      "trigger": "dogs-unleashed:dog_expedition_returned",
+      "conditions": {
+        "rare_find": true
+      }
+    }
+  },
+  "requirements": [
+    [
+      "rare_find_returned"
+    ]
+  ]
+}

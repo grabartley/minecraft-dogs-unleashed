@@ -1,0 +1,25 @@
+{
+  "parent": "dogs-unleashed:best_friend",
+  "display": {
+    "icon": {
+      "id": "minecraft:filled_map"
+    },
+    "title": {
+      "translate": "advancements.dogs-unleashed.off_exploring.title"
+    },
+    "description": {
+      "translate": "advancements.dogs-unleashed.off_exploring.description"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "expedition_returned": {
+      "trigger": "dogs-unleashed:dog_expedition_returned"
+    }
+  },
+  "requirements": [
+    [
+      "expedition_returned"
+    ]
+  ]
+}

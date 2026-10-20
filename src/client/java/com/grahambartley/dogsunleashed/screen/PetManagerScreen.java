@@ -337,7 +337,7 @@ public class PetManagerScreen extends Screen {
 
     portraits.draw(context, this.textRenderer, pet, imgX, imgY, THUMBNAIL_SIZE, mouseX, mouseY);
 
-    if (pet.alive()) {
+    if (pet.summonable()) {
       renderRowSummonButton(context, x, y, mouseX, mouseY);
     }
 
@@ -355,14 +355,14 @@ public class PetManagerScreen extends Screen {
     final String breedName = DogBreedNames.displayName(pet.breed(), pet.composition()).getString();
     context.drawText(this.textRenderer, breedName, textX, y + 18, 0xAAAAAA, false);
 
-    final Text statusLabel = PetLifeStateDisplay.statusLabel(pet.lifeState());
+    final Text statusLabel = PetLifeStateDisplay.statusLabel(pet);
     if (pet.alive() && statusLabel != null) {
       context.drawText(
           this.textRenderer,
           statusLabel,
           textX + textMaxWidth - this.textRenderer.getWidth(statusLabel),
           y + 18,
-          PetLifeStateDisplay.statusColor(pet.lifeState()),
+          PetLifeStateDisplay.statusColor(pet),
           false);
     }
 
@@ -437,7 +437,7 @@ public class PetManagerScreen extends Screen {
             && mouseY >= entryY
             && mouseY < entryY + ENTRY_HEIGHT - 5) {
           final PetSyncData pet = pets.get(i + scrollOffset);
-          if (pet.alive() && isWithinRowSummonButton(mouseX, mouseY, listX, entryY)) {
+          if (pet.summonable() && isWithinRowSummonButton(mouseX, mouseY, listX, entryY)) {
             ModNetworkingClient.sendSummonPet(UUID.fromString(pet.petId()));
           } else {
             MinecraftClient.getInstance().setScreen(new PetDetailsScreen(this, pet));

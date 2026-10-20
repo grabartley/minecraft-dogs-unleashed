@@ -21,7 +21,11 @@ class CustomCriteriaTest {
             "DogShearBotched", DogShearBotchedCriterion.ID, "dogs-unleashed:dog_shear_botched"),
         Arguments.of(
             "PetResurrected", PetResurrectedCriterion.ID, "dogs-unleashed:pet_resurrected"),
-        Arguments.of("PetCured", PetCuredCriterion.ID, "dogs-unleashed:pet_cured"));
+        Arguments.of("PetCured", PetCuredCriterion.ID, "dogs-unleashed:pet_cured"),
+        Arguments.of(
+            "DogExpeditionReturned",
+            DogExpeditionReturnedCriterion.ID,
+            "dogs-unleashed:dog_expedition_returned"));
   }
 
   @ParameterizedTest(name = "{0} ID = {2}")
