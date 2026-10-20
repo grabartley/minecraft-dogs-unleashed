@@ -160,7 +160,10 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
       float partialTick,
       int packedLight,
       int packedOverlay) {
-    CarryProfile profile = animatable.getRigSourceBreed().carryProfileFor(null);
+    CarryProfile profile = animatable.getRigSourceBreed().carryProfileFor(null).orElse(null);
+    if (profile == null) {
+      return;
+    }
     MouthFrame.level(poseStack, bone);
     poseStack.translate(0.0, profile.verticalOffset(), profile.forwardOffset());
     float scale = CarriedToy.ITEM.scaleIn(this.entityOrigin, poseStack.peek().getPositionMatrix());
