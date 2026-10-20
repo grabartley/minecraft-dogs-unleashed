@@ -80,4 +80,27 @@ class ScentLeadRulesTest {
   void pathEndsOnTheMarkOnly(final ScentTargetKind kind, final int reach) {
     assertEquals(reach, ScentLeadRules.pathReach(kind));
   }
+
+  @ParameterizedTest(name = "({0}, {1}) to ({2}, {3}) -> {4}")
+  @CsvSource({
+    "0, 0, 10, 0, none",
+    "0, 0, 16, 0, none",
+    "0, 0, 32, 0, 16:0",
+    "0.5, 0.5, -31.5, 0.5, -16:0",
+    "0, 0, 30, 40, 9:12",
+    "100, 100, 100, 164, 100:116"
+  })
+  @DisplayName("a long lead walks a sixteen block leg, a short one goes straight there")
+  void legWaypointBreaksUpLongLeads(
+      final double fromX,
+      final double fromZ,
+      final double toX,
+      final double toZ,
+      final String expected) {
+    assertEquals(
+        expected,
+        ScentLeadRules.legWaypoint(fromX, fromZ, toX, toZ)
+            .map(waypoint -> waypoint.x() + ":" + waypoint.z())
+            .orElse("none"));
+  }
 }
