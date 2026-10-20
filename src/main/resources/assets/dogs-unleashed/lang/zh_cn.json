@@ -79,6 +79,7 @@
   "message.dogs-unleashed.scent.stop": "%s停止了追踪",
   "message.dogs-unleashed.scent.nothing": "%s找不到气味",
   "message.dogs-unleashed.scent.found": "%s找到了！",
+  "message.dogs-unleashed.scent.map": "%s研究了地图，出发了",
   "message.dogs-unleashed.bone.bury": "%s小跑着去埋骨头了",
   "message.dogs-unleashed.bone.no_spot": "%s找不到松软的地面来挖",
   "message.dogs-unleashed.bone.dug_up": "%s为你挖出了一根骨头",

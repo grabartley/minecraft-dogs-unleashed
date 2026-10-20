@@ -62,6 +62,7 @@ public final class ModNbtKeys {
   public static final String TREAT_BUFF_TICKS = "TreatBuffTicks";
   public static final String SCENT_RULE = "ScentRule";
   public static final String SCENT_ITEM = "ScentItem";
+  public static final String SCENT_LANDMARK = "ScentLandmark";
   public static final String COMMAND_MODE = "CommandMode";
   public static final String COMMAND_ANCHOR_X = "CommandAnchorX";
   public static final String COMMAND_ANCHOR_Y = "CommandAnchorY";

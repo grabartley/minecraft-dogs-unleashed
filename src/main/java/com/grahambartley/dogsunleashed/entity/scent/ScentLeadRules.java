@@ -20,6 +20,8 @@ public final class ScentLeadRules {
   }
 
   public static ScentPhase arrivalPhase(final ScentTargetKind kind) {
-    return kind == ScentTargetKind.SUSPICIOUS_BLOCK ? ScentPhase.DIGGING : ScentPhase.POINTING;
+    return kind == ScentTargetKind.SUSPICIOUS_BLOCK || kind == ScentTargetKind.LANDMARK
+        ? ScentPhase.DIGGING
+        : ScentPhase.POINTING;
   }
 }

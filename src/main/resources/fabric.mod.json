@@ -36,6 +36,7 @@
       "com.grahambartley.dogsunleashed.gametest.DogAdvancementGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogExpeditionGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogScentGameTest",
+      "com.grahambartley.dogsunleashed.gametest.DogMapScentGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogBoneBurialGameTest",
       "com.grahambartley.dogsunleashed.gametest.OwnerDeathWatchGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogCosmeticGameTest",

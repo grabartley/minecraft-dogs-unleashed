@@ -75,7 +75,8 @@ hurts one of them. Earn a pup's trust and it grows into a wolf the size of a hor
 and Go to Bed. Or sneak and blow its whistle at something to send it there, set it on a mob, or have it fetch a dropped
 item. Hunting dogs leave your other pets, villagers and golems alone, but name your farm animals to keep them safe.
 - **Follow their nose.** Hand your dog a mob drop, a raw ore or a brush and it leads you to the nearest mob, ore or dig
-site that matches. Beagles can smell twice as far. Or send it off exploring from the wheel's Actions, and it comes back
+site that matches. Show it a treasure map and it digs at the X, or a trail ruins sherd and it finds the ruins.
+Beagles can smell twice as far. Or send it off exploring from the wheel's Actions, and it comes back
 next morning with a find and a map of where it went.
 - **Play fetch.** Throw a stick, a tennis ball or a frisbee. Your dog chases it, picks it up and brings it back to you.
 Give a roaming or staying dog a bone and it buries it, then digs it up a few days later and brings it back, sometimes

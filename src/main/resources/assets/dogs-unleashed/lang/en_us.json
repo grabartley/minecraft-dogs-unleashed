@@ -79,6 +79,7 @@
   "message.dogs-unleashed.scent.stop": "%s stopped tracking",
   "message.dogs-unleashed.scent.nothing": "%s can't pick up the scent",
   "message.dogs-unleashed.scent.found": "%s found it!",
+  "message.dogs-unleashed.scent.map": "%s studies the map and sets off",
   "message.dogs-unleashed.bone.bury": "%s trots off to bury the bone",
   "message.dogs-unleashed.bone.no_spot": "%s can't find soft ground to dig",
   "message.dogs-unleashed.bone.dug_up": "%s dug up a bone for you",

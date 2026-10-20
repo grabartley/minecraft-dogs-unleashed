@@ -23,6 +23,11 @@ final class EntityScentFinder implements ScentTargetFinder {
   }
 
   @Override
+  public ScentTargetKind kind() {
+    return ScentTargetKind.ENTITY;
+  }
+
+  @Override
   public ScentShellScan.Status advance(final ServerWorld world) {
     if (this.status != ScentShellScan.Status.SEARCHING) {
       return this.status;

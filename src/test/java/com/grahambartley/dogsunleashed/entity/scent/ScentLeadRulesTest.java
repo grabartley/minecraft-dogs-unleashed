@@ -25,7 +25,9 @@ class ScentLeadRulesTest {
         Arguments.of("an ore right below", ScentTargetKind.BLOCK, 0.5, 9.0, true),
         Arguments.of("an ore two blocks over", ScentTargetKind.BLOCK, 2.0, 2.0, false),
         Arguments.of("a dig site underfoot", ScentTargetKind.SUSPICIOUS_BLOCK, 1.5, 1.6, true),
-        Arguments.of("a dig site nearby", ScentTargetKind.SUSPICIOUS_BLOCK, 1.6, 1.6, false));
+        Arguments.of("a dig site nearby", ScentTargetKind.SUSPICIOUS_BLOCK, 1.6, 1.6, false),
+        Arguments.of("a map mark underfoot", ScentTargetKind.LANDMARK, 1.0, 30.0, true),
+        Arguments.of("a map mark nearby", ScentTargetKind.LANDMARK, 1.6, 1.6, false));
   }
 
   @ParameterizedTest(name = "{0}")
@@ -41,8 +43,13 @@ class ScentLeadRulesTest {
   }
 
   @ParameterizedTest(name = "{0} -> {1}")
-  @CsvSource({"ENTITY, POINTING", "BLOCK, POINTING", "SUSPICIOUS_BLOCK, DIGGING"})
-  @DisplayName("the dog digs at a dig site and points at anything else")
+  @CsvSource({
+    "ENTITY, POINTING",
+    "BLOCK, POINTING",
+    "SUSPICIOUS_BLOCK, DIGGING",
+    "LANDMARK, DIGGING"
+  })
+  @DisplayName("the dog digs at a dig site or a map mark and points at anything else")
   void arrivalPhaseDigsOnlyAtDigSites(final ScentTargetKind kind, final ScentPhase phase) {
     assertEquals(phase, ScentLeadRules.arrivalPhase(kind));
   }

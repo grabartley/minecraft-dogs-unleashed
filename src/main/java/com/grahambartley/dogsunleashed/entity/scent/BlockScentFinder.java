@@ -23,6 +23,11 @@ final class BlockScentFinder implements ScentTargetFinder {
   }
 
   @Override
+  public ScentTargetKind kind() {
+    return ScentTargetKind.BLOCK;
+  }
+
+  @Override
   public ScentShellScan.Status advance(final ServerWorld world) {
     final ScentShellScan.Status status =
         this.scan.advance(PROBES_PER_TICK, (dx, dy, dz) -> this.matchDistance(world, dx, dy, dz));

@@ -1,14 +1,11 @@
 package com.grahambartley.dogsunleashed.entity;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
-import com.grahambartley.dogsunleashed.ModItemTags;
 import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.advancement.DogTamedCriterion;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
-import com.grahambartley.dogsunleashed.entity.scent.ScentRule;
-import com.grahambartley.dogsunleashed.entity.scent.ScentRules;
 import com.grahambartley.dogsunleashed.entity.variant.UnleashedDogCoat;
 import com.grahambartley.dogsunleashed.item.DogWhistleItem;
 import com.grahambartley.dogsunleashed.network.ModNetworking;
@@ -16,14 +13,12 @@ import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetNames;
 import com.grahambartley.dogsunleashed.pet.PetRegistrar;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Supplier;
 import net.minecraft.entity.EntityStatuses;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -35,9 +30,11 @@ public final class DogInteractions {
   private static final float BREEDING_ITEM_HEAL_AMOUNT = 2.0F;
 
   private final UnleashedDogEntity dog;
+  private final DogScentHandoff scentHandoff;
 
   DogInteractions(final UnleashedDogEntity dog) {
     this.dog = dog;
+    this.scentHandoff = new DogScentHandoff(dog);
   }
 
   public static boolean shouldConsumeOnClient(
@@ -265,32 +262,9 @@ public final class DogInteractions {
 
   private @Nullable ActionResult tryGiveScent(
       final PlayerEntity player, final ItemStack itemStack) {
-    if (!this.isDirectOwnerInteraction(player)
-        || !itemStack.isIn(ModItemTags.SCENT_ITEMS)
-        || DogFoods.isTamingItem(itemStack)) {
-      return null;
-    }
-    final DogScent scent = this.dog.getComponents().get(DogScent.class);
-    if (scent.isTrackingItem(itemStack)) {
-      scent.stop();
-      this.sendFeedback(player, "message.dogs-unleashed.scent.stop");
-      return ActionResult.SUCCESS;
-    }
-    final Optional<RegistryEntry.Reference<ScentRule>> rule =
-        ScentRules.forItem(this.dog.getWorld(), itemStack);
-    if (rule.isEmpty()) {
-      scent.cues().whine();
-      return ActionResult.SUCCESS;
-    }
-    if (this.dog.getCommand() == DogCommand.SIT) {
-      this.dog.getCommandController().apply(DogCommand.FOLLOW);
-    }
-    this.dog.getComponents().get(DogPointedOrders.class).clear();
-    this.dog.getNavigation().stop();
-    scent.start(rule.get().registryKey().getValue(), itemStack.getItem());
-    scent.cues().sniff();
-    this.sendFeedback(player, "message.dogs-unleashed.scent.start");
-    return ActionResult.SUCCESS;
+    return this.isDirectOwnerInteraction(player)
+        ? this.scentHandoff.tryGive(player, itemStack)
+        : null;
   }
 
   private @Nullable ActionResult tryGiveBone(final PlayerEntity player, final ItemStack itemStack) {

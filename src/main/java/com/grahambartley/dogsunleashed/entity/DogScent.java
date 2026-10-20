@@ -2,10 +2,14 @@ package com.grahambartley.dogsunleashed.entity;
 
 import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
+import com.grahambartley.dogsunleashed.entity.scent.ScentLandmark;
+import com.grahambartley.dogsunleashed.entity.scent.ScentLandmarkCache;
 import com.grahambartley.dogsunleashed.entity.scent.ScentPhase;
 import com.grahambartley.dogsunleashed.entity.scent.ScentRange;
 import com.grahambartley.dogsunleashed.entity.scent.ScentRule;
 import com.grahambartley.dogsunleashed.entity.scent.ScentRules;
+import com.grahambartley.dogsunleashed.entity.scent.ScentTargetFinder;
+import com.grahambartley.dogsunleashed.entity.scent.ScentTargetFinders;
 import java.util.List;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -20,6 +24,7 @@ public final class DogScent extends DogComponent {
 
   private final UnleashedDogEntity dog;
   private final DogScentCues cues;
+  private final ScentLandmarkCache landmarks = new ScentLandmarkCache();
 
   private @Nullable Identifier ruleId;
   private @Nullable Item scentItem;
@@ -32,7 +37,7 @@ public final class DogScent extends DogComponent {
   }
 
   public boolean isTracking() {
-    return this.ruleId != null;
+    return this.scentItem != null;
   }
 
   public boolean isTrackingItem(final ItemStack stack) {
@@ -54,6 +59,22 @@ public final class DogScent extends DogComponent {
     return ScentRules.byId(this.dog.getWorld(), this.ruleId).map(RegistryEntry::value).orElse(null);
   }
 
+  public @Nullable ScentLandmark landmark() {
+    return this.landmarks.known().orElse(null);
+  }
+
+  public @Nullable ScentTargetFinder newFinder() {
+    if (this.ruleId == null) {
+      return this.landmarks.known().isPresent()
+          ? ScentTargetFinders.known(this.dog, this.landmarks)
+          : null;
+    }
+    final ScentRule rule = this.rule();
+    return rule == null
+        ? null
+        : ScentTargetFinders.create(rule, this.dog, this.range(), this.landmarks);
+  }
+
   public int range() {
     final DogGenome genome = this.dog.getGenome();
     return ScentRange.of(this.dog.getBreed(), genome == null ? List.of() : genome.composition());
@@ -68,8 +89,18 @@ public final class DogScent extends DogComponent {
   }
 
   void start(final Identifier rule, final Item item) {
+    this.begin(rule, item);
+  }
+
+  void followMark(final ScentLandmark mark, final Item item) {
+    this.begin(null, item);
+    this.landmarks.remember(mark);
+  }
+
+  private void begin(final @Nullable Identifier rule, final Item item) {
     this.ruleId = rule;
     this.scentItem = item;
+    this.landmarks.clear();
     this.settled = false;
     this.generation++;
   }
@@ -81,15 +112,23 @@ public final class DogScent extends DogComponent {
   public void stop() {
     this.ruleId = null;
     this.scentItem = null;
+    this.landmarks.clear();
     this.setPhase(ScentPhase.NONE);
   }
 
   @Override
   void writeNbt(final NbtCompound nbt) {
-    if (this.ruleId != null && this.scentItem != null && !this.settled) {
-      nbt.putString(ModNbtKeys.SCENT_RULE, this.ruleId.toString());
-      nbt.putString(ModNbtKeys.SCENT_ITEM, Registries.ITEM.getId(this.scentItem).toString());
+    if (this.scentItem == null || this.settled) {
+      return;
     }
+    nbt.putString(ModNbtKeys.SCENT_ITEM, Registries.ITEM.getId(this.scentItem).toString());
+    if (this.ruleId != null) {
+      nbt.putString(ModNbtKeys.SCENT_RULE, this.ruleId.toString());
+    }
+    this.landmarks
+        .known()
+        .ifPresent(
+            mark -> nbt.putIntArray(ModNbtKeys.SCENT_LANDMARK, new int[] {mark.x(), mark.z()}));
   }
 
   @Override
@@ -97,15 +136,27 @@ public final class DogScent extends DogComponent {
     this.stop();
     final Identifier rule = savedId(nbt, ModNbtKeys.SCENT_RULE);
     final Identifier item = savedId(nbt, ModNbtKeys.SCENT_ITEM);
-    if (rule == null || item == null || !Registries.ITEM.containsId(item)) {
+    final ScentLandmark mark = savedLandmark(nbt);
+    if (item == null || !Registries.ITEM.containsId(item) || (rule == null && mark == null)) {
       return;
     }
-    this.start(rule, Registries.ITEM.get(item));
+    this.begin(rule, Registries.ITEM.get(item));
+    if (mark != null) {
+      this.landmarks.remember(mark);
+    }
   }
 
   static @Nullable Identifier savedId(final NbtCompound nbt, final String key) {
     return nbt.contains(key, NbtElement.STRING_TYPE)
         ? Identifier.tryParse(nbt.getString(key))
         : null;
+  }
+
+  static @Nullable ScentLandmark savedLandmark(final NbtCompound nbt) {
+    if (!nbt.contains(ModNbtKeys.SCENT_LANDMARK, NbtElement.INT_ARRAY_TYPE)) {
+      return null;
+    }
+    final int[] column = nbt.getIntArray(ModNbtKeys.SCENT_LANDMARK);
+    return column.length == 2 ? new ScentLandmark(column[0], column[1]) : null;
   }
 }

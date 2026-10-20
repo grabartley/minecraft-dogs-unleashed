@@ -6,6 +6,8 @@ import org.jetbrains.annotations.Nullable;
 
 public interface ScentTargetFinder {
 
+  ScentTargetKind kind();
+
   ScentShellScan.Status advance(ServerWorld world);
 
   @Nullable
