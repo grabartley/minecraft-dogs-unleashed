@@ -1,7 +1,9 @@
 package com.grahambartley.dogsunleashed.render.coat;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import net.minecraft.client.texture.NativeImage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -25,5 +27,21 @@ class CoatImagesTest {
     assertEquals(red, CoatImages.red(abgr));
     assertEquals(green, CoatImages.green(abgr));
     assertEquals(blue, CoatImages.blue(abgr));
+  }
+
+  @ParameterizedTest(name = "{0}x{1}")
+  @CsvSource({"1, 1", "3, 2", "2, 5"})
+  @DisplayName("pixels copied out of an image build the same image back, row by row")
+  void pixelsRoundTripThroughAnImage(final int width, final int height) {
+    final int[] pixels = new int[width * height];
+    for (int i = 0; i < pixels.length; i++) {
+      pixels[i] = CoatImages.abgr(255 - i, i * 10, i * 20, i * 30);
+    }
+    try (NativeImage image = CoatImages.imageOf(pixels, width, height)) {
+      assertEquals(width, image.getWidth());
+      assertEquals(height, image.getHeight());
+      assertEquals(pixels[width * height - 1], image.getColor(width - 1, height - 1));
+      assertArrayEquals(pixels, CoatImages.pixelsOf(image));
+    }
   }
 }

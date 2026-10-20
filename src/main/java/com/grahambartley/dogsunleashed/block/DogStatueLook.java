@@ -57,6 +57,11 @@ public record DogStatueLook(
         pet.getGenes());
   }
 
+  public void applyTo(final UnleashedDogEntity dog) {
+    dog.readCustomDataFromNbt(this.toNbt());
+    dog.setBaby(this.baby);
+  }
+
   public UnleashedDogBreed rigBreed() {
     return DogGenome.rigBreedOf(
         this.breed, this.genome == null ? List.of() : this.genome.composition());

@@ -64,9 +64,14 @@
   "item.dogs-unleashed.dog_treat.tooltip": "你的狗会爱上它的。",
   "item.dogs-unleashed.dog_treat.effect": "%1$s秒：+%2$s%% 速度，+%3$s 攻击伤害",
   "item.dogs-unleashed.dog_whistle": "狗哨",
+  "item.dogs-unleashed.blank_canvas": "空白画布",
+  "item.dogs-unleashed.blank_canvas.size": "肖像尺寸：%s",
+  "item.dogs-unleashed.blank_canvas.hint": "对你的一只狗使用，即可为它画一幅肖像。潜行并使用可更改尺寸",
+  "item.dogs-unleashed.dog_portrait": "狗狗肖像",
   "item.dogs-unleashed.dog_whistle.unbound": "右键点击你的狗来绑定",
   "item.dogs-unleashed.dog_whistle.bound": "已绑定到%1$s",
   "message.dogs-unleashed.whistle.bound": "%1$s现在会响应这只哨子",
+  "message.dogs-unleashed.portrait.painted": "你为%1$s画了一幅肖像",
   "message.dogs-unleashed.whistle.unbound": "这只哨子没有绑定狗",
   "message.dogs-unleashed.whistle.too_far": "%1$s离得太远，听不到你",
   "message.dogs-unleashed.whistle.sitting": "%1$s正坐着，待在原地不动",
@@ -528,5 +533,6 @@
   "command.dogs-unleashed.status.direwolf.packsize": "- direwolf pack=%s..%s",
   "command.dogs-unleashed.status.direwolf.packs": "- direwolf packhunting=%s packdefence=%s",
   "command.dogs-unleashed.status.direwolf.stamina": "- direwolf staminadrain=%s staminacapacity=%s%% staminarecovery=%s%%",
-  "command.dogs-unleashed.direwolf.pack_order": "最小狼群（%s）不能大于最大狼群（%s）。"
+  "command.dogs-unleashed.direwolf.pack_order": "最小狼群（%s）不能大于最大狼群（%s）。",
+  "entity.dogs-unleashed.dog_portrait": "狗狗肖像"
 }

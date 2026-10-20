@@ -33,7 +33,7 @@ public record DogStatue(DogStatueLook look, DogStatuePose pose, String name) {
     return new DogStatue(look, DogStatuePose.SIT, cut(name));
   }
 
-  private static String cut(final String name) {
+  public static String cut(final String name) {
     if (name.length() <= MAX_NAME_LENGTH) {
       return name;
     }

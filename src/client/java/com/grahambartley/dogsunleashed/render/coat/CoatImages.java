@@ -50,6 +50,28 @@ public final class CoatImages {
     return id;
   }
 
+  public static int[] pixelsOf(final NativeImage image) {
+    final int width = image.getWidth();
+    final int height = image.getHeight();
+    final int[] pixels = new int[width * height];
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        pixels[y * width + x] = image.getColor(x, y);
+      }
+    }
+    return pixels;
+  }
+
+  public static NativeImage imageOf(final int[] pixels, final int width, final int height) {
+    final NativeImage image = new NativeImage(NativeImage.Format.RGBA, width, height, false);
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        image.setColor(x, y, pixels[y * width + x]);
+      }
+    }
+    return image;
+  }
+
   public static int abgr(final int a, final int r, final int g, final int b) {
     return (a << 24) | (b << 16) | (g << 8) | r;
   }

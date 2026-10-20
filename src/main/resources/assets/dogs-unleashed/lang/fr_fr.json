@@ -64,9 +64,14 @@
   "item.dogs-unleashed.dog_treat.tooltip": "Votre chien va adorer.",
   "item.dogs-unleashed.dog_treat.effect": "%1$ss : +%2$s%% de vitesse, +%3$s de dégâts d'attaque",
   "item.dogs-unleashed.dog_whistle": "Sifflet pour chien",
+  "item.dogs-unleashed.blank_canvas": "Toile vierge",
+  "item.dogs-unleashed.blank_canvas.size": "Taille du portrait : %s",
+  "item.dogs-unleashed.blank_canvas.hint": "Utilisez-la sur un de vos chiens pour peindre son portrait. Accroupissez-vous et utilisez-la pour changer la taille",
+  "item.dogs-unleashed.dog_portrait": "Portrait de chien",
   "item.dogs-unleashed.dog_whistle.unbound": "Clic droit sur votre chien pour le lier",
   "item.dogs-unleashed.dog_whistle.bound": "Lié à %1$s",
   "message.dogs-unleashed.whistle.bound": "%1$s répond désormais à ce sifflet",
+  "message.dogs-unleashed.portrait.painted": "Vous avez peint un portrait de %1$s",
   "message.dogs-unleashed.whistle.unbound": "Ce sifflet n'est lié à aucun chien",
   "message.dogs-unleashed.whistle.too_far": "%1$s est trop loin pour vous entendre",
   "message.dogs-unleashed.whistle.sitting": "%1$s est assis et ne bouge pas",
@@ -528,5 +533,6 @@
   "command.dogs-unleashed.status.direwolf.packsize": "- direwolf pack=%s..%s",
   "command.dogs-unleashed.status.direwolf.packs": "- direwolf packhunting=%s packdefence=%s",
   "command.dogs-unleashed.status.direwolf.stamina": "- direwolf staminadrain=%s staminacapacity=%s%% staminarecovery=%s%%",
-  "command.dogs-unleashed.direwolf.pack_order": "La plus petite meute (%s) ne peut pas être plus grande que la plus grande meute (%s)."
+  "command.dogs-unleashed.direwolf.pack_order": "La plus petite meute (%s) ne peut pas être plus grande que la plus grande meute (%s).",
+  "entity.dogs-unleashed.dog_portrait": "Portrait de chien"
 }

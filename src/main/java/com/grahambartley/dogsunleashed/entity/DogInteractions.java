@@ -2,11 +2,13 @@ package com.grahambartley.dogsunleashed.entity;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModItems;
+import com.grahambartley.dogsunleashed.ModPortraits;
 import com.grahambartley.dogsunleashed.advancement.DogTamedCriterion;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
 import com.grahambartley.dogsunleashed.entity.variant.UnleashedDogCoat;
+import com.grahambartley.dogsunleashed.item.BlankCanvasItem;
 import com.grahambartley.dogsunleashed.item.DogWhistleItem;
 import com.grahambartley.dogsunleashed.network.ModNetworking;
 import com.grahambartley.dogsunleashed.pet.PetData;
@@ -112,6 +114,7 @@ public final class DogInteractions {
         firstHandled(
             List.of(
                 () -> this.tryBindWhistle(player, itemStack),
+                () -> this.tryPaintPortrait(player, itemStack),
                 () -> this.tryEvolve(player, itemStack),
                 () -> this.tryCure(player, itemStack),
                 () -> this.tryFeedTreat(player, itemStack),
@@ -178,6 +181,16 @@ public final class DogInteractions {
     }
     DogWhistleItem.bind(itemStack, this.dog.getUuid(), PetNames.tamedNameOf(this.dog));
     this.sendFeedback(player, "message.dogs-unleashed.whistle.bound");
+    return ActionResult.SUCCESS;
+  }
+
+  private @Nullable ActionResult tryPaintPortrait(
+      final PlayerEntity player, final ItemStack itemStack) {
+    if (!this.isDirectOwnerInteraction(player) || !itemStack.isOf(ModPortraits.BLANK_CANVAS)) {
+      return null;
+    }
+    BlankCanvasItem.paint(itemStack, player, this.dog);
+    this.sendFeedback(player, "message.dogs-unleashed.portrait.painted");
     return ActionResult.SUCCESS;
   }
 

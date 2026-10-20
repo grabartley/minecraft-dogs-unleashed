@@ -80,8 +80,7 @@ public final class StatueFigures {
       return null;
     }
     dog.setPosition(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
-    dog.readCustomDataFromNbt(statue.look().toNbt());
-    dog.setBaby(statue.look().baby());
+    statue.look().applyTo(dog);
     final DogStatuePose pose = statue.shownPose();
     dog.setSitting(pose.sits());
     dog.setInSittingPose(pose.sits());

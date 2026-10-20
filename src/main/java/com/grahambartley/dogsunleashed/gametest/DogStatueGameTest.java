@@ -255,4 +255,19 @@ public final class DogStatueGameTest implements FabricGameTest {
           context.complete();
         });
   }
+
+  @GameTest(templateName = ARENA, batchId = "statue")
+  public void aLookAppliedToAFreshDogReadsBackUnchanged(final TestContext context) {
+    final UnleashedDogEntity source = DogTestHelper.spawnDog(context, DogTestData.HUSKY, REL_DOG);
+    source.setAiDisabled(true);
+    source.setBaby(true);
+    final DogStatueLook look = DogStatueLook.of(source);
+    final UnleashedDogEntity dog = DogTestHelper.spawnDog(context, DogTestData.HUSKY, REL_GRAVE);
+    dog.setAiDisabled(true);
+
+    look.applyTo(dog);
+
+    context.assertEquals(DogStatueLook.of(dog), look, "look after applying it");
+    context.complete();
+  }
 }

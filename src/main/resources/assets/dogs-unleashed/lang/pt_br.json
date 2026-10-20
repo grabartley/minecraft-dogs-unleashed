@@ -64,9 +64,14 @@
   "item.dogs-unleashed.dog_treat.tooltip": "Seu cachorro vai adorar.",
   "item.dogs-unleashed.dog_treat.effect": "%1$ss: +%2$s%% de velocidade, +%3$s de dano de ataque",
   "item.dogs-unleashed.dog_whistle": "Apito de cachorro",
+  "item.dogs-unleashed.blank_canvas": "Tela em branco",
+  "item.dogs-unleashed.blank_canvas.size": "Tamanho do retrato: %s",
+  "item.dogs-unleashed.blank_canvas.hint": "Use em um dos seus cachorros para pintar o retrato dele. Agache e use para mudar o tamanho",
+  "item.dogs-unleashed.dog_portrait": "Retrato de cachorro",
   "item.dogs-unleashed.dog_whistle.unbound": "Clique com o botão direito no seu cachorro para vinculá-lo",
   "item.dogs-unleashed.dog_whistle.bound": "Vinculado a %1$s",
   "message.dogs-unleashed.whistle.bound": "%1$s agora atende a este apito",
+  "message.dogs-unleashed.portrait.painted": "Você pintou um retrato de %1$s",
   "message.dogs-unleashed.whistle.unbound": "Este apito não está vinculado a um cachorro",
   "message.dogs-unleashed.whistle.too_far": "%1$s está longe demais para ouvir você",
   "message.dogs-unleashed.whistle.sitting": "%1$s está sentado e não sai do lugar",
@@ -528,5 +533,6 @@
   "command.dogs-unleashed.status.direwolf.packsize": "- direwolf pack=%s..%s",
   "command.dogs-unleashed.status.direwolf.packs": "- direwolf packhunting=%s packdefence=%s",
   "command.dogs-unleashed.status.direwolf.stamina": "- direwolf staminadrain=%s staminacapacity=%s%% staminarecovery=%s%%",
-  "command.dogs-unleashed.direwolf.pack_order": "A menor matilha (%s) não pode ser maior que a maior matilha (%s)."
+  "command.dogs-unleashed.direwolf.pack_order": "A menor matilha (%s) não pode ser maior que a maior matilha (%s).",
+  "entity.dogs-unleashed.dog_portrait": "Retrato de cachorro"
 }

@@ -64,9 +64,14 @@
   "item.dogs-unleashed.dog_treat.tooltip": "Ваша собака будет в восторге.",
   "item.dogs-unleashed.dog_treat.effect": "%1$s с: +%2$s%% к скорости, +%3$s к урону атаки",
   "item.dogs-unleashed.dog_whistle": "Собачий свисток",
+  "item.dogs-unleashed.blank_canvas": "Чистый холст",
+  "item.dogs-unleashed.blank_canvas.size": "Размер портрета: %s",
+  "item.dogs-unleashed.blank_canvas.hint": "Используйте на одной из ваших собак, чтобы написать её портрет. Присядьте и используйте, чтобы сменить размер",
+  "item.dogs-unleashed.dog_portrait": "Портрет собаки",
   "item.dogs-unleashed.dog_whistle.unbound": "ПКМ по собаке, чтобы привязать",
   "item.dogs-unleashed.dog_whistle.bound": "Привязан к: %1$s",
   "message.dogs-unleashed.whistle.bound": "Теперь %1$s откликается на этот свисток",
+  "message.dogs-unleashed.portrait.painted": "Вы написали портрет: %1$s",
   "message.dogs-unleashed.whistle.unbound": "Этот свисток не привязан к собаке",
   "message.dogs-unleashed.whistle.too_far": "%1$s слишком далеко и не слышит вас",
   "message.dogs-unleashed.whistle.sitting": "%1$s сидит и не двигается с места",
@@ -528,5 +533,6 @@
   "command.dogs-unleashed.status.direwolf.packsize": "- direwolf pack=%s..%s",
   "command.dogs-unleashed.status.direwolf.packs": "- direwolf packhunting=%s packdefence=%s",
   "command.dogs-unleashed.status.direwolf.stamina": "- direwolf staminadrain=%s staminacapacity=%s%% staminarecovery=%s%%",
-  "command.dogs-unleashed.direwolf.pack_order": "Минимальный размер стаи (%s) не может быть больше максимального (%s)."
+  "command.dogs-unleashed.direwolf.pack_order": "Минимальный размер стаи (%s) не может быть больше максимального (%s).",
+  "entity.dogs-unleashed.dog_portrait": "Портрет собаки"
 }
