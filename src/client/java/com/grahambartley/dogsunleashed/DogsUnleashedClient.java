@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed;
 import com.grahambartley.dogsunleashed.config.SyncedServerConfig;
 import com.grahambartley.dogsunleashed.item.armor.DogArmorTier;
 import com.grahambartley.dogsunleashed.item.cosmetic.DogCosmetic;
+import com.grahambartley.dogsunleashed.item.costume.DogCostume;
 import com.grahambartley.dogsunleashed.network.ModNetworkingClient;
 import com.grahambartley.dogsunleashed.render.CacheReloader;
 import com.grahambartley.dogsunleashed.render.DogBedBlockEntityRenderer;
@@ -45,6 +46,7 @@ import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.client.render.entity.WolfEntityRenderer;
 import net.minecraft.component.type.DyedColorComponent;
+import net.minecraft.item.Item;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.math.ColorHelper;
 
@@ -61,13 +63,12 @@ public class DogsUnleashedClient implements ClientModInitializer {
         ModArmorItems.of(DogArmorTier.LEATHER));
     for (final DogCosmetic cosmetic : DogCosmetic.values()) {
       if (cosmetic.isDyeable()) {
-        ColorProviderRegistry.ITEM.register(
-            (stack, tintIndex) ->
-                tintIndex > 0
-                    ? -1
-                    : ColorHelper.Argb.fullAlpha(
-                        DyedColorComponent.getColor(stack, cosmetic.undyedColor())),
-            ModCosmeticItems.of(cosmetic));
+        registerDyeTint(ModCosmeticItems.of(cosmetic), cosmetic.undyedColor());
+      }
+    }
+    for (final DogCostume costume : DogCostume.values()) {
+      if (costume.isDyeable()) {
+        registerDyeTint(ModCostumeItems.of(costume), costume.undyedColor());
       }
     }
     EntityRendererRegistry.register(ModEntities.HUSKY, DogRenderer::new);
@@ -152,5 +153,14 @@ public class DogsUnleashedClient implements ClientModInitializer {
     KeybindDiscoveryNudge.register();
     RideInputSync.register();
     RideStaminaHud.register();
+  }
+
+  private static void registerDyeTint(final Item item, final int undyedColor) {
+    ColorProviderRegistry.ITEM.register(
+        (stack, tintIndex) ->
+            tintIndex > 0
+                ? -1
+                : ColorHelper.Argb.fullAlpha(DyedColorComponent.getColor(stack, undyedColor)),
+        item);
   }
 }

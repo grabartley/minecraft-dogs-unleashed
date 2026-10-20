@@ -13,7 +13,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.LeveledCauldronBlock;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.item.Item;
@@ -23,6 +26,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.recipe.input.CraftingRecipeInput;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.CustomTestProvider;
@@ -32,6 +36,7 @@ import net.minecraft.test.TestFunction;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ColorHelper;
 import net.minecraft.world.GameMode;
 
 public final class DogCostumeGameTest implements FabricGameTest {
@@ -48,37 +53,121 @@ public final class DogCostumeGameTest implements FabricGameTest {
   private static final int GRID_WIDTH = 3;
   private static final int STAT_SETTLE_TICKS = 5;
   private static final Item NONE = Items.AIR;
+  private static final int RED_DYE_COLOR = 0xB02E26;
 
   private static final Map<DogCostume, List<Item>> RECIPE_GRIDS =
-      Map.of(
-          DogCostume.SPIDER,
-          List.of(
-              Items.STRING,
-              Items.SPIDER_EYE,
-              Items.STRING,
-              Items.STRING,
-              Items.BLACK_WOOL,
-              Items.STRING),
-          DogCostume.ZOMBIE,
-          List.of(
-              Items.ROTTEN_FLESH,
-              NONE,
-              Items.ROTTEN_FLESH,
-              Items.ROTTEN_FLESH,
-              Items.BLUE_WOOL,
-              Items.ROTTEN_FLESH),
-          DogCostume.SKELETON,
-          List.of(Items.BONE, NONE, Items.BONE, Items.BONE, Items.WHITE_WOOL, Items.BONE),
-          DogCostume.ENDERMAN,
-          List.of(NONE, Items.ENDER_PEARL, NONE, NONE, Items.BLACK_WOOL, NONE),
-          DogCostume.BEE,
-          List.of(
-              Items.HONEYCOMB,
-              NONE,
-              Items.HONEYCOMB,
-              Items.YELLOW_WOOL,
-              Items.BLACK_WOOL,
-              Items.YELLOW_WOOL));
+      Map.ofEntries(
+          Map.entry(
+              DogCostume.SPIDER,
+              List.of(
+                  Items.STRING,
+                  Items.SPIDER_EYE,
+                  Items.STRING,
+                  Items.STRING,
+                  Items.BLACK_WOOL,
+                  Items.STRING)),
+          Map.entry(
+              DogCostume.ZOMBIE,
+              List.of(
+                  Items.ROTTEN_FLESH,
+                  NONE,
+                  Items.ROTTEN_FLESH,
+                  Items.ROTTEN_FLESH,
+                  Items.BLUE_WOOL,
+                  Items.ROTTEN_FLESH)),
+          Map.entry(
+              DogCostume.SKELETON,
+              List.of(Items.BONE, NONE, Items.BONE, Items.BONE, Items.WHITE_WOOL, Items.BONE)),
+          Map.entry(
+              DogCostume.ENDERMAN,
+              List.of(NONE, Items.ENDER_PEARL, NONE, NONE, Items.BLACK_WOOL, NONE)),
+          Map.entry(
+              DogCostume.BEE,
+              List.of(
+                  Items.HONEYCOMB,
+                  NONE,
+                  Items.HONEYCOMB,
+                  Items.YELLOW_WOOL,
+                  Items.BLACK_WOOL,
+                  Items.YELLOW_WOOL)),
+          Map.entry(
+              DogCostume.ENDER_DRAGON,
+              List.of(
+                  NONE,
+                  Items.DRAGON_BREATH,
+                  NONE,
+                  Items.PHANTOM_MEMBRANE,
+                  Items.BLACK_WOOL,
+                  Items.PHANTOM_MEMBRANE)),
+          Map.entry(
+              DogCostume.CREEPER,
+              List.of(
+                  Items.GUNPOWDER,
+                  NONE,
+                  Items.GUNPOWDER,
+                  Items.GUNPOWDER,
+                  Items.LIME_WOOL,
+                  Items.GUNPOWDER)),
+          Map.entry(
+              DogCostume.WITHER,
+              List.of(NONE, Items.WITHER_ROSE, NONE, NONE, Items.BLACK_WOOL, NONE)),
+          Map.entry(
+              DogCostume.WARDEN, List.of(NONE, Items.ECHO_SHARD, NONE, NONE, Items.SCULK, NONE)),
+          Map.entry(
+              DogCostume.SHEEP,
+              List.of(
+                  Items.WHITE_WOOL,
+                  NONE,
+                  Items.WHITE_WOOL,
+                  Items.WHITE_WOOL,
+                  Items.WHITE_WOOL,
+                  Items.WHITE_WOOL)),
+          Map.entry(
+              DogCostume.MOOSHROOM,
+              List.of(
+                  Items.RED_MUSHROOM,
+                  NONE,
+                  Items.RED_MUSHROOM,
+                  Items.RED_MUSHROOM,
+                  Items.RED_WOOL,
+                  Items.RED_MUSHROOM)),
+          Map.entry(
+              DogCostume.CHICKEN,
+              List.of(
+                  Items.FEATHER,
+                  NONE,
+                  Items.FEATHER,
+                  Items.FEATHER,
+                  Items.WHITE_WOOL,
+                  Items.FEATHER)),
+          Map.entry(
+              DogCostume.AXOLOTL,
+              List.of(NONE, Items.TROPICAL_FISH, NONE, NONE, Items.PINK_WOOL, NONE)),
+          Map.entry(
+              DogCostume.FROG,
+              List.of(
+                  Items.SLIME_BALL,
+                  NONE,
+                  Items.SLIME_BALL,
+                  Items.SLIME_BALL,
+                  Items.GREEN_WOOL,
+                  Items.SLIME_BALL)),
+          Map.entry(
+              DogCostume.PANDA,
+              List.of(
+                  Items.BAMBOO,
+                  NONE,
+                  Items.BAMBOO,
+                  Items.BLACK_WOOL,
+                  Items.WHITE_WOOL,
+                  Items.BLACK_WOOL)),
+          Map.entry(
+              DogCostume.TURTLE,
+              List.of(
+                  Items.TURTLE_SCUTE, NONE, Items.TURTLE_SCUTE, NONE, Items.TURTLE_SCUTE, NONE)),
+          Map.entry(
+              DogCostume.ALLAY,
+              List.of(NONE, Items.AMETHYST_SHARD, NONE, NONE, Items.LIGHT_BLUE_WOOL, NONE)));
 
   private static final List<RegistryEntry<EntityAttribute>> STATS =
       List.of(
@@ -292,6 +381,61 @@ public final class DogCostumeGameTest implements FabricGameTest {
               "Exactly one costume should drop on death");
           context.complete();
         });
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void sheepCostumeTakesDyeLikeLeatherArmour(final TestContext context) {
+    final ItemStack dyed =
+        craft(
+            context.getWorld(),
+            List.of(
+                ModCostumeItems.of(DogCostume.SHEEP),
+                Items.RED_DYE,
+                NONE,
+                NONE,
+                NONE,
+                NONE,
+                NONE,
+                NONE,
+                NONE));
+    context.assertTrue(
+        dyed.isOf(ModCostumeItems.of(DogCostume.SHEEP))
+            && DyedColorComponent.getColor(dyed, DogCostume.SHEEP.undyedColor())
+                == ColorHelper.Argb.fullAlpha(RED_DYE_COLOR),
+        "A sheep costume and red dye should craft a red sheep costume but made " + dyed);
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void onlyTheSheepCostumeTakesDye(final TestContext context) {
+    for (final DogCostume costume : DogCostume.values()) {
+      context.assertTrue(
+          new ItemStack(ModCostumeItems.of(costume)).isIn(ItemTags.DYEABLE) == costume.isDyeable(),
+          costume + (costume.isDyeable() ? " should" : " should not") + " take dye");
+    }
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void aWaterCauldronWashesTheDyeOutOfASheepCostume(final TestContext context) {
+    final BlockPos cauldron = new BlockPos(1, 2, 1);
+    context.setBlockState(
+        cauldron, Blocks.WATER_CAULDRON.getDefaultState().with(LeveledCauldronBlock.LEVEL, 3));
+    final ServerPlayerEntity owner = survivalPlayerAt(context, OWNER_POS);
+    final ItemStack dyed = new ItemStack(ModCostumeItems.of(DogCostume.SHEEP));
+    dyed.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(RED_DYE_COLOR, true));
+    owner.setStackInHand(Hand.MAIN_HAND, dyed);
+
+    context.useBlock(cauldron, owner);
+
+    context.assertFalse(
+        owner.getStackInHand(Hand.MAIN_HAND).contains(DataComponentTypes.DYED_COLOR),
+        "Washing should clear the sheep costume's dye");
+    context.assertEquals(
+        context.getBlockState(cauldron).get(LeveledCauldronBlock.LEVEL),
+        2,
+        "Washing should use one level of water");
+    context.complete();
   }
 
   private static ItemStack craft(final ServerWorld world, final List<Item> grid) {

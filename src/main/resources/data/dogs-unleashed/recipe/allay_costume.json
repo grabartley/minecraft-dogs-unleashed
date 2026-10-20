@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "A",
+    "L"
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:amethyst_shard"
+    },
+    "L": {
+      "item": "minecraft:light_blue_wool"
+    }
+  },
+  "result": {
+    "id": "dogs-unleashed:allay_costume",
+    "count": 1
+  }
+}

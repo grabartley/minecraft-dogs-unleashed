@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "S S",
+    " S "
+  ],
+  "key": {
+    "S": {
+      "item": "minecraft:turtle_scute"
+    }
+  },
+  "result": {
+    "id": "dogs-unleashed:turtle_costume",
+    "count": 1
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "E",
+    "S"
+  ],
+  "key": {
+    "E": {
+      "item": "minecraft:echo_shard"
+    },
+    "S": {
+      "item": "minecraft:sculk"
+    }
+  },
+  "result": {
+    "id": "dogs-unleashed:warden_costume",
+    "count": 1
+  }
+}

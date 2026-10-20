@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "G G",
+    "GLG"
+  ],
+  "key": {
+    "G": {
+      "item": "minecraft:gunpowder"
+    },
+    "L": {
+      "item": "minecraft:lime_wool"
+    }
+  },
+  "result": {
+    "id": "dogs-unleashed:creeper_costume",
+    "count": 1
+  }
+}
