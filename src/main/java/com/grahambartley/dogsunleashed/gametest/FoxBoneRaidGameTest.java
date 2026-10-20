@@ -259,6 +259,7 @@ public final class FoxBoneRaidGameTest implements FabricGameTest {
   }
 
   private static void restoreDaylight(final ServerWorld world) {
+    world.setTimeOfDay(MIDDAY);
     world.getGameRules().get(GameRules.DO_DAYLIGHT_CYCLE).set(true, world.getServer());
   }
 
