@@ -42,17 +42,19 @@ public final class DogAnimationControllers {
 
     controllers.add(
         new AnimationController<>(
-            dog,
-            "tail",
-            0,
-            state -> {
-              final UnleashedDogEntity animatable = state.getAnimatable();
-              if (animatable.getAnimationState().getTailWagTimerTicks() > 0
-                  && !animatable.getSleepController().isAsleep()) {
-                return state.setAndContinue(RawAnimation.begin().thenLoop("tail_wag"));
-              }
-              return PlayState.STOP;
-            }));
+                dog,
+                "tail",
+                0,
+                state -> {
+                  final UnleashedDogEntity animatable = state.getAnimatable();
+                  if (animatable.getAnimationState().getTailWagTimerTicks() > 0
+                      && !animatable.getSleepController().isAsleep()) {
+                    return state.setAndContinue(RawAnimation.begin().thenLoop("tail_wag"));
+                  }
+                  return PlayState.STOP;
+                })
+            .setAnimationSpeedHandler(
+                animatable -> animatable.getComponents().get(DogBond.class).step().wagSpeed()));
 
     controllers.add(
         new AnimationController<>(
@@ -124,6 +126,12 @@ public final class DogAnimationControllers {
         new AnimationController<>(dog, DogAnimationKeys.BARK, 0, state -> PlayState.STOP)
             .triggerableAnim(
                 DogAnimationKeys.BARK, RawAnimation.begin().thenPlay(DogAnimationKeys.BARK)));
+
+    controllers.add(
+        new AnimationController<>(dog, DogAnimationKeys.PLAY_BOW, 0, state -> PlayState.STOP)
+            .triggerableAnim(
+                DogAnimationKeys.PLAY_BOW,
+                RawAnimation.begin().thenPlay(DogAnimationKeys.PLAY_BOW)));
 
     controllers.add(
         new AnimationController<>(

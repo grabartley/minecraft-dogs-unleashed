@@ -199,6 +199,7 @@ public final class DogInteractions {
     }
     itemStack.decrementUnlessCreative(1, player);
     this.dog.getComponents().get(DogTreatBuffState.class).apply();
+    this.dog.getComponents().get(DogBond.class).reward(DogBondRules.Source.TREAT);
     return ActionResult.SUCCESS;
   }
 
@@ -208,6 +209,9 @@ public final class DogInteractions {
     }
     itemStack.decrementUnlessCreative(1, player);
     this.dog.heal(BREEDING_ITEM_HEAL_AMOUNT);
+    if (this.dog.isOwner(player)) {
+      this.dog.getComponents().get(DogBond.class).reward(DogBondRules.Source.TREAT);
+    }
     return ActionResult.SUCCESS;
   }
 
@@ -257,7 +261,12 @@ public final class DogInteractions {
     if (!this.isDirectOwnerInteraction(player)) {
       return null;
     }
-    return this.dog.getFur().tryTrim(player, hand, itemStack);
+    final DogFurStage before = this.dog.getFur().stage();
+    final ActionResult result = this.dog.getFur().tryTrim(player, hand, itemStack);
+    if (this.dog.getFur().stage() != before) {
+      this.dog.getComponents().get(DogBond.class).reward(DogBondRules.Source.GROOM);
+    }
+    return result;
   }
 
   private @Nullable ActionResult tryGiveScent(

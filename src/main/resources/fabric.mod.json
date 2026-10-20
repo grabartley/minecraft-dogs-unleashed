@@ -110,6 +110,7 @@
       "com.grahambartley.dogsunleashed.gametest.RecipeUnlockGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogFurGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogAgingGameTest",
+      "com.grahambartley.dogsunleashed.gametest.DogBondGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogMudGameTest"
     ]
   },

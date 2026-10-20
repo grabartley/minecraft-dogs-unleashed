@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.screen;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.grahambartley.dogsunleashed.entity.DogBondStep;
 import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
@@ -86,7 +87,8 @@ class DogStatsPanelTest {
         List.of(),
         RidingView.NONE,
         false,
-        false);
+        false,
+        DogBondStep.STRANGER);
   }
 
   @Test

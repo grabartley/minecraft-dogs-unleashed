@@ -4,10 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.network.payload.WildTrustView;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 class DogInspectScreenTest {
@@ -23,7 +26,7 @@ class DogInspectScreenTest {
   void cardStaysOnScreen(final int screenWidth, final int screenHeight) {
     for (final WildTrustView trust :
         new WildTrustView[] {WildTrustView.NONE, WildTrustView.building(30)}) {
-      final int height = DogInspectScreen.cardHeight(trust);
+      final int height = DogInspectScreen.cardHeight(trust, true);
       final int left = DogInspectScreen.cardLeft(screenWidth);
       final int top = DogInspectScreen.cardTop(screenHeight, height);
 
@@ -34,19 +37,21 @@ class DogInspectScreenTest {
     }
   }
 
-  @Test
-  @DisplayName("the card grows by one row only when it shows trust")
-  void cardGrowsForTrust() {
-    assertEquals(DogInspectScreen.CARD_HEIGHT, DogInspectScreen.cardHeight(WildTrustView.NONE));
-    assertEquals(
-        DogInspectScreen.CARD_HEIGHT + DogInspectScreen.TRUST_ROW_HEIGHT,
-        DogInspectScreen.cardHeight(WildTrustView.TOO_WILD));
-    assertEquals(
-        DogInspectScreen.CARD_HEIGHT + DogInspectScreen.TRUST_ROW_HEIGHT,
-        DogInspectScreen.cardHeight(WildTrustView.SHUNNED));
-    assertEquals(
-        DogInspectScreen.CARD_HEIGHT + DogInspectScreen.TRUST_ROW_HEIGHT,
-        DogInspectScreen.cardHeight(WildTrustView.building(10)));
+  static Stream<Arguments> cardHeightCases() {
+    final int grown = DogInspectScreen.CARD_HEIGHT + DogInspectScreen.TRUST_ROW_HEIGHT;
+    return Stream.of(
+        Arguments.of(WildTrustView.NONE, false, DogInspectScreen.CARD_HEIGHT),
+        Arguments.of(WildTrustView.NONE, true, grown),
+        Arguments.of(WildTrustView.TOO_WILD, false, grown),
+        Arguments.of(WildTrustView.SHUNNED, false, grown),
+        Arguments.of(WildTrustView.building(10), false, grown));
+  }
+
+  @ParameterizedTest(name = "trust {0}, tamed {1} -> {2}")
+  @MethodSource("cardHeightCases")
+  @DisplayName("the card grows by one row when it shows trust or a tamed dog's bond")
+  void cardGrowsForTrustOrBond(final WildTrustView trust, final boolean tamed, final int expected) {
+    assertEquals(expected, DogInspectScreen.cardHeight(trust, tamed));
   }
 
   @ParameterizedTest(name = "screen width {0}")
@@ -74,7 +79,7 @@ class DogInspectScreenTest {
         "content bottom " + contentBottom + " overflows the card");
     assertTrue(
         contentBottom + DogInspectScreen.TRUST_ROW_HEIGHT
-            <= DogInspectScreen.cardHeight(WildTrustView.building(1))
+            <= DogInspectScreen.cardHeight(WildTrustView.building(1), false)
                 - DogInspectScreen.CARD_PADDING,
         "the trust row overflows the card");
   }

@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.ModNbtKeys;
+import com.grahambartley.dogsunleashed.entity.DogBondStep;
 import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
@@ -258,7 +259,8 @@ class PortraitDogAppearanceTest {
             base.composition(),
             RidingView.NONE,
             false,
-            false);
+            false,
+            DogBondStep.STRANGER);
 
     assertEquals(expected, PortraitDogAppearance.of(pet).undead());
   }
@@ -299,7 +301,8 @@ class PortraitDogAppearanceTest {
         composition,
         RidingView.NONE,
         false,
-        false);
+        false,
+        DogBondStep.STRANGER);
   }
 
   @Test
@@ -328,7 +331,8 @@ class PortraitDogAppearanceTest {
             base.composition(),
             RidingView.NONE,
             false,
-            false);
+            false,
+            DogBondStep.STRANGER);
 
     final NbtCompound nbt = PortraitDogAppearance.of(overgrown).toNbt();
 

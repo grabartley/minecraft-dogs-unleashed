@@ -84,6 +84,12 @@ public final class ModNbtKeys {
   public static final String SENIOR_PARENT = "SeniorParent";
   public static final String MUDDY = "Muddy";
   public static final String MUDDY_TICKS = "MuddyTicks";
+  public static final String BOND_POINTS = "BondPoints";
+  public static final String BOND_OWNER = "BondOwner";
+  public static final String BOND_DAY = "BondDay";
+  public static final String BOND_EARNED = "BondEarned";
+  public static final String BOND_WALKED = "BondWalked";
+  public static final String BOND_LAST_NEAR_OWNER = "BondLastNearOwner";
   public static final String WILD_PACK_ID = "WildPackId";
   public static final String TRUST = "WildTrust";
   public static final String GRUDGES = "Grudges";

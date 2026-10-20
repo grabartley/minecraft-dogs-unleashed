@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import com.grahambartley.dogsunleashed.entity.DogBondStep;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
 import com.grahambartley.dogsunleashed.network.payload.RidingView;
@@ -163,6 +164,7 @@ class PetLifeStateDisplayTest {
         List.of(),
         RidingView.NONE,
         exploring,
-        senior);
+        senior,
+        DogBondStep.STRANGER);
   }
 }

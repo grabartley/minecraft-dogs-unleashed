@@ -5,6 +5,7 @@ import com.grahambartley.dogsunleashed.entity.goal.AutoSleepGoal;
 import com.grahambartley.dogsunleashed.entity.goal.BuryBoneGoal;
 import com.grahambartley.dogsunleashed.entity.goal.ChaseBoneThiefGoal;
 import com.grahambartley.dogsunleashed.entity.goal.CommandFollowOwnerGoal;
+import com.grahambartley.dogsunleashed.entity.goal.DevotedRescueGoal;
 import com.grahambartley.dogsunleashed.entity.goal.DigUpBoneGoal;
 import com.grahambartley.dogsunleashed.entity.goal.DogEscapeDangerGoal;
 import com.grahambartley.dogsunleashed.entity.goal.DogSitGoal;
@@ -86,6 +87,7 @@ public final class DogGoalRegistrar {
         9, new TemptGoal(dog, DEFAULT_GOAL_SPEED, DogFoods.attentionIngredient(), false));
     goalSelector.add(
         9, new FetchTemptGoal(dog, DEFAULT_GOAL_SPEED, FetchTypes.asIngredient(), false));
+    goalSelector.add(9, new DevotedRescueGoal(dog));
     goalSelector.add(10, new ReturnToAnchorGoal(dog));
     goalSelector.add(
         10,
@@ -94,6 +96,7 @@ public final class DogGoalRegistrar {
             DEFAULT_GOAL_SPEED,
             FOLLOW_OWNER_MAX_DISTANCE,
             FOLLOW_OWNER_MIN_DISTANCE,
+            true,
             EnumSet.of(DogCommand.FOLLOW, DogCommand.HUNT)));
     goalSelector.add(
         10,
@@ -102,6 +105,7 @@ public final class DogGoalRegistrar {
             DEFAULT_GOAL_SPEED,
             HEEL_MAX_DISTANCE,
             HEEL_MIN_DISTANCE,
+            false,
             EnumSet.of(DogCommand.HEEL)));
     goalSelector.add(10, new TrustFollowGoal(dog));
     goalSelector.add(11, new FollowParentDogGoal(dog, DEFAULT_GOAL_SPEED));

@@ -8,6 +8,7 @@ import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.config.AgingSettings;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
+import com.grahambartley.dogsunleashed.entity.DogBondStep;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import com.grahambartley.dogsunleashed.pet.PetAge;
@@ -69,7 +70,8 @@ class PetSyncDataTest {
             List.of(),
             RidingView.NONE,
             false,
-            false);
+            false,
+            DogBondStep.STRANGER);
     final RegistryByteBuf buf = newBuf();
     PetSyncData.CODEC.encode(buf, pet);
 
@@ -105,7 +107,8 @@ class PetSyncDataTest {
             List.of(),
             RidingView.NONE,
             false,
-            senior);
+            senior,
+            DogBondStep.STRANGER);
     final RegistryByteBuf buf = newBuf();
     PetSyncData.CODEC.encode(buf, pet);
     final PetSyncData decoded = PetSyncData.CODEC.decode(buf);
@@ -140,6 +143,52 @@ class PetSyncDataTest {
     } finally {
       DogsUnleashed.SERVER_CONFIG = original;
     }
+  }
+
+  @ParameterizedTest(name = "bond {0} round-trips")
+  @EnumSource(DogBondStep.class)
+  @DisplayName("codec round-trips every bond step so the client can name it")
+  void codecRoundTripsBond(final DogBondStep bond) {
+    final PetSyncData sample = samplePet(UnleashedDogBreed.HUSKY, "Balto");
+    final PetSyncData pet =
+        new PetSyncData(
+            sample.petId(),
+            sample.breed(),
+            sample.name(),
+            sample.health(),
+            sample.maxHealth(),
+            sample.posX(),
+            sample.posY(),
+            sample.posZ(),
+            sample.dimension(),
+            sample.lifeState(),
+            sample.baby(),
+            sample.collarColor(),
+            sample.coatVariant(),
+            sample.huskyEyeVariant(),
+            sample.furStage(),
+            sample.movementSpeed(),
+            sample.attackDamage(),
+            sample.composition(),
+            sample.riding(),
+            sample.exploring(),
+            sample.senior(),
+            bond);
+    final RegistryByteBuf buf = newBuf();
+    PetSyncData.CODEC.encode(buf, pet);
+    assertEquals(bond, PetSyncData.CODEC.decode(buf).bond());
+  }
+
+  @ParameterizedTest(name = "{0} saved bond points -> {1}")
+  @CsvSource({"0, STRANGER", "49, STRANGER", "50, FAMILIAR", "349, FRIEND", "700, DEVOTED"})
+  @DisplayName("a stored pet syncs the bond step its saved points have reached")
+  void storedPetSyncsItsBondStep(final int points, final DogBondStep expected) {
+    final NbtCompound nbt = new NbtCompound();
+    nbt.putUuid(ModNbtKeys.PET_ID, UUID.randomUUID());
+    nbt.putUuid(ModNbtKeys.OWNER_ID, UUID.randomUUID());
+    nbt.putString(ModNbtKeys.BREED_TYPE, UnleashedDogBreed.BEAGLE.serializedId());
+    nbt.putInt(ModNbtKeys.BOND_POINTS, points);
+    assertEquals(expected, PetSyncData.from(PetData.fromNbt(nbt), false).bond());
   }
 
   static Stream<Arguments> displayBreedCases() {

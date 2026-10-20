@@ -122,6 +122,7 @@ public final class DogResurrection {
     dog.getComponents()
         .get(DogAging.class)
         .restore(petData.getAdultAgeTicks(), petData.hasSeniorParent());
+    dog.getComponents().get(DogBond.class).restore(petData.getBondPoints(), petData.getOwnerId());
     dog.setCustomName(Text.literal(petData.getName()));
     dog.setCustomNameVisible(true);
     dog.setOwnerUuid(petData.getOwnerId());

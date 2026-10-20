@@ -91,6 +91,7 @@ Pet Manager to see and summon your whole pack.
 - **Raise a family.** Any two living tamed dogs can have puppies, and mixed parents give a mixed breed puppy. Dire wolves only breed with dire wolves. Puppies inherit
 their parents' coat and eye genes, so two parents can carry a rare coat and pass it on. Every dog has a family tree you can explore.
 Turn on Dog Aging and your dogs grow old with you, going grey around the muzzle and napping more, but never dying of age.
+The more time you spend together, walking, playing, fighting side by side, feeding treats and grooming, the closer your dog gets, from Stranger to Devoted. A close dog wags harder, sticks nearer and answers faster, and a Devoted dog runs to you when you're hurt.
 - **Bring them back.** A tamed dog that dies leaves a grave. Put a totem in it and a lightning rod above it, then wait
 for lightning to strike it. Your dog comes back undead and burns in daylight unless it has shade, armour, or a fire pendant. Cure it the same way you
 cure a zombie villager. If it dies while undead, it is gone for good, unless it wears a Pendant of Loyalty.
