@@ -84,11 +84,11 @@ public final class DogGoalRegistrar {
     goalSelector.add(7, new MeleeAttackGoal(dog, DEFAULT_GOAL_SPEED, true));
     goalSelector.add(8, new AnimalMateGoal(dog, DEFAULT_GOAL_SPEED));
     goalSelector.add(8, new KeepWatchGoal(dog));
+    goalSelector.add(8, new DevotedRescueGoal(dog));
     goalSelector.add(
         9, new TemptGoal(dog, DEFAULT_GOAL_SPEED, DogFoods.attentionIngredient(), false));
     goalSelector.add(
         9, new FetchTemptGoal(dog, DEFAULT_GOAL_SPEED, FetchTypes.asIngredient(), false));
-    goalSelector.add(8, new DevotedRescueGoal(dog));
     goalSelector.add(10, new ReturnToAnchorGoal(dog));
     goalSelector.add(
         10,

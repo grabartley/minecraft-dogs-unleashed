@@ -104,9 +104,9 @@ class DogBondRulesTest {
   @ParameterizedTest(name = "{0}, {1} ticks left, {2} blocks away -> {3}")
   @CsvSource({
     "DEVOTED, 400, 5.0, true",
-    "DEVOTED, 1, 24.0, true",
+    "DEVOTED, 1, 16.0, true",
     "DEVOTED, 0, 5.0, false",
-    "DEVOTED, 400, 24.1, false",
+    "DEVOTED, 400, 16.1, false",
     "COMPANION, 400, 5.0, false"
   })
   @DisplayName("a rescue ends when time runs out, the bond drops or the owner is far away")
@@ -147,8 +147,8 @@ class DogBondRulesTest {
   @ParameterizedTest(name = "{0}, owner hurt {1}, {2} blocks -> {3}")
   @CsvSource({
     "DEVOTED, true, 10.0, true",
-    "DEVOTED, true, 24.0, true",
-    "DEVOTED, true, 24.1, false",
+    "DEVOTED, true, 16.0, true",
+    "DEVOTED, true, 16.1, false",
     "DEVOTED, false, 3.0, false",
     "COMPANION, true, 3.0, false",
     "STRANGER, true, 3.0, false"

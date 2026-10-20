@@ -31,7 +31,8 @@ public final class DogBattleListener {
                     player.getBoundingBox().expand(DogBondRules.FIGHT_RANGE),
                     dog ->
                         dog.isOwner(player)
-                            && DogBondRules.fightCounts(true, dog.distanceTo(player)))) {
+                            && DogBondRules.fightCounts(
+                                killed instanceof Monster, dog.distanceTo(player)))) {
               dog.getComponents().get(DogBond.class).reward(DogBondRules.Source.FIGHT);
             }
           }

@@ -11,7 +11,7 @@ public final class DogBondRules {
   public static final double FIGHT_RANGE = 16.0;
   public static final double NEAR_OWNER_RANGE = 16.0;
   public static final long ABSENCE_TICKS = 5 * 60 * 20;
-  public static final double RESCUE_RANGE = 24.0;
+  public static final double RESCUE_RANGE = 16.0;
   public static final double RESCUE_DISTANCE = 2.5;
   public static final int RESCUE_TICKS = 20 * 20;
   public static final double RESCUE_SPEED = 1.3;
@@ -46,8 +46,8 @@ public final class DogBondRules {
     return Math.max(0, Math.min(MAX_POINTS, points));
   }
 
-  public static long dayOf(final long timeOfDay) {
-    return Math.floorDiv(timeOfDay, TICKS_PER_DAY);
+  public static long dayOf(final long worldTime) {
+    return Math.floorDiv(worldTime, TICKS_PER_DAY);
   }
 
   public static int allowedGain(final Source source, final int amount, final int earnedToday) {
