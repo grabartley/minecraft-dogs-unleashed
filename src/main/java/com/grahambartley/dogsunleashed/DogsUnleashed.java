@@ -11,6 +11,7 @@ import com.grahambartley.dogsunleashed.block.DogBedBlock;
 import com.grahambartley.dogsunleashed.command.DogsUnleashedCommand;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.entity.DogPlaySession;
+import com.grahambartley.dogsunleashed.gametest.util.GameTestFixturePack;
 import com.grahambartley.dogsunleashed.listener.DogBattleListener;
 import com.grahambartley.dogsunleashed.listener.DogDimensionChangeListener;
 import com.grahambartley.dogsunleashed.listener.OwnerDeathListener;
@@ -64,6 +65,7 @@ public class DogsUnleashed implements ModInitializer {
     ModSpawns.initialize();
     ModNetworking.registerPayloads();
     ModNetworking.registerServerReceivers();
+    GameTestFixturePack.registerWhenTesting();
 
     PlayerDimensionChangeListener.initialize();
     DogDimensionChangeListener.initialize();

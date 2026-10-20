@@ -355,6 +355,8 @@
   "screen.dogs-unleashed.dog_equipment.slot.pendant.empty": "Принимает подвеску для ошейника",
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic": "Украшение",
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic.empty": "Принимает косметический аксессуар",
+  "screen.dogs-unleashed.dog_equipment.slot.costume": "Костюм",
+  "screen.dogs-unleashed.dog_equipment.slot.costume.empty": "Принимает костюм моба",
   "item.dogs-unleashed.bandana": "Бандана",
   "item.dogs-unleashed.collar_bow": "Бант на ошейник",
   "item.dogs-unleashed.party_hat": "Праздничный колпак",

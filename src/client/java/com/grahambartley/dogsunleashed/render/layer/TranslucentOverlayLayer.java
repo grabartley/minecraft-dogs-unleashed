@@ -35,7 +35,27 @@ public abstract class TranslucentOverlayLayer extends GeoRenderLayer<UnleashedDo
     if (animatable.isInvisible()) {
       return;
     }
-    for (final Identifier overlay : this.overlaysOf(animatable)) {
+    this.drawOverlays(
+        this.overlaysOf(animatable),
+        poseStack,
+        animatable,
+        bakedModel,
+        bufferSource,
+        partialTick,
+        packedLight,
+        packedOverlay);
+  }
+
+  protected void drawOverlays(
+      final List<Identifier> overlays,
+      final MatrixStack poseStack,
+      final UnleashedDogEntity animatable,
+      final BakedGeoModel bakedModel,
+      final VertexConsumerProvider bufferSource,
+      final float partialTick,
+      final int packedLight,
+      final int packedOverlay) {
+    for (final Identifier overlay : overlays) {
       final RenderLayer layer = RenderLayer.getEntityTranslucent(overlay);
       this.getRenderer()
           .reRender(

@@ -19,6 +19,7 @@ Shared engineering standards across all the mods in this family live in [`../sta
 | [0009](0009-new-per-dog-state-is-a-component-not-an-entity-field.md) | New per-dog state is a component, not an entity field |
 | [0010](0010-wild-packs-spawn-through-every-path-with-the-leader-bringing-the-pack.md) | Wild packs spawn through every path, with the leader bringing the pack |
 | [0011](0011-eyelids-hide-in-the-head-and-close-to-one-pose-per-rig.md) | Eyelids hide in the head and close to one pose per rig |
+| [0012](0012-a-costume-is-a-projected-suit-sheet-plus-parts-anchored-on-profile-slots.md) | A costume is a projected suit sheet plus parts anchored on profile slots |
 
 ## Writing A New Record
 

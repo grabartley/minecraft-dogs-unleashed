@@ -54,6 +54,7 @@ public final class ModNbtKeys {
   public static final String CARRIED_FETCH_ITEM_STACK = "CarriedFetchItemStack";
   public static final String PENDANT_ITEM = "PendantItem";
   public static final String COSMETIC_ITEM = "CosmeticItem";
+  public static final String COSTUME_ITEM = "CostumeItem";
   public static final String PENDING_BIRTH_WAKE_HEARTS = "PendingBirthWakeHearts";
   public static final String PARENT_DOG_ID = "ParentDogId";
   public static final String SECOND_PARENT_DOG_ID = "SecondParentDogId";

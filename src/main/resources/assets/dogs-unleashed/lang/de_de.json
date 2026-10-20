@@ -355,6 +355,8 @@
   "screen.dogs-unleashed.dog_equipment.slot.pendant.empty": "Nimmt einen Halsbandanhänger auf",
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic": "Zierde",
   "screen.dogs-unleashed.dog_equipment.slot.cosmetic.empty": "Nimmt ein Schmuckstück auf",
+  "screen.dogs-unleashed.dog_equipment.slot.costume": "Kostüm",
+  "screen.dogs-unleashed.dog_equipment.slot.costume.empty": "Nimmt ein Mob-Kostüm auf",
   "item.dogs-unleashed.bandana": "Halstuch",
   "item.dogs-unleashed.collar_bow": "Halsbandschleife",
   "item.dogs-unleashed.party_hat": "Partyhut",
