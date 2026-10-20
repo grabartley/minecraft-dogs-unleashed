@@ -51,6 +51,11 @@
     "dogs-unleashed:textures/entity/overlay/grey_muzzle.png": {
       "mouth": "dogs-unleashed:textures/entity/overlay/grey_muzzle_goldenretriever_mouth.png",
       "eyes": "dogs-unleashed:textures/entity/overlay/grey_muzzle_goldenretriever_eyes.png"
+    },
+    "dogs-unleashed:textures/entity/overlay/mud.png": {
+      "mouth": "dogs-unleashed:textures/entity/overlay/mud_goldenretriever_mouth.png",
+      "tail": "dogs-unleashed:textures/entity/overlay/mud_goldenretriever_tail.png",
+      "torso": "dogs-unleashed:textures/entity/overlay/mud_goldenretriever_torso.png"
     }
   }
 }

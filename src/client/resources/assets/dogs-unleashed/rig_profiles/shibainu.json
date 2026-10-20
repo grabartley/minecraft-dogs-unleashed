@@ -54,6 +54,10 @@
       "mouth": "dogs-unleashed:textures/entity/overlay/grey_muzzle_shibainu_mouth.png",
       "head": "dogs-unleashed:textures/entity/overlay/grey_muzzle_shibainu_head.png",
       "eyes": "dogs-unleashed:textures/entity/overlay/grey_muzzle_shibainu_eyes.png"
+    },
+    "dogs-unleashed:textures/entity/overlay/mud.png": {
+      "head": "dogs-unleashed:textures/entity/overlay/mud_shibainu_head.png",
+      "tail": "dogs-unleashed:textures/entity/overlay/mud_shibainu_tail.png"
     }
   }
 }
