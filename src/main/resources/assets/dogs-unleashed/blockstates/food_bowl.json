@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "fill=empty": {
+      "model": "dogs-unleashed:block/food_bowl_empty"
+    },
+    "fill=some": {
+      "model": "dogs-unleashed:block/food_bowl_some"
+    },
+    "fill=full": {
+      "model": "dogs-unleashed:block/food_bowl_full"
+    }
+  }
+}

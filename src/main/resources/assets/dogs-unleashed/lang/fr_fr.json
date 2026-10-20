@@ -32,6 +32,8 @@
   "message.dogs-unleashed.not_sleepy": "%s n'a pas sommeil pour l'instant",
   "block.dogs-unleashed.dog_bed.no_dog_nearby": "Aucun chien apprivoisé à proximité",
   "block.dogs-unleashed.dog_house": "Niche",
+  "block.dogs-unleashed.food_bowl": "Gamelle de nourriture",
+  "block.dogs-unleashed.water_bowl": "Gamelle d'eau",
   "block.dogs-unleashed.dog_house.colored": "Niche %s",
   "block.dogs-unleashed.dog_house.unassigned": "%s n'est plus assigné à cette niche",
   "block.dogs-unleashed.dog_house.sleep_command": "%s va dormir",

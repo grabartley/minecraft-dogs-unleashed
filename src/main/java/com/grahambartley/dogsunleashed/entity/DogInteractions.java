@@ -27,8 +27,6 @@ import org.jetbrains.annotations.Nullable;
 
 public final class DogInteractions {
 
-  private static final float BREEDING_ITEM_HEAL_AMOUNT = 2.0F;
-
   private final UnleashedDogEntity dog;
   private final DogScentHandoff scentHandoff;
 
@@ -208,7 +206,7 @@ public final class DogInteractions {
       return null;
     }
     itemStack.decrementUnlessCreative(1, player);
-    this.dog.heal(BREEDING_ITEM_HEAL_AMOUNT);
+    this.dog.heal(DogFoods.HEAL_AMOUNT);
     if (this.dog.isOwner(player)) {
       this.dog.getComponents().get(DogBond.class).reward(DogBondRules.Source.TREAT);
     }

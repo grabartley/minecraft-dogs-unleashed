@@ -32,6 +32,8 @@
   "message.dogs-unleashed.not_sleepy": "%s isn't sleepy right now",
   "block.dogs-unleashed.dog_bed.no_dog_nearby": "No tamed dog nearby",
   "block.dogs-unleashed.dog_house": "Dog House",
+  "block.dogs-unleashed.food_bowl": "Food Bowl",
+  "block.dogs-unleashed.water_bowl": "Water Bowl",
   "block.dogs-unleashed.dog_house.colored": "%s Dog House",
   "block.dogs-unleashed.dog_house.unassigned": "%s is no longer assigned to this house",
   "block.dogs-unleashed.dog_house.sleep_command": "%s is going to sleep",

@@ -32,6 +32,8 @@
   "message.dogs-unleashed.not_sleepy": "%s ist gerade nicht müde",
   "block.dogs-unleashed.dog_bed.no_dog_nearby": "Kein gezähmter Hund in der Nähe",
   "block.dogs-unleashed.dog_house": "Hundehütte",
+  "block.dogs-unleashed.food_bowl": "Futternapf",
+  "block.dogs-unleashed.water_bowl": "Wassernapf",
   "block.dogs-unleashed.dog_house.colored": "%s Hundehütte",
   "block.dogs-unleashed.dog_house.unassigned": "%s ist dieser Hütte nicht mehr zugewiesen",
   "block.dogs-unleashed.dog_house.sleep_command": "%s geht schlafen",

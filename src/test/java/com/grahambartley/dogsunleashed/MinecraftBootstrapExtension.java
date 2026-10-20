@@ -21,6 +21,7 @@ public final class MinecraftBootstrapExtension implements BeforeAllCallback {
     ModComponents.initialize();
     ModBlocks.initialize();
     ModBlockEntities.initialize();
+    ModPointsOfInterest.initialize();
     ModEntities.initialize();
     ModItems.initialize();
   }

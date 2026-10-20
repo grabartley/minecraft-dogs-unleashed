@@ -10,6 +10,8 @@ import net.minecraft.recipe.Ingredient;
 
 public final class DogFoods {
 
+  public static final float HEAL_AMOUNT = 2.0F;
+
   private static final Item[] BREEDING_ITEMS = {
     Items.CHICKEN,
     Items.COOKED_CHICKEN,
