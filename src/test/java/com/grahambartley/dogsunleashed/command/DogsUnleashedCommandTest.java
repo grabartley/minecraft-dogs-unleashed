@@ -59,28 +59,29 @@ class DogsUnleashedCommandTest {
         Arguments.of(6, "command.dogs-unleashed.help.graves"),
         Arguments.of(7, "command.dogs-unleashed.help.dropleashonplay"),
         Arguments.of(8, "command.dogs-unleashed.help.shownames"),
-        Arguments.of(9, "command.dogs-unleashed.help.autosleep"),
-        Arguments.of(10, "command.dogs-unleashed.help.autosleeprange"),
-        Arguments.of(11, "command.dogs-unleashed.help.furgrowth"),
-        Arguments.of(12, "command.dogs-unleashed.help.furgrowthrate"),
-        Arguments.of(13, "command.dogs-unleashed.help.badhairdaychance"),
-        Arguments.of(14, "command.dogs-unleashed.help.dogaging"),
-        Arguments.of(15, "command.dogs-unleashed.help.senioragedays"),
-        Arguments.of(16, "command.dogs-unleashed.help.barkvolume"),
-        Arguments.of(17, "command.dogs-unleashed.help.howlvolume"),
-        Arguments.of(18, "command.dogs-unleashed.help.direwolf.growthrate"),
-        Arguments.of(19, "command.dogs-unleashed.help.direwolf.battles"),
-        Arguments.of(20, "command.dogs-unleashed.help.direwolf.smallestpack"),
-        Arguments.of(21, "command.dogs-unleashed.help.direwolf.largestpack"),
-        Arguments.of(22, "command.dogs-unleashed.help.direwolf.packhunting"),
-        Arguments.of(23, "command.dogs-unleashed.help.direwolf.packdefence"),
-        Arguments.of(24, "command.dogs-unleashed.help.direwolf.staminadrain"),
-        Arguments.of(25, "command.dogs-unleashed.help.direwolf.staminacapacity"),
-        Arguments.of(26, "command.dogs-unleashed.help.direwolf.staminarecovery"),
-        Arguments.of(27, "command.dogs-unleashed.help.reset"),
-        Arguments.of(28, "command.dogs-unleashed.help.list"),
-        Arguments.of(29, "command.dogs-unleashed.help.summon"),
-        Arguments.of(30, "command.dogs-unleashed.help.find"));
+        Arguments.of(9, "command.dogs-unleashed.help.muddydogs"),
+        Arguments.of(10, "command.dogs-unleashed.help.autosleep"),
+        Arguments.of(11, "command.dogs-unleashed.help.autosleeprange"),
+        Arguments.of(12, "command.dogs-unleashed.help.furgrowth"),
+        Arguments.of(13, "command.dogs-unleashed.help.furgrowthrate"),
+        Arguments.of(14, "command.dogs-unleashed.help.badhairdaychance"),
+        Arguments.of(15, "command.dogs-unleashed.help.dogaging"),
+        Arguments.of(16, "command.dogs-unleashed.help.senioragedays"),
+        Arguments.of(17, "command.dogs-unleashed.help.barkvolume"),
+        Arguments.of(18, "command.dogs-unleashed.help.howlvolume"),
+        Arguments.of(19, "command.dogs-unleashed.help.direwolf.growthrate"),
+        Arguments.of(20, "command.dogs-unleashed.help.direwolf.battles"),
+        Arguments.of(21, "command.dogs-unleashed.help.direwolf.smallestpack"),
+        Arguments.of(22, "command.dogs-unleashed.help.direwolf.largestpack"),
+        Arguments.of(23, "command.dogs-unleashed.help.direwolf.packhunting"),
+        Arguments.of(24, "command.dogs-unleashed.help.direwolf.packdefence"),
+        Arguments.of(25, "command.dogs-unleashed.help.direwolf.staminadrain"),
+        Arguments.of(26, "command.dogs-unleashed.help.direwolf.staminacapacity"),
+        Arguments.of(27, "command.dogs-unleashed.help.direwolf.staminarecovery"),
+        Arguments.of(28, "command.dogs-unleashed.help.reset"),
+        Arguments.of(29, "command.dogs-unleashed.help.list"),
+        Arguments.of(30, "command.dogs-unleashed.help.summon"),
+        Arguments.of(31, "command.dogs-unleashed.help.find"));
   }
 
   @ParameterizedTest(name = "help line {0} -> {1}")
@@ -107,20 +108,21 @@ class DogsUnleashedCommandTest {
         Arguments.of(10, "command.dogs-unleashed.status.graves"),
         Arguments.of(11, "command.dogs-unleashed.status.dropleashonplay"),
         Arguments.of(12, "command.dogs-unleashed.status.shownames"),
-        Arguments.of(13, "command.dogs-unleashed.status.autosleep"),
-        Arguments.of(14, "command.dogs-unleashed.status.autosleeprange"),
-        Arguments.of(15, "command.dogs-unleashed.status.barkvolume"),
-        Arguments.of(16, "command.dogs-unleashed.status.howlvolume"),
-        Arguments.of(17, "command.dogs-unleashed.status.furgrowth"),
-        Arguments.of(18, "command.dogs-unleashed.status.furgrowthrate"),
-        Arguments.of(19, "command.dogs-unleashed.status.badhairdaychance"),
-        Arguments.of(20, "command.dogs-unleashed.status.dogaging"),
-        Arguments.of(21, "command.dogs-unleashed.status.senioragedays"),
-        Arguments.of(22, "command.dogs-unleashed.status.direwolf.growthrate"),
-        Arguments.of(23, "command.dogs-unleashed.status.direwolf.battles"),
-        Arguments.of(24, "command.dogs-unleashed.status.direwolf.packsize"),
-        Arguments.of(25, "command.dogs-unleashed.status.direwolf.packs"),
-        Arguments.of(26, "command.dogs-unleashed.status.direwolf.stamina"));
+        Arguments.of(13, "command.dogs-unleashed.status.muddydogs"),
+        Arguments.of(14, "command.dogs-unleashed.status.autosleep"),
+        Arguments.of(15, "command.dogs-unleashed.status.autosleeprange"),
+        Arguments.of(16, "command.dogs-unleashed.status.barkvolume"),
+        Arguments.of(17, "command.dogs-unleashed.status.howlvolume"),
+        Arguments.of(18, "command.dogs-unleashed.status.furgrowth"),
+        Arguments.of(19, "command.dogs-unleashed.status.furgrowthrate"),
+        Arguments.of(20, "command.dogs-unleashed.status.badhairdaychance"),
+        Arguments.of(21, "command.dogs-unleashed.status.dogaging"),
+        Arguments.of(22, "command.dogs-unleashed.status.senioragedays"),
+        Arguments.of(23, "command.dogs-unleashed.status.direwolf.growthrate"),
+        Arguments.of(24, "command.dogs-unleashed.status.direwolf.battles"),
+        Arguments.of(25, "command.dogs-unleashed.status.direwolf.packsize"),
+        Arguments.of(26, "command.dogs-unleashed.status.direwolf.packs"),
+        Arguments.of(27, "command.dogs-unleashed.status.direwolf.stamina"));
   }
 
   @ParameterizedTest(name = "status line {0} -> {1}")
@@ -138,7 +140,7 @@ class DogsUnleashedCommandTest {
     final DogsUnleashedConfig config =
         new DogsUnleashedConfig(
             new SpawningSettings(true, 150, Map.of("beagle", 75), true),
-            new GameplaySettings(false, false, false),
+            new GameplaySettings(false, false, false, false),
             new SleepSettings(true, 32),
             new FurSettings(false, 250, 7),
             new SoundSettings(0.5f, 1.5f),
@@ -153,15 +155,16 @@ class DogsUnleashedCommandTest {
     assertEquals(false, translationArgs(lines.get(10))[0]);
     assertEquals(false, translationArgs(lines.get(11))[0]);
     assertEquals(false, translationArgs(lines.get(12))[0]);
-    assertEquals(true, translationArgs(lines.get(13))[0]);
-    assertEquals(32, translationArgs(lines.get(14))[0]);
-    assertEquals("0.50", translationArgs(lines.get(15))[0]);
-    assertEquals("1.50", translationArgs(lines.get(16))[0]);
-    assertEquals(false, translationArgs(lines.get(17))[0]);
-    assertEquals(250, translationArgs(lines.get(18))[0]);
-    assertEquals(7, translationArgs(lines.get(19))[0]);
-    assertEquals(true, translationArgs(lines.get(20))[0]);
-    assertEquals(42, translationArgs(lines.get(21))[0]);
+    assertEquals(false, translationArgs(lines.get(13))[0]);
+    assertEquals(true, translationArgs(lines.get(14))[0]);
+    assertEquals(32, translationArgs(lines.get(15))[0]);
+    assertEquals("0.50", translationArgs(lines.get(16))[0]);
+    assertEquals("1.50", translationArgs(lines.get(17))[0]);
+    assertEquals(false, translationArgs(lines.get(18))[0]);
+    assertEquals(250, translationArgs(lines.get(19))[0]);
+    assertEquals(7, translationArgs(lines.get(20))[0]);
+    assertEquals(true, translationArgs(lines.get(21))[0]);
+    assertEquals(42, translationArgs(lines.get(22))[0]);
   }
 
   static Stream<Arguments> breedStatusLineCases() {
@@ -181,7 +184,7 @@ class DogsUnleashedCommandTest {
     final DogsUnleashedConfig config =
         new DogsUnleashedConfig(
             new SpawningSettings(true, 150, Map.of("beagle", 75), true),
-            new GameplaySettings(false, false, false),
+            new GameplaySettings(false, false, false, false),
             new SleepSettings(true, 32),
             new FurSettings(true, 100, 100),
             new SoundSettings(0.5f, 1.5f),

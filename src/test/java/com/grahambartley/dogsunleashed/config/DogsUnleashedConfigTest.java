@@ -28,7 +28,7 @@ class DogsUnleashedConfigTest {
       final int globalPercent, final Map<String, Integer> breedPercents) {
     return new DogsUnleashedConfig(
         new SpawningSettings(true, globalPercent, breedPercents, false),
-        new GameplaySettings(true, true, true),
+        new GameplaySettings(true, true, true, true),
         new SleepSettings(true, 32),
         new FurSettings(true, 100, 100),
         new SoundSettings(1.0f, 1.5f),
@@ -50,6 +50,7 @@ class DogsUnleashedConfigTest {
     assertEquals(1.0f, defaults.sound().barkVolume());
     assertEquals(1.5f, defaults.sound().howlVolume());
     assertTrue(defaults.gameplay().showDogNames());
+    assertTrue(defaults.gameplay().muddyDogs());
     assertTrue(defaults.fur().furGrowthEnabled());
     assertEquals(100, defaults.fur().furGrowthRateMultiplierPercent());
     assertEquals(100, defaults.fur().badHairDayChanceMultiplierPercent());
@@ -75,7 +76,7 @@ class DogsUnleashedConfigTest {
     final DogsUnleashedConfig original =
         new DogsUnleashedConfig(
             new SpawningSettings(false, 250, Map.of("husky", 0, "beagle", 40), false),
-            new GameplaySettings(false, false, false),
+            new GameplaySettings(false, false, false, false),
             new SleepSettings(false, 64),
             new FurSettings(false, 250, 0),
             new SoundSettings(0.5f, 0.25f),
@@ -152,6 +153,7 @@ class DogsUnleashedConfigTest {
         Arguments.of("spawnRateMultiplierPercent", "[50]"),
         Arguments.of("gravesEnabled", "\"yes\""),
         Arguments.of("showDogNames", "1"),
+        Arguments.of("muddyDogs", "\"wet\""),
         Arguments.of("enableNaturalSpawning", "{}"),
         Arguments.of("breedSpawnRateMultipliersPercent", "{\"beagle\": \"high\"}"),
         Arguments.of("breedSpawnRateMultipliersPercent", "[]"));
@@ -309,7 +311,8 @@ class DogsUnleashedConfigTest {
                     .gameplay()
                     .withGravesEnabled(false)
                     .withDropLeashOnPlayMode(false)
-                    .withShowDogNames(false))
+                    .withShowDogNames(false)
+                    .withMuddyDogs(false))
             .withSleep(original.sleep().withAutoSleepEnabled(false).withAutoSleepRangeBlocks(64))
             .withSound(original.sound().withBarkVolume(0.25f).withHowlVolume(0.75f));
 
@@ -326,6 +329,7 @@ class DogsUnleashedConfigTest {
     assertEquals(0.25f, updated.sound().barkVolume());
     assertEquals(0.75f, updated.sound().howlVolume());
     assertFalse(updated.gameplay().showDogNames());
+    assertFalse(updated.gameplay().muddyDogs());
   }
 
   @Test
@@ -353,7 +357,7 @@ class DogsUnleashedConfigTest {
                     "shibainu", 60,
                     "direwolf", 321),
                 false),
-            new GameplaySettings(false, false, false),
+            new GameplaySettings(false, false, false, true),
             new SleepSettings(false, 48),
             new FurSettings(false, 250, 40),
             new SoundSettings(0.75f, 1.25f),
@@ -369,6 +373,7 @@ class DogsUnleashedConfigTest {
     assertTrue(DogsUnleashedConfig.save(path, loaded));
     saved.addProperty("dogAgingEnabled", false);
     saved.addProperty("seniorAfterDays", 100);
+    saved.addProperty("muddyDogs", true);
     assertEquals(saved, JsonParser.parseString(Files.readString(path)).getAsJsonObject());
   }
 }

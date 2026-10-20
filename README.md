@@ -95,7 +95,7 @@ Turn on Dog Aging and your dogs grow old with you, going grey around the muzzle 
 for lightning to strike it. Your dog comes back undead and burns in daylight unless it has shade, armour, or a fire pendant. Cure it the same way you
 cure a zombie villager. If it dies while undead, it is gone for good, unless it wears a Pendant of Loyalty.
 - **Little touches.** Huskies and dire wolves howl at the full moon, dogs tilt their heads at food, and they shake off after rain or a
-swim. There is also an advancement tab to work through.
+swim. Muddy dogs leave paw prints until you wash them in a water cauldron. There is also an advancement tab to work through.
 
 ## Install
 
@@ -125,6 +125,7 @@ only operators can.
 | Dog Graves on Death       | On      | Whether a tamed dog leaves a grave when it dies. Its gear drops either way.                        |
 | Drop Leash on Play Mode   | On      | Off keeps the lead on, and fetch waits until you take it off.                     |
 | Show Dog Names            | On      | Shows or hides name tags above dogs.                                              |
+| Muddy Dogs                | On      | Whether dogs get muddy and leave paw prints. Off keeps every dog clean.           |
 | Auto-Sleep at Night       | On      | Whether dogs go to bed by themselves.                                             |
 | Auto-Sleep Range (blocks) | 32      | How far from its bed a dog can be and still go to sleep, from 4 to 128.           |
 | Bark Volume               | 1.0     | How loud barks are, from 0.0 to 2.0.                                              |
@@ -159,6 +160,7 @@ Every subcommand needs operator permission.
 /dogsunleashed config graves <true|false>
 /dogsunleashed config dropleashonplay <true|false>
 /dogsunleashed config shownames <true|false>
+/dogsunleashed config muddydogs <true|false>
 /dogsunleashed config autosleep <true|false>
 /dogsunleashed config autosleeprange <4..128>
 /dogsunleashed config barkvolume <0.0..2.0>
