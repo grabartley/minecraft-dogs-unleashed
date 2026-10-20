@@ -31,7 +31,6 @@ import net.minecraft.test.TestContext;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
 public final class DogStatueGameTest implements FabricGameTest {
@@ -74,6 +73,32 @@ public final class DogStatueGameTest implements FabricGameTest {
     context.assertEquals(statue.look(), DogStatueLook.of(dog), "carved look");
     context.assertEquals(statue.name(), "Rex", "engraved name");
     context.assertEquals(statue.pose(), DogStatuePose.SIT, "first pose");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = "statue")
+  public void anUnnamedDogIsEngravedWithItsPetManagerName(final TestContext context) {
+    final DogStatueBlockEntity base = placeBase(context, ModStatueBlocks.STONE.getDefaultState());
+    final ServerPlayerEntity player = sneakingPlayer(context);
+    final UnleashedDogEntity dog =
+        DogTestHelper.spawnTamedDog(context, DogTestData.BEAGLE, REL_DOG, player.getUuid());
+    dog.setAiDisabled(true);
+    final PetData pet =
+        new PetData(
+            dog.getUuid(),
+            player.getUuid(),
+            dog.getBreed(),
+            "Biscuit",
+            dog.getHealth(),
+            dog.getMaxHealth(),
+            dog.getBlockPos(),
+            context.getWorld().getRegistryKey().getValue().toString(),
+            PetLifeState.LIVING);
+    PetManager.get(context.getWorld().getServer()).registerPet(pet);
+
+    context.useBlock(REL_BASE, player);
+
+    context.assertEquals(base.statue().name(), "Biscuit", "engraved name");
     context.complete();
   }
 
@@ -161,7 +186,8 @@ public final class DogStatueGameTest implements FabricGameTest {
     base.carve(huskyCarving());
     final ServerPlayerEntity player = DogTestHelper.mockPlayerStandingClearInArena(context);
 
-    context.useStackOnBlock(player, new ItemStack(Items.HONEYCOMB), REL_BASE.down(), Direction.UP);
+    player.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.HONEYCOMB));
+    context.useBlock(REL_BASE, player);
     context.checkBlock(
         REL_BASE, block -> block == ModStatueBlocks.WAXED_EXPOSED_COPPER, "waxed base");
     context.assertEquals(
@@ -169,8 +195,9 @@ public final class DogStatueGameTest implements FabricGameTest {
         huskyCarving(),
         "statue after waxing");
 
-    context.useStackOnBlock(player, new ItemStack(Items.IRON_AXE), REL_BASE.down(), Direction.UP);
-    context.useStackOnBlock(player, new ItemStack(Items.IRON_AXE), REL_BASE.down(), Direction.UP);
+    player.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.IRON_AXE));
+    context.useBlock(REL_BASE, player);
+    context.useBlock(REL_BASE, player);
     context.checkBlock(REL_BASE, block -> block == ModStatueBlocks.COPPER, "scraped base");
     context.assertEquals(
         ((DogStatueBlockEntity) context.getBlockEntity(REL_BASE)).statue(),

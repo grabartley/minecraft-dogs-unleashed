@@ -47,7 +47,8 @@ class StatueEngravingTest {
         Arguments.of(
             "Bartholomewfluffington Pawsworthington", List.of("Bartholom...", "Pawsworth...")),
         Arguments.of("Abcdefghijklmnopqrstuvwxyzabcdef", List.of("Abcdefghi...")),
-        Arguments.of("", List.of("")));
+        Arguments.of("", List.of("")),
+        Arguments.of("\uD83D\uDC36".repeat(14), List.of("\uD83D\uDC36".repeat(4) + "...")));
   }
 
   @ParameterizedTest(name = "\"{0}\" -> {1}")

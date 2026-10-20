@@ -19,6 +19,14 @@ public enum DogStatuePose {
     return this == HOWL && !howls ? SIT : this;
   }
 
+  public boolean sits() {
+    return this != STAND;
+  }
+
+  public boolean howling() {
+    return this == HOWL;
+  }
+
   public String serializedName() {
     return this.name().toLowerCase(Locale.ROOT);
   }

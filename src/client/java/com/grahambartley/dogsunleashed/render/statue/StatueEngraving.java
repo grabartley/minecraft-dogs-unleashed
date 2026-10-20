@@ -45,7 +45,7 @@ public final class StatueEngraving {
     }
     String kept = text;
     while (!kept.isEmpty() && widthOf.applyAsInt(kept + ELLIPSIS) * MIN_SCALE > FACE_WIDTH) {
-      kept = kept.substring(0, kept.length() - 1);
+      kept = kept.substring(0, kept.offsetByCodePoints(kept.length(), -1));
     }
     return kept.stripTrailing() + ELLIPSIS;
   }

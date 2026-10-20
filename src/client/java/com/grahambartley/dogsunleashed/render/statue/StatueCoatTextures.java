@@ -1,15 +1,9 @@
 package com.grahambartley.dogsunleashed.render.statue;
 
 import static com.grahambartley.dogsunleashed.DogsUnleashed.MOD_ID;
-import static com.grahambartley.dogsunleashed.render.coat.CoatImages.abgr;
-import static com.grahambartley.dogsunleashed.render.coat.CoatImages.alpha;
-import static com.grahambartley.dogsunleashed.render.coat.CoatImages.blue;
-import static com.grahambartley.dogsunleashed.render.coat.CoatImages.green;
-import static com.grahambartley.dogsunleashed.render.coat.CoatImages.red;
 
 import com.grahambartley.dogsunleashed.block.StatueMaterial;
 import com.grahambartley.dogsunleashed.render.coat.CoatImages;
-import java.util.Arrays;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
@@ -64,28 +58,17 @@ public final class StatueCoatTextures {
   private static NativeImage carvedImage(final NativeImage source, final int[] ramp) {
     final int width = source.getWidth();
     final int height = source.getHeight();
-    final double[] lumas = new double[width * height];
-    int opaque = 0;
+    final int[] pixels = new int[width * height];
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
-        final int colour = source.getColor(x, y);
-        if (alpha(colour) > 0) {
-          lumas[opaque++] = StatueRamp.luma(red(colour), green(colour), blue(colour));
-        }
+        pixels[y * width + x] = source.getColor(x, y);
       }
     }
-    final int[] steps = StatueRamp.steps(Arrays.copyOf(lumas, opaque));
+    final int[] carved = StatueRamp.carve(pixels, ramp);
     final NativeImage image = new NativeImage(NativeImage.Format.RGBA, width, height, false);
-    int next = 0;
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
-        final int colour = source.getColor(x, y);
-        if (alpha(colour) == 0) {
-          image.setColor(x, y, 0);
-          continue;
-        }
-        final int shade = ramp[steps[next++]];
-        image.setColor(x, y, abgr(alpha(colour), red(shade), green(shade), blue(shade)));
+        image.setColor(x, y, carved[y * width + x]);
       }
     }
     return image;

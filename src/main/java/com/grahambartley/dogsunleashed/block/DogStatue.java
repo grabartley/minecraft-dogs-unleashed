@@ -33,7 +33,9 @@ public record DogStatue(DogStatueLook look, DogStatuePose pose, String name) {
     return new DogStatue(
         look,
         DogStatuePose.SIT,
-        name.length() > MAX_NAME_LENGTH ? name.substring(0, MAX_NAME_LENGTH) : name);
+        name.codePointCount(0, name.length()) > MAX_NAME_LENGTH
+            ? name.substring(0, name.offsetByCodePoints(0, MAX_NAME_LENGTH))
+            : name);
   }
 
   public DogStatue withPose(final DogStatuePose pose) {

@@ -72,6 +72,15 @@ class DogStatueTest {
   }
 
   @Test
+  @DisplayName("cutting a long name never splits an emoji in half")
+  void cuttingKeepsWholeCodePoints() {
+    final String name = "a".repeat(DogStatue.MAX_NAME_LENGTH - 1) + "\uD83D\uDC36" + "b";
+    final String engraved =
+        DogStatue.carved(statueOf(UnleashedDogBreed.HUSKY, DogStatuePose.SIT).look(), name).name();
+    assertEquals("a".repeat(DogStatue.MAX_NAME_LENGTH - 1) + "\uD83D\uDC36", engraved);
+  }
+
+  @Test
   @DisplayName("cycling the pose keeps the name")
   void nextPoseKeepsTheName() {
     assertEquals("Rex", statueOf(UnleashedDogBreed.HUSKY, DogStatuePose.SIT).nextPose().name());

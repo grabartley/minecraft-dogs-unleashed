@@ -1,6 +1,8 @@
 package com.grahambartley.dogsunleashed.block;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.Oxidizable;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -16,6 +18,12 @@ public class OxidizableDogStatueBlock extends DogStatueBlock implements Oxidizab
       final Settings settings) {
     super(material, settings);
     this.level = level;
+  }
+
+  @Override
+  protected MapCodec<? extends HorizontalFacingBlock> getCodec() {
+    return createCodec(
+        settings -> new OxidizableDogStatueBlock(this.level, this.material(), settings));
   }
 
   @Override

@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.render.statue;
 
+import com.grahambartley.dogsunleashed.render.coat.CoatImages;
 import java.util.Arrays;
 
 public final class StatueRamp {
@@ -35,6 +36,31 @@ public final class StatueRamp {
       steps[i] = (int) Math.round(mixed * (STEPS - 1));
     }
     return steps;
+  }
+
+  public static int[] carve(final int[] abgrPixels, final int[] ramp) {
+    final double[] lumas = new double[abgrPixels.length];
+    int opaque = 0;
+    for (final int pixel : abgrPixels) {
+      if (CoatImages.alpha(pixel) > 0) {
+        lumas[opaque++] =
+            luma(CoatImages.red(pixel), CoatImages.green(pixel), CoatImages.blue(pixel));
+      }
+    }
+    final int[] steps = steps(Arrays.copyOf(lumas, opaque));
+    final int[] carved = new int[abgrPixels.length];
+    int next = 0;
+    for (int i = 0; i < abgrPixels.length; i++) {
+      final int alpha = CoatImages.alpha(abgrPixels[i]);
+      if (alpha == 0) {
+        continue;
+      }
+      final int shade = ramp[steps[next++]];
+      carved[i] =
+          CoatImages.abgr(
+              alpha, CoatImages.red(shade), CoatImages.green(shade), CoatImages.blue(shade));
+    }
+    return carved;
   }
 
   static double percentile(final double[] sorted, final double fraction) {

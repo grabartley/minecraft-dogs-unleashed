@@ -97,7 +97,8 @@ their parents' coat and eye genes, so two parents can carry a rare coat and pass
 Turn on Dog Aging and your dogs grow old with you, going grey around the muzzle and napping more, but never dying of age.
 - **Bring them back.** A tamed dog that dies leaves a grave. Put a totem in it and a lightning rod above it, then wait
 for lightning to strike it. Your dog comes back undead and burns in daylight unless it has shade, armour, or a fire pendant. Cure it the same way you
-cure a zombie villager. If it dies while undead, it is gone for good, unless it wears a Pendant of Loyalty. Carve any dog, living or lost, into a stone, gold or copper statue with its name on the front.
+cure a zombie villager. If it dies while undead, it is gone for good, unless it wears a Pendant of Loyalty.
+Carve any dog, living or lost, into a stone, gold or copper statue with its name on the front.
 - **Little touches.** Huskies and dire wolves howl at the full moon, dogs tilt their heads at food, and they shake off after rain or a
 swim. Muddy dogs leave paw prints until you wash them in a water cauldron. There is also an advancement tab to work through.
 

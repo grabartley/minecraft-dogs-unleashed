@@ -11,7 +11,6 @@ import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.text.Text;
@@ -23,7 +22,6 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
 
 public class DogStatueBlock extends HorizontalFacingBlock implements BlockEntityProvider {
 
@@ -116,14 +114,5 @@ public class DogStatueBlock extends HorizontalFacingBlock implements BlockEntity
   @Override
   public BlockEntity createBlockEntity(final BlockPos pos, final BlockState state) {
     return new DogStatueBlockEntity(pos, state);
-  }
-
-  @Override
-  public ItemStack getPickStack(final WorldView world, final BlockPos pos, final BlockState state) {
-    final ItemStack stack = super.getPickStack(world, pos, state);
-    if (world.getBlockEntity(pos) instanceof DogStatueBlockEntity statue) {
-      stack.applyComponentsFrom(statue.createComponentMap());
-    }
-    return stack;
   }
 }

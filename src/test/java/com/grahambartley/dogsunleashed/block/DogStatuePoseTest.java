@@ -32,6 +32,14 @@ class DogStatuePoseTest {
     assertEquals(shown, pose.shownFor(howls));
   }
 
+  @ParameterizedTest(name = "{0} sits {1}, howls {2}")
+  @CsvSource({"SIT, true, false", "STAND, false, false", "HOWL, true, true"})
+  @DisplayName("sit and howl are sitting poses, and only howl raises the head")
+  void sittingAndHowling(final DogStatuePose pose, final boolean sits, final boolean howling) {
+    assertEquals(sits, pose.sits());
+    assertEquals(howling, pose.howling());
+  }
+
   @ParameterizedTest(name = "{0} survives its saved name")
   @EnumSource(DogStatuePose.class)
   @DisplayName("every pose reads back from the name it is saved under")

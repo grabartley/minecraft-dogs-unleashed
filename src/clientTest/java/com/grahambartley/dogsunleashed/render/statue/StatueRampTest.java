@@ -63,6 +63,31 @@ class StatueRampTest {
   }
 
   @Test
+  @DisplayName(
+      "carving keeps each pixel's alpha, leaves clear pixels clear and paints from the ramp")
+  void carveKeepsAlphaAndUsesTheRamp() {
+    final int[] ramp = new int[StatueRamp.STEPS];
+    for (int step = 0; step < ramp.length; step++) {
+      ramp[step] = 0xFF000000 | step;
+    }
+    final int black = 0xFF000000;
+    final int white = 0xFFFFFFFF;
+    final int halfWhite = 0x80FFFFFF;
+    final int clear = 0x00FFFFFF;
+
+    final int[] carved = StatueRamp.carve(new int[] {black, clear, white, halfWhite}, ramp);
+
+    assertArrayEquals(new int[] {0xFF000000, 0, 0xFF00000F, 0x8000000F}, carved);
+  }
+
+  @Test
+  @DisplayName("a fully clear coat carves to a fully clear image")
+  void clearCoatStaysClear() {
+    assertArrayEquals(
+        new int[] {0, 0}, StatueRamp.carve(new int[] {0x00123456, 0}, new int[StatueRamp.STEPS]));
+  }
+
+  @Test
   @DisplayName("percentiles round to the nearest rank")
   void percentileUsesNearestRank() {
     final double[] sorted = {0.0, 0.25, 0.5, 0.75, 1.0};

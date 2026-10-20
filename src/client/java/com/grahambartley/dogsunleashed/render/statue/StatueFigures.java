@@ -5,8 +5,8 @@ import com.grahambartley.dogsunleashed.block.DogStatue;
 import com.grahambartley.dogsunleashed.block.DogStatuePose;
 import com.grahambartley.dogsunleashed.block.entity.DogStatueBlockEntity;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.WeakHashMap;
 import net.minecraft.entity.EntityType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -42,24 +42,29 @@ public final class StatueFigures {
     }
   }
 
-  private final Map<DogStatueBlockEntity, Figure> figures = new WeakHashMap<>();
+  private final Map<BlockPos, Figure> figures = new HashMap<>();
+  private @Nullable World world;
 
   public @Nullable Figure of(
       final DogStatueBlockEntity base, final DogStatue statue, final Direction facing) {
-    final Figure current = this.figures.get(base);
+    final World world = base.getWorld();
+    if (world != this.world) {
+      this.figures.clear();
+      this.world = world;
+    }
+    final Figure current = this.figures.get(base.getPos());
     if (current != null && current.statue().equals(statue)) {
       face(current.dog(), facing);
       return current;
     }
-    final World world = base.getWorld();
     final UnleashedDogEntity dog = world == null ? null : carve(world, base.getPos(), statue);
     if (dog == null) {
-      this.figures.remove(base);
+      this.figures.remove(base.getPos());
       return null;
     }
     face(dog, facing);
     final Figure figure = new Figure(statue, dog);
-    this.figures.put(base, figure);
+    this.figures.put(base.getPos(), figure);
     return figure;
   }
 
@@ -71,13 +76,12 @@ public final class StatueFigures {
       return null;
     }
     dog.setPosition(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
-    dog.setBaby(statue.look().baby());
     dog.readCustomDataFromNbt(statue.look().toNbt());
+    dog.setBaby(statue.look().baby());
     final DogStatuePose pose = statue.shownPose();
-    final boolean sitting = pose != DogStatuePose.STAND;
-    dog.setSitting(sitting);
-    dog.setInSittingPose(sitting);
-    dog.getAnimationState().setHowling(pose == DogStatuePose.HOWL);
+    dog.setSitting(pose.sits());
+    dog.setInSittingPose(pose.sits());
+    dog.getAnimationState().setHowling(pose.howling());
     return dog;
   }
 
