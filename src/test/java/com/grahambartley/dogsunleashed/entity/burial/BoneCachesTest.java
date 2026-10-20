@@ -57,6 +57,20 @@ class BoneCachesTest {
   }
 
   @Test
+  @DisplayName("a fox finds the nearest cache in range, whoever buried it")
+  void nearestCacheOfAnyDog() {
+    final BoneCaches caches = new BoneCaches();
+    final BlockPos fox = new BlockPos(0, 64, 0);
+    caches.add(cache(new BlockPos(10, 64, 0), DOG, 0));
+    caches.add(cache(new BlockPos(3, 64, 0), OTHER_DOG, DAY));
+    caches.add(cache(new BlockPos(60, 64, 0), DOG, 0));
+
+    assertEquals(
+        Optional.of(new BlockPos(3, 64, 0)), caches.nearest(fox, 24.0).map(BoneCache::pos));
+    assertTrue(caches.nearest(new BlockPos(200, 64, 0), 24.0).isEmpty());
+  }
+
+  @Test
   @DisplayName("caches survive a save and load, and broken entries are skipped")
   void roundTripsAndSkipsBrokenEntries() {
     final BoneCaches caches = new BoneCaches();

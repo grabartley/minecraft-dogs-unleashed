@@ -119,13 +119,13 @@ public final class DogVocalization {
     return this.dog.age - this.lastBarkAge + partialTick;
   }
 
-  void barkIfReady(final float pitch) {
+  public void barkIfReady(final float pitch) {
     if (this.canBark()) {
       this.playBark(pitch);
     }
   }
 
-  void forceBark(final float pitch) {
+  public void forceBark(final float pitch) {
     if (this.barkSound() != null) {
       this.playBark(pitch);
     }

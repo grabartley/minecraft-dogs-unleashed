@@ -1,10 +1,10 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
-import com.grahambartley.dogsunleashed.entity.DogBoneBurial;
-import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.burial.BoneCacheRules;
+import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.ai.pathing.Path;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
@@ -31,15 +31,17 @@ final class DigSiteVisit {
   private static final double DIG_PARTICLE_RISE = 0.1;
   private static final float DIG_SOUND_VOLUME = 0.6F;
 
-  private final UnleashedDogEntity dog;
+  private final MobEntity mob;
   private final BlockPos ground;
+  private final BooleanConsumer digging;
   private int walkTicks;
   private int digTicks = -1;
   private int repathCooldown;
 
-  DigSiteVisit(final UnleashedDogEntity dog, final BlockPos ground) {
-    this.dog = dog;
+  DigSiteVisit(final MobEntity mob, final BlockPos ground, final BooleanConsumer digging) {
+    this.mob = mob;
     this.ground = ground.toImmutable();
+    this.digging = digging;
   }
 
   BlockPos ground() {
@@ -51,9 +53,9 @@ final class DigSiteVisit {
       return this.dig(world);
     }
     if (this.isBeside()) {
-      this.dog.getNavigation().stop();
+      this.mob.getNavigation().stop();
       this.digTicks = BoneCacheRules.DIG_TICKS;
-      this.burial().setDigging(true);
+      this.digging.accept(true);
       return Status.DIGGING;
     }
     if (++this.walkTicks > MAX_WALK_TICKS) {
@@ -61,7 +63,7 @@ final class DigSiteVisit {
     }
     if (--this.repathCooldown <= 0) {
       this.repathCooldown = REPATH_INTERVAL_TICKS;
-      this.dog
+      this.mob
           .getNavigation()
           .startMovingTo(
               this.ground.getX() + 0.5, this.ground.getY() + 1, this.ground.getZ() + 0.5, SPEED);
@@ -78,12 +80,12 @@ final class DigSiteVisit {
   }
 
   private void faceGround() {
-    final double dx = this.ground.getX() + 0.5 - this.dog.getX();
-    final double dz = this.ground.getZ() + 0.5 - this.dog.getZ();
+    final double dx = this.ground.getX() + 0.5 - this.mob.getX();
+    final double dz = this.ground.getZ() + 0.5 - this.mob.getZ();
     final float yaw = (float) (MathHelper.atan2(dz, dx) * MathHelper.DEGREES_PER_RADIAN) - 90.0F;
-    this.dog.setYaw(yaw);
-    this.dog.setBodyYaw(yaw);
-    this.dog.setHeadYaw(yaw);
+    this.mob.setYaw(yaw);
+    this.mob.setBodyYaw(yaw);
+    this.mob.setHeadYaw(yaw);
   }
 
   private void digEffects(final ServerWorld world) {
@@ -99,23 +101,19 @@ final class DigSiteVisit {
         DIG_PARTICLE_RISE,
         DIG_PARTICLE_SPREAD,
         0.0);
-    this.dog.playSound(
+    this.mob.playSound(
         state.getSoundGroup().getHitSound(), DIG_SOUND_VOLUME, state.getSoundGroup().getPitch());
   }
 
   boolean canReach() {
-    final Path path = this.dog.getNavigation().findPathTo(this.ground.up(), 1);
+    final Path path = this.mob.getNavigation().findPathTo(this.ground.up(), 1);
     return path != null && path.reachesTarget();
   }
 
   private boolean isBeside() {
-    final double dx = this.dog.getX() - (this.ground.getX() + 0.5);
-    final double dz = this.dog.getZ() - (this.ground.getZ() + 0.5);
-    final double dy = this.dog.getY() - (this.ground.getY() + 1);
+    final double dx = this.mob.getX() - (this.ground.getX() + 0.5);
+    final double dz = this.mob.getZ() - (this.ground.getZ() + 0.5);
+    final double dy = this.mob.getY() - (this.ground.getY() + 1);
     return Math.hypot(dx, dz) <= REACH && Math.abs(dy) <= REACH;
-  }
-
-  private DogBoneBurial burial() {
-    return this.dog.getComponents().get(DogBoneBurial.class);
   }
 }

@@ -63,6 +63,13 @@ public final class BoneCaches extends PersistentState {
         .min(Comparator.comparingDouble(cache -> cache.pos().getSquaredDistance(from)));
   }
 
+  public Optional<BoneCache> nearest(final BlockPos from, final double range) {
+    final double rangeSquared = range * range;
+    return this.byPos.values().stream()
+        .filter(cache -> cache.pos().getSquaredDistance(from) <= rangeSquared)
+        .min(Comparator.comparingDouble(cache -> cache.pos().getSquaredDistance(from)));
+  }
+
   @Override
   public NbtCompound writeNbt(
       final NbtCompound nbt, final RegistryWrapper.WrapperLookup registryLookup) {
