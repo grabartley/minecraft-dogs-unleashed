@@ -118,7 +118,8 @@ public class UnleashedDogEntity extends DogMountEntity
           new DogTreatBuffState(this),
           new DogSpawnerOrigin(),
           new DogCollar(this),
-          new DogPointedOrders(this));
+          new DogPointedOrders(this),
+          new DogDeathWatch(this));
   private final DogGenomeCache genomeCache = new DogGenomeCache(this);
   private final DogUndeadState undeadState = new DogUndeadState(this);
   private final DogCuring curing = new DogCuring(this);
@@ -307,6 +308,15 @@ public class UnleashedDogEntity extends DogMountEntity
     return this.vocalization;
   }
 
+  @Override
+  public void handleStatus(final byte status) {
+    if (status == DogVocalization.BARK_STATUS) {
+      this.vocalization.heardBark();
+    } else {
+      super.handleStatus(status);
+    }
+  }
+
   public DogAmbienceEffects getAmbienceEffects() {
     return this.ambience;
   }
@@ -482,6 +492,12 @@ public class UnleashedDogEntity extends DogMountEntity
       return;
     }
     super.setTarget(target);
+  }
+
+  @Override
+  public void tickMovement() {
+    this.growth.agePup();
+    super.tickMovement();
   }
 
   @Override

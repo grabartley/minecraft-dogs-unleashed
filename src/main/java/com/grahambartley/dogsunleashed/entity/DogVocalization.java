@@ -25,11 +25,15 @@ import org.jetbrains.annotations.Nullable;
 
 public final class DogVocalization {
 
+  public static final byte BARK_STATUS = 100;
+  private static final int NEVER_BARKED = Integer.MIN_VALUE / 2;
+
   private final UnleashedDogEntity dog;
 
   private int barkCooldownTicks = 0;
   private int howlCooldownTicks = 0;
   private int howlActiveTicks = 0;
+  private int lastBarkAge = NEVER_BARKED;
 
   DogVocalization(final UnleashedDogEntity dog) {
     this.dog = dog;
@@ -107,6 +111,14 @@ public final class DogVocalization {
     this.tickHowl();
   }
 
+  void heardBark() {
+    this.lastBarkAge = this.dog.age;
+  }
+
+  public float ticksSinceBark(final float partialTick) {
+    return this.dog.age - this.lastBarkAge + partialTick;
+  }
+
   void barkIfReady(final float pitch) {
     if (this.canBark()) {
       this.playBark(pitch);
@@ -120,7 +132,13 @@ public final class DogVocalization {
   }
 
   private void playBark(final float pitch) {
-    this.dog.playSound(this.barkSound(), DogsUnleashed.SERVER_CONFIG.sound().barkVolume(), pitch);
+    this.playBark(pitch, DogsUnleashed.SERVER_CONFIG.sound().barkVolume());
+  }
+
+  private void playBark(final float pitch, final float volume) {
+    this.dog.playSound(this.barkSound(), volume, pitch);
+    this.heardBark();
+    this.dog.getWorld().sendEntityStatus(this.dog, BARK_STATUS);
     if (this.dog.getRigSourceBreed().barkMovesJaw()) {
       this.dog.triggerAnim(DogAnimationKeys.BARK, DogAnimationKeys.BARK);
     }
@@ -171,13 +189,30 @@ public final class DogVocalization {
     }
 
     if (this.canHowl() && this.dog.getRandom().nextInt(RANDOM_HOWL_CHANCE) == 0) {
-      this.dog.getAnimationState().setHowling(true);
-      this.dog.playSound(
-          this.howlSound(), DogsUnleashed.SERVER_CONFIG.sound().howlVolume(), HOWL_PITCH);
-      this.howlCooldownTicks = HOWL_COOLDOWN_TICKS;
-      this.howlActiveTicks = HOWL_DURATION_TICKS;
+      this.howl();
       this.triggerHowlAdvancement();
     }
+  }
+
+  void callOut() {
+    if (this.dog.getVoiceBreed().howls() && !this.dog.isUndead()) {
+      this.howl(DeathWatchRules.callOutVolume(DogsUnleashed.SERVER_CONFIG.sound().howlVolume()));
+    } else if (this.barkSound() != null) {
+      this.playBark(
+          this.getBarkPitch(),
+          DeathWatchRules.callOutVolume(DogsUnleashed.SERVER_CONFIG.sound().barkVolume()));
+    }
+  }
+
+  private void howl() {
+    this.howl(DogsUnleashed.SERVER_CONFIG.sound().howlVolume());
+  }
+
+  private void howl(final float volume) {
+    this.dog.getAnimationState().setHowling(true);
+    this.dog.playSound(this.howlSound(), volume, HOWL_PITCH);
+    this.howlCooldownTicks = HOWL_COOLDOWN_TICKS;
+    this.howlActiveTicks = HOWL_DURATION_TICKS;
   }
 
   private void triggerHowlAdvancement() {

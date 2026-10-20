@@ -52,5 +52,23 @@
   "leg_back_right": [
     "backrightleg",
     "lowestbackrightleg"
-  ]
+  ],
+  "sheet_overrides": {
+    "dogs-unleashed:textures/entity/overlay/harness.png": {
+      "torso": "dogs-unleashed:textures/entity/overlay/harness_husky_torso.png",
+      "neck": "dogs-unleashed:textures/entity/overlay/harness_husky_neck.png"
+    },
+    "dogs-unleashed:textures/entity/overlay/grey_muzzle.png": {
+      "mouth": "dogs-unleashed:textures/entity/overlay/grey_muzzle_husky_mouth.png",
+      "head": "dogs-unleashed:textures/entity/overlay/grey_muzzle_husky_head.png",
+      "eyes": "dogs-unleashed:textures/entity/overlay/grey_muzzle_husky_eyes.png"
+    },
+    "dogs-unleashed:textures/entity/overlay/mud.png": {
+      "leg_back_left": "dogs-unleashed:textures/entity/overlay/mud_husky_leg_back_left.png",
+      "leg_back_right": "dogs-unleashed:textures/entity/overlay/mud_husky_leg_back_right.png",
+      "leg_front_left": "dogs-unleashed:textures/entity/overlay/mud_husky_leg_front_left.png",
+      "leg_front_right": "dogs-unleashed:textures/entity/overlay/mud_husky_leg_front_right.png",
+      "mouth": "dogs-unleashed:textures/entity/overlay/mud_husky_mouth.png"
+    }
+  }
 }

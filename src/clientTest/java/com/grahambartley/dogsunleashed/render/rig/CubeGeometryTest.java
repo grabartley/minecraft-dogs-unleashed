@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.render.rig;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.stream.Stream;
@@ -125,5 +126,32 @@ class CubeGeometryTest {
       final String rig, final String bone, final int cube, final boolean detail) {
     final GeoBone geoBone = ShippedRigs.model(rig).getBone(bone).orElseThrow();
     assertEquals(detail, CubeGeometry.isDetail(geoBone.getCubes().get(cube)));
+  }
+
+  private static CubeGeometry.Bounds box(
+      final float minX,
+      final float minY,
+      final float minZ,
+      final float maxX,
+      final float maxY,
+      final float maxZ) {
+    final CubeGeometry.Bounds bounds = new CubeGeometry.Bounds();
+    bounds.include(new Vector3f(minX, minY, minZ));
+    bounds.include(new Vector3f(maxX, maxY, maxZ));
+    return bounds;
+  }
+
+  @Test
+  @DisplayName("boxes that share space overlap and boxes that only touch or are empty do not")
+  void overlapRule() {
+    final CubeGeometry.Bounds cube = box(0, 0, 0, 1, 1, 1);
+
+    assertTrue(cube.overlaps(box(0.5f, 0.5f, 0.5f, 2, 2, 2)));
+    assertTrue(box(0.5f, 0.5f, 0.5f, 2, 2, 2).overlaps(cube));
+    assertFalse(cube.overlaps(box(1, 0, 0, 2, 1, 1)));
+    assertFalse(cube.overlaps(box(0, 2, 0, 1, 3, 1)));
+    assertFalse(cube.overlaps(box(0, 0, -3, 1, 1, -1)));
+    assertFalse(cube.overlaps(new CubeGeometry.Bounds()));
+    assertFalse(new CubeGeometry.Bounds().overlaps(cube));
   }
 }

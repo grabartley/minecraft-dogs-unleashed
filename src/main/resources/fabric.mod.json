@@ -34,11 +34,13 @@
     ],
     "fabric-gametest": [
       "com.grahambartley.dogsunleashed.gametest.DogAdvancementGameTest",
+      "com.grahambartley.dogsunleashed.gametest.OwnerDeathWatchGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogCosmeticGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogDimensionChangeGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogWheelSubActionGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogWhistlePointGameTest",
       "com.grahambartley.dogsunleashed.gametest.DireWolfGameTest",
+      "com.grahambartley.dogsunleashed.gametest.DireWolfPupGrowthGameTest",
       "com.grahambartley.dogsunleashed.gametest.DireWolfJumpGameTest",
       "com.grahambartley.dogsunleashed.gametest.DireWolfPackGameTest",
       "com.grahambartley.dogsunleashed.gametest.DireWolfTrustGameTest",

@@ -64,6 +64,9 @@ public final class ModNbtKeys {
   public static final String COMMAND_ANCHOR_Y = "CommandAnchorY";
   public static final String COMMAND_ANCHOR_Z = "CommandAnchorZ";
   public static final String COMMAND_ANCHOR_DIMENSION = "CommandAnchorDimension";
+  public static final String DEATH_WATCH = "DeathWatch";
+  public static final String DEATH_WATCH_CALLED_OUT = "DeathWatchCalledOut";
+  public static final String DEATH_WATCH_COMMAND_BEFORE = "DeathWatchCommandBefore";
   public static final String CURING_TICKS = "CuringTicks";
   public static final String CURING_PLAYER_ID = "CuringPlayerId";
   public static final String FUR_STAGE = "FurStage";

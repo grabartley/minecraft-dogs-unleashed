@@ -105,7 +105,10 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
     if (fetchType == null) {
       return;
     }
-    CarryProfile profile = animatable.getRigSourceBreed().carryProfileFor(fetchType);
+    CarryProfile profile = animatable.getRigSourceBreed().carryProfileFor(fetchType).orElse(null);
+    if (profile == null) {
+      return;
+    }
     MouthFrame.level(poseStack, bone);
     poseStack.translate(0.0, profile.verticalOffset(), profile.forwardOffset());
     CarriedToy toy = CarriedToy.of(fetchType);
