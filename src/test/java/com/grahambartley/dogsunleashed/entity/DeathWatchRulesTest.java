@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -87,5 +88,21 @@ class DeathWatchRulesTest {
   void commandAfterWatchReturnsToTheFollowingCommandTheDogHadOrFollow(final DogCommand before) {
     final DogCommand expected = before == DogCommand.HEEL ? DogCommand.HEEL : DogCommand.FOLLOW;
     assertEquals(expected, DeathWatchRules.commandAfterWatch(before));
+  }
+
+  @ParameterizedTest(name = "saved={0}, id={1} -> {2}")
+  @CsvSource({
+    "false, 0, FOLLOW",
+    "false, 3, FOLLOW",
+    "true, 0, FOLLOW",
+    "true, 1, HEEL",
+    "true, 2, FOLLOW",
+    "true, 3, FOLLOW",
+    "true, 6, FOLLOW"
+  })
+  @DisplayName("a reloaded watch returns to the following command it saved, or follow")
+  void restoredCommandBeforeFallsBackToFollow(
+      final boolean saved, final int savedId, final DogCommand expected) {
+    assertEquals(expected, DeathWatchRules.restoredCommandBefore(saved, savedId));
   }
 }

@@ -66,4 +66,8 @@ public final class DeathWatchRules {
   public static DogCommand commandAfterWatch(final DogCommand commandBefore) {
     return commandBefore.followsOwnerOnRelocation() ? commandBefore : DogCommand.FOLLOW;
   }
+
+  public static DogCommand restoredCommandBefore(final boolean saved, final int savedId) {
+    return saved ? commandAfterWatch(DogCommand.fromId(savedId)) : DogCommand.FOLLOW;
+  }
 }
