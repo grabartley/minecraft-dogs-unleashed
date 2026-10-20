@@ -12,6 +12,7 @@ public final class DogAnimationControllers {
   private static final float GALLOP_LIMB_SPEED = 0.1f;
   private static final int HEAD_TILT_TRANSITION_TICKS = 5;
   private static final int GROWL_TRANSITION_TICKS = 4;
+  private static final int SCENT_TRANSITION_TICKS = 4;
 
   private DogAnimationControllers() {}
 
@@ -91,6 +92,20 @@ public final class DogAnimationControllers {
               }
               return PlayState.STOP;
             }));
+
+    controllers.add(
+        new AnimationController<>(
+            dog,
+            "scent",
+            SCENT_TRANSITION_TICKS,
+            state ->
+                switch (dog.getComponents().get(DogScent.class).phase()) {
+                  case SNIFFING ->
+                      state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.SNIFF));
+                  case DIGGING ->
+                      state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.DIG));
+                  case POINTING, NONE -> PlayState.STOP;
+                }));
 
     controllers.add(
         new AnimationController<>(dog, DogAnimationKeys.BARK, 0, state -> PlayState.STOP)

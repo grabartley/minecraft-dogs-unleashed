@@ -21,6 +21,7 @@ import com.grahambartley.dogsunleashed.entity.goal.PointedAttackGoal;
 import com.grahambartley.dogsunleashed.entity.goal.PointedFetchGoal;
 import com.grahambartley.dogsunleashed.entity.goal.PuppyAwareWanderGoal;
 import com.grahambartley.dogsunleashed.entity.goal.ReturnToAnchorGoal;
+import com.grahambartley.dogsunleashed.entity.goal.ScentTrackGoal;
 import com.grahambartley.dogsunleashed.entity.goal.SleepInBedGoal;
 import com.grahambartley.dogsunleashed.entity.goal.TrustFollowGoal;
 import com.grahambartley.dogsunleashed.entity.goal.WildHuntGoal;
@@ -65,6 +66,7 @@ public final class DogGoalRegistrar {
     goalSelector.add(3, new FetchRetrieveGoal(dog));
     goalSelector.add(3, new FetchReturnGoal(dog));
     goalSelector.add(3, new PointedFetchGoal(dog));
+    goalSelector.add(3, new ScentTrackGoal(dog));
     goalSelector.add(4, new AutoSleepGoal(dog));
     goalSelector.add(4, new GroundNapGoal(dog));
     goalSelector.add(5, new DogEscapeDangerGoal(dog, ESCAPE_DANGER_SPEED));

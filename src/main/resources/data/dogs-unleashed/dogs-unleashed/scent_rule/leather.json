@@ -1,0 +1,13 @@
+{
+  "items": "minecraft:leather",
+  "entities": [
+    "minecraft:cow",
+    "minecraft:mooshroom",
+    "minecraft:horse",
+    "minecraft:donkey",
+    "minecraft:mule",
+    "minecraft:llama",
+    "minecraft:trader_llama",
+    "minecraft:hoglin"
+  ]
+}

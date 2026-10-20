@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.entity;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
+import com.grahambartley.dogsunleashed.ModItemTags;
 import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.advancement.DogTamedCriterion;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
@@ -120,6 +121,7 @@ public final class DogInteractions {
                 () -> this.tryRepairArmour(player, itemStack),
                 () -> this.tryDirectEquip(player, itemStack),
                 () -> this.tryTrimFur(player, hand, itemStack),
+                () -> this.tryGiveScent(player, itemStack),
                 () -> this.tryAssignBedOrOpenWheel(player, itemStack)));
     if (handled != null) {
       return handled;
@@ -253,6 +255,14 @@ public final class DogInteractions {
       return null;
     }
     return this.dog.getFur().tryTrim(player, hand, itemStack);
+  }
+
+  private @Nullable ActionResult tryGiveScent(
+      final PlayerEntity player, final ItemStack itemStack) {
+    if (!this.isDirectOwnerInteraction(player) || !itemStack.isIn(ModItemTags.SCENT_ITEMS)) {
+      return null;
+    }
+    return this.dog.getComponents().get(DogScent.class).offer(player, itemStack);
   }
 
   private @Nullable ActionResult tryAssignBedOrOpenWheel(

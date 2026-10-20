@@ -76,7 +76,7 @@ public enum UnleashedDogBreed {
       false,
       new RenderTransforms(1.5f, 0.75f, 0.0f, 0.88f),
       new FurProfile(DogFurStage.SHAGGY, 72000, 1),
-      Nature.ORDINARY),
+      Nature.ORDINARY.trackingScentUpTo(64)),
   GOLDEN_RETRIEVER(
       "goldenretriever",
       new FetchCarryProfiles(
@@ -339,8 +339,11 @@ public enum UnleashedDogBreed {
       boolean growsThroughStages,
       boolean sleepsInBeds,
       boolean livesInPacks,
-      boolean tamesThroughTrust) {
-    public static final Nature ORDINARY = new Nature(3, false, false, true, false, false);
+      boolean tamesThroughTrust,
+      int scentRange) {
+    public static final int ORDINARY_SCENT_RANGE = 32;
+    public static final Nature ORDINARY =
+        new Nature(3, false, false, true, false, false, ORDINARY_SCENT_RANGE);
 
     public Nature breedingOnlyWithOwnBreed() {
       return new Nature(
@@ -349,7 +352,8 @@ public enum UnleashedDogBreed {
           growsThroughStages,
           sleepsInBeds,
           livesInPacks,
-          tamesThroughTrust);
+          tamesThroughTrust,
+          scentRange);
     }
 
     public Nature growingThroughStages() {
@@ -359,7 +363,8 @@ public enum UnleashedDogBreed {
           true,
           sleepsInBeds,
           livesInPacks,
-          tamesThroughTrust);
+          tamesThroughTrust,
+          scentRange);
     }
 
     public Nature sleepingOutsideBeds() {
@@ -369,7 +374,8 @@ public enum UnleashedDogBreed {
           growsThroughStages,
           false,
           livesInPacks,
-          tamesThroughTrust);
+          tamesThroughTrust,
+          scentRange);
     }
 
     public Nature livingInPacks() {
@@ -379,7 +385,8 @@ public enum UnleashedDogBreed {
           growsThroughStages,
           sleepsInBeds,
           true,
-          tamesThroughTrust);
+          tamesThroughTrust,
+          scentRange);
     }
 
     public Nature tamingThroughTrust() {
@@ -389,7 +396,19 @@ public enum UnleashedDogBreed {
           growsThroughStages,
           sleepsInBeds,
           livesInPacks,
-          true);
+          true,
+          scentRange);
+    }
+
+    public Nature trackingScentUpTo(final int blocks) {
+      return new Nature(
+          tameSuccessChance,
+          breedsOnlyWithOwnBreed,
+          growsThroughStages,
+          sleepsInBeds,
+          livesInPacks,
+          tamesThroughTrust,
+          blocks);
     }
   }
 }

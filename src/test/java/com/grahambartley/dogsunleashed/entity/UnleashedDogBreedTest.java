@@ -371,19 +371,19 @@ class UnleashedDogBreedTest {
 
   static Stream<Arguments> expectedNatures() {
     return Stream.of(
-        Arguments.of(UnleashedDogBreed.HUSKY, 3, false, false, true, false, false),
-        Arguments.of(UnleashedDogBreed.DACHSHUND, 3, false, false, true, false, false),
-        Arguments.of(UnleashedDogBreed.BEAGLE, 3, false, false, true, false, false),
-        Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, 3, false, false, true, false, false),
-        Arguments.of(UnleashedDogBreed.SHIBA_INU, 3, false, false, true, false, false),
-        Arguments.of(UnleashedDogBreed.DIRE_WOLF, 3, true, true, false, true, true),
-        Arguments.of(UnleashedDogBreed.CROSS_BREED, 3, false, false, true, false, false));
+        Arguments.of(UnleashedDogBreed.HUSKY, 3, false, false, true, false, false, 32),
+        Arguments.of(UnleashedDogBreed.DACHSHUND, 3, false, false, true, false, false, 32),
+        Arguments.of(UnleashedDogBreed.BEAGLE, 3, false, false, true, false, false, 64),
+        Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, 3, false, false, true, false, false, 32),
+        Arguments.of(UnleashedDogBreed.SHIBA_INU, 3, false, false, true, false, false, 32),
+        Arguments.of(UnleashedDogBreed.DIRE_WOLF, 3, true, true, false, true, true, 32),
+        Arguments.of(UnleashedDogBreed.CROSS_BREED, 3, false, false, true, false, false, 32));
   }
 
   @ParameterizedTest(
       name =
           "{0} tames 1 in {1}, own breed only={2}, staged growth={3}, beds={4}, lives in packs={5},"
-              + " trust={6}")
+              + " trust={6}, scent range={7}")
   @MethodSource("expectedNatures")
   @DisplayName("each breed declares its taming chance, breeding rule and growth model")
   void breedNatureMatchesTheSpec(
@@ -393,7 +393,8 @@ class UnleashedDogBreedTest {
       final boolean growsThroughStages,
       final boolean sleepsInBeds,
       final boolean livesInPacks,
-      final boolean tamesThroughTrust) {
+      final boolean tamesThroughTrust,
+      final int scentRange) {
     assertEquals(
         new UnleashedDogBreed.Nature(
             tameSuccessChance,
@@ -401,7 +402,8 @@ class UnleashedDogBreedTest {
             growsThroughStages,
             sleepsInBeds,
             livesInPacks,
-            tamesThroughTrust),
+            tamesThroughTrust,
+            scentRange),
         breed.nature());
   }
 
@@ -446,18 +448,22 @@ class UnleashedDogBreedTest {
   void natureBuilderChangesOneTraitAtATime() {
     final UnleashedDogBreed.Nature ordinary = UnleashedDogBreed.Nature.ORDINARY;
     assertEquals(
-        new UnleashedDogBreed.Nature(3, true, false, true, false, false),
+        new UnleashedDogBreed.Nature(3, true, false, true, false, false, 32),
         ordinary.breedingOnlyWithOwnBreed());
     assertEquals(
-        new UnleashedDogBreed.Nature(3, false, true, true, false, false),
+        new UnleashedDogBreed.Nature(3, false, true, true, false, false, 32),
         ordinary.growingThroughStages());
     assertEquals(
-        new UnleashedDogBreed.Nature(3, false, false, false, false, false),
+        new UnleashedDogBreed.Nature(3, false, false, false, false, false, 32),
         ordinary.sleepingOutsideBeds());
     assertEquals(
-        new UnleashedDogBreed.Nature(3, false, false, true, true, false), ordinary.livingInPacks());
+        new UnleashedDogBreed.Nature(3, false, false, true, true, false, 32),
+        ordinary.livingInPacks());
     assertEquals(
-        new UnleashedDogBreed.Nature(3, false, false, true, false, true),
+        new UnleashedDogBreed.Nature(3, false, false, true, false, true, 32),
         ordinary.tamingThroughTrust());
+    assertEquals(
+        new UnleashedDogBreed.Nature(3, false, false, true, false, false, 64),
+        ordinary.trackingScentUpTo(64));
   }
 }
