@@ -13,14 +13,17 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.expedition.DogExpeditions;
 import com.grahambartley.dogsunleashed.entity.expedition.Expedition;
 import com.grahambartley.dogsunleashed.entity.expedition.ExpeditionFinds;
+import com.grahambartley.dogsunleashed.entity.expedition.ExpeditionHomecoming;
 import com.grahambartley.dogsunleashed.entity.expedition.Expeditions;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import com.grahambartley.dogsunleashed.gametest.util.PendantTestHelper;
 import com.grahambartley.dogsunleashed.item.armor.DogArmorTier;
+import com.grahambartley.dogsunleashed.listener.ExpeditionListener;
 import com.grahambartley.dogsunleashed.network.handler.WheelActionNetworkHandler;
 import com.grahambartley.dogsunleashed.network.payload.SelectWheelSubActionPayload;
 import java.util.List;
+import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.advancement.AdvancementEntry;
 import net.minecraft.component.DataComponentTypes;
@@ -29,6 +32,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.AfterBatch;
@@ -69,7 +73,60 @@ public final class DogExpeditionGameTest implements FabricGameTest {
     context.assertTrue(
         Expeditions.get(context.getWorld().getServer()).isAway(dog.getUuid()),
         "The dog should be recorded as away");
+    Expeditions.get(context.getWorld().getServer()).remove(dog.getUuid());
     context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 20)
+  public void aDogThatCannotBeRebuiltStaysAwayInsteadOfVanishing(final TestContext context) {
+    final ServerPlayerEntity owner = PendantTestHelper.survivalOwnerAt(context, OWNER_POS);
+    final Expedition broken =
+        new Expedition(
+            UUID.randomUUID(),
+            owner.getUuid(),
+            Identifier.of(DogsUnleashed.MOD_ID, "not_a_dog"),
+            new NbtCompound(),
+            Identifier.ofVanilla("overworld"),
+            0,
+            0,
+            0L,
+            0L);
+    final Expeditions expeditions = Expeditions.get(context.getWorld().getServer());
+    expeditions.add(broken);
+
+    context.assertTrue(
+        ExpeditionHomecoming.returnHome(broken, owner).isEmpty(), "Nothing should come back");
+    context.assertTrue(expeditions.isAway(broken.pet()), "The saved dog should be kept");
+    expeditions.remove(broken.pet());
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 20)
+  public void aStaleCopyOfAnAwayDogIsDiscardedWhenItLoads(final TestContext context) {
+    final ServerPlayerEntity owner = PendantTestHelper.survivalOwnerAt(context, OWNER_POS);
+    final UnleashedDogEntity copy = ownedDog(context, owner);
+    final Expeditions expeditions = Expeditions.get(context.getWorld().getServer());
+    expeditions.add(
+        new Expedition(
+            copy.getUuid(),
+            owner.getUuid(),
+            Identifier.of(DogsUnleashed.MOD_ID, "husky"),
+            new NbtCompound(),
+            Identifier.ofVanilla("overworld"),
+            0,
+            0,
+            Long.MAX_VALUE,
+            Long.MAX_VALUE));
+
+    ExpeditionListener.discardIfAway(copy, context.getWorld());
+
+    context.runAtEveryTick(
+        () -> {
+          if (copy.isRemoved()) {
+            expeditions.remove(copy.getUuid());
+            context.complete();
+          }
+        });
   }
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 20)
@@ -79,7 +136,7 @@ public final class DogExpeditionGameTest implements FabricGameTest {
 
     chooseExplore(dog, owner);
     final UnleashedDogEntity back =
-        DogExpeditions.returnHome(away(context, dog), owner).orElseThrow();
+        ExpeditionHomecoming.returnHome(away(context, dog), owner).orElseThrow();
 
     context.assertEquals(back.getUuid(), dog.getUuid(), "The same dog should come home");
     context.assertTrue(back.isAlive() && !back.isRemoved(), "The dog should be back in the world");
@@ -113,7 +170,7 @@ public final class DogExpeditionGameTest implements FabricGameTest {
 
     chooseExplore(dog, owner);
     final UnleashedDogEntity back =
-        DogExpeditions.returnHome(away(context, dog), owner).orElseThrow();
+        ExpeditionHomecoming.returnHome(away(context, dog), owner).orElseThrow();
 
     context.assertTrue(
         ItemStack.areEqual(armour, back.getEquipmentHolder().getStack(DogEquipmentSlot.ARMOUR)),
@@ -155,7 +212,7 @@ public final class DogExpeditionGameTest implements FabricGameTest {
     context.assertFalse(
         owner.getAdvancementTracker().getProgress(offExploring).isDone(),
         "Setting off alone should not unlock it");
-    DogExpeditions.returnHome(away(context, dog), owner);
+    ExpeditionHomecoming.returnHome(away(context, dog), owner);
 
     context.assertTrue(
         owner.getAdvancementTracker().getProgress(offExploring).isDone(),
