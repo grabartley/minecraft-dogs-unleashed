@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.grahambartley.dogsunleashed.config.AgingSettings;
 import com.grahambartley.dogsunleashed.config.DireWolfSettings;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.config.FurSettings;
@@ -63,21 +64,23 @@ class DogsUnleashedCommandTest {
         Arguments.of(11, "command.dogs-unleashed.help.furgrowth"),
         Arguments.of(12, "command.dogs-unleashed.help.furgrowthrate"),
         Arguments.of(13, "command.dogs-unleashed.help.badhairdaychance"),
-        Arguments.of(14, "command.dogs-unleashed.help.barkvolume"),
-        Arguments.of(15, "command.dogs-unleashed.help.howlvolume"),
-        Arguments.of(16, "command.dogs-unleashed.help.direwolf.growthrate"),
-        Arguments.of(17, "command.dogs-unleashed.help.direwolf.battles"),
-        Arguments.of(18, "command.dogs-unleashed.help.direwolf.smallestpack"),
-        Arguments.of(19, "command.dogs-unleashed.help.direwolf.largestpack"),
-        Arguments.of(20, "command.dogs-unleashed.help.direwolf.packhunting"),
-        Arguments.of(21, "command.dogs-unleashed.help.direwolf.packdefence"),
-        Arguments.of(22, "command.dogs-unleashed.help.direwolf.staminadrain"),
-        Arguments.of(23, "command.dogs-unleashed.help.direwolf.staminacapacity"),
-        Arguments.of(24, "command.dogs-unleashed.help.direwolf.staminarecovery"),
-        Arguments.of(25, "command.dogs-unleashed.help.reset"),
-        Arguments.of(26, "command.dogs-unleashed.help.list"),
-        Arguments.of(27, "command.dogs-unleashed.help.summon"),
-        Arguments.of(28, "command.dogs-unleashed.help.find"));
+        Arguments.of(14, "command.dogs-unleashed.help.dogaging"),
+        Arguments.of(15, "command.dogs-unleashed.help.senioragedays"),
+        Arguments.of(16, "command.dogs-unleashed.help.barkvolume"),
+        Arguments.of(17, "command.dogs-unleashed.help.howlvolume"),
+        Arguments.of(18, "command.dogs-unleashed.help.direwolf.growthrate"),
+        Arguments.of(19, "command.dogs-unleashed.help.direwolf.battles"),
+        Arguments.of(20, "command.dogs-unleashed.help.direwolf.smallestpack"),
+        Arguments.of(21, "command.dogs-unleashed.help.direwolf.largestpack"),
+        Arguments.of(22, "command.dogs-unleashed.help.direwolf.packhunting"),
+        Arguments.of(23, "command.dogs-unleashed.help.direwolf.packdefence"),
+        Arguments.of(24, "command.dogs-unleashed.help.direwolf.staminadrain"),
+        Arguments.of(25, "command.dogs-unleashed.help.direwolf.staminacapacity"),
+        Arguments.of(26, "command.dogs-unleashed.help.direwolf.staminarecovery"),
+        Arguments.of(27, "command.dogs-unleashed.help.reset"),
+        Arguments.of(28, "command.dogs-unleashed.help.list"),
+        Arguments.of(29, "command.dogs-unleashed.help.summon"),
+        Arguments.of(30, "command.dogs-unleashed.help.find"));
   }
 
   @ParameterizedTest(name = "help line {0} -> {1}")
@@ -111,11 +114,13 @@ class DogsUnleashedCommandTest {
         Arguments.of(17, "command.dogs-unleashed.status.furgrowth"),
         Arguments.of(18, "command.dogs-unleashed.status.furgrowthrate"),
         Arguments.of(19, "command.dogs-unleashed.status.badhairdaychance"),
-        Arguments.of(20, "command.dogs-unleashed.status.direwolf.growthrate"),
-        Arguments.of(21, "command.dogs-unleashed.status.direwolf.battles"),
-        Arguments.of(22, "command.dogs-unleashed.status.direwolf.packsize"),
-        Arguments.of(23, "command.dogs-unleashed.status.direwolf.packs"),
-        Arguments.of(24, "command.dogs-unleashed.status.direwolf.stamina"));
+        Arguments.of(20, "command.dogs-unleashed.status.dogaging"),
+        Arguments.of(21, "command.dogs-unleashed.status.senioragedays"),
+        Arguments.of(22, "command.dogs-unleashed.status.direwolf.growthrate"),
+        Arguments.of(23, "command.dogs-unleashed.status.direwolf.battles"),
+        Arguments.of(24, "command.dogs-unleashed.status.direwolf.packsize"),
+        Arguments.of(25, "command.dogs-unleashed.status.direwolf.packs"),
+        Arguments.of(26, "command.dogs-unleashed.status.direwolf.stamina"));
   }
 
   @ParameterizedTest(name = "status line {0} -> {1}")
@@ -137,7 +142,8 @@ class DogsUnleashedCommandTest {
             new SleepSettings(true, 32),
             new FurSettings(false, 250, 7),
             new SoundSettings(0.5f, 1.5f),
-            DireWolfSettings.DEFAULTS);
+            DireWolfSettings.DEFAULTS,
+            new AgingSettings(true, 42));
 
     final List<Text> lines = DogsUnleashedCommand.statusLines(config);
 
@@ -154,6 +160,8 @@ class DogsUnleashedCommandTest {
     assertEquals(false, translationArgs(lines.get(17))[0]);
     assertEquals(250, translationArgs(lines.get(18))[0]);
     assertEquals(7, translationArgs(lines.get(19))[0]);
+    assertEquals(true, translationArgs(lines.get(20))[0]);
+    assertEquals(42, translationArgs(lines.get(21))[0]);
   }
 
   static Stream<Arguments> breedStatusLineCases() {
@@ -177,7 +185,8 @@ class DogsUnleashedCommandTest {
             new SleepSettings(true, 32),
             new FurSettings(true, 100, 100),
             new SoundSettings(0.5f, 1.5f),
-            DireWolfSettings.DEFAULTS);
+            DireWolfSettings.DEFAULTS,
+            AgingSettings.DEFAULTS);
 
     final List<Text> lines = DogsUnleashedCommand.statusLines(config);
 

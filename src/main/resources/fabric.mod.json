@@ -108,7 +108,8 @@
       "com.grahambartley.dogsunleashed.gametest.PendantWardingGameTest",
       "com.grahambartley.dogsunleashed.gametest.PendantVitalityGameTest",
       "com.grahambartley.dogsunleashed.gametest.RecipeUnlockGameTest",
-      "com.grahambartley.dogsunleashed.gametest.DogFurGameTest"
+      "com.grahambartley.dogsunleashed.gametest.DogFurGameTest",
+      "com.grahambartley.dogsunleashed.gametest.DogAgingGameTest"
     ]
   },
   "mixins": [

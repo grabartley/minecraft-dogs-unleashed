@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
+import com.grahambartley.dogsunleashed.pet.PetAge;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import java.util.List;
 import java.util.stream.Stream;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -59,6 +61,7 @@ class PetSyncDataTest {
             5.0f,
             List.of(),
             RidingView.NONE,
+            false,
             false);
     final RegistryByteBuf buf = newBuf();
     PetSyncData.CODEC.encode(buf, pet);
@@ -67,6 +70,40 @@ class PetSyncDataTest {
     assertEquals(pet, decoded);
     assertEquals(lifeState.isAlive(), decoded.alive(), "alive");
     assertEquals(lifeState == PetLifeState.UNDEAD, decoded.undead(), "undead");
+  }
+
+  @ParameterizedTest(name = "baby {0}, senior {1} round-trips as {2}")
+  @CsvSource({"false, false, ADULT", "false, true, SENIOR", "true, false, PUPPY"})
+  @DisplayName("codec round-trips the senior flag so the client can label seniors")
+  void codecRoundTripsSenior(final boolean baby, final boolean senior, final PetAge age) {
+    final PetSyncData pet =
+        new PetSyncData(
+            samplePet(UnleashedDogBreed.BEAGLE, "Old Tom").petId(),
+            UnleashedDogBreed.BEAGLE,
+            "Old Tom",
+            9.0f,
+            18.0f,
+            1,
+            2,
+            3,
+            "minecraft:overworld",
+            PetLifeState.LIVING,
+            baby,
+            1,
+            0,
+            0,
+            0,
+            0.27f,
+            5.0f,
+            List.of(),
+            RidingView.NONE,
+            false,
+            senior);
+    final RegistryByteBuf buf = newBuf();
+    PetSyncData.CODEC.encode(buf, pet);
+    final PetSyncData decoded = PetSyncData.CODEC.decode(buf);
+    assertEquals(pet, decoded);
+    assertEquals(age, decoded.age());
   }
 
   static Stream<Arguments> displayBreedCases() {

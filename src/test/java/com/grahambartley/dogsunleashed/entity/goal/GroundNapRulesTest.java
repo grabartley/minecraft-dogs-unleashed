@@ -28,7 +28,26 @@ class GroundNapRulesTest {
   @CsvSource({"0, 0", "1000, 1000", "5999, 5999", "6000, 0", "-1, 5999"})
   void dueOffsetLeavesEveryDogTwoMinutesToStartAWholeNapBeforeThePeriodEnds(
       final long seed, final long offset) {
-    assertEquals(offset, GroundNapRules.dueOffset(seed));
+    assertEquals(offset, GroundNapRules.dueOffset(seed, GroundNapRules.NAP_TICKS));
+  }
+
+  @ParameterizedTest
+  @CsvSource({"0, 0", "1000, 1000", "2399, 2399", "2400, 0", "-1, 2399"})
+  void aSeniorsLongerNapNarrowsItsOffsetSoTheNapStillFits(final long seed, final long offset) {
+    assertEquals(offset, GroundNapRules.dueOffset(seed, GroundNapRules.SENIOR_NAP_TICKS));
+  }
+
+  @ParameterizedTest
+  @CsvSource({"false, 3600", "true, 7200"})
+  void seniorsNapTwiceAsLong(final boolean senior, final long napTicks) {
+    assertEquals(napTicks, GroundNapRules.napTicks(senior));
+  }
+
+  @ParameterizedTest
+  @CsvSource({"false, false, true", "false, true, true", "true, false, false", "true, true, true"})
+  void bedSleepersOnlyNapOnTheGroundOnceTheyAreSenior(
+      final boolean sleepsInBeds, final boolean senior, final boolean napsOnGround) {
+    assertEquals(napsOnGround, GroundNapRules.napsOnGround(sleepsInBeds, senior));
   }
 
   @ParameterizedTest
@@ -46,13 +65,33 @@ class GroundNapRulesTest {
   })
   void isDueFromTheDogsOffsetUntilANapWouldRunPastThePeriodOnceAPeriod(
       final long timeOfDay, final long lastNappedPeriod, final long seed, final boolean due) {
-    assertEquals(due, GroundNapRules.isDue(timeOfDay, lastNappedPeriod, seed));
+    assertEquals(
+        due, GroundNapRules.isDue(timeOfDay, lastNappedPeriod, seed, GroundNapRules.NAP_TICKS));
   }
 
   @ParameterizedTest
-  @CsvSource({"100, 100, false", "3699, 100, false", "3700, 100, true", "9000, 100, true"})
-  void isOverOnceTheNapHasRunItsLength(final long now, final long startedAt, final boolean over) {
-    assertEquals(over, GroundNapRules.isOver(now, startedAt));
+  @CsvSource({"999, false", "1000, true", "4800, true", "4801, false", "8400, false"})
+  void aSeniorIsOnlyDueWhileItsLongerNapStillFitsInThePeriod(
+      final long timeOfDay, final boolean due) {
+    assertEquals(
+        due,
+        GroundNapRules.isDue(
+            timeOfDay, GroundNapRules.NEVER, 1000, GroundNapRules.SENIOR_NAP_TICKS));
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "100, 100, 3600, false",
+    "3699, 100, 3600, false",
+    "3700, 100, 3600, true",
+    "9000, 100, 3600, true",
+    "3700, 100, 7200, false",
+    "7299, 100, 7200, false",
+    "7300, 100, 7200, true"
+  })
+  void isOverOnceTheNapHasRunItsLength(
+      final long now, final long startedAt, final long napTicks, final boolean over) {
+    assertEquals(over, GroundNapRules.isOver(now, startedAt, napTicks));
   }
 
   @ParameterizedTest

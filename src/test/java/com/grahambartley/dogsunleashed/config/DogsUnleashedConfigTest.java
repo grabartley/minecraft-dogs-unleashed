@@ -32,7 +32,8 @@ class DogsUnleashedConfigTest {
         new SleepSettings(true, 32),
         new FurSettings(true, 100, 100),
         new SoundSettings(1.0f, 1.5f),
-        DireWolfSettings.DEFAULTS);
+        DireWolfSettings.DEFAULTS,
+        AgingSettings.DEFAULTS);
   }
 
   @Test
@@ -84,7 +85,8 @@ class DogsUnleashedConfigTest {
                 6,
                 9,
                 new DireWolfPackSettings(false, true),
-                new DireWolfStaminaSettings(false, 150, 60)));
+                new DireWolfStaminaSettings(false, 150, 60)),
+            new AgingSettings(true, 42));
     assertTrue(DogsUnleashedConfig.save(path, original));
     assertTrue(Files.exists(path));
     assertEquals(original, DogsUnleashedConfig.load(path));
@@ -361,9 +363,12 @@ class DogsUnleashedConfigTest {
                 6,
                 12,
                 new DireWolfPackSettings(false, false),
-                new DireWolfStaminaSettings(false, 150, 75))),
+                new DireWolfStaminaSettings(false, 150, 75)),
+            AgingSettings.DEFAULTS),
         loaded);
     assertTrue(DogsUnleashedConfig.save(path, loaded));
+    saved.addProperty("dogAgingEnabled", false);
+    saved.addProperty("seniorAfterDays", 100);
     assertEquals(saved, JsonParser.parseString(Files.readString(path)).getAsJsonObject());
   }
 }

@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
+import com.grahambartley.dogsunleashed.entity.DogAging;
 import com.grahambartley.dogsunleashed.entity.DogSleepController;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.EnumSet;
@@ -14,6 +15,7 @@ public class GroundNapGoal extends Goal {
   private final UnleashedDogEntity dog;
   private long lastNappedPeriod = GroundNapRules.NEVER;
   private long startedAt;
+  private long napTicks = GroundNapRules.NAP_TICKS;
   private long hostileCheckedAt = GroundNapRules.NEVER;
   private boolean hostileNearby;
 
@@ -25,7 +27,7 @@ public class GroundNapGoal extends Goal {
   @Override
   public boolean canStart() {
     final DogSleepController sleep = this.dog.getSleepController();
-    return !this.dog.getBreed().nature().sleepsInBeds()
+    return GroundNapRules.napsOnGround(this.dog.getBreed().nature().sleepsInBeds(), this.isSenior())
         && this.dog.isTamed()
         && !this.dog.isInSittingPose()
         && GroundNapRules.allowsCommand(this.dog.getCommand())
@@ -34,7 +36,8 @@ public class GroundNapGoal extends Goal {
         && GroundNapRules.isDue(
             this.dog.getWorld().getTimeOfDay(),
             this.lastNappedPeriod,
-            this.dog.getUuid().getLeastSignificantBits())
+            this.dog.getUuid().getLeastSignificantBits(),
+            this.napTicks())
         && this.situation().allowsNapToStart();
   }
 
@@ -42,7 +45,7 @@ public class GroundNapGoal extends Goal {
   public boolean shouldContinue() {
     return this.dog.getSleepController().isNapping()
         && !this.dog.isInSittingPose()
-        && !GroundNapRules.isOver(this.dog.getWorld().getTime(), this.startedAt)
+        && !GroundNapRules.isOver(this.dog.getWorld().getTime(), this.startedAt, this.napTicks)
         && this.situation().isCalm();
   }
 
@@ -51,6 +54,7 @@ public class GroundNapGoal extends Goal {
     final World world = this.dog.getWorld();
     this.lastNappedPeriod = GroundNapRules.periodOf(world.getTimeOfDay());
     this.startedAt = world.getTime();
+    this.napTicks = this.napTicks();
     this.dog.getSleepController().startNapping();
   }
 
@@ -64,6 +68,14 @@ public class GroundNapGoal extends Goal {
   @Override
   public void tick() {
     this.dog.getNavigation().stop();
+  }
+
+  private boolean isSenior() {
+    return this.dog.getComponents().get(DogAging.class).isSenior();
+  }
+
+  private long napTicks() {
+    return GroundNapRules.napTicks(this.isSenior());
   }
 
   private GroundNapRules.Situation situation() {
