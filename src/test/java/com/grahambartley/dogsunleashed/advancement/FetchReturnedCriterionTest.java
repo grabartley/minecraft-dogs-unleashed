@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 class FetchReturnedCriterionTest {
 
   @Test
-  @DisplayName("the criterion is registered under dogs-unleashed:fetch_returned")
+  @DisplayName("the criterion id is dogs-unleashed:fetch_returned")
   void exposesItsIdentifier() {
     assertEquals("dogs-unleashed:fetch_returned", FetchReturnedCriterion.ID.toString());
   }

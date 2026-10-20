@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 class PetResurrectedCriterionTest {
 
   @Test
-  @DisplayName("the criterion is registered under dogs-unleashed:pet_resurrected")
+  @DisplayName("the criterion id is dogs-unleashed:pet_resurrected")
   void exposesItsIdentifier() {
     assertEquals("dogs-unleashed:pet_resurrected", PetResurrectedCriterion.ID.toString());
   }
