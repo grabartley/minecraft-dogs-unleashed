@@ -157,7 +157,14 @@ public final class DogExpeditionGameTest implements FabricGameTest {
     context.assertFalse(
         Expeditions.get(context.getWorld().getServer()).isAway(dog.getUuid()),
         "The trip should be over");
-    context.complete();
+    context.runAtTick(
+        5,
+        () -> {
+          context.assertFalse(back.isRemoved(), "The returned dog should stay in the world");
+          context.assertTrue(
+              context.getWorld().getEntity(dog.getUuid()) == back, "Only the returned dog is here");
+          context.complete();
+        });
   }
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 20)

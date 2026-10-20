@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.entity.expedition;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.listener.PetLocationSyncListener;
 import com.grahambartley.dogsunleashed.pet.PetNames;
 import java.util.Optional;
 import java.util.Random;
@@ -41,6 +42,7 @@ public final class ExpeditionDeparture {
             find.z(),
             ExpeditionSchedule.returnTimeOfDay(overworld.getTimeOfDay()),
             overworld.getTime());
+    PetLocationSyncListener.recordLocation(dog, world);
     if (!Expeditions.get(server).add(expedition)) {
       return Optional.empty();
     }
