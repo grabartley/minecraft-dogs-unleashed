@@ -129,7 +129,7 @@ public class ScentTrackGoal extends Goal {
     }
     final double distance = this.dog.getPos().distanceTo(target);
     final double horizontal = Math.hypot(target.x - this.dog.getX(), target.z - this.dog.getZ());
-    if (ScentLeadRules.hasArrived(kind, horizontal, distance)) {
+    if (ScentLeadRules.hasArrived(kind, horizontal, distance, this.dog.getNavigation().isIdle())) {
       this.arrive(kind);
       return;
     }

@@ -25,7 +25,6 @@ public final class DogScentHandoffGameTest implements FabricGameTest {
   private static final BlockPos OWNER_SPOT = new BlockPos(1, 2, 3);
   private static final BlockPos DOG_START = new BlockPos(1, 2, 1);
   private static final BlockPos MARK = new BlockPos(5, 2, 5);
-  private static final double MARK_REACH = 1.0;
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 300, skyAccess = true)
   public void aTreasureMapLeadsTheDogToDigAtTheMark(TestContext context) {
@@ -38,8 +37,25 @@ public final class DogScentHandoffGameTest implements FabricGameTest {
     context.runAtEveryTick(
         () -> {
           if (scent(dog).phase() == ScentPhase.DIGGING
-              && Math.hypot(mark.getX() + 0.5 - dog.getX(), mark.getZ() + 0.5 - dog.getZ())
-                  <= MARK_REACH) {
+              && dog.getBlockX() == mark.getX()
+              && dog.getBlockZ() == mark.getZ()) {
+            context.complete();
+          }
+        });
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 200)
+  public void aFarMarkStillSetsTheDogWalking(TestContext context) {
+    final ServerPlayerEntity owner = placeOwner(context);
+    final UnleashedDogEntity dog = spawnOwnedDog(context, owner);
+    final BlockPos mark = context.getAbsolutePos(DOG_START).add(1500, 0, 1500);
+    final double start = Math.hypot(mark.getX() - dog.getX(), mark.getZ() - dog.getZ());
+
+    give(dog, owner, treasureMap(mark));
+
+    context.runAtEveryTick(
+        () -> {
+          if (Math.hypot(mark.getX() - dog.getX(), mark.getZ() - dog.getZ()) <= start - 2.0) {
             context.complete();
           }
         });
