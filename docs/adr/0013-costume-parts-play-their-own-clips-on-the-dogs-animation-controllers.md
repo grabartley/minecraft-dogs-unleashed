@@ -19,4 +19,4 @@ The parts model is animated with a second set of the dog's own animation control
 
 An artist animates a costume once and it plays on every rig, including breeds added later, in step with the dog. Parts stay in sync with the dog's state because the same predicates choose both clips.
 
-Triggered clips, such as the bark, reach only the dog's own manager, so a costume cannot react to them yet. A bark-driven part needs the trigger forwarded to the costume's manager as well. Each costume a dog has worn keeps a small animation state in the renderer. A manager holds its dog, so the renderer drops a dog's managers once the dog is removed from the world, and drops them all when the player leaves the server.
+Triggered clips, such as the bark, reach only the dog's own manager, so a costume cannot react to them yet. A bark-driven part needs the trigger forwarded to the costume's manager as well. Each costume a dog has worn keeps a small animation state in the renderer. A manager holds its dog, so the renderer drops a dog's managers once the dog is removed from the world or left behind when the player changes world, and drops them all when the player leaves the server.

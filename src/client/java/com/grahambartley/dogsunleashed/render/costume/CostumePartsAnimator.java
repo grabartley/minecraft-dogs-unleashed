@@ -4,7 +4,7 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.HashMap;
 import java.util.Map;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.minecraft.entity.Entity;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationState;
@@ -39,7 +39,11 @@ public final class CostumePartsAnimator {
     if (!GeckoLibCache.getBakedAnimations().containsKey(assets.partsAnimation())) {
       return parts;
     }
-    this.managers.keySet().removeIf(Entity::isRemoved);
+    this.managers
+        .keySet()
+        .removeIf(
+            tracked ->
+                tracked.isRemoved() || tracked.getWorld() != MinecraftClient.getInstance().world);
     final CostumePartsModel model =
         this.models.computeIfAbsent(assets.partsModel(), id -> new CostumePartsModel(assets));
     final AnimatableManager<UnleashedDogEntity> manager =
