@@ -500,11 +500,8 @@ public class UnleashedDogEntity extends DogMountEntity
   public boolean shouldTryTeleportToOwner() {
     final LivingEntity owner = this.getOwner();
     return owner != null
-        && this.distanceTo(owner)
-            >= this.components
-                .get(DogBond.class)
-                .step()
-                .followRange(DogBondRules.TELEPORT_DISTANCE);
+        && DogBondRules.teleportsToOwner(
+            this.components.get(DogBond.class).step(), this.distanceTo(owner));
   }
 
   @Override

@@ -81,6 +81,7 @@ next morning with a find and a map of where it went.
 - **Play fetch.** Throw a stick, a tennis ball or a frisbee. Your dog chases it, picks it up and brings it back to you.
 Give a roaming or staying dog a bone and it buries it, then digs it up a few days later and brings it back, sometimes
 with a find. Foxes sneak in at night to steal buried bones, and a dog nearby barks and chases them off.
+The more time you spend together, the closer your dog grows, from Stranger to Devoted.
 - **Give them a bed.** Craft a dog bed or a dog house in any colour and assign it. Your dog goes to bed by itself at
 night. Dire wolves are too big for either and nap on the ground instead, once by day and once by night.
 - **Kit them out.** Open their gear from the command wheel. Craft them armour from leather, iron, gold, diamond or netherite, or use wolf armour. Your tamed wolves can wear it too. It takes hits for them, cracks as it wears, and mends with its own material. Dye leather armour and their collar any colour, and feed them treats for a short speed and damage boost. Hang a pendant on their collar to keep a mob family away from you both, shield them from fire, falls or drowning, heal you while they're near, or save them from death once. Dress them up in a hat, a bandana, a bow, a mob head or a carved pumpkin, or put them in one of seventeen mob costumes, from a spider or a creeper to an ender dragon. Dye the sheep costume any colour.
@@ -91,7 +92,6 @@ Pet Manager to see and summon your whole pack.
 - **Raise a family.** Any two living tamed dogs can have puppies, and mixed parents give a mixed breed puppy. Dire wolves only breed with dire wolves. Puppies inherit
 their parents' coat and eye genes, so two parents can carry a rare coat and pass it on. Every dog has a family tree you can explore.
 Turn on Dog Aging and your dogs grow old with you, going grey around the muzzle and napping more, but never dying of age.
-The more time you spend together, walking, playing, fighting side by side, feeding treats and grooming, the closer your dog gets, from Stranger to Devoted. A close dog wags harder, sticks nearer and answers faster, and a Devoted dog runs to you when you're hurt.
 - **Bring them back.** A tamed dog that dies leaves a grave. Put a totem in it and a lightning rod above it, then wait
 for lightning to strike it. Your dog comes back undead and burns in daylight unless it has shade, armour, or a fire pendant. Cure it the same way you
 cure a zombie villager. If it dies while undead, it is gone for good, unless it wears a Pendant of Loyalty.

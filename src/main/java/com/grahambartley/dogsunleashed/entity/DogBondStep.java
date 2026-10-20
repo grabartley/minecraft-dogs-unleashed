@@ -3,28 +3,28 @@ package com.grahambartley.dogsunleashed.entity;
 import java.util.Locale;
 
 public enum DogBondStep {
-  STRANGER(0, 1.0, 1.0, 1.0, 1.0),
-  FAMILIAR(50, 1.1, 0.9, 1.25, 1.05),
-  FRIEND(150, 1.2, 0.8, 1.5, 1.1),
-  COMPANION(350, 1.35, 0.7, 1.75, 1.15),
-  DEVOTED(700, 1.5, 0.6, 2.0, 1.2);
+  STRANGER(0, 1.0, 1.0, 12.0, 1.0),
+  FAMILIAR(50, 1.1, 0.9, 13.0, 1.05),
+  FRIEND(150, 1.2, 0.8, 14.0, 1.1),
+  COMPANION(350, 1.35, 0.7, 15.0, 1.15),
+  DEVOTED(700, 1.5, 0.6, 16.0, 1.2);
 
   private final int minPoints;
   private final double wagSpeed;
   private final double followDistanceFactor;
-  private final double followRangeFactor;
+  private final double teleportDistance;
   private final double responseSpeedFactor;
 
   DogBondStep(
       final int minPoints,
       final double wagSpeed,
       final double followDistanceFactor,
-      final double followRangeFactor,
+      final double teleportDistance,
       final double responseSpeedFactor) {
     this.minPoints = minPoints;
     this.wagSpeed = wagSpeed;
     this.followDistanceFactor = followDistanceFactor;
-    this.followRangeFactor = followRangeFactor;
+    this.teleportDistance = teleportDistance;
     this.responseSpeedFactor = responseSpeedFactor;
   }
 
@@ -59,8 +59,8 @@ public enum DogBondStep {
     return baseDistance * this.followDistanceFactor;
   }
 
-  public double followRange(final double baseRange) {
-    return baseRange * this.followRangeFactor;
+  public double teleportDistance() {
+    return this.teleportDistance;
   }
 
   public double responseSpeed(final double baseSpeed) {
@@ -68,6 +68,6 @@ public enum DogBondStep {
   }
 
   public String translationKey() {
-    return "bond.dogs-unleashed." + this.name().toLowerCase(Locale.ROOT);
+    return "screen.dogs-unleashed.pet_details.bond_" + this.name().toLowerCase(Locale.ROOT);
   }
 }

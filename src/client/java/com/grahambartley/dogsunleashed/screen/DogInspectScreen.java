@@ -137,7 +137,7 @@ public class DogInspectScreen extends Screen {
 
     infoY =
         DogStatsPanel.drawForPet(context, this.textRenderer, pet, infoX, infoY, INFO_LABEL_WIDTH);
-    this.drawTrust(context, infoX, infoY);
+    this.drawRelationshipRow(context, infoX, infoY);
 
     context.drawCenteredTextWithShadow(
         this.textRenderer,
@@ -147,7 +147,7 @@ public class DogInspectScreen extends Screen {
         HINT_COLOR);
   }
 
-  private void drawTrust(final DrawContext context, final int x, final int y) {
+  private void drawRelationshipRow(final DrawContext context, final int x, final int y) {
     switch (data.trust().kind()) {
       case BUILDING ->
           DogStatsPanel.drawTrustRow(

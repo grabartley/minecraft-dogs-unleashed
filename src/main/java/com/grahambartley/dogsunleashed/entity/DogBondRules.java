@@ -8,10 +8,8 @@ public final class DogBondRules {
   public static final double BLOCKS_PER_WALK_POINT = 20.0;
   public static final double MAX_WALK_STEP = 1.0;
   public static final double WALK_RANGE = 12.0;
-  public static final double TELEPORT_DISTANCE = 12.0;
   public static final double FIGHT_RANGE = 16.0;
   public static final double NEAR_OWNER_RANGE = 16.0;
-  public static final double GREET_DISTANCE = 8.0;
   public static final long ABSENCE_TICKS = 5 * 60 * 20;
   public static final double RESCUE_RANGE = 24.0;
   public static final double RESCUE_DISTANCE = 2.5;
@@ -72,8 +70,13 @@ public final class DogBondRules {
     return lastNearOwner == NEVER ? 0L : Math.max(0L, now - lastNearOwner);
   }
 
-  public static boolean greetsOnReturn(final DogBondStep step, final long absentTicks) {
-    return step.compareTo(DogBondStep.FRIEND) >= 0 && absentTicks >= ABSENCE_TICKS;
+  public static boolean greetsOnReturn(
+      final DogBondStep step, final long absentTicks, final boolean resting) {
+    return !resting && step.compareTo(DogBondStep.FRIEND) >= 0 && absentTicks >= ABSENCE_TICKS;
+  }
+
+  public static boolean teleportsToOwner(final DogBondStep step, final double distanceToOwner) {
+    return distanceToOwner >= step.teleportDistance();
   }
 
   public static boolean fightCounts(final boolean hostile, final double distanceToOwner) {
@@ -86,6 +89,11 @@ public final class DogBondRules {
 
   public static boolean answersRescue(final DogCommand command) {
     return command != DogCommand.SIT && !command.isAnchored();
+  }
+
+  public static boolean continuesRescue(
+      final DogBondStep step, final int ticksLeft, final double distanceToOwner) {
+    return step == DogBondStep.DEVOTED && ticksLeft > 0 && distanceToOwner <= RESCUE_RANGE;
   }
 
   public static boolean startsRescue(

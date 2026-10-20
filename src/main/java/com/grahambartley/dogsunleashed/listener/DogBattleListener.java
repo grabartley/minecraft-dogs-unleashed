@@ -29,7 +29,9 @@ public final class DogBattleListener {
                 world.getEntitiesByClass(
                     UnleashedDogEntity.class,
                     player.getBoundingBox().expand(DogBondRules.FIGHT_RANGE),
-                    dog -> dog.isOwner(player))) {
+                    dog ->
+                        dog.isOwner(player)
+                            && DogBondRules.fightCounts(true, dog.distanceTo(player)))) {
               dog.getComponents().get(DogBond.class).reward(DogBondRules.Source.FIGHT);
             }
           }

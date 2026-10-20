@@ -161,20 +161,20 @@ public final class DogBondGameTest implements FabricGameTest {
 
   @GameTest(templateName = ARENA, tickLimit = 20)
   public void aDevotedDogKeepsUpOnFootFromFartherBeforeTeleporting(final TestContext context) {
-    final ServerPlayerEntity owner = ownerAt(context, REL_OWNER.add(0, 0, 20));
+    final ServerPlayerEntity owner = ownerAt(context, REL_OWNER.add(0, 0, 16));
     final UnleashedDogEntity dog = tamedStill(context, owner, ModEntities.BEAGLE);
 
     context.runAtTick(
         2,
         () -> {
           context.assertTrue(
-              dog.shouldTryTeleportToOwner(), "A Stranger 18 blocks away teleports to its owner");
+              dog.shouldTryTeleportToOwner(), "A Stranger 14 blocks away teleports to its owner");
           bond(dog).setPoints(DogBondStep.DEVOTED.minPoints());
           context.assertFalse(
-              dog.shouldTryTeleportToOwner(), "A Devoted dog 18 blocks away keeps up on foot");
-          owner.refreshPositionAndAngles(context.getAbsolute(REL_OWNER.add(0, 0, 28)), 0.0f, 0.0f);
+              dog.shouldTryTeleportToOwner(), "A Devoted dog 14 blocks away keeps up on foot");
+          owner.refreshPositionAndAngles(context.getAbsolute(REL_OWNER.add(0, 0, 20)), 0.0f, 0.0f);
           context.assertTrue(
-              dog.shouldTryTeleportToOwner(), "A Devoted dog 26 blocks away teleports");
+              dog.shouldTryTeleportToOwner(), "A Devoted dog 18 blocks away teleports");
           context.complete();
         });
   }

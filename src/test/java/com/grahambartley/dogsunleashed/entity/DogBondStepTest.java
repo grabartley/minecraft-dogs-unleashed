@@ -52,12 +52,12 @@ class DogBondStepTest {
   @ParameterizedTest(name = "{0}")
   @EnumSource(DogBondStep.class)
   @DisplayName(
-      "each step after Stranger wags faster, follows closer, keeps up from farther and responds faster")
+      "each step after Stranger wags faster, follows closer, keeps up from farther within the 16 block path range, and responds faster")
   void rewardsGrowWithEachStep(final DogBondStep step) {
     if (step == DogBondStep.STRANGER) {
       assertEquals(1.0, step.wagSpeed());
       assertEquals(10.0, step.followDistance(10.0));
-      assertEquals(12.0, step.followRange(12.0));
+      assertEquals(12.0, step.teleportDistance());
       assertEquals(1.0, step.responseSpeed(1.0));
       return;
     }
@@ -65,17 +65,18 @@ class DogBondStepTest {
     assertTrue(step.minPoints() > previous.minPoints());
     assertTrue(step.wagSpeed() > previous.wagSpeed());
     assertTrue(step.followDistance(10.0) < previous.followDistance(10.0));
-    assertTrue(step.followRange(12.0) > previous.followRange(12.0));
+    assertTrue(step.teleportDistance() > previous.teleportDistance());
+    assertTrue(step.teleportDistance() <= 16.0);
     assertTrue(step.responseSpeed(1.0) > previous.responseSpeed(1.0));
   }
 
   @ParameterizedTest(name = "{0} -> {1}")
   @CsvSource({
-    "STRANGER, bond.dogs-unleashed.stranger",
-    "FAMILIAR, bond.dogs-unleashed.familiar",
-    "FRIEND, bond.dogs-unleashed.friend",
-    "COMPANION, bond.dogs-unleashed.companion",
-    "DEVOTED, bond.dogs-unleashed.devoted"
+    "STRANGER, screen.dogs-unleashed.pet_details.bond_stranger",
+    "FAMILIAR, screen.dogs-unleashed.pet_details.bond_familiar",
+    "FRIEND, screen.dogs-unleashed.pet_details.bond_friend",
+    "COMPANION, screen.dogs-unleashed.pet_details.bond_companion",
+    "DEVOTED, screen.dogs-unleashed.pet_details.bond_devoted"
   })
   @DisplayName("each step names itself through its own translation key")
   void translationKey(final DogBondStep step, final String expected) {

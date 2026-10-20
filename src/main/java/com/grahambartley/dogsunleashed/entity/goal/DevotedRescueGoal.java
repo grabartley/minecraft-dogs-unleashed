@@ -36,9 +36,9 @@ public class DevotedRescueGoal extends Goal {
 
   @Override
   public boolean shouldContinue() {
-    return this.ticksLeft > 0
-        && this.step() == DogBondStep.DEVOTED
-        && this.availableOwner() != null;
+    final PlayerEntity owner = this.availableOwner();
+    return owner != null
+        && DogBondRules.continuesRescue(this.step(), this.ticksLeft, this.dog.distanceTo(owner));
   }
 
   @Override

@@ -397,8 +397,8 @@ public final class ResurrectionRitualGameTest implements FabricGameTest {
     dog.applyGenome(GENOME);
     dog.getComponents().get(DogCollar.class).setColor(COLLAR);
     dog.getComponents().get(DogAging.class).setAdultAgeTicks(ADULT_AGE_TICKS);
-    dog.getComponents().get(DogBond.class).setPoints(BOND_POINTS);
     dog.setOwnerUuid(ownerId);
+    dog.getComponents().get(DogBond.class).setPoints(BOND_POINTS);
     dog.setTamed(true, true);
 
     final PetData pet =

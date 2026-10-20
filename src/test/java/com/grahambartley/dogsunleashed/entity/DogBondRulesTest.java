@@ -15,9 +15,9 @@ class DogBondRulesTest {
     assertEquals(expected, DogBondRules.clamp(points));
   }
 
-  @ParameterizedTest(name = "time of day {0} -> day {1}")
+  @ParameterizedTest(name = "world time {0} -> day {1}")
   @CsvSource({"0, 0", "23999, 0", "24000, 1", "71999, 2", "-1, -1"})
-  @DisplayName("the daily caps reset with each in-game day")
+  @DisplayName("the daily caps reset every 24000 ticks of world time")
   void dayOf(final long timeOfDay, final long expected) {
     assertEquals(expected, DogBondRules.dayOf(timeOfDay));
   }
@@ -71,18 +71,48 @@ class DogBondRulesTest {
     assertEquals(expected, DogBondRules.absentFor(lastNear, now));
   }
 
-  @ParameterizedTest(name = "{0} after {1} ticks apart -> {2}")
+  @ParameterizedTest(name = "{0} after {1} ticks apart, resting {2} -> {3}")
   @CsvSource({
-    "STRANGER, 6000, false",
-    "FAMILIAR, 99999, false",
-    "FRIEND, 5999, false",
-    "FRIEND, 6000, true",
-    "DEVOTED, 6000, true",
-    "DEVOTED, 0, false"
+    "STRANGER, 6000, false, false",
+    "FAMILIAR, 99999, false, false",
+    "FRIEND, 5999, false, false",
+    "FRIEND, 6000, false, true",
+    "DEVOTED, 6000, false, true",
+    "DEVOTED, 6000, true, false",
+    "DEVOTED, 0, false, false"
   })
-  @DisplayName("a dog from Friend up play bows when its owner comes back after five minutes")
-  void greetsOnReturn(final DogBondStep step, final long absent, final boolean expected) {
-    assertEquals(expected, DogBondRules.greetsOnReturn(step, absent));
+  @DisplayName("an awake dog from Friend up play bows when its owner comes back after five minutes")
+  void greetsOnReturn(
+      final DogBondStep step, final long absent, final boolean resting, final boolean expected) {
+    assertEquals(expected, DogBondRules.greetsOnReturn(step, absent, resting));
+  }
+
+  @ParameterizedTest(name = "{0}, {1} blocks away -> {2}")
+  @CsvSource({
+    "STRANGER, 11.9, false",
+    "STRANGER, 12.0, true",
+    "FRIEND, 13.9, false",
+    "FRIEND, 14.0, true",
+    "DEVOTED, 15.9, false",
+    "DEVOTED, 16.0, true"
+  })
+  @DisplayName("a closer dog runs back on foot from farther before it teleports")
+  void teleportsToOwner(final DogBondStep step, final double distance, final boolean expected) {
+    assertEquals(expected, DogBondRules.teleportsToOwner(step, distance));
+  }
+
+  @ParameterizedTest(name = "{0}, {1} ticks left, {2} blocks away -> {3}")
+  @CsvSource({
+    "DEVOTED, 400, 5.0, true",
+    "DEVOTED, 1, 24.0, true",
+    "DEVOTED, 0, 5.0, false",
+    "DEVOTED, 400, 24.1, false",
+    "COMPANION, 400, 5.0, false"
+  })
+  @DisplayName("a rescue ends when time runs out, the bond drops or the owner is far away")
+  void continuesRescue(
+      final DogBondStep step, final int ticksLeft, final double distance, final boolean expected) {
+    assertEquals(expected, DogBondRules.continuesRescue(step, ticksLeft, distance));
   }
 
   @ParameterizedTest(name = "hostile {0}, {1} blocks from the owner -> {2}")

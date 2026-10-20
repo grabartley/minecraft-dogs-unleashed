@@ -56,10 +56,15 @@ public final class DogBond extends DogComponent {
       return;
     }
     this.earnedToday.put(source, earned + gain);
-    this.setPoints(this.points + gain);
+    this.applyPoints(this.points + gain);
   }
 
   public void setPoints(final int points) {
+    this.ensureOwner();
+    this.applyPoints(points);
+  }
+
+  private void applyPoints(final int points) {
     this.points = DogBondRules.clamp(points);
     this.dog
         .getDataTracker()
@@ -68,7 +73,7 @@ public final class DogBond extends DogComponent {
 
   void restore(final int points, final @Nullable UUID ownerId) {
     this.ownerId = ownerId;
-    this.setPoints(points);
+    this.applyPoints(points);
   }
 
   @Override
@@ -109,7 +114,8 @@ public final class DogBond extends DogComponent {
     final long now = this.dog.getWorld().getTime();
     final long absent = DogBondRules.absentFor(this.lastNearOwner, now);
     this.lastNearOwner = now;
-    if (DogBondRules.greetsOnReturn(this.step(), absent)) {
+    final boolean resting = this.dog.getSleepController().isAsleep() || this.dog.isInSittingPose();
+    if (DogBondRules.greetsOnReturn(this.step(), absent, resting)) {
       this.dog.triggerAnim(DogAnimationKeys.PLAY_BOW, DogAnimationKeys.PLAY_BOW);
       this.dog.getAmbienceEffects().startTailWag();
     }
@@ -125,7 +131,7 @@ public final class DogBond extends DogComponent {
       this.earnedToday.clear();
       this.walkedBlocks = 0.0;
       this.lastNearOwner = DogBondRules.NEVER;
-      this.setPoints(
+      this.applyPoints(
           DogBondRules.startingPoints(
               this.dog.getComponents().get(DogAging.class).hasSeniorParent()));
     }
@@ -133,7 +139,7 @@ public final class DogBond extends DogComponent {
   }
 
   private void rollDay() {
-    final long today = DogBondRules.dayOf(this.dog.getWorld().getTimeOfDay());
+    final long today = DogBondRules.dayOf(this.dog.getWorld().getTime());
     if (today != this.day) {
       this.day = today;
       this.earnedToday.clear();
@@ -158,7 +164,7 @@ public final class DogBond extends DogComponent {
   void readNbt(final NbtCompound nbt) {
     this.ownerId =
         nbt.containsUuid(ModNbtKeys.BOND_OWNER) ? nbt.getUuid(ModNbtKeys.BOND_OWNER) : null;
-    this.setPoints(nbt.getInt(ModNbtKeys.BOND_POINTS));
+    this.applyPoints(nbt.getInt(ModNbtKeys.BOND_POINTS));
     this.day = longOr(nbt, ModNbtKeys.BOND_DAY, DogBondRules.NEVER);
     this.earnedToday.clear();
     this.earnedToday.putAll(earnedFromSave(nbt.getCompound(ModNbtKeys.BOND_EARNED)));
