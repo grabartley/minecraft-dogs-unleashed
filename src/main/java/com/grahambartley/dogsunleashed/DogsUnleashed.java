@@ -19,6 +19,7 @@ import com.grahambartley.dogsunleashed.listener.BoneCacheBreakListener;
 import com.grahambartley.dogsunleashed.listener.DogBattleListener;
 import com.grahambartley.dogsunleashed.listener.DogDimensionChangeListener;
 import com.grahambartley.dogsunleashed.listener.ExpeditionListener;
+import com.grahambartley.dogsunleashed.listener.FoxBoneRaidListener;
 import com.grahambartley.dogsunleashed.listener.OwnerDeathListener;
 import com.grahambartley.dogsunleashed.listener.PendantEffectListener;
 import com.grahambartley.dogsunleashed.listener.PetLocationSyncListener;
@@ -59,6 +60,7 @@ public class DogsUnleashed implements ModInitializer {
 
     ModSounds.initialize();
     ModComponents.initialize();
+    ModAttachments.initialize();
     ModBlocks.initialize();
     ModBlockEntities.initialize();
     ModEntities.initialize();
@@ -85,6 +87,7 @@ public class DogsUnleashed implements ModInitializer {
     DogBattleListener.initialize();
     OwnerDeathListener.initialize();
     BoneCacheBreakListener.initialize();
+    FoxBoneRaidListener.initialize();
     ExpeditionListener.initialize();
 
     ServerLifecycleEvents.SERVER_STARTING.register(ServerConfigService::loadFromWorld);

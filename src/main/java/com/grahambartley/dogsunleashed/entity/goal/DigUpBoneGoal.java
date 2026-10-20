@@ -40,7 +40,7 @@ public class DigUpBoneGoal extends Goal {
                 BoneCacheRules.DIG_UP_RANGE,
                 this.world().getTimeOfDay());
     this.visit =
-        due.map(cache -> new DigSiteVisit(this.dog, cache.pos()))
+        due.map(cache -> new DigSiteVisit(this.dog, cache.pos(), this.burial()::setDigging))
             .filter(DigSiteVisit::canReach)
             .orElse(null);
     if (due.isPresent() && this.visit == null) {
