@@ -43,9 +43,6 @@ public class CostumePartsModel extends GeoModel<UnleashedDogEntity> {
     if (manager.getFirstTickTime() == -1) {
       manager.startedAt(frameTime);
     }
-    if (!manager.isFirstTick() && frameTime == manager.getLastUpdateTime()) {
-      return parts;
-    }
     if (!MinecraftClient.getInstance().isPaused()) {
       manager.updatedAt(frameTime);
     }

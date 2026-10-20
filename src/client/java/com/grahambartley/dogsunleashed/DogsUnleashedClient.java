@@ -25,6 +25,7 @@ import com.grahambartley.dogsunleashed.render.armour.ArmourLook;
 import com.grahambartley.dogsunleashed.render.coat.UndeadCoatTextures;
 import com.grahambartley.dogsunleashed.render.coat.UndeadEyeGlows;
 import com.grahambartley.dogsunleashed.render.cosmetic.BandanaPrints;
+import com.grahambartley.dogsunleashed.render.costume.CostumePartsAnimator;
 import com.grahambartley.dogsunleashed.render.layer.WolfDogArmourFeatureRenderer;
 import com.grahambartley.dogsunleashed.render.overlay.ProjectedOverlays;
 import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
@@ -114,6 +115,7 @@ public class DogsUnleashedClient implements ClientModInitializer {
 
     HandledScreens.register(ModScreenHandlers.DOG_EQUIPMENT, DogEquipmentScreen::new);
     WhistlePointer.register();
+    CostumePartsAnimator.clearOnDisconnect();
 
     final ResourceManagerHelper resources =
         ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES);

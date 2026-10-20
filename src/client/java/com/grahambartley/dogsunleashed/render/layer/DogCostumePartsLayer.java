@@ -31,7 +31,6 @@ public class DogCostumePartsLayer extends GeoRenderLayer<UnleashedDogEntity> {
 
   private final Map<BakedGeoModel, Map<Slot, Optional<SlotAnchor>>> anchors =
       new MapMaker().weakKeys().makeMap();
-  private final CostumePartsAnimator animator = new CostumePartsAnimator();
 
   private @Nullable BakedGeoModel frameParts;
   private @Nullable RenderLayer frameLayer;
@@ -63,7 +62,8 @@ public class DogCostumePartsLayer extends GeoRenderLayer<UnleashedDogEntity> {
                       GeckoLibCache.getBakedModels().get(assets.partsModel());
                   return parts == null
                       ? null
-                      : this.animator.animate(animatable, assets, parts, partialTick);
+                      : CostumePartsAnimator.shared()
+                          .animate(animatable, assets, parts, partialTick);
                 })
             .orElse(null);
     this.frameLayer =
