@@ -56,14 +56,20 @@ public class DogCostumePartsLayer extends GeoRenderLayer<UnleashedDogEntity> {
       final int packedOverlay) {
     final Optional<CostumeAssets> costume = WornCostume.on(animatable);
     this.frameParts =
-        costume.map(assets -> GeckoLibCache.getBakedModels().get(assets.partsModel())).orElse(null);
+        costume
+            .map(
+                assets -> {
+                  final BakedGeoModel parts =
+                      GeckoLibCache.getBakedModels().get(assets.partsModel());
+                  return parts == null
+                      ? null
+                      : this.animator.animate(animatable, assets, parts, partialTick);
+                })
+            .orElse(null);
     this.frameLayer =
         this.frameParts == null
             ? null
             : RenderLayer.getEntityCutoutNoCull(costume.get().partsTexture());
-    if (this.frameParts != null) {
-      this.animator.animate(animatable, costume.get(), partialTick);
-    }
     this.frameModel = bakedModel;
     this.frameProfile = RigProfiles.of(animatable.getRigSourceBreed());
     this.frameYaw = animatable.getRigSourceBreed().renderTransforms().bodyYawOffsetDegrees();

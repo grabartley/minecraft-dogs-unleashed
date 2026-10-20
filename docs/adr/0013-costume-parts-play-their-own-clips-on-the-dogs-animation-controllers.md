@@ -13,10 +13,10 @@ GeckoLib only animates bones that are in the model it is rendering. Keyframes fo
 
 A costume's parts may have an animation file at `<namespace>:animations/costume/<name>.animation.json`. Its clips are named after the dog's own clips, such as `walk`, `run`, `sit` or `sleep`.
 
-The parts model is animated with a second set of the dog's own animation controllers, kept in the dog's animation cache under an instance id made from the dog's entity id and the costume. Whatever clip a controller picks for the dog, it plays the clip of the same name from the costume's file on the parts. A clip the costume does not have is skipped, so a costume only animates what it needs. A costume with no animation file is not animated beyond following its anchor bones.
+The parts model is animated with a second set of the dog's own animation controllers. The renderer keeps one animation manager per dog and costume, built from the dog's controller registration, in a map that holds the dog weakly. It cannot use the dog's own animation cache, because GeckoLib gives an entity a single manager whatever instance id is asked for, and sharing it would let the costume steal the dog's animation updates. Whatever clip a controller picks for the dog, the same controller in the costume's manager picks the same clip and plays it from the costume's file on the parts. A clip the costume does not have is skipped, so a costume only animates what it needs. A costume with no animation file is not animated beyond following its anchor bones.
 
 ## Consequences
 
 An artist animates a costume once and it plays on every rig, including breeds added later, in step with the dog. Parts stay in sync with the dog's state because the same predicates choose both clips.
 
-Triggered clips, such as the bark, are sent to the dog's own instance only, so a costume cannot react to them yet. Supporting a bark-driven part needs the trigger forwarded to the costume instance as well. Each costume a dog has worn keeps a small animation state in that dog's cache until the dog unloads.
+Triggered clips, such as the bark, reach only the dog's own manager, so a costume cannot react to them yet. A bark-driven part needs the trigger forwarded to the costume's manager as well. Each costume a dog has worn keeps a small animation state in the renderer until the dog is garbage collected.

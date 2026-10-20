@@ -46,6 +46,7 @@ public final class DogCostumeGameTest implements FabricGameTest {
   private static final int DEATH_ASSERT_TICK = 20;
   private static final Item COSTUME = Items.NAUTILUS_SHELL;
   private static final int GRID_WIDTH = 3;
+  private static final int STAT_SETTLE_TICKS = 5;
   private static final Item NONE = Items.AIR;
 
   private static final Map<DogCostume, List<Item>> RECIPE_GRIDS =
@@ -124,25 +125,34 @@ public final class DogCostumeGameTest implements FabricGameTest {
     context.complete();
   }
 
-  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
-  public void aWornCostumeChangesNoStats(final TestContext context) {
-    final UnleashedDogEntity bare =
-        DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS);
-    bare.setAiDisabled(true);
-    for (final DogCostume costume : DogCostume.values()) {
-      final UnleashedDogEntity dressed =
-          DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS);
-      dressed.setAiDisabled(true);
-      dressed
-          .getEquipmentHolder()
-          .setStack(DogEquipmentSlot.COSTUME, new ItemStack(ModCostumeItems.of(costume)));
-      for (final RegistryEntry<EntityAttribute> stat : STATS) {
-        context.assertTrue(
-            dressed.getAttributeValue(stat) == bare.getAttributeValue(stat),
-            costume + " changed " + stat.getIdAsString());
-      }
-    }
-    context.complete();
+  @CustomTestProvider
+  public Collection<TestFunction> aWornCostumeChangesNoStats() {
+    return Stream.of(DogCostume.values())
+        .map(
+            costume ->
+                GeneratedGameTest.of(
+                    BATCH,
+                    "dogcostumegametest.nostats." + costume.mob(),
+                    ARENA,
+                    TICK_LIMIT,
+                    context -> {
+                      final UnleashedDogEntity dog =
+                          DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS);
+                      dog.setAiDisabled(true);
+                      final List<Double> bare = STATS.stream().map(dog::getAttributeValue).toList();
+                      dog.getEquipmentHolder()
+                          .setStack(
+                              DogEquipmentSlot.COSTUME, new ItemStack(ModCostumeItems.of(costume)));
+                      context.runAtTick(
+                          STAT_SETTLE_TICKS,
+                          () -> {
+                            context.assertTrue(
+                                STATS.stream().map(dog::getAttributeValue).toList().equals(bare),
+                                costume + " changed the dog's stats");
+                            context.complete();
+                          });
+                    }))
+        .toList();
   }
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
