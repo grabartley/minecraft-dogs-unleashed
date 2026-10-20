@@ -2,7 +2,9 @@ package com.grahambartley.dogsunleashed.entity;
 
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
 import com.grahambartley.dogsunleashed.entity.goal.AutoSleepGoal;
+import com.grahambartley.dogsunleashed.entity.goal.BuryBoneGoal;
 import com.grahambartley.dogsunleashed.entity.goal.CommandFollowOwnerGoal;
+import com.grahambartley.dogsunleashed.entity.goal.DigUpBoneGoal;
 import com.grahambartley.dogsunleashed.entity.goal.DogEscapeDangerGoal;
 import com.grahambartley.dogsunleashed.entity.goal.DogSitGoal;
 import com.grahambartley.dogsunleashed.entity.goal.FetchChaseGoal;
@@ -61,12 +63,14 @@ public final class DogGoalRegistrar {
       final GoalSelector targetSelector) {
     goalSelector.add(1, new SwimGoal(dog));
     goalSelector.add(2, new DogSitGoal(dog));
+    goalSelector.add(2, new BuryBoneGoal(dog));
     goalSelector.add(3, new SleepInBedGoal(dog));
     goalSelector.add(3, new FetchChaseGoal(dog));
     goalSelector.add(3, new FetchRetrieveGoal(dog));
     goalSelector.add(3, new FetchReturnGoal(dog));
     goalSelector.add(3, new PointedFetchGoal(dog));
     goalSelector.add(3, new ScentTrackGoal(dog));
+    goalSelector.add(3, new DigUpBoneGoal(dog));
     goalSelector.add(4, new AutoSleepGoal(dog));
     goalSelector.add(4, new GroundNapGoal(dog));
     goalSelector.add(5, new DogEscapeDangerGoal(dog, ESCAPE_DANGER_SPEED));

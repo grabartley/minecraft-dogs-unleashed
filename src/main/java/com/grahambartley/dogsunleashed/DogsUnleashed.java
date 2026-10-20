@@ -13,6 +13,7 @@ import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.entity.DogPlaySession;
 import com.grahambartley.dogsunleashed.entity.scent.ScentRules;
 import com.grahambartley.dogsunleashed.gametest.util.GameTestFixturePack;
+import com.grahambartley.dogsunleashed.listener.BoneCacheBreakListener;
 import com.grahambartley.dogsunleashed.listener.DogBattleListener;
 import com.grahambartley.dogsunleashed.listener.DogDimensionChangeListener;
 import com.grahambartley.dogsunleashed.listener.OwnerDeathListener;
@@ -77,6 +78,7 @@ public class DogsUnleashed implements ModInitializer {
     PendantEffectListener.initialize();
     DogBattleListener.initialize();
     OwnerDeathListener.initialize();
+    BoneCacheBreakListener.initialize();
 
     ServerLifecycleEvents.SERVER_STARTING.register(ServerConfigService::loadFromWorld);
 

@@ -22,6 +22,7 @@ import net.minecraft.entity.EntityStatuses;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -126,6 +127,7 @@ public final class DogInteractions {
                 () -> this.tryDirectEquip(player, itemStack),
                 () -> this.tryTrimFur(player, hand, itemStack),
                 () -> this.tryGiveScent(player, itemStack),
+                () -> this.tryGiveBone(player, itemStack),
                 () -> this.tryAssignBedOrOpenWheel(player, itemStack)));
     if (handled != null) {
       return handled;
@@ -288,6 +290,18 @@ public final class DogInteractions {
     scent.start(rule.get().registryKey().getValue(), itemStack.getItem());
     scent.cues().sniff();
     this.sendFeedback(player, "message.dogs-unleashed.scent.start");
+    return ActionResult.SUCCESS;
+  }
+
+  private @Nullable ActionResult tryGiveBone(final PlayerEntity player, final ItemStack itemStack) {
+    final DogBoneBurial burial = this.dog.getComponents().get(DogBoneBurial.class);
+    if (!this.isDirectOwnerInteraction(player)
+        || !itemStack.isOf(Items.BONE)
+        || !burial.canTakeBone()) {
+      return null;
+    }
+    burial.takeBone(player, itemStack);
+    this.sendFeedback(player, "message.dogs-unleashed.bone.bury");
     return ActionResult.SUCCESS;
   }
 
