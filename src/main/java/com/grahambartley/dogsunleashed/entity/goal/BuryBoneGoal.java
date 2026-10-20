@@ -5,14 +5,12 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.burial.BurialGround;
 import java.util.EnumSet;
 import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
 public class BuryBoneGoal extends Goal {
 
-  private static final int SEARCH_TICKS = 20;
+  private static final int SEARCH_TICKS = 40;
 
   private final UnleashedDogEntity dog;
   private @Nullable DigSiteVisit visit;
@@ -62,9 +60,9 @@ public class BuryBoneGoal extends Goal {
 
   private void search() {
     this.visit =
-        BurialGround.pickSpot(
-                this.world(), this.dog.getBlockPos(), this.dog.getRandom(), this::canReach)
+        BurialGround.pickSpot(this.world(), this.dog.getBlockPos(), this.dog.getRandom())
             .map(ground -> new DigSiteVisit(this.dog, ground))
+            .filter(DigSiteVisit::canReach)
             .orElse(null);
     if (this.visit == null && ++this.searchTicks >= SEARCH_TICKS) {
       this.giveUp();
@@ -94,11 +92,6 @@ public class BuryBoneGoal extends Goal {
     this.burial().tellOwner("message.dogs-unleashed.bone.no_spot");
     this.burial().abandonBurial();
     this.visit = null;
-  }
-
-  private boolean canReach(final BlockPos ground) {
-    final Path path = this.dog.getNavigation().findPathTo(ground.up(), 1);
-    return path != null && path.reachesTarget();
   }
 
   private ServerWorld world() {

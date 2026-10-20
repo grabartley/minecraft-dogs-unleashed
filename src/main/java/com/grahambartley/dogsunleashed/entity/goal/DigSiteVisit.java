@@ -3,8 +3,13 @@ package com.grahambartley.dogsunleashed.entity.goal;
 import com.grahambartley.dogsunleashed.entity.DogBoneBurial;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.burial.BoneCacheRules;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.ai.pathing.Path;
+import net.minecraft.particle.BlockStateParticleEffect;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 
 final class DigSiteVisit {
 
@@ -21,6 +26,10 @@ final class DigSiteVisit {
   private static final int REPATH_INTERVAL_TICKS = 10;
   private static final int EFFECT_INTERVAL_TICKS = 5;
   private static final float LOOK_SPEED = 30.0F;
+  private static final int DIG_PARTICLES = 6;
+  private static final double DIG_PARTICLE_SPREAD = 0.3;
+  private static final double DIG_PARTICLE_RISE = 0.1;
+  private static final float DIG_SOUND_VOLUME = 0.6F;
 
   private final UnleashedDogEntity dog;
   private final BlockPos ground;
@@ -70,9 +79,31 @@ final class DigSiteVisit {
             LOOK_SPEED,
             LOOK_SPEED);
     if (this.digTicks % EFFECT_INTERVAL_TICKS == 0) {
-      this.burial().digEffects(world, this.ground);
+      this.digEffects(world);
     }
     return --this.digTicks <= 0 ? Status.DUG : Status.DIGGING;
+  }
+
+  private void digEffects(final ServerWorld world) {
+    final BlockState state = world.getBlockState(this.ground);
+    final Vec3d top = Vec3d.ofCenter(this.ground).add(0.0, 0.5, 0.0);
+    world.spawnParticles(
+        new BlockStateParticleEffect(ParticleTypes.BLOCK, state),
+        top.x,
+        top.y,
+        top.z,
+        DIG_PARTICLES,
+        DIG_PARTICLE_SPREAD,
+        DIG_PARTICLE_RISE,
+        DIG_PARTICLE_SPREAD,
+        0.0);
+    this.dog.playSound(
+        state.getSoundGroup().getHitSound(), DIG_SOUND_VOLUME, state.getSoundGroup().getPitch());
+  }
+
+  boolean canReach() {
+    final Path path = this.dog.getNavigation().findPathTo(this.ground.up(), 1);
+    return path != null && path.reachesTarget();
   }
 
   private boolean isBeside() {

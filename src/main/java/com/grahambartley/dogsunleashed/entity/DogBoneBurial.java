@@ -1,24 +1,17 @@
 package com.grahambartley.dogsunleashed.entity;
 
 import com.grahambartley.dogsunleashed.entity.burial.BoneCache;
+import com.grahambartley.dogsunleashed.entity.burial.BoneCacheRules;
 import com.grahambartley.dogsunleashed.entity.burial.BoneCaches;
 import com.grahambartley.dogsunleashed.entity.burial.BoneUnearthing;
 import java.util.UUID;
-import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.particle.BlockStateParticleEffect;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 
 public final class DogBoneBurial extends DogComponent {
-
-  private static final int DIG_PARTICLES = 6;
-  private static final double DIG_PARTICLE_SPREAD = 0.3;
-  private static final float DIG_SOUND_VOLUME = 0.6F;
 
   private final UnleashedDogEntity dog;
   private boolean buryPending;
@@ -28,13 +21,7 @@ public final class DogBoneBurial extends DogComponent {
   }
 
   public boolean canTakeBone() {
-    final DogCommand command = this.dog.getCommand();
-    return this.dog.isTamed()
-        && (command == DogCommand.FREE_ROAM || command == DogCommand.STAY)
-        && !this.dog.getFetchCarry().isCarrying()
-        && !this.dog.getPlaySession().isInPlayMode()
-        && !this.dog.getComponents().get(DogScent.class).isTracking()
-        && !this.dog.getSleepController().isAsleep();
+    return this.dog.isTamed() && !this.dog.getFetchCarry().isCarrying() && this.isFreeToDig();
   }
 
   void takeBone(final PlayerEntity player, final ItemStack stack) {
@@ -90,23 +77,6 @@ public final class DogBoneBurial extends DogComponent {
     this.dog.getDataTracker().set(UnleashedDogEntity.BONE_DIGGING, digging);
   }
 
-  public void digEffects(final ServerWorld world, final BlockPos ground) {
-    final BlockState state = world.getBlockState(ground);
-    final Vec3d top = Vec3d.ofCenter(ground).add(0.0, 0.5, 0.0);
-    world.spawnParticles(
-        new BlockStateParticleEffect(ParticleTypes.BLOCK, state),
-        top.x,
-        top.y,
-        top.z,
-        DIG_PARTICLES,
-        DIG_PARTICLE_SPREAD,
-        0.1,
-        DIG_PARTICLE_SPREAD,
-        0.0);
-    this.dog.playSound(
-        state.getSoundGroup().getHitSound(), DIG_SOUND_VOLUME, state.getSoundGroup().getPitch());
-  }
-
   public void tellOwner(final String translationKey) {
     if (this.dog.getOwner() instanceof PlayerEntity player) {
       DogInteractions.tell(this.dog, player, translationKey);
@@ -114,13 +84,18 @@ public final class DogBoneBurial extends DogComponent {
   }
 
   public boolean isFreeToDig() {
-    final DogCommand command = this.dog.getCommand();
+    final DogPointedOrders orders = this.dog.getComponents().get(DogPointedOrders.class);
     return this.dog.getOwner() != null
-        && (command == DogCommand.FREE_ROAM || command == DogCommand.STAY)
+        && BoneCacheRules.buriesOn(this.dog.getCommand())
         && this.dog.getTarget() == null
         && !this.dog.isInSittingPose()
         && !this.dog.isLeashed()
-        && !this.dog.getSleepController().isAsleep();
+        && !this.dog.getSleepController().isAsleep()
+        && !this.dog.getPlaySession().isInPlayMode()
+        && !this.dog.getComponents().get(DogScent.class).isTracking()
+        && orders.attackTarget() == null
+        && orders.fetchItem() == null
+        && !this.dog.getCommandController().isHeadingToAnchor();
   }
 
   private void carryBone() {

@@ -7,6 +7,7 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.burial.BoneCache;
 import com.grahambartley.dogsunleashed.entity.burial.BoneCacheRules;
 import com.grahambartley.dogsunleashed.entity.burial.BoneCaches;
+import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
 import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.Blocks;
@@ -115,7 +116,7 @@ public final class DogBoneBurialGameTest implements FabricGameTest {
         });
   }
 
-  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 20)
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 300)
   public void aCacheNotYetDueStaysBuried(TestContext context) {
     dirtFloor(context);
     final ServerPlayerEntity owner = placeOwner(context);
@@ -126,10 +127,38 @@ public final class DogBoneBurialGameTest implements FabricGameTest {
             new BoneCache(
                 ground, owner.getUuid(), dog.getUuid(), context.getWorld().getTimeOfDay()));
 
-    context.addInstantFinalTask(
-        () ->
-            context.assertTrue(
-                caches(context).at(ground).isPresent(), "A fresh cache should stay buried"));
+    assertLeftAlone(context, dog, ground, "A fresh cache");
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 300)
+  public void aDogPlayingFetchLeavesADueCacheAlone(TestContext context) {
+    dirtFloor(context);
+    final ServerPlayerEntity owner = placeOwner(context);
+    final UnleashedDogEntity dog = spawnOwnedDog(context, owner, DogCommand.FREE_ROAM);
+    final BlockPos ground = context.getAbsolutePos(DIG_GROUND);
+    caches(context)
+        .add(new BoneCache(ground, owner.getUuid(), dog.getUuid(), dueBuriedAt(context)));
+    dog.getPlaySession().startPlayMode(owner, FetchTypes.TENNIS_BALL);
+
+    assertLeftAlone(context, dog, ground, "A cache during fetch");
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 300)
+  public void aDogCalledAwayBringsTheBoneBack(TestContext context) {
+    dirtFloor(context);
+    final ServerPlayerEntity owner = placeOwner(context);
+    final UnleashedDogEntity dog = spawnOwnedDog(context, owner, DogCommand.STAY);
+
+    giveBone(dog, owner);
+    dog.getCommandController().apply(DogCommand.FOLLOW);
+
+    context.runAtEveryTick(
+        () -> {
+          assertOneBone(context, owner, dog, "while called away");
+          if (!burial(dog).isCarryingBone() && caches(context).buriedBy(dog.getUuid()).isEmpty()) {
+            context.complete();
+          }
+        });
   }
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 20)
@@ -145,6 +174,20 @@ public final class DogBoneBurialGameTest implements FabricGameTest {
     context.assertTrue(caches(context).at(ground).isEmpty(), "Digging should empty the cache");
     context.assertEquals(loose(context), 1, "Bones turned up by digging the cache");
     context.complete();
+  }
+
+  private static void assertLeftAlone(
+      final TestContext context,
+      final UnleashedDogEntity dog,
+      final BlockPos ground,
+      final String what) {
+    context.runAtEveryTick(
+        () -> {
+          context.assertFalse(burial(dog).isDigging(), what + " should not be dug at");
+          context.assertFalse(burial(dog).isCarryingBone(), what + " should stay buried");
+        });
+    context.addFinalTask(
+        () -> context.assertTrue(caches(context).at(ground).isPresent(), what + " stays put"));
   }
 
   private static void assertOneBone(

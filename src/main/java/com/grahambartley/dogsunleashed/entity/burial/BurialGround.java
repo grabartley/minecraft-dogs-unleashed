@@ -2,7 +2,6 @@ package com.grahambartley.dogsunleashed.entity.burial;
 
 import com.grahambartley.dogsunleashed.ModBlockTags;
 import java.util.Optional;
-import java.util.function.Predicate;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.world.ServerWorld;
@@ -12,7 +11,7 @@ import net.minecraft.util.math.random.Random;
 public final class BurialGround {
 
   private static final int VERTICAL_REACH = 4;
-  private static final int TRIES = 12;
+  private static final int TRIES = 16;
 
   private BurialGround() {}
 
@@ -29,10 +28,7 @@ public final class BurialGround {
   }
 
   public static Optional<BlockPos> pickSpot(
-      final ServerWorld world,
-      final BlockPos origin,
-      final Random random,
-      final Predicate<BlockPos> reachable) {
+      final ServerWorld world, final BlockPos origin, final Random random) {
     for (int attempt = 0; attempt < TRIES; attempt++) {
       final BlockPos column =
           origin.add(
@@ -42,10 +38,7 @@ public final class BurialGround {
       for (int dy = VERTICAL_REACH; dy >= -VERTICAL_REACH; dy--) {
         final BlockPos ground = column.up(dy);
         if (isBurialSpot(world, ground)) {
-          if (reachable.test(ground)) {
-            return Optional.of(ground);
-          }
-          break;
+          return Optional.of(ground);
         }
       }
     }

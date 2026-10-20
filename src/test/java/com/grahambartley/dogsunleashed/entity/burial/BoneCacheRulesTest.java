@@ -2,18 +2,21 @@ package com.grahambartley.dogsunleashed.entity.burial;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.grahambartley.dogsunleashed.entity.DogCommand;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
 
 class BoneCacheRulesTest {
 
-  @Test
-  @DisplayName("the dog buries within 16 blocks and digs for three seconds")
-  void reachAndDigTime() {
-    assertEquals(16, BoneCacheRules.BURY_RADIUS);
-    assertEquals(60, BoneCacheRules.DIG_TICKS);
+  @ParameterizedTest(name = "{0}")
+  @EnumSource(DogCommand.class)
+  @DisplayName("only roaming and staying dogs bury bones")
+  void buriesOnlyWhenRoamingOrStaying(final DogCommand command) {
+    assertEquals(
+        command == DogCommand.FREE_ROAM || command == DogCommand.STAY,
+        BoneCacheRules.buriesOn(command));
   }
 
   @ParameterizedTest(name = "buried at {0}, now {1}: due {2}")

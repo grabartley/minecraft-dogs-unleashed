@@ -28,7 +28,7 @@ public class DigUpBoneGoal extends Goal {
 
   @Override
   public boolean canStart() {
-    if (--this.searchCooldown > 0 || !this.isReady()) {
+    if (--this.searchCooldown > 0 || !this.dog.isOnGround() || !this.isReady()) {
       return false;
     }
     this.searchCooldown = SEARCH_INTERVAL_TICKS;
@@ -39,8 +39,14 @@ public class DigUpBoneGoal extends Goal {
                 this.dog.getBlockPos(),
                 BoneCacheRules.DIG_UP_RANGE,
                 this.world().getTimeOfDay());
-    due.ifPresent(cache -> this.visit = new DigSiteVisit(this.dog, cache.pos()));
-    return due.isPresent();
+    this.visit =
+        due.map(cache -> new DigSiteVisit(this.dog, cache.pos()))
+            .filter(DigSiteVisit::canReach)
+            .orElse(null);
+    if (due.isPresent() && this.visit == null) {
+      this.searchCooldown = UNREACHABLE_COOLDOWN_TICKS;
+    }
+    return this.visit != null;
   }
 
   @Override
