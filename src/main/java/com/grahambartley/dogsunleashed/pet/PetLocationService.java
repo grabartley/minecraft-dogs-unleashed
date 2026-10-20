@@ -243,21 +243,28 @@ public final class PetLocationService {
   @Nullable
   private static Vec3d findSafeSummonPosition(
       ServerWorld world, BlockPos center, UnleashedDogEntity dog) {
-    return DogStandingSpot.firstSafe(
-            world, dog, BlockPos.iterateOutwards(snapToGround(world, center), 2, 1, 2))
-        .orElse(null);
+    return firstSafeAround(world, center, dog, false);
   }
 
   @Nullable
   public static Vec3d findSafeSpotBeside(
       ServerWorld world, BlockPos center, UnleashedDogEntity dog) {
+    return firstSafeAround(world, center, dog, true);
+  }
+
+  @Nullable
+  private static Vec3d firstSafeAround(
+      ServerWorld world, BlockPos center, UnleashedDogEntity dog, boolean skipCenterColumn) {
     final BlockPos ground = snapToGround(world, center);
     return DogStandingSpot.firstSafe(
             world,
             dog,
             Iterables.filter(
                 BlockPos.iterateOutwards(ground, 2, 1, 2),
-                pos -> pos.getX() != ground.getX() || pos.getZ() != ground.getZ()))
+                pos ->
+                    !skipCenterColumn
+                        || pos.getX() != ground.getX()
+                        || pos.getZ() != ground.getZ()))
         .orElse(null);
   }
 

@@ -62,12 +62,13 @@ public final class ExpeditionHomecoming {
           expedition.entityType());
       return Optional.empty();
     }
-    final Vec3d spot =
-        Optional.ofNullable(PetLocationService.findSafeSpotBeside(world, owner.getBlockPos(), dog))
-            .orElse(owner.getPos());
+    final Vec3d beside = PetLocationService.findSafeSpotBeside(world, owner.getBlockPos(), dog);
+    final Vec3d spot = beside != null ? beside : owner.getPos();
     final float facingOwner =
-        (float) Math.toDegrees(MathHelper.atan2(owner.getZ() - spot.z, owner.getX() - spot.x))
-            - 90.0f;
+        beside != null
+            ? (float) Math.toDegrees(MathHelper.atan2(owner.getZ() - spot.z, owner.getX() - spot.x))
+                - 90.0f
+            : owner.getYaw() + 180.0f;
     dog.refreshPositionAndAngles(spot.x, spot.y, spot.z, facingOwner, 0.0f);
     dog.setBodyYaw(facingOwner);
     dog.setHeadYaw(facingOwner);

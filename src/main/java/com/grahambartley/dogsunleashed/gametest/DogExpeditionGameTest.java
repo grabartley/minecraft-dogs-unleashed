@@ -42,6 +42,7 @@ import net.minecraft.test.TestContext;
 import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameRules;
 
 public final class DogExpeditionGameTest implements FabricGameTest {
@@ -143,6 +144,12 @@ public final class DogExpeditionGameTest implements FabricGameTest {
     context.assertFalse(
         back.getBlockX() == owner.getBlockX() && back.getBlockZ() == owner.getBlockZ(),
         "The dog should stand beside its owner, not inside them");
+    final Vec3d facing = back.getRotationVector();
+    final Vec3d toOwner =
+        owner.getPos().subtract(back.getPos()).multiply(1.0, 0.0, 1.0).normalize();
+    context.assertTrue(
+        facing.dotProduct(toOwner) > 0.99,
+        "The dog should face its owner, dot=" + facing.dotProduct(toOwner));
     final List<ItemStack> drops = drops(context);
     context.assertEquals(drops.size(), 2, "Stacks dropped at the owner's feet");
     final List<ItemStack> maps =
