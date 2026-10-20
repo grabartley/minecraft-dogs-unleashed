@@ -61,6 +61,7 @@ public final class DogCommandController {
     this.dog.getComponents().get(DogDeathWatch.class).end();
     this.dog.getDataTracker().set(UnleashedDogEntity.COMMAND, command.id());
     this.dog.getComponents().get(DogPointedOrders.class).clear();
+    this.dog.getComponents().get(DogScent.class).stop();
     this.headingToAnchor = false;
     if (command.isAnchored()) {
       this.anchorAt(this.dog.getBlockPos(), this.dog.getWorld().getRegistryKey());

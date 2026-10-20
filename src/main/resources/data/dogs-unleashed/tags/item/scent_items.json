@@ -1,0 +1,23 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:leather",
+    "minecraft:feather",
+    "minecraft:string",
+    "minecraft:spider_eye",
+    "minecraft:gunpowder",
+    "#minecraft:wool",
+    "minecraft:rabbit_hide",
+    "minecraft:rabbit_foot",
+    "minecraft:ink_sac",
+    "minecraft:glow_ink_sac",
+    "minecraft:slime_ball",
+    "minecraft:ender_pearl",
+    "minecraft:blaze_rod",
+    "minecraft:phantom_membrane",
+    "minecraft:raw_iron",
+    "minecraft:raw_gold",
+    "minecraft:raw_copper",
+    "minecraft:brush"
+  ]
+}

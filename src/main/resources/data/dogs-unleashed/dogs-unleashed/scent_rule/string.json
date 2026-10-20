@@ -1,0 +1,10 @@
+{
+  "items": [
+    "minecraft:string",
+    "minecraft:spider_eye"
+  ],
+  "entities": [
+    "minecraft:spider",
+    "minecraft:cave_spider"
+  ]
+}

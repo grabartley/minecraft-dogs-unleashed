@@ -1,0 +1,8 @@
+{
+  "items": "minecraft:gunpowder",
+  "entities": [
+    "minecraft:creeper",
+    "minecraft:ghast",
+    "minecraft:witch"
+  ]
+}

@@ -11,6 +11,7 @@ import static net.minecraft.entity.data.TrackedDataHandlerRegistry.STRING;
 
 import com.grahambartley.dogsunleashed.ModBlockTags;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
+import com.grahambartley.dogsunleashed.entity.scent.ScentPhase;
 import com.grahambartley.dogsunleashed.entity.variant.DogCoats;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
 import com.grahambartley.dogsunleashed.entity.variant.UnleashedDogCoat;
@@ -94,6 +95,7 @@ public class UnleashedDogEntity extends DogMountEntity
   static final TrackedData<Integer> FUR_STAGE = data(INTEGER);
   static final TrackedData<Integer> GROWTH_STAGE = data(INTEGER);
   static final TrackedData<Boolean> NAPPING = data(BOOLEAN);
+  static final TrackedData<Integer> SCENT_PHASE = data(INTEGER);
 
   private static <T> TrackedData<T> data(final TrackedDataHandler<T> handler) {
     return DataTracker.registerData(UnleashedDogEntity.class, handler);
@@ -120,7 +122,8 @@ public class UnleashedDogEntity extends DogMountEntity
           new DogSpawnerOrigin(),
           new DogCollar(this),
           new DogPointedOrders(this),
-          new DogDeathWatch(this));
+          new DogDeathWatch(this),
+          new DogScent(this));
   private final DogGenomeCache genomeCache = new DogGenomeCache(this);
   private final DogUndeadState undeadState = new DogUndeadState(this);
   private final DogCuring curing = new DogCuring(this);
@@ -292,6 +295,7 @@ public class UnleashedDogEntity extends DogMountEntity
     builder.add(FUR_STAGE, DogFurStage.NATURAL.ordinal());
     builder.add(GROWTH_STAGE, DireWolfGrowthStage.YEARLING.number());
     builder.add(NAPPING, false);
+    builder.add(SCENT_PHASE, ScentPhase.NONE.id());
   }
 
   public DogCommand getCommand() {

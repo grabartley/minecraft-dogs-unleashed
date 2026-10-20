@@ -48,6 +48,7 @@ public final class DogPointedOrders extends DogComponent {
 
   private void prepareForOrder() {
     this.clear();
+    this.dog.getComponents().get(DogScent.class).stop();
     this.dog.setTarget(null);
     this.dog.getNavigation().stop();
   }
