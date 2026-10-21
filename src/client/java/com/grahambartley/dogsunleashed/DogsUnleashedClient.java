@@ -34,6 +34,8 @@ import com.grahambartley.dogsunleashed.render.overlay.MuddyCoat;
 import com.grahambartley.dogsunleashed.render.overlay.ProjectedOverlays;
 import com.grahambartley.dogsunleashed.render.overlay.SeniorMuzzle;
 import com.grahambartley.dogsunleashed.render.pawprint.PawPrints;
+import com.grahambartley.dogsunleashed.render.portrait.DogPortraitEntityRenderer;
+import com.grahambartley.dogsunleashed.render.portrait.PortraitTextures;
 import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
 import com.grahambartley.dogsunleashed.render.rig.SlotRegions;
 import com.grahambartley.dogsunleashed.render.statue.StatueCoatTextures;
@@ -42,6 +44,7 @@ import com.grahambartley.dogsunleashed.riding.RideStaminaHud;
 import com.grahambartley.dogsunleashed.screen.DogEquipmentScreen;
 import com.grahambartley.dogsunleashed.whistle.WhistlePointer;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
@@ -62,6 +65,8 @@ public class DogsUnleashedClient implements ClientModInitializer {
     EntityRendererRegistry.register(
         ModEntities.TENNIS_BALL_PROJECTILE, TennisBallProjectileRenderer::new);
     EntityRendererRegistry.register(ModEntities.STICK_PROJECTILE, StickProjectileRenderer::new);
+    EntityRendererRegistry.register(
+        ModPortraits.DOG_PORTRAIT_ENTITY, DogPortraitEntityRenderer::new);
     EntityRendererRegistry.register(ModEntities.FRISBEE_PROJECTILE, FrisbeeProjectileRenderer::new);
     ColorProviderRegistry.ITEM.register(
         (stack, tintIndex) ->
@@ -143,6 +148,11 @@ public class DogsUnleashedClient implements ClientModInitializer {
             () ->
                 StatueCoatTextures.cache()
                     .clear(MinecraftClient.getInstance().getTextureManager())));
+    resources.registerReloadListener(
+        new CacheReloader(
+            PortraitTextures.RELOADER_ID,
+            () -> PortraitTextures.reset(MinecraftClient.getInstance().getTextureManager())));
+    ClientTickEvents.END_CLIENT_TICK.register(client -> PortraitTextures.cache().bakePending());
     resources.registerReloadListener(
         new CacheReloader(RigProfiles.RELOADER_ID, RigProfiles.shared()::clear));
     resources.registerReloadListener(

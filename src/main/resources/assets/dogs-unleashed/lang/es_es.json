@@ -64,9 +64,15 @@
   "item.dogs-unleashed.dog_treat.tooltip": "A tu perro le encantará.",
   "item.dogs-unleashed.dog_treat.effect": "%1$ss: +%2$s%% de velocidad, +%3$s de daño de ataque",
   "item.dogs-unleashed.dog_whistle": "Silbato para perro",
+  "item.dogs-unleashed.blank_canvas": "Lienzo en blanco",
+  "item.dogs-unleashed.blank_canvas.size": "Tamaño del retrato: %s",
+  "item.dogs-unleashed.blank_canvas.hint": "Úsalo en uno de tus perros para pintar su retrato",
+  "item.dogs-unleashed.blank_canvas.hint.size": "Agáchate y úsalo para cambiar el tamaño",
+  "item.dogs-unleashed.dog_portrait": "Retrato de perro",
   "item.dogs-unleashed.dog_whistle.unbound": "Haz clic derecho en tu perro para vincularlo",
   "item.dogs-unleashed.dog_whistle.bound": "Vinculado a %1$s",
   "message.dogs-unleashed.whistle.bound": "%1$s responde ahora a este silbato",
+  "message.dogs-unleashed.portrait.painted": "Has pintado un retrato de %1$s",
   "message.dogs-unleashed.whistle.unbound": "Este silbato no está vinculado a ningún perro",
   "message.dogs-unleashed.whistle.too_far": "%1$s está demasiado lejos para oírte",
   "message.dogs-unleashed.whistle.sitting": "%1$s está sentado y no se mueve",
@@ -528,5 +534,6 @@
   "command.dogs-unleashed.status.direwolf.packsize": "- direwolf pack=%s..%s",
   "command.dogs-unleashed.status.direwolf.packs": "- direwolf packhunting=%s packdefence=%s",
   "command.dogs-unleashed.status.direwolf.stamina": "- direwolf staminadrain=%s staminacapacity=%s%% staminarecovery=%s%%",
-  "command.dogs-unleashed.direwolf.pack_order": "La manada mínima (%s) no puede ser mayor que la manada máxima (%s)."
+  "command.dogs-unleashed.direwolf.pack_order": "La manada mínima (%s) no puede ser mayor que la manada máxima (%s).",
+  "entity.dogs-unleashed.dog_portrait": "Retrato de perro"
 }

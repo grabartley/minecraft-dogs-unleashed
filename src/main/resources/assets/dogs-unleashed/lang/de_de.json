@@ -64,9 +64,15 @@
   "item.dogs-unleashed.dog_treat.tooltip": "Dein Hund wird es lieben.",
   "item.dogs-unleashed.dog_treat.effect": "%1$ss: +%2$s%% Tempo, +%3$s Angriffsschaden",
   "item.dogs-unleashed.dog_whistle": "Hundepfeife",
+  "item.dogs-unleashed.blank_canvas": "Leere Leinwand",
+  "item.dogs-unleashed.blank_canvas.size": "Porträtgröße: %s",
+  "item.dogs-unleashed.blank_canvas.hint": "Benutze sie an einem deiner Hunde, um sein Porträt zu malen",
+  "item.dogs-unleashed.blank_canvas.hint.size": "Schleiche und benutze sie, um die Größe zu ändern",
+  "item.dogs-unleashed.dog_portrait": "Hundeporträt",
   "item.dogs-unleashed.dog_whistle.unbound": "Rechtsklicke deinen Hund, um sie zu binden",
   "item.dogs-unleashed.dog_whistle.bound": "Gebunden an %1$s",
   "message.dogs-unleashed.whistle.bound": "%1$s hört jetzt auf diese Pfeife",
+  "message.dogs-unleashed.portrait.painted": "Du hast ein Porträt von %1$s gemalt",
   "message.dogs-unleashed.whistle.unbound": "Diese Pfeife ist an keinen Hund gebunden",
   "message.dogs-unleashed.whistle.too_far": "%1$s ist zu weit weg, um dich zu hören",
   "message.dogs-unleashed.whistle.sitting": "%1$s sitzt und rührt sich nicht",
@@ -528,5 +534,6 @@
   "command.dogs-unleashed.status.direwolf.packsize": "- direwolf pack=%s..%s",
   "command.dogs-unleashed.status.direwolf.packs": "- direwolf packhunting=%s packdefence=%s",
   "command.dogs-unleashed.status.direwolf.stamina": "- direwolf staminadrain=%s staminacapacity=%s%% staminarecovery=%s%%",
-  "command.dogs-unleashed.direwolf.pack_order": "Das kleinste Rudel (%s) kann nicht größer sein als das größte Rudel (%s)."
+  "command.dogs-unleashed.direwolf.pack_order": "Das kleinste Rudel (%s) kann nicht größer sein als das größte Rudel (%s).",
+  "entity.dogs-unleashed.dog_portrait": "Hundeporträt"
 }

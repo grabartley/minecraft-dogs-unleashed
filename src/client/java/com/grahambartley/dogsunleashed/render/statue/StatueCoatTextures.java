@@ -56,21 +56,7 @@ public final class StatueCoatTextures {
   }
 
   private static NativeImage carvedImage(final NativeImage source, final int[] ramp) {
-    final int width = source.getWidth();
-    final int height = source.getHeight();
-    final int[] pixels = new int[width * height];
-    for (int y = 0; y < height; y++) {
-      for (int x = 0; x < width; x++) {
-        pixels[y * width + x] = source.getColor(x, y);
-      }
-    }
-    final int[] carved = StatueRamp.carve(pixels, ramp);
-    final NativeImage image = new NativeImage(NativeImage.Format.RGBA, width, height, false);
-    for (int y = 0; y < height; y++) {
-      for (int x = 0; x < width; x++) {
-        image.setColor(x, y, carved[y * width + x]);
-      }
-    }
-    return image;
+    return CoatImages.imageOf(
+        StatueRamp.carve(CoatImages.pixelsOf(source), ramp), source.getWidth(), source.getHeight());
   }
 }
