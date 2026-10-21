@@ -23,19 +23,6 @@ public final class PortraitComposer {
     return out;
   }
 
-  public static int straighten(final int premultiplied) {
-    final int alpha = premultiplied >>> 24;
-    if (alpha == 0 || alpha == 0xFF) {
-      return alpha == 0 ? 0 : premultiplied;
-    }
-    int out = alpha << 24;
-    for (int shift = 0; shift < 24; shift += 8) {
-      out |=
-          Math.min(0xFF, (((premultiplied >>> shift) & 0xFF) * 0xFF + alpha / 2) / alpha) << shift;
-    }
-    return out;
-  }
-
   static int over(final int top, final int bottom) {
     final int topAlpha = top >>> 24;
     if (topAlpha == 0xFF) {

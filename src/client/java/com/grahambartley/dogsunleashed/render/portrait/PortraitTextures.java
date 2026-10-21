@@ -52,9 +52,7 @@ public final class PortraitTextures {
       }
       layers.add(
           new PortraitComposer.Layer(
-              PortraitFraming.fit(straightLayerOf(dog), width, height, FRAME_BORDER),
-              width,
-              height));
+              PortraitFraming.fit(layerOf(dog), width, height, FRAME_BORDER), width, height));
     }
     if (!addLayer(
         layers,
@@ -75,14 +73,6 @@ public final class PortraitTextures {
       layers.add(layerOf(source.image()));
       return true;
     }
-  }
-
-  private static PortraitComposer.Layer straightLayerOf(final NativeImage image) {
-    final int[] pixels = CoatImages.pixelsOf(image);
-    for (int i = 0; i < pixels.length; i++) {
-      pixels[i] = PortraitComposer.straighten(pixels[i]);
-    }
-    return new PortraitComposer.Layer(pixels, image.getWidth(), image.getHeight());
   }
 
   private static PortraitComposer.Layer layerOf(final NativeImage image) {

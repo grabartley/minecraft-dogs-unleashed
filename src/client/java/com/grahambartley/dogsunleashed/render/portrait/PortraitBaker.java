@@ -50,6 +50,7 @@ public final class PortraitBaker {
     final Matrix4f projection = RenderSystem.getProjectionMatrix();
     final VertexSorter sorting = RenderSystem.getVertexSorting();
     final Matrix4fStack modelView = RenderSystem.getModelViewStack();
+    modelView.pushMatrix();
     try (BufferAllocator buffer = new BufferAllocator(BUFFER_BYTES)) {
       target.setClearColor(0.0f, 0.0f, 0.0f, 0.0f);
       target.clear(MinecraftClient.IS_SYSTEM_MAC);
@@ -57,7 +58,6 @@ public final class PortraitBaker {
       RenderSystem.setProjectionMatrix(
           new Matrix4f().setOrtho(0.0f, SOURCE_SIZE, SOURCE_SIZE, 0.0f, NEAR_PLANE, FAR_PLANE),
           VertexSorter.BY_Z);
-      modelView.pushMatrix();
       modelView.translation(0.0f, 0.0f, GUI_DEPTH);
       RenderSystem.applyModelViewMatrix();
       BackgroundRenderer.clearFog();
