@@ -50,6 +50,17 @@ class SlotRegionsTest {
 
   @ParameterizedTest(name = "{0} {1}")
   @MethodSource("rigsAndSlots")
+  @DisplayName("naming a slot's bones gives the same regions as naming the slot")
+  void bonesGiveTheSlotsRegions(final UnleashedDogBreed rig, final Slot slot) {
+    final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
+    final RigProfile profile = BUNDLED.profileOf(rig);
+
+    assertEquals(
+        SlotRegions.of(model, profile, slot), SlotRegions.ofBones(model, profile.bonesIn(slot)));
+  }
+
+  @ParameterizedTest(name = "{0} {1}")
+  @MethodSource("rigsAndSlots")
   @DisplayName("every slot region on a shipped rig lies inside the texture atlas")
   void regionsFallInsideTheAtlas(final UnleashedDogBreed rig, final Slot slot) {
     final BakedGeoModel model = ShippedRigs.model(rig.serializedId());

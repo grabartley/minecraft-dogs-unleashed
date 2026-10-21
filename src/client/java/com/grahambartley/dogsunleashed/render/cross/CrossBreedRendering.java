@@ -1,7 +1,6 @@
 package com.grahambartley.dogsunleashed.render.cross;
 
 import com.grahambartley.dogsunleashed.entity.DireWolfGrowthStage.SlotScales;
-import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.entity.variant.UnleashedDogCoat;
@@ -26,16 +25,11 @@ public final class CrossBreedRendering {
 
   public static Optional<CrossBreedLook> lookOf(final UnleashedDogEntity dog) {
     final DogGenome genome = dog.getGenome();
-    if (dog.getBreed() != UnleashedDogBreed.CROSS_BREED || genome == null) {
-      return Optional.empty();
-    }
     final UnleashedDogCoat coat = dog.getCoatVariant();
-    final CrossBreedLook look =
-        CrossBreedLook.of(genome.composition(), coat == null ? -1 : coat.getOrdinal());
-    if (look.isPure() || look.rig() != dog.getRigSourceBreed()) {
-      return Optional.empty();
-    }
-    return Optional.of(look);
+    return CrossBreedLook.ofDog(
+        dog.getBreed(),
+        genome == null ? null : genome.composition(),
+        coat == null ? -1 : coat.getOrdinal());
   }
 
   public static Identifier coatOf(final UnleashedDogEntity dog, final Identifier living) {
@@ -69,16 +63,13 @@ public final class CrossBreedRendering {
 
   public static Set<String> hiddenEars(
       final UnleashedDogEntity dog, final RigProfile profile, final Set<String> hiddenByHeadwear) {
+    if (profile.ears().variants().isEmpty()) {
+      return hiddenByHeadwear;
+    }
     final Optional<String> wanted =
         lookOf(dog).flatMap(look -> RigProfiles.of(look.earSource()).ears().shape());
     final Set<String> nativeEars = new HashSet<>(profile.bonesIn(Slot.EAR_LEFT));
     nativeEars.addAll(profile.bonesIn(Slot.EAR_RIGHT));
-    final Set<String> hidden = new HashSet<>(profile.ears().hiddenFor(wanted, nativeEars));
-    hidden.addAll(hiddenByHeadwear);
-    final Set<String> shown = profile.ears().shownFor(wanted, nativeEars);
-    if (!shown.equals(nativeEars) && !hiddenByHeadwear.isEmpty()) {
-      hidden.addAll(shown);
-    }
-    return Set.copyOf(hidden);
+    return profile.ears().hiddenFor(wanted, nativeEars, hiddenByHeadwear);
   }
 }

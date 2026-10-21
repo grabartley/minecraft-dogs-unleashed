@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -47,34 +46,48 @@ public record RigEars(Optional<String> shape, Map<String, Set<String>> variants)
           LOGGER.warn("Skipping ear variant {}", entry.getKey());
           continue;
         }
-        variants.put(
-            entry.getKey(),
-            names.asList().stream().map(JsonElement::getAsString).collect(Collectors.toSet()));
+        final Set<String> bones = new HashSet<>();
+        for (final JsonElement name : names) {
+          if (name instanceof JsonPrimitive value && value.isString()) {
+            bones.add(value.getAsString());
+          } else {
+            LOGGER.warn("Skipping ear bone {} of variant {}", name, entry.getKey());
+          }
+        }
+        if (!bones.isEmpty()) {
+          variants.put(entry.getKey(), bones);
+        }
       }
     }
     return new RigEars(shape, variants);
   }
 
   public Set<String> variantBones() {
+    if (this.variants.isEmpty()) {
+      return Set.of();
+    }
     final Set<String> bones = new HashSet<>();
     this.variants.values().forEach(bones::addAll);
     return bones;
   }
 
-  public Set<String> hiddenFor(final Optional<String> wanted, final Set<String> nativeBones) {
-    final Set<String> hidden = new LinkedHashSet<>(this.variantBones());
+  public Set<String> hiddenFor(
+      final Optional<String> wanted,
+      final Set<String> nativeBones,
+      final Set<String> hiddenByHeadwear) {
+    if (this.variants.isEmpty()) {
+      return hiddenByHeadwear;
+    }
+    final Set<String> hidden = new HashSet<>(this.variantBones());
+    hidden.addAll(hiddenByHeadwear);
     if (wanted.isEmpty() || wanted.equals(this.shape) || !this.variants.containsKey(wanted.get())) {
       return Set.copyOf(hidden);
     }
-    hidden.removeAll(this.variants.get(wanted.get()));
+    final Set<String> swapped = this.variants.get(wanted.get());
     hidden.addAll(nativeBones);
-    return Set.copyOf(hidden);
-  }
-
-  public Set<String> shownFor(final Optional<String> wanted, final Set<String> nativeBones) {
-    if (wanted.isEmpty() || wanted.equals(this.shape) || !this.variants.containsKey(wanted.get())) {
-      return nativeBones;
+    if (hiddenByHeadwear.isEmpty()) {
+      hidden.removeAll(swapped);
     }
-    return this.variants.get(wanted.get());
+    return Set.copyOf(hidden);
   }
 }

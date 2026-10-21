@@ -10,10 +10,14 @@ import com.grahambartley.dogsunleashed.render.cross.CoatPalettes.PaletteWeight;
 import com.grahambartley.dogsunleashed.render.cross.CrossCoatTextureCache.CrossCoat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class CrossCoatTextureCacheTest {
 
@@ -57,10 +61,15 @@ class CrossCoatTextureCacheTest {
     assertEquals(List.of(CROSS), this.painted);
   }
 
-  @Test
-  @DisplayName("a coat that cannot be painted, such as one without a palette, stays living")
-  void unpaintableCoatStaysLiving() {
-    assertEquals(LIVING, cachePainting(null).tintedOf(CROSS));
+  @ParameterizedTest(name = "painter gives {0}")
+  @MethodSource("paintResults")
+  @DisplayName("a painted coat is used, and one that cannot be painted stays living")
+  void paintResultDecidesTheTexture(final Identifier painterResult, final Identifier expected) {
+    assertEquals(expected, cachePainting(painterResult).tintedOf(CROSS));
+  }
+
+  static Stream<Arguments> paintResults() {
+    return Stream.of(Arguments.of(PAINTED, PAINTED), Arguments.of(null, LIVING));
   }
 
   @Test

@@ -147,10 +147,11 @@ public class DogsUnleashedClient implements ClientModInitializer {
     resources.registerReloadListener(
         new CacheReloader(
             CrossCoatTextures.RELOADER_ID,
-            () -> {
-              CrossCoatTextures.cache().clear(MinecraftClient.getInstance().getTextureManager());
-              RigSlotSizes.clear();
-            }));
+            () ->
+                CrossCoatTextures.cache()
+                    .clear(MinecraftClient.getInstance().getTextureManager())));
+    resources.registerReloadListener(
+        new CacheReloader(RigSlotSizes.RELOADER_ID, RigSlotSizes::clear));
     resources.registerReloadListener(
         new CacheReloader(
             StatueCoatTextures.RELOADER_ID,

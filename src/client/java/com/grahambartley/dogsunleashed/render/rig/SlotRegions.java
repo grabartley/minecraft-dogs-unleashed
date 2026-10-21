@@ -5,6 +5,7 @@ import static com.grahambartley.dogsunleashed.DogsUnleashed.MOD_ID;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile.Slot;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -58,10 +59,15 @@ public final class SlotRegions {
 
   public static List<SlotRegion> of(
       final BakedGeoModel model, final RigProfile profile, final Slot slot) {
+    return ofBones(model, profile.bonesIn(slot));
+  }
+
+  public static List<SlotRegion> ofBones(
+      final BakedGeoModel model, final Collection<String> boneNames) {
     final int atlasWidth = (int) model.properties().textureWidth();
     final int atlasHeight = (int) model.properties().textureHeight();
     final List<SlotRegion> regions = new ArrayList<>();
-    for (final String boneName : profile.bonesIn(slot)) {
+    for (final String boneName : boneNames) {
       final Optional<GeoBone> bone = model.getBone(boneName);
       if (bone.isEmpty()) {
         continue;

@@ -173,13 +173,13 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
 
   private float frameScale(
       final UnleashedDogEntity animatable, final UnleashedDogBreed.RenderTransforms transforms) {
-    if (this.frameGrowth != null && animatable.getGrowth().applies()) {
-      return transforms.adultScale()
-          * animatable.getGrowth().stage().renderScaleMultiplier()
-          * this.frameGrowth.heightScale();
-    }
-    final float ageScale = animatable.isBaby() ? transforms.babyScale() : transforms.adultScale();
-    return this.frameGrowth == null ? ageScale : ageScale * this.frameGrowth.heightScale();
+    return DogFrameScale.of(
+        transforms,
+        animatable.isBaby(),
+        animatable.getGrowth().applies()
+            ? animatable.getGrowth().stage().renderScaleMultiplier()
+            : null,
+        this.frameGrowth == null ? 1.0f : this.frameGrowth.heightScale());
   }
 
   @Override

@@ -39,6 +39,17 @@ class CoatPaletteTest {
     assertEquals(List.of(1, 2, 3, 4), palette.orElseThrow().colours());
   }
 
+  @ParameterizedTest(name = "{0} reads as {1}")
+  @CsvSource({"0xFF4080C0, 0xC08040", "0x00FFFFFF, 0xFFFFFF", "0xFF000001, 0x010000"})
+  @DisplayName("a palette read from a texture swaps its blue and red channels into place")
+  void abgrRowReadsAsRgb(final String abgr, final String rgb) {
+    final int colour = Integer.parseUnsignedInt(abgr.substring(2), 16);
+    final CoatPalette palette =
+        CoatPalette.ofAbgrRow(new int[] {colour, colour, colour, colour}).orElseThrow();
+
+    assertEquals(Integer.decode(rgb), palette.colour(0));
+  }
+
   @Test
   @DisplayName("a row shorter than four colours is not a palette")
   void shortRowIsNoPalette() {

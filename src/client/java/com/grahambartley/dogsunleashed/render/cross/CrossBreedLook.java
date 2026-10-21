@@ -4,6 +4,8 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import java.util.List;
+import java.util.Optional;
+import org.jetbrains.annotations.Nullable;
 
 public record CrossBreedLook(List<BreedShare> composition, long seed) {
 
@@ -22,6 +24,17 @@ public record CrossBreedLook(List<BreedShare> composition, long seed) {
       seed = mix(seed ^ Math.round(share.share() * SHARE_STEPS));
     }
     return new CrossBreedLook(composition, seed);
+  }
+
+  public static Optional<CrossBreedLook> ofDog(
+      final UnleashedDogBreed breed,
+      final @Nullable List<BreedShare> composition,
+      final int coatVariant) {
+    if (breed != UnleashedDogBreed.CROSS_BREED || composition == null || composition.isEmpty()) {
+      return Optional.empty();
+    }
+    final CrossBreedLook look = of(composition, coatVariant);
+    return look.isPure() ? Optional.empty() : Optional.of(look);
   }
 
   public UnleashedDogBreed rig() {

@@ -1,5 +1,7 @@
 package com.grahambartley.dogsunleashed.render.cross;
 
+import static com.grahambartley.dogsunleashed.DogsUnleashed.MOD_ID;
+
 import com.grahambartley.dogsunleashed.render.cross.CrossProportions.SlotSizes;
 import com.grahambartley.dogsunleashed.render.rig.CubeGeometry;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile;
@@ -7,11 +9,14 @@ import com.grahambartley.dogsunleashed.render.rig.RigProfile.Slot;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import net.minecraft.util.Identifier;
 import org.joml.Vector3f;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 
 public final class RigSlotSizes {
+
+  public static final Identifier RELOADER_ID = Identifier.of(MOD_ID, "rig_slot_sizes");
 
   private static final List<Slot> LEG_SLOTS =
       List.of(Slot.LEG_FRONT_LEFT, Slot.LEG_FRONT_RIGHT, Slot.LEG_BACK_LEFT, Slot.LEG_BACK_RIGHT);

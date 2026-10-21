@@ -21,6 +21,15 @@ public record CoatPalette(List<Integer> colours) {
     return Optional.of(new CoatPalette(List.of(rgb[0], rgb[1], rgb[2], rgb[3])));
   }
 
+  public static Optional<CoatPalette> ofAbgrRow(final int[] abgr) {
+    final int[] rgb = new int[abgr.length];
+    for (int index = 0; index < abgr.length; index++) {
+      final int colour = abgr[index];
+      rgb[index] = ((colour & 0xFF) << 16) | (colour & 0xFF00) | ((colour >> 16) & 0xFF);
+    }
+    return ofRow(rgb);
+  }
+
   public int colour(final int index) {
     return this.colours.get(index);
   }

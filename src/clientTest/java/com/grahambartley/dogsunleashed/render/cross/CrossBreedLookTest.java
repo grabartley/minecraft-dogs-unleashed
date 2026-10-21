@@ -9,10 +9,13 @@ import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import com.grahambartley.dogsunleashed.render.cross.CrossBreedLook.Influence;
 import java.util.List;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class CrossBreedLookTest {
 
@@ -22,6 +25,32 @@ class CrossBreedLookTest {
     return List.of(
         new BreedShare(UnleashedDogBreed.HUSKY, husky),
         new BreedShare(UnleashedDogBreed.BEAGLE, beagle));
+  }
+
+  static Stream<Arguments> dogs() {
+    return Stream.of(
+        Arguments.of(
+            "a cross with two breeds", UnleashedDogBreed.CROSS_BREED, mix(0.5f, 0.5f), true),
+        Arguments.of(
+            "a cross bred back to one breed",
+            UnleashedDogBreed.CROSS_BREED,
+            List.of(new BreedShare(UnleashedDogBreed.BEAGLE, 1.0f)),
+            false),
+        Arguments.of("a cross without a genome", UnleashedDogBreed.CROSS_BREED, null, false),
+        Arguments.of(
+            "a cross with an empty genome", UnleashedDogBreed.CROSS_BREED, List.of(), false),
+        Arguments.of("a pure breed", UnleashedDogBreed.BEAGLE, mix(0.5f, 0.5f), false));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("dogs")
+  @DisplayName("only a cross with more than one breed gets a cross look")
+  void onlyRealCrossesGetALook(
+      final String name,
+      final UnleashedDogBreed breed,
+      final List<BreedShare> composition,
+      final boolean crossLook) {
+    assertEquals(crossLook, CrossBreedLook.ofDog(breed, composition, 0).isPresent());
   }
 
   @Test

@@ -10,6 +10,8 @@ import java.util.List;
 import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 class CrossCoatTexturesTest {
 
@@ -35,11 +37,12 @@ class CrossCoatTexturesTest {
         CrossCoatTextures.idOf(coat(new PaletteWeight(HUSKY, 25), new PaletteWeight(SHIBA, 13))));
   }
 
-  @Test
+  @ParameterizedTest(name = "{0} and {1} percent")
+  @CsvSource({"25, 50", "50, 49", "13, 87"})
   @DisplayName("two crosses with different shares get different textures")
-  void differentSharesGetDifferentTextures() {
+  void differentSharesGetDifferentTextures(final int first, final int second) {
     assertNotEquals(
-        CrossCoatTextures.idOf(coat(new PaletteWeight(HUSKY, 25))),
-        CrossCoatTextures.idOf(coat(new PaletteWeight(HUSKY, 50))));
+        CrossCoatTextures.idOf(coat(new PaletteWeight(HUSKY, first))),
+        CrossCoatTextures.idOf(coat(new PaletteWeight(HUSKY, second))));
   }
 }
