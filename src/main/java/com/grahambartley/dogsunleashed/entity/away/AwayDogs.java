@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.entity.away;
 
 import com.grahambartley.dogsunleashed.entity.delivery.Deliveries;
 import com.grahambartley.dogsunleashed.entity.delivery.Delivery;
+import com.grahambartley.dogsunleashed.entity.delivery.DeliveryLeg;
 import com.grahambartley.dogsunleashed.entity.expedition.Expeditions;
 import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
 import java.util.Optional;
@@ -23,7 +24,7 @@ public final class AwayDogs {
     return Deliveries.get(server)
         .of(pet)
         .map(Delivery::leg)
-        .map(leg -> leg.awayStatus())
+        .map(DeliveryLeg::awayStatus)
         .orElse(PetAwayStatus.HOME);
   }
 

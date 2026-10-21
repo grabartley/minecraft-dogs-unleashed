@@ -12,8 +12,6 @@ import com.grahambartley.dogsunleashed.pet.PetNames;
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -26,8 +24,6 @@ public final class DeliveryRounds {
   public static final String DELIVERED_KEY = "message.dogs-unleashed.delivery.delivered";
   public static final String RETURNED_KEY = "message.dogs-unleashed.delivery.returned";
   public static final String UNDELIVERED_KEY = "message.dogs-unleashed.delivery.undelivered";
-
-  public static final String WAITING_TAG = "dogs-unleashed.delivery_waiting";
 
   private DeliveryRounds() {}
 
@@ -75,42 +71,6 @@ public final class DeliveryRounds {
     }
   }
 
-  public static void unloaded(final UnleashedDogEntity dog, final ServerWorld world) {
-    final MinecraftServer server = world.getServer();
-    final Deliveries deliveries = Deliveries.get(server);
-    deliveries
-        .of(dog.getUuid())
-        .filter(delivery -> delivery.leg() == DeliveryLeg.WAITING)
-        .ifPresent(
-            waiting -> {
-              final NbtCompound snapshot = dog.writeNbt(new NbtCompound());
-              withoutWaitingTag(snapshot);
-              deliveries.replace(
-                  waiting.homeward(snapshot, server.getOverworld().getTime(), waiting.legTicks()));
-              DogsUnleashed.log.info(
-                  "[Delivery] {} unloaded while waiting, heading home", dog.getUuid());
-            });
-  }
-
-  public static boolean isStaleCopy(final MinecraftServer server, final UnleashedDogEntity dog) {
-    return dog.getCommandTags().contains(WAITING_TAG)
-        && Deliveries.get(server)
-            .of(dog.getUuid())
-            .map(delivery -> delivery.leg() != DeliveryLeg.WAITING)
-            .orElse(true);
-  }
-
-  public static void died(final MinecraftServer server, final UnleashedDogEntity dog) {
-    if (Deliveries.get(server).remove(dog.getUuid())) {
-      DogsUnleashed.log.info("[Delivery] {} died on a delivery", dog.getUuid());
-    }
-  }
-
-  private static void withoutWaitingTag(final NbtCompound snapshot) {
-    final NbtList tags = snapshot.getList("Tags", NbtElement.STRING_TYPE);
-    tags.removeIf(tag -> WAITING_TAG.equals(tag.asString()));
-  }
-
   public static Optional<Delivery> sendHome(final UnleashedDogEntity dog) {
     if (dog.isRemoved() || !(dog.getWorld() instanceof ServerWorld world)) {
       return Optional.empty();
@@ -132,7 +92,7 @@ public final class DeliveryRounds {
             : waiting.legTicks();
     final long now = server.getOverworld().getTime();
     PetLocationSyncListener.recordLocation(dog, world);
-    dog.removeCommandTag(WAITING_TAG);
+    dog.removeCommandTag(DeliveryLifecycle.WAITING_TAG);
     final Delivery homeward = waiting.homeward(dog.writeNbt(new NbtCompound()), now, ticks);
     deliveries.replace(homeward);
     AwayArrival.puff(world, dog.getPos());
@@ -164,7 +124,7 @@ public final class DeliveryRounds {
             () -> deliveries.replace(delivery))
         .ifPresent(
             dog -> {
-              dog.addCommandTag(WAITING_TAG);
+              dog.addCommandTag(DeliveryLifecycle.WAITING_TAG);
               final String dogName = PetNames.tamedNameOf(dog);
               final String ownerName = OwnerNameResolver.resolve(server, delivery.owner());
               recipient.sendMessage(Text.translatable(ARRIVED_KEY, dogName, ownerName), false);

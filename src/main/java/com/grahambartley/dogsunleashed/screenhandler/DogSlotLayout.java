@@ -6,7 +6,7 @@ public final class DogSlotLayout {
   public static final int BAG_COLUMNS = 3;
   static final int LEFT_COLUMN_X = 8;
   static final int SIDE_COLUMN_X = 80;
-  static final int BAG_GRID_X = 106;
+  static final int BAG_GRID_X = 98;
   static final int FIRST_ROW_Y = 18;
   static final int LEFT_COLUMN_ROWS = 3;
   private static final int[] SIDE_COLUMN_ROWS = {2, 0};

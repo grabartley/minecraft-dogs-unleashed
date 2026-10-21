@@ -13,12 +13,14 @@ import com.grahambartley.dogsunleashed.entity.delivery.Deliveries;
 import com.grahambartley.dogsunleashed.entity.delivery.Delivery;
 import com.grahambartley.dogsunleashed.entity.delivery.DeliveryDeparture;
 import com.grahambartley.dogsunleashed.entity.delivery.DeliveryLeg;
+import com.grahambartley.dogsunleashed.entity.delivery.DeliveryLifecycle;
 import com.grahambartley.dogsunleashed.entity.delivery.DeliveryRounds;
 import com.grahambartley.dogsunleashed.gametest.util.PendantTestHelper;
 import com.grahambartley.dogsunleashed.listener.AwayDogListener;
 import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
 import com.grahambartley.dogsunleashed.screenhandler.DogEquipmentScreenHandler;
 import java.util.UUID;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -279,7 +281,7 @@ public final class DogDeliveryGameTest implements FabricGameTest {
     bags(dog).setStack(1, new ItemStack(Items.DIAMOND, 8));
     final UnleashedDogEntity arrived = arriveAtRecipient(context, dog, owner, recipient);
 
-    DeliveryRounds.unloaded(arrived, context.getWorld());
+    ServerEntityEvents.ENTITY_UNLOAD.invoker().onUnload(arrived, context.getWorld());
     AwayDogListener.discardIfAway(arrived, context.getWorld());
     final Delivery homeward = Deliveries.get(server(context)).of(dog.getUuid()).orElseThrow();
     context.assertEquals(homeward.leg(), DeliveryLeg.TO_OWNER, "The unloaded dog heads home");
@@ -293,7 +295,7 @@ public final class DogDeliveryGameTest implements FabricGameTest {
           context.assertTrue(home != null && home != arrived, "One dog comes home");
           context.assertEquals(bags(home).count(Items.DIAMOND), 8, "Every diamond comes home");
           context.assertFalse(
-              DeliveryRounds.isStaleCopy(server(context), home), "The dog at home is not stale");
+              DeliveryLifecycle.isStaleCopy(server(context), home), "The dog at home is not stale");
           finish(context, home);
         });
   }

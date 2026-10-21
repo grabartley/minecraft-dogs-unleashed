@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.listener;
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.away.AwayDogs;
+import com.grahambartley.dogsunleashed.entity.delivery.DeliveryLifecycle;
 import com.grahambartley.dogsunleashed.entity.delivery.DeliveryRounds;
 import com.grahambartley.dogsunleashed.entity.expedition.ExpeditionHomecoming;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
@@ -11,7 +12,6 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.minecraft.entity.Entity;
 import net.minecraft.server.world.ServerWorld;
 
 public final class AwayDogListener {
@@ -36,16 +36,15 @@ public final class AwayDogListener {
         });
     ServerEntityEvents.ENTITY_UNLOAD.register(
         (entity, world) -> {
-          if (entity instanceof UnleashedDogEntity dog
-              && dog.getRemovalReason() == Entity.RemovalReason.UNLOADED_TO_CHUNK) {
-            DeliveryRounds.unloaded(dog, world);
+          if (entity instanceof UnleashedDogEntity dog) {
+            DeliveryLifecycle.unloaded(dog, world);
           }
         });
     ServerLivingEntityEvents.AFTER_DEATH.register(
         (entity, source) -> {
           if (entity instanceof UnleashedDogEntity dog
               && dog.getWorld() instanceof ServerWorld world) {
-            DeliveryRounds.died(world.getServer(), dog);
+            DeliveryLifecycle.died(world.getServer(), dog);
           }
         });
     ServerPlayConnectionEvents.DISCONNECT.register(
@@ -72,6 +71,6 @@ public final class AwayDogListener {
 
   private static boolean isStale(final UnleashedDogEntity dog, final ServerWorld world) {
     return AwayDogs.isOffWorld(world.getServer(), dog.getUuid())
-        || DeliveryRounds.isStaleCopy(world.getServer(), dog);
+        || DeliveryLifecycle.isStaleCopy(world.getServer(), dog);
   }
 }
