@@ -32,6 +32,7 @@ import com.grahambartley.dogsunleashed.listener.ResurrectionRitualListener;
 import com.grahambartley.dogsunleashed.network.ModNetworking;
 import com.grahambartley.dogsunleashed.server.NextTickQueue;
 import com.grahambartley.dogsunleashed.server.ServerConfigService;
+import com.grahambartley.dogsunleashed.trade.TraderCostumeOffer;
 import com.grahambartley.dogsunleashed.trade.TraderPuppyOffer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -81,6 +82,7 @@ public class DogsUnleashed implements ModInitializer {
     ModScreenHandlers.initialize();
     ModSpawns.initialize();
     TraderPuppyOffer.register();
+    TraderCostumeOffer.register();
     ScentRules.register();
     DogExpeditions.registerWheelAction();
     DogDeliveries.registerWheelAction();

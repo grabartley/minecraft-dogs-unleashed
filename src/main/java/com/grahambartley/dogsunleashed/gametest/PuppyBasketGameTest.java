@@ -5,6 +5,7 @@ import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.SurvivalTestPlayer;
+import com.grahambartley.dogsunleashed.trade.RareTraderOffer;
 import com.grahambartley.dogsunleashed.trade.TraderPuppyOffer;
 import java.util.Arrays;
 import java.util.List;
@@ -55,7 +56,7 @@ public final class PuppyBasketGameTest implements FabricGameTest {
   @GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 20)
   public void theWanderingTraderCanRollAPuppyBasket(final TestContext context) {
     final long registered =
-        Arrays.stream(TradeOffers.WANDERING_TRADER_TRADES.get(TraderPuppyOffer.RARE_POOL))
+        Arrays.stream(TradeOffers.WANDERING_TRADER_TRADES.get(RareTraderOffer.RARE_POOL))
             .filter(TraderPuppyOffer.class::isInstance)
             .count();
     context.assertTrue(

@@ -42,6 +42,7 @@
       "com.grahambartley.dogsunleashed.gametest.DogDeliveryGameTest",
       "com.grahambartley.dogsunleashed.gametest.VillageStrayGameTest",
       "com.grahambartley.dogsunleashed.gametest.PuppyBasketGameTest",
+      "com.grahambartley.dogsunleashed.gametest.TraderCostumeOfferGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogScentGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogScentHandoffGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogBoneBurialGameTest",
