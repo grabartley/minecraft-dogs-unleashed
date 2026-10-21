@@ -364,6 +364,19 @@ class UnleashedDogBreedTest {
 
   @ParameterizedTest
   @EnumSource(UnleashedDogBreed.class)
+  @DisplayName("a breed warns of intruders with its own bark under an alert sound id")
+  void alertSoundFollowsTheBark(final UnleashedDogBreed breed) {
+    if (breed.barkSound() == null) {
+      assertNull(breed.alertSound(), breed + " alert sound");
+    } else {
+      assertEquals(
+          breed.barkSound().getId().toString().replace(".bark", ".alert"),
+          breed.alertSound().getId().toString());
+    }
+  }
+
+  @ParameterizedTest
+  @EnumSource(UnleashedDogBreed.class)
   @DisplayName("a breed has a howl sound exactly when it howls")
   void howlSoundPresenceMatchesHowling(final UnleashedDogBreed breed) {
     assertEquals(breed.howls(), breed.howlSound() != null, breed + " howl sound presence");

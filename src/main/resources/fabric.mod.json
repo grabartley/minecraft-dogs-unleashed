@@ -48,6 +48,8 @@
       "com.grahambartley.dogsunleashed.gametest.FoxBoneRaidGameTest",
       "com.grahambartley.dogsunleashed.gametest.OwnerDeathWatchGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogCosmeticGameTest",
+      "com.grahambartley.dogsunleashed.gametest.DogRaidDutyGameTest",
+      "com.grahambartley.dogsunleashed.gametest.RaidAlertGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogCostumeGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogDimensionChangeGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogWheelSubActionGameTest",

@@ -83,6 +83,7 @@ another player, even in another dimension, then trot back home to you.
 - **Play fetch.** Throw a stick, a tennis ball or a frisbee. Your dog chases it, picks it up and brings it back to you.
 Give a roaming or staying dog a bone and it buries it, then digs it up a few days later and brings it back, sometimes
 with a find. Foxes sneak in at night to steal buried bones, and a dog nearby barks and chases them off.
+Dogs bark at pillagers too, and earn a rosette for helping you win a raid.
 The more time you spend together, the closer your dog grows, from Stranger to Devoted.
 - **Give them a bed.** Craft a dog bed or a dog house in any colour and assign it. Your dog goes to bed by itself at
 night. Dire wolves are too big for either and nap on the ground instead, once by day and once by night.

@@ -51,6 +51,10 @@ public final class DogVocalization {
     return hasBarkSound && !dead && !sleepingInBed && barkCooldownTicks <= 0;
   }
 
+  public static boolean isAlertReady(final boolean hasAlertSound, final boolean dead) {
+    return hasAlertSound && !dead;
+  }
+
   public static boolean hasBarkTrigger(
       final boolean playerHoldingLure,
       final float health,
@@ -85,6 +89,14 @@ public final class DogVocalization {
       return SoundEvents.ENTITY_ZOMBIE_AMBIENT;
     }
     return this.dog.getVoiceBreed().barkSound();
+  }
+
+  @Nullable
+  public SoundEvent alertSound() {
+    if (this.dog.isUndead()) {
+      return SoundEvents.ENTITY_ZOMBIE_AMBIENT;
+    }
+    return this.dog.getVoiceBreed().alertSound();
   }
 
   public SoundEvent howlSound() {
@@ -131,12 +143,23 @@ public final class DogVocalization {
     }
   }
 
+  public void alertBark() {
+    final SoundEvent sound = this.alertSound();
+    if (isAlertReady(sound != null, this.dog.isDead())) {
+      this.playBark(sound, this.getBarkPitch(), DogsUnleashed.SERVER_CONFIG.sound().barkVolume());
+    }
+  }
+
   private void playBark(final float pitch) {
     this.playBark(pitch, DogsUnleashed.SERVER_CONFIG.sound().barkVolume());
   }
 
   private void playBark(final float pitch, final float volume) {
-    this.dog.playSound(this.barkSound(), volume, pitch);
+    this.playBark(this.barkSound(), pitch, volume);
+  }
+
+  private void playBark(final SoundEvent sound, final float pitch, final float volume) {
+    this.dog.playSound(sound, volume, pitch);
     this.heardBark();
     this.dog.getWorld().sendEntityStatus(this.dog, BARK_STATUS);
     if (this.dog.getRigSourceBreed().barkMovesJaw()) {
