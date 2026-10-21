@@ -64,10 +64,10 @@ public final class DogPlayChase extends DogComponent {
     return theirs != null && theirs.isPartneredWith(this.dog.getUuid()) ? partner : null;
   }
 
-  public boolean isStood() {
-    final UnleashedDogEntity partner = this.partner();
+  public boolean isStoodUpBy(final UnleashedDogEntity partner) {
+    final PlayChaseState theirs = play(partner).game;
     return this.game != null
-        && (partner == null || this.game.isStood(this.now(), play(partner).game.joined()));
+        && (theirs == null || this.game.isStoodUp(this.now(), theirs.joined()));
   }
 
   public void swapRolesWith(final UnleashedDogEntity partner) {
@@ -82,8 +82,10 @@ public final class DogPlayChase extends DogComponent {
 
   public void end() {
     if (this.game != null) {
+      if (this.game.earnsRest(this.now())) {
+        this.restUntil = this.now() + PlayChaseRules.REST_TICKS;
+      }
       this.game = null;
-      this.restUntil = this.now() + PlayChaseRules.REST_TICKS;
     }
   }
 

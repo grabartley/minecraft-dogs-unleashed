@@ -62,7 +62,21 @@ class PlayChaseStateTest {
   })
   void aDogIsStoodUpWhenItsPartnerHasNotJoinedByTheEndOfTheBow(
       final long now, final boolean partnerJoined, final boolean stood) {
-    assertEquals(stood, pair().inviter().isStood(now, partnerJoined));
+    assertEquals(stood, pair().inviter().isStoodUp(now, partnerJoined));
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "false, 1000, false",
+    "false, 1200, false",
+    "true, 1029, false",
+    "true, 1030, true",
+    "true, 1200, true"
+  })
+  void onlyAGameThatGotPastTheBowEarnsARest(
+      final boolean joined, final long now, final boolean rests) {
+    final PlayChaseState state = joined ? pair().inviter().asJoined() : pair().inviter();
+    assertEquals(rests, state.earnsRest(now));
   }
 
   @ParameterizedTest

@@ -11,11 +11,11 @@ import com.grahambartley.dogsunleashed.entity.goal.PlayChaseRules.Spot;
 import com.grahambartley.dogsunleashed.entity.personality.DogTrait;
 import java.util.Comparator;
 import java.util.EnumSet;
-import net.minecraft.entity.ai.FuzzyTargeting;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.Monster;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
 
 public class PlayChaseGoal extends Goal {
@@ -25,7 +25,6 @@ public class PlayChaseGoal extends Goal {
   private static final double HOSTILE_RANGE = 8.0;
   private static final int REPATH_TICKS = 10;
   private static final int DANGER_CHECK_TICKS = 20;
-  private static final int FLEE_HORIZONTAL_RANGE = 3;
   private static final int FLEE_VERTICAL_RANGE = 3;
 
   private final UnleashedDogEntity dog;
@@ -70,9 +69,11 @@ public class PlayChaseGoal extends Goal {
   @Override
   public boolean shouldContinue() {
     final PlayChaseState game = this.play().game();
+    final UnleashedDogEntity partner = this.play().partner();
     return game != null
+        && partner != null
         && !game.isOver(this.now())
-        && !this.play().isStood()
+        && !this.play().isStoodUpBy(partner)
         && PlayChaseRules.isInPlayArea(game.centre(), spotOf(this.dog))
         && this.mayPlay();
   }
@@ -120,11 +121,23 @@ public class PlayChaseGoal extends Goal {
       return;
     }
     final Spot spot = PlayChaseRules.fleeTarget(game.centre(), spotOf(this.dog), spotOf(partner));
-    final Vec3d toward = new Vec3d(spot.x(), this.dog.getY(), spot.z());
-    final Vec3d target =
-        FuzzyTargeting.findTo(this.dog, FLEE_HORIZONTAL_RANGE, FLEE_VERTICAL_RANGE, toward);
-    final Vec3d destination = target != null ? target : toward;
-    this.dog.getNavigation().startMovingTo(destination.x, destination.y, destination.z, RUN_SPEED);
+    this.dog.getNavigation().startMovingTo(spot.x(), this.standingYAt(spot), spot.z(), RUN_SPEED);
+  }
+
+  private double standingYAt(final Spot spot) {
+    final BlockPos level = BlockPos.ofFloored(spot.x(), this.dog.getY(), spot.z());
+    for (int step = 0; step <= 2 * FLEE_VERTICAL_RANGE; step++) {
+      final int offset = (step + 1) / 2 * (step % 2 == 0 ? -1 : 1);
+      final BlockPos feet = level.up(offset);
+      if (!this.dog.getWorld().getBlockState(feet).blocksMovement()
+          && this.dog
+              .getWorld()
+              .getBlockState(feet.down())
+              .isSideSolidFullSquare(this.dog.getWorld(), feet.down(), Direction.UP)) {
+        return feet.getY();
+      }
+    }
+    return this.dog.getY();
   }
 
   public boolean mayPlay() {
@@ -146,6 +159,8 @@ public class PlayChaseGoal extends Goal {
                         mine, playgroundOf(other), this.dog.getPack().isPackmate(other))
                     && !other.getComponents().get(DogPlayChase.class).isPlaying()
                     && !other.getComponents().get(DogPlayChase.class).isResting()
+                    && !other.isOnFire()
+                    && !other.isInLava()
                     && readiness(other).mayPlay())
         .stream()
         .min(Comparator.comparingDouble(this.dog::squaredDistanceTo))

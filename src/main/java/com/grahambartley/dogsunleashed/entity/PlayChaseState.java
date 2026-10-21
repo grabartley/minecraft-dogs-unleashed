@@ -34,8 +34,12 @@ public record PlayChaseState(
     return now >= this.endsAt;
   }
 
-  public boolean isStood(final long now, final boolean partnerJoined) {
+  public boolean isStoodUp(final long now, final boolean partnerJoined) {
     return !partnerJoined && !this.isBowing(now);
+  }
+
+  public boolean earnsRest(final long now) {
+    return this.joined && !this.isBowing(now);
   }
 
   public long legTicks(final long now) {
