@@ -12,6 +12,7 @@ import com.grahambartley.dogsunleashed.entity.goal.DigUpBoneGoal;
 import com.grahambartley.dogsunleashed.entity.goal.DogBowlGoal;
 import com.grahambartley.dogsunleashed.entity.goal.DogEscapeDangerGoal;
 import com.grahambartley.dogsunleashed.entity.goal.DogSitGoal;
+import com.grahambartley.dogsunleashed.entity.goal.EndermanBarkGoal;
 import com.grahambartley.dogsunleashed.entity.goal.FetchChaseGoal;
 import com.grahambartley.dogsunleashed.entity.goal.FetchRetrieveGoal;
 import com.grahambartley.dogsunleashed.entity.goal.FetchReturnGoal;
@@ -23,6 +24,7 @@ import com.grahambartley.dogsunleashed.entity.goal.GuardTargetGoal;
 import com.grahambartley.dogsunleashed.entity.goal.HuntTargetGoal;
 import com.grahambartley.dogsunleashed.entity.goal.KeepWatchGoal;
 import com.grahambartley.dogsunleashed.entity.goal.LonelyWhineGoal;
+import com.grahambartley.dogsunleashed.entity.goal.NetherUneaseGoal;
 import com.grahambartley.dogsunleashed.entity.goal.PackGrudgeGoal;
 import com.grahambartley.dogsunleashed.entity.goal.PackGuardGoal;
 import com.grahambartley.dogsunleashed.entity.goal.PackShelterGoal;
@@ -99,6 +101,7 @@ public final class DogGoalRegistrar {
     goalSelector.add(8, new KeepWatchGoal(dog));
     goalSelector.add(8, new DevotedRescueGoal(dog));
     goalSelector.add(8, new RaidAlertGoal(dog));
+    goalSelector.add(8, new EndermanBarkGoal(dog));
     goalSelector.add(
         9, new TemptGoal(dog, DEFAULT_GOAL_SPEED, DogFoods.attentionIngredient(), false));
     goalSelector.add(
@@ -129,6 +132,7 @@ public final class DogGoalRegistrar {
     goalSelector.add(13, new LookAtEntityGoal(dog, PlayerEntity.class, LOOK_AT_PLAYER_RANGE));
     goalSelector.add(14, new LookAroundGoal(dog));
     goalSelector.add(14, new LonelyWhineGoal(dog));
+    goalSelector.add(14, new NetherUneaseGoal(dog));
 
     targetSelector.add(0, new PointedAttackGoal(dog));
     targetSelector.add(1, new TrackOwnerAttackerGoal(dog));

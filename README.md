@@ -90,6 +90,7 @@ Dogs bark at pillagers too, and earn a rosette for helping you win a raid.
 Left to roam, two dogs will sometimes play bow and chase each other around, and wild dire wolf pups play too.
 The more time you spend together, the closer your dog grows, from Stranger to Devoted.
 Every dog has a personality too: brave, timid, greedy, lazy, clingy or playful.
+Dogs are nervous in the Nether and stick close to you, and in the End they bark at endermen but leave them alone.
 - **Give them a bed.** Craft a dog bed or a dog house in any colour and assign it. Your dog goes to bed by itself at
 night. Dire wolves are too big for either and nap on the ground instead, once by day and once by night.
 Set out a food bowl and a water bowl too, and a hurt dog will eat or drink there while you're away. Hoppers can keep
