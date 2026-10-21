@@ -77,6 +77,11 @@ public final class DogBowlGameTest implements FabricGameTest {
         });
   }
 
+  private static void setAlight(final UnleashedDogEntity dog) {
+    dog.addStatusEffect(new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, BURN_TICKS));
+    dog.setFireTicks(BURN_TICKS);
+  }
+
   private static DogBowlMeal meal(final UnleashedDogEntity dog) {
     return dog.getComponents().get(DogBowlMeal.class);
   }
@@ -101,6 +106,27 @@ public final class DogBowlGameTest implements FabricGameTest {
         });
   }
 
+  @GameTest(templateName = ARENA, tickLimit = 400, batchId = "bowl-drink-state")
+  public void aDogIsDrinkingOnlyWhileItsDrinkLasts(final TestContext context) {
+    context.setBlockState(
+        REL_BOWL, ModBlocks.WATER_BOWL.getDefaultState().with(WaterBowlBlock.DRINKS, 3));
+    final UnleashedDogEntity dog = hurtDog(context);
+    final boolean[] sawDrinking = {false};
+    context.runAtEveryTick(
+        () -> {
+          final boolean regenerating = dog.hasStatusEffect(StatusEffects.REGENERATION);
+          if (meal(dog).isEating()) {
+            context.assertFalse(regenerating, "The dog was still drinking after its drink");
+            sawDrinking[0] = true;
+            return;
+          }
+          if (regenerating) {
+            context.assertTrue(sawDrinking[0], "The dog regenerated without ever drinking");
+            context.complete();
+          }
+        });
+  }
+
   @GameTest(templateName = ARENA, tickLimit = 400, batchId = "bowl-meal-cut-short")
   public void dangerCutsAMealShortAndClearsTheEatingState(final TestContext context) {
     final FoodBowlBlockEntity bowl = placeFoodBowl(context, BOWL_FOOD);
@@ -110,9 +136,7 @@ public final class DogBowlGameTest implements FabricGameTest {
         () -> {
           if (!setAlight[0]) {
             if (meal(dog).isEating()) {
-              dog.addStatusEffect(
-                  new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, BURN_TICKS));
-              dog.setFireTicks(BURN_TICKS);
+              setAlight(dog);
               setAlight[0] = true;
             }
             return;
@@ -188,8 +212,7 @@ public final class DogBowlGameTest implements FabricGameTest {
   public void aBurningDogLeavesTheBowlAlone(final TestContext context) {
     final FoodBowlBlockEntity bowl = placeFoodBowl(context, BOWL_FOOD);
     final UnleashedDogEntity dog = hurtDog(context);
-    dog.addStatusEffect(new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, BURN_TICKS));
-    dog.setFireTicks(BURN_TICKS);
+    setAlight(dog);
     context.runAtTick(
         WATCH_TICKS,
         () -> {

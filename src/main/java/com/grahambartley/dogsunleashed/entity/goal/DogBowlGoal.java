@@ -112,6 +112,7 @@ public class DogBowlGoal extends Goal {
   public void tick() {
     if (!this.isStillWanted()) {
       this.bowl = null;
+      this.meal().setEating(false);
       return;
     }
     final Bowl visiting = this.bowl;
