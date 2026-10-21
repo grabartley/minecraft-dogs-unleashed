@@ -11,6 +11,7 @@ public final class TrickLearningRules {
   public static final int OFFER_ONE_IN_TICKS = 3 * 60 * 20;
   public static final double OWNER_RANGE = 8.0;
   public static final long NEVER = Long.MIN_VALUE;
+  public static final float LEARNED_BARK_PITCH_BOOST = 1.2f;
 
   private TrickLearningRules() {}
 
@@ -20,6 +21,10 @@ public final class TrickLearningRules {
 
   public static boolean isLearned(final int rewards) {
     return rewards >= REWARDS_TO_LEARN;
+  }
+
+  public static float barkPitchBoost(final boolean learnedTrick) {
+    return learnedTrick ? LEARNED_BARK_PITCH_BOOST : 1.0f;
   }
 
   public static boolean mayOffer(

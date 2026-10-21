@@ -90,4 +90,11 @@ class TrickLearningRulesTest {
     assertEquals(clamped, TrickLearningRules.clampRewards(rewards));
     assertEquals(learned, TrickLearningRules.isLearned(rewards));
   }
+
+  @ParameterizedTest(name = "learned={0} -> pitch x{1}")
+  @CsvSource({"true, 1.2", "false, 1.0"})
+  @DisplayName("the treat bark is happier on the reward that teaches a trick")
+  void barkIsHappierWhenATrickIsLearned(final boolean learned, final float boost) {
+    assertEquals(boost, TrickLearningRules.barkPitchBoost(learned));
+  }
 }

@@ -8,6 +8,7 @@ import com.grahambartley.dogsunleashed.block.DogBedBlock;
 import com.grahambartley.dogsunleashed.entity.delivery.DogDeliveries;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
+import com.grahambartley.dogsunleashed.entity.trick.TrickLearningRules;
 import com.grahambartley.dogsunleashed.entity.variant.UnleashedDogCoat;
 import com.grahambartley.dogsunleashed.item.BlankCanvasItem;
 import com.grahambartley.dogsunleashed.item.DogWhistleItem;
@@ -226,7 +227,7 @@ public final class DogInteractions {
     this.dog
         .getComponents()
         .get(DogTreatBuffState.class)
-        .apply(learnedTrick ? DogTricks.HAPPY_BARK_PITCH_BOOST : 1.0f);
+        .apply(TrickLearningRules.barkPitchBoost(learnedTrick));
     this.dog.getComponents().get(DogBond.class).reward(DogBondRules.Source.TREAT);
     return ActionResult.SUCCESS;
   }

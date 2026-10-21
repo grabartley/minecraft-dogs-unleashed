@@ -20,7 +20,6 @@ public final class DogTricks extends DogComponent {
 
   public static final String LEARNED_MESSAGE_KEY = "message.dogs-unleashed.trick_learned";
   public static final String SHOWN_MESSAGE_KEY = "message.dogs-unleashed.trick_shown";
-  public static final float HAPPY_BARK_PITCH_BOOST = 1.2f;
 
   private final UnleashedDogEntity dog;
   private TrickProgress progress = TrickProgress.NONE;
