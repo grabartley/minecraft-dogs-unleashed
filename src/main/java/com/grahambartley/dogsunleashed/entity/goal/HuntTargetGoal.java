@@ -6,7 +6,6 @@ import com.grahambartley.dogsunleashed.entity.DogFriendlyTargetPolicy;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
-import net.minecraft.entity.mob.EndermanEntity;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.passive.AbstractHorseEntity;
 import net.minecraft.entity.passive.AnimalEntity;
@@ -40,9 +39,7 @@ public class HuntTargetGoal extends ActiveTargetGoal<LivingEntity> {
   }
 
   public static boolean huntsTarget(final UnleashedDogEntity dog, final LivingEntity target) {
-    return isHuntableTarget(target)
-        && !DimensionReactionRules.sparesFromHunt(
-            DogDimensionReaction.isInEnd(dog), target instanceof EndermanEntity);
+    return isHuntableTarget(target) && !DogDimensionReaction.sparesEnderman(dog, target);
   }
 
   static boolean isHuntableTarget(final LivingEntity target) {

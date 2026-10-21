@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
+import com.grahambartley.dogsunleashed.entity.DimensionReactionRules;
 import com.grahambartley.dogsunleashed.entity.DogAnimationKeys;
 import com.grahambartley.dogsunleashed.entity.DogDimensionReaction;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;

@@ -1,4 +1,4 @@
-package com.grahambartley.dogsunleashed.entity.goal;
+package com.grahambartley.dogsunleashed.entity;
 
 public final class DimensionReactionRules {
 
@@ -15,6 +15,10 @@ public final class DimensionReactionRules {
     return inNether && !fireGuarded;
   }
 
+  public static double closestFollowDistanceScale() {
+    return Math.min(NETHER_FOLLOW_DISTANCE_SCALE, CALM_FOLLOW_DISTANCE_SCALE);
+  }
+
   public static double followDistanceScale(final boolean uneasy) {
     return uneasy ? NETHER_FOLLOW_DISTANCE_SCALE : CALM_FOLLOW_DISTANCE_SCALE;
   }
@@ -27,7 +31,7 @@ public final class DimensionReactionRules {
     return !sitting && uneasyTicks % COWER_EVERY_TICKS == 0;
   }
 
-  public static boolean sparesFromHunt(final boolean inEnd, final boolean enderman) {
+  public static boolean sparesEnderman(final boolean inEnd, final boolean enderman) {
     return inEnd && enderman;
   }
 

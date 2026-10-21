@@ -1,6 +1,7 @@
-package com.grahambartley.dogsunleashed.entity.goal;
+package com.grahambartley.dogsunleashed.entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -25,6 +26,16 @@ class DimensionReactionRulesTest {
   @DisplayName("an uneasy dog follows from half the usual distance")
   void followDistanceScale(final boolean uneasy, final double expected) {
     assertEquals(expected, DimensionReactionRules.followDistanceScale(uneasy));
+  }
+
+  @ParameterizedTest(name = "uneasy {0} is never closer than the closest scale")
+  @CsvSource({"true", "false"})
+  @DisplayName("the closest follow scale bounds every dimension's scale")
+  void closestFollowDistanceScale(final boolean uneasy) {
+    assertTrue(
+        DimensionReactionRules.closestFollowDistanceScale()
+            <= DimensionReactionRules.followDistanceScale(uneasy));
+    assertEquals(0.5, DimensionReactionRules.closestFollowDistanceScale());
   }
 
   @ParameterizedTest(name = "{0} ticks, stagger {1} -> {2}")
@@ -57,9 +68,9 @@ class DimensionReactionRulesTest {
     "false, true, false",
     "false, false, false"
   })
-  @DisplayName("a hunting dog spares endermen only in the End")
-  void sparesFromHunt(final boolean inEnd, final boolean enderman, final boolean expected) {
-    assertEquals(expected, DimensionReactionRules.sparesFromHunt(inEnd, enderman));
+  @DisplayName("a dog spares endermen only in the End")
+  void sparesEnderman(final boolean inEnd, final boolean enderman, final boolean expected) {
+    assertEquals(expected, DimensionReactionRules.sparesEnderman(inEnd, enderman));
   }
 
   @ParameterizedTest(name = "in End {0}, asleep {1}, sitting {2} -> {3}")

@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
+import com.grahambartley.dogsunleashed.entity.DimensionReactionRules;
 import com.grahambartley.dogsunleashed.entity.DogBondStep;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.DogDimensionReaction;
@@ -25,7 +26,7 @@ public class BondFollowOwnerGoal extends CommandFollowOwnerGoal {
         (float)
             (DogBondStep.DEVOTED.followDistance(maxDistance)
                 * DogTrait.closestFollowDistanceScale()
-                * DimensionReactionRules.NETHER_FOLLOW_DISTANCE_SCALE),
+                * DimensionReactionRules.closestFollowDistanceScale()),
         minDistance,
         activeCommands);
     this.startDistance = maxDistance;

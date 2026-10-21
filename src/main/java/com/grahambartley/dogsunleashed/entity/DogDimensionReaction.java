@@ -1,7 +1,8 @@
 package com.grahambartley.dogsunleashed.entity;
 
-import com.grahambartley.dogsunleashed.entity.goal.DimensionReactionRules;
 import com.grahambartley.dogsunleashed.item.pendant.PendantType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.mob.EndermanEntity;
 import net.minecraft.world.World;
 
 public final class DogDimensionReaction {
@@ -16,6 +17,10 @@ public final class DogDimensionReaction {
 
   public static boolean isInEnd(final UnleashedDogEntity dog) {
     return World.END.equals(dog.getWorld().getRegistryKey());
+  }
+
+  public static boolean sparesEnderman(final UnleashedDogEntity dog, final LivingEntity target) {
+    return DimensionReactionRules.sparesEnderman(isInEnd(dog), target instanceof EndermanEntity);
   }
 
   public static double followDistanceScale(final UnleashedDogEntity dog) {
