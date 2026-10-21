@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
+import com.grahambartley.dogsunleashed.entity.DogPersonality;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import net.minecraft.entity.ai.FuzzyTargeting;
 import net.minecraft.entity.ai.goal.WanderAroundFarGoal;
@@ -19,6 +20,18 @@ public class PuppyAwareWanderGoal extends WanderAroundFarGoal {
   public PuppyAwareWanderGoal(final UnleashedDogEntity dog, final double speed) {
     super(dog, speed);
     this.dog = dog;
+  }
+
+  @Override
+  public void start() {
+    this.mob
+        .getNavigation()
+        .startMovingTo(this.targetX, this.targetY, this.targetZ, this.walkSpeed());
+  }
+
+  public double walkSpeed() {
+    return this.speed
+        * this.dog.getComponents().get(DogPersonality.class).traits().idleSpeedScale();
   }
 
   @Override

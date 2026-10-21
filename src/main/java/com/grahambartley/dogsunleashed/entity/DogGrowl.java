@@ -12,6 +12,7 @@ public final class DogGrowl {
   private final UnleashedDogEntity dog;
   private int cooldownTicks;
   private long lastWarnTime = Long.MIN_VALUE / 2;
+  private @Nullable LivingEntity standOff;
 
   DogGrowl(final UnleashedDogEntity dog) {
     this.dog = dog;
@@ -27,7 +28,7 @@ public final class DogGrowl {
 
   void tick() {
     final SoundEvent sound = this.sound();
-    final LivingEntity target = this.dog.getTarget();
+    final LivingEntity target = this.dog.getTarget() != null ? this.dog.getTarget() : this.standOff;
     if (sound == null || target == null || !target.isAlive()) {
       this.setGrowling(false);
       this.cooldownTicks = 0;
@@ -42,6 +43,10 @@ public final class DogGrowl {
       this.play(sound);
       this.cooldownTicks = REPEAT_TICKS;
     }
+  }
+
+  public void standOff(final @Nullable LivingEntity threat) {
+    this.standOff = threat;
   }
 
   public void warn() {

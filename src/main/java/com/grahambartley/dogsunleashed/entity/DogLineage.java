@@ -88,6 +88,7 @@ public final class DogLineage {
       baby.setHealth(baby.getMaxHealth());
     }
     baby.getAppearanceRoller().inheritAppearance(this.dog, partner);
+    baby.getComponents().get(DogPersonality.class).inherit(this.dog, partner);
     final PlayerEntity lovingPlayer = this.dog.getLovingPlayer();
     if (lovingPlayer != null
         && BreedingOwnerResolver.ownsAParent(

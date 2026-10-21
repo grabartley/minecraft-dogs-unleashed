@@ -134,6 +134,7 @@ public class UnleashedDogEntity extends DogMountEntity
           new DogAging(this),
           new DogMud(this),
           new DogBond(this),
+          new DogPersonality(this),
           new DogSaddlebags(this),
           new DogRaidDuty(this));
   private final DogGenomeCache genomeCache = new DogGenomeCache(this);
@@ -188,6 +189,7 @@ public class UnleashedDogEntity extends DogMountEntity
         this.setHealth(this.getMaxHealth());
       }
       this.getAppearanceRoller().rollAppearance(spawnReason);
+      this.components.get(DogPersonality.class).rollWild();
     }
     this.undeadState.applyAttributeScaling();
     final EntityData packData = this.pack.join(spawnReason, entityData);
@@ -433,7 +435,9 @@ public class UnleashedDogEntity extends DogMountEntity
 
   @Override
   public boolean canAttackWithOwner(LivingEntity target, LivingEntity owner) {
-    if (DogFriendlyTargetPolicy.isFriendlyTarget(target)) {
+    if (DogFriendlyTargetPolicy.isFriendlyTarget(target)
+        || !DogPanicPolicy.joinsOwnerFight(
+            this.getCommand(), this.components.get(DogPersonality.class).traits())) {
       return false;
     }
     return super.canAttackWithOwner(target, owner);

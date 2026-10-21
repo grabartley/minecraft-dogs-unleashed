@@ -7,10 +7,12 @@ import com.grahambartley.dogsunleashed.entity.DogBond;
 import com.grahambartley.dogsunleashed.entity.DogBondRules;
 import com.grahambartley.dogsunleashed.entity.DogCollar;
 import com.grahambartley.dogsunleashed.entity.DogFurStage;
+import com.grahambartley.dogsunleashed.entity.DogPersonality;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenes;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
+import com.grahambartley.dogsunleashed.entity.personality.DogTraits;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import java.util.List;
@@ -57,6 +59,7 @@ public final class PetData {
   private boolean senior;
   private boolean seniorParent;
   private int bondPoints;
+  private DogTraits personality = DogTraits.NONE;
 
   public PetData(
       UUID petId,
@@ -185,6 +188,10 @@ public final class PetData {
     return DogGenome.rigBreedOf(breed, composition);
   }
 
+  public DogTraits getPersonality() {
+    return personality;
+  }
+
   public DogGenes getGenes() {
     if (genes != null) {
       return genes;
@@ -277,6 +284,7 @@ public final class PetData {
     this.genome = dogGenome;
     this.composition = dogGenome != null ? dogGenome.composition() : List.of();
     this.genes = dog.getGenes().genes();
+    this.personality = dog.getComponents().get(DogPersonality.class).traits();
   }
 
   public static int coatVariantOf(final UnleashedDogEntity dog) {
@@ -344,6 +352,7 @@ public final class PetData {
     if (genes != null) {
       nbt.put(ModNbtKeys.GENES, genes.toNbt());
     }
+    nbt.put(ModNbtKeys.PERSONALITY, personality.toNbt());
     if (parentAId != null) {
       nbt.putUuid(ModNbtKeys.PARENT_A_ID, parentAId);
     }
@@ -411,6 +420,10 @@ public final class PetData {
     }
     if (nbt.contains(ModNbtKeys.GENES, NbtElement.COMPOUND_TYPE)) {
       pet.genes = DogGenes.fromNbt(nbt.getCompound(ModNbtKeys.GENES));
+    }
+    if (nbt.contains(ModNbtKeys.PERSONALITY, NbtElement.LIST_TYPE)) {
+      pet.personality =
+          DogTraits.fromNbt(nbt.getList(ModNbtKeys.PERSONALITY, NbtElement.STRING_TYPE));
     }
     if (nbt.containsUuid(ModNbtKeys.PARENT_A_ID)) {
       pet.parentAId = nbt.getUuid(ModNbtKeys.PARENT_A_ID);

@@ -224,6 +224,16 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
               "screen.dogs-unleashed.pet_details.bond",
               Text.translatable(pet.bond().translationKey()).getString(),
               VALUE_COLOR);
+      if (!pet.personality().isEmpty()) {
+        y =
+            drawInfoLine(
+                context,
+                x,
+                y,
+                DogPersonalityFormat.LABEL_KEY,
+                DogPersonalityFormat.format(pet.personality()),
+                VALUE_COLOR);
+      }
       if (pet.riding().kind() != RidingView.Kind.NONE) {
         y =
             drawInfoLine(

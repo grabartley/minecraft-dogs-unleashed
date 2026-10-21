@@ -17,6 +17,7 @@ public class DogInspectScreen extends Screen {
   static final int CARD_WIDTH = 236;
   static final int CARD_HEIGHT = 200;
   static final int TRUST_ROW_HEIGHT = 14;
+  static final int PERSONALITY_ROW_HEIGHT = 14;
   static final int CARD_PADDING = 10;
   static final int PORTRAIT_SIZE = 56;
   private static final int HEADER_LINE_HEIGHT = 12;
@@ -43,7 +44,8 @@ public class DogInspectScreen extends Screen {
       final DrawContext context, final int mouseX, final int mouseY, final float delta) {
     super.render(context, mouseX, mouseY, delta);
 
-    final int cardHeight = cardHeight(data.trust(), data.tamed());
+    final int cardHeight =
+        cardHeight(data.trust(), data.tamed(), !data.pet().personality().isEmpty());
     final int cardX = cardLeft(this.width);
     final int cardY = cardTop(this.height, cardHeight);
     context.fill(cardX, cardY, cardX + CARD_WIDTH, cardY + cardHeight, CARD_BACKGROUND);
@@ -134,6 +136,16 @@ public class DogInspectScreen extends Screen {
             "screen.dogs-unleashed.pet_details.fur",
             DogAppearanceFormat.furLine(pet),
             VALUE_COLOR);
+    if (!pet.personality().isEmpty()) {
+      infoY =
+          drawInfoLine(
+              context,
+              infoX,
+              infoY,
+              DogPersonalityFormat.LABEL_KEY,
+              DogPersonalityFormat.format(pet.personality()),
+              VALUE_COLOR);
+    }
 
     infoY =
         DogStatsPanel.drawForPet(context, this.textRenderer, pet, infoX, infoY, INFO_LABEL_WIDTH);
@@ -229,14 +241,15 @@ public class DogInspectScreen extends Screen {
     return (screenWidth - CARD_WIDTH) / 2;
   }
 
-  static int cardHeight(final WildTrustView trust, final boolean tamed) {
-    return trust.kind() == WildTrustView.Kind.NONE && !tamed
-        ? CARD_HEIGHT
-        : CARD_HEIGHT + TRUST_ROW_HEIGHT;
+  static int cardHeight(
+      final WildTrustView trust, final boolean tamed, final boolean hasPersonality) {
+    final int relationship =
+        trust.kind() == WildTrustView.Kind.NONE && !tamed ? 0 : TRUST_ROW_HEIGHT;
+    return CARD_HEIGHT + relationship + (hasPersonality ? PERSONALITY_ROW_HEIGHT : 0);
   }
 
   static int cardTop(final int screenHeight, final int cardHeight) {
-    return (screenHeight - cardHeight) / 2 - 10;
+    return Math.max(0, (screenHeight - cardHeight) / 2 - 10);
   }
 
   @Override

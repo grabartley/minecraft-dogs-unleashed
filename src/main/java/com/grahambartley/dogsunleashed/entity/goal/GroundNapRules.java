@@ -11,6 +11,7 @@ public final class GroundNapRules {
   public static final long SENIOR_NAP_TICKS = NAP_TICKS * 2;
   public static final long PERIOD_TICKS = DogSleepWindow.DAY_LENGTH_TICKS / 2;
   public static final long START_GRACE_TICKS = 2 * 60 * 20;
+  public static final long MAX_NAP_TICKS = PERIOD_TICKS - START_GRACE_TICKS - 1;
   public static final long HURT_CALM_TICKS = 30 * 20;
   public static final double HOSTILE_RANGE = 16.0;
   public static final long HOSTILE_CHECK_TICKS = 10;
@@ -26,12 +27,14 @@ public final class GroundNapRules {
     return Math.floorDiv(timeOfDay, PERIOD_TICKS);
   }
 
-  public static long napTicks(final boolean senior) {
-    return senior ? SENIOR_NAP_TICKS : NAP_TICKS;
+  public static long napTicks(final boolean senior, final double napScale) {
+    final long base = senior ? SENIOR_NAP_TICKS : NAP_TICKS;
+    return Math.min(MAX_NAP_TICKS, Math.round(base * napScale));
   }
 
-  public static boolean napsOnGround(final boolean sleepsInBeds, final boolean senior) {
-    return !sleepsInBeds || senior;
+  public static boolean napsOnGround(
+      final boolean sleepsInBeds, final boolean senior, final boolean lazy) {
+    return !sleepsInBeds || senior || lazy;
   }
 
   public static long dueOffset(final long seed, final long napTicks) {

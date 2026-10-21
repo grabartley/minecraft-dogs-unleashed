@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.grahambartley.dogsunleashed.entity.DogBondStep;
 import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import com.grahambartley.dogsunleashed.entity.personality.DogTraits;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
@@ -54,6 +55,7 @@ final class PayloadTestFixtures {
         RidingView.NONE,
         PetAwayStatus.HOME,
         false,
-        DogBondStep.STRANGER);
+        DogBondStep.STRANGER,
+        DogTraits.NONE);
   }
 }

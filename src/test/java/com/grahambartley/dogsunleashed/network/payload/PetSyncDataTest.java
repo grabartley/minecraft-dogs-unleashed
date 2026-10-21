@@ -10,6 +10,8 @@ import com.grahambartley.dogsunleashed.config.AgingSettings;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.entity.DogBondStep;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import com.grahambartley.dogsunleashed.entity.personality.DogTrait;
+import com.grahambartley.dogsunleashed.entity.personality.DogTraits;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import com.grahambartley.dogsunleashed.pet.PetAge;
 import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
@@ -72,7 +74,8 @@ class PetSyncDataTest {
             RidingView.NONE,
             PetAwayStatus.HOME,
             false,
-            DogBondStep.STRANGER);
+            DogBondStep.STRANGER,
+            DogTraits.NONE);
     final RegistryByteBuf buf = newBuf();
     PetSyncData.CODEC.encode(buf, pet);
 
@@ -109,7 +112,8 @@ class PetSyncDataTest {
             RidingView.NONE,
             PetAwayStatus.HOME,
             senior,
-            DogBondStep.STRANGER);
+            DogBondStep.STRANGER,
+            DogTraits.NONE);
     final RegistryByteBuf buf = newBuf();
     PetSyncData.CODEC.encode(buf, pet);
     final PetSyncData decoded = PetSyncData.CODEC.decode(buf);
@@ -174,7 +178,8 @@ class PetSyncDataTest {
             sample.riding(),
             sample.away(),
             sample.senior(),
-            bond);
+            bond,
+            sample.personality());
     final RegistryByteBuf buf = newBuf();
     PetSyncData.CODEC.encode(buf, pet);
     assertEquals(bond, PetSyncData.CODEC.decode(buf).bond());
@@ -228,5 +233,47 @@ class PetSyncDataTest {
   void displayBreedResolvesRenderBreed(
       final String label, final PetSyncData pet, final UnleashedDogBreed expected) {
     assertEquals(expected, pet.displayBreed());
+  }
+
+  static Stream<DogTraits> personalities() {
+    return Stream.of(
+        DogTraits.NONE,
+        DogTraits.of(DogTrait.PLAYFUL),
+        DogTraits.of(DogTrait.TIMID, DogTrait.LAZY));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("personalities")
+  @DisplayName("codec round-trips the personality so the cards can show it")
+  void codecRoundTripsPersonality(final DogTraits traits) {
+    final PetSyncData base = samplePet(UnleashedDogBreed.BEAGLE, "Rex");
+    final PetSyncData pet =
+        new PetSyncData(
+            base.petId(),
+            base.breed(),
+            base.name(),
+            base.health(),
+            base.maxHealth(),
+            base.posX(),
+            base.posY(),
+            base.posZ(),
+            base.dimension(),
+            base.lifeState(),
+            base.baby(),
+            base.collarColor(),
+            base.coatVariant(),
+            base.huskyEyeVariant(),
+            base.furStage(),
+            base.movementSpeed(),
+            base.attackDamage(),
+            base.composition(),
+            base.riding(),
+            base.away(),
+            base.senior(),
+            base.bond(),
+            traits);
+    final RegistryByteBuf buf = newBuf();
+    PetSyncData.CODEC.encode(buf, pet);
+    assertEquals(traits, PetSyncData.CODEC.decode(buf).personality());
   }
 }

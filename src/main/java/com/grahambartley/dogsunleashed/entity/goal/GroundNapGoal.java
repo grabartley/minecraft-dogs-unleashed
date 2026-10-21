@@ -1,8 +1,10 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
 import com.grahambartley.dogsunleashed.entity.DogAging;
+import com.grahambartley.dogsunleashed.entity.DogPersonality;
 import com.grahambartley.dogsunleashed.entity.DogSleepController;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.personality.DogTraits;
 import java.util.EnumSet;
 import java.util.OptionalDouble;
 import net.minecraft.entity.LivingEntity;
@@ -28,7 +30,10 @@ public class GroundNapGoal extends Goal {
   @Override
   public boolean canStart() {
     final DogSleepController sleep = this.dog.getSleepController();
-    return GroundNapRules.napsOnGround(this.dog.getBreed().nature().sleepsInBeds(), this.isSenior())
+    return GroundNapRules.napsOnGround(
+            this.dog.getBreed().nature().sleepsInBeds(),
+            this.isSenior(),
+            this.traits().napsOnGround())
         && this.dog.isTamed()
         && !this.dog.isInSittingPose()
         && GroundNapRules.allowsCommand(this.dog.getCommand())
@@ -76,7 +81,11 @@ public class GroundNapGoal extends Goal {
   }
 
   private long currentNapTicks() {
-    return GroundNapRules.napTicks(this.isSenior());
+    return GroundNapRules.napTicks(this.isSenior(), this.traits().napScale());
+  }
+
+  private DogTraits traits() {
+    return this.dog.getComponents().get(DogPersonality.class).traits();
   }
 
   private GroundNapRules.Situation situation() {
