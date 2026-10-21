@@ -15,6 +15,7 @@ public final class DogAnimationControllers {
   private static final int SCENT_TRANSITION_TICKS = 4;
   private static final int BONE_DIG_TRANSITION_TICKS = 4;
   private static final int TUG_TRANSITION_TICKS = 4;
+  private static final int EAT_TRANSITION_TICKS = 4;
 
   private DogAnimationControllers() {}
 
@@ -138,6 +139,19 @@ public final class DogAnimationControllers {
             state -> {
               if (dog.getComponents().get(DogTug.class).isBeingTugged()) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.TUG));
+              }
+              return PlayState.STOP;
+            }));
+
+    controllers.add(
+        new AnimationController<>(
+            dog,
+            DogAnimationKeys.EAT,
+            EAT_TRANSITION_TICKS,
+            state -> {
+              if (dog.getComponents().get(DogBowlMeal.class).isEating()
+                  && RigClipPresence.has(dog, DogAnimationKeys.EAT)) {
+                return state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.EAT));
               }
               return PlayState.STOP;
             }));

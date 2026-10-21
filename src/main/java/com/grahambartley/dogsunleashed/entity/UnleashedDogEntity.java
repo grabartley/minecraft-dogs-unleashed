@@ -105,6 +105,7 @@ public class UnleashedDogEntity extends DogMountEntity
   static final TrackedData<ItemStack> SADDLEBAGS_ITEM = data(ITEM_STACK);
   static final TrackedData<Integer> TUG_PLAYER_ID = data(INTEGER);
   static final TrackedData<Float> TUG_BALANCE = data(FLOAT);
+  static final TrackedData<Boolean> BOWL_MEAL = data(BOOLEAN);
 
   private static <T> TrackedData<T> data(final TrackedDataHandler<T> handler) {
     return DataTracker.registerData(UnleashedDogEntity.class, handler);
@@ -143,7 +144,8 @@ public class UnleashedDogEntity extends DogMountEntity
           new DogRaidDuty(this),
           new DogSledHarness(this),
           new DogPlayChase(this),
-          new DogTug(this));
+          new DogTug(this),
+          new DogBowlMeal(this));
   private final DogGenomeCache genomeCache = new DogGenomeCache(this);
   private final DogUndeadState undeadState = new DogUndeadState(this);
   private final DogCuring curing = new DogCuring(this);

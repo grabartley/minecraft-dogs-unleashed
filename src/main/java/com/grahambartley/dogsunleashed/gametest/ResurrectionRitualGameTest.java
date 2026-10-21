@@ -24,6 +24,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.test.AfterBatch;
+import net.minecraft.test.BeforeBatch;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.DyeColor;
@@ -31,6 +33,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.GameMode;
+import net.minecraft.world.GameRules;
 import org.jetbrains.annotations.Nullable;
 
 public final class ResurrectionRitualGameTest implements FabricGameTest {
@@ -45,6 +48,9 @@ public final class ResurrectionRitualGameTest implements FabricGameTest {
   private static final int TICK_LIMIT = 100;
   private static final long ADULT_AGE_TICKS = 123_456L;
   private static final int BOND_POINTS = 360;
+  private static final String FIRE_BATCH = "ritual-fire";
+  private static final int MIDNIGHT = 18000;
+  private static long timeBeforeFireBatch;
 
   private static final DogGenome GENOME =
       new DogGenome(
@@ -262,7 +268,7 @@ public final class ResurrectionRitualGameTest implements FabricGameTest {
         });
   }
 
-  @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
+  @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT, batchId = FIRE_BATCH)
   public void lightningCannotHarmWhatLightningRaised(final TestContext context) {
     final UnleashedDogEntity dog = context.spawnEntity(ModEntities.ZOMBIE_HUSKY, REL_DOG);
     dog.setAiDisabled(true);
@@ -290,7 +296,20 @@ public final class ResurrectionRitualGameTest implements FabricGameTest {
         });
   }
 
-  @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
+  @BeforeBatch(batchId = FIRE_BATCH)
+  public void pinMidnightSoTheRaisedDogCannotBurnInDaylight(final ServerWorld world) {
+    timeBeforeFireBatch = world.getTimeOfDay();
+    world.getGameRules().get(GameRules.DO_DAYLIGHT_CYCLE).set(false, world.getServer());
+    world.setTimeOfDay(MIDNIGHT);
+  }
+
+  @AfterBatch(batchId = FIRE_BATCH)
+  public void restoreDaylightCycle(final ServerWorld world) {
+    world.setTimeOfDay(timeBeforeFireBatch);
+    world.getGameRules().get(GameRules.DO_DAYLIGHT_CYCLE).set(true, world.getServer());
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT, batchId = FIRE_BATCH)
   public void theRitualDoesNotSetFireToWhatItRaises(final TestContext context) {
     final PetData pet = deceasedPetWithGrave(context, "Ember", true);
 

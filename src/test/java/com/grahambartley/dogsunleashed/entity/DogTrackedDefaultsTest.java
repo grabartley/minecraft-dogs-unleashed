@@ -78,7 +78,8 @@ class DogTrackedDefaultsTest {
         Arguments.of("napping", UnleashedDogEntity.NAPPING, false),
         Arguments.of("bond step", UnleashedDogEntity.BOND_STEP, DogBondStep.STRANGER.ordinal()),
         Arguments.of("tug player", UnleashedDogEntity.TUG_PLAYER_ID, -1),
-        Arguments.of("tug balance", UnleashedDogEntity.TUG_BALANCE, 0.0f));
+        Arguments.of("tug balance", UnleashedDogEntity.TUG_BALANCE, 0.0f),
+        Arguments.of("bowl meal", UnleashedDogEntity.BOWL_MEAL, false));
   }
 
   @ParameterizedTest(name = "{0}")
