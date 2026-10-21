@@ -35,7 +35,7 @@ animated. You can tame them, give them commands, play fetch, put them to bed, an
 | **Golden Retriever** | Beaches                                   | 1, the classic golden     |
 | **Shiba Inu**        | Cherry groves                             | 3: red, black and sesame  |
 | **Dire Wolf**        | Packs in the coldest peaks and ice fields | 6, from smoke grey to albino white |
-| **Pinscher**         | Badlands                                  | 3: black and tan, red and chocolate and tan |
+| **Pinscher**         | Badlands                                  | 3: black and tan, red, chocolate and tan |
 
 Breeds differ in size, health, speed and bite. Some coats are rarer than others. Friendly strays also wander into
 villages, and the wandering trader sometimes sells a puppy in a basket.
