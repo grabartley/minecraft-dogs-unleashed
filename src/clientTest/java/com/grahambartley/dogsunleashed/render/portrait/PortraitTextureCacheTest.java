@@ -128,4 +128,21 @@ class PortraitTextureCacheTest {
     cache.bakePending();
     assertEquals(1, this.bakes.size());
   }
+
+  @Test
+  @DisplayName(
+      "a bake that throws leaves the portrait blank instead of crashing, and is not retried")
+  void throwingBakeIsContained() {
+    final PortraitTextureCache cache =
+        new PortraitTextureCache(
+            portrait -> {
+              this.bakes.add(portrait);
+              throw new IllegalStateException("no world");
+            });
+    cache.textureOf(portrait("Bentley", PortraitSize.SMALL));
+    cache.bakePending();
+    assertNull(cache.textureOf(portrait("Bentley", PortraitSize.SMALL)));
+    cache.bakePending();
+    assertEquals(1, this.bakes.size());
+  }
 }

@@ -29,6 +29,20 @@ class PortraitComposerTest {
     assertEquals(hex(expected), PortraitComposer.over(hex(top), hex(bottom)));
   }
 
+  @ParameterizedTest(name = "{0} straightens to {1}")
+  @CsvSource({
+    "0xFF102030, 0xFF102030",
+    "0x00102030, 0x00000000",
+    "0x80404040, 0x80808080",
+    "0x40101010, 0x40404040",
+    "0x10FFFFFF, 0x10FFFFFF"
+  })
+  @DisplayName(
+      "a premultiplied render pixel gets its full colour back, so soft edges do not darken")
+  void straightenUndoesPremultipliedAlpha(final String premultiplied, final String straight) {
+    assertEquals(hex(straight), PortraitComposer.straighten(hex(premultiplied)));
+  }
+
   @Test
   @DisplayName("a smaller layer is scaled up pixel for pixel, never smoothed")
   void smallerLayerScalesNearest() {

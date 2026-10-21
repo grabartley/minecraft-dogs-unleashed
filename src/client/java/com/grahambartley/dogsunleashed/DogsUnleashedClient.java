@@ -12,7 +12,6 @@ import com.grahambartley.dogsunleashed.render.DogGraveBlockEntityRenderer;
 import com.grahambartley.dogsunleashed.render.DogGraveItemRenderer;
 import com.grahambartley.dogsunleashed.render.DogHouseBlockEntityRenderer;
 import com.grahambartley.dogsunleashed.render.DogHouseItemRenderer;
-import com.grahambartley.dogsunleashed.render.DogPortraitEntityRenderer;
 import com.grahambartley.dogsunleashed.render.DogRenderer;
 import com.grahambartley.dogsunleashed.render.DogStatueBlockEntityRenderer;
 import com.grahambartley.dogsunleashed.render.DogWhistleItemRenderer;
@@ -35,6 +34,7 @@ import com.grahambartley.dogsunleashed.render.overlay.MuddyCoat;
 import com.grahambartley.dogsunleashed.render.overlay.ProjectedOverlays;
 import com.grahambartley.dogsunleashed.render.overlay.SeniorMuzzle;
 import com.grahambartley.dogsunleashed.render.pawprint.PawPrints;
+import com.grahambartley.dogsunleashed.render.portrait.DogPortraitEntityRenderer;
 import com.grahambartley.dogsunleashed.render.portrait.PortraitTextures;
 import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
 import com.grahambartley.dogsunleashed.render.rig.SlotRegions;
@@ -151,8 +151,7 @@ public class DogsUnleashedClient implements ClientModInitializer {
     resources.registerReloadListener(
         new CacheReloader(
             PortraitTextures.RELOADER_ID,
-            () ->
-                PortraitTextures.cache().clear(MinecraftClient.getInstance().getTextureManager())));
+            () -> PortraitTextures.reset(MinecraftClient.getInstance().getTextureManager())));
     ClientTickEvents.END_CLIENT_TICK.register(client -> PortraitTextures.cache().bakePending());
     resources.registerReloadListener(
         new CacheReloader(RigProfiles.RELOADER_ID, RigProfiles.shared()::clear));

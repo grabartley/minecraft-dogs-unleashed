@@ -3,12 +3,12 @@ package com.grahambartley.dogsunleashed.render.portrait;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.block.DogStatueLook;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
-import com.grahambartley.dogsunleashed.screen.DogPreviewFraming;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.VertexSorter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.SimpleFramebuffer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.DiffuseLighting;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -20,7 +20,6 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fStack;
 import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
 public final class PortraitBaker {
 
@@ -31,10 +30,16 @@ public final class PortraitBaker {
   private static final int BUFFER_BYTES = 1 << 18;
   private static final float GUI_Z = 50.0f;
   private static final int SOURCE_SIZE = 256;
+  private static final float MODEL_FILL = 0.45f;
+  private static final float FEET_HEIGHT = 0.75f;
 
-  private PortraitBaker() {}
+  private @Nullable PortraitDogRenderer renderer;
 
-  public static @Nullable NativeImage bake(final DogStatueLook look) {
+  public void forgetRenderer() {
+    this.renderer = null;
+  }
+
+  public @Nullable NativeImage bake(final DogStatueLook look) {
     final MinecraftClient client = MinecraftClient.getInstance();
     final UnleashedDogEntity dog = sitterOf(client, look);
     if (dog == null) {
@@ -55,8 +60,9 @@ public final class PortraitBaker {
       modelView.pushMatrix();
       modelView.translation(0.0f, 0.0f, GUI_DEPTH);
       RenderSystem.applyModelViewMatrix();
+      BackgroundRenderer.clearFog();
       final DrawContext context = new DrawContext(client, VertexConsumerProvider.immediate(buffer));
-      draw(context, dog);
+      this.draw(client, context, dog);
       context.draw();
       return read(target);
     } finally {
@@ -89,30 +95,24 @@ public final class PortraitBaker {
     return dog;
   }
 
-  private static void draw(final DrawContext context, final UnleashedDogEntity dog) {
-    final float portraitHeight = dog.getRigSourceBreed().renderTransforms().portraitHeight();
-    final int box = SOURCE_SIZE / 2;
-    final float scale = dog.getScale();
-    final Vector3f pivot =
-        new Vector3f(
-            0.0f,
-            dog.getHeight() / 2.0f
-                + DogPreviewFraming.pivotOffset(portraitHeight, dog.getHeight(), 1.0f) * scale,
-            0.0f);
+  private void draw(
+      final MinecraftClient client, final DrawContext context, final UnleashedDogEntity dog) {
+    if (this.renderer == null) {
+      this.renderer = PortraitDogRenderer.create(client);
+    }
+    final float size =
+        SOURCE_SIZE
+            * MODEL_FILL
+            / dog.getRigSourceBreed().renderTransforms().portraitHeight()
+            / dog.getScale();
     final MatrixStack matrices = context.getMatrices();
     matrices.push();
-    matrices.translate(SOURCE_SIZE / 2.0f, SOURCE_SIZE / 2.0f, GUI_Z);
-    final float size = DogPreviewFraming.renderSize(box, portraitHeight) / scale;
+    matrices.translate(SOURCE_SIZE / 2.0f, SOURCE_SIZE * FEET_HEIGHT, GUI_Z);
     matrices.scale(size, size, -size);
-    matrices.translate(pivot.x, pivot.y, pivot.z);
     matrices.multiply(new Quaternionf().rotateZ((float) Math.PI));
     DiffuseLighting.method_34742();
-    PortraitDogRenderer.create(MinecraftClient.getInstance())
-        .renderSitter(
-            dog,
-            matrices,
-            context.getVertexConsumers(),
-            LightmapTextureManager.MAX_LIGHT_COORDINATE);
+    this.renderer.renderSitter(
+        dog, matrices, context.getVertexConsumers(), LightmapTextureManager.MAX_LIGHT_COORDINATE);
     context.draw();
     DiffuseLighting.enableGuiDepthLighting();
     matrices.pop();

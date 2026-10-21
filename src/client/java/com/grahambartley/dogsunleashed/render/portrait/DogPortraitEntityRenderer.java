@@ -1,9 +1,8 @@
-package com.grahambartley.dogsunleashed.render;
+package com.grahambartley.dogsunleashed.render.portrait;
 
 import com.grahambartley.dogsunleashed.portrait.DogPortraitEntity;
 import com.grahambartley.dogsunleashed.portrait.PortraitBounds;
 import com.grahambartley.dogsunleashed.portrait.PortraitSize;
-import com.grahambartley.dogsunleashed.render.portrait.PortraitTextures;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;

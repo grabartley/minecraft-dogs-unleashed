@@ -10,8 +10,12 @@ import java.util.Optional;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class PortraitTextureCache {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PortraitTextureCache.class);
 
   @FunctionalInterface
   public interface Baker {
@@ -44,9 +48,17 @@ public final class PortraitTextureCache {
   }
 
   public void bakePending() {
-    this.pending.forEach(
-        (key, portrait) -> this.baked.put(key, Optional.ofNullable(this.baker.bake(portrait))));
+    this.pending.forEach((key, portrait) -> this.baked.put(key, this.tryBake(portrait)));
     this.pending.clear();
+  }
+
+  private Optional<Identifier> tryBake(final DogPortrait portrait) {
+    try {
+      return Optional.ofNullable(this.baker.bake(portrait));
+    } catch (final RuntimeException exception) {
+      LOGGER.warn("Could not paint a dog portrait", exception);
+      return Optional.empty();
+    }
   }
 
   public void clear(final TextureManager textureManager) {

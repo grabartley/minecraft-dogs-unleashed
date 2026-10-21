@@ -2,8 +2,6 @@ package com.grahambartley.dogsunleashed.render.portrait;
 
 public final class PortraitFraming {
 
-  public static final int FRAME_PIXELS_PER_BLOCK = 16;
-
   private static final double FILL_HEIGHT = 0.82;
   private static final double FILL_WIDTH = 0.9;
   private static final double FOOT_ROOM = 0.06;
@@ -20,13 +18,13 @@ public final class PortraitFraming {
 
   private PortraitFraming() {}
 
-  public static int[] fit(final PortraitComposer.Layer dog, final int width, final int height) {
+  public static int[] fit(
+      final PortraitComposer.Layer dog, final int width, final int height, final int frame) {
     final int[] out = new int[width * height];
     final Bounds bounds = boundsOf(dog);
     if (bounds == null) {
       return out;
     }
-    final int frame = height / FRAME_PIXELS_PER_BLOCK;
     final double innerWidth = width - 2.0 * frame;
     final double innerHeight = height - 2.0 * frame;
     final double scale =

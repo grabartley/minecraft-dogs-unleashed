@@ -13,6 +13,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 class PortraitFramingTest {
 
   private static final int DOG = 0xFF3366AA;
+  private static final int FRAME_ART_BORDER_AT_32_PIXELS_PER_BLOCK = 2;
 
   private static PortraitComposer.Layer canvasWithDog(
       final int size, final int left, final int top, final int width, final int height) {
@@ -35,7 +36,9 @@ class PortraitFramingTest {
   void emptyRenderIsClear() {
     final PortraitComposer.Layer empty = new PortraitComposer.Layer(new int[64 * 64], 64, 64);
     assertNull(PortraitFraming.boundsOf(empty));
-    assertTrue(Arrays.stream(PortraitFraming.fit(empty, 32, 32)).allMatch(pixel -> pixel == 0));
+    assertTrue(
+        Arrays.stream(PortraitFraming.fit(empty, 32, 32, FRAME_ART_BORDER_AT_32_PIXELS_PER_BLOCK))
+            .allMatch(pixel -> pixel == 0));
   }
 
   @Test
@@ -64,15 +67,19 @@ class PortraitFramingTest {
       final int frameWidth,
       final int frameHeight) {
     final int[] out =
-        PortraitFraming.fit(canvasWithDog(128, left, top, width, height), frameWidth, frameHeight);
+        PortraitFraming.fit(
+            canvasWithDog(128, left, top, width, height),
+            frameWidth,
+            frameHeight,
+            FRAME_ART_BORDER_AT_32_PIXELS_PER_BLOCK);
     final PortraitFraming.Bounds bounds = drawn(out, frameWidth, frameHeight);
-    final int border = frameHeight / PortraitFraming.FRAME_PIXELS_PER_BLOCK;
+    final int border = FRAME_ART_BORDER_AT_32_PIXELS_PER_BLOCK;
     assertTrue(bounds.left() >= border && bounds.right() <= frameWidth - border, "inside sideways");
     assertTrue(
         bounds.top() >= border && bounds.bottom() <= frameHeight - border, "inside vertically");
     assertTrue(Math.abs(bounds.left() - (frameWidth - bounds.right())) <= 1, "centred: " + bounds);
     assertTrue(frameHeight - border - bounds.bottom() <= frameHeight / 16 + 1, "near the bottom");
-    final boolean fillsHeight = bounds.height() >= (frameHeight - 2 * border) * 0.75;
+    final boolean fillsHeight = bounds.height() >= (frameHeight - 2 * border) * 0.78;
     final boolean fillsWidth = bounds.width() >= (frameWidth - 2 * border) * 0.8;
     assertTrue(fillsHeight || fillsWidth, "fills the frame: " + bounds);
   }
@@ -80,7 +87,9 @@ class PortraitFramingTest {
   @Test
   @DisplayName("solid pixels stay solid and keep their colour after scaling")
   void solidPixelsKeepTheirColour() {
-    final int[] out = PortraitFraming.fit(canvasWithDog(128, 30, 30, 40, 40), 32, 32);
+    final int[] out =
+        PortraitFraming.fit(
+            canvasWithDog(128, 30, 30, 40, 40), 32, 32, FRAME_ART_BORDER_AT_32_PIXELS_PER_BLOCK);
     assertEquals(DOG, out[16 * 32 + 16]);
   }
 }

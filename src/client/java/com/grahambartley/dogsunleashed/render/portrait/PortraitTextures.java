@@ -8,6 +8,7 @@ import com.grahambartley.dogsunleashed.render.coat.CoatImages;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.texture.NativeImage;
+import net.minecraft.client.texture.TextureManager;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,6 +17,10 @@ public final class PortraitTextures {
   public static final Identifier RELOADER_ID = Identifier.of(MOD_ID, "portrait_textures");
 
   private static final int PIXELS_PER_BLOCK = 32;
+  private static final int FRAME_ART_PIXELS_PER_BLOCK = 16;
+  private static final int FRAME_BORDER = PIXELS_PER_BLOCK / FRAME_ART_PIXELS_PER_BLOCK;
+
+  private static final PortraitBaker BAKER = new PortraitBaker();
 
   private static final PortraitTextureCache CACHE =
       new PortraitTextureCache(PortraitTextures::bake);
@@ -28,6 +33,11 @@ public final class PortraitTextures {
     return CACHE;
   }
 
+  public static void reset(final TextureManager textureManager) {
+    CACHE.clear(textureManager);
+    BAKER.forgetRenderer();
+  }
+
   private static @Nullable Identifier bake(final DogPortrait portrait) {
     final PortraitSize size = portrait.size();
     final int width = size.width() * PIXELS_PER_BLOCK;
@@ -36,13 +46,15 @@ public final class PortraitTextures {
     if (!addLayer(layers, Identifier.of(MOD_ID, portrait.background().texturePath(size)))) {
       return null;
     }
-    try (NativeImage dog = PortraitBaker.bake(portrait.look())) {
+    try (NativeImage dog = BAKER.bake(portrait.look())) {
       if (dog == null) {
         return null;
       }
       layers.add(
           new PortraitComposer.Layer(
-              PortraitFraming.fit(layerOf(dog), width, height), width, height));
+              PortraitFraming.fit(straightLayerOf(dog), width, height, FRAME_BORDER),
+              width,
+              height));
     }
     if (!addLayer(
         layers,
@@ -63,6 +75,14 @@ public final class PortraitTextures {
       layers.add(layerOf(source.image()));
       return true;
     }
+  }
+
+  private static PortraitComposer.Layer straightLayerOf(final NativeImage image) {
+    final int[] pixels = CoatImages.pixelsOf(image);
+    for (int i = 0; i < pixels.length; i++) {
+      pixels[i] = PortraitComposer.straighten(pixels[i]);
+    }
+    return new PortraitComposer.Layer(pixels, image.getWidth(), image.getHeight());
   }
 
   private static PortraitComposer.Layer layerOf(final NativeImage image) {

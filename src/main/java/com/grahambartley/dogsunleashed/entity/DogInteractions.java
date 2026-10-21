@@ -14,6 +14,7 @@ import com.grahambartley.dogsunleashed.network.ModNetworking;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetNames;
 import com.grahambartley.dogsunleashed.pet.PetRegistrar;
+import com.grahambartley.dogsunleashed.portrait.DogPortrait;
 import java.util.List;
 import java.util.function.Supplier;
 import net.minecraft.entity.EntityStatuses;
@@ -189,8 +190,9 @@ public final class DogInteractions {
     if (!this.isDirectOwnerInteraction(player) || !itemStack.isOf(ModPortraits.BLANK_CANVAS)) {
       return null;
     }
-    BlankCanvasItem.paint(itemStack, player, this.dog);
-    this.sendFeedback(player, "message.dogs-unleashed.portrait.painted");
+    final DogPortrait portrait = BlankCanvasItem.paint(itemStack, player, this.dog);
+    player.sendMessage(
+        Text.translatable("message.dogs-unleashed.portrait.painted", portrait.name()), true);
     return ActionResult.SUCCESS;
   }
 
