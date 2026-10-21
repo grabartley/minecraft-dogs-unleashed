@@ -16,6 +16,9 @@ public class ModItemTags {
   public static final TagKey<Item> DOG_COSTUMES =
       TagKey.of(RegistryKeys.ITEM, Identifier.of(DogsUnleashed.MOD_ID, "dog_costumes"));
 
+  public static final TagKey<Item> RARE_COSTUME_INGREDIENTS =
+      TagKey.of(RegistryKeys.ITEM, Identifier.of(DogsUnleashed.MOD_ID, "rare_costume_ingredients"));
+
   public static final TagKey<Item> SCENT_ITEMS =
       TagKey.of(RegistryKeys.ITEM, Identifier.of(DogsUnleashed.MOD_ID, "scent_items"));
 

@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:dragon_breath",
+    "minecraft:echo_shard",
+    "minecraft:wither_rose",
+    "minecraft:nether_star"
+  ]
+}
