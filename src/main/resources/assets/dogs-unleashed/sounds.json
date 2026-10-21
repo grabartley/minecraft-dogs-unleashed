@@ -6,6 +6,15 @@
       "dogs-unleashed:entity/beagle/bark2"
     ]
   },
+  "entity.beagle.alert": {
+    "subtitle": "subtitles.dogs-unleashed.dog.alert",
+    "sounds": [
+      {
+        "name": "dogs-unleashed:entity.beagle.bark",
+        "type": "event"
+      }
+    ]
+  },
   "entity.dachshund.bark": {
     "subtitle": "subtitles.dogs-unleashed.dachshund.bark",
     "sounds": [
@@ -25,6 +34,15 @@
       "dogs-unleashed:entity/dachshund/bark14"
     ]
   },
+  "entity.dachshund.alert": {
+    "subtitle": "subtitles.dogs-unleashed.dog.alert",
+    "sounds": [
+      {
+        "name": "dogs-unleashed:entity.dachshund.bark",
+        "type": "event"
+      }
+    ]
+  },
   "entity.goldenretriever.bark": {
     "subtitle": "subtitles.dogs-unleashed.goldenretriever.bark",
     "sounds": [
@@ -35,10 +53,28 @@
       "dogs-unleashed:entity/goldenretriever/bark5"
     ]
   },
+  "entity.goldenretriever.alert": {
+    "subtitle": "subtitles.dogs-unleashed.dog.alert",
+    "sounds": [
+      {
+        "name": "dogs-unleashed:entity.goldenretriever.bark",
+        "type": "event"
+      }
+    ]
+  },
   "entity.shibainu.bark": {
     "subtitle": "subtitles.dogs-unleashed.shibainu.bark",
     "sounds": [
       "dogs-unleashed:entity/shibainu/bark1"
+    ]
+  },
+  "entity.shibainu.alert": {
+    "subtitle": "subtitles.dogs-unleashed.dog.alert",
+    "sounds": [
+      {
+        "name": "dogs-unleashed:entity.shibainu.bark",
+        "type": "event"
+      }
     ]
   },
   "entity.direwolf.bark": {
@@ -49,6 +85,15 @@
       "dogs-unleashed:entity/direwolf/bark3",
       "dogs-unleashed:entity/direwolf/bark4",
       "dogs-unleashed:entity/direwolf/bark5"
+    ]
+  },
+  "entity.direwolf.alert": {
+    "subtitle": "subtitles.dogs-unleashed.dog.alert",
+    "sounds": [
+      {
+        "name": "dogs-unleashed:entity.direwolf.bark",
+        "type": "event"
+      }
     ]
   },
   "entity.husky.howl": {

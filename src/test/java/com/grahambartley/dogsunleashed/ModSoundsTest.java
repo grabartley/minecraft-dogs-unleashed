@@ -52,4 +52,22 @@ class ModSoundsTest {
         Registries.SOUND_EVENT.containsId(Registries.SOUND_EVENT.getId(ModSounds.HUSKY_HOWL)),
         "Husky howl sound should be in Registries.SOUND_EVENT");
   }
+
+  static Stream<Arguments> alertSounds() {
+    return Stream.of(
+        Arguments.of("entity.beagle.alert", ModSounds.BEAGLE_ALERT),
+        Arguments.of("entity.dachshund.alert", ModSounds.DACHSHUND_ALERT),
+        Arguments.of("entity.goldenretriever.alert", ModSounds.GOLDEN_RETRIEVER_ALERT),
+        Arguments.of("entity.shibainu.alert", ModSounds.SHIBA_INU_ALERT),
+        Arguments.of("entity.direwolf.alert", ModSounds.DIRE_WOLF_ALERT));
+  }
+
+  @ParameterizedTest(name = "{0} is in Registries.SOUND_EVENT")
+  @MethodSource("alertSounds")
+  @DisplayName("every intruder alert sound is registered under its own id")
+  void alertSoundIsRegistered(final String path, final SoundEvent alertSound) {
+    assertTrue(
+        Registries.SOUND_EVENT.getId(alertSound).equals(Identifier.of(DogsUnleashed.MOD_ID, path)),
+        path + " should be registered");
+  }
 }

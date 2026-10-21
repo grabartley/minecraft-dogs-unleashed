@@ -134,7 +134,8 @@ public class UnleashedDogEntity extends DogMountEntity
           new DogAging(this),
           new DogMud(this),
           new DogBond(this),
-          new DogSaddlebags(this));
+          new DogSaddlebags(this),
+          new DogRaidDuty(this));
   private final DogGenomeCache genomeCache = new DogGenomeCache(this);
   private final DogUndeadState undeadState = new DogUndeadState(this);
   private final DogCuring curing = new DogCuring(this);

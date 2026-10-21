@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed;
 
+import com.grahambartley.dogsunleashed.advancement.DogDefendedVillageCriterion;
 import com.grahambartley.dogsunleashed.advancement.DogExpeditionReturnedCriterion;
 import com.grahambartley.dogsunleashed.advancement.DogHowledCriterion;
 import com.grahambartley.dogsunleashed.advancement.DogShearBotchedCriterion;
@@ -26,6 +27,7 @@ import com.grahambartley.dogsunleashed.listener.PendantEffectListener;
 import com.grahambartley.dogsunleashed.listener.PetLocationSyncListener;
 import com.grahambartley.dogsunleashed.listener.PlayerDimensionChangeListener;
 import com.grahambartley.dogsunleashed.listener.PlayerJoinReunionListener;
+import com.grahambartley.dogsunleashed.listener.RaidDutyListener;
 import com.grahambartley.dogsunleashed.listener.ResurrectionRitualListener;
 import com.grahambartley.dogsunleashed.network.ModNetworking;
 import com.grahambartley.dogsunleashed.server.NextTickQueue;
@@ -59,6 +61,7 @@ public class DogsUnleashed implements ModInitializer {
     PetResurrectedCriterion.register();
     PetCuredCriterion.register();
     DogExpeditionReturnedCriterion.register();
+    DogDefendedVillageCriterion.register();
 
     ModSounds.initialize();
     ModComponents.initialize();
@@ -95,6 +98,7 @@ public class DogsUnleashed implements ModInitializer {
     OwnerDeathListener.initialize();
     BoneCacheBreakListener.initialize();
     FoxBoneRaidListener.initialize();
+    RaidDutyListener.initialize();
     AwayDogListener.initialize();
 
     ServerLifecycleEvents.SERVER_STARTING.register(ServerConfigService::loadFromWorld);

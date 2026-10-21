@@ -1,0 +1,21 @@
+{
+  "parent": "dogs-unleashed:best_friend",
+  "display": {
+    "icon": {
+      "id": "dogs-unleashed:rosette"
+    },
+    "title": {
+      "translate": "advancements.dogs-unleashed.good_dog_of_the_village.title"
+    },
+    "description": {
+      "translate": "advancements.dogs-unleashed.good_dog_of_the_village.description"
+    },
+    "frame": "challenge"
+  },
+  "criteria": {
+    "dog_defended_village": {
+      "trigger": "dogs-unleashed:dog_defended_village"
+    }
+  },
+  "requirements": [["dog_defended_village"]]
+}
