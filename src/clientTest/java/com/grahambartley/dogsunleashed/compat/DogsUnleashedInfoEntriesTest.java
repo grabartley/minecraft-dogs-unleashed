@@ -26,6 +26,7 @@ class DogsUnleashedInfoEntriesTest {
           "dog_grave",
           "dog_statue",
           "dog_treat",
+          "rope_toy",
           "taming_food",
           "breeding_food");
 

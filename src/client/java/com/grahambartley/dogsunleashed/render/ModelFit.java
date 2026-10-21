@@ -1,4 +1,4 @@
-package com.grahambartley.dogsunleashed.render.sled;
+package com.grahambartley.dogsunleashed.render;
 
 import org.joml.Vector3f;
 

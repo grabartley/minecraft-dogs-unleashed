@@ -1,22 +1,30 @@
-package com.grahambartley.dogsunleashed.render.sled;
+package com.grahambartley.dogsunleashed.render;
 
-import com.grahambartley.dogsunleashed.item.SledItem;
-import com.grahambartley.dogsunleashed.model.SledModel;
 import com.grahambartley.dogsunleashed.render.rig.CubeGeometry;
+import java.util.function.Supplier;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import org.joml.Vector3f;
+import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
+import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoItemRenderer;
 
-public class SledItemRenderer implements BuiltinItemRendererRegistry.DynamicItemRenderer {
+public class FittedGeoItemRenderer<T extends Item & GeoItem>
+    implements BuiltinItemRendererRegistry.DynamicItemRenderer {
 
-  private FittedRenderer renderer;
+  private final Supplier<GeoModel<T>> model;
+  private FittedRenderer<T> renderer;
+
+  public FittedGeoItemRenderer(final Supplier<GeoModel<T>> model) {
+    this.model = model;
+  }
 
   @Override
   public void render(
@@ -27,7 +35,7 @@ public class SledItemRenderer implements BuiltinItemRendererRegistry.DynamicItem
       final int light,
       final int overlay) {
     if (this.renderer == null) {
-      this.renderer = new FittedRenderer();
+      this.renderer = new FittedRenderer<>(this.model.get());
     }
     this.renderer.render(stack, mode, matrices, vertexConsumers, light, overlay);
   }
@@ -53,19 +61,19 @@ public class SledItemRenderer implements BuiltinItemRendererRegistry.DynamicItem
     }
   }
 
-  private static final class FittedRenderer extends GeoItemRenderer<SledItem> {
+  private static final class FittedRenderer<T extends Item & GeoItem> extends GeoItemRenderer<T> {
 
     private BakedGeoModel fittedModel;
     private ModelFit fit;
 
-    FittedRenderer() {
-      super(new SledModel<>());
+    FittedRenderer(final GeoModel<T> model) {
+      super(model);
     }
 
     @Override
     public void preRender(
         final MatrixStack poseStack,
-        final SledItem animatable,
+        final T animatable,
         final BakedGeoModel model,
         final VertexConsumerProvider bufferSource,
         final VertexConsumer buffer,

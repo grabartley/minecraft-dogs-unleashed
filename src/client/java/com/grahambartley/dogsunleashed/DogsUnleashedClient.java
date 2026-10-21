@@ -1,9 +1,13 @@
 package com.grahambartley.dogsunleashed;
 
 import com.grahambartley.dogsunleashed.config.SyncedServerConfig;
+import com.grahambartley.dogsunleashed.item.RopeToyItem;
+import com.grahambartley.dogsunleashed.item.SledItem;
 import com.grahambartley.dogsunleashed.item.armor.DogArmorTier;
 import com.grahambartley.dogsunleashed.item.cosmetic.DogCosmetic;
 import com.grahambartley.dogsunleashed.item.costume.DogCostume;
+import com.grahambartley.dogsunleashed.model.RopeToyModel;
+import com.grahambartley.dogsunleashed.model.SledModel;
 import com.grahambartley.dogsunleashed.network.ModNetworkingClient;
 import com.grahambartley.dogsunleashed.render.CacheReloader;
 import com.grahambartley.dogsunleashed.render.DogBedBlockEntityRenderer;
@@ -15,6 +19,7 @@ import com.grahambartley.dogsunleashed.render.DogHouseItemRenderer;
 import com.grahambartley.dogsunleashed.render.DogRenderer;
 import com.grahambartley.dogsunleashed.render.DogStatueBlockEntityRenderer;
 import com.grahambartley.dogsunleashed.render.DogWhistleItemRenderer;
+import com.grahambartley.dogsunleashed.render.FittedGeoItemRenderer;
 import com.grahambartley.dogsunleashed.render.FrisbeeBlockEntityRenderer;
 import com.grahambartley.dogsunleashed.render.FrisbeeItemRenderer;
 import com.grahambartley.dogsunleashed.render.FrisbeeProjectileRenderer;
@@ -43,13 +48,13 @@ import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
 import com.grahambartley.dogsunleashed.render.rig.SlotRegions;
 import com.grahambartley.dogsunleashed.render.sled.HarnessLines;
 import com.grahambartley.dogsunleashed.render.sled.SledAnchors;
-import com.grahambartley.dogsunleashed.render.sled.SledItemRenderer;
 import com.grahambartley.dogsunleashed.render.sled.SledRenderer;
 import com.grahambartley.dogsunleashed.render.statue.StatueCoatTextures;
 import com.grahambartley.dogsunleashed.riding.RideInputSync;
 import com.grahambartley.dogsunleashed.riding.RideStaminaHud;
 import com.grahambartley.dogsunleashed.riding.SledInputSync;
 import com.grahambartley.dogsunleashed.screen.DogEquipmentScreen;
+import com.grahambartley.dogsunleashed.tug.TugMeterHud;
 import com.grahambartley.dogsunleashed.whistle.WhistlePointer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -127,7 +132,10 @@ public class DogsUnleashedClient implements ClientModInitializer {
     BuiltinItemRendererRegistry.INSTANCE.register(ModItems.FRISBEE, new FrisbeeItemRenderer());
     BuiltinItemRendererRegistry.INSTANCE.register(
         ModItems.DOG_WHISTLE, new DogWhistleItemRenderer());
-    BuiltinItemRendererRegistry.INSTANCE.register(ModItems.SLED, new SledItemRenderer());
+    BuiltinItemRendererRegistry.INSTANCE.register(
+        ModItems.SLED, new FittedGeoItemRenderer<SledItem>(SledModel::new));
+    BuiltinItemRendererRegistry.INSTANCE.register(
+        ModItems.ROPE_TOY, new FittedGeoItemRenderer<RopeToyItem>(RopeToyModel::new));
 
     LivingEntityFeatureRendererRegistrationCallback.EVENT.register(
         (entityType, renderer, helper, context) -> {
@@ -202,6 +210,7 @@ public class DogsUnleashedClient implements ClientModInitializer {
     KeybindDiscoveryNudge.register();
     RideInputSync.register();
     RideStaminaHud.register();
+    TugMeterHud.register();
     SledInputSync.register();
     WaterBowlTint.register();
   }

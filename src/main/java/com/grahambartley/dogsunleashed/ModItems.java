@@ -8,6 +8,7 @@ import com.grahambartley.dogsunleashed.item.DogTreatItem;
 import com.grahambartley.dogsunleashed.item.DogWhistleItem;
 import com.grahambartley.dogsunleashed.item.FrisbeeItem;
 import com.grahambartley.dogsunleashed.item.PuppyBasketItem;
+import com.grahambartley.dogsunleashed.item.RopeToyItem;
 import com.grahambartley.dogsunleashed.item.SledItem;
 import com.grahambartley.dogsunleashed.item.StickThrowHandler;
 import com.grahambartley.dogsunleashed.item.TennisBallItem;
@@ -36,6 +37,12 @@ public class ModItems {
           Registries.ITEM,
           Identifier.of(DogsUnleashed.MOD_ID, "frisbee"),
           new FrisbeeItem(new Item.Settings().maxCount(1)));
+
+  public static final Item ROPE_TOY =
+      Registry.register(
+          Registries.ITEM,
+          Identifier.of(DogsUnleashed.MOD_ID, "rope_toy"),
+          new RopeToyItem(new Item.Settings().maxCount(16)));
 
   public static final Item DOG_WHISTLE =
       Registry.register(
@@ -191,6 +198,7 @@ public class ModItems {
                 entries.add(stack);
               }
             });
+    ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(entries -> entries.add(ROPE_TOY));
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS)
         .register(entries -> entries.add(DOG_WHISTLE));
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS)

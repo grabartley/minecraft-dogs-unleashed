@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.entity;
 
 import static com.grahambartley.dogsunleashed.ModConstants.BARK_PITCH;
 import static net.minecraft.entity.data.TrackedDataHandlerRegistry.BOOLEAN;
+import static net.minecraft.entity.data.TrackedDataHandlerRegistry.FLOAT;
 import static net.minecraft.entity.data.TrackedDataHandlerRegistry.INTEGER;
 import static net.minecraft.entity.data.TrackedDataHandlerRegistry.ITEM_STACK;
 import static net.minecraft.entity.data.TrackedDataHandlerRegistry.NBT_COMPOUND;
@@ -102,6 +103,8 @@ public class UnleashedDogEntity extends DogMountEntity
   static final TrackedData<Boolean> MUDDY = data(BOOLEAN);
   static final TrackedData<Integer> BOND_STEP = data(INTEGER);
   static final TrackedData<ItemStack> SADDLEBAGS_ITEM = data(ITEM_STACK);
+  static final TrackedData<Integer> TUG_PLAYER_ID = data(INTEGER);
+  static final TrackedData<Float> TUG_BALANCE = data(FLOAT);
 
   private static <T> TrackedData<T> data(final TrackedDataHandler<T> handler) {
     return DataTracker.registerData(UnleashedDogEntity.class, handler);
@@ -139,7 +142,8 @@ public class UnleashedDogEntity extends DogMountEntity
           new DogSaddlebags(this),
           new DogRaidDuty(this),
           new DogSledHarness(this),
-          new DogPlayChase(this));
+          new DogPlayChase(this),
+          new DogTug(this));
   private final DogGenomeCache genomeCache = new DogGenomeCache(this);
   private final DogUndeadState undeadState = new DogUndeadState(this);
   private final DogCuring curing = new DogCuring(this);

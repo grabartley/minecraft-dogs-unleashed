@@ -584,5 +584,14 @@
   "advancements.dogs-unleashed.full_team.title": "Attelage complet",
   "advancements.dogs-unleashed.full_team.description": "Attelez six chiens à un même traîneau.",
   "message.dogs-unleashed.sled.full": "Ce traîneau a déjà un attelage complet de six chiens",
-  "info.dogs-unleashed.sled": "Se pose comme un bateau. Mettez une laisse à jusqu'à six de vos huskies ou loups terribles adultes, puis utilisez le traîneau pour les atteler par paires. Clic droit sur le traîneau pour y monter, dirigez avec les touches de déplacement et sprintez tant que l'attelage a de l'endurance. L'attelage va le plus vite sur la glace, vite sur la neige, lentement sur l'herbe et la terre, et encore plus lentement sur le sable. Un attelage plus grand va plus vite et tient plus longtemps. Accroupi + clic droit sur le traîneau remet vos chiens en laisse."
+  "info.dogs-unleashed.sled": "Se pose comme un bateau. Mettez une laisse à jusqu'à six de vos huskies ou loups terribles adultes, puis utilisez le traîneau pour les atteler par paires. Clic droit sur le traîneau pour y monter, dirigez avec les touches de déplacement et sprintez tant que l'attelage a de l'endurance. L'attelage va le plus vite sur la glace, vite sur la neige, lentement sur l'herbe et la terre, et encore plus lentement sur le sable. Un attelage plus grand va plus vite et tient plus longtemps. Accroupi + clic droit sur le traîneau remet vos chiens en laisse.",
+  "item.dogs-unleashed.rope_toy": "Jouet en corde",
+  "info.dogs-unleashed.rope_toy": "Faites un clic droit sur votre chien avec pour lancer une partie de tir à la corde. Appuyez sur utiliser à un rythme régulier pour tirer, en surveillant la barre au-dessus de votre barre d'action. Marteler le bouton ne tire que faiblement. Les chiens plus grands et plus proches de vous tirent plus fort. Si vous gagnez, votre chien lâche la corde tout content. Si vous perdez, il s'enfuit avec, alors rattrapez-le et faites un clic droit dessus pour récupérer la corde.",
+  "message.dogs-unleashed.tug_start": "Tir à la corde avec %s ! Appuyez sur utiliser à un rythme régulier pour tirer.",
+  "message.dogs-unleashed.tug_won": "Gagné ! %s a lâché la corde.",
+  "message.dogs-unleashed.tug_lost": "%s a gagné et s'est enfui avec la corde ! Rattrapez-le pour la récupérer.",
+  "message.dogs-unleashed.tug_caught": "Vous avez rattrapé %s et récupéré la corde.",
+  "message.dogs-unleashed.tug_stopped": "%s a lâché la corde.",
+  "message.dogs-unleashed.tug_busy": "%s joue déjà au tir à la corde.",
+  "message.dogs-unleashed.tug_not_now": "%s ne peut pas jouer au tir à la corde pour l'instant."
 }

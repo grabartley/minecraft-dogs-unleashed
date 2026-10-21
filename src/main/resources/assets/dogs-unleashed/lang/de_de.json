@@ -584,5 +584,14 @@
   "advancements.dogs-unleashed.full_team.title": "Volles Gespann",
   "advancements.dogs-unleashed.full_team.description": "Spanne sechs Hunde vor einen Schlitten.",
   "message.dogs-unleashed.sled.full": "Dieser Schlitten hat schon ein volles Gespann aus sechs Hunden",
-  "info.dogs-unleashed.sled": "Wird wie ein Boot platziert. Lege bis zu sechs deiner ausgewachsenen Huskys oder Schreckenswölfe an die Leine und benutze dann den Schlitten, um sie paarweise einzuspannen. Rechtsklicke den Schlitten, um aufzusteigen, lenke mit den Bewegungstasten und sprinte, solange das Gespann Ausdauer hat. Am schnellsten geht es auf Eis, schnell auf Schnee, langsam auf Gras und Erde und am langsamsten auf Sand. Ein größeres Gespann ist schneller und hält länger durch. Schleichen + Rechtsklick auf den Schlitten nimmt deine Hunde wieder an die Leine."
+  "info.dogs-unleashed.sled": "Wird wie ein Boot platziert. Lege bis zu sechs deiner ausgewachsenen Huskys oder Schreckenswölfe an die Leine und benutze dann den Schlitten, um sie paarweise einzuspannen. Rechtsklicke den Schlitten, um aufzusteigen, lenke mit den Bewegungstasten und sprinte, solange das Gespann Ausdauer hat. Am schnellsten geht es auf Eis, schnell auf Schnee, langsam auf Gras und Erde und am langsamsten auf Sand. Ein größeres Gespann ist schneller und hält länger durch. Schleichen + Rechtsklick auf den Schlitten nimmt deine Hunde wieder an die Leine.",
+  "item.dogs-unleashed.rope_toy": "Seilspielzeug",
+  "info.dogs-unleashed.rope_toy": "Rechtsklicke damit auf deinen Hund, um ein Tauziehen zu beginnen. Tippe im gleichmäßigen Takt auf Benutzen, um zu ziehen, und behalte die Leiste über deiner Schnellleiste im Blick. Wildes Hämmern zieht nur schwach. Größere Hunde und Hunde, die dir näherstehen, ziehen stärker. Gewinnst du, lässt dein Hund fröhlich los. Verlierst du, rennt er mit dem Seil davon. Fang ihn und rechtsklicke ihn, um das Seil zurückzubekommen.",
+  "message.dogs-unleashed.tug_start": "Tauziehen mit %s! Tippe im gleichmäßigen Takt auf Benutzen, um zu ziehen.",
+  "message.dogs-unleashed.tug_won": "Gewonnen! %s hat das Seil losgelassen.",
+  "message.dogs-unleashed.tug_lost": "%s hat gewonnen und ist mit dem Seil davongerannt! Fang ihn, um es zurückzubekommen.",
+  "message.dogs-unleashed.tug_caught": "Du hast %s gefangen und das Seil zurückbekommen.",
+  "message.dogs-unleashed.tug_stopped": "%s hat das Seil fallen lassen.",
+  "message.dogs-unleashed.tug_busy": "%s spielt schon Tauziehen.",
+  "message.dogs-unleashed.tug_not_now": "%s kann gerade nicht Tauziehen spielen."
 }

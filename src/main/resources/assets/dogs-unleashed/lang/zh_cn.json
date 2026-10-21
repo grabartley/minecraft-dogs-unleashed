@@ -584,5 +584,14 @@
   "advancements.dogs-unleashed.full_team.title": "满编雪橇队",
   "advancements.dogs-unleashed.full_team.description": "把六只狗套上同一架雪橇。",
   "message.dogs-unleashed.sled.full": "这架雪橇已经套满了六只狗",
-  "info.dogs-unleashed.sled": "像船一样放置。给最多六只你的成年哈士奇或恐狼拴上拴绳，然后使用雪橇把它们成对套上。右键点击雪橇即可乘坐，用移动键转向，雪橇队还有体力时可以疾跑。雪橇队在冰上最快，在雪上较快，在草地和泥土上较慢，在沙子上最慢。雪橇队越大，速度越快，坚持越久。潜行 + 右键点击雪橇可以把你的狗重新拴回拴绳。"
+  "info.dogs-unleashed.sled": "像船一样放置。给最多六只你的成年哈士奇或恐狼拴上拴绳，然后使用雪橇把它们成对套上。右键点击雪橇即可乘坐，用移动键转向，雪橇队还有体力时可以疾跑。雪橇队在冰上最快，在雪上较快，在草地和泥土上较慢，在沙子上最慢。雪橇队越大，速度越快，坚持越久。潜行 + 右键点击雪橇可以把你的狗重新拴回拴绳。",
+  "item.dogs-unleashed.rope_toy": "绳结玩具",
+  "info.dogs-unleashed.rope_toy": "手持它右键点击你的狗即可开始拔河。按稳定的节奏点按使用键来拉，留意快捷栏上方的进度条。乱按只会拉得很弱。体型越大、和你越亲近的狗拉得越用力。你赢了，狗会开心地松口。你输了，它会叼着绳子跑掉，追上它并右键点击就能把绳子拿回来。",
+  "message.dogs-unleashed.tug_start": "和%s拔河！按稳定的节奏点按使用键来拉。",
+  "message.dogs-unleashed.tug_won": "你赢了！%s松开了绳子。",
+  "message.dogs-unleashed.tug_lost": "%s赢了，叼着绳子跑掉了！追上它把绳子拿回来。",
+  "message.dogs-unleashed.tug_caught": "你追上了%s，拿回了绳子。",
+  "message.dogs-unleashed.tug_stopped": "%s松开了绳子。",
+  "message.dogs-unleashed.tug_busy": "%s已经在玩拔河了。",
+  "message.dogs-unleashed.tug_not_now": "%s现在不能玩拔河。"
 }

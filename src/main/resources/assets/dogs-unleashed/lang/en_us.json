@@ -584,5 +584,14 @@
   "advancements.dogs-unleashed.full_team.title": "Full Team",
   "advancements.dogs-unleashed.full_team.description": "Hitch six dogs to one sled.",
   "message.dogs-unleashed.sled.full": "This sled already has a full team of six",
-  "info.dogs-unleashed.sled": "Place it like a boat. Put a lead on up to six of your grown huskies or dire wolves, then use the sled to hitch them in pairs. Right-click the sled to ride it, steer with the movement keys and sprint while the team has stamina. Teams go fastest on ice, fast on snow, slowly on grass and dirt and slowest of all on sand. A bigger team is faster and lasts longer. Sneak + right-click the sled to put your dogs back on their leads."
+  "info.dogs-unleashed.sled": "Place it like a boat. Put a lead on up to six of your grown huskies or dire wolves, then use the sled to hitch them in pairs. Right-click the sled to ride it, steer with the movement keys and sprint while the team has stamina. Teams go fastest on ice, fast on snow, slowly on grass and dirt and slowest of all on sand. A bigger team is faster and lasts longer. Sneak + right-click the sled to put your dogs back on their leads.",
+  "item.dogs-unleashed.rope_toy": "Rope Toy",
+  "info.dogs-unleashed.rope_toy": "Right-click your dog with it to start a game of tug of war. Tap use in a steady rhythm to pull, watching the bar above your hotbar. Mashing the button pulls weakly. Bigger and closer dogs pull harder. Win and your dog lets go happily. Lose and it runs off with the rope, so chase it down and right-click it to get the rope back.",
+  "message.dogs-unleashed.tug_start": "Tug of war with %s! Tap use in a steady rhythm to pull.",
+  "message.dogs-unleashed.tug_won": "You win! %s let go of the rope.",
+  "message.dogs-unleashed.tug_lost": "%s won and ran off with the rope! Catch it to get it back.",
+  "message.dogs-unleashed.tug_caught": "You caught %s and got the rope back.",
+  "message.dogs-unleashed.tug_stopped": "%s dropped the rope.",
+  "message.dogs-unleashed.tug_busy": "%s is already playing tug.",
+  "message.dogs-unleashed.tug_not_now": "%s can't play tug right now."
 }
