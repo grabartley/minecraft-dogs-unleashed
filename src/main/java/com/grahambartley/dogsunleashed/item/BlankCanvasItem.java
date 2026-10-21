@@ -84,5 +84,7 @@ public class BlankCanvasItem extends Item {
     tooltip.add(dimensionsOf(sizeOf(stack)).formatted(Formatting.GRAY));
     tooltip.add(
         Text.translatable("item.dogs-unleashed.blank_canvas.hint").formatted(Formatting.GRAY));
+    tooltip.add(
+        Text.translatable("item.dogs-unleashed.blank_canvas.hint.size").formatted(Formatting.GRAY));
   }
 }

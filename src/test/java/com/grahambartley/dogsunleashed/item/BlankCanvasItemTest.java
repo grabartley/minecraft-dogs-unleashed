@@ -57,7 +57,10 @@ class BlankCanvasItemTest {
     final List<Text> tooltip = new ArrayList<>();
     canvas.getItem().appendTooltip(canvas, Item.TooltipContext.DEFAULT, tooltip, TooltipType.BASIC);
     assertEquals(
-        List.of("painting.dimensions", "item.dogs-unleashed.blank_canvas.hint"),
+        List.of(
+            "painting.dimensions",
+            "item.dogs-unleashed.blank_canvas.hint",
+            "item.dogs-unleashed.blank_canvas.hint.size"),
         tooltip.stream()
             .map(line -> ((TranslatableTextContent) line.getContent()).getKey())
             .toList());
