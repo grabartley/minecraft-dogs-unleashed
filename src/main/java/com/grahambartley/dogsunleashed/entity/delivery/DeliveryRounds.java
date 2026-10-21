@@ -29,22 +29,27 @@ public final class DeliveryRounds {
   public static void run(final MinecraftServer server) {
     final long now = server.getOverworld().getTime();
     for (final Delivery delivery : Deliveries.get(server).all()) {
-      switch (delivery.leg()) {
-        case TO_RECIPIENT -> {
-          if (delivery.isLegOver(now)) {
-            reachRecipient(server, delivery, now);
-          }
+      advance(server, delivery, now);
+    }
+  }
+
+  public static void advance(
+      final MinecraftServer server, final Delivery delivery, final long now) {
+    switch (delivery.leg()) {
+      case TO_RECIPIENT -> {
+        if (delivery.isLegOver(now)) {
+          reachRecipient(server, delivery, now);
         }
-        case WAITING -> {
-          final UnleashedDogEntity dog = loadedDog(server, delivery.pet());
-          if (dog != null && headsHome(server, delivery, dog, now)) {
-            sendHome(dog);
-          }
+      }
+      case WAITING -> {
+        final UnleashedDogEntity dog = loadedDog(server, delivery.pet());
+        if (dog != null && headsHome(server, delivery, dog, now)) {
+          sendHome(dog);
         }
-        case TO_OWNER -> {
-          if (delivery.isLegOver(now)) {
-            reachOwner(server, delivery);
-          }
+      }
+      case TO_OWNER -> {
+        if (delivery.isLegOver(now)) {
+          reachOwner(server, delivery);
         }
       }
     }
