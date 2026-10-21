@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.grahambartley.dogsunleashed.entity.DogBondStep;
 import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import com.grahambartley.dogsunleashed.entity.personality.DogTraits;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
 import com.grahambartley.dogsunleashed.network.payload.RidingView;
 import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
@@ -89,7 +90,8 @@ class DogStatsPanelTest {
         RidingView.NONE,
         PetAwayStatus.HOME,
         false,
-        DogBondStep.STRANGER);
+        DogBondStep.STRANGER,
+        DogTraits.NONE);
   }
 
   @Test

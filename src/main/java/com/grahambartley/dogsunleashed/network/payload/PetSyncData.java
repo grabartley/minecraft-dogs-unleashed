@@ -7,9 +7,11 @@ import com.grahambartley.dogsunleashed.entity.DogAgingRules;
 import com.grahambartley.dogsunleashed.entity.DogBond;
 import com.grahambartley.dogsunleashed.entity.DogBondStep;
 import com.grahambartley.dogsunleashed.entity.DogCollar;
+import com.grahambartley.dogsunleashed.entity.DogPersonality;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
+import com.grahambartley.dogsunleashed.entity.personality.DogTraits;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import com.grahambartley.dogsunleashed.pet.PetAge;
 import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
@@ -43,7 +45,8 @@ public record PetSyncData(
     RidingView riding,
     PetAwayStatus away,
     boolean senior,
-    DogBondStep bond) {
+    DogBondStep bond,
+    DogTraits personality) {
 
   public static final PacketCodec<RegistryByteBuf, PetSyncData> CODEC =
       PacketCodec.of(PetSyncData::write, PetSyncData::read);
@@ -71,7 +74,8 @@ public record PetSyncData(
         RidingView.of(petData.getBreed(), petData.getGrowthStage(), petData.getStaminaPercent()),
         away,
         seniorOf(petData),
-        DogBondStep.ofPoints(petData.getBondPoints()));
+        DogBondStep.ofPoints(petData.getBondPoints()),
+        petData.getPersonality());
   }
 
   public static PetSyncData fromDog(final UnleashedDogEntity dog) {
@@ -102,7 +106,8 @@ public record PetSyncData(
             Math.round(dog.getRiding().staminaFraction() * 100.0f)),
         PetAwayStatus.HOME,
         dog.getComponents().get(DogAging.class).isSenior(),
-        dog.getComponents().get(DogBond.class).step());
+        dog.getComponents().get(DogBond.class).step(),
+        dog.getComponents().get(DogPersonality.class).traits());
   }
 
   static boolean seniorOf(final PetData petData) {
@@ -160,6 +165,7 @@ public record PetSyncData(
     buf.writeVarInt(this.away.ordinal());
     buf.writeBoolean(this.senior);
     buf.writeVarInt(this.bond.ordinal());
+    this.personality.write(buf);
   }
 
   static PetSyncData read(final RegistryByteBuf buf) {
@@ -185,6 +191,7 @@ public record PetSyncData(
         RidingView.read(buf),
         PetAwayStatus.byId(buf.readVarInt()),
         buf.readBoolean(),
-        DogBondStep.byId(buf.readVarInt()));
+        DogBondStep.byId(buf.readVarInt()),
+        DogTraits.read(buf));
   }
 }

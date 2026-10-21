@@ -123,6 +123,12 @@ public final class DogResurrection {
         .get(DogAging.class)
         .restore(petData.getAdultAgeTicks(), petData.hasSeniorParent());
     dog.getComponents().get(DogBond.class).restore(petData.getBondPoints(), petData.getOwnerId());
+    final DogPersonality personality = dog.getComponents().get(DogPersonality.class);
+    if (petData.getPersonality().isEmpty()) {
+      personality.rollWild();
+    } else {
+      personality.set(petData.getPersonality());
+    }
     dog.setCustomName(Text.literal(petData.getName()));
     dog.setCustomNameVisible(true);
     dog.setOwnerUuid(petData.getOwnerId());

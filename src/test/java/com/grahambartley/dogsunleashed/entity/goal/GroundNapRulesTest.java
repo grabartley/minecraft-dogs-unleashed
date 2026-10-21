@@ -40,16 +40,34 @@ class GroundNapRulesTest {
   }
 
   @ParameterizedTest
-  @CsvSource({"false, 3600", "true, 7200"})
-  void seniorsNapTwiceAsLong(final boolean senior, final long napTicks) {
-    assertEquals(napTicks, GroundNapRules.napTicks(senior));
+  @CsvSource({"false, 1.0, 3600", "true, 1.0, 7200", "false, 1.5, 5400", "true, 1.5, 9599"})
+  void seniorsNapTwiceAsLongAndLazyDogsLongerStillWithinThePeriod(
+      final boolean senior, final double napScale, final long napTicks) {
+    assertEquals(napTicks, GroundNapRules.napTicks(senior, napScale));
   }
 
   @ParameterizedTest
-  @CsvSource({"false, false, true", "false, true, true", "true, false, false", "true, true, true"})
-  void bedSleepersOnlyNapOnTheGroundOnceTheyAreSenior(
-      final boolean sleepsInBeds, final boolean senior, final boolean napsOnGround) {
-    assertEquals(napsOnGround, GroundNapRules.napsOnGround(sleepsInBeds, senior));
+  @CsvSource({
+    "false, false, false, true",
+    "false, true, false, true",
+    "true, false, false, false",
+    "true, true, false, true",
+    "true, false, true, true"
+  })
+  void bedSleepersOnlyNapOnTheGroundOnceTheyAreSeniorOrLazy(
+      final boolean sleepsInBeds,
+      final boolean senior,
+      final boolean lazy,
+      final boolean napsOnGround) {
+    assertEquals(napsOnGround, GroundNapRules.napsOnGround(sleepsInBeds, senior, lazy));
+  }
+
+  @Test
+  void aLazySeniorsCappedNapStillFitsInThePeriod() {
+    final long napTicks = GroundNapRules.napTicks(true, 1.5);
+    assertEquals(0, GroundNapRules.dueOffset(12345L, napTicks));
+    assertTrue(
+        GroundNapRules.isDue(GroundNapRules.START_GRACE_TICKS, GroundNapRules.NEVER, 0L, napTicks));
   }
 
   @ParameterizedTest

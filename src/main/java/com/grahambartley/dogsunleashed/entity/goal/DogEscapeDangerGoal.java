@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
 import com.grahambartley.dogsunleashed.entity.DogPanicPolicy;
+import com.grahambartley.dogsunleashed.entity.DogPersonality;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import net.minecraft.entity.ai.goal.EscapeDangerGoal;
 
@@ -23,7 +24,11 @@ public class DogEscapeDangerGoal extends EscapeDangerGoal {
     return this.mayFlee() && super.shouldContinue();
   }
 
-  private boolean mayFlee() {
-    return DogPanicPolicy.shouldFleeDanger(this.dog.getCommand(), this.dog.isOnFire());
+  public boolean mayFlee() {
+    return DogPanicPolicy.shouldFleeDanger(
+        this.dog.getCommand(),
+        this.dog.isOnFire(),
+        this.dog.getComponents().get(DogPersonality.class).traits(),
+        this.dog.getHealth() / this.dog.getMaxHealth());
   }
 }

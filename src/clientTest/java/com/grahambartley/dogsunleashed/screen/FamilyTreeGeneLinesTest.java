@@ -9,6 +9,7 @@ import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.genome.DogGeneLocus;
 import com.grahambartley.dogsunleashed.entity.genome.DogGeneTrait;
+import com.grahambartley.dogsunleashed.entity.personality.DogTraits;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyCoat;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
 import com.grahambartley.dogsunleashed.network.payload.ConnectionDogSyncData;
@@ -111,7 +112,8 @@ class FamilyTreeGeneLinesTest {
             RidingView.NONE,
             PetAwayStatus.HOME,
             false,
-            DogBondStep.STRANGER),
+            DogBondStep.STRANGER,
+            DogTraits.NONE),
         "owner",
         "Owner",
         genes,

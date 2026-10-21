@@ -26,32 +26,41 @@ class DogInspectScreenTest {
   void cardStaysOnScreen(final int screenWidth, final int screenHeight) {
     for (final WildTrustView trust :
         new WildTrustView[] {WildTrustView.NONE, WildTrustView.building(30)}) {
-      final int height = DogInspectScreen.cardHeight(trust, true);
-      final int left = DogInspectScreen.cardLeft(screenWidth);
-      final int top = DogInspectScreen.cardTop(screenHeight, height);
+      for (final boolean personality : new boolean[] {false, true}) {
+        final int height = DogInspectScreen.cardHeight(trust, true, personality);
+        final int left = DogInspectScreen.cardLeft(screenWidth);
+        final int top = DogInspectScreen.cardTop(screenHeight, height);
 
-      assertTrue(left >= 0, "card left " + left + " is off screen");
-      assertTrue(top >= 0, "card top " + top + " is off screen");
-      assertTrue(left + DogInspectScreen.CARD_WIDTH <= screenWidth);
-      assertTrue(top + height <= screenHeight);
+        assertTrue(left >= 0, "card left " + left + " is off screen");
+        assertTrue(top >= 0, "card top " + top + " is off screen");
+        assertTrue(left + DogInspectScreen.CARD_WIDTH <= screenWidth);
+        assertTrue(top + height <= screenHeight);
+      }
     }
   }
 
   static Stream<Arguments> cardHeightCases() {
     final int grown = DogInspectScreen.CARD_HEIGHT + DogInspectScreen.TRUST_ROW_HEIGHT;
+    final int personality = DogInspectScreen.PERSONALITY_ROW_HEIGHT;
     return Stream.of(
-        Arguments.of(WildTrustView.NONE, false, DogInspectScreen.CARD_HEIGHT),
-        Arguments.of(WildTrustView.NONE, true, grown),
-        Arguments.of(WildTrustView.TOO_WILD, false, grown),
-        Arguments.of(WildTrustView.SHUNNED, false, grown),
-        Arguments.of(WildTrustView.building(10), false, grown));
+        Arguments.of(WildTrustView.NONE, false, false, DogInspectScreen.CARD_HEIGHT),
+        Arguments.of(WildTrustView.NONE, true, false, grown),
+        Arguments.of(WildTrustView.TOO_WILD, false, false, grown),
+        Arguments.of(WildTrustView.SHUNNED, false, false, grown),
+        Arguments.of(WildTrustView.building(10), false, false, grown),
+        Arguments.of(WildTrustView.NONE, false, true, DogInspectScreen.CARD_HEIGHT + personality),
+        Arguments.of(WildTrustView.NONE, true, true, grown + personality));
   }
 
-  @ParameterizedTest(name = "trust {0}, tamed {1} -> {2}")
+  @ParameterizedTest(name = "trust {0}, tamed {1}, personality {2} -> {3}")
   @MethodSource("cardHeightCases")
-  @DisplayName("the card grows by one row when it shows trust or a tamed dog's bond")
-  void cardGrowsForTrustOrBond(final WildTrustView trust, final boolean tamed, final int expected) {
-    assertEquals(expected, DogInspectScreen.cardHeight(trust, tamed));
+  @DisplayName("the card grows by one row each for trust or bond and for personality")
+  void cardGrowsForTrustBondAndPersonality(
+      final WildTrustView trust,
+      final boolean tamed,
+      final boolean personality,
+      final int expected) {
+    assertEquals(expected, DogInspectScreen.cardHeight(trust, tamed, personality));
   }
 
   @ParameterizedTest(name = "screen width {0}")
@@ -78,8 +87,8 @@ class DogInspectScreenTest {
         contentBottom <= DogInspectScreen.CARD_HEIGHT - DogInspectScreen.CARD_PADDING,
         "content bottom " + contentBottom + " overflows the card");
     assertTrue(
-        contentBottom + DogInspectScreen.TRUST_ROW_HEIGHT
-            <= DogInspectScreen.cardHeight(WildTrustView.building(1), false)
+        contentBottom + DogInspectScreen.TRUST_ROW_HEIGHT + DogInspectScreen.PERSONALITY_ROW_HEIGHT
+            <= DogInspectScreen.cardHeight(WildTrustView.building(1), false, true)
                 - DogInspectScreen.CARD_PADDING,
         "the trust row overflows the card");
   }

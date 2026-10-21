@@ -141,6 +141,11 @@ public final class DogAnimationControllers {
                 RawAnimation.begin().thenPlay(DogAnimationKeys.PLAY_BOW)));
 
     controllers.add(
+        new AnimationController<>(dog, DogAnimationKeys.COWER, 0, state -> PlayState.STOP)
+            .triggerableAnim(
+                DogAnimationKeys.COWER, RawAnimation.begin().thenPlay(DogAnimationKeys.COWER)));
+
+    controllers.add(
         new AnimationController<>(
             dog,
             "head_tilt",

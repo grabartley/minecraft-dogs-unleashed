@@ -118,6 +118,9 @@ public final class DogBond extends DogComponent {
     if (DogBondRules.greetsOnReturn(this.step(), absent, resting)) {
       this.dog.triggerAnim(DogAnimationKeys.PLAY_BOW, DogAnimationKeys.PLAY_BOW);
       this.dog.getAmbienceEffects().startTailWag();
+      if (this.dog.getComponents().get(DogPersonality.class).traits().greetsWithHearts()) {
+        this.dog.getAmbienceEffects().burstHearts();
+      }
     }
   }
 

@@ -13,6 +13,7 @@ public final class DogAnimationKeys {
   public static final String SNIFF = "sniff";
   public static final String DIG = "dig";
   public static final String PLAY_BOW = "play_bow";
+  public static final String COWER = "cower";
 
   private DogAnimationKeys() {}
 }

@@ -15,6 +15,8 @@ import com.grahambartley.dogsunleashed.entity.genome.DogGeneLocus;
 import com.grahambartley.dogsunleashed.entity.genome.DogGeneTrait;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenes;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
+import com.grahambartley.dogsunleashed.entity.personality.DogTrait;
+import com.grahambartley.dogsunleashed.entity.personality.DogTraits;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyCoat;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
@@ -233,6 +235,31 @@ class PetDataTest {
     nbt.putInt(ModNbtKeys.BOND_POINTS, saved);
     final PetData reloaded = PetData.fromNbt(PetData.fromNbt(nbt).toNbt());
     assertEquals(expected, reloaded.getBondPoints());
+  }
+
+  static Stream<DogTraits> personalities() {
+    return Stream.of(
+        DogTraits.NONE,
+        DogTraits.of(DogTrait.BRAVE),
+        DogTraits.of(DogTrait.GREEDY, DogTrait.CLINGY));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("personalities")
+  @DisplayName("personality survives a save and reload so it outlives death")
+  void personalityRoundTrips(final DogTraits traits) {
+    final NbtCompound nbt = baselinePet().toNbt();
+    nbt.put(ModNbtKeys.PERSONALITY, traits.toNbt());
+    final PetData reloaded = PetData.fromNbt(PetData.fromNbt(nbt).toNbt());
+    assertEquals(traits, reloaded.getPersonality());
+  }
+
+  @Test
+  @DisplayName("a pet saved before personalities has none")
+  void legacyPetHasNoPersonality() {
+    final NbtCompound nbt = baselinePet().toNbt();
+    nbt.remove(ModNbtKeys.PERSONALITY);
+    assertTrue(PetData.fromNbt(nbt).getPersonality().isEmpty());
   }
 
   @ParameterizedTest(name = "age {0} ticks, senior {1}, senior parent {2}")

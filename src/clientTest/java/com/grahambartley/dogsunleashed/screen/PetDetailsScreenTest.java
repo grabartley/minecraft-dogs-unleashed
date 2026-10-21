@@ -93,4 +93,15 @@ class PetDetailsScreenTest {
   void previewHidesOnShortScreens(final int screenHeight, final boolean expected) {
     assertEquals(expected, PetDetailsScreen.shouldShowFamilyPreview(screenHeight, true));
   }
+
+  @ParameterizedTest(name = "alive {0} -> {1} fixed rows")
+  @CsvSource({"true, 9", "false, 5"})
+  @DisplayName("a living pet's info column keeps room for its fixed rows, personality included")
+  void fixedRowsIncludePersonality(final boolean alive, final int rows) {
+    assertEquals(
+        rows, alive ? PetDetailsScreen.ALIVE_FIXED_ROWS : PetDetailsScreen.DECEASED_FIXED_ROWS);
+    assertEquals(
+        (rows - PetDetailsScreen.DECEASED_FIXED_ROWS) * 14,
+        PetDetailsScreen.infoBottom(alive) - PetDetailsScreen.infoBottom(false));
+  }
 }
