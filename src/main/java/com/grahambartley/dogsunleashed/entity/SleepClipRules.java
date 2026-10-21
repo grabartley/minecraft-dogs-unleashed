@@ -10,8 +10,9 @@ import java.util.regex.Pattern;
 
 public final class SleepClipRules {
 
-  private static final Pattern VARIANT = Pattern.compile("sleep_([1-9][0-9]{0,8})");
+  private static final Pattern VARIANT = Pattern.compile("sleep_([2-9]|[1-9][0-9]{1,8})");
   private static final long MIX_MULTIPLIER = 0x9E3779B97F4A7C15L;
+  private static final long NAP_SALT = 0x5DEECE66DL << 20;
 
   private SleepClipRules() {}
 
@@ -36,7 +37,7 @@ public final class SleepClipRules {
       final long worldTime, final boolean baby, final boolean undead, final boolean napping) {
     final long napPeriod = GroundNapRules.periodOf(worldTime);
     return napping
-        ? napPeriod
+        ? napPeriod ^ NAP_SALT
         : DogSleepWindow.currentSleepWindowEnd(worldTime, baby, undead).orElse(napPeriod);
   }
 

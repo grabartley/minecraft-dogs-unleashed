@@ -32,7 +32,15 @@ class SleepClipRulesTest {
             List.of("sleep_10", "sleep_3", "sleep", "sleep_2"),
             List.of("sleep", "sleep_2", "sleep_3", "sleep_10")),
         Arguments.of(
-            List.of("sleep", "sleep_0", "sleep_", "sleep_02", "sleepy", "sleep_side", "sit_sleep"),
+            List.of(
+                "sleep",
+                "sleep_0",
+                "sleep_1",
+                "sleep_",
+                "sleep_02",
+                "sleepy",
+                "sleep_side",
+                "sit_sleep"),
             List.of("sleep")),
         Arguments.of(List.of("idle", "walk"), List.of()));
   }
@@ -136,6 +144,15 @@ class SleepClipRulesTest {
     assertEquals(
         SleepClipRules.sessionSeed(start, baby, undead, true),
         SleepClipRules.sessionSeed(end, baby, undead, true));
+  }
+
+  @ParameterizedTest(name = "nap and bed sleep at {0}")
+  @CsvSource({"0", "1", "2", "13000", "23000"})
+  @DisplayName("a nap seed never matches a bed sleep seed")
+  void napAndBedSeedsDiffer(final long time) {
+    assertNotEquals(
+        SleepClipRules.sessionSeed(time, false, false, true),
+        SleepClipRules.sessionSeed(time, false, false, false));
   }
 
   @ParameterizedTest(name = "nap at {0} then {1}")

@@ -1,17 +1,10 @@
 package com.grahambartley.dogsunleashed.entity;
 
-import java.util.Collections;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-import net.minecraft.util.Identifier;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
-import software.bernie.geckolib.cache.GeckoLibCache;
-import software.bernie.geckolib.loading.object.BakedAnimations;
 
 public final class DogAnimationControllers {
 
@@ -22,13 +15,11 @@ public final class DogAnimationControllers {
   private static final int SCENT_TRANSITION_TICKS = 4;
   private static final int BONE_DIG_TRANSITION_TICKS = 4;
 
-  private static final Map<BakedAnimations, List<String>> SLEEP_VARIANTS =
-      Collections.synchronizedMap(new IdentityHashMap<>());
-
   private DogAnimationControllers() {}
 
   public static void register(
       final UnleashedDogEntity dog, final AnimatableManager.ControllerRegistrar controllers) {
+    final SleepClipLatch sleepClip = new SleepClipLatch();
     controllers.add(
         new AnimationController<>(
             dog,
@@ -37,8 +28,13 @@ public final class DogAnimationControllers {
             state -> {
               if (state.getAnimatable().getSleepController().isAsleep()) {
                 return state.setAndContinue(
-                    RawAnimation.begin().thenLoop(sleepClipOf(state.getAnimatable())));
+                    RawAnimation.begin()
+                        .thenLoop(
+                            sleepClip.hold(
+                                dog.getWorld().getTime(),
+                                () -> RigSleepClips.shared().clipOf(dog))));
               }
+              sleepClip.release();
               if (state.getAnimatable().isInSittingPose()) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("sit"));
               }
@@ -160,26 +156,6 @@ public final class DogAnimationControllers {
               }
               return PlayState.STOP;
             }));
-  }
-
-  static String sleepClipOf(final UnleashedDogEntity dog) {
-    return SleepClipRules.clipFor(
-        sleepVariantsOf(GeckoLibCache.getBakedAnimations(), dog.getRigSourceBreed().animationId()),
-        dog.getUuid(),
-        dog.getWorld().getTimeOfDay(),
-        dog.isBaby(),
-        dog.isUndead(),
-        dog.getSleepController().isNapping());
-  }
-
-  static List<String> sleepVariantsOf(
-      final Map<Identifier, BakedAnimations> loadedAnimations, final Identifier rigAnimations) {
-    final BakedAnimations rigClips = loadedAnimations.get(rigAnimations);
-    if (rigClips == null) {
-      return List.of();
-    }
-    return SLEEP_VARIANTS.computeIfAbsent(
-        rigClips, clips -> SleepClipRules.variantsOf(clips.animations().keySet()));
   }
 
   static boolean isGalloping(final UnleashedDogEntity dog) {

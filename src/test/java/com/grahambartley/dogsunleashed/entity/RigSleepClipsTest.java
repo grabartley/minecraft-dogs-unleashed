@@ -10,14 +10,14 @@ import java.util.Map;
 import java.util.stream.Stream;
 import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import software.bernie.geckolib.animation.Animation;
 import software.bernie.geckolib.loading.object.BakedAnimations;
 
-class DogAnimationControllersTest {
+class RigSleepClipsTest {
 
   private static final Identifier RIG =
       Identifier.of("dogs-unleashed", "animations/beagle.animation.json");
@@ -38,20 +38,25 @@ class DogAnimationControllersTest {
   @ParameterizedTest(name = "{1}")
   @MethodSource("loaded")
   @DisplayName("a rig's sleep variants come from its own loaded animation file")
-  void sleepVariants(
+  void variants(
       final Map<Identifier, BakedAnimations> loadedAnimations, final List<String> expected) {
-    assertEquals(expected, DogAnimationControllers.sleepVariantsOf(loadedAnimations, RIG));
+    assertEquals(expected, new RigSleepClips().variantsOf(loadedAnimations, RIG));
   }
 
-  @Test
-  @DisplayName("a reloaded animation file is read again instead of served from the old one")
-  void reloadReadsNewClips() {
+  @ParameterizedTest(name = "reloaded {0}")
+  @CsvSource({"false", "true"})
+  @DisplayName("the same file is served from memory, a reloaded file is read again")
+  void reload(final boolean reloaded) {
+    final RigSleepClips rigClips = new RigSleepClips();
     final BakedAnimations first = clips("sleep");
-    final List<String> before = DogAnimationControllers.sleepVariantsOf(Map.of(RIG, first), RIG);
-    assertSame(before, DogAnimationControllers.sleepVariantsOf(Map.of(RIG, first), RIG));
-    assertEquals(
-        List.of("sleep", "sleep_2"),
-        DogAnimationControllers.sleepVariantsOf(Map.of(RIG, clips("sleep", "sleep_2")), RIG));
+    final List<String> before = rigClips.variantsOf(Map.of(RIG, first), RIG);
+    final BakedAnimations next = reloaded ? clips("sleep", "sleep_2") : first;
+    final List<String> after = rigClips.variantsOf(Map.of(RIG, next), RIG);
+    if (reloaded) {
+      assertEquals(List.of("sleep", "sleep_2"), after);
+    } else {
+      assertSame(before, after);
+    }
   }
 
   private static BakedAnimations clips(final String... names) {
