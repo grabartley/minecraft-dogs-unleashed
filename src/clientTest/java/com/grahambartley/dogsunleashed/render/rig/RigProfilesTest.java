@@ -99,6 +99,22 @@ class RigProfilesTest {
 
   @ParameterizedTest(name = "{0}")
   @MethodSource("rigs")
+  @DisplayName("every rig names its own ear shape, and every ear variant bone exists in that rig")
+  void earShapesAndVariantsResolve(final UnleashedDogBreed rig) {
+    final Set<String> bones = new HashSet<>();
+    collect(ShippedRigs.model(rig.serializedId()).topLevelBones(), bones);
+    final RigEars ears = BUNDLED.profileOf(rig).ears();
+    assertTrue(ears.shape().isPresent(), rig + " names no ear shape");
+    assertFalse(
+        ears.variants().containsKey(ears.shape().get()),
+        rig + " lists its own ear shape as a variant");
+    assertTrue(
+        bones.containsAll(ears.variantBones()),
+        rig + " ear variants name " + ears.variantBones() + " but the rig has " + bones);
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("rigs")
   @DisplayName("a rideable rig leans its rider further at a gallop than at rest")
   void ridersLeanIntoTheGallop(final UnleashedDogBreed rig) {
     final RigProfile profile = BUNDLED.profileOf(rig);

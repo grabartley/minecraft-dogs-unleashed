@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.render.growth;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import com.google.gson.JsonParser;
 import com.grahambartley.dogsunleashed.entity.DireWolfGrowthStage.SlotScales;
@@ -73,6 +74,19 @@ class GrowthRigScaleTest {
 
     assertEquals(0.0f, scale.lift(), EPSILON);
     assertEquals(1.0f, scale.heightScale(), EPSILON);
+  }
+
+  @Test
+  @DisplayName("the same slot scales on the same rig are built once and shared")
+  void sameScalesAreShared() {
+    final BakedGeoModel model = wolf();
+    final SlotScales scales = new SlotScales(1.1f, 1.0f, 0.9f, 1.0f);
+
+    final GrowthRigScale first = GrowthRigScale.of(model, PROFILE, scales);
+
+    assertSame(first, GrowthRigScale.of(model, PROFILE, new SlotScales(1.1f, 1.0f, 0.9f, 1.0f)));
+    assertEquals(1.1f, first.localScale("head"), EPSILON);
+    assertEquals(0.9f, first.localScale("leg"), EPSILON);
   }
 
   private static BakedGeoModel wolf() {

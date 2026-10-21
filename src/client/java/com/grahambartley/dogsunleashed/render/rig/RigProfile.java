@@ -24,7 +24,8 @@ public record RigProfile(
     List<Texel> pupils,
     Map<Identifier, Map<Slot, Identifier>> sheetOverrides,
     List<String> seats,
-    RiderPoseRange riderPose) {
+    RiderPoseRange riderPose,
+    RigEars ears) {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RigProfile.class);
 
@@ -32,6 +33,7 @@ public record RigProfile(
   private static final String SHEET_OVERRIDES_KEY = "sheet_overrides";
   private static final String SEATS_KEY = "seats";
   private static final String RIDER_POSE_KEY = "rider_pose";
+  private static final String EARS_KEY = "ears";
 
   public static final RigProfile EMPTY = new RigProfile(Map.of(), Map.of(), List.of(), Map.of());
 
@@ -89,6 +91,16 @@ public record RigProfile(
     this(bones, overlays, pupils, sheetOverrides, List.of(), RiderPoseRange.UPRIGHT);
   }
 
+  public RigProfile(
+      final Map<Slot, Set<String>> bones,
+      final Map<Overlay, Identifier> overlays,
+      final List<Texel> pupils,
+      final Map<Identifier, Map<Slot, Identifier>> sheetOverrides,
+      final List<String> seats,
+      final RiderPoseRange riderPose) {
+    this(bones, overlays, pupils, sheetOverrides, seats, riderPose, RigEars.NONE);
+  }
+
   public static RigProfile parse(final JsonObject json) {
     final Map<Slot, Set<String>> bones = new EnumMap<>(Slot.class);
     for (final Slot slot : Slot.values()) {
@@ -120,7 +132,8 @@ public record RigProfile(
         seatsOf(json),
         json.get(RIDER_POSE_KEY) instanceof JsonObject pose
             ? RiderPoseRange.parse(pose)
-            : RiderPoseRange.UPRIGHT);
+            : RiderPoseRange.UPRIGHT,
+        json.has(EARS_KEY) ? RigEars.parse(json.get(EARS_KEY)) : RigEars.NONE);
   }
 
   private static List<String> seatsOf(final JsonObject json) {

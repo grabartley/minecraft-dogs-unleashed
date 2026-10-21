@@ -34,6 +34,9 @@
     "tail_mid",
     "tail_tip"
   ],
+  "ears": {
+    "shape": "pricked"
+  },
   "ear_left": [
     "ear_left"
   ],

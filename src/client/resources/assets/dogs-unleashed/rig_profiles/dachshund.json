@@ -28,6 +28,9 @@
   "tail": [
     "tail"
   ],
+  "ears": {
+    "shape": "drop"
+  },
   "ear_left": [
     "ear2"
   ],

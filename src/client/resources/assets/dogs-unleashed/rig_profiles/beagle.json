@@ -28,6 +28,9 @@
   "tail": [
     "rabo"
   ],
+  "ears": {
+    "shape": "drop"
+  },
   "ear_left": [
     "ear3"
   ],

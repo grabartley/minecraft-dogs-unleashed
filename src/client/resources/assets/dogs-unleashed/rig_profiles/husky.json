@@ -31,6 +31,9 @@
     "tail",
     "bone"
   ],
+  "ears": {
+    "shape": "pricked"
+  },
   "ear_left": [
     "leftear"
   ],
