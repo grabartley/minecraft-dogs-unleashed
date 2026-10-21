@@ -160,4 +160,10 @@ class PlayChaseRulesTest {
       final double z) {
     assertEquals(new Spot(x, z), PlayChaseRules.midpoint(new Spot(ax, az), new Spot(bx, bz)));
   }
+
+  @ParameterizedTest
+  @CsvSource({"0, 0", "1, 1", "2, -1", "3, 2", "4, -2", "5, 3", "6, -3"})
+  void theStandingSpotSearchWorksOutwardFromTheDogsOwnLevel(final int step, final int offset) {
+    assertEquals(offset, PlayChaseRules.searchOffset(step));
+  }
 }

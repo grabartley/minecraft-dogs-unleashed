@@ -51,6 +51,10 @@ public final class PlayChaseRules {
     }
   }
 
+  public static int searchOffset(final int step) {
+    return (step + 1) / 2 * (step % 2 == 0 ? -1 : 1);
+  }
+
   public static Spot midpoint(final Spot a, final Spot b) {
     return new Spot((a.x + b.x) / 2, (a.z + b.z) / 2);
   }

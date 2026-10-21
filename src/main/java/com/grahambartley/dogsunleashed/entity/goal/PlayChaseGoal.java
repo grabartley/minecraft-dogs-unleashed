@@ -15,7 +15,7 @@ import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.Monster;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 public class PlayChaseGoal extends Goal {
@@ -125,19 +125,21 @@ public class PlayChaseGoal extends Goal {
   }
 
   private double standingYAt(final Spot spot) {
+    final World world = this.dog.getWorld();
     final BlockPos level = BlockPos.ofFloored(spot.x(), this.dog.getY(), spot.z());
     for (int step = 0; step <= 2 * FLEE_VERTICAL_RANGE; step++) {
-      final int offset = (step + 1) / 2 * (step % 2 == 0 ? -1 : 1);
-      final BlockPos feet = level.up(offset);
-      if (!this.dog.getWorld().getBlockState(feet).blocksMovement()
-          && this.dog
-              .getWorld()
-              .getBlockState(feet.down())
-              .isSideSolidFullSquare(this.dog.getWorld(), feet.down(), Direction.UP)) {
+      final BlockPos feet = level.up(PlayChaseRules.searchOffset(step));
+      if (isClear(world, feet)
+          && isClear(world, feet.up())
+          && !world.getBlockState(feet.down()).getCollisionShape(world, feet.down()).isEmpty()) {
         return feet.getY();
       }
     }
     return this.dog.getY();
+  }
+
+  private static boolean isClear(final World world, final BlockPos pos) {
+    return world.getBlockState(pos).getCollisionShape(world, pos).isEmpty();
   }
 
   public boolean mayPlay() {
