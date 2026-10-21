@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.render.layer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.grahambartley.dogsunleashed.render.ModelFit;
 import com.grahambartley.dogsunleashed.render.UnrotatedGeoBounds;
 import com.grahambartley.dogsunleashed.render.rig.ShippedRigs;
 import java.util.stream.Stream;
@@ -77,5 +78,23 @@ class CarriedToyTest {
   @DisplayName("each fetch item maps to its toy, and anything unknown falls back to the ball")
   void mapsFetchItemPathsToToys(final String path, final CarriedToy expected) {
     assertEquals(expected, CarriedToy.ofPath(path));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("fittedToys")
+  @DisplayName("a fitted toy's model length matches what its item renderer draws")
+  void fittedToyLengthMatchesTheRenderer(final String model, final CarriedToy toy) {
+    final Box bounds = UnrotatedGeoBounds.of(ShippedRigs.model(model), 1f);
+    final ModelFit fit =
+        ModelFit.acrossBlock(
+            new Vector3f((float) bounds.minX, (float) bounds.minY, (float) bounds.minZ),
+            new Vector3f((float) bounds.maxX, (float) bounds.maxY, (float) bounds.maxZ));
+
+    assertEquals(
+        toy.modelPixels(), (float) (bounds.getLengthX() * fit.scale() * PIXELS_PER_BLOCK), 1e-3f);
+  }
+
+  static Stream<Arguments> fittedToys() {
+    return Stream.of(Arguments.of("rope_toy", CarriedToy.ROPE_TOY));
   }
 }

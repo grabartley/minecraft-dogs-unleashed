@@ -75,14 +75,28 @@ class TugStateTest {
     assertEquals(expected, state.outcome());
   }
 
-  @ParameterizedTest(name = "kept away at {0}, checked at {1} -> over {2}")
-  @CsvSource({"500, 500, false", "500, 699, false", "500, 700, true", "500, 900, true"})
-  @DisplayName("a dog that won keeps the rope away for ten seconds")
-  void keepAwayLastsTenSeconds(final long keptAt, final long now, final boolean over) {
+  @ParameterizedTest(name = "kept away at {0}, checked at {1}, hurt {2} -> over {3}")
+  @CsvSource({
+    "500, 500, false, false",
+    "500, 699, false, false",
+    "500, 700, false, true",
+    "500, 900, false, true",
+    "500, 501, true, true"
+  })
+  @DisplayName("a dog that won keeps the rope away for ten seconds, or until it gets hurt")
+  void keepAwayLastsTenSecondsOrUntilHurt(
+      final long keptAt, final long now, final boolean hurt, final boolean over) {
     final TugState state = fresh(0.01).keptAway(keptAt);
-    assertEquals(over, state.isKeepAwayOver(now));
+    assertEquals(over, state.isKeepAwayOver(now, hurt));
     assertEquals(Outcome.DOG_WINS, state.outcome());
     assertEquals(CENTRE, state.centre());
+  }
+
+  @ParameterizedTest(name = "hurt {0}")
+  @CsvSource({"true", "false"})
+  @DisplayName("a tug that is still being played is never a finished keep-away")
+  void anOngoingTugIsNotAKeepAway(final boolean hurt) {
+    assertEquals(false, fresh(0.01).isKeepAwayOver(10_000, hurt));
   }
 
   @ParameterizedTest(name = "pull at {0}, drag roll {1}")

@@ -153,6 +153,31 @@ public final class TugGameTest implements FabricGameTest {
         });
   }
 
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 400)
+  public void hurtingADogThatRanOffEndsTheGameAndItKeepsTheRope(final TestContext context) {
+    final ServerPlayerEntity owner = ownerWithRope(context);
+    final UnleashedDogEntity dog = pet(context, owner);
+    dog.interact(owner, Hand.MAIN_HAND);
+    final boolean[] hurt = {false};
+
+    context.runAtEveryTick(
+        () -> {
+          if (!hurt[0] && tug(dog).isKeepingAway()) {
+            hurt[0] = true;
+            DogTestHelper.damageEntity(dog, 1.0f);
+            context.waitAndRun(
+                2,
+                () -> {
+                  context.assertTrue(
+                      tug(dog).state() == null, "Getting hurt should end the keep-away");
+                  assertOneRope(context, owner, dog);
+                  SurvivalTestPlayer.leave(context, owner);
+                  context.complete();
+                });
+          }
+        });
+  }
+
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 20)
   public void hurtingTheDogStopsTheTugAndHandsTheRopeBack(final TestContext context) {
     final ServerPlayerEntity owner = ownerWithRope(context);

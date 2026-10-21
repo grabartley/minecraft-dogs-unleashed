@@ -60,8 +60,8 @@ public record TugState(
         now + TugRules.KEEP_AWAY_TICKS);
   }
 
-  public boolean isKeepAwayOver(final long now) {
-    return this.keepingAway && now >= this.keepAwayEndsAt;
+  public boolean isKeepAwayOver(final long now, final boolean hurt) {
+    return this.keepingAway && (hurt || now >= this.keepAwayEndsAt);
   }
 
   private TugState withBalance(final double newBalance) {

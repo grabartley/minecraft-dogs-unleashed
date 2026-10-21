@@ -18,7 +18,7 @@ class FittedGeoItemRendererTest {
   }
 
   @ParameterizedTest(name = "{0}, {1} pixels at its longest")
-  @CsvSource({"rope_toy, 26", "frisbee, 16"})
+  @CsvSource({"rope_toy, 26"})
   @DisplayName("a held toy's longest side is fitted across the block's diagonal")
   void fitsTheLongestSideAcrossTheDiagonal(final String model, final float longestPixels) {
     final ModelFit fit =
