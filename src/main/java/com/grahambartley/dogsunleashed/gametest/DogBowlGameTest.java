@@ -5,6 +5,7 @@ import com.grahambartley.dogsunleashed.block.BowlFill;
 import com.grahambartley.dogsunleashed.block.FoodBowlBlock;
 import com.grahambartley.dogsunleashed.block.WaterBowlBlock;
 import com.grahambartley.dogsunleashed.block.entity.FoodBowlBlockEntity;
+import com.grahambartley.dogsunleashed.entity.DogBowlMeal;
 import com.grahambartley.dogsunleashed.entity.DogFoods;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
@@ -76,6 +77,78 @@ public final class DogBowlGameTest implements FabricGameTest {
         });
   }
 
+  private static void setAlight(final UnleashedDogEntity dog) {
+    dog.addStatusEffect(new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, BURN_TICKS));
+    dog.setFireTicks(BURN_TICKS);
+  }
+
+  private static DogBowlMeal meal(final UnleashedDogEntity dog) {
+    return dog.getComponents().get(DogBowlMeal.class);
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 400, batchId = "bowl-meal-state")
+  public void aDogIsEatingOnlyWhileItsMealLasts(final TestContext context) {
+    final FoodBowlBlockEntity bowl = placeFoodBowl(context, BOWL_FOOD);
+    final UnleashedDogEntity dog = hurtDog(context);
+    final boolean[] sawEating = {false};
+    context.runAtEveryTick(
+        () -> {
+          if (meal(dog).isEating()) {
+            context.assertTrue(mealsEaten(dog) == 0, "The dog was still eating after its meal");
+            sawEating[0] = true;
+            return;
+          }
+          if (mealsEaten(dog) >= 1) {
+            context.assertTrue(sawEating[0], "The dog healed without ever eating");
+            context.assertTrue(bowl.foodCount() == BOWL_FOOD - 1, "One meal should take one food");
+            context.complete();
+          }
+        });
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 400, batchId = "bowl-drink-state")
+  public void aDogIsDrinkingOnlyWhileItsDrinkLasts(final TestContext context) {
+    context.setBlockState(
+        REL_BOWL, ModBlocks.WATER_BOWL.getDefaultState().with(WaterBowlBlock.DRINKS, 3));
+    final UnleashedDogEntity dog = hurtDog(context);
+    final boolean[] sawDrinking = {false};
+    context.runAtEveryTick(
+        () -> {
+          final boolean regenerating = dog.hasStatusEffect(StatusEffects.REGENERATION);
+          if (meal(dog).isEating()) {
+            context.assertFalse(regenerating, "The dog was still drinking after its drink");
+            sawDrinking[0] = true;
+            return;
+          }
+          if (regenerating) {
+            context.assertTrue(sawDrinking[0], "The dog regenerated without ever drinking");
+            context.complete();
+          }
+        });
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 400, batchId = "bowl-meal-cut-short")
+  public void dangerCutsAMealShortAndClearsTheEatingState(final TestContext context) {
+    final FoodBowlBlockEntity bowl = placeFoodBowl(context, BOWL_FOOD);
+    final UnleashedDogEntity dog = hurtDog(context);
+    final boolean[] setAlight = {false};
+    context.runAtEveryTick(
+        () -> {
+          if (!setAlight[0]) {
+            if (meal(dog).isEating()) {
+              setAlight(dog);
+              setAlight[0] = true;
+            }
+            return;
+          }
+          if (!meal(dog).isEating()) {
+            context.assertTrue(
+                bowl.foodCount() == BOWL_FOOD, "A meal cut short should not take any food");
+            context.complete();
+          }
+        });
+  }
+
   @GameTest(templateName = ARENA, tickLimit = 600, batchId = "bowl-hopper")
   public void foodFromAHopperIsNeverDuplicatedOnTheWayToTheDog(final TestContext context) {
     final FoodBowlBlockEntity bowl = placeFoodBowl(context, 0);
@@ -139,8 +212,7 @@ public final class DogBowlGameTest implements FabricGameTest {
   public void aBurningDogLeavesTheBowlAlone(final TestContext context) {
     final FoodBowlBlockEntity bowl = placeFoodBowl(context, BOWL_FOOD);
     final UnleashedDogEntity dog = hurtDog(context);
-    dog.addStatusEffect(new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, BURN_TICKS));
-    dog.setFireTicks(BURN_TICKS);
+    setAlight(dog);
     context.runAtTick(
         WATCH_TICKS,
         () -> {
