@@ -34,7 +34,7 @@ public class DogModel extends GeoModel<UnleashedDogEntity> {
 
   @Override
   public Identifier getAnimationResource(final UnleashedDogEntity animatable) {
-    return Identifier.of(MOD_ID, animatable.getRigSourceBreed().animationPath());
+    return animatable.getRigSourceBreed().animationId();
   }
 
   private static String flatTextureName(final UnleashedDogEntity animatable) {

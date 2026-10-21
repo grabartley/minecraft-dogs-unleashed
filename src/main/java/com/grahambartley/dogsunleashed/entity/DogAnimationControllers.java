@@ -19,6 +19,7 @@ public final class DogAnimationControllers {
 
   public static void register(
       final UnleashedDogEntity dog, final AnimatableManager.ControllerRegistrar controllers) {
+    final SleepClipLatch sleepClip = new SleepClipLatch();
     controllers.add(
         new AnimationController<>(
             dog,
@@ -26,8 +27,14 @@ public final class DogAnimationControllers {
             0,
             state -> {
               if (state.getAnimatable().getSleepController().isAsleep()) {
-                return state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.SLEEP));
+                return state.setAndContinue(
+                    RawAnimation.begin()
+                        .thenLoop(
+                            sleepClip.hold(
+                                state.getAnimatable().getWorld().getTime(),
+                                () -> RigSleepClips.shared().clipOf(state.getAnimatable()))));
               }
+              sleepClip.release();
               if (state.getAnimatable().isInSittingPose()) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("sit"));
               }

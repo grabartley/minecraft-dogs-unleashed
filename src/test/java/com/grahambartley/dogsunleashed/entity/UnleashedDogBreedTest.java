@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.biome.BiomeKeys;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -303,7 +304,9 @@ class UnleashedDogBreedTest {
   void derivedAssetPathsEmbedSerializedId(final UnleashedDogBreed breed) {
     final String id = breed.serializedId();
     assertEquals("entity.dogs-unleashed." + id, breed.translationKey());
-    assertEquals("animations/" + id + ".animation.json", breed.animationPath());
+    assertEquals(
+        Identifier.of("dogs-unleashed", "animations/" + id + ".animation.json"),
+        breed.animationId());
     assertEquals("geo/" + id + ".geo.json", breed.geoPath());
   }
 
