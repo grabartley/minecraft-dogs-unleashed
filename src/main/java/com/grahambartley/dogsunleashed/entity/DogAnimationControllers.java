@@ -1,10 +1,15 @@
 package com.grahambartley.dogsunleashed.entity;
 
+import com.grahambartley.dogsunleashed.DogsUnleashed;
+import java.util.List;
+import net.minecraft.util.Identifier;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.cache.GeckoLibCache;
+import software.bernie.geckolib.loading.object.BakedAnimations;
 
 public final class DogAnimationControllers {
 
@@ -26,7 +31,8 @@ public final class DogAnimationControllers {
             0,
             state -> {
               if (state.getAnimatable().getSleepController().isAsleep()) {
-                return state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.SLEEP));
+                return state.setAndContinue(
+                    RawAnimation.begin().thenLoop(sleepClipOf(state.getAnimatable())));
               }
               if (state.getAnimatable().isInSittingPose()) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("sit"));
@@ -149,6 +155,18 @@ public final class DogAnimationControllers {
               }
               return PlayState.STOP;
             }));
+  }
+
+  static String sleepClipOf(final UnleashedDogEntity dog) {
+    final BakedAnimations rigClips =
+        GeckoLibCache.getBakedAnimations()
+            .get(Identifier.of(DogsUnleashed.MOD_ID, dog.getRigSourceBreed().animationPath()));
+    return SleepClipRules.clipFor(
+        rigClips == null ? List.of() : rigClips.animations().keySet(),
+        dog.getUuid(),
+        dog.getWorld().getTimeOfDay(),
+        dog.isBaby(),
+        dog.isUndead());
   }
 
   static boolean isGalloping(final UnleashedDogEntity dog) {
