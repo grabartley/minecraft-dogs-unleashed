@@ -5,6 +5,7 @@ import com.grahambartley.dogsunleashed.block.BowlFill;
 import com.grahambartley.dogsunleashed.block.FoodBowlBlock;
 import com.grahambartley.dogsunleashed.block.WaterBowlBlock;
 import com.grahambartley.dogsunleashed.block.entity.FoodBowlBlockEntity;
+import com.grahambartley.dogsunleashed.entity.DogBowlMeal;
 import com.grahambartley.dogsunleashed.entity.DogFoods;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
@@ -71,6 +72,54 @@ public final class DogBowlGameTest implements FabricGameTest {
               bowl.foodCount() == BOWL_FOOD - eaten,
               "The dog healed " + eaten + " meals but the bowl holds " + bowl.foodCount());
           if (eaten >= 1) {
+            context.complete();
+          }
+        });
+  }
+
+  private static DogBowlMeal meal(final UnleashedDogEntity dog) {
+    return dog.getComponents().get(DogBowlMeal.class);
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 400, batchId = "bowl-meal-state")
+  public void aDogIsEatingOnlyWhileItsMealLasts(final TestContext context) {
+    final FoodBowlBlockEntity bowl = placeFoodBowl(context, BOWL_FOOD);
+    final UnleashedDogEntity dog = hurtDog(context);
+    final boolean[] sawEating = {false};
+    context.runAtEveryTick(
+        () -> {
+          if (meal(dog).isEating()) {
+            context.assertTrue(mealsEaten(dog) == 0, "The dog was still eating after its meal");
+            sawEating[0] = true;
+            return;
+          }
+          if (mealsEaten(dog) >= 1) {
+            context.assertTrue(sawEating[0], "The dog healed without ever eating");
+            context.assertTrue(bowl.foodCount() == BOWL_FOOD - 1, "One meal should take one food");
+            context.complete();
+          }
+        });
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 400, batchId = "bowl-meal-cut-short")
+  public void dangerCutsAMealShortAndClearsTheEatingState(final TestContext context) {
+    final FoodBowlBlockEntity bowl = placeFoodBowl(context, BOWL_FOOD);
+    final UnleashedDogEntity dog = hurtDog(context);
+    final boolean[] setAlight = {false};
+    context.runAtEveryTick(
+        () -> {
+          if (!setAlight[0]) {
+            if (meal(dog).isEating()) {
+              dog.addStatusEffect(
+                  new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, BURN_TICKS));
+              dog.setFireTicks(BURN_TICKS);
+              setAlight[0] = true;
+            }
+            return;
+          }
+          if (!meal(dog).isEating()) {
+            context.assertTrue(
+                bowl.foodCount() == BOWL_FOOD, "A meal cut short should not take any food");
             context.complete();
           }
         });

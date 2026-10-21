@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.entity.goal;
 import com.grahambartley.dogsunleashed.ModPointsOfInterest;
 import com.grahambartley.dogsunleashed.block.WaterBowlBlock;
 import com.grahambartley.dogsunleashed.block.entity.FoodBowlBlockEntity;
+import com.grahambartley.dogsunleashed.entity.DogBowlMeal;
 import com.grahambartley.dogsunleashed.entity.DogFoods;
 import com.grahambartley.dogsunleashed.entity.DogIdleness;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
@@ -104,6 +105,7 @@ public class DogBowlGoal extends Goal {
     this.bowlPos = null;
     this.path = null;
     this.mealTicks = -1;
+    this.meal().setEating(false);
   }
 
   @Override
@@ -129,6 +131,7 @@ public class DogBowlGoal extends Goal {
         pos.getX(), pos.getY(), pos.getZ(), this.dog.getX(), this.dog.getY(), this.dog.getZ())) {
       this.dog.getNavigation().stop();
       this.mealTicks = DogBowlVisitRules.MEAL_TICKS;
+      this.meal().setEating(true);
       return;
     }
     if (++this.walkTicks > DogBowlVisitRules.MAX_WALK_TICKS) {
@@ -169,6 +172,7 @@ public class DogBowlGoal extends Goal {
     }
     this.waitFor(DogBowlVisitRules.MEAL_COOLDOWN_TICKS);
     this.bowl = null;
+    this.meal().setEating(false);
   }
 
   private void mealEffects(final Bowl eating, final BlockPos pos, final Vec3d center) {
@@ -253,6 +257,10 @@ public class DogBowlGoal extends Goal {
             this.dog.isOnFire(), this.dog.getAttacker() != null, this.dog.shouldEscapePowderSnow())
         && !this.dog.getFetchCarry().isCarrying()
         && DogIdleness.isFreeForChores(this.dog);
+  }
+
+  private DogBowlMeal meal() {
+    return this.dog.getComponents().get(DogBowlMeal.class);
   }
 
   private ServerWorld world() {

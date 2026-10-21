@@ -18,6 +18,7 @@ public final class DogAnimationKeys {
   public static final String ROLL_OVER = "roll_over";
   public static final String PLAY_DEAD = "play_dead";
   public static final String TUG = "tug";
+  public static final String EAT = "eat";
 
   private DogAnimationKeys() {}
 }
