@@ -32,6 +32,8 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
   static final int PORTRAIT_SIZE = 96;
   static final int PREVIEW_NODE_SIZE = 26;
   static final float PREVIEW_SCALE = 0.45f;
+  static final int ALIVE_FIXED_ROWS = 9;
+  static final int DECEASED_FIXED_ROWS = 5;
   private static final int INFO_TOP = 44;
   private static final int INFO_LINE_HEIGHT = 14;
   private static final int STATS_SECTION_GAP = 6;
@@ -416,7 +418,7 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
   }
 
   static int infoBottom(final boolean alive) {
-    final int infoLines = alive ? 9 : 5;
+    final int infoLines = alive ? ALIVE_FIXED_ROWS : DECEASED_FIXED_ROWS;
     return INFO_TOP
         + infoLines * INFO_LINE_HEIGHT
         + STATS_SECTION_GAP

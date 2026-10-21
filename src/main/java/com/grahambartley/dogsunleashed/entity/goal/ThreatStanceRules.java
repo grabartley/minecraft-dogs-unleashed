@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
 import com.grahambartley.dogsunleashed.entity.DogCommand;
+import java.util.function.BooleanSupplier;
 import net.minecraft.util.math.Vec3d;
 
 public final class ThreatStanceRules {
@@ -23,6 +24,21 @@ public final class ThreatStanceRules {
         && !hasTarget
         && !sitting
         && (command == DogCommand.FOLLOW || command == DogCommand.HEEL);
+  }
+
+  public static boolean isThreat(
+      final boolean monster,
+      final boolean alive,
+      final boolean calmNeutral,
+      final boolean friendly,
+      final double squaredDistanceToOwner,
+      final BooleanSupplier visible) {
+    return monster
+        && alive
+        && !calmNeutral
+        && !friendly
+        && inRange(squaredDistanceToOwner, THREAT_RANGE)
+        && visible.getAsBoolean();
   }
 
   public static boolean inRange(final double squaredDistance, final double range) {

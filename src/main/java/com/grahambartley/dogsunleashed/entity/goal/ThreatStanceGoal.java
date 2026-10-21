@@ -46,9 +46,7 @@ public class ThreatStanceGoal extends Goal {
     return this.takesStance()
         && owner != null
         && this.threat != null
-        && this.threat.isAlive()
-        && ThreatStanceRules.inRange(
-            this.threat.squaredDistanceTo(owner), ThreatStanceRules.THREAT_RANGE);
+        && this.isThreat(this.threat, owner);
   }
 
   @Override
@@ -115,17 +113,20 @@ public class ThreatStanceGoal extends Goal {
         .getEntitiesByClass(
             MobEntity.class,
             owner.getBoundingBox().expand(ThreatStanceRules.THREAT_RANGE),
-            mob ->
-                mob instanceof Monster
-                    && mob.isAlive()
-                    && !(mob instanceof Angerable angerable && !angerable.hasAngerTime())
-                    && this.dog.canSee(mob)
-                    && !DogFriendlyTargetPolicy.isFriendlyTarget(mob)
-                    && ThreatStanceRules.inRange(
-                        mob.squaredDistanceTo(owner), ThreatStanceRules.THREAT_RANGE))
+            mob -> this.isThreat(mob, owner))
         .stream()
         .min(Comparator.comparingDouble(mob -> mob.squaredDistanceTo(owner)))
         .orElse(null);
+  }
+
+  private boolean isThreat(final LivingEntity mob, final LivingEntity owner) {
+    return ThreatStanceRules.isThreat(
+        mob instanceof Monster,
+        mob.isAlive(),
+        mob instanceof Angerable angerable && !angerable.hasAngerTime(),
+        DogFriendlyTargetPolicy.isFriendlyTarget(mob),
+        mob.squaredDistanceTo(owner),
+        () -> this.dog.canSee(mob));
   }
 
   private DogTraits traits() {

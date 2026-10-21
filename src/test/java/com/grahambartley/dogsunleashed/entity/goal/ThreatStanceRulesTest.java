@@ -67,4 +67,41 @@ class ThreatStanceRulesTest {
   void cowersNow(final int ticks, final boolean expected) {
     assertEquals(expected, ThreatStanceRules.cowersNow(ticks));
   }
+
+  @ParameterizedTest(
+      name = "monster {0}, alive {1}, calm {2}, friendly {3}, {4} squared, seen {5} -> {6}")
+  @CsvSource({
+    "true, true, false, false, 36.0, true, true",
+    "true, true, false, false, 64.0, true, true",
+    "true, true, false, false, 64.1, true, false",
+    "false, true, false, false, 36.0, true, false",
+    "true, false, false, false, 36.0, true, false",
+    "true, true, true, false, 36.0, true, false",
+    "true, true, false, true, 36.0, true, false",
+    "true, true, false, false, 36.0, false, false"
+  })
+  @DisplayName(
+      "only a hostile, angry or always-hostile mob the dog can see near its owner is a threat")
+  void isThreat(
+      final boolean monster,
+      final boolean alive,
+      final boolean calmNeutral,
+      final boolean friendly,
+      final double squaredDistance,
+      final boolean visible,
+      final boolean expected) {
+    assertEquals(
+        expected,
+        ThreatStanceRules.isThreat(
+            monster, alive, calmNeutral, friendly, squaredDistance, () -> visible));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @CsvSource({"false", "true"})
+  @DisplayName("line of sight is only checked once every cheaper test passes")
+  void visibilityCheckedLast(final boolean monster) {
+    final boolean[] looked = {false};
+    ThreatStanceRules.isThreat(monster, true, false, false, 100.0, () -> looked[0] = true);
+    assertEquals(false, looked[0]);
+  }
 }

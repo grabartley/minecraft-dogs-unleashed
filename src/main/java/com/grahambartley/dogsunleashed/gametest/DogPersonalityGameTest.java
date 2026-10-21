@@ -27,6 +27,7 @@ import net.minecraft.entity.mob.ZombieEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
@@ -218,6 +219,12 @@ public final class DogPersonalityGameTest implements FabricGameTest {
     legacy.setAiDisabled(true);
     legacy.readCustomDataFromNbt(nbt);
     context.assertFalse(traits(legacy).isEmpty(), "A dog saved before traits rolls some");
+
+    nbt.put(ModNbtKeys.PERSONALITY, new NbtList());
+    final UnleashedDogEntity empty = context.spawnEntity(ModEntities.BEAGLE, REL_DOG);
+    empty.setAiDisabled(true);
+    empty.readCustomDataFromNbt(nbt);
+    context.assertFalse(traits(empty).isEmpty(), "A dog saved with no traits rolls some");
     context.complete();
   }
 
