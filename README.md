@@ -86,6 +86,7 @@ another player, even in another dimension, then trot back home to you.
 Give a roaming or staying dog a bone and it buries it, then digs it up a few days later and brings it back, sometimes
 with a find. Foxes sneak in at night to steal buried bones, and a dog nearby barks and chases them off.
 Dogs bark at pillagers too, and earn a rosette for helping you win a raid.
+Left to roam, two dogs will sometimes play bow and chase each other around, and wild dire wolf pups play too.
 The more time you spend together, the closer your dog grows, from Stranger to Devoted.
 Every dog has a personality too: brave, timid, greedy, lazy, clingy or playful.
 - **Give them a bed.** Craft a dog bed or a dog house in any colour and assign it. Your dog goes to bed by itself at
