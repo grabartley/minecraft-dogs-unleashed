@@ -7,6 +7,7 @@ import com.grahambartley.dogsunleashed.entity.DogWheelSubActions;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.network.ModNetworking;
 import java.util.List;
+import java.util.UUID;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -68,8 +69,9 @@ public final class DogDeliveries {
   }
 
   public static void handedOver(final UnleashedDogEntity dog, final PlayerEntity player) {
-    if (isWaitingFor(dog, player)) {
-      DogsUnleashed.runNextTick(() -> DeliveryRounds.sendHome(dog));
+    if (isWaitingFor(dog, player) && dog.getWorld() instanceof ServerWorld world) {
+      final UUID pet = dog.getUuid();
+      DogsUnleashed.runNextTick(() -> DeliveryRounds.sendHome(world.getServer(), pet));
     }
   }
 }

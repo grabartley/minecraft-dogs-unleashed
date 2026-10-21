@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.render.layer;
 
 import com.google.common.collect.MapMaker;
 import com.grahambartley.dogsunleashed.entity.DogSaddlebags;
+import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.render.armour.ArmourClearance;
 import com.grahambartley.dogsunleashed.render.gear.SaddlebagsAssets;
@@ -9,6 +10,7 @@ import com.grahambartley.dogsunleashed.render.gear.SaddlebagsFit;
 import com.grahambartley.dogsunleashed.render.rig.BackTopLocator;
 import com.grahambartley.dogsunleashed.render.rig.BackTopLocator.BackTop;
 import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
 import net.minecraft.client.render.RenderLayer;
@@ -26,7 +28,8 @@ public class DogSaddlebagsLayer extends GeoRenderLayer<UnleashedDogEntity> {
 
   private static final int OPAQUE_WHITE = 0xFFFFFFFF;
 
-  private final Map<BakedGeoModel, Optional<BackTop>> backs = new MapMaker().weakKeys().makeMap();
+  private final Map<BakedGeoModel, Map<UnleashedDogBreed, Optional<BackTop>>> backs =
+      new MapMaker().weakKeys().makeMap();
 
   private Optional<BackTop> frameBack = Optional.empty();
   private BakedGeoModel frameModel;
@@ -49,10 +52,11 @@ public class DogSaddlebagsLayer extends GeoRenderLayer<UnleashedDogEntity> {
     this.frameModel = bakedModel;
     this.frameBack =
         animatable.getComponents().get(DogSaddlebags.class).isWorn()
-            ? this.backs.computeIfAbsent(
-                bakedModel,
-                model ->
-                    BackTopLocator.locate(model, RigProfiles.of(animatable.getRigSourceBreed())))
+            ? this.backs
+                .computeIfAbsent(bakedModel, model -> new EnumMap<>(UnleashedDogBreed.class))
+                .computeIfAbsent(
+                    animatable.getRigSourceBreed(),
+                    breed -> BackTopLocator.locate(bakedModel, RigProfiles.of(breed)))
             : Optional.empty();
   }
 

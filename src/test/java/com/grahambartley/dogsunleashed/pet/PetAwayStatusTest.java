@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.pet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -39,5 +40,20 @@ class PetAwayStatusTest {
   void labels(final PetAwayStatus status, final boolean away, final String key) {
     assertEquals(away, status.isAway());
     assertEquals(key, status.translationKey());
+  }
+
+  @ParameterizedTest(name = "{0} -> {1}")
+  @CsvSource(
+      nullValues = "none",
+      value = {
+        "HOME, none",
+        "EXPLORING, message.dogs-unleashed.expedition.away",
+        "DELIVERING, message.dogs-unleashed.delivery.away",
+        "WAITING, message.dogs-unleashed.delivery.away",
+        "RETURNING, message.dogs-unleashed.delivery.away"
+      })
+  @DisplayName("a summon for a dog that is away explains where it went")
+  void busyKey(final PetAwayStatus status, final String expected) {
+    assertEquals(Optional.ofNullable(expected), status.busyKey());
   }
 }

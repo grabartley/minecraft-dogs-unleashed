@@ -15,6 +15,7 @@ import com.grahambartley.dogsunleashed.entity.delivery.DeliveryDeparture;
 import com.grahambartley.dogsunleashed.entity.delivery.DeliveryLeg;
 import com.grahambartley.dogsunleashed.entity.delivery.DeliveryRounds;
 import com.grahambartley.dogsunleashed.gametest.util.PendantTestHelper;
+import com.grahambartley.dogsunleashed.listener.AwayDogListener;
 import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
 import com.grahambartley.dogsunleashed.screenhandler.DogEquipmentScreenHandler;
 import java.util.UUID;
@@ -268,6 +269,65 @@ public final class DogDeliveryGameTest implements FabricGameTest {
     context.assertTrue(
         AwayDogs.isOffWorld(server(context), dog.getUuid()), "The dog is kept safe away");
     finish(context, dog);
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void aWaitingDogWhoseChunkUnloadsHeadsHomeOnce(final TestContext context) {
+    final ServerPlayerEntity owner = PendantTestHelper.survivalOwnerAt(context, OWNER_POS);
+    final ServerPlayerEntity recipient = PendantTestHelper.survivalOwnerAt(context, RECIPIENT_POS);
+    final UnleashedDogEntity dog = wearingBags(context, owner);
+    bags(dog).setStack(1, new ItemStack(Items.DIAMOND, 8));
+    final UnleashedDogEntity arrived = arriveAtRecipient(context, dog, owner, recipient);
+
+    DeliveryRounds.unloaded(arrived, context.getWorld());
+    AwayDogListener.discardIfAway(arrived, context.getWorld());
+    final Delivery homeward = Deliveries.get(server(context)).of(dog.getUuid()).orElseThrow();
+    context.assertEquals(homeward.leg(), DeliveryLeg.TO_OWNER, "The unloaded dog heads home");
+
+    context.runAtTick(
+        3,
+        () -> {
+          context.assertTrue(arrived.isRemoved(), "The copy left in the chunk is discarded");
+          DeliveryRounds.advance(server(context), homeward, homeward.legEndsAt());
+          final UnleashedDogEntity home = loaded(context, dog.getUuid());
+          context.assertTrue(home != null && home != arrived, "One dog comes home");
+          context.assertEquals(bags(home).count(Items.DIAMOND), 8, "Every diamond comes home");
+          context.assertFalse(
+              DeliveryRounds.isStaleCopy(server(context), home), "The dog at home is not stale");
+          finish(context, home);
+        });
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void aDogThatDiesWhileWaitingEndsItsDelivery(final TestContext context) {
+    final ServerPlayerEntity owner = PendantTestHelper.survivalOwnerAt(context, OWNER_POS);
+    final ServerPlayerEntity recipient = PendantTestHelper.survivalOwnerAt(context, RECIPIENT_POS);
+    final UnleashedDogEntity arrived =
+        arriveAtRecipient(context, wearingBags(context, owner), owner, recipient);
+
+    arrived.kill();
+
+    context.assertTrue(
+        Deliveries.get(server(context)).of(arrived.getUuid()).isEmpty(), "No delivery is left");
+    context.assertTrue(
+        AwayDogs.busyKey(server(context), arrived.getUuid()).isEmpty(),
+        "The dog is no longer reported busy");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void theRecipientChangingWorldOrLeavingSendsTheDogHome(final TestContext context) {
+    final ServerPlayerEntity owner = PendantTestHelper.survivalOwnerAt(context, OWNER_POS);
+    final ServerPlayerEntity recipient = PendantTestHelper.survivalOwnerAt(context, RECIPIENT_POS);
+    final UnleashedDogEntity arrived =
+        arriveAtRecipient(context, wearingBags(context, owner), owner, recipient);
+
+    DeliveryRounds.recipientLeft(server(context), recipient);
+
+    context.assertTrue(arrived.isRemoved(), "The dog sets off home");
+    context.assertEquals(
+        AwayDogs.statusOf(server(context), arrived.getUuid()), PetAwayStatus.RETURNING, "Status");
+    finish(context, arrived);
   }
 
   private static UnleashedDogEntity arriveAtRecipient(

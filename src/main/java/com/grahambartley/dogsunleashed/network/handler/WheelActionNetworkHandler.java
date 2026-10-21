@@ -37,6 +37,10 @@ public final class WheelActionNetworkHandler {
     if (dog == null) {
       return;
     }
+    if (DogDeliveries.isWaiting(dog)) {
+      player.sendMessage(Text.translatable(DogDeliveries.ON_DELIVERY_KEY), true);
+      return;
+    }
     final String dogName = PetNames.tamedNameOf(dog);
     if (action.isOneShot()) {
       runOneShotWheelAction(action, dog, player, dogName);
@@ -85,7 +89,10 @@ public final class WheelActionNetworkHandler {
     if (dog == null || recipient == null) {
       return;
     }
-    final String refusal = DogDeliveries.refusalKey(dog, owner);
+    final String refusal =
+        DogDeliveries.isWaiting(dog)
+            ? DogDeliveries.ON_DELIVERY_KEY
+            : DogDeliveries.refusalKey(dog, owner);
     if (refusal != null) {
       owner.sendMessage(Text.translatable(refusal), true);
       return;

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
+import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -31,5 +32,12 @@ class DeliveryLegTest {
   @DisplayName("the dog is out of the world while travelling and in it while waiting")
   void offWorld(final DeliveryLeg leg, final boolean expected) {
     assertEquals(expected, leg.offWorld());
+  }
+
+  @ParameterizedTest(name = "{0} -> {1}")
+  @CsvSource({"TO_RECIPIENT, DELIVERING", "WAITING, WAITING", "TO_OWNER, RETURNING"})
+  @DisplayName("each leg shows its own status in the Pet Manager")
+  void awayStatus(final DeliveryLeg leg, final PetAwayStatus expected) {
+    assertSame(expected, leg.awayStatus());
   }
 }
