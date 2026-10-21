@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.entity;
 
 import com.grahambartley.dogsunleashed.entity.goal.DogSleepWindow;
+import com.grahambartley.dogsunleashed.entity.goal.GroundNapRules;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -15,27 +16,31 @@ public final class SleepClipRules {
   private SleepClipRules() {}
 
   public static String clipFor(
-      final Collection<String> rigClips,
+      final List<String> sleepVariants,
       final UUID dogId,
       final long worldTime,
       final boolean baby,
-      final boolean undead) {
-    return pick(variantsOf(rigClips), dogId, sessionSeed(worldTime, baby, undead));
+      final boolean undead,
+      final boolean napping) {
+    return pick(sleepVariants, dogId, sessionSeed(worldTime, baby, undead, napping));
   }
 
-  public static List<String> variantsOf(final Collection<String> clipNames) {
+  static List<String> variantsOf(final Collection<String> clipNames) {
     return clipNames.stream()
         .filter(name -> DogAnimationKeys.SLEEP.equals(name) || VARIANT.matcher(name).matches())
         .sorted(Comparator.comparingInt(SleepClipRules::variantNumber))
         .toList();
   }
 
-  public static long sessionSeed(final long worldTime, final boolean baby, final boolean undead) {
-    return DogSleepWindow.currentSleepWindowEnd(worldTime, baby, undead)
-        .orElse(Math.floorDiv(worldTime, DogSleepWindow.DAY_LENGTH_TICKS));
+  static long sessionSeed(
+      final long worldTime, final boolean baby, final boolean undead, final boolean napping) {
+    final long napPeriod = GroundNapRules.periodOf(worldTime);
+    return napping
+        ? napPeriod
+        : DogSleepWindow.currentSleepWindowEnd(worldTime, baby, undead).orElse(napPeriod);
   }
 
-  public static String pick(final List<String> variants, final UUID dogId, final long seed) {
+  static String pick(final List<String> variants, final UUID dogId, final long seed) {
     if (variants.isEmpty()) {
       return DogAnimationKeys.SLEEP;
     }

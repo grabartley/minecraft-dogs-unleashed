@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.entity;
 
+import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModSounds;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
 import java.util.Locale;
@@ -10,6 +11,7 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
 import org.jetbrains.annotations.Nullable;
@@ -220,8 +222,9 @@ public enum UnleashedDogBreed {
     return "entity.dogs-unleashed." + this.serializedId;
   }
 
-  public String animationPath() {
-    return "animations/" + this.serializedId + ".animation.json";
+  public Identifier animationId() {
+    return Identifier.of(
+        DogsUnleashed.MOD_ID, "animations/" + this.serializedId + ".animation.json");
   }
 
   public String geoPath() {

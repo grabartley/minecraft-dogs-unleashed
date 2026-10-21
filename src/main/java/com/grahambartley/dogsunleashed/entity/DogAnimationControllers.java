@@ -1,7 +1,9 @@
 package com.grahambartley.dogsunleashed.entity;
 
-import com.grahambartley.dogsunleashed.DogsUnleashed;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import net.minecraft.util.Identifier;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
@@ -19,6 +21,9 @@ public final class DogAnimationControllers {
   private static final int GROWL_TRANSITION_TICKS = 4;
   private static final int SCENT_TRANSITION_TICKS = 4;
   private static final int BONE_DIG_TRANSITION_TICKS = 4;
+
+  private static final Map<BakedAnimations, List<String>> SLEEP_VARIANTS =
+      Collections.synchronizedMap(new IdentityHashMap<>());
 
   private DogAnimationControllers() {}
 
@@ -158,15 +163,23 @@ public final class DogAnimationControllers {
   }
 
   static String sleepClipOf(final UnleashedDogEntity dog) {
-    final BakedAnimations rigClips =
-        GeckoLibCache.getBakedAnimations()
-            .get(Identifier.of(DogsUnleashed.MOD_ID, dog.getRigSourceBreed().animationPath()));
     return SleepClipRules.clipFor(
-        rigClips == null ? List.of() : rigClips.animations().keySet(),
+        sleepVariantsOf(GeckoLibCache.getBakedAnimations(), dog.getRigSourceBreed().animationId()),
         dog.getUuid(),
         dog.getWorld().getTimeOfDay(),
         dog.isBaby(),
-        dog.isUndead());
+        dog.isUndead(),
+        dog.getSleepController().isNapping());
+  }
+
+  static List<String> sleepVariantsOf(
+      final Map<Identifier, BakedAnimations> loadedAnimations, final Identifier rigAnimations) {
+    final BakedAnimations rigClips = loadedAnimations.get(rigAnimations);
+    if (rigClips == null) {
+      return List.of();
+    }
+    return SLEEP_VARIANTS.computeIfAbsent(
+        rigClips, clips -> SleepClipRules.variantsOf(clips.animations().keySet()));
   }
 
   static boolean isGalloping(final UnleashedDogEntity dog) {
