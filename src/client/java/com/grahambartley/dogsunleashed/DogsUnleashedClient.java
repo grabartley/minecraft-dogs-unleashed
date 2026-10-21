@@ -35,14 +35,20 @@ import com.grahambartley.dogsunleashed.render.layer.WolfDogArmourFeatureRenderer
 import com.grahambartley.dogsunleashed.render.overlay.MuddyCoat;
 import com.grahambartley.dogsunleashed.render.overlay.ProjectedOverlays;
 import com.grahambartley.dogsunleashed.render.overlay.SeniorMuzzle;
+import com.grahambartley.dogsunleashed.render.overlay.SledHarnessCoat;
 import com.grahambartley.dogsunleashed.render.pawprint.PawPrints;
 import com.grahambartley.dogsunleashed.render.portrait.DogPortraitEntityRenderer;
 import com.grahambartley.dogsunleashed.render.portrait.PortraitTextures;
 import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
 import com.grahambartley.dogsunleashed.render.rig.SlotRegions;
+import com.grahambartley.dogsunleashed.render.sled.HarnessLines;
+import com.grahambartley.dogsunleashed.render.sled.SledAnchors;
+import com.grahambartley.dogsunleashed.render.sled.SledItemRenderer;
+import com.grahambartley.dogsunleashed.render.sled.SledRenderer;
 import com.grahambartley.dogsunleashed.render.statue.StatueCoatTextures;
 import com.grahambartley.dogsunleashed.riding.RideInputSync;
 import com.grahambartley.dogsunleashed.riding.RideStaminaHud;
+import com.grahambartley.dogsunleashed.riding.SledInputSync;
 import com.grahambartley.dogsunleashed.screen.DogEquipmentScreen;
 import com.grahambartley.dogsunleashed.whistle.WhistlePointer;
 import net.fabricmc.api.ClientModInitializer;
@@ -70,6 +76,7 @@ public class DogsUnleashedClient implements ClientModInitializer {
     EntityRendererRegistry.register(
         ModPortraits.DOG_PORTRAIT_ENTITY, DogPortraitEntityRenderer::new);
     EntityRendererRegistry.register(ModEntities.FRISBEE_PROJECTILE, FrisbeeProjectileRenderer::new);
+    EntityRendererRegistry.register(ModEntities.SLED, SledRenderer::new);
     ColorProviderRegistry.ITEM.register(
         (stack, tintIndex) ->
             tintIndex > 0 ? -1 : DyedColorComponent.getColor(stack, ArmourLook.UNDYED_LEATHER),
@@ -120,6 +127,7 @@ public class DogsUnleashedClient implements ClientModInitializer {
     BuiltinItemRendererRegistry.INSTANCE.register(ModItems.FRISBEE, new FrisbeeItemRenderer());
     BuiltinItemRendererRegistry.INSTANCE.register(
         ModItems.DOG_WHISTLE, new DogWhistleItemRenderer());
+    BuiltinItemRendererRegistry.INSTANCE.register(ModItems.SLED, new SledItemRenderer());
 
     LivingEntityFeatureRendererRegistrationCallback.EVENT.register(
         (entityType, renderer, helper, context) -> {
@@ -133,6 +141,8 @@ public class DogsUnleashedClient implements ClientModInitializer {
     WhistlePointer.register();
     SeniorMuzzle.register();
     MuddyCoat.register();
+    SledHarnessCoat.register();
+    HarnessLines.register();
     PawPrints.register();
     CostumePartsAnimator.clearOnDisconnect();
 
@@ -166,6 +176,8 @@ public class DogsUnleashedClient implements ClientModInitializer {
     resources.registerReloadListener(
         new CacheReloader(RigProfiles.RELOADER_ID, RigProfiles.shared()::clear));
     resources.registerReloadListener(
+        new CacheReloader(SledAnchors.RELOADER_ID, SledAnchors.shared()::clear));
+    resources.registerReloadListener(
         new CacheReloader(SlotRegions.RELOADER_ID, SlotRegions.shared()::clear));
     resources.registerReloadListener(
         new CacheReloader(
@@ -190,6 +202,7 @@ public class DogsUnleashedClient implements ClientModInitializer {
     KeybindDiscoveryNudge.register();
     RideInputSync.register();
     RideStaminaHud.register();
+    SledInputSync.register();
     WaterBowlTint.register();
   }
 

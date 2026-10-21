@@ -59,6 +59,7 @@ public final class DogsUnleashedInfoEntries {
         text("dog_statue", () -> ModStatueBlocks.all().stream().map(ItemStack::new).toList()));
     definitions.add(item("dog_treat", () -> ModItems.DOG_TREAT));
     definitions.add(item("dog_whistle", () -> ModItems.DOG_WHISTLE));
+    definitions.add(item("sled", () -> ModItems.SLED));
     definitions.add(text("taming_food", () -> matchingStacks(DogFoods.tamingIngredient())));
     definitions.add(text("breeding_food", () -> matchingStacks(DogFoods.breedingIngredient())));
     for (final UnleashedDogBreed breed : UnleashedDogBreed.values()) {

@@ -1,0 +1,23 @@
+{
+  "parent": "dogs-unleashed:best_friend",
+  "display": {
+    "icon": {
+      "id": "minecraft:lead"
+    },
+    "title": {
+      "translate": "advancements.dogs-unleashed.full_team.title"
+    },
+    "description": {
+      "translate": "advancements.dogs-unleashed.full_team.description"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "full_team": {
+      "trigger": "dogs-unleashed:sled_team",
+      "conditions": {
+        "min_team": 6
+      }
+    }
+  }
+}

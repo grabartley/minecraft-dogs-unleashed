@@ -2,8 +2,10 @@ package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
+import com.grahambartley.dogsunleashed.entity.DogSledHarness;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.sled.SledEntity;
 import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
 import com.grahambartley.dogsunleashed.pet.PetData;
@@ -23,6 +25,7 @@ import net.minecraft.test.CustomTestProvider;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.test.TestFunction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
@@ -80,6 +83,32 @@ public final class DogTeleportFollowGameTest implements FabricGameTest {
                 dog.getPos().squaredDistanceTo(dogStartPos) < 0.01,
                 "A " + command.serializedName() + " dog should stay where it was left");
           }
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = TELEPORT_ARENA, tickLimit = 40)
+  public void longDistanceTeleportLeavesAHitchedDogWithItsSled(TestContext context) {
+    final ServerPlayerEntity owner = placePlayer(context, LONG_TELEPORT_START);
+    final UnleashedDogEntity husky = spawnRegisteredDog(context, owner, DOG_START);
+    husky.getCommandController().apply(DogCommand.FOLLOW);
+    husky.attachLeash(owner, true);
+    final SledEntity sled = context.spawnEntity(ModEntities.SLED, new Vec3d(4.5, 2, 2.5));
+    sled.interact(owner, Hand.MAIN_HAND);
+
+    context.runAtTick(TELEPORT_TICK, () -> teleport(context, owner, LONG_TELEPORT_DESTINATION));
+
+    context.runAtTick(
+        ASSERT_TICK,
+        () -> {
+          context.assertTrue(
+              husky.distanceTo(sled) < 6.0,
+              "A hitched dog should stay with its sled, but is "
+                  + husky.distanceTo(sled)
+                  + " away");
+          context.assertTrue(
+              husky.getComponents().get(DogSledHarness.class).isHitched(),
+              "The owner's teleport unhitched the dog");
           context.complete();
         });
   }

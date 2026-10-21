@@ -10,7 +10,6 @@ import software.bernie.geckolib.animation.RawAnimation;
 public final class DogAnimationControllers {
 
   private static final double MOVEMENT_THRESHOLD = 0.001;
-  private static final float GALLOP_LIMB_SPEED = 0.1f;
   private static final int HEAD_TILT_TRANSITION_TICKS = 5;
   private static final int GROWL_TRANSITION_TICKS = 4;
   private static final int SCENT_TRANSITION_TICKS = 4;
@@ -172,7 +171,12 @@ public final class DogAnimationControllers {
   }
 
   static boolean isGalloping(final UnleashedDogEntity dog) {
-    return dog.getRiding().isRidden() && dog.limbAnimator.getSpeed() > GALLOP_LIMB_SPEED;
+    final boolean hitched = dog.getComponents().get(DogSledHarness.class).isHitched();
+    return GallopRules.gallops(
+        dog.getRiding().isRidden(),
+        hitched,
+        dog.limbAnimator.getSpeed(),
+        hitched && RigClipPresence.has(dog, DogAnimationKeys.RUN));
   }
 
   static boolean isMoving(final AnimationState<UnleashedDogEntity> animationState) {

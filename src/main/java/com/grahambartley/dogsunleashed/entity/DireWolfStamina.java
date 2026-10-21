@@ -39,10 +39,20 @@ public final class DireWolfStamina {
       final boolean ridden,
       final boolean sprinting,
       final DireWolfStaminaSettings settings) {
+    return next(state, capacity, ridden, sprinting, settings, 1.0f);
+  }
+
+  public static State next(
+      final State state,
+      final float capacity,
+      final boolean ridden,
+      final boolean sprinting,
+      final DireWolfStaminaSettings settings,
+      final float drainScale) {
     final float recoveryScale = settings.recoveryPercent() / PERCENT;
     final float change;
     if (sprinting) {
-      change = settings.drains() ? -SPRINT_DRAIN : 0.0f;
+      change = settings.drains() ? -SPRINT_DRAIN * drainScale : 0.0f;
     } else {
       change = (ridden ? RIDDEN_RECOVERY : RESTING_RECOVERY) * recoveryScale;
     }

@@ -1,0 +1,26 @@
+package com.grahambartley.dogsunleashed.render.sled;
+
+import org.joml.Vector3f;
+
+public record ModelFit(float scale, Vector3f offset) {
+
+  public ModelFit {
+    offset = new Vector3f(offset);
+  }
+
+  public static ModelFit intoBlock(final Vector3f min, final Vector3f max) {
+    final float longest = Math.max(max.x - min.x, Math.max(max.y - min.y, max.z - min.z));
+    final float scale = longest > 0.0f ? 1.0f / longest : 1.0f;
+    return new ModelFit(
+        scale,
+        new Vector3f(
+            0.5f - (min.x + max.x) / 2.0f * scale,
+            -min.y * scale,
+            0.5f - (min.z + max.z) / 2.0f * scale));
+  }
+
+  @Override
+  public Vector3f offset() {
+    return new Vector3f(this.offset);
+  }
+}

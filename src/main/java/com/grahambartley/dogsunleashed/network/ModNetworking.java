@@ -10,6 +10,7 @@ import com.grahambartley.dogsunleashed.network.handler.DogConnectionsNetworkHand
 import com.grahambartley.dogsunleashed.network.handler.OwnerNameResolver;
 import com.grahambartley.dogsunleashed.network.handler.PetManagerNetworkHandler;
 import com.grahambartley.dogsunleashed.network.handler.ServerConfigNetworkHandler;
+import com.grahambartley.dogsunleashed.network.handler.SledNetworkHandler;
 import com.grahambartley.dogsunleashed.network.handler.WheelActionNetworkHandler;
 import com.grahambartley.dogsunleashed.network.payload.DeliverDogPayload;
 import com.grahambartley.dogsunleashed.network.payload.OpenCommandWheelPayload;
@@ -24,6 +25,7 @@ import com.grahambartley.dogsunleashed.network.payload.RequestPetsPayload;
 import com.grahambartley.dogsunleashed.network.payload.SelectWheelActionPayload;
 import com.grahambartley.dogsunleashed.network.payload.SelectWheelSubActionPayload;
 import com.grahambartley.dogsunleashed.network.payload.SetPetNamePayload;
+import com.grahambartley.dogsunleashed.network.payload.SledSprintPayload;
 import com.grahambartley.dogsunleashed.network.payload.SummonPetPayload;
 import com.grahambartley.dogsunleashed.network.payload.SyncDogConnectionsPayload;
 import com.grahambartley.dogsunleashed.network.payload.SyncPetManagerStatePayload;
@@ -75,6 +77,7 @@ public final class ModNetworking {
     PayloadTypeRegistry.playS2C()
         .register(OpenDeliveryPickerPayload.ID, OpenDeliveryPickerPayload.CODEC);
     PayloadTypeRegistry.playC2S().register(DeliverDogPayload.ID, DeliverDogPayload.CODEC);
+    PayloadTypeRegistry.playC2S().register(SledSprintPayload.ID, SledSprintPayload.CODEC);
   }
 
   public static void registerServerReceivers() {
@@ -99,6 +102,8 @@ public final class ModNetworking {
         RequestDogConnectionsPayload.ID, DogConnectionsNetworkHandler::handleRequestDogConnections);
     ServerPlayNetworking.registerGlobalReceiver(
         DeliverDogPayload.ID, WheelActionNetworkHandler::handleDeliverDog);
+    ServerPlayNetworking.registerGlobalReceiver(
+        SledSprintPayload.ID, SledNetworkHandler::handleSprint);
   }
 
   public static void sendOpenDeliveryPicker(

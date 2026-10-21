@@ -137,7 +137,8 @@ public class UnleashedDogEntity extends DogMountEntity
           new DogPersonality(this),
           new DogTricks(this),
           new DogSaddlebags(this),
-          new DogRaidDuty(this));
+          new DogRaidDuty(this),
+          new DogSledHarness(this));
   private final DogGenomeCache genomeCache = new DogGenomeCache(this);
   private final DogUndeadState undeadState = new DogUndeadState(this);
   private final DogCuring curing = new DogCuring(this);
@@ -515,6 +516,23 @@ public class UnleashedDogEntity extends DogMountEntity
   }
 
   @Override
+  public boolean canUsePortals(final boolean allowVehicles) {
+    return super.canUsePortals(allowVehicles)
+        && !this.components.get(DogSledHarness.class).isHitched();
+  }
+
+  @Override
+  protected void removeFromDimension() {
+    this.components.get(DogSledHarness.class).onRemoved(RemovalReason.CHANGED_DIMENSION);
+    super.removeFromDimension();
+  }
+
+  @Override
+  public boolean canBeLeashed() {
+    return super.canBeLeashed() && !this.components.get(DogSledHarness.class).isHitched();
+  }
+
+  @Override
   public boolean isFireImmune() {
     return super.isFireImmune() || this.pendants.isFireImmune();
   }
@@ -575,6 +593,7 @@ public class UnleashedDogEntity extends DogMountEntity
   @Override
   public void remove(RemovalReason reason) {
     this.play.endOnRemoval(reason);
+    this.components.get(DogSledHarness.class).onRemoved(reason);
     super.remove(reason);
   }
 

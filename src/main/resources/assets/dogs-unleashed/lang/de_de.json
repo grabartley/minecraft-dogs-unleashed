@@ -576,5 +576,13 @@
   "advancements.dogs-unleashed.good_dog.title": "Braver Hund!",
   "advancements.dogs-unleashed.good_dog.description": "Belohne deinen Hund mit einem Hundeleckerli, um ihm seinen ersten Trick beizubringen.",
   "advancements.dogs-unleashed.show_dog.title": "Vorzeigehund",
-  "advancements.dogs-unleashed.show_dog.description": "Bring einem Hund bei, Männchen zu machen, sich zu rollen und sich tot zu stellen."
+  "advancements.dogs-unleashed.show_dog.description": "Bring einem Hund bei, Männchen zu machen, sich zu rollen und sich tot zu stellen.",
+  "entity.dogs-unleashed.sled": "Hundeschlitten",
+  "item.dogs-unleashed.sled": "Hundeschlitten",
+  "advancements.dogs-unleashed.mush.title": "Mush!",
+  "advancements.dogs-unleashed.mush.description": "Lege mit dem Hundeschlitten 1000 Blöcke in verschneiten Biomen zurück.",
+  "advancements.dogs-unleashed.full_team.title": "Volles Gespann",
+  "advancements.dogs-unleashed.full_team.description": "Spanne sechs Hunde vor einen Schlitten.",
+  "message.dogs-unleashed.sled.full": "Dieser Schlitten hat schon ein volles Gespann aus sechs Hunden",
+  "info.dogs-unleashed.sled": "Wird wie ein Boot platziert. Lege bis zu sechs deiner ausgewachsenen Huskys oder Schreckenswölfe an die Leine und benutze dann den Schlitten, um sie paarweise einzuspannen. Rechtsklicke den Schlitten, um aufzusteigen, lenke mit den Bewegungstasten und sprinte, solange das Gespann Ausdauer hat. Am schnellsten geht es auf Eis, schnell auf Schnee, langsam auf Gras und Erde und am langsamsten auf Sand. Ein größeres Gespann ist schneller und hält länger durch. Schleichen + Rechtsklick auf den Schlitten nimmt deine Hunde wieder an die Leine."
 }

@@ -15,6 +15,12 @@ public final class ModAttachments {
       AttachmentRegistry.createPersistent(
           Identifier.of(DogsUnleashed.MOD_ID, "fox_stolen_bone"), Codec.BOOL);
 
+  public static final AttachmentType<Double> SLED_SNOW_BLOCKS =
+      AttachmentRegistry.<Double>builder()
+          .persistent(Codec.DOUBLE)
+          .copyOnDeath()
+          .buildAndRegister(Identifier.of(DogsUnleashed.MOD_ID, "sled_snow_blocks"));
+
   private ModAttachments() {}
 
   public static void initialize() {}

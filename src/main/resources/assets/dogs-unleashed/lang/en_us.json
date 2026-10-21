@@ -576,5 +576,13 @@
   "advancements.dogs-unleashed.good_dog.title": "Good Dog!",
   "advancements.dogs-unleashed.good_dog.description": "Reward your dog with a Dog Treat to teach it its first trick.",
   "advancements.dogs-unleashed.show_dog.title": "Show Dog",
-  "advancements.dogs-unleashed.show_dog.description": "Teach one dog to beg, roll over and play dead."
+  "advancements.dogs-unleashed.show_dog.description": "Teach one dog to beg, roll over and play dead.",
+  "entity.dogs-unleashed.sled": "Dog Sled",
+  "item.dogs-unleashed.sled": "Dog Sled",
+  "advancements.dogs-unleashed.mush.title": "Mush!",
+  "advancements.dogs-unleashed.mush.description": "Travel 1000 blocks by dog sled in snowy biomes.",
+  "advancements.dogs-unleashed.full_team.title": "Full Team",
+  "advancements.dogs-unleashed.full_team.description": "Hitch six dogs to one sled.",
+  "message.dogs-unleashed.sled.full": "This sled already has a full team of six",
+  "info.dogs-unleashed.sled": "Place it like a boat. Put a lead on up to six of your grown huskies or dire wolves, then use the sled to hitch them in pairs. Right-click the sled to ride it, steer with the movement keys and sprint while the team has stamina. Teams go fastest on ice, fast on snow, slowly on grass and dirt and slowest of all on sand. A bigger team is faster and lasts longer. Sneak + right-click the sled to put your dogs back on their leads."
 }

@@ -576,5 +576,13 @@
   "advancements.dogs-unleashed.good_dog.title": "Bom Cachorro!",
   "advancements.dogs-unleashed.good_dog.description": "Recompense seu cachorro com um petisco de cachorro para ensinar o primeiro truque.",
   "advancements.dogs-unleashed.show_dog.title": "Cachorro de Exposição",
-  "advancements.dogs-unleashed.show_dog.description": "Ensine um cachorro a pedir, rolar e fingir de morto."
+  "advancements.dogs-unleashed.show_dog.description": "Ensine um cachorro a pedir, rolar e fingir de morto.",
+  "entity.dogs-unleashed.sled": "Trenó de cães",
+  "item.dogs-unleashed.sled": "Trenó de cães",
+  "advancements.dogs-unleashed.mush.title": "Mush!",
+  "advancements.dogs-unleashed.mush.description": "Percorra 1000 blocos de trenó de cães em biomas nevados.",
+  "advancements.dogs-unleashed.full_team.title": "Matilha completa",
+  "advancements.dogs-unleashed.full_team.description": "Atrele seis cachorros a um trenó.",
+  "message.dogs-unleashed.sled.full": "Este trenó já tem uma matilha completa de seis cachorros",
+  "info.dogs-unleashed.sled": "Coloque como um barco. Ponha uma guia em até seis dos seus huskies ou lobos-terríveis adultos e use o trenó para atrelá-los em pares. Clique com o botão direito no trenó para subir, vire com as teclas de movimento e corra enquanto a matilha tiver fôlego. A matilha é mais rápida no gelo, rápida na neve, lenta na grama e na terra e mais lenta ainda na areia. Uma matilha maior é mais rápida e dura mais. Agache + clique com o botão direito no trenó para pôr a guia de volta nos seus cachorros."
 }

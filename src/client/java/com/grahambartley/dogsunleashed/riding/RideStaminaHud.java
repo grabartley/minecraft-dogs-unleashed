@@ -1,12 +1,15 @@
 package com.grahambartley.dogsunleashed.riding;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.sled.SledEntity;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 
 public final class RideStaminaHud {
 
@@ -31,29 +34,53 @@ public final class RideStaminaHud {
     return Math.round(Math.max(0.0f, Math.min(1.0f, fraction)) * BAR_WIDTH);
   }
 
+  public static boolean isShowing(final @Nullable PlayerEntity player) {
+    final UnleashedDogEntity dog = RiddenDog.of(player);
+    return shows(dog != null && dog.getRiding().isRideableStage(), sledOf(player) != null);
+  }
+
+  public static boolean shows(final boolean ridingRideableDog, final boolean ridingPulledSled) {
+    return ridingRideableDog || ridingPulledSled;
+  }
+
+  private static @Nullable SledEntity sledOf(final @Nullable PlayerEntity player) {
+    return player != null
+            && player.getVehicle() instanceof SledEntity sled
+            && sled.getTeam().size() > 0
+        ? sled
+        : null;
+  }
+
   private static void render(final DrawContext context, final RenderTickCounter tickCounter) {
     final MinecraftClient client = MinecraftClient.getInstance();
-    final UnleashedDogEntity dog = RiddenDog.of(client.player);
-    if (dog == null || !dog.getRiding().isRideableStage() || client.options.hudHidden) {
+    if (client.options.hudHidden || client.player == null) {
       return;
     }
+    final UnleashedDogEntity dog = RiddenDog.of(client.player);
+    if (dog != null && dog.getRiding().isRideableStage()) {
+      final float charge = dog.getRiding().jumpCharge();
+      draw(
+          context,
+          shownFraction(charge, dog.getRiding().staminaFraction()),
+          charge <= 0.0f && dog.getRiding().isLockedOut());
+    } else {
+      final SledEntity sled = sledOf(client.player);
+      if (sled != null) {
+        draw(context, sled.staminaFraction(), sled.isStaminaLockedOut());
+      }
+    }
+  }
+
+  private static void draw(
+      final DrawContext context, final float fraction, final boolean lockedOut) {
     final int x = context.getScaledWindowWidth() / 2 - BAR_WIDTH / 2;
     final int y = context.getScaledWindowHeight() - BOTTOM_OFFSET;
-    final float charge = dog.getRiding().jumpCharge();
-    final int fill = fillWidth(shownFraction(charge, dog.getRiding().staminaFraction()));
+    final int fill = fillWidth(fraction);
     RenderSystem.enableBlend();
     context.drawGuiTexture(BACKGROUND, x, y, BAR_WIDTH, BAR_HEIGHT);
     if (fill > 0) {
       context.drawGuiTexture(
-          charge <= 0.0f && dog.getRiding().isLockedOut() ? LOCKED_OUT : PROGRESS,
-          BAR_WIDTH,
-          BAR_HEIGHT,
-          0,
-          0,
-          x,
-          y,
-          fill,
-          BAR_HEIGHT);
+          lockedOut ? LOCKED_OUT : PROGRESS, BAR_WIDTH, BAR_HEIGHT, 0, 0, x, y, fill, BAR_HEIGHT);
     }
     RenderSystem.disableBlend();
   }

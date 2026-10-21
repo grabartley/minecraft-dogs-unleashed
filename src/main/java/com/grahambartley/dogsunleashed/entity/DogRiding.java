@@ -58,6 +58,7 @@ public final class DogRiding {
         && !this.dog.getSleepController().isCommandedToSleep()
         && !this.dog.getPlaySession().isInPlayMode()
         && !this.dog.isLeashed()
+        && !this.dog.getComponents().get(DogSledHarness.class).isHitched()
         && !this.dog.hasPassengers()
         && !player.hasVehicle();
   }
