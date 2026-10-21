@@ -261,6 +261,20 @@ public final class SledGameTest implements FabricGameTest {
         });
   }
 
+  @GameTest(templateName = RANGE, tickLimit = 20)
+  public void aHitchedPrimeCannotBeRidden(final TestContext context) {
+    final ServerPlayerEntity owner = SurvivalTestPlayer.joinAt(context, REL_PLAYER);
+    final SledEntity sled = sled(context, REL_SLED);
+    final UnleashedDogEntity prime = leashedDog(context, owner, ModEntities.DIRE_WOLF, 4, 3);
+    prime.getGrowth().setStage(DireWolfGrowthStage.PRIME);
+    sled.interact(owner, Hand.MAIN_HAND);
+
+    context.assertTrue(sled.getTeam().size() == 1, "The prime was not hitched");
+    context.assertFalse(prime.getRiding().mount(owner), "The owner rode a hitched prime");
+    SurvivalTestPlayer.leave(context, owner);
+    context.complete();
+  }
+
   @GameTest(templateName = RANGE, tickLimit = 40)
   public void aHitchedDogThatDiesDropsItsLeadOnce(final TestContext context) {
     final ServerPlayerEntity owner = SurvivalTestPlayer.joinAt(context, REL_PLAYER);

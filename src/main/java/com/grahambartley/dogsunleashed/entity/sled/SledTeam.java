@@ -287,6 +287,7 @@ public final class SledTeam {
   private boolean canPull(final UnleashedDogEntity dog, final PlayerEntity player) {
     return this.indexOf(dog) < 0
         && !dog.getComponents().get(DogSledHarness.class).isHitched()
+        && !dog.hasPassengers()
         && dog.isTamed()
         && dog.isOwner(player)
         && dog.isAlive()
