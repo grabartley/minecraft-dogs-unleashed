@@ -15,8 +15,8 @@ public final class LonelyWhineRules {
       final DogCommand command, final boolean asleep, final OptionalDouble ownerSquaredDistance) {
     return command == DogCommand.STAY
         && !asleep
-        && (ownerSquaredDistance.isEmpty()
-            || ownerSquaredDistance.getAsDouble() > OWNER_AWAY_RANGE * OWNER_AWAY_RANGE);
+        && ownerSquaredDistance.isPresent()
+        && ownerSquaredDistance.getAsDouble() > OWNER_AWAY_RANGE * OWNER_AWAY_RANGE;
   }
 
   public static boolean whinesNow(final long lonelyTicks) {

@@ -93,4 +93,12 @@ class PetDetailsScreenTest {
   void previewHidesOnShortScreens(final int screenHeight, final boolean expected) {
     assertEquals(expected, PetDetailsScreen.shouldShowFamilyPreview(screenHeight, true));
   }
+
+  @ParameterizedTest(name = "alive {0} -> {1} rows")
+  @CsvSource({"true, 9", "false, 5"})
+  @DisplayName("the info column makes room for every row a pet can show, personality included")
+  void infoBottomCountsEveryRow(final boolean alive, final int rows) {
+    assertEquals(
+        (rows - 5) * 14, PetDetailsScreen.infoBottom(alive) - PetDetailsScreen.infoBottom(false));
+  }
 }

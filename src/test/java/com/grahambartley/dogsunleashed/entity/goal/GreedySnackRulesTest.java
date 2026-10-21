@@ -15,25 +15,26 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class GreedySnackRulesTest {
 
-  @ParameterizedTest(name = "{0}, sitting {1}, carrying {2} -> {3}")
+  @ParameterizedTest(name = "{0}, sitting {1}, carrying {2}, owner {3} squared -> {4}")
   @CsvSource({
-    "FOLLOW, false, false, true",
-    "FREE_ROAM, false, false, true",
-    "FOLLOW, true, false, false",
-    "FOLLOW, false, true, false",
-    "HEEL, false, false, false",
-    "STAY, false, false, false",
-    "SIT, false, false, false",
-    "GUARD, false, false, false",
-    "HUNT, false, false, false"
+    "FOLLOW, false, false, 25.0, true",
+    "FREE_ROAM, false, false, 256.0, true",
+    "FREE_ROAM, false, false, 256.1, false",
+    "FOLLOW, true, false, 25.0, false",
+    "FOLLOW, false, true, 25.0, false",
+    "HEEL, false, false, 25.0, false",
+    "STAY, false, false, 25.0, false",
+    "GUARD, false, false, 25.0, false"
   })
-  @DisplayName("a greedy dog only wanders off for food when no command holds it")
+  @DisplayName("a greedy dog only goes for food near its owner when no command holds it")
   void mayLook(
       final DogCommand command,
       final boolean sitting,
       final boolean carrying,
+      final double ownerSquaredDistance,
       final boolean expected) {
-    assertEquals(expected, GreedySnackRules.mayLook(command, sitting, carrying));
+    assertEquals(
+        expected, GreedySnackRules.mayLook(command, sitting, carrying, ownerSquaredDistance));
   }
 
   @ParameterizedTest(name = "now {0}, last {1} -> {2}")
@@ -47,6 +48,8 @@ class GreedySnackRulesTest {
         Arguments.of(new ItemStack(Items.BREAD), true),
         Arguments.of(new ItemStack(Items.COOKED_BEEF, 5), true),
         Arguments.of(new ItemStack(Items.ROTTEN_FLESH), true),
+        Arguments.of(new ItemStack(Items.GOLDEN_APPLE), false),
+        Arguments.of(new ItemStack(Items.ENCHANTED_GOLDEN_APPLE), false),
         Arguments.of(new ItemStack(Items.STICK), false),
         Arguments.of(new ItemStack(Items.DIAMOND), false),
         Arguments.of(ItemStack.EMPTY, false));
@@ -54,7 +57,7 @@ class GreedySnackRulesTest {
 
   @ParameterizedTest(name = "{0} -> {1}")
   @MethodSource("snacks")
-  @DisplayName("anything edible counts as a snack")
+  @DisplayName("any common food counts as a snack, rare food is left alone")
   void isSnack(final ItemStack stack, final boolean expected) {
     assertEquals(expected, GreedySnackRules.isSnack(stack));
   }

@@ -88,6 +88,14 @@ public enum DogTrait {
     return this == CLINGY ? 0.6 : NEUTRAL_SCALE;
   }
 
+  public static double closestFollowDistanceScale() {
+    double closest = NEUTRAL_SCALE;
+    for (final DogTrait trait : values()) {
+      closest = Math.min(closest, trait.followDistanceScale());
+    }
+    return closest;
+  }
+
   public boolean whinesWhenLonely() {
     return this == CLINGY;
   }

@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
+import com.grahambartley.dogsunleashed.entity.DogFoods;
 import com.grahambartley.dogsunleashed.entity.DogPersonality;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.ArrayList;
@@ -8,9 +9,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import net.minecraft.block.entity.ChestBlockEntity;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.FoodComponent;
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ItemStackParticleEffect;
@@ -100,12 +100,16 @@ public class GreedySnackGoal extends Goal {
   }
 
   private boolean mayLook() {
+    final LivingEntity owner = this.dog.getOwner();
     return this.dog.isTamed()
+        && owner != null
+        && owner.getWorld() == this.dog.getWorld()
         && this.dog.getComponents().get(DogPersonality.class).traits().snacks()
         && GreedySnackRules.mayLook(
             this.dog.getCommand(),
             this.dog.isInSittingPose(),
-            this.dog.getFetchCarry().isCarrying());
+            this.dog.getFetchCarry().isCarrying(),
+            this.dog.squaredDistanceTo(owner));
   }
 
   private boolean hasSnackTarget() {
@@ -147,10 +151,7 @@ public class GreedySnackGoal extends Goal {
       return;
     }
     this.lastSnackAt = this.dog.getWorld().getTime();
-    final FoodComponent food = snack.get(DataComponentTypes.FOOD);
-    if (food != null) {
-      this.dog.heal(food.nutrition());
-    }
+    this.dog.heal(DogFoods.HEAL_AMOUNT);
     this.dog.playSound(SoundEvents.ENTITY_GENERIC_EAT, 1.0f, 1.0f);
     if (this.dog.getWorld() instanceof ServerWorld serverWorld) {
       serverWorld.spawnParticles(

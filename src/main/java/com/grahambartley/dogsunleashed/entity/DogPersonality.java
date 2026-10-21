@@ -45,9 +45,8 @@ public final class DogPersonality extends DogComponent {
 
   @Override
   void readNbt(final NbtCompound nbt) {
-    if (nbt.contains(ModNbtKeys.PERSONALITY, NbtElement.LIST_TYPE)) {
-      this.traits = DogTraits.fromNbt(nbt.getList(ModNbtKeys.PERSONALITY, NbtElement.STRING_TYPE));
-    } else {
+    this.traits = DogTraits.fromNbt(nbt.getList(ModNbtKeys.PERSONALITY, NbtElement.STRING_TYPE));
+    if (this.traits.isEmpty()) {
       this.rollWild();
     }
   }

@@ -416,7 +416,7 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
   }
 
   static int infoBottom(final boolean alive) {
-    final int infoLines = alive ? 8 : 5;
+    final int infoLines = alive ? 9 : 5;
     return INFO_TOP
         + infoLines * INFO_LINE_HEIGHT
         + STATS_SECTION_GAP

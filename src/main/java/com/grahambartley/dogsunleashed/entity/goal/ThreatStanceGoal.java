@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.Goal;
+import net.minecraft.entity.mob.Angerable;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.Monster;
 import net.minecraft.util.math.Vec3d;
@@ -117,6 +118,8 @@ public class ThreatStanceGoal extends Goal {
             mob ->
                 mob instanceof Monster
                     && mob.isAlive()
+                    && !(mob instanceof Angerable angerable && !angerable.hasAngerTime())
+                    && this.dog.canSee(mob)
                     && !DogFriendlyTargetPolicy.isFriendlyTarget(mob)
                     && ThreatStanceRules.inRange(
                         mob.squaredDistanceTo(owner), ThreatStanceRules.THREAT_RANGE))

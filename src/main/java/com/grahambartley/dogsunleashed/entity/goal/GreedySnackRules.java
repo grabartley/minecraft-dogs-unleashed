@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.entity.DogCommand;
 import java.util.List;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Rarity;
 
 public final class GreedySnackRules {
 
@@ -27,10 +28,12 @@ public final class GreedySnackRules {
   private GreedySnackRules() {}
 
   public static boolean mayLook(
-      final DogCommand command, final boolean sitting, final boolean carrying) {
-    return (command == DogCommand.FOLLOW || command == DogCommand.FREE_ROAM)
-        && !sitting
-        && !carrying;
+      final DogCommand command,
+      final boolean sitting,
+      final boolean carrying,
+      final double squaredDistanceToOwner) {
+    return DogErrandRules.isFree(command, sitting, carrying)
+        && DogErrandRules.ownerNearby(squaredDistanceToOwner);
   }
 
   public static boolean cooledDown(final long now, final long lastSnackAt) {
@@ -38,7 +41,9 @@ public final class GreedySnackRules {
   }
 
   public static boolean isSnack(final ItemStack stack) {
-    return !stack.isEmpty() && stack.contains(DataComponentTypes.FOOD);
+    return !stack.isEmpty()
+        && stack.contains(DataComponentTypes.FOOD)
+        && stack.getRarity() == Rarity.COMMON;
   }
 
   public static int firstSnackSlot(final List<ItemStack> stacks) {

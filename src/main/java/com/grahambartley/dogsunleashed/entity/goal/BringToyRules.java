@@ -14,11 +14,11 @@ public final class BringToyRules {
       final DogCommand command,
       final boolean sitting,
       final boolean carrying,
-      final boolean hasFetchOrder) {
-    return (command == DogCommand.FOLLOW || command == DogCommand.FREE_ROAM)
-        && !sitting
-        && !carrying
-        && !hasFetchOrder;
+      final boolean hasFetchOrder,
+      final double squaredDistanceToOwner) {
+    return DogErrandRules.isFree(command, sitting, carrying)
+        && !hasFetchOrder
+        && DogErrandRules.ownerNearby(squaredDistanceToOwner);
   }
 
   public static boolean worthBringing(final double squaredDistanceToOwner) {

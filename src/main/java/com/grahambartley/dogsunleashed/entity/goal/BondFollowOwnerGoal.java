@@ -23,7 +23,7 @@ public class BondFollowOwnerGoal extends CommandFollowOwnerGoal {
         speed,
         (float)
             (DogBondStep.DEVOTED.followDistance(maxDistance)
-                * DogTrait.CLINGY.followDistanceScale()),
+                * DogTrait.closestFollowDistanceScale()),
         minDistance,
         activeCommands);
     this.startDistance = maxDistance;

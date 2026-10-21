@@ -37,7 +37,8 @@ public class BringToyGoal extends Goal {
             this.dog.getCommand(),
             this.dog.isInSittingPose(),
             this.dog.getFetchCarry().isCarrying(),
-            this.orders().fetchItem() != null)
+            this.orders().fetchItem() != null,
+            this.dog.squaredDistanceTo(owner))
         || !this.looks.getAsBoolean()) {
       return false;
     }

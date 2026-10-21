@@ -16,7 +16,7 @@ class LonelyWhineRulesTest {
   static Stream<Arguments> lonelyCases() {
     return Stream.of(
         Arguments.of(DogCommand.STAY, false, OptionalDouble.of(200.0), true),
-        Arguments.of(DogCommand.STAY, false, OptionalDouble.empty(), true),
+        Arguments.of(DogCommand.STAY, false, OptionalDouble.empty(), false),
         Arguments.of(DogCommand.STAY, false, OptionalDouble.of(144.0), false),
         Arguments.of(DogCommand.STAY, true, OptionalDouble.of(200.0), false),
         Arguments.of(DogCommand.SIT, false, OptionalDouble.of(200.0), false),
@@ -26,7 +26,7 @@ class LonelyWhineRulesTest {
 
   @ParameterizedTest(name = "{0}, asleep {1}, owner {2} -> {3}")
   @MethodSource("lonelyCases")
-  @DisplayName("a dog left on Stay is lonely while its owner is away and it is awake")
+  @DisplayName("a dog on Stay is lonely while its owner is in its world but away, and it is awake")
   void isLonely(
       final DogCommand command,
       final boolean asleep,

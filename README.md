@@ -96,7 +96,7 @@ carefully, or your dog ends up with a bad hair day until it grows back.
 - **Never lose them.** Dogs on Follow or Heel come with you through portals and long teleports. The rest stay where you left them. If you die, they guard your things and call out when you're back. Bind a dog whistle to call one from anywhere, or open the
 Pet Manager to see and summon your whole pack.
 - **Raise a family.** Any two living tamed dogs can have puppies, and mixed parents give a mixed breed puppy that looks like both, with blended colours and a shape somewhere between. Dire wolves only breed with dire wolves. Puppies inherit
-their parents' coat and eye genes and their personalities, so two parents can carry a rare coat and pass it on. Every dog has a family tree you can explore.
+their parents' personalities and their coat and eye genes, so two parents can carry a rare coat and pass it on. Every dog has a family tree you can explore.
 Turn on Dog Aging and your dogs grow old with you, going grey around the muzzle and napping more, but never dying of age.
 - **Bring them back.** A tamed dog that dies leaves a grave. Put a totem in it and a lightning rod above it, then wait
 for lightning to strike it. Your dog comes back undead and burns in daylight unless it has shade, armour, or a fire pendant. Cure it the same way you

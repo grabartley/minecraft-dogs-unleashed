@@ -2,8 +2,10 @@ package com.grahambartley.dogsunleashed.entity.personality;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -93,5 +95,14 @@ class DogTraitTest {
     assertEquals(clingy, trait.whinesWhenLonely());
     assertEquals(clingy, trait.greetsWithHearts());
     assertEquals(bringsToys, trait.bringsToys());
+  }
+
+  @Test
+  @DisplayName("the closest follow distance covers every trait")
+  void closestFollowDistanceScale() {
+    assertEquals(DogTrait.CLINGY.followDistanceScale(), DogTrait.closestFollowDistanceScale());
+    for (final DogTrait trait : DogTrait.values()) {
+      assertTrue(trait.followDistanceScale() >= DogTrait.closestFollowDistanceScale());
+    }
   }
 }
