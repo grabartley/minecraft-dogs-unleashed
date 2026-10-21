@@ -566,5 +566,14 @@
   "message.dogs-unleashed.delivery.delivered": "%s has reached %s",
   "message.dogs-unleashed.delivery.returned": "%s is back from its delivery",
   "message.dogs-unleashed.delivery.undelivered": "%s found no one to deliver to and is heading home",
-  "message.dogs-unleashed.delivery.away": "%s is out on a delivery"
+  "message.dogs-unleashed.delivery.away": "%s is out on a delivery",
+  "trick.dogs-unleashed.beg": "Beg",
+  "trick.dogs-unleashed.roll_over": "Roll Over",
+  "trick.dogs-unleashed.play_dead": "Play Dead",
+  "message.dogs-unleashed.trick_learned": "%s learned a new trick: %s!",
+  "screen.dogs-unleashed.command_wheel.trick.sleeping": "Too sleepy for tricks",
+  "advancements.dogs-unleashed.good_dog.title": "Good Dog!",
+  "advancements.dogs-unleashed.good_dog.description": "Reward your dog with a Dog Treat to teach it its first trick.",
+  "advancements.dogs-unleashed.show_dog.title": "Show Dog",
+  "advancements.dogs-unleashed.show_dog.description": "Teach one dog to beg, roll over and play dead."
 }

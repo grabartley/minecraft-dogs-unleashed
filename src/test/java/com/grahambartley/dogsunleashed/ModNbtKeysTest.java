@@ -15,6 +15,7 @@ class ModNbtKeysTest {
         Arguments.of("PET_ID", ModNbtKeys.PET_ID, "PetId"),
         Arguments.of("STRAY", ModNbtKeys.STRAY, "Stray"),
         Arguments.of("BOND_POINTS", ModNbtKeys.BOND_POINTS, "BondPoints"),
+        Arguments.of("TRICKS", ModNbtKeys.TRICKS, "Tricks"),
         Arguments.of("BOND_OWNER", ModNbtKeys.BOND_OWNER, "BondOwner"),
         Arguments.of("BOND_DAY", ModNbtKeys.BOND_DAY, "BondDay"),
         Arguments.of("BOND_EARNED", ModNbtKeys.BOND_EARNED, "BondEarned"),

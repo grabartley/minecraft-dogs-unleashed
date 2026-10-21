@@ -33,6 +33,7 @@ public final class ModNbtKeys {
   public static final String GENOME = "Genome";
   public static final String GENES = "Genes";
   public static final String PERSONALITY = "Personality";
+  public static final String TRICKS = "Tricks";
   public static final String GENOME_COMPOSITION = "GenomeComposition";
   public static final String GENOME_MAX_HEALTH = "GenomeMaxHealth";
   public static final String GENOME_MOVEMENT_SPEED = "GenomeMovementSpeed";

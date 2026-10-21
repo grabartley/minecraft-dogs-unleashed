@@ -10,6 +10,8 @@ import java.util.stream.IntStream;
 import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class DogWheelSubActionsTest {
 
@@ -82,5 +84,20 @@ class DogWheelSubActionsTest {
             new WheelSubActionState(1, "test.action.1", BONE, ""),
             new WheelSubActionState(2, "test.action.2", BONE, "test.refused")),
         registry.statesFor(null, null));
+  }
+
+  @ParameterizedTest(name = "shown={0}")
+  @ValueSource(booleans = {true, false})
+  @DisplayName("an action hidden for a dog is left off that dog's wheel")
+  void hiddenActionsAreLeftOut(final boolean shown) {
+    final DogWheelSubActions registry = new DogWheelSubActions();
+    registry.register(action(1, null));
+    registry.register(
+        new DogWheelSubAction(
+            2, "test.action.2", BONE, (dog, player) -> null, (dog, player) -> {}, dog -> shown));
+
+    assertEquals(
+        shown ? List.of(1, 2) : List.of(1),
+        registry.statesFor(null, null).stream().map(WheelSubActionState::id).toList());
   }
 }
