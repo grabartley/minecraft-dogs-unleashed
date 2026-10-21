@@ -1,7 +1,9 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
+import com.grahambartley.dogsunleashed.entity.DimensionReactionRules;
 import com.grahambartley.dogsunleashed.entity.DogBondStep;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
+import com.grahambartley.dogsunleashed.entity.DogDimensionReaction;
 import com.grahambartley.dogsunleashed.entity.DogPersonality;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.personality.DogTrait;
@@ -23,7 +25,8 @@ public class BondFollowOwnerGoal extends CommandFollowOwnerGoal {
         speed,
         (float)
             (DogBondStep.DEVOTED.followDistance(maxDistance)
-                * DogTrait.closestFollowDistanceScale()),
+                * DogTrait.closestFollowDistanceScale()
+                * DimensionReactionRules.closestFollowDistanceScale()),
         minDistance,
         activeCommands);
     this.startDistance = maxDistance;
@@ -46,7 +49,8 @@ public class BondFollowOwnerGoal extends CommandFollowOwnerGoal {
         && farEnough(
             this.bond(),
             this.startDistance,
-            this.dog.getComponents().get(DogPersonality.class).traits().followDistanceScale(),
+            this.dog.getComponents().get(DogPersonality.class).traits().followDistanceScale()
+                * DogDimensionReaction.followDistanceScale(this.dog),
             this.dog.squaredDistanceTo(owner));
   }
 }

@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
 import com.grahambartley.dogsunleashed.entity.DogCommand;
+import com.grahambartley.dogsunleashed.entity.DogDimensionReaction;
 import com.grahambartley.dogsunleashed.entity.DogFriendlyTargetPolicy;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import net.minecraft.entity.LivingEntity;
@@ -18,7 +19,7 @@ public class HuntTargetGoal extends ActiveTargetGoal<LivingEntity> {
   private final UnleashedDogEntity dog;
 
   public HuntTargetGoal(final UnleashedDogEntity dog) {
-    super(dog, LivingEntity.class, TARGET_CHANCE, true, false, HuntTargetGoal::isHuntableTarget);
+    super(dog, LivingEntity.class, TARGET_CHANCE, true, false, target -> huntsTarget(dog, target));
     this.dog = dog;
   }
 
@@ -35,6 +36,10 @@ public class HuntTargetGoal extends ActiveTargetGoal<LivingEntity> {
   @Override
   protected double getFollowRange() {
     return HUNT_RADIUS;
+  }
+
+  public static boolean huntsTarget(final UnleashedDogEntity dog, final LivingEntity target) {
+    return isHuntableTarget(target) && !DogDimensionReaction.sparesEnderman(dog, target);
   }
 
   static boolean isHuntableTarget(final LivingEntity target) {

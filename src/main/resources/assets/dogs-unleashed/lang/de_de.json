@@ -461,7 +461,7 @@
   "item.dogs-unleashed.warding_creeper_pendant": "Abwehranhänger: Creeper",
   "item.dogs-unleashed.warding_creeper_pendant.effect": "Creeper in der Nähe deines Hundes lassen ihn und dich in Ruhe und weichen zurück",
   "item.dogs-unleashed.guardian_fire_pendant": "Schutzanhänger: Feuer",
-  "item.dogs-unleashed.guardian_fire_pendant.effect": "Dein Hund kann nicht brennen und ist in Feuer und Lava sicher",
+  "item.dogs-unleashed.guardian_fire_pendant.effect": "Dein Hund kann nicht brennen, ist in Feuer und Lava sicher und bleibt im Nether ruhig",
   "item.dogs-unleashed.guardian_fall_pendant": "Schutzanhänger: Fall",
   "item.dogs-unleashed.guardian_fall_pendant.effect": "Dein Hund nimmt keinen Fallschaden",
   "item.dogs-unleashed.guardian_drowning_pendant": "Schutzanhänger: Ertrinken",

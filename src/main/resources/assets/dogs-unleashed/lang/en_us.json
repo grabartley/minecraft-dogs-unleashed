@@ -461,7 +461,7 @@
   "item.dogs-unleashed.warding_creeper_pendant": "Pendant of Warding: Creepers",
   "item.dogs-unleashed.warding_creeper_pendant.effect": "Creepers near your dog leave it and you alone, and back away from it",
   "item.dogs-unleashed.guardian_fire_pendant": "Guardian Pendant: Fire",
-  "item.dogs-unleashed.guardian_fire_pendant.effect": "Your dog cannot burn and is safe in fire and lava",
+  "item.dogs-unleashed.guardian_fire_pendant.effect": "Your dog cannot burn, is safe in fire and lava, and stays calm in the Nether",
   "item.dogs-unleashed.guardian_fall_pendant": "Guardian Pendant: Fall",
   "item.dogs-unleashed.guardian_fall_pendant.effect": "Your dog takes no fall damage",
   "item.dogs-unleashed.guardian_drowning_pendant": "Guardian Pendant: Drowning",

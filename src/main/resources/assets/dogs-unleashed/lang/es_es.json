@@ -461,7 +461,7 @@
   "item.dogs-unleashed.warding_creeper_pendant": "Colgante de protección: creepers",
   "item.dogs-unleashed.warding_creeper_pendant.effect": "Los creepers cerca de tu perro os dejan en paz y se alejan de él",
   "item.dogs-unleashed.guardian_fire_pendant": "Colgante guardián: fuego",
-  "item.dogs-unleashed.guardian_fire_pendant.effect": "Tu perro no puede arder y está a salvo en fuego y lava",
+  "item.dogs-unleashed.guardian_fire_pendant.effect": "Tu perro no puede arder, está a salvo en fuego y lava, y se mantiene tranquilo en el Nether",
   "item.dogs-unleashed.guardian_fall_pendant": "Colgante guardián: caídas",
   "item.dogs-unleashed.guardian_fall_pendant.effect": "Tu perro no recibe daño por caída",
   "item.dogs-unleashed.guardian_drowning_pendant": "Colgante guardián: ahogamiento",

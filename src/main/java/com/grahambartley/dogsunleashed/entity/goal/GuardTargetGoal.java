@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.entity.goal;
 import com.grahambartley.dogsunleashed.entity.DeathWatchRules;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.DogDeathWatch;
+import com.grahambartley.dogsunleashed.entity.DogDimensionReaction;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
@@ -47,8 +48,9 @@ public class GuardTargetGoal extends ActiveTargetGoal<HostileEntity> {
     return SCAN_RANGE;
   }
 
-  static boolean isThreatNearAnchor(final UnleashedDogEntity dog, final LivingEntity target) {
-    if (target.hasCustomName()) {
+  public static boolean isThreatNearAnchor(
+      final UnleashedDogEntity dog, final LivingEntity target) {
+    if (target.hasCustomName() || DogDimensionReaction.sparesEnderman(dog, target)) {
       return false;
     }
     final BlockPos anchor = dog.getCommandController().getAnchorPos();

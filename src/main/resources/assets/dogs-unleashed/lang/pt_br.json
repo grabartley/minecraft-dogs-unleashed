@@ -461,7 +461,7 @@
   "item.dogs-unleashed.warding_creeper_pendant": "Pingente de proteção: creepers",
   "item.dogs-unleashed.warding_creeper_pendant.effect": "Creepers perto do seu cão deixam ele e você em paz e se afastam dele",
   "item.dogs-unleashed.guardian_fire_pendant": "Pingente guardião: fogo",
-  "item.dogs-unleashed.guardian_fire_pendant.effect": "Seu cão não pega fogo e fica seguro no fogo e na lava",
+  "item.dogs-unleashed.guardian_fire_pendant.effect": "Seu cão não pega fogo, fica seguro no fogo e na lava, e fica calmo no Nether",
   "item.dogs-unleashed.guardian_fall_pendant": "Pingente guardião: queda",
   "item.dogs-unleashed.guardian_fall_pendant.effect": "Seu cão não sofre dano de queda",
   "item.dogs-unleashed.guardian_drowning_pendant": "Pingente guardião: afogamento",

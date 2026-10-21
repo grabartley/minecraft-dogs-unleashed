@@ -103,6 +103,7 @@
       "com.grahambartley.dogsunleashed.gametest.DogStrangerInteractionGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogGenesGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogPersonalityGameTest",
+      "com.grahambartley.dogsunleashed.gametest.DogDimensionReactionGameTest",
       "com.grahambartley.dogsunleashed.gametest.PlayChaseGameTest",
       "com.grahambartley.dogsunleashed.gametest.TugGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogTrickGameTest",
