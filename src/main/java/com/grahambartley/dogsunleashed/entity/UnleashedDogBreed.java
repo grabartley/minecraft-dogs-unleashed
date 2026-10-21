@@ -162,6 +162,22 @@ public enum UnleashedDogBreed {
           .sleepingOutsideBeds()
           .livingInPacks()
           .tamingThroughTrust()),
+  PINSCHER(
+      "pinscher",
+      new FetchCarryProfiles(
+          new CarryProfile(0.0, -0.048),
+          new CarryProfile(0.0, -0.048),
+          new CarryProfile(-0.016, -0.178)),
+      new SpawnEggColors(0x1C1A18, 0xB0622A),
+      new Dimensions(0.8f, 1.1f),
+      new SpawnSettings(10, 1, 2, BiomeKeys.BADLANDS, BiomeKeys.WOODED_BADLANDS),
+      new Attributes(12.0, 0.31, 2.0),
+      new Voice(
+          false, () -> ModSounds.PINSCHER_BARK, () -> ModSounds.PINSCHER_ALERT, null, null, false),
+      false,
+      new RenderTransforms(1.0f, 0.5f, 0.0f, 0.59f),
+      new FurProfile(DogFurStage.SHAGGY, 72000, 1),
+      Nature.ORDINARY),
   CROSS_BREED(
       "crossbreed",
       null,
@@ -329,6 +345,7 @@ public enum UnleashedDogBreed {
       case "beagle" -> BEAGLE;
       case "goldenretriever", "golden_retriever" -> GOLDEN_RETRIEVER;
       case "shibainu", "shiba_inu" -> SHIBA_INU;
+      case "pinscher" -> PINSCHER;
       case "direwolf", "dire_wolf" -> DIRE_WOLF;
       case "crossbreed", "cross_breed" -> CROSS_BREED;
       default -> null;

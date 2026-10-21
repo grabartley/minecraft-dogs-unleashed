@@ -23,6 +23,7 @@ public final class DogCoats {
       case BEAGLE -> BeagleCoat.fromOrdinal(coatOrdinal);
       case SHIBA_INU -> ShibaInuCoat.fromOrdinal(coatOrdinal);
       case DIRE_WOLF -> DireWolfCoat.fromOrdinal(coatOrdinal);
+      case PINSCHER -> PinscherCoat.fromOrdinal(coatOrdinal);
       case GOLDEN_RETRIEVER, CROSS_BREED -> null;
     };
   }
@@ -34,6 +35,7 @@ public final class DogCoats {
       case BEAGLE -> List.of(BeagleCoat.values());
       case SHIBA_INU -> List.of(ShibaInuCoat.values());
       case DIRE_WOLF -> List.of(DireWolfCoat.values());
+      case PINSCHER -> List.of(PinscherCoat.values());
       case GOLDEN_RETRIEVER, CROSS_BREED -> List.of();
     };
   }
@@ -46,6 +48,7 @@ public final class DogCoats {
       case BEAGLE -> BeagleCoatRolls::resolveCoatFromRoll;
       case SHIBA_INU -> ShibaInuCoatRolls::resolveCoatFromRoll;
       case DIRE_WOLF -> DireWolfCoatRolls::resolveCoatFromRoll;
+      case PINSCHER -> PinscherCoatRolls::resolveCoatFromRoll;
       case GOLDEN_RETRIEVER, CROSS_BREED -> null;
     };
   }

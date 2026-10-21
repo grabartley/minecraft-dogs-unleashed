@@ -24,7 +24,7 @@ class DogFurRulesTest {
   @ParameterizedTest(name = "{0}")
   @EnumSource(
       value = UnleashedDogBreed.class,
-      names = {"HUSKY", "BEAGLE", "DACHSHUND", "SHIBA_INU", "GOLDEN_RETRIEVER"})
+      names = {"HUSKY", "BEAGLE", "DACHSHUND", "SHIBA_INU", "GOLDEN_RETRIEVER", "PINSCHER"})
   @DisplayName("a pure dog with or without a genome uses its breed's own profile")
   void pureBreedsUseTheirProfile(final UnleashedDogBreed breed) {
     assertEquals(breed.furProfile(), DogFurRules.profileFor(breed, null));

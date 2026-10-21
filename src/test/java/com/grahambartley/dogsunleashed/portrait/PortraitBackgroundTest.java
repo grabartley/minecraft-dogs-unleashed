@@ -20,6 +20,7 @@ class PortraitBackgroundTest {
     "BEAGLE, FOREST",
     "GOLDEN_RETRIEVER, BEACH",
     "SHIBA_INU, CHERRY_GROVE",
+    "PINSCHER, PLAINS",
     "DIRE_WOLF, PEAKS",
     "CROSS_BREED, PLAINS"
   })

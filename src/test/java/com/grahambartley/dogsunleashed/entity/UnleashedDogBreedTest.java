@@ -34,6 +34,7 @@ class UnleashedDogBreedTest {
         Arguments.of("shiba_inu", UnleashedDogBreed.SHIBA_INU),
         Arguments.of("direwolf", UnleashedDogBreed.DIRE_WOLF),
         Arguments.of("dire_wolf", UnleashedDogBreed.DIRE_WOLF),
+        Arguments.of("pinscher", UnleashedDogBreed.PINSCHER),
         Arguments.of("crossbreed", UnleashedDogBreed.CROSS_BREED),
         Arguments.of("cross_breed", UnleashedDogBreed.CROSS_BREED));
   }
@@ -153,6 +154,7 @@ class UnleashedDogBreedTest {
         Arguments.of(UnleashedDogBreed.BEAGLE, 0.8f, 1.1f),
         Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, 0.8f, 1.1f),
         Arguments.of(UnleashedDogBreed.SHIBA_INU, 0.8f, 1.1f),
+        Arguments.of(UnleashedDogBreed.PINSCHER, 0.8f, 1.1f),
         Arguments.of(UnleashedDogBreed.DIRE_WOLF, 0.8f, 1.1f),
         Arguments.of(UnleashedDogBreed.CROSS_BREED, 0.8f, 1.1f));
   }
@@ -179,6 +181,7 @@ class UnleashedDogBreedTest {
         Arguments.of(UnleashedDogBreed.BEAGLE, 17.0, 0.29, 3.0),
         Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, 24.0, 0.30, 4.0),
         Arguments.of(UnleashedDogBreed.SHIBA_INU, 18.0, 0.32, 3.5),
+        Arguments.of(UnleashedDogBreed.PINSCHER, 12.0, 0.31, 2.0),
         Arguments.of(UnleashedDogBreed.DIRE_WOLF, 30.0, 0.32, 6.0),
         Arguments.of(UnleashedDogBreed.CROSS_BREED, 18.0, 0.29, 3.5));
   }
@@ -236,6 +239,7 @@ class UnleashedDogBreedTest {
         Arguments.of(UnleashedDogBreed.BEAGLE, false, true),
         Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, false, true),
         Arguments.of(UnleashedDogBreed.SHIBA_INU, false, true),
+        Arguments.of(UnleashedDogBreed.PINSCHER, false, true),
         Arguments.of(UnleashedDogBreed.DIRE_WOLF, true, true),
         Arguments.of(UnleashedDogBreed.CROSS_BREED, false, false));
   }
@@ -263,6 +267,7 @@ class UnleashedDogBreedTest {
         Arguments.of(UnleashedDogBreed.BEAGLE, 1.5f, 0.75f, 0.0f, 0.88f),
         Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, 1.7f, 0.85f, 0.0f, 1.31f),
         Arguments.of(UnleashedDogBreed.SHIBA_INU, 1.5f, 0.75f, 0.0f, 0.88f),
+        Arguments.of(UnleashedDogBreed.PINSCHER, 1.0f, 0.5f, 0.0f, 0.59f),
         Arguments.of(UnleashedDogBreed.DIRE_WOLF, 1.47f, 0.735f, 0.0f, 1.31f),
         Arguments.of(UnleashedDogBreed.CROSS_BREED, 1.5f, 0.75f, 0.0f, 0.88f));
   }
@@ -315,6 +320,7 @@ class UnleashedDogBreedTest {
         Arguments.of(UnleashedDogBreed.HUSKY, DogFurStage.OVERGROWN, 48000, 2),
         Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, DogFurStage.OVERGROWN, 48000, 2),
         Arguments.of(UnleashedDogBreed.SHIBA_INU, DogFurStage.OVERGROWN, 60000, 2),
+        Arguments.of(UnleashedDogBreed.PINSCHER, DogFurStage.SHAGGY, 72000, 1),
         Arguments.of(UnleashedDogBreed.DIRE_WOLF, DogFurStage.OVERGROWN, 48000, 2),
         Arguments.of(UnleashedDogBreed.BEAGLE, DogFurStage.SHAGGY, 72000, 1),
         Arguments.of(UnleashedDogBreed.DACHSHUND, DogFurStage.SHAGGY, 72000, 1));
@@ -392,6 +398,7 @@ class UnleashedDogBreedTest {
         Arguments.of(UnleashedDogBreed.BEAGLE, 3, false, false, true, false, false, 64),
         Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, 3, false, false, true, false, false, 32),
         Arguments.of(UnleashedDogBreed.SHIBA_INU, 3, false, false, true, false, false, 32),
+        Arguments.of(UnleashedDogBreed.PINSCHER, 3, false, false, true, false, false, 32),
         Arguments.of(UnleashedDogBreed.DIRE_WOLF, 3, true, true, false, true, true, 32),
         Arguments.of(UnleashedDogBreed.CROSS_BREED, 3, false, false, true, false, false, 32));
   }
