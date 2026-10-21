@@ -1,0 +1,68 @@
+{
+  "torso": [
+    "Torso",
+    "bone"
+  ],
+  "mouth": [
+    "snout"
+  ],
+  "head": [
+    "head"
+  ],
+  "eyes": [
+    "eyelid_left", "eyelid_right"
+  ],
+  "pupils": [
+    [
+      7,
+      47
+    ],
+    [
+      10,
+      47
+    ]
+  ],
+  "neck": [
+    "pescoco"
+  ],
+  "tail": [
+    "rabo"
+  ],
+  "ears": {
+    "shape": "drop"
+  },
+  "ear_left": [
+    "ear3"
+  ],
+  "ear_right": [
+    "ear2"
+  ],
+  "leg_front_left": [
+    "frontleg1",
+    "bone10",
+    "bone11"
+  ],
+  "leg_front_right": [
+    "frontleg2",
+    "bone12",
+    "bone13"
+  ],
+  "leg_back_left": [
+    "bone3",
+    "bone4",
+    "bone5",
+    "bone6"
+  ],
+  "leg_back_right": [
+    "bone2",
+    "bone7",
+    "bone8",
+    "bone9"
+  ],
+  "sheet_overrides": {
+    "dogs-unleashed:textures/entity/overlay/grey_muzzle.png": {
+      "mouth": "dogs-unleashed:textures/entity/overlay/grey_muzzle_beagle_mouth.png",
+      "eyes": "dogs-unleashed:textures/entity/overlay/grey_muzzle_beagle_eyes.png"
+    }
+  }
+}

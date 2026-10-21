@@ -60,7 +60,23 @@
           "type": "dogs-unleashed:direwolf"
         }
       }
+    },
+    "tamed_germanshepherd": {
+      "trigger": "minecraft:tame_animal",
+      "conditions": {
+        "entity": {
+          "type": "dogs-unleashed:germanshepherd"
+        }
+      }
+    },
+    "tamed_bordercollie": {
+      "trigger": "minecraft:tame_animal",
+      "conditions": {
+        "entity": {
+          "type": "dogs-unleashed:bordercollie"
+        }
+      }
     }
   },
-  "requirements": [["tamed_husky", "tamed_dachshund", "tamed_beagle", "tamed_goldenretriever", "tamed_shibainu", "tamed_direwolf"]]
+  "requirements": [["tamed_husky", "tamed_dachshund", "tamed_beagle", "tamed_goldenretriever", "tamed_shibainu", "tamed_direwolf", "tamed_germanshepherd", "tamed_bordercollie"]]
 }

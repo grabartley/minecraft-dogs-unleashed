@@ -637,7 +637,7 @@ public class UnleashedDogEntity extends DogMountEntity
 
   @Override
   public void chooseRandomAngerTime() {
-    this.setAngerTime(ANGER_TIME_RANGE.get(this.random));
+    this.setAngerTime(this.breed.nature().angerTicksFrom(ANGER_TIME_RANGE.get(this.random)));
   }
 
   @Override

@@ -170,6 +170,26 @@ public class ModItems {
               UnleashedDogBreed.DIRE_WOLF.spawnEggColors().secondary(),
               new Item.Settings()));
 
+  public static final Item GERMAN_SHEPHERD_SPAWN_EGG =
+      Registry.register(
+          Registries.ITEM,
+          Identifier.of(DogsUnleashed.MOD_ID, "germanshepherd_spawn_egg"),
+          new SpawnEggItem(
+              ModEntities.GERMAN_SHEPHERD,
+              UnleashedDogBreed.GERMAN_SHEPHERD.spawnEggColors().primary(),
+              UnleashedDogBreed.GERMAN_SHEPHERD.spawnEggColors().secondary(),
+              new Item.Settings()));
+
+  public static final Item BORDER_COLLIE_SPAWN_EGG =
+      Registry.register(
+          Registries.ITEM,
+          Identifier.of(DogsUnleashed.MOD_ID, "bordercollie_spawn_egg"),
+          new SpawnEggItem(
+              ModEntities.BORDER_COLLIE,
+              UnleashedDogBreed.BORDER_COLLIE.spawnEggColors().primary(),
+              UnleashedDogBreed.BORDER_COLLIE.spawnEggColors().secondary(),
+              new Item.Settings()));
+
   public static @Nullable Item getSpawnEgg(final UnleashedDogBreed breed) {
     return switch (breed) {
       case HUSKY -> HUSKY_SPAWN_EGG;
@@ -178,6 +198,8 @@ public class ModItems {
       case GOLDEN_RETRIEVER -> GOLDEN_RETRIEVER_SPAWN_EGG;
       case SHIBA_INU -> SHIBA_INU_SPAWN_EGG;
       case DIRE_WOLF -> DIRE_WOLF_SPAWN_EGG;
+      case GERMAN_SHEPHERD -> GERMAN_SHEPHERD_SPAWN_EGG;
+      case BORDER_COLLIE -> BORDER_COLLIE_SPAWN_EGG;
       case CROSS_BREED -> null;
     };
   }
@@ -243,5 +265,9 @@ public class ModItems {
         .register(entries -> entries.add(SHIBA_INU_SPAWN_EGG));
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS)
         .register(entries -> entries.add(DIRE_WOLF_SPAWN_EGG));
+    ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS)
+        .register(entries -> entries.add(GERMAN_SHEPHERD_SPAWN_EGG));
+    ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS)
+        .register(entries -> entries.add(BORDER_COLLIE_SPAWN_EGG));
   }
 }

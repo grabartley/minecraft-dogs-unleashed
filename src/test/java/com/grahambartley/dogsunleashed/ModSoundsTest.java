@@ -24,7 +24,9 @@ class ModSoundsTest {
         Arguments.of(UnleashedDogBreed.DACHSHUND, ModSounds.DACHSHUND_BARK),
         Arguments.of(UnleashedDogBreed.BEAGLE, ModSounds.BEAGLE_BARK),
         Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, ModSounds.GOLDEN_RETRIEVER_BARK),
-        Arguments.of(UnleashedDogBreed.SHIBA_INU, ModSounds.SHIBA_INU_BARK));
+        Arguments.of(UnleashedDogBreed.SHIBA_INU, ModSounds.SHIBA_INU_BARK),
+        Arguments.of(UnleashedDogBreed.GERMAN_SHEPHERD, ModSounds.GERMAN_SHEPHERD_BARK),
+        Arguments.of(UnleashedDogBreed.BORDER_COLLIE, ModSounds.BORDER_COLLIE_BARK));
   }
 
   @ParameterizedTest(name = "{0} bark sound is in Registries.SOUND_EVENT")
@@ -59,7 +61,9 @@ class ModSoundsTest {
         Arguments.of("entity.dachshund.alert", ModSounds.DACHSHUND_ALERT),
         Arguments.of("entity.goldenretriever.alert", ModSounds.GOLDEN_RETRIEVER_ALERT),
         Arguments.of("entity.shibainu.alert", ModSounds.SHIBA_INU_ALERT),
-        Arguments.of("entity.direwolf.alert", ModSounds.DIRE_WOLF_ALERT));
+        Arguments.of("entity.direwolf.alert", ModSounds.DIRE_WOLF_ALERT),
+        Arguments.of("entity.germanshepherd.alert", ModSounds.GERMAN_SHEPHERD_ALERT),
+        Arguments.of("entity.bordercollie.alert", ModSounds.BORDER_COLLIE_ALERT));
   }
 
   @ParameterizedTest(name = "{0} is in Registries.SOUND_EVENT")

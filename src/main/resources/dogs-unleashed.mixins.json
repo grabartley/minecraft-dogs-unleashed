@@ -12,6 +12,7 @@
 		"MobEntityMixin",
 		"ServerPlayerEntityMixin",
 		"ServerWorldSpawnersAccessor",
+		"SheepEntityMixin",
 		"WolfEntityMixin"
 	],
 	"injectors": {

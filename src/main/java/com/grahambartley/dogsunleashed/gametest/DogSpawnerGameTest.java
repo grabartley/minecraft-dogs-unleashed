@@ -252,7 +252,18 @@ public final class DogSpawnerGameTest implements FabricGameTest {
           new BiomeCandidatesCase(BiomeKeys.SNOWY_PLAINS, List.of(UnleashedDogBreed.HUSKY)),
           new BiomeCandidatesCase(BiomeKeys.JAGGED_PEAKS, List.of(UnleashedDogBreed.DIRE_WOLF)),
           new BiomeCandidatesCase(
-              BiomeKeys.MEADOW, List.of(UnleashedDogBreed.DACHSHUND, UnleashedDogBreed.BEAGLE)),
+              BiomeKeys.MEADOW,
+              List.of(
+                  UnleashedDogBreed.DACHSHUND,
+                  UnleashedDogBreed.BEAGLE,
+                  UnleashedDogBreed.BORDER_COLLIE)),
+          new BiomeCandidatesCase(
+              BiomeKeys.PLAINS,
+              List.of(UnleashedDogBreed.DACHSHUND, UnleashedDogBreed.BORDER_COLLIE)),
+          new BiomeCandidatesCase(BiomeKeys.SAVANNA, List.of(UnleashedDogBreed.GERMAN_SHEPHERD)),
+          new BiomeCandidatesCase(
+              BiomeKeys.WINDSWEPT_HILLS,
+              List.of(UnleashedDogBreed.GERMAN_SHEPHERD, UnleashedDogBreed.BORDER_COLLIE)),
           new BiomeCandidatesCase(BiomeKeys.BEACH, List.of(UnleashedDogBreed.GOLDEN_RETRIEVER)),
           new BiomeCandidatesCase(BiomeKeys.CHERRY_GROVE, List.of(UnleashedDogBreed.SHIBA_INU)),
           new BiomeCandidatesCase(BiomeKeys.DESERT, List.of()),

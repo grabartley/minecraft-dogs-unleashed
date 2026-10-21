@@ -32,6 +32,8 @@ public enum PortraitBackground {
       case GOLDEN_RETRIEVER -> BEACH;
       case SHIBA_INU -> CHERRY_GROVE;
       case DIRE_WOLF -> PEAKS;
+      case GERMAN_SHEPHERD -> PEAKS;
+      case BORDER_COLLIE -> PLAINS;
       case CROSS_BREED -> PLAINS;
     };
   }

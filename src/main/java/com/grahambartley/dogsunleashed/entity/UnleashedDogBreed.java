@@ -162,6 +162,49 @@ public enum UnleashedDogBreed {
           .sleepingOutsideBeds()
           .livingInPacks()
           .tamingThroughTrust()),
+  GERMAN_SHEPHERD(
+      "germanshepherd",
+      new FetchCarryProfiles(
+          new CarryProfile(0.0, -0.048),
+          new CarryProfile(0.0, -0.048),
+          new CarryProfile(-0.016, -0.178)),
+      new SpawnEggColors(0x3B2A1E, 0xB57A3C),
+      new Dimensions(0.8f, 1.1f),
+      new SpawnSettings(
+          10, 1, 3, BiomeKeys.SPARSE_JUNGLE, BiomeKeys.SAVANNA, BiomeKeys.WINDSWEPT_HILLS),
+      new Attributes(26.0, 0.30, 5.0),
+      new Voice(
+          false,
+          () -> ModSounds.GERMAN_SHEPHERD_BARK,
+          () -> ModSounds.GERMAN_SHEPHERD_ALERT,
+          null,
+          null,
+          false),
+      false,
+      new RenderTransforms(1.5f, 0.75f, 0.0f, 0.88f),
+      new FurProfile(DogFurStage.OVERGROWN, 60000, 2),
+      Nature.ORDINARY.stayingAngryLonger(10)),
+  BORDER_COLLIE(
+      "bordercollie",
+      new FetchCarryProfiles(
+          new CarryProfile(-0.025, -0.053),
+          new CarryProfile(-0.025, -0.053),
+          new CarryProfile(-0.0125, -0.195)),
+      new SpawnEggColors(0x1E1E1E, 0xF2F2F2),
+      new Dimensions(0.8f, 1.1f),
+      new SpawnSettings(6, 1, 3, BiomeKeys.MEADOW, BiomeKeys.PLAINS, BiomeKeys.WINDSWEPT_HILLS),
+      new Attributes(18.0, 0.31, 3.0),
+      new Voice(
+          false,
+          () -> ModSounds.BORDER_COLLIE_BARK,
+          () -> ModSounds.BORDER_COLLIE_ALERT,
+          null,
+          null,
+          false),
+      false,
+      new RenderTransforms(1.5f, 0.75f, 0.0f, 0.88f),
+      new FurProfile(DogFurStage.OVERGROWN, 60000, 2),
+      Nature.ORDINARY.herdingSheep()),
   CROSS_BREED(
       "crossbreed",
       null,
@@ -330,6 +373,8 @@ public enum UnleashedDogBreed {
       case "goldenretriever", "golden_retriever" -> GOLDEN_RETRIEVER;
       case "shibainu", "shiba_inu" -> SHIBA_INU;
       case "direwolf", "dire_wolf" -> DIRE_WOLF;
+      case "germanshepherd", "german_shepherd" -> GERMAN_SHEPHERD;
+      case "bordercollie", "border_collie" -> BORDER_COLLIE;
       case "crossbreed", "cross_breed" -> CROSS_BREED;
       default -> null;
     };
@@ -369,10 +414,17 @@ public enum UnleashedDogBreed {
       boolean sleepsInBeds,
       boolean livesInPacks,
       boolean tamesThroughTrust,
-      int scentRange) {
+      int scentRange,
+      int extraAngerSeconds,
+      boolean herdsSheep) {
     public static final int ORDINARY_SCENT_RANGE = 32;
     public static final Nature ORDINARY =
-        new Nature(3, false, false, true, false, false, ORDINARY_SCENT_RANGE);
+        new Nature(3, false, false, true, false, false, ORDINARY_SCENT_RANGE, 0, false);
+    private static final int TICKS_PER_SECOND = 20;
+
+    public int angerTicksFrom(final int baseTicks) {
+      return baseTicks + extraAngerSeconds * TICKS_PER_SECOND;
+    }
 
     public Nature breedingOnlyWithOwnBreed() {
       return new Nature(
@@ -382,7 +434,9 @@ public enum UnleashedDogBreed {
           sleepsInBeds,
           livesInPacks,
           tamesThroughTrust,
-          scentRange);
+          scentRange,
+          extraAngerSeconds,
+          herdsSheep);
     }
 
     public Nature growingThroughStages() {
@@ -393,7 +447,9 @@ public enum UnleashedDogBreed {
           sleepsInBeds,
           livesInPacks,
           tamesThroughTrust,
-          scentRange);
+          scentRange,
+          extraAngerSeconds,
+          herdsSheep);
     }
 
     public Nature sleepingOutsideBeds() {
@@ -404,7 +460,9 @@ public enum UnleashedDogBreed {
           false,
           livesInPacks,
           tamesThroughTrust,
-          scentRange);
+          scentRange,
+          extraAngerSeconds,
+          herdsSheep);
     }
 
     public Nature livingInPacks() {
@@ -415,7 +473,9 @@ public enum UnleashedDogBreed {
           sleepsInBeds,
           true,
           tamesThroughTrust,
-          scentRange);
+          scentRange,
+          extraAngerSeconds,
+          herdsSheep);
     }
 
     public Nature tamingThroughTrust() {
@@ -426,7 +486,9 @@ public enum UnleashedDogBreed {
           sleepsInBeds,
           livesInPacks,
           true,
-          scentRange);
+          scentRange,
+          extraAngerSeconds,
+          herdsSheep);
     }
 
     public Nature trackingScentUpTo(final int blocks) {
@@ -437,7 +499,35 @@ public enum UnleashedDogBreed {
           sleepsInBeds,
           livesInPacks,
           tamesThroughTrust,
-          blocks);
+          blocks,
+          extraAngerSeconds,
+          herdsSheep);
+    }
+
+    public Nature stayingAngryLonger(final int seconds) {
+      return new Nature(
+          tameSuccessChance,
+          breedsOnlyWithOwnBreed,
+          growsThroughStages,
+          sleepsInBeds,
+          livesInPacks,
+          tamesThroughTrust,
+          scentRange,
+          seconds,
+          herdsSheep);
+    }
+
+    public Nature herdingSheep() {
+      return new Nature(
+          tameSuccessChance,
+          breedsOnlyWithOwnBreed,
+          growsThroughStages,
+          sleepsInBeds,
+          livesInPacks,
+          tamesThroughTrust,
+          scentRange,
+          extraAngerSeconds,
+          true);
     }
   }
 }

@@ -103,6 +103,8 @@ public class DogsUnleashedClient implements ClientModInitializer {
     EntityRendererRegistry.register(ModEntities.GOLDEN_RETRIEVER, DogRenderer::new);
     EntityRendererRegistry.register(ModEntities.SHIBA_INU, DogRenderer::new);
     EntityRendererRegistry.register(ModEntities.DIRE_WOLF, DogRenderer::new);
+    EntityRendererRegistry.register(ModEntities.GERMAN_SHEPHERD, DogRenderer::new);
+    EntityRendererRegistry.register(ModEntities.BORDER_COLLIE, DogRenderer::new);
     EntityRendererRegistry.register(ModEntities.CROSS_BREED, DogRenderer::new);
     EntityRendererRegistry.register(ModEntities.ZOMBIE_HUSKY, DogRenderer::new);
     EntityRendererRegistry.register(ModEntities.ZOMBIE_DACHSHUND, DogRenderer::new);
@@ -110,6 +112,8 @@ public class DogsUnleashedClient implements ClientModInitializer {
     EntityRendererRegistry.register(ModEntities.ZOMBIE_GOLDEN_RETRIEVER, DogRenderer::new);
     EntityRendererRegistry.register(ModEntities.ZOMBIE_SHIBA_INU, DogRenderer::new);
     EntityRendererRegistry.register(ModEntities.ZOMBIE_DIRE_WOLF, DogRenderer::new);
+    EntityRendererRegistry.register(ModEntities.ZOMBIE_GERMAN_SHEPHERD, DogRenderer::new);
+    EntityRendererRegistry.register(ModEntities.ZOMBIE_BORDER_COLLIE, DogRenderer::new);
     EntityRendererRegistry.register(ModEntities.ZOMBIE_CROSS_BREED, DogRenderer::new);
 
     BlockEntityRendererFactories.register(ModBlockEntities.DOG_BED, DogBedBlockEntityRenderer::new);

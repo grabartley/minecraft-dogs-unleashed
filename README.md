@@ -19,7 +19,7 @@
 
 # Dogs Unleashed
 
-Dogs Unleashed adds six dog breeds to Minecraft. Each one has its own look, coats, voice and home biome, and is fully
+Dogs Unleashed adds eight dog breeds to Minecraft. Each one has its own look, coats, voice and home biome, and is fully
 animated. You can tame them, give them commands, play fetch, put them to bed, and raise families of them.
 
 > **Alpha:** Dogs Unleashed is in alpha and we would love your feedback.
@@ -35,8 +35,10 @@ animated. You can tame them, give them commands, play fetch, put them to bed, an
 | **Golden Retriever** | Beaches                                   | 1, the classic golden     |
 | **Shiba Inu**        | Cherry groves                             | 3: red, black and sesame  |
 | **Dire Wolf**        | Packs in the coldest peaks and ice fields | 6, from smoke grey to albino white |
+| **German Shepherd**  | Savannas, sparse jungles and windswept hills | 3: saddle, sable and black |
+| **Border Collie**    | Meadows, plains and windswept hills       | 3: black and white, red merle and blue merle |
 
-Breeds differ in size, health, speed and bite. Some coats are rarer than others. Friendly strays also wander into
+Breeds differ in size, health, speed and bite. German Shepherds hold a grudge longer, and sheep scatter from a Border Collie. Some coats are rarer than others. Friendly strays also wander into
 villages, and the wandering trader sometimes sells a puppy in a basket.
 
 The dire wolf is the rare one. It roams the coldest peaks in packs that hunt together and never forgive a player who
@@ -202,7 +204,7 @@ Every subcommand needs operator permission.
 /dogsunleashed find <petId>
 ```
 
-The breed ids are `husky`, `dachshund`, `beagle`, `goldenretriever`, `shibainu` and `direwolf`. `list`, `summon` and `find` let
+The breed ids are `husky`, `dachshund`, `beagle`, `goldenretriever`, `shibainu`, `direwolf`, `germanshepherd` and `bordercollie`. `list`, `summon` and `find` let
 operators look up and call back any player's dogs.
 
 </details>

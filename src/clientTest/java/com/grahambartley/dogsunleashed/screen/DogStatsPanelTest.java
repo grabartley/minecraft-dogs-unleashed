@@ -23,7 +23,7 @@ class DogStatsPanelTest {
   @Test
   @DisplayName("the stat maxima match the strongest breed that does not grow through stages")
   void statMaximaMatchStrongestBreeds() {
-    assertEquals(25.0, DogStatsPanel.maxHealthAcrossBreeds());
+    assertEquals(26.0, DogStatsPanel.maxHealthAcrossBreeds());
     assertEquals(0.32, DogStatsPanel.maxSpeedAcrossBreeds());
     assertEquals(5.0, DogStatsPanel.maxAttackAcrossBreeds());
   }

@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -34,6 +35,10 @@ class UnleashedDogBreedTest {
         Arguments.of("shiba_inu", UnleashedDogBreed.SHIBA_INU),
         Arguments.of("direwolf", UnleashedDogBreed.DIRE_WOLF),
         Arguments.of("dire_wolf", UnleashedDogBreed.DIRE_WOLF),
+        Arguments.of("germanshepherd", UnleashedDogBreed.GERMAN_SHEPHERD),
+        Arguments.of("german_shepherd", UnleashedDogBreed.GERMAN_SHEPHERD),
+        Arguments.of("bordercollie", UnleashedDogBreed.BORDER_COLLIE),
+        Arguments.of("border_collie", UnleashedDogBreed.BORDER_COLLIE),
         Arguments.of("crossbreed", UnleashedDogBreed.CROSS_BREED),
         Arguments.of("cross_breed", UnleashedDogBreed.CROSS_BREED));
   }
@@ -154,6 +159,8 @@ class UnleashedDogBreedTest {
         Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, 0.8f, 1.1f),
         Arguments.of(UnleashedDogBreed.SHIBA_INU, 0.8f, 1.1f),
         Arguments.of(UnleashedDogBreed.DIRE_WOLF, 0.8f, 1.1f),
+        Arguments.of(UnleashedDogBreed.GERMAN_SHEPHERD, 0.8f, 1.1f),
+        Arguments.of(UnleashedDogBreed.BORDER_COLLIE, 0.8f, 1.1f),
         Arguments.of(UnleashedDogBreed.CROSS_BREED, 0.8f, 1.1f));
   }
 
@@ -180,6 +187,8 @@ class UnleashedDogBreedTest {
         Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, 24.0, 0.30, 4.0),
         Arguments.of(UnleashedDogBreed.SHIBA_INU, 18.0, 0.32, 3.5),
         Arguments.of(UnleashedDogBreed.DIRE_WOLF, 30.0, 0.32, 6.0),
+        Arguments.of(UnleashedDogBreed.GERMAN_SHEPHERD, 26.0, 0.30, 5.0),
+        Arguments.of(UnleashedDogBreed.BORDER_COLLIE, 18.0, 0.31, 3.0),
         Arguments.of(UnleashedDogBreed.CROSS_BREED, 18.0, 0.29, 3.5));
   }
 
@@ -237,6 +246,8 @@ class UnleashedDogBreedTest {
         Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, false, true),
         Arguments.of(UnleashedDogBreed.SHIBA_INU, false, true),
         Arguments.of(UnleashedDogBreed.DIRE_WOLF, true, true),
+        Arguments.of(UnleashedDogBreed.GERMAN_SHEPHERD, false, true),
+        Arguments.of(UnleashedDogBreed.BORDER_COLLIE, false, true),
         Arguments.of(UnleashedDogBreed.CROSS_BREED, false, false));
   }
 
@@ -264,6 +275,8 @@ class UnleashedDogBreedTest {
         Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, 1.7f, 0.85f, 0.0f, 1.31f),
         Arguments.of(UnleashedDogBreed.SHIBA_INU, 1.5f, 0.75f, 0.0f, 0.88f),
         Arguments.of(UnleashedDogBreed.DIRE_WOLF, 1.47f, 0.735f, 0.0f, 1.31f),
+        Arguments.of(UnleashedDogBreed.GERMAN_SHEPHERD, 1.5f, 0.75f, 0.0f, 0.88f),
+        Arguments.of(UnleashedDogBreed.BORDER_COLLIE, 1.5f, 0.75f, 0.0f, 0.88f),
         Arguments.of(UnleashedDogBreed.CROSS_BREED, 1.5f, 0.75f, 0.0f, 0.88f));
   }
 
@@ -316,6 +329,8 @@ class UnleashedDogBreedTest {
         Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, DogFurStage.OVERGROWN, 48000, 2),
         Arguments.of(UnleashedDogBreed.SHIBA_INU, DogFurStage.OVERGROWN, 60000, 2),
         Arguments.of(UnleashedDogBreed.DIRE_WOLF, DogFurStage.OVERGROWN, 48000, 2),
+        Arguments.of(UnleashedDogBreed.GERMAN_SHEPHERD, DogFurStage.OVERGROWN, 60000, 2),
+        Arguments.of(UnleashedDogBreed.BORDER_COLLIE, DogFurStage.OVERGROWN, 60000, 2),
         Arguments.of(UnleashedDogBreed.BEAGLE, DogFurStage.SHAGGY, 72000, 1),
         Arguments.of(UnleashedDogBreed.DACHSHUND, DogFurStage.SHAGGY, 72000, 1));
   }
@@ -387,19 +402,27 @@ class UnleashedDogBreedTest {
 
   static Stream<Arguments> expectedNatures() {
     return Stream.of(
-        Arguments.of(UnleashedDogBreed.HUSKY, 3, false, false, true, false, false, 32),
-        Arguments.of(UnleashedDogBreed.DACHSHUND, 3, false, false, true, false, false, 32),
-        Arguments.of(UnleashedDogBreed.BEAGLE, 3, false, false, true, false, false, 64),
-        Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, 3, false, false, true, false, false, 32),
-        Arguments.of(UnleashedDogBreed.SHIBA_INU, 3, false, false, true, false, false, 32),
-        Arguments.of(UnleashedDogBreed.DIRE_WOLF, 3, true, true, false, true, true, 32),
-        Arguments.of(UnleashedDogBreed.CROSS_BREED, 3, false, false, true, false, false, 32));
+        Arguments.of(UnleashedDogBreed.HUSKY, 3, false, false, true, false, false, 32, 0, false),
+        Arguments.of(
+            UnleashedDogBreed.DACHSHUND, 3, false, false, true, false, false, 32, 0, false),
+        Arguments.of(UnleashedDogBreed.BEAGLE, 3, false, false, true, false, false, 64, 0, false),
+        Arguments.of(
+            UnleashedDogBreed.GOLDEN_RETRIEVER, 3, false, false, true, false, false, 32, 0, false),
+        Arguments.of(
+            UnleashedDogBreed.SHIBA_INU, 3, false, false, true, false, false, 32, 0, false),
+        Arguments.of(UnleashedDogBreed.DIRE_WOLF, 3, true, true, false, true, true, 32, 0, false),
+        Arguments.of(
+            UnleashedDogBreed.GERMAN_SHEPHERD, 3, false, false, true, false, false, 32, 10, false),
+        Arguments.of(
+            UnleashedDogBreed.BORDER_COLLIE, 3, false, false, true, false, false, 32, 0, true),
+        Arguments.of(
+            UnleashedDogBreed.CROSS_BREED, 3, false, false, true, false, false, 32, 0, false));
   }
 
   @ParameterizedTest(
       name =
           "{0} tames 1 in {1}, own breed only={2}, staged growth={3}, beds={4}, lives in packs={5},"
-              + " trust={6}, scent range={7}")
+              + " trust={6}, scent range={7}, extra anger={8}s, herds sheep={9}")
   @MethodSource("expectedNatures")
   @DisplayName("each breed declares its taming chance, breeding rule and growth model")
   void breedNatureMatchesTheSpec(
@@ -410,7 +433,9 @@ class UnleashedDogBreedTest {
       final boolean sleepsInBeds,
       final boolean livesInPacks,
       final boolean tamesThroughTrust,
-      final int scentRange) {
+      final int scentRange,
+      final int extraAngerSeconds,
+      final boolean herdsSheep) {
     assertEquals(
         new UnleashedDogBreed.Nature(
             tameSuccessChance,
@@ -419,7 +444,9 @@ class UnleashedDogBreedTest {
             sleepsInBeds,
             livesInPacks,
             tamesThroughTrust,
-            scentRange),
+            scentRange,
+            extraAngerSeconds,
+            herdsSheep),
         breed.nature());
   }
 
@@ -464,22 +491,40 @@ class UnleashedDogBreedTest {
   void natureBuilderChangesOneTraitAtATime() {
     final UnleashedDogBreed.Nature ordinary = UnleashedDogBreed.Nature.ORDINARY;
     assertEquals(
-        new UnleashedDogBreed.Nature(3, true, false, true, false, false, 32),
+        new UnleashedDogBreed.Nature(3, true, false, true, false, false, 32, 0, false),
         ordinary.breedingOnlyWithOwnBreed());
     assertEquals(
-        new UnleashedDogBreed.Nature(3, false, true, true, false, false, 32),
+        new UnleashedDogBreed.Nature(3, false, true, true, false, false, 32, 0, false),
         ordinary.growingThroughStages());
     assertEquals(
-        new UnleashedDogBreed.Nature(3, false, false, false, false, false, 32),
+        new UnleashedDogBreed.Nature(3, false, false, false, false, false, 32, 0, false),
         ordinary.sleepingOutsideBeds());
     assertEquals(
-        new UnleashedDogBreed.Nature(3, false, false, true, true, false, 32),
+        new UnleashedDogBreed.Nature(3, false, false, true, true, false, 32, 0, false),
         ordinary.livingInPacks());
     assertEquals(
-        new UnleashedDogBreed.Nature(3, false, false, true, false, true, 32),
+        new UnleashedDogBreed.Nature(3, false, false, true, false, true, 32, 0, false),
         ordinary.tamingThroughTrust());
     assertEquals(
-        new UnleashedDogBreed.Nature(3, false, false, true, false, false, 64),
+        new UnleashedDogBreed.Nature(3, false, false, true, false, false, 64, 0, false),
         ordinary.trackingScentUpTo(64));
+    assertEquals(
+        new UnleashedDogBreed.Nature(3, false, false, true, false, false, 32, 10, false),
+        ordinary.stayingAngryLonger(10));
+    assertEquals(
+        new UnleashedDogBreed.Nature(3, false, false, true, false, false, 32, 0, true),
+        ordinary.herdingSheep());
+  }
+
+  @ParameterizedTest(name = "{0} extra seconds turns {1} ticks into {2}")
+  @CsvSource({"0, 400, 400", "10, 400, 600", "10, 780, 980", "5, 0, 100"})
+  @DisplayName("extra anger seconds lengthen the rolled anger time by whole seconds of ticks")
+  void extraAngerSecondsLengthenAngerTime(
+      final int extraSeconds, final int baseTicks, final int expectedTicks) {
+    assertEquals(
+        expectedTicks,
+        UnleashedDogBreed.Nature.ORDINARY
+            .stayingAngryLonger(extraSeconds)
+            .angerTicksFrom(baseTicks));
   }
 }

@@ -37,6 +37,12 @@ public class ModEntities {
   public static final EntityType<UnleashedDogEntity> DIRE_WOLF =
       registerDog(UnleashedDogBreed.DIRE_WOLF);
 
+  public static final EntityType<UnleashedDogEntity> GERMAN_SHEPHERD =
+      registerDog(UnleashedDogBreed.GERMAN_SHEPHERD);
+
+  public static final EntityType<UnleashedDogEntity> BORDER_COLLIE =
+      registerDog(UnleashedDogBreed.BORDER_COLLIE);
+
   public static final EntityType<UnleashedDogEntity> CROSS_BREED =
       registerDog(UnleashedDogBreed.CROSS_BREED);
 
@@ -57,6 +63,12 @@ public class ModEntities {
 
   public static final EntityType<UnleashedDogEntity> ZOMBIE_DIRE_WOLF =
       registerZombieDog(UnleashedDogBreed.DIRE_WOLF);
+
+  public static final EntityType<UnleashedDogEntity> ZOMBIE_GERMAN_SHEPHERD =
+      registerZombieDog(UnleashedDogBreed.GERMAN_SHEPHERD);
+
+  public static final EntityType<UnleashedDogEntity> ZOMBIE_BORDER_COLLIE =
+      registerZombieDog(UnleashedDogBreed.BORDER_COLLIE);
 
   public static final EntityType<UnleashedDogEntity> ZOMBIE_CROSS_BREED =
       registerZombieDog(UnleashedDogBreed.CROSS_BREED);
@@ -129,6 +141,8 @@ public class ModEntities {
       case GOLDEN_RETRIEVER -> GOLDEN_RETRIEVER;
       case SHIBA_INU -> SHIBA_INU;
       case DIRE_WOLF -> DIRE_WOLF;
+      case GERMAN_SHEPHERD -> GERMAN_SHEPHERD;
+      case BORDER_COLLIE -> BORDER_COLLIE;
       case CROSS_BREED -> CROSS_BREED;
     };
   }
@@ -142,6 +156,8 @@ public class ModEntities {
       case GOLDEN_RETRIEVER -> ZOMBIE_GOLDEN_RETRIEVER;
       case SHIBA_INU -> ZOMBIE_SHIBA_INU;
       case DIRE_WOLF -> ZOMBIE_DIRE_WOLF;
+      case GERMAN_SHEPHERD -> ZOMBIE_GERMAN_SHEPHERD;
+      case BORDER_COLLIE -> ZOMBIE_BORDER_COLLIE;
       case CROSS_BREED -> ZOMBIE_CROSS_BREED;
     };
   }

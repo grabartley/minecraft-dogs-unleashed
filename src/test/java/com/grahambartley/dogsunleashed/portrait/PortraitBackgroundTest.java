@@ -21,6 +21,8 @@ class PortraitBackgroundTest {
     "GOLDEN_RETRIEVER, BEACH",
     "SHIBA_INU, CHERRY_GROVE",
     "DIRE_WOLF, PEAKS",
+    "GERMAN_SHEPHERD, PEAKS",
+    "BORDER_COLLIE, PLAINS",
     "CROSS_BREED, PLAINS"
   })
   @DisplayName("each breed is painted in front of the biome it comes from")

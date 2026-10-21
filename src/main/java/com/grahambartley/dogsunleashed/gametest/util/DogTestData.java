@@ -39,6 +39,12 @@ public record DogTestData(
   public static final DogTestData DIRE_WOLF =
       fromPreset(UnleashedDogBreed.DIRE_WOLF, ModSounds.DIRE_WOLF_BARK);
 
+  public static final DogTestData GERMAN_SHEPHERD =
+      fromPreset(UnleashedDogBreed.GERMAN_SHEPHERD, ModSounds.GERMAN_SHEPHERD_BARK);
+
+  public static final DogTestData BORDER_COLLIE =
+      fromPreset(UnleashedDogBreed.BORDER_COLLIE, ModSounds.BORDER_COLLIE_BARK);
+
   private static DogTestData fromPreset(
       final UnleashedDogBreed breed, final @Nullable SoundEvent expectedBarkSound) {
     final EntityType<UnleashedDogEntity> entityType = ModEntities.getDogEntityType(breed);
@@ -55,6 +61,14 @@ public record DogTestData(
   }
 
   public static List<DogTestData> getAllBreeds() {
-    return List.of(HUSKY, DACHSHUND, BEAGLE, GOLDEN_RETRIEVER, SHIBA_INU, DIRE_WOLF);
+    return List.of(
+        HUSKY,
+        DACHSHUND,
+        BEAGLE,
+        GOLDEN_RETRIEVER,
+        SHIBA_INU,
+        DIRE_WOLF,
+        GERMAN_SHEPHERD,
+        BORDER_COLLIE);
   }
 }
