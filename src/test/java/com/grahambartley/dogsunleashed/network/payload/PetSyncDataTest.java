@@ -12,6 +12,7 @@ import com.grahambartley.dogsunleashed.entity.DogBondStep;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import com.grahambartley.dogsunleashed.pet.PetAge;
+import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import java.util.List;
@@ -69,7 +70,7 @@ class PetSyncDataTest {
             5.0f,
             List.of(),
             RidingView.NONE,
-            false,
+            PetAwayStatus.HOME,
             false,
             DogBondStep.STRANGER);
     final RegistryByteBuf buf = newBuf();
@@ -106,7 +107,7 @@ class PetSyncDataTest {
             5.0f,
             List.of(),
             RidingView.NONE,
-            false,
+            PetAwayStatus.HOME,
             senior,
             DogBondStep.STRANGER);
     final RegistryByteBuf buf = newBuf();
@@ -171,7 +172,7 @@ class PetSyncDataTest {
             sample.attackDamage(),
             sample.composition(),
             sample.riding(),
-            sample.exploring(),
+            sample.away(),
             sample.senior(),
             bond);
     final RegistryByteBuf buf = newBuf();
@@ -188,7 +189,7 @@ class PetSyncDataTest {
     nbt.putUuid(ModNbtKeys.OWNER_ID, UUID.randomUUID());
     nbt.putString(ModNbtKeys.BREED_TYPE, UnleashedDogBreed.BEAGLE.serializedId());
     nbt.putInt(ModNbtKeys.BOND_POINTS, points);
-    assertEquals(expected, PetSyncData.from(PetData.fromNbt(nbt), false).bond());
+    assertEquals(expected, PetSyncData.from(PetData.fromNbt(nbt), PetAwayStatus.HOME).bond());
   }
 
   static Stream<Arguments> displayBreedCases() {

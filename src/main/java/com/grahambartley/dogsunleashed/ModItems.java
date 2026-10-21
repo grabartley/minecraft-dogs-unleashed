@@ -42,6 +42,12 @@ public class ModItems {
           Identifier.of(DogsUnleashed.MOD_ID, "dog_whistle"),
           new DogWhistleItem(new Item.Settings().maxCount(1)));
 
+  public static final Item SADDLEBAGS =
+      Registry.register(
+          Registries.ITEM,
+          Identifier.of(DogsUnleashed.MOD_ID, "saddlebags"),
+          new Item(new Item.Settings().maxCount(1)));
+
   public static final Item DOG_BED =
       Registry.register(
           Registries.ITEM,
@@ -182,6 +188,8 @@ public class ModItems {
         .register(entries -> entries.add(DOG_WHISTLE));
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS)
         .register(entries -> entries.add(PUPPY_BASKET));
+    ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS)
+        .register(entries -> entries.add(SADDLEBAGS));
     StickThrowHandler.register();
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL)
         .register(

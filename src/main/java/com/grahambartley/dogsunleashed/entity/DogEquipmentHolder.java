@@ -20,7 +20,8 @@ public final class DogEquipmentHolder {
   private static final PersistedSlot[] MOD_OWNED_SLOTS = {
     new PersistedSlot(DogEquipmentSlot.PENDANT, ModNbtKeys.PENDANT_ITEM),
     new PersistedSlot(DogEquipmentSlot.COSMETIC, ModNbtKeys.COSMETIC_ITEM),
-    new PersistedSlot(DogEquipmentSlot.COSTUME, ModNbtKeys.COSTUME_ITEM)
+    new PersistedSlot(DogEquipmentSlot.COSTUME, ModNbtKeys.COSTUME_ITEM),
+    new PersistedSlot(DogEquipmentSlot.SADDLEBAGS, ModNbtKeys.SADDLEBAGS_ITEM)
   };
 
   private final UnleashedDogEntity dog;
@@ -45,6 +46,7 @@ public final class DogEquipmentHolder {
       case PENDANT -> this.dog.getDataTracker().get(UnleashedDogEntity.PENDANT_ITEM);
       case COSMETIC -> this.dog.getDataTracker().get(UnleashedDogEntity.COSMETIC_ITEM);
       case COSTUME -> this.dog.getDataTracker().get(UnleashedDogEntity.COSTUME_ITEM);
+      case SADDLEBAGS -> this.dog.getDataTracker().get(UnleashedDogEntity.SADDLEBAGS_ITEM);
     };
   }
 
@@ -54,6 +56,7 @@ public final class DogEquipmentHolder {
       case PENDANT -> this.dog.getDataTracker().set(UnleashedDogEntity.PENDANT_ITEM, stack);
       case COSMETIC -> this.dog.getDataTracker().set(UnleashedDogEntity.COSMETIC_ITEM, stack);
       case COSTUME -> this.dog.getDataTracker().set(UnleashedDogEntity.COSTUME_ITEM, stack);
+      case SADDLEBAGS -> this.dog.getDataTracker().set(UnleashedDogEntity.SADDLEBAGS_ITEM, stack);
     }
   }
 
@@ -62,6 +65,7 @@ public final class DogEquipmentHolder {
   }
 
   void dropModOwnedSlots() {
+    this.saddlebags().dropContents();
     for (final PersistedSlot owned : MOD_OWNED_SLOTS) {
       final ItemStack stack = this.getStack(owned.slot());
       if (!stack.isEmpty()) {
@@ -76,7 +80,14 @@ public final class DogEquipmentHolder {
   }
 
   public boolean releases(final DogEquipmentSlot slot, final PlayerEntity player) {
-    return slot.releases(DogArmour.isBindingCursed(this.getStack(slot)), player.isCreative());
+    return slot.releases(
+        DogArmour.isBindingCursed(this.getStack(slot)),
+        player.isCreative(),
+        this.saddlebags().isEmpty());
+  }
+
+  private DogSaddlebags saddlebags() {
+    return this.dog.getComponents().get(DogSaddlebags.class);
   }
 
   @Nullable

@@ -19,7 +19,7 @@ import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import com.grahambartley.dogsunleashed.gametest.util.PendantTestHelper;
 import com.grahambartley.dogsunleashed.item.armor.DogArmorTier;
-import com.grahambartley.dogsunleashed.listener.ExpeditionListener;
+import com.grahambartley.dogsunleashed.listener.AwayDogListener;
 import com.grahambartley.dogsunleashed.network.handler.WheelActionNetworkHandler;
 import com.grahambartley.dogsunleashed.network.payload.SelectWheelSubActionPayload;
 import java.util.List;
@@ -119,7 +119,7 @@ public final class DogExpeditionGameTest implements FabricGameTest {
             Long.MAX_VALUE,
             Long.MAX_VALUE));
 
-    ExpeditionListener.discardIfAway(copy, context.getWorld());
+    AwayDogListener.discardIfAway(copy, context.getWorld());
 
     context.runAtEveryTick(
         () -> {

@@ -19,6 +19,7 @@ import com.grahambartley.dogsunleashed.render.layer.DogCostumeSuitLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogFurOverlayLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogMobHeadLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogPendantLayer;
+import com.grahambartley.dogsunleashed.render.layer.DogSaddlebagsLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogSheetOverlayLayer;
 import com.grahambartley.dogsunleashed.render.layer.UndeadEyeGlowLayer;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile;
@@ -69,6 +70,7 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
     this.addRenderLayer(new DogCostumePartsLayer(this));
     this.addRenderLayer(new DogArmourLayer(this));
     this.addRenderLayer(new DogPendantLayer(this));
+    this.addRenderLayer(new DogSaddlebagsLayer(this));
     this.addRenderLayer(new DogCosmeticLayer(this, this.hatFits));
     this.addRenderLayer(new DogMobHeadLayer(this, this.mobHeadFits, context));
   }

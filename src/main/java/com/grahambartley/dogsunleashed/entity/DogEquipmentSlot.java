@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.entity;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModItemTags;
+import com.grahambartley.dogsunleashed.ModItems;
 import java.util.function.Predicate;
 import net.minecraft.item.AnimalArmorItem;
 import net.minecraft.item.ItemStack;
@@ -17,7 +18,8 @@ public enum DogEquipmentSlot {
               && armour.getType() == AnimalArmorItem.Type.CANINE),
   PENDANT("pendant", "item/empty_slot_pendant", stack -> stack.isIn(ModItemTags.PENDANTS)),
   COSMETIC("cosmetic", "item/empty_slot_cosmetic", stack -> stack.isIn(ModItemTags.DOG_COSMETICS)),
-  COSTUME("costume", "item/empty_slot_costume", stack -> stack.isIn(ModItemTags.DOG_COSTUMES));
+  COSTUME("costume", "item/empty_slot_costume", stack -> stack.isIn(ModItemTags.DOG_COSTUMES)),
+  SADDLEBAGS("saddlebags", "item/empty_slot_saddlebags", stack -> stack.isOf(ModItems.SADDLEBAGS));
 
   private static final String TRANSLATION_KEY_PREFIX = "screen.dogs-unleashed.dog_equipment.slot.";
 
@@ -59,8 +61,13 @@ public enum DogEquipmentSlot {
     return this != ARMOUR || !wearerIsBaby;
   }
 
-  public boolean releases(final boolean bindingCursed, final boolean creative) {
-    return this != ARMOUR || !bindingCursed || creative;
+  public boolean releases(
+      final boolean bindingCursed, final boolean creative, final boolean bagsEmpty) {
+    return switch (this) {
+      case ARMOUR -> !bindingCursed || creative;
+      case SADDLEBAGS -> bagsEmpty;
+      default -> true;
+    };
   }
 
   public static @Nullable DogEquipmentSlot fromId(final String id) {
@@ -81,6 +88,9 @@ public enum DogEquipmentSlot {
     }
     if (COSTUME.canHold(stack)) {
       return COSTUME;
+    }
+    if (SADDLEBAGS.canHold(stack)) {
+      return SADDLEBAGS;
     }
     return null;
   }

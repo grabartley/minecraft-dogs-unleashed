@@ -6,6 +6,9 @@ import com.grahambartley.dogsunleashed.entity.DogWheelAction;
 import com.grahambartley.dogsunleashed.entity.DogWheelSubAction;
 import com.grahambartley.dogsunleashed.entity.DogWheelSubActions;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.delivery.DeliveryDeparture;
+import com.grahambartley.dogsunleashed.entity.delivery.DogDeliveries;
+import com.grahambartley.dogsunleashed.network.payload.DeliverDogPayload;
 import com.grahambartley.dogsunleashed.network.payload.SelectWheelActionPayload;
 import com.grahambartley.dogsunleashed.network.payload.SelectWheelSubActionPayload;
 import com.grahambartley.dogsunleashed.pet.PetNames;
@@ -62,12 +65,32 @@ public final class WheelActionNetworkHandler {
     if (dog == null) {
       return;
     }
-    final String refusal = action.refusal().refusalKey(dog, player);
+    final String refusal =
+        DogDeliveries.isWaiting(dog)
+            ? DogDeliveries.ON_DELIVERY_KEY
+            : action.refusal().refusalKey(dog, player);
     if (refusal != null) {
       player.sendMessage(Text.translatable(refusal), true);
       return;
     }
     action.runner().run(dog, player);
+  }
+
+  public static void handleDeliverDog(
+      final DeliverDogPayload payload, final ServerPlayNetworking.Context context) {
+    final ServerPlayerEntity owner = context.player();
+    final UnleashedDogEntity dog = ownedLivingDog(owner.getServerWorld(), payload.dogId(), owner);
+    final ServerPlayerEntity recipient =
+        owner.getServer().getPlayerManager().getPlayer(payload.recipientId());
+    if (dog == null || recipient == null) {
+      return;
+    }
+    final String refusal = DogDeliveries.refusalKey(dog, owner);
+    if (refusal != null) {
+      owner.sendMessage(Text.translatable(refusal), true);
+      return;
+    }
+    DeliveryDeparture.send(dog, owner, recipient);
   }
 
   private static @Nullable UnleashedDogEntity ownedLivingDog(

@@ -12,6 +12,7 @@ import com.grahambartley.dogsunleashed.network.payload.ConnectionDogSyncData;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
 import com.grahambartley.dogsunleashed.network.payload.RidingView;
 import com.grahambartley.dogsunleashed.network.payload.SyncDogConnectionsPayload;
+import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import java.util.ArrayList;
 import java.util.List;
@@ -199,7 +200,7 @@ class FamilyTreeModelTest {
             4f,
             List.of(),
             RidingView.NONE,
-            false,
+            PetAwayStatus.HOME,
             false,
             DogBondStep.STRANGER),
         "owner",

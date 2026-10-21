@@ -8,6 +8,7 @@ import com.grahambartley.dogsunleashed.entity.DogBondStep;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
 import com.grahambartley.dogsunleashed.network.payload.RidingView;
+import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import java.util.List;
 import java.util.UUID;
@@ -93,42 +94,63 @@ class PetLifeStateDisplayTest {
 
   static Stream<Arguments> rowTagCases() {
     return Stream.of(
-        Arguments.of(PetLifeState.LIVING, false, false, false, null, 0),
+        Arguments.of(PetLifeState.LIVING, false, false, PetAwayStatus.HOME, null, 0),
         Arguments.of(
             PetLifeState.LIVING,
             false,
             true,
-            false,
+            PetAwayStatus.HOME,
             "screen.dogs-unleashed.pet_details.age_senior",
             PetLifeStateDisplay.SENIOR_COLOR),
-        Arguments.of(PetLifeState.LIVING, true, true, false, null, 0),
+        Arguments.of(PetLifeState.LIVING, true, true, PetAwayStatus.HOME, null, 0),
         Arguments.of(
             PetLifeState.LIVING,
             false,
             true,
-            true,
+            PetAwayStatus.EXPLORING,
             "screen.dogs-unleashed.pet_manager.exploring",
-            PetLifeStateDisplay.EXPLORING_COLOR),
+            PetLifeStateDisplay.AWAY_COLOR),
+        Arguments.of(
+            PetLifeState.LIVING,
+            false,
+            false,
+            PetAwayStatus.DELIVERING,
+            "screen.dogs-unleashed.pet_manager.delivering",
+            PetLifeStateDisplay.AWAY_COLOR),
+        Arguments.of(
+            PetLifeState.LIVING,
+            false,
+            false,
+            PetAwayStatus.WAITING,
+            "screen.dogs-unleashed.pet_manager.waiting",
+            PetLifeStateDisplay.AWAY_COLOR),
+        Arguments.of(
+            PetLifeState.LIVING,
+            true,
+            false,
+            PetAwayStatus.RETURNING,
+            "screen.dogs-unleashed.pet_manager.returning",
+            PetLifeStateDisplay.AWAY_COLOR),
         Arguments.of(
             PetLifeState.UNDEAD,
             false,
             true,
-            false,
+            PetAwayStatus.HOME,
             "screen.dogs-unleashed.pet_manager.undead",
             PetLifeStateDisplay.UNDEAD_COLOR));
   }
 
-  @ParameterizedTest(name = "{0}, baby {1}, senior {2}, exploring {3} -> {4}")
+  @ParameterizedTest(name = "{0}, baby {1}, senior {2}, away {3} -> {4}")
   @MethodSource("rowTagCases")
-  @DisplayName("a pet manager row tags seniors unless a life state or expedition takes the slot")
+  @DisplayName("a pet manager row tags seniors unless a life state or trip away takes the slot")
   void rowTagPrefersStatusThenSenior(
       final PetLifeState lifeState,
       final boolean baby,
       final boolean senior,
-      final boolean exploring,
+      final PetAwayStatus away,
       final String expectedKey,
       final int expectedColor) {
-    final PetSyncData pet = pet(lifeState, baby, senior, exploring);
+    final PetSyncData pet = pet(lifeState, baby, senior, away);
     final Text tag = PetLifeStateDisplay.rowTag(pet);
     if (expectedKey == null) {
       assertNull(tag);
@@ -142,7 +164,7 @@ class PetLifeStateDisplayTest {
       final PetLifeState lifeState,
       final boolean baby,
       final boolean senior,
-      final boolean exploring) {
+      final PetAwayStatus away) {
     return new PetSyncData(
         UUID.randomUUID().toString(),
         UnleashedDogBreed.BEAGLE,
@@ -163,7 +185,7 @@ class PetLifeStateDisplayTest {
         2.0f,
         List.of(),
         RidingView.NONE,
-        exploring,
+        away,
         senior,
         DogBondStep.STRANGER);
   }

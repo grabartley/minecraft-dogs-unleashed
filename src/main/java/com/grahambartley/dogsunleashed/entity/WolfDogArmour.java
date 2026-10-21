@@ -58,7 +58,8 @@ public final class WolfDogArmour {
   private static ActionResult shear(
       final WolfEntity wolf, final PlayerEntity player, final Hand hand, final ItemStack shears) {
     final ItemStack armour = wolf.getBodyArmor();
-    if (!DogEquipmentSlot.ARMOUR.releases(DogArmour.isBindingCursed(armour), player.isCreative())) {
+    if (!DogEquipmentSlot.ARMOUR.releases(
+        DogArmour.isBindingCursed(armour), player.isCreative(), true)) {
       return ActionResult.PASS;
     }
     shears.damage(1, player, LivingEntity.getSlotForHand(hand));

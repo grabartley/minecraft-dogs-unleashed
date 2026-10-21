@@ -65,9 +65,10 @@ class DogEquipmentSlotTest {
   @CsvSource({
     "PENDANT, dogs-unleashed:item/empty_slot_pendant",
     "COSMETIC, dogs-unleashed:item/empty_slot_cosmetic",
-    "COSTUME, dogs-unleashed:item/empty_slot_costume"
+    "COSTUME, dogs-unleashed:item/empty_slot_costume",
+    "SADDLEBAGS, dogs-unleashed:item/empty_slot_saddlebags"
   })
-  @DisplayName("pendant, cosmetic and costume slots show their own empty icon")
+  @DisplayName("pendant, cosmetic, costume and saddlebags slots show their own empty icon")
   void emptyIconMatchesTheSlot(final DogEquipmentSlot slot, final String expected) {
     assertEquals(Identifier.of(expected), slot.emptyIcon());
   }
@@ -81,7 +82,9 @@ class DogEquipmentSlotTest {
     "COSMETIC, false, true",
     "COSMETIC, true, true",
     "COSTUME, false, true",
-    "COSTUME, true, true"
+    "COSTUME, true, true",
+    "SADDLEBAGS, false, true",
+    "SADDLEBAGS, true, true"
   })
   @DisplayName("only grown dogs can wear armour, while every other slot fits a puppy")
   void onlyArmourNeedsAGrownDog(
@@ -89,22 +92,28 @@ class DogEquipmentSlotTest {
     assertEquals(expected, slot.fits(wearerIsBaby));
   }
 
-  @ParameterizedTest(name = "{0}, cursed {1}, creative {2} -> releases {3}")
+  @ParameterizedTest(name = "{0}, cursed {1}, creative {2}, bags empty {3} -> releases {4}")
   @CsvSource({
-    "ARMOUR, false, false, true",
-    "ARMOUR, false, true, true",
-    "ARMOUR, true, false, false",
-    "ARMOUR, true, true, true",
-    "PENDANT, true, false, true",
-    "COSMETIC, true, false, true",
-    "COSTUME, true, false, true"
+    "ARMOUR, false, false, true, true",
+    "ARMOUR, false, true, true, true",
+    "ARMOUR, true, false, true, false",
+    "ARMOUR, true, true, true, true",
+    "ARMOUR, false, false, false, true",
+    "PENDANT, true, false, false, true",
+    "COSMETIC, true, false, false, true",
+    "COSTUME, true, false, false, true",
+    "SADDLEBAGS, false, false, true, true",
+    "SADDLEBAGS, false, false, false, false",
+    "SADDLEBAGS, false, true, false, false",
+    "SADDLEBAGS, true, true, true, true"
   })
-  @DisplayName("Curse of Binding keeps armour on outside creative mode")
-  void bindingHoldsArmourOutsideCreative(
+  @DisplayName("binding keeps armour on outside creative, and full bags keep the saddlebags on")
+  void slotsReleaseOnlyWhenNothingHoldsThem(
       final DogEquipmentSlot slot,
       final boolean bindingCursed,
       final boolean creative,
+      final boolean bagsEmpty,
       final boolean expected) {
-    assertEquals(expected, slot.releases(bindingCursed, creative));
+    assertEquals(expected, slot.releases(bindingCursed, creative, bagsEmpty));
   }
 }

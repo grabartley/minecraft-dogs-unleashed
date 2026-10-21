@@ -4,7 +4,9 @@ import com.grahambartley.dogsunleashed.config.SyncedServerConfig;
 import com.grahambartley.dogsunleashed.entity.DogWheelAction;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.SyncServerConfigS2CPayload;
+import com.grahambartley.dogsunleashed.network.payload.DeliverDogPayload;
 import com.grahambartley.dogsunleashed.network.payload.OpenCommandWheelPayload;
+import com.grahambartley.dogsunleashed.network.payload.OpenDeliveryPickerPayload;
 import com.grahambartley.dogsunleashed.network.payload.OpenDogInspectPayload;
 import com.grahambartley.dogsunleashed.network.payload.OpenNamingScreenPayload;
 import com.grahambartley.dogsunleashed.network.payload.RequestDogConnectionsPayload;
@@ -18,6 +20,7 @@ import com.grahambartley.dogsunleashed.network.payload.SyncDogConnectionsPayload
 import com.grahambartley.dogsunleashed.network.payload.SyncPetManagerStatePayload;
 import com.grahambartley.dogsunleashed.network.payload.SyncPetsPayload;
 import com.grahambartley.dogsunleashed.pet.PetAliveFilter;
+import com.grahambartley.dogsunleashed.screen.DeliveryPickerScreen;
 import com.grahambartley.dogsunleashed.screen.DogBreedNames;
 import com.grahambartley.dogsunleashed.screen.DogCommandWheelScreen;
 import com.grahambartley.dogsunleashed.screen.DogInspectScreen;
@@ -45,6 +48,13 @@ public final class ModNetworkingClient {
         SyncDogConnectionsPayload.ID, ModNetworkingClient::handleSyncDogConnections);
     ClientPlayNetworking.registerGlobalReceiver(
         OpenDogInspectPayload.ID, ModNetworkingClient::handleOpenDogInspect);
+    ClientPlayNetworking.registerGlobalReceiver(
+        OpenDeliveryPickerPayload.ID,
+        (payload, context) -> context.client().setScreen(new DeliveryPickerScreen(payload)));
+  }
+
+  public static void sendDeliverDog(final UUID dogId, final UUID recipientId) {
+    ClientPlayNetworking.send(new DeliverDogPayload(dogId, recipientId));
   }
 
   private static void handleOpenDogInspect(

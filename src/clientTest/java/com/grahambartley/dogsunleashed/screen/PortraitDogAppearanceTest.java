@@ -15,6 +15,7 @@ import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
 import com.grahambartley.dogsunleashed.network.payload.RidingView;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
+import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import java.util.List;
 import java.util.UUID;
@@ -258,7 +259,7 @@ class PortraitDogAppearanceTest {
             base.attackDamage(),
             base.composition(),
             RidingView.NONE,
-            false,
+            PetAwayStatus.HOME,
             false,
             DogBondStep.STRANGER);
 
@@ -300,7 +301,7 @@ class PortraitDogAppearanceTest {
         ATTACK_DAMAGE,
         composition,
         RidingView.NONE,
-        false,
+        PetAwayStatus.HOME,
         false,
         DogBondStep.STRANGER);
   }
@@ -330,7 +331,7 @@ class PortraitDogAppearanceTest {
             base.attackDamage(),
             base.composition(),
             RidingView.NONE,
-            false,
+            PetAwayStatus.HOME,
             false,
             DogBondStep.STRANGER);
 

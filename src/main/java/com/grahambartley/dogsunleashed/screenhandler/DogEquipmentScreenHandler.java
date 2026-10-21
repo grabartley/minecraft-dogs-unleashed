@@ -2,10 +2,15 @@ package com.grahambartley.dogsunleashed.screenhandler;
 
 import com.grahambartley.dogsunleashed.ModScreenHandlers;
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
+import com.grahambartley.dogsunleashed.entity.DogSaddlebags;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.delivery.DogDeliveries;
+import com.grahambartley.dogsunleashed.screenhandler.DogGearSlotRouting.Target;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.screen.ScreenHandler;
@@ -23,12 +28,17 @@ public class DogEquipmentScreenHandler extends ScreenHandler {
 
   private static final int PLAYER_INVENTORY_ROWS = 3;
   private static final int PLAYER_INVENTORY_COLUMNS = 9;
-  private static final int MAIN_INVENTORY_START = DOG_SLOT_COUNT;
-  private static final int HOTBAR_START =
-      MAIN_INVENTORY_START + PLAYER_INVENTORY_ROWS * PLAYER_INVENTORY_COLUMNS;
-  private static final int TOTAL_SLOT_COUNT = HOTBAR_START + PLAYER_INVENTORY_COLUMNS;
+
+  public static final DogGearSlotRouting ROUTING =
+      new DogGearSlotRouting(
+          DOG_SLOT_COUNT,
+          PLAYER_INVENTORY_ROWS * PLAYER_INVENTORY_COLUMNS,
+          PLAYER_INVENTORY_COLUMNS,
+          DogSaddlebags.SIZE);
+  public static final int BAG_SLOT_START = ROUTING.bagStart();
 
   private final DogEquipmentInventory equipment;
+  private final boolean ownerView;
 
   public DogEquipmentScreenHandler(
       final int syncId, final PlayerInventory playerInventory, final int dogEntityId) {
@@ -41,11 +51,16 @@ public class DogEquipmentScreenHandler extends ScreenHandler {
       final @Nullable UnleashedDogEntity dog) {
     super(ModScreenHandlers.DOG_EQUIPMENT, syncId);
     this.equipment = new DogEquipmentInventory(dog);
+    this.ownerView = dog != null && dog.isOwner(playerInventory.player);
 
     for (int index = 0; index < DOG_SLOT_COUNT; index++) {
       this.addSlot(
           new DogEquipmentItemSlot(
-              this.equipment, index, DogSlotLayout.x(index), DogSlotLayout.y(index)));
+              this.equipment,
+              index,
+              DogSlotLayout.x(index),
+              DogSlotLayout.y(index),
+              this.ownerView));
     }
     for (int row = 0; row < PLAYER_INVENTORY_ROWS; row++) {
       for (int column = 0; column < PLAYER_INVENTORY_COLUMNS; column++) {
@@ -61,10 +76,33 @@ public class DogEquipmentScreenHandler extends ScreenHandler {
       this.addSlot(
           new Slot(playerInventory, column, PLAYER_INVENTORY_X + column * SLOT_SPACING, HOTBAR_Y));
     }
+    final Inventory bags =
+        dog == null
+            ? new SimpleInventory(DogSaddlebags.SIZE)
+            : dog.getComponents().get(DogSaddlebags.class).contents();
+    for (int index = 0; index < DogSaddlebags.SIZE; index++) {
+      this.addSlot(
+          new BagSlot(
+              bags,
+              index,
+              DogSlotLayout.bagX(index),
+              DogSlotLayout.bagY(index),
+              dog,
+              this.ownerView));
+    }
   }
 
   public @Nullable UnleashedDogEntity dog() {
     return this.equipment.dog();
+  }
+
+  public boolean isOwnerView() {
+    return this.ownerView;
+  }
+
+  public boolean bagsOpen() {
+    final UnleashedDogEntity dog = this.dog();
+    return dog != null && dog.getComponents().get(DogSaddlebags.class).isWorn();
   }
 
   public DogEquipmentSlot dogSlotAt(final int index) {
@@ -77,6 +115,15 @@ public class DogEquipmentScreenHandler extends ScreenHandler {
   }
 
   @Override
+  public void onClosed(final PlayerEntity player) {
+    super.onClosed(player);
+    final UnleashedDogEntity dog = this.dog();
+    if (dog != null && !this.ownerView) {
+      DogDeliveries.handedOver(dog, player);
+    }
+  }
+
+  @Override
   public ItemStack quickMove(final PlayerEntity player, final int index) {
     final Slot source = this.slots.get(index);
     if (source == null || !source.hasStack()) {
@@ -85,18 +132,16 @@ public class DogEquipmentScreenHandler extends ScreenHandler {
 
     final ItemStack moving = source.getStack();
     final ItemStack original = moving.copy();
-
-    if (index < DOG_SLOT_COUNT) {
-      if (!this.insertItem(moving, MAIN_INVENTORY_START, TOTAL_SLOT_COUNT, true)) {
-        return ItemStack.EMPTY;
+    boolean moved = false;
+    for (final Target target :
+        DogGearSlotRouting.targetsFor(ROUTING.sectionOf(index), this.ownerView, this.bagsOpen())) {
+      if (this.moveInto(target, moving)) {
+        moved = true;
+        break;
       }
-    } else if (!this.insertIntoDogSlots(moving)) {
-      final boolean fromMainInventory = index < HOTBAR_START;
-      final int targetStart = fromMainInventory ? HOTBAR_START : MAIN_INVENTORY_START;
-      final int targetEnd = fromMainInventory ? TOTAL_SLOT_COUNT : HOTBAR_START;
-      if (!this.insertItem(moving, targetStart, targetEnd, false)) {
-        return ItemStack.EMPTY;
-      }
+    }
+    if (!moved) {
+      return ItemStack.EMPTY;
     }
 
     if (moving.isEmpty()) {
@@ -105,6 +150,16 @@ public class DogEquipmentScreenHandler extends ScreenHandler {
       source.markDirty();
     }
     return original;
+  }
+
+  private boolean moveInto(final Target target, final ItemStack stack) {
+    return switch (target) {
+      case PLAYER -> this.insertItem(stack, ROUTING.mainStart(), ROUTING.bagStart(), true);
+      case GEAR -> this.insertIntoDogSlots(stack);
+      case BAGS -> this.insertItem(stack, ROUTING.bagStart(), ROUTING.total(), false);
+      case HOTBAR -> this.insertItem(stack, ROUTING.hotbarStart(), ROUTING.bagStart(), false);
+      case MAIN -> this.insertItem(stack, ROUTING.mainStart(), ROUTING.hotbarStart(), false);
+    };
   }
 
   private boolean insertIntoDogSlots(final ItemStack stack) {
@@ -130,27 +185,75 @@ public class DogEquipmentScreenHandler extends ScreenHandler {
   private static final class DogEquipmentItemSlot extends Slot {
 
     private final DogEquipmentInventory equipment;
+    private final boolean ownerView;
 
     private DogEquipmentItemSlot(
-        final DogEquipmentInventory equipment, final int index, final int x, final int y) {
+        final DogEquipmentInventory equipment,
+        final int index,
+        final int x,
+        final int y,
+        final boolean ownerView) {
       super(equipment, index, x, y);
       this.equipment = equipment;
+      this.ownerView = ownerView;
+    }
+
+    @Override
+    public boolean isEnabled() {
+      return this.ownerView;
     }
 
     @Override
     public boolean canInsert(final ItemStack stack) {
-      return this.equipment.isValid(this.getIndex(), stack);
+      return this.ownerView && this.equipment.isValid(this.getIndex(), stack);
     }
 
     @Override
     public boolean canTakeItems(final PlayerEntity player) {
-      return this.equipment.canTake(this.getIndex(), player);
+      return this.ownerView && this.equipment.canTake(this.getIndex(), player);
     }
 
     @Override
     public @Nullable Pair<Identifier, Identifier> getBackgroundSprite() {
       final Identifier icon = this.equipment.slotAt(this.getIndex()).emptyIcon();
       return icon == null ? null : Pair.of(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, icon);
+    }
+  }
+
+  private static final class BagSlot extends Slot {
+
+    private final @Nullable UnleashedDogEntity dog;
+    private final boolean ownerView;
+
+    private BagSlot(
+        final Inventory bags,
+        final int index,
+        final int x,
+        final int y,
+        final @Nullable UnleashedDogEntity dog,
+        final boolean ownerView) {
+      super(bags, index, x, y);
+      this.dog = dog;
+      this.ownerView = ownerView;
+    }
+
+    private boolean worn() {
+      return this.dog != null && this.dog.getComponents().get(DogSaddlebags.class).isWorn();
+    }
+
+    @Override
+    public boolean isEnabled() {
+      return this.worn();
+    }
+
+    @Override
+    public boolean canInsert(final ItemStack stack) {
+      return this.ownerView && this.worn();
+    }
+
+    @Override
+    public boolean canTakeItems(final PlayerEntity player) {
+      return this.worn();
     }
   }
 }

@@ -10,7 +10,7 @@ public final class PetLifeStateDisplay {
 
   public static final int UNDEAD_COLOR = 0x8FBC8F;
   public static final int GONE_COLOR = 0xFF5555;
-  public static final int EXPLORING_COLOR = 0xFFAA00;
+  public static final int AWAY_COLOR = 0xFFAA00;
   public static final int SENIOR_COLOR = 0xBBBBBB;
 
   private PetLifeStateDisplay() {}
@@ -34,9 +34,8 @@ public final class PetLifeStateDisplay {
   }
 
   public static @Nullable Text statusLabel(final PetSyncData pet) {
-    return pet.exploring()
-        ? Text.translatable("screen.dogs-unleashed.pet_manager.exploring")
-        : statusLabel(pet.lifeState());
+    final String awayKey = pet.away().translationKey();
+    return awayKey != null ? Text.translatable(awayKey) : statusLabel(pet.lifeState());
   }
 
   public static @Nullable Text rowTag(final PetSyncData pet) {
@@ -52,7 +51,7 @@ public final class PetLifeStateDisplay {
   }
 
   public static int statusColor(final PetSyncData pet) {
-    return pet.exploring() ? EXPLORING_COLOR : statusColor(pet.lifeState());
+    return pet.away().isAway() ? AWAY_COLOR : statusColor(pet.lifeState());
   }
 
   public static int statusColor(final PetLifeState lifeState) {

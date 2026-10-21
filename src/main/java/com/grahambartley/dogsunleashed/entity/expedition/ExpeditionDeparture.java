@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.entity.expedition;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.away.AwayArrival;
 import com.grahambartley.dogsunleashed.listener.PetLocationSyncListener;
 import com.grahambartley.dogsunleashed.pet.PetNames;
 import java.util.Optional;
@@ -46,7 +47,7 @@ public final class ExpeditionDeparture {
     if (!Expeditions.get(server).add(expedition)) {
       return Optional.empty();
     }
-    DogExpeditions.puff(world, dog.getPos());
+    AwayArrival.puff(world, dog.getPos());
     player.sendMessage(Text.translatable(DEPARTED_KEY, PetNames.tamedNameOf(dog)), true);
     DogsUnleashed.log.info(
         "[Expedition] {} set off from {} towards {}, {}",

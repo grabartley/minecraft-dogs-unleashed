@@ -5,6 +5,7 @@ import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.ModPortraits;
 import com.grahambartley.dogsunleashed.advancement.DogTamedCriterion;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
+import com.grahambartley.dogsunleashed.entity.delivery.DogDeliveries;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
 import com.grahambartley.dogsunleashed.entity.variant.UnleashedDogCoat;
@@ -60,6 +61,7 @@ public final class DogInteractions {
     final ActionResult untamedResult =
         firstHandled(
             List.of(
+                () -> this.tryOpenDeliveredBags(player),
                 () -> this.tryOpenInspect(player),
                 () -> this.tryTogglePlayMode(player, itemStack)));
     if (untamedResult != null) {
@@ -137,6 +139,14 @@ public final class DogInteractions {
       return vanillaResult;
     }
     return null;
+  }
+
+  private @Nullable ActionResult tryOpenDeliveredBags(final PlayerEntity player) {
+    if (player.isSneaking() || !DogDeliveries.isWaitingFor(this.dog, player)) {
+      return null;
+    }
+    player.openHandledScreen(this.dog);
+    return ActionResult.SUCCESS;
   }
 
   private @Nullable ActionResult tryOpenInspect(final PlayerEntity player) {

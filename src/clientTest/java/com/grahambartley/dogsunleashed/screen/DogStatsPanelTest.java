@@ -8,6 +8,7 @@ import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
 import com.grahambartley.dogsunleashed.network.payload.RidingView;
+import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -86,7 +87,7 @@ class DogStatsPanelTest {
         attackDamage,
         List.of(),
         RidingView.NONE,
-        false,
+        PetAwayStatus.HOME,
         false,
         DogBondStep.STRANGER);
   }
