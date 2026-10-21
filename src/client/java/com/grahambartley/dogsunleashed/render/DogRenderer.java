@@ -8,6 +8,7 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.model.DogModel;
 import com.grahambartley.dogsunleashed.render.cosmetic.HatFits;
 import com.grahambartley.dogsunleashed.render.cosmetic.MobHeadFits;
+import com.grahambartley.dogsunleashed.render.cross.CrossBreedRendering;
 import com.grahambartley.dogsunleashed.render.fur.FurLook;
 import com.grahambartley.dogsunleashed.render.growth.GrowthRigScale;
 import com.grahambartley.dogsunleashed.render.layer.DogArmourLayer;
@@ -134,13 +135,16 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
     this.frameStage = animatable.getFur().stage();
     this.frameArmoured = !animatable.getArmour().worn().isEmpty();
     this.frameHiddenEars =
-        Sets.union(
-            this.hatFits.earsHiddenOn(animatable, model, this.frameProfile),
-            this.mobHeadFits.earsHiddenOn(animatable, model, this.frameProfile));
+        CrossBreedRendering.hiddenEars(
+            animatable,
+            this.frameProfile,
+            Sets.union(
+                this.hatFits.earsHiddenOn(animatable, model, this.frameProfile),
+                this.mobHeadFits.earsHiddenOn(animatable, model, this.frameProfile)));
     this.frameGrowth =
         animatable.getGrowth().applies()
             ? GrowthRigScale.of(model, this.frameProfile, animatable.getGrowth().stage())
-            : null;
+            : CrossBreedRendering.shapeOf(animatable, model, this.frameProfile);
     if (!isReRender) {
       final UnleashedDogBreed.RenderTransforms transforms =
           animatable.getRigSourceBreed().renderTransforms();
@@ -169,12 +173,13 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
 
   private float frameScale(
       final UnleashedDogEntity animatable, final UnleashedDogBreed.RenderTransforms transforms) {
-    if (this.frameGrowth != null) {
-      return transforms.adultScale()
-          * animatable.getGrowth().stage().renderScaleMultiplier()
-          * this.frameGrowth.heightScale();
-    }
-    return animatable.isBaby() ? transforms.babyScale() : transforms.adultScale();
+    return DogFrameScale.of(
+        transforms,
+        animatable.isBaby(),
+        animatable.getGrowth().applies()
+            ? animatable.getGrowth().stage().renderScaleMultiplier()
+            : null,
+        this.frameGrowth == null ? 1.0f : this.frameGrowth.heightScale());
   }
 
   @Override

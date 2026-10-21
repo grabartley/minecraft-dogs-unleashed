@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.render.growth;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import com.google.gson.JsonParser;
 import com.grahambartley.dogsunleashed.entity.DireWolfGrowthStage.SlotScales;
@@ -11,6 +12,8 @@ import net.minecraft.util.math.Vec3d;
 import org.joml.Vector3f;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.cache.object.GeoCube;
@@ -73,6 +76,20 @@ class GrowthRigScaleTest {
 
     assertEquals(0.0f, scale.lift(), EPSILON);
     assertEquals(1.0f, scale.heightScale(), EPSILON);
+  }
+
+  @ParameterizedTest(name = "head {0}, legs {1}")
+  @CsvSource({"1.1, 0.9", "0.8, 1.2", "1.0, 1.0"})
+  @DisplayName("the same slot scales on the same rig are built once and shared")
+  void sameScalesAreShared(final float head, final float legs) {
+    final BakedGeoModel model = wolf();
+
+    final GrowthRigScale first =
+        GrowthRigScale.of(model, PROFILE, new SlotScales(head, 1.0f, legs, 1.0f));
+
+    assertSame(first, GrowthRigScale.of(model, PROFILE, new SlotScales(head, 1.0f, legs, 1.0f)));
+    assertEquals(head, first.localScale("head"), EPSILON);
+    assertEquals(legs, first.localScale("leg"), EPSILON);
   }
 
   private static BakedGeoModel wolf() {

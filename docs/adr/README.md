@@ -21,6 +21,7 @@ Shared engineering standards across all the mods in this family live in [`../sta
 | [0011](0011-eyelids-hide-in-the-head-and-close-to-one-pose-per-rig.md) | Eyelids hide in the head and close to one pose per rig |
 | [0012](0012-a-costume-is-a-projected-suit-sheet-plus-parts-anchored-on-profile-slots.md) | A costume is a projected suit sheet plus parts anchored on profile slots |
 | [0013](0013-costume-parts-play-their-own-clips-on-the-dogs-animation-controllers.md) | Costume parts play their own clips on the dog's animation controllers |
+| [0014](0014-a-cross-stands-on-one-parents-rig-and-takes-colour-ears-and-shape-from-the-rest.md) | A cross stands on one parent's rig and takes colour, ears and shape from the rest |
 
 ## Writing A New Record
 

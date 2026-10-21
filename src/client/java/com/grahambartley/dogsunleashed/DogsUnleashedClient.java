@@ -29,6 +29,8 @@ import com.grahambartley.dogsunleashed.render.coat.UndeadCoatTextures;
 import com.grahambartley.dogsunleashed.render.coat.UndeadEyeGlows;
 import com.grahambartley.dogsunleashed.render.cosmetic.BandanaPrints;
 import com.grahambartley.dogsunleashed.render.costume.CostumePartsAnimator;
+import com.grahambartley.dogsunleashed.render.cross.CrossCoatTextures;
+import com.grahambartley.dogsunleashed.render.cross.RigSlotSizes;
 import com.grahambartley.dogsunleashed.render.layer.WolfDogArmourFeatureRenderer;
 import com.grahambartley.dogsunleashed.render.overlay.MuddyCoat;
 import com.grahambartley.dogsunleashed.render.overlay.ProjectedOverlays;
@@ -142,6 +144,14 @@ public class DogsUnleashedClient implements ClientModInitializer {
             () ->
                 UndeadCoatTextures.cache()
                     .clear(MinecraftClient.getInstance().getTextureManager())));
+    resources.registerReloadListener(
+        new CacheReloader(
+            CrossCoatTextures.RELOADER_ID,
+            () ->
+                CrossCoatTextures.cache()
+                    .clear(MinecraftClient.getInstance().getTextureManager())));
+    resources.registerReloadListener(
+        new CacheReloader(RigSlotSizes.RELOADER_ID, RigSlotSizes::clear));
     resources.registerReloadListener(
         new CacheReloader(
             StatueCoatTextures.RELOADER_ID,

@@ -5,7 +5,6 @@ import com.grahambartley.dogsunleashed.render.rig.CubeGeometry;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile.Slot;
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,8 +20,8 @@ public final class GrowthRigScale {
   private static final float MODEL_UNITS_PER_BLOCK = 16.0f;
   private static final List<Slot> LEG_SLOTS =
       List.of(Slot.LEG_FRONT_LEFT, Slot.LEG_FRONT_RIGHT, Slot.LEG_BACK_LEFT, Slot.LEG_BACK_RIGHT);
-  private static final Map<BakedGeoModel, Map<DireWolfGrowthStage, GrowthRigScale>> CACHE =
-      new WeakHashMap<>();
+  private static final Map<BakedGeoModel, Map<DireWolfGrowthStage.SlotScales, GrowthRigScale>>
+      BY_SCALES = new WeakHashMap<>();
 
   private final GrowthScaleTree tree;
   private final GrowthGroundFit fit;
@@ -34,9 +33,16 @@ public final class GrowthRigScale {
 
   public static GrowthRigScale of(
       final BakedGeoModel model, final RigProfile profile, final DireWolfGrowthStage stage) {
-    return CACHE
-        .computeIfAbsent(model, ignored -> new EnumMap<>(DireWolfGrowthStage.class))
-        .computeIfAbsent(stage, ignored -> build(model, profile, stage.slotScales()));
+    return of(model, profile, stage.slotScales());
+  }
+
+  public static synchronized GrowthRigScale of(
+      final BakedGeoModel model,
+      final RigProfile profile,
+      final DireWolfGrowthStage.SlotScales scales) {
+    return BY_SCALES
+        .computeIfAbsent(model, ignored -> new HashMap<>())
+        .computeIfAbsent(scales, ignored -> build(model, profile, scales));
   }
 
   public float localScale(final String bone) {

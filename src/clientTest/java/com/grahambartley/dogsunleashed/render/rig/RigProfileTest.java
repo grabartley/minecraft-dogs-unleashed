@@ -44,6 +44,22 @@ class RigProfileTest {
   }
 
   @Test
+  @DisplayName("ears read their own shape and variants, and a profile without them has none")
+  void earsRead() {
+    final RigProfile withEars =
+        RigProfile.parse(
+            JsonParser.parseString(
+                    """
+                    {"ears": {"shape": "drop", "variants": {"pricked": ["up_l", "up_r"]}}}
+                    """)
+                .getAsJsonObject());
+
+    assertEquals(Optional.of("drop"), withEars.ears().shape());
+    assertEquals(Set.of("up_l", "up_r"), withEars.ears().variantBones());
+    assertEquals(RigEars.NONE, PROFILE.ears());
+  }
+
+  @Test
   @DisplayName("a slot the profile leaves out is empty")
   void missingSlotIsEmpty() {
     final RigProfile torsoOnly =

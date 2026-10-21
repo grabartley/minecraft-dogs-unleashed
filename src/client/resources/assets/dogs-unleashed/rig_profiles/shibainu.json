@@ -31,6 +31,9 @@
   "tail": [
     "rabo"
   ],
+  "ears": {
+    "shape": "pricked"
+  },
   "ear_left": [
     "EAR1"
   ],
