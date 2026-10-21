@@ -516,6 +516,18 @@ public class UnleashedDogEntity extends DogMountEntity
   }
 
   @Override
+  public boolean canUsePortals(final boolean allowVehicles) {
+    return super.canUsePortals(allowVehicles)
+        && !this.components.get(DogSledHarness.class).isHitched();
+  }
+
+  @Override
+  protected void removeFromDimension() {
+    this.components.get(DogSledHarness.class).onRemoved(RemovalReason.CHANGED_DIMENSION);
+    super.removeFromDimension();
+  }
+
+  @Override
   public boolean canBeLeashed() {
     return super.canBeLeashed() && !this.components.get(DogSledHarness.class).isHitched();
   }

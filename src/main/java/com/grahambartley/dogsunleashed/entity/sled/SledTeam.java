@@ -164,10 +164,12 @@ public final class SledTeam {
       if (!(world.getEntity(puller.dog()) instanceof UnleashedDogEntity dog)) {
         continue;
       }
+      final SledEntity hitchedTo = dog.getComponents().get(DogSledHarness.class).sled();
       if (!SledHitchRules.staysHitched(
           dog.isAlive(),
           puller.owner().equals(dog.getOwnerUuid()),
           dog.isLeashed(),
+          hitchedTo != null && hitchedTo != this.sled,
           dog.distanceTo(this.sled))) {
         this.pullers.remove(puller);
         dog.dropStack(new ItemStack(Items.LEAD));

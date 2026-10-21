@@ -24,12 +24,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.TeleportTarget;
+import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeKeys;
 
 public final class SledGameTest implements FabricGameTest {
@@ -175,6 +178,87 @@ public final class SledGameTest implements FabricGameTest {
     SurvivalTestPlayer.leave(context, owner);
     SurvivalTestPlayer.leave(context, stranger);
     context.complete();
+  }
+
+  @GameTest(templateName = RANGE, tickLimit = 20)
+  public void aHitchedDogTakenToAnotherDimensionLeavesTheTeamAndDropsItsLead(
+      final TestContext context) {
+    final ServerPlayerEntity owner = SurvivalTestPlayer.joinAt(context, REL_PLAYER);
+    final SledEntity sled = sled(context, REL_SLED);
+    final UnleashedDogEntity husky = leashedDog(context, owner, ModEntities.HUSKY, 4, 3);
+    sled.interact(owner, Hand.MAIN_HAND);
+    context.assertFalse(husky.canUsePortals(false), "A hitched dog can still use portals");
+
+    final ServerWorld nether = context.getWorld().getServer().getWorld(World.NETHER);
+    final Entity moved =
+        husky.teleportTo(
+            new TeleportTarget(
+                nether, new Vec3d(0.5, 128.0, 0.5), Vec3d.ZERO, 0.0f, 0.0f, TeleportTarget.NO_OP));
+
+    context.assertTrue(sled.getTeam().size() == 0, "The dog is still on the team");
+    context.assertTrue(
+        DogTestHelper.droppedStacksOf(context, Items.LEAD).size() == 1,
+        "The dog's lead should drop where it left");
+    if (moved != null) {
+      moved.discard();
+    }
+    SurvivalTestPlayer.leave(context, owner);
+    context.complete();
+  }
+
+  @GameTest(templateName = RANGE, tickLimit = 20)
+  public void aDogHitchedToASecondSledLeavesTheFirstWhenItReloads(final TestContext context) {
+    final ServerPlayerEntity owner = SurvivalTestPlayer.joinAt(context, REL_PLAYER);
+    final SledEntity first = sled(context, REL_SLED);
+    final UnleashedDogEntity husky = leashedDog(context, owner, ModEntities.HUSKY, 4, 3);
+    first.interact(owner, Hand.MAIN_HAND);
+    final NbtCompound saved = new NbtCompound();
+    first.writeNbt(saved);
+    first.remove(Entity.RemovalReason.UNLOADED_TO_CHUNK);
+
+    husky.attachLeash(owner, true);
+    final SledEntity second = sled(context, new Vec3d(1.5, STAND_Y, 7.5));
+    second.interact(owner, Hand.MAIN_HAND);
+    final SledEntity reloaded = sled(context, REL_SLED);
+    reloaded.readNbt(saved);
+
+    context.runAtTick(
+        3,
+        () -> {
+          context.assertTrue(second.getTeam().size() == 1, "The second sled lost the dog");
+          context.assertTrue(reloaded.getTeam().size() == 0, "The reloaded sled kept the dog");
+          context.assertTrue(
+              harness(husky).sled() == second, "The dog should belong to the second sled");
+          context.assertTrue(
+              DogTestHelper.droppedStacksOf(context, Items.LEAD).size() == 1,
+              "The first sled should drop the lead it held");
+          SurvivalTestPlayer.leave(context, owner);
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = RANGE, tickLimit = 100)
+  public void hitchedDogsWalkToTheirPlacesAheadOfAStandingSled(final TestContext context) {
+    final ServerPlayerEntity owner = SurvivalTestPlayer.joinAt(context, REL_PLAYER);
+    final SledEntity sled = sled(context, REL_SLED);
+    leashedDog(context, owner, ModEntities.HUSKY, 2, 1);
+    leashedDog(context, owner, ModEntities.HUSKY, 3, 7);
+    sled.interact(owner, Hand.MAIN_HAND);
+    context.runAtEveryTick(
+        () -> {
+          final boolean placed =
+              sled.getTeam().present().stream()
+                  .allMatch(
+                      dog -> {
+                        final SledDrive.Target target = sled.getDrive().targetFor(dog);
+                        return target != null
+                            && target.position().subtract(dog.getPos()).horizontalLength() < 1.0;
+                      });
+          if (placed && sled.getTeam().present().size() == 2) {
+            SurvivalTestPlayer.leave(context, owner);
+            context.complete();
+          }
+        });
   }
 
   @GameTest(templateName = RANGE, tickLimit = 40)

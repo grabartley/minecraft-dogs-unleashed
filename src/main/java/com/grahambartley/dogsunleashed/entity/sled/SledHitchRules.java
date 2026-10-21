@@ -32,8 +32,13 @@ public final class SledHitchRules {
   public static boolean staysHitched(
       final boolean alive,
       final boolean ownedBySameOwner,
-      final boolean leashedElsewhere,
+      final boolean leashed,
+      final boolean hitchedElsewhere,
       final double distanceToSled) {
-    return alive && ownedBySameOwner && !leashedElsewhere && distanceToSled <= BREAK_DISTANCE;
+    return alive
+        && ownedBySameOwner
+        && !leashed
+        && !hitchedElsewhere
+        && distanceToSled <= BREAK_DISTANCE;
   }
 }

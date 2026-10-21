@@ -42,23 +42,28 @@ class SledHitchRulesTest {
     assertEquals(expected, SledHitchRules.room(size));
   }
 
-  @ParameterizedTest(name = "alive {0}, same owner {1}, leashed {2}, {3} away -> {4}")
+  @ParameterizedTest(
+      name = "alive {0}, same owner {1}, leashed {2}, on another sled {3}, {4} away -> {5}")
   @CsvSource({
-    "true, true, false, 5.0, true",
-    "true, true, false, 24.0, true",
-    "true, true, false, 24.5, false",
-    "false, true, false, 5.0, false",
-    "true, false, false, 5.0, false",
-    "true, true, true, 5.0, false"
+    "true, true, false, false, 5.0, true",
+    "true, true, false, false, 24.0, true",
+    "true, true, false, false, 24.5, false",
+    "false, true, false, false, 5.0, false",
+    "true, false, false, false, 5.0, false",
+    "true, true, true, false, 5.0, false",
+    "true, true, false, true, 5.0, false"
   })
-  @DisplayName("a dog leaves the team if it dies, changes hands, is leashed or ends up far away")
+  @DisplayName(
+      "a dog leaves the team if it dies, changes hands, is leashed, joins another sled or ends up far away")
   void staysHitched(
       final boolean alive,
       final boolean sameOwner,
       final boolean leashed,
+      final boolean elsewhere,
       final double distance,
       final boolean expected) {
-    assertEquals(expected, SledHitchRules.staysHitched(alive, sameOwner, leashed, distance));
+    assertEquals(
+        expected, SledHitchRules.staysHitched(alive, sameOwner, leashed, elsewhere, distance));
   }
 
   @ParameterizedTest(name = "{0} -> drops lead {1}")
