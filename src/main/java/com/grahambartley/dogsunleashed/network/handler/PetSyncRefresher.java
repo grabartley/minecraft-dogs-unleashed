@@ -2,7 +2,7 @@ package com.grahambartley.dogsunleashed.network.handler;
 
 import com.grahambartley.dogsunleashed.entity.DogBond;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
-import com.grahambartley.dogsunleashed.entity.expedition.Expeditions;
+import com.grahambartley.dogsunleashed.entity.away.AwayDogs;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLocationService;
@@ -42,9 +42,8 @@ public final class PetSyncRefresher {
         }
       }
     }
-    final Expeditions expeditions = Expeditions.get(server);
     return pets.stream()
-        .map(pet -> PetSyncData.from(pet, expeditions.isAway(pet.getPetId())))
+        .map(pet -> PetSyncData.from(pet, AwayDogs.statusOf(server, pet.getPetId())))
         .toList();
   }
 }

@@ -40,7 +40,7 @@ public final class HeadTopLocator {
 
   public record RisingEar(Set<String> bones, CubeGeometry.Bounds bounds) {}
 
-  private record Hit(CubeGeometry.Face face, float y) {}
+  record Hit(CubeGeometry.Face face, float y) {}
 
   private HeadTopLocator() {}
 

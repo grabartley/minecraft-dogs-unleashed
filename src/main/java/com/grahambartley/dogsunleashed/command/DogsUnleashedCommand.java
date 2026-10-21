@@ -3,7 +3,7 @@ package com.grahambartley.dogsunleashed.command;
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
-import com.grahambartley.dogsunleashed.entity.expedition.DogExpeditions;
+import com.grahambartley.dogsunleashed.entity.away.AwayDogs;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLocationService;
 import com.grahambartley.dogsunleashed.pet.PetManager;
@@ -14,6 +14,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.UuidArgumentType;
@@ -156,8 +157,9 @@ public final class DogsUnleashedCommand {
               petId.toString()));
       return 0;
     }
-    if (DogExpeditions.isAway(server, pet)) {
-      source.sendError(Text.translatable(DogExpeditions.AWAY_KEY, pet.getName()));
+    final Optional<String> busy = AwayDogs.busyKey(server, pet.getPetId());
+    if (busy.isPresent()) {
+      source.sendError(Text.translatable(busy.get(), pet.getName()));
       return 0;
     }
     PetLocationService.loadAndSummon(server, pet, target);

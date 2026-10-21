@@ -26,6 +26,7 @@ final class DogTrackedDefaults {
     builder.add(UnleashedDogEntity.PENDANT_ITEM, ItemStack.EMPTY);
     builder.add(UnleashedDogEntity.COSMETIC_ITEM, ItemStack.EMPTY);
     builder.add(UnleashedDogEntity.COSTUME_ITEM, ItemStack.EMPTY);
+    builder.add(UnleashedDogEntity.SADDLEBAGS_ITEM, ItemStack.EMPTY);
     builder.add(UnleashedDogEntity.PLAY_PARTNER_UUID, Optional.empty());
     builder.add(UnleashedDogEntity.COMMAND, DogCommand.FOLLOW.id());
     builder.add(UnleashedDogEntity.COAT_VARIANT, 0);

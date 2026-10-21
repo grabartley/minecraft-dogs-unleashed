@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "L L",
+    "LCL"
+  ],
+  "key": {
+    "L": { "item": "minecraft:leather" },
+    "C": { "item": "minecraft:chest" }
+  },
+  "result": {
+    "id": "dogs-unleashed:saddlebags",
+    "count": 1
+  }
+}

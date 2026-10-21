@@ -1,7 +1,7 @@
 package com.grahambartley.dogsunleashed.listener;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
-import com.grahambartley.dogsunleashed.entity.expedition.Expeditions;
+import com.grahambartley.dogsunleashed.entity.away.AwayDogs;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetManager;
 import com.grahambartley.dogsunleashed.pet.PetRegistrar;
@@ -21,7 +21,7 @@ public final class PetLocationSyncListener {
   public static void recordLocation(Entity entity, ServerWorld world) {
     if (!(entity instanceof UnleashedDogEntity dog)
         || !dog.isTamed()
-        || Expeditions.get(world.getServer()).isAway(dog.getUuid())) {
+        || AwayDogs.isOffWorld(world.getServer(), dog.getUuid())) {
       return;
     }
 

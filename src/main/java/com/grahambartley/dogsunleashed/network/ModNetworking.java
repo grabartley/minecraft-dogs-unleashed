@@ -11,7 +11,9 @@ import com.grahambartley.dogsunleashed.network.handler.OwnerNameResolver;
 import com.grahambartley.dogsunleashed.network.handler.PetManagerNetworkHandler;
 import com.grahambartley.dogsunleashed.network.handler.ServerConfigNetworkHandler;
 import com.grahambartley.dogsunleashed.network.handler.WheelActionNetworkHandler;
+import com.grahambartley.dogsunleashed.network.payload.DeliverDogPayload;
 import com.grahambartley.dogsunleashed.network.payload.OpenCommandWheelPayload;
+import com.grahambartley.dogsunleashed.network.payload.OpenDeliveryPickerPayload;
 import com.grahambartley.dogsunleashed.network.payload.OpenDogInspectPayload;
 import com.grahambartley.dogsunleashed.network.payload.OpenNamingScreenPayload;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
@@ -70,6 +72,9 @@ public final class ModNetworking {
         .register(SyncServerConfigS2CPayload.ID, SyncServerConfigS2CPayload.CODEC);
     PayloadTypeRegistry.playC2S()
         .register(EditServerConfigC2SPayload.ID, EditServerConfigC2SPayload.CODEC);
+    PayloadTypeRegistry.playS2C()
+        .register(OpenDeliveryPickerPayload.ID, OpenDeliveryPickerPayload.CODEC);
+    PayloadTypeRegistry.playC2S().register(DeliverDogPayload.ID, DeliverDogPayload.CODEC);
   }
 
   public static void registerServerReceivers() {
@@ -92,6 +97,26 @@ public final class ModNetworking {
         SelectWheelSubActionPayload.ID, WheelActionNetworkHandler::handleSelectWheelSubAction);
     ServerPlayNetworking.registerGlobalReceiver(
         RequestDogConnectionsPayload.ID, DogConnectionsNetworkHandler::handleRequestDogConnections);
+    ServerPlayNetworking.registerGlobalReceiver(
+        DeliverDogPayload.ID, WheelActionNetworkHandler::handleDeliverDog);
+  }
+
+  public static void sendOpenDeliveryPicker(
+      final ServerPlayerEntity player,
+      final UnleashedDogEntity dog,
+      final List<ServerPlayerEntity> recipients) {
+    ServerPlayNetworking.send(
+        player,
+        new OpenDeliveryPickerPayload(
+            dog.getUuid(),
+            PetNames.tamedNameOf(dog),
+            recipients.stream()
+                .limit(PacketLimits.DELIVERY_RECIPIENTS_MAX_SIZE)
+                .map(
+                    recipient ->
+                        new OpenDeliveryPickerPayload.Recipient(
+                            recipient.getUuid(), recipient.getGameProfile().getName()))
+                .toList()));
   }
 
   public static void sendOpenCommandWheel(

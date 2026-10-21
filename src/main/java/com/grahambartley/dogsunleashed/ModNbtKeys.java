@@ -55,6 +55,8 @@ public final class ModNbtKeys {
   public static final String PENDANT_ITEM = "PendantItem";
   public static final String COSMETIC_ITEM = "CosmeticItem";
   public static final String COSTUME_ITEM = "CostumeItem";
+  public static final String SADDLEBAGS_ITEM = "SaddlebagsItem";
+  public static final String SADDLEBAG_CONTENTS = "SaddlebagContents";
   public static final String PENDING_BIRTH_WAKE_HEARTS = "PendingBirthWakeHearts";
   public static final String PARENT_DOG_ID = "ParentDogId";
   public static final String SECOND_PARENT_DOG_ID = "SecondParentDogId";
@@ -111,6 +113,15 @@ public final class ModNbtKeys {
   public static final String EXPEDITION_FIND_Z = "FindZ";
   public static final String EXPEDITION_RETURN_TIME = "ReturnTime";
   public static final String EXPEDITION_DEPARTED_AT = "DepartedAt";
+  public static final String DELIVERIES = "Deliveries";
+  public static final String DELIVERY_PET = "Pet";
+  public static final String DELIVERY_OWNER = "Owner";
+  public static final String DELIVERY_RECIPIENT = "Recipient";
+  public static final String DELIVERY_ENTITY_TYPE = "EntityType";
+  public static final String DELIVERY_DOG = "Dog";
+  public static final String DELIVERY_LEG = "Leg";
+  public static final String DELIVERY_LEG_TICKS = "LegTicks";
+  public static final String DELIVERY_LEG_ENDS_AT = "LegEndsAt";
 
   private ModNbtKeys() {}
 }

@@ -10,6 +10,7 @@ import static net.minecraft.entity.data.TrackedDataHandlerRegistry.OPTIONAL_UUID
 import static net.minecraft.entity.data.TrackedDataHandlerRegistry.STRING;
 
 import com.grahambartley.dogsunleashed.ModBlockTags;
+import com.grahambartley.dogsunleashed.entity.delivery.DogDeliveries;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.entity.variant.DogCoats;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
@@ -40,6 +41,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -99,6 +101,7 @@ public class UnleashedDogEntity extends DogMountEntity
   static final TrackedData<Boolean> SENIOR = data(BOOLEAN);
   static final TrackedData<Boolean> MUDDY = data(BOOLEAN);
   static final TrackedData<Integer> BOND_STEP = data(INTEGER);
+  static final TrackedData<ItemStack> SADDLEBAGS_ITEM = data(ITEM_STACK);
 
   private static <T> TrackedData<T> data(final TrackedDataHandler<T> handler) {
     return DataTracker.registerData(UnleashedDogEntity.class, handler);
@@ -130,7 +133,8 @@ public class UnleashedDogEntity extends DogMountEntity
           new DogBoneBurial(this),
           new DogAging(this),
           new DogMud(this),
-          new DogBond(this));
+          new DogBond(this),
+          new DogSaddlebags(this));
   private final DogGenomeCache genomeCache = new DogGenomeCache(this);
   private final DogUndeadState undeadState = new DogUndeadState(this);
   private final DogCuring curing = new DogCuring(this);
@@ -511,7 +515,9 @@ public class UnleashedDogEntity extends DogMountEntity
 
   @Override
   public boolean isInvulnerableTo(final DamageSource source) {
-    return super.isInvulnerableTo(source) || this.pendants.guardsAgainst(source);
+    return super.isInvulnerableTo(source)
+        || this.pendants.guardsAgainst(source)
+        || (!source.isIn(DamageTypeTags.BYPASSES_INVULNERABILITY) && DogDeliveries.isWaiting(this));
   }
 
   public DogArmour getArmour() {

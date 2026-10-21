@@ -12,13 +12,14 @@ import com.grahambartley.dogsunleashed.block.DogBedBlock;
 import com.grahambartley.dogsunleashed.command.DogsUnleashedCommand;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.entity.DogPlaySession;
+import com.grahambartley.dogsunleashed.entity.delivery.DogDeliveries;
 import com.grahambartley.dogsunleashed.entity.expedition.DogExpeditions;
 import com.grahambartley.dogsunleashed.entity.scent.ScentRules;
 import com.grahambartley.dogsunleashed.gametest.util.GameTestFixturePack;
+import com.grahambartley.dogsunleashed.listener.AwayDogListener;
 import com.grahambartley.dogsunleashed.listener.BoneCacheBreakListener;
 import com.grahambartley.dogsunleashed.listener.DogBattleListener;
 import com.grahambartley.dogsunleashed.listener.DogDimensionChangeListener;
-import com.grahambartley.dogsunleashed.listener.ExpeditionListener;
 import com.grahambartley.dogsunleashed.listener.FoxBoneRaidListener;
 import com.grahambartley.dogsunleashed.listener.OwnerDeathListener;
 import com.grahambartley.dogsunleashed.listener.PendantEffectListener;
@@ -79,6 +80,7 @@ public class DogsUnleashed implements ModInitializer {
     TraderPuppyOffer.register();
     ScentRules.register();
     DogExpeditions.registerWheelAction();
+    DogDeliveries.registerWheelAction();
     ModNetworking.registerPayloads();
     ModNetworking.registerServerReceivers();
     GameTestFixturePack.registerWhenTesting();
@@ -93,7 +95,7 @@ public class DogsUnleashed implements ModInitializer {
     OwnerDeathListener.initialize();
     BoneCacheBreakListener.initialize();
     FoxBoneRaidListener.initialize();
-    ExpeditionListener.initialize();
+    AwayDogListener.initialize();
 
     ServerLifecycleEvents.SERVER_STARTING.register(ServerConfigService::loadFromWorld);
 

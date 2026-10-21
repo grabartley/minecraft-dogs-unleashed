@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.screenhandler;
 
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.delivery.DogDeliveries;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
@@ -86,7 +87,7 @@ public class DogEquipmentInventory implements Inventory {
     return this.dog != null
         && this.dog.isAlive()
         && this.dog.isTamed()
-        && this.dog.isOwner(player)
+        && (this.dog.isOwner(player) || DogDeliveries.isWaitingFor(this.dog, player))
         && player.canInteractWithEntity(this.dog, MAX_INTERACTION_DISTANCE);
   }
 

@@ -12,6 +12,7 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import com.grahambartley.dogsunleashed.pet.PetAge;
+import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import java.util.List;
@@ -40,14 +41,14 @@ public record PetSyncData(
     float attackDamage,
     List<BreedShare> composition,
     RidingView riding,
-    boolean exploring,
+    PetAwayStatus away,
     boolean senior,
     DogBondStep bond) {
 
   public static final PacketCodec<RegistryByteBuf, PetSyncData> CODEC =
       PacketCodec.of(PetSyncData::write, PetSyncData::read);
 
-  public static PetSyncData from(final PetData petData, final boolean exploring) {
+  public static PetSyncData from(final PetData petData, final PetAwayStatus away) {
     return new PetSyncData(
         petData.getPetId().toString(),
         petData.getBreed(),
@@ -68,7 +69,7 @@ public record PetSyncData(
         petData.getAttackDamage(),
         petData.getComposition(),
         RidingView.of(petData.getBreed(), petData.getGrowthStage(), petData.getStaminaPercent()),
-        exploring,
+        away,
         seniorOf(petData),
         DogBondStep.ofPoints(petData.getBondPoints()));
   }
@@ -99,7 +100,7 @@ public record PetSyncData(
             dog.getBreed(),
             dog.getGrowth().stage().number(),
             Math.round(dog.getRiding().staminaFraction() * 100.0f)),
-        false,
+        PetAwayStatus.HOME,
         dog.getComponents().get(DogAging.class).isSenior(),
         dog.getComponents().get(DogBond.class).step());
   }
@@ -118,7 +119,7 @@ public record PetSyncData(
   }
 
   public boolean summonable() {
-    return this.alive() && !this.exploring;
+    return this.alive() && !this.away.isAway();
   }
 
   public boolean undead() {
@@ -156,7 +157,7 @@ public record PetSyncData(
     buf.writeFloat(this.attackDamage);
     BreedShareCodec.writeList(buf, this.composition);
     this.riding.write(buf);
-    buf.writeBoolean(this.exploring);
+    buf.writeVarInt(this.away.ordinal());
     buf.writeBoolean(this.senior);
     buf.writeVarInt(this.bond.ordinal());
   }
@@ -182,7 +183,7 @@ public record PetSyncData(
         buf.readFloat(),
         BreedShareCodec.readList(buf),
         RidingView.read(buf),
-        buf.readBoolean(),
+        PetAwayStatus.byId(buf.readVarInt()),
         buf.readBoolean(),
         DogBondStep.byId(buf.readVarInt()));
   }

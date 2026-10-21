@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.screen;
 
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
+import com.grahambartley.dogsunleashed.entity.DogSaddlebags;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.screenhandler.DogEquipmentScreenHandler;
@@ -37,8 +38,16 @@ public class DogEquipmentScreen extends HandledScreen<DogEquipmentScreenHandler>
       final DrawContext context, final float delta, final int mouseX, final int mouseY) {
     context.drawTexture(
         BACKGROUND_TEXTURE, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight);
-    for (int index = 0; index < DogEquipmentScreenHandler.DOG_SLOT_COUNT; index++) {
-      this.drawDogSlot(context, index);
+    if (this.handler.isOwnerView()) {
+      for (int index = 0; index < DogEquipmentScreenHandler.DOG_SLOT_COUNT; index++) {
+        this.drawSlotFrame(
+            context, index, this.handler.dogSlotAt(index) == DogEquipmentSlot.ARMOUR);
+      }
+    }
+    if (this.handler.bagsOpen()) {
+      for (int index = 0; index < DogSaddlebags.SIZE; index++) {
+        this.drawSlotFrame(context, DogEquipmentScreenHandler.BAG_SLOT_START + index, false);
+      }
     }
     this.drawDogPreview(context, mouseX, mouseY);
   }
@@ -51,10 +60,9 @@ public class DogEquipmentScreen extends HandledScreen<DogEquipmentScreenHandler>
     this.drawEmptyDogSlotTooltip(context, mouseX, mouseY);
   }
 
-  private void drawDogSlot(final DrawContext context, final int index) {
+  private void drawSlotFrame(final DrawContext context, final int index, final boolean armour) {
     final Slot slot = this.handler.getSlot(index);
-    final Identifier sprite =
-        this.handler.dogSlotAt(index) == DogEquipmentSlot.ARMOUR ? ARMOUR_SLOT_SPRITE : SLOT_SPRITE;
+    final Identifier sprite = armour ? ARMOUR_SLOT_SPRITE : SLOT_SPRITE;
     context.drawGuiTexture(
         sprite,
         this.x + slot.x - SLOT_SPRITE_OFFSET,
@@ -98,6 +106,7 @@ public class DogEquipmentScreen extends HandledScreen<DogEquipmentScreenHandler>
     if (!this.handler.getCursorStack().isEmpty()
         || this.focusedSlot == null
         || this.focusedSlot.hasStack()
+        || !this.handler.isOwnerView()
         || this.focusedSlot.id >= DogEquipmentScreenHandler.DOG_SLOT_COUNT) {
       return;
     }

@@ -6,6 +6,7 @@ import com.grahambartley.dogsunleashed.entity.DogBondStep;
 import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
+import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import io.netty.buffer.Unpooled;
 import java.util.List;
@@ -51,7 +52,7 @@ final class PayloadTestFixtures {
         3.5f,
         composition,
         RidingView.NONE,
-        false,
+        PetAwayStatus.HOME,
         false,
         DogBondStep.STRANGER);
   }
