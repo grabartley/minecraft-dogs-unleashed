@@ -359,7 +359,8 @@ class DogsUnleashedConfigTest {
                     "beagle", 0,
                     "goldenretriever", 120,
                     "shibainu", 60,
-                    "direwolf", 321),
+                    "direwolf", 321,
+                    "pinscher", 100),
                 false,
                 true,
                 true),
@@ -377,6 +378,7 @@ class DogsUnleashedConfigTest {
             AgingSettings.DEFAULTS),
         loaded);
     assertTrue(DogsUnleashedConfig.save(path, loaded));
+    saved.getAsJsonObject("breedSpawnRateMultipliersPercent").addProperty("pinscher", 100);
     saved.addProperty("dogAgingEnabled", false);
     saved.addProperty("seniorAfterDays", 100);
     saved.addProperty("muddyDogs", true);

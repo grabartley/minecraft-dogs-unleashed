@@ -52,6 +52,7 @@ class HeadTopLocatorTest {
   @CsvSource({
     "HUSKY, 2",
     "SHIBA_INU, 2",
+    "PINSCHER, 2",
     "DIRE_WOLF, 2",
     "GOLDEN_RETRIEVER, 0",
     "BEAGLE, 0",

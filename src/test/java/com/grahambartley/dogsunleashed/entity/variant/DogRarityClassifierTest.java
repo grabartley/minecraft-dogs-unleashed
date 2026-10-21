@@ -44,7 +44,11 @@ class DogRarityClassifierTest {
             "dire wolf frost grey", UnleashedDogBreed.DIRE_WOLF, DireWolfCoat.FROSTGREY, 22),
         Arguments.of("dire wolf silver", UnleashedDogBreed.DIRE_WOLF, DireWolfCoat.SILVER, 17),
         Arguments.of("dire wolf black", UnleashedDogBreed.DIRE_WOLF, DireWolfCoat.BLACK, 9),
-        Arguments.of("dire wolf white", UnleashedDogBreed.DIRE_WOLF, DireWolfCoat.WHITE, 2));
+        Arguments.of("dire wolf white", UnleashedDogBreed.DIRE_WOLF, DireWolfCoat.WHITE, 2),
+        Arguments.of("pinscher black tan", UnleashedDogBreed.PINSCHER, PinscherCoat.BLACK_TAN, 65),
+        Arguments.of("pinscher red", UnleashedDogBreed.PINSCHER, PinscherCoat.RED, 35),
+        Arguments.of(
+            "pinscher chocolate tan", UnleashedDogBreed.PINSCHER, PinscherCoat.CHOCOLATE_TAN, 15));
   }
 
   @ParameterizedTest(name = "{0}")
@@ -105,6 +109,7 @@ class DogRarityClassifierTest {
         Arguments.of(UnleashedDogBreed.HUSKY, HuskyCoat.SABLE, 13),
         Arguments.of(UnleashedDogBreed.HUSKY, HuskyCoat.WHITE, 0),
         Arguments.of(UnleashedDogBreed.SHIBA_INU, ShibaInuCoat.SESAME, 0),
+        Arguments.of(UnleashedDogBreed.PINSCHER, PinscherCoat.CHOCOLATE_TAN, 0),
         Arguments.of(UnleashedDogBreed.DIRE_WOLF, DireWolfCoat.BLACK, 7));
   }
 

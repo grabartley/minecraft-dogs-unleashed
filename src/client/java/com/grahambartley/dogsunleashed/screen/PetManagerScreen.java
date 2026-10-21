@@ -473,7 +473,7 @@ public class PetManagerScreen extends Screen {
     return false;
   }
 
-  private enum BreedFilterOption {
+  enum BreedFilterOption {
     ALL(null),
     HUSKY(UnleashedDogBreed.HUSKY),
     DACHSHUND(UnleashedDogBreed.DACHSHUND),
@@ -481,6 +481,7 @@ public class PetManagerScreen extends Screen {
     GOLDEN_RETRIEVER(UnleashedDogBreed.GOLDEN_RETRIEVER),
     SHIBA_INU(UnleashedDogBreed.SHIBA_INU),
     DIRE_WOLF(UnleashedDogBreed.DIRE_WOLF),
+    PINSCHER(UnleashedDogBreed.PINSCHER),
     MIXED(UnleashedDogBreed.CROSS_BREED);
 
     private final UnleashedDogBreed breed;
@@ -509,6 +510,7 @@ public class PetManagerScreen extends Screen {
         case GOLDEN_RETRIEVER -> GOLDEN_RETRIEVER;
         case SHIBA_INU -> SHIBA_INU;
         case DIRE_WOLF -> DIRE_WOLF;
+        case PINSCHER -> PINSCHER;
         case CROSS_BREED -> MIXED;
       };
     }
