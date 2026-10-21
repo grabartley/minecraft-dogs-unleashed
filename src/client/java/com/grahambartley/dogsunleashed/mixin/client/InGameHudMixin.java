@@ -17,8 +17,6 @@ public abstract class InGameHudMixin {
 
   @ModifyReturnValue(method = "shouldRenderExperience", at = @At("RETURN"))
   private boolean dogsUnleashed$giveTheBarToStaminaOrTug(final boolean original) {
-    return original
-        && !RideStaminaHud.isShowing(this.client.player)
-        && !TugMeterHud.isShowing(this.client.player);
+    return original && !RideStaminaHud.isShowing(this.client.player) && !TugMeterHud.isShowing();
   }
 }

@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
+import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.goal.PlayChaseRules.Spot;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -10,7 +11,12 @@ final class StandingGround {
 
   private StandingGround() {}
 
-  static double yAt(final World world, final Spot spot, final double fromY) {
+  static void runTo(final UnleashedDogEntity dog, final Spot spot, final double speed) {
+    dog.getNavigation()
+        .startMovingTo(spot.x(), yAt(dog.getWorld(), spot, dog.getY()), spot.z(), speed);
+  }
+
+  private static double yAt(final World world, final Spot spot, final double fromY) {
     final BlockPos level = BlockPos.ofFloored(spot.x(), fromY, spot.z());
     for (int step = 0; step <= 2 * VERTICAL_RANGE; step++) {
       final BlockPos feet = level.up(PlayChaseRules.searchOffset(step));

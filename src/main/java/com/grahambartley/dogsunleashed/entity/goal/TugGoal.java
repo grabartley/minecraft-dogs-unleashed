@@ -67,13 +67,7 @@ public class TugGoal extends Goal {
             state.centre(),
             new Spot(this.dog.getX(), this.dog.getZ()),
             new Spot(player.getX(), player.getZ()));
-    this.dog
-        .getNavigation()
-        .startMovingTo(
-            spot.x(),
-            StandingGround.yAt(this.dog.getWorld(), spot, this.dog.getY()),
-            spot.z(),
-            RUN_SPEED);
+    StandingGround.runTo(this.dog, spot, RUN_SPEED);
   }
 
   private DogTug tug() {

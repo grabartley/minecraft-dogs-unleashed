@@ -591,7 +591,7 @@
   "message.dogs-unleashed.tug_won": "Вы победили! %s отпускает канат.",
   "message.dogs-unleashed.tug_lost": "%s победил и убежал с канатом! Догоните, чтобы вернуть его.",
   "message.dogs-unleashed.tug_caught": "Вы догнали %s и вернули канат.",
-  "message.dogs-unleashed.tug_stopped": "%s бросил канат.",
+  "message.dogs-unleashed.tug_stopped": "%s больше не играет в перетягивание каната.",
   "message.dogs-unleashed.tug_busy": "%s уже играет в перетягивание каната.",
   "message.dogs-unleashed.tug_not_now": "%s сейчас не может играть в перетягивание каната."
 }

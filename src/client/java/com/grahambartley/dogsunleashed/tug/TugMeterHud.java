@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.entity.DogTug;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.goal.TugRules;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -23,7 +24,10 @@ public final class TugMeterHud {
 
   private TugMeterHud() {}
 
+  private static @Nullable UnleashedDogEntity tuggedDog;
+
   public static void register() {
+    ClientTickEvents.END_CLIENT_TICK.register(client -> tuggedDog = dogTuggedBy(client.player));
     HudRenderCallback.EVENT.register(TugMeterHud::render);
   }
 
@@ -35,8 +39,8 @@ public final class TugMeterHud {
     return tuggingPlayerId != DogTug.NO_PLAYER && tuggingPlayerId == playerId;
   }
 
-  public static boolean isShowing(final @Nullable PlayerEntity player) {
-    return dogTuggedBy(player) != null;
+  public static boolean isShowing() {
+    return tuggedDog != null;
   }
 
   private static @Nullable UnleashedDogEntity dogTuggedBy(final @Nullable PlayerEntity player) {
@@ -59,7 +63,7 @@ public final class TugMeterHud {
     if (client.options.hudHidden) {
       return;
     }
-    final UnleashedDogEntity dog = dogTuggedBy(client.player);
+    final UnleashedDogEntity dog = tuggedDog;
     if (dog == null) {
       return;
     }

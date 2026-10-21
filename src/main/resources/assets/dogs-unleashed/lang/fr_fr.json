@@ -591,7 +591,7 @@
   "message.dogs-unleashed.tug_won": "Gagné ! %s a lâché la corde.",
   "message.dogs-unleashed.tug_lost": "%s a gagné et s'est enfui avec la corde ! Rattrapez-le pour la récupérer.",
   "message.dogs-unleashed.tug_caught": "Vous avez rattrapé %s et récupéré la corde.",
-  "message.dogs-unleashed.tug_stopped": "%s a lâché la corde.",
+  "message.dogs-unleashed.tug_stopped": "%s a arrêté de jouer au tir à la corde.",
   "message.dogs-unleashed.tug_busy": "%s joue déjà au tir à la corde.",
   "message.dogs-unleashed.tug_not_now": "%s ne peut pas jouer au tir à la corde pour l'instant."
 }

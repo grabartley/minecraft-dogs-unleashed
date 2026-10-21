@@ -591,7 +591,7 @@
   "message.dogs-unleashed.tug_won": "Gewonnen! %s hat das Seil losgelassen.",
   "message.dogs-unleashed.tug_lost": "%s hat gewonnen und ist mit dem Seil davongerannt! Fang ihn, um es zurückzubekommen.",
   "message.dogs-unleashed.tug_caught": "Du hast %s gefangen und das Seil zurückbekommen.",
-  "message.dogs-unleashed.tug_stopped": "%s hat das Seil fallen lassen.",
+  "message.dogs-unleashed.tug_stopped": "%s hat mit dem Tauziehen aufgehört.",
   "message.dogs-unleashed.tug_busy": "%s spielt schon Tauziehen.",
   "message.dogs-unleashed.tug_not_now": "%s kann gerade nicht Tauziehen spielen."
 }

@@ -105,6 +105,14 @@ public final class DogAmbienceEffects {
     this.spawnHeartParticles(serverWorld);
   }
 
+  void celebrate(final float barkPitchBoost) {
+    this.startTailWag();
+    this.burstHearts();
+    this.dog
+        .getVocalization()
+        .forceBark(this.dog.getVocalization().getBarkPitch() * barkPitchBoost);
+  }
+
   void burstHearts() {
     if (this.dog.getWorld() instanceof ServerWorld serverWorld) {
       this.spawnHeartParticles(serverWorld);

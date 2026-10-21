@@ -5,7 +5,9 @@ import com.grahambartley.dogsunleashed.entity.DogBond;
 import com.grahambartley.dogsunleashed.entity.DogBondRules;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.DogTug;
+import com.grahambartley.dogsunleashed.entity.TugState;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.goal.PlayChaseRules;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import com.grahambartley.dogsunleashed.gametest.util.SleepBatchFixture;
@@ -122,8 +124,8 @@ public final class TugGameTest implements FabricGameTest {
         });
   }
 
-  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 600)
-  public void aDogThatKeepsTheRopeAwayStillHoldsItWhenTheGameEnds(final TestContext context) {
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 900)
+  public void aDogThatKeepsTheRopeAwayStaysCloseAndBringsItBack(final TestContext context) {
     final ServerPlayerEntity owner = ownerWithRope(context);
     final UnleashedDogEntity dog = pet(context, owner);
     dog.interact(owner, Hand.MAIN_HAND);
@@ -131,17 +133,44 @@ public final class TugGameTest implements FabricGameTest {
 
     context.runAtEveryTick(
         () -> {
-          ranOff[0] |= tug(dog).isKeepingAway();
-          if (ranOff[0] && tug(dog).state() == null) {
+          final TugState state = tug(dog).state();
+          if (state != null && state.keepingAway()) {
+            ranOff[0] = true;
+            final double fromCentre =
+                Math.hypot(dog.getX() - state.centre().x(), dog.getZ() - state.centre().z());
             context.assertTrue(
-                tug(dog).isCarryingRope()
-                    || owner.getInventory().count(ModItems.ROPE_TOY) == 1
-                    || ropesOnTheGround(context) == 1,
-                "The rope should still be with the dog or back with its owner");
-            assertOneRope(context, owner, dog);
+                fromCentre <= PlayChaseRules.PLAY_AREA_RADIUS + 1.0,
+                "A dog keeping the rope away should stay near where the game started, was "
+                    + fromCentre);
+          }
+          assertOneRope(context, owner, dog);
+          final boolean returned =
+              owner.getInventory().count(ModItems.ROPE_TOY) == 1 || ropesOnTheGround(context) == 1;
+          if (ranOff[0] && state == null && !tug(dog).isCarryingRope() && returned) {
             SurvivalTestPlayer.leave(context, owner);
             context.complete();
           }
+        });
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 20)
+  public void hurtingTheDogStopsTheTugAndHandsTheRopeBack(final TestContext context) {
+    final ServerPlayerEntity owner = ownerWithRope(context);
+    final UnleashedDogEntity dog = pet(context, owner);
+    dog.interact(owner, Hand.MAIN_HAND);
+
+    DogTestHelper.damageEntity(dog, 1.0f);
+
+    context.waitAndRun(
+        2,
+        () -> {
+          context.assertTrue(tug(dog).state() == null, "Getting hurt should stop the tug");
+          context.assertTrue(
+              owner.getInventory().count(ModItems.ROPE_TOY) == 1,
+              "The owner should get the rope back");
+          assertOneRope(context, owner, dog);
+          SurvivalTestPlayer.leave(context, owner);
+          context.complete();
         });
   }
 

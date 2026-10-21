@@ -591,7 +591,7 @@
   "message.dogs-unleashed.tug_won": "你赢了！%s松开了绳子。",
   "message.dogs-unleashed.tug_lost": "%s赢了，叼着绳子跑掉了！追上它把绳子拿回来。",
   "message.dogs-unleashed.tug_caught": "你追上了%s，拿回了绳子。",
-  "message.dogs-unleashed.tug_stopped": "%s松开了绳子。",
+  "message.dogs-unleashed.tug_stopped": "%s不玩拔河了。",
   "message.dogs-unleashed.tug_busy": "%s已经在玩拔河了。",
   "message.dogs-unleashed.tug_not_now": "%s现在不能玩拔河。"
 }

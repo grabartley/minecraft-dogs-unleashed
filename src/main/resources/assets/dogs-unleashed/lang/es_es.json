@@ -591,7 +591,7 @@
   "message.dogs-unleashed.tug_won": "¡Has ganado! %s soltó la cuerda.",
   "message.dogs-unleashed.tug_lost": "¡%s ganó y salió corriendo con la cuerda! Atrápalo para recuperarla.",
   "message.dogs-unleashed.tug_caught": "Atrapaste a %s y recuperaste la cuerda.",
-  "message.dogs-unleashed.tug_stopped": "%s soltó la cuerda.",
+  "message.dogs-unleashed.tug_stopped": "%s dejó de jugar a tirar de la cuerda.",
   "message.dogs-unleashed.tug_busy": "%s ya está jugando a tirar de la cuerda.",
   "message.dogs-unleashed.tug_not_now": "%s no puede jugar a tirar de la cuerda ahora."
 }

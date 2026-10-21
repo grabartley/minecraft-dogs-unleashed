@@ -114,15 +114,9 @@ public final class DogTug extends DogComponent {
       return;
     }
     final PlayerEntity player = this.player();
-    if (this.isCarryingRope()) {
-      final ItemStack rope = this.dog.getFetchCarry().carriedStack().copy();
-      this.dog.getFetchCarry().setCarrying(false);
-      if (player != null && player.isAlive()) {
-        player.getInventory().offerOrDrop(rope);
-        DogInteractions.tell(this.dog, player, "message.dogs-unleashed.tug_stopped");
-      } else {
-        this.dog.dropStack(rope);
-      }
+    if (player != null && player.isAlive()) {
+      this.giveRopeTo(player);
+      DogInteractions.tell(this.dog, player, "message.dogs-unleashed.tug_stopped");
     }
     this.clear();
   }
@@ -176,11 +170,7 @@ public final class DogTug extends DogComponent {
 
   private void letGo(final PlayerEntity player) {
     this.giveRopeTo(player);
-    this.dog.getAmbienceEffects().startTailWag();
-    this.dog.getAmbienceEffects().burstHearts();
-    this.dog
-        .getVocalization()
-        .forceBark(this.dog.getVocalization().getBarkPitch() * HAPPY_BARK_PITCH_BOOST);
+    this.dog.getAmbienceEffects().celebrate(HAPPY_BARK_PITCH_BOOST);
     this.dog.getComponents().get(DogBond.class).reward(DogBondRules.Source.PLAY);
     DogInteractions.tell(this.dog, player, "message.dogs-unleashed.tug_won");
     this.clear();

@@ -591,7 +591,7 @@
   "message.dogs-unleashed.tug_won": "You win! %s let go of the rope.",
   "message.dogs-unleashed.tug_lost": "%s won and ran off with the rope! Catch it to get it back.",
   "message.dogs-unleashed.tug_caught": "You caught %s and got the rope back.",
-  "message.dogs-unleashed.tug_stopped": "%s dropped the rope.",
+  "message.dogs-unleashed.tug_stopped": "%s stopped playing tug.",
   "message.dogs-unleashed.tug_busy": "%s is already playing tug.",
   "message.dogs-unleashed.tug_not_now": "%s can't play tug right now."
 }

@@ -118,13 +118,7 @@ public class PlayChaseGoal extends Goal {
       return;
     }
     final Spot spot = PlayChaseRules.fleeTarget(game.centre(), spotOf(this.dog), spotOf(partner));
-    this.dog
-        .getNavigation()
-        .startMovingTo(
-            spot.x(),
-            StandingGround.yAt(this.dog.getWorld(), spot, this.dog.getY()),
-            spot.z(),
-            RUN_SPEED);
+    StandingGround.runTo(this.dog, spot, RUN_SPEED);
   }
 
   public boolean mayPlay() {
