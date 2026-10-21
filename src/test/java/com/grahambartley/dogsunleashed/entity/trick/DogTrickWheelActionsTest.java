@@ -4,7 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.grahambartley.dogsunleashed.entity.DogWheelSubAction;
 import com.grahambartley.dogsunleashed.entity.DogWheelSubActions;
-import java.util.Arrays;
+import com.grahambartley.dogsunleashed.entity.delivery.DogDeliveries;
+import com.grahambartley.dogsunleashed.entity.expedition.DogExpeditions;
+import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -23,17 +25,25 @@ class DogTrickWheelActionsTest {
   }
 
   @Test
-  @DisplayName("registering adds one action per trick")
-  void registersEveryTrick() {
+  @DisplayName("tricks register beside explore and deliver without clashing")
+  void registersBesideTheOtherActions() {
     final DogWheelSubActions registry = new DogWheelSubActions();
+    for (final int id : new int[] {DogExpeditions.WHEEL_ACTION_ID, DogDeliveries.WHEEL_ACTION_ID}) {
+      registry.register(
+          new DogWheelSubAction(
+              id,
+              "test",
+              Identifier.of("minecraft", "bone"),
+              (dog, player) -> null,
+              (dog, player) -> {}));
+    }
+
     DogTrickWheelActions.register(registry);
-    assertEquals(
-        Arrays.stream(DogTrick.values())
-            .map(DogTrickWheelActions::action)
-            .map(DogWheelSubAction::id)
-            .toList(),
-        Arrays.stream(DogTrick.values())
-            .map(trick -> registry.byId(trick.wheelActionId()).orElseThrow().id())
-            .toList());
+
+    for (final DogTrick trick : DogTrick.values()) {
+      assertEquals(
+          trick.translationKey(),
+          registry.byId(trick.wheelActionId()).orElseThrow().translationKey());
+    }
   }
 }

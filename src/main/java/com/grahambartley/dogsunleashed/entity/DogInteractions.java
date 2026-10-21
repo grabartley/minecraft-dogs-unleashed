@@ -221,8 +221,12 @@ public final class DogInteractions {
       return null;
     }
     itemStack.decrementUnlessCreative(1, player);
-    this.dog.getComponents().get(DogTricks.class).rewardOffered(player);
-    this.dog.getComponents().get(DogTreatBuffState.class).apply();
+    final boolean learnedTrick =
+        this.dog.getComponents().get(DogTricks.class).rewardOffered(player);
+    this.dog
+        .getComponents()
+        .get(DogTreatBuffState.class)
+        .apply(learnedTrick ? DogTricks.HAPPY_BARK_PITCH_BOOST : 1.0f);
     this.dog.getComponents().get(DogBond.class).reward(DogBondRules.Source.TREAT);
     return ActionResult.SUCCESS;
   }

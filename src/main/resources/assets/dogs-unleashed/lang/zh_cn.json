@@ -571,6 +571,7 @@
   "trick.dogs-unleashed.roll_over": "打滚",
   "trick.dogs-unleashed.play_dead": "装死",
   "message.dogs-unleashed.trick_learned": "%s学会了一个新把戏：%s！",
+  "message.dogs-unleashed.trick_shown": "%s在表演把戏：%s",
   "screen.dogs-unleashed.command_wheel.trick.sleeping": "太困了，没法表演把戏",
   "advancements.dogs-unleashed.good_dog.title": "好狗狗！",
   "advancements.dogs-unleashed.good_dog.description": "用狗零食奖励你的狗，教会它第一个把戏。",

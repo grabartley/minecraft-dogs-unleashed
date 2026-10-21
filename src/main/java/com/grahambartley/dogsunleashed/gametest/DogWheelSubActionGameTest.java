@@ -97,6 +97,30 @@ public final class DogWheelSubActionGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = 20)
+  public void hiddenSubActionDoesNotRunEvenIfTheClientSendsIt(final TestContext context) {
+    final Fixture fixture = fixture(context, null);
+    final List<String> hiddenRuns = new ArrayList<>();
+    fixture
+        .registry()
+        .register(
+            new DogWheelSubAction(
+                ACTION_ID + 1,
+                "command.dogs-unleashed.actions",
+                Identifier.of("minecraft", "bell"),
+                (target, player) -> null,
+                (target, player) -> hiddenRuns.add(target.getUuidAsString()),
+                target -> false));
+
+    WheelActionNetworkHandler.selectSubAction(
+        fixture.registry(),
+        new SelectWheelSubActionPayload(fixture.dog().getUuid(), ACTION_ID + 1),
+        fixture.owner());
+
+    context.assertTrue(hiddenRuns.isEmpty(), "The server must re-check that the action is shown");
+    context.complete();
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = 20)
   public void unknownSubActionIdDoesNothing(final TestContext context) {
     final Fixture fixture = fixture(context, null);
 

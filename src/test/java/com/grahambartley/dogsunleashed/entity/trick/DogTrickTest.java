@@ -1,10 +1,21 @@
 package com.grahambartley.dogsunleashed.entity.trick;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.grahambartley.dogsunleashed.entity.delivery.DogDeliveries;
+import com.grahambartley.dogsunleashed.entity.expedition.DogExpeditions;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -42,11 +53,30 @@ class DogTrickTest {
   }
 
   @Test
-  @DisplayName("tricks take wheel slots after explore and deliver, with no clashes")
-  void wheelIdsAreDistinctAndAfterTheFixedActions() {
-    assertEquals(
-        DogTrick.values().length,
-        Arrays.stream(DogTrick.values()).mapToInt(DogTrick::wheelActionId).distinct().count());
-    assertTrue(Arrays.stream(DogTrick.values()).allMatch(trick -> trick.wheelActionId() > 1));
+  @DisplayName("tricks take their own wheel slots, clear of explore and deliver")
+  void wheelIdsAreDistinctFromTheOtherActions() {
+    final Set<Integer> ids =
+        Arrays.stream(DogTrick.values()).map(DogTrick::wheelActionId).collect(Collectors.toSet());
+    assertEquals(DogTrick.values().length, ids.size());
+    assertFalse(ids.contains(DogExpeditions.WHEEL_ACTION_ID));
+    assertFalse(ids.contains(DogDeliveries.WHEEL_ACTION_ID));
+  }
+
+  @Test
+  @DisplayName("the Show Dog advancement asks for every trick")
+  void showDogNeedsEveryTrick() throws IOException {
+    try (InputStream in =
+        DogTrickTest.class.getResourceAsStream("/data/dogs-unleashed/advancement/show_dog.json")) {
+      final JsonObject json =
+          JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8))
+              .getAsJsonObject();
+      assertEquals(
+          DogTrick.values().length,
+          json.getAsJsonObject("criteria")
+              .getAsJsonObject("every_trick_learned")
+              .getAsJsonObject("conditions")
+              .get("min_learned")
+              .getAsInt());
+    }
   }
 }

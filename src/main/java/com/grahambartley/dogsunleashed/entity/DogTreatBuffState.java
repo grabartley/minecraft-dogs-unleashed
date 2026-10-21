@@ -20,12 +20,14 @@ public final class DogTreatBuffState extends DogComponent {
     return this.getRemainingTicks() > 0;
   }
 
-  public void apply() {
+  public void apply(final float barkPitchBoost) {
     this.dog.getDataTracker().set(UnleashedDogEntity.TREAT_BUFF_TICKS, DogTreatBuff.DURATION_TICKS);
     DogTreatBuff.apply(this.dog);
     this.dog.getAmbienceEffects().startTailWag();
     this.dog.getAmbienceEffects().burstHearts();
-    this.dog.getVocalization().forceBark(this.dog.getVocalization().getBarkPitch());
+    this.dog
+        .getVocalization()
+        .forceBark(this.dog.getVocalization().getBarkPitch() * barkPitchBoost);
   }
 
   @Override

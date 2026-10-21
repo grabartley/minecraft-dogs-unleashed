@@ -19,7 +19,8 @@ import org.jetbrains.annotations.Nullable;
 public final class DogTricks extends DogComponent {
 
   public static final String LEARNED_MESSAGE_KEY = "message.dogs-unleashed.trick_learned";
-  private static final float HAPPY_BARK_PITCH_BOOST = 1.2f;
+  public static final String SHOWN_MESSAGE_KEY = "message.dogs-unleashed.trick_shown";
+  public static final float HAPPY_BARK_PITCH_BOOST = 1.2f;
 
   private final UnleashedDogEntity dog;
   private TrickProgress progress = TrickProgress.NONE;
@@ -54,6 +55,14 @@ public final class DogTricks extends DogComponent {
 
   public void perform(final DogTrick trick) {
     this.dog.triggerAnim(trick.animationKey(), trick.animationKey());
+    if (this.dog.getOwner() instanceof PlayerEntity owner) {
+      owner.sendMessage(
+          Text.translatable(
+              SHOWN_MESSAGE_KEY,
+              PetNames.tamedNameOf(this.dog),
+              Text.translatable(trick.translationKey())),
+          true);
+    }
   }
 
   public boolean rewardOffered(final PlayerEntity player) {
@@ -63,17 +72,15 @@ public final class DogTricks extends DogComponent {
     }
     this.offered = null;
     this.offeredAt = TrickLearningRules.NEVER;
-    final boolean wasLearned = this.progress.isLearned(trick);
+    final boolean learns = this.progress.learnsWithNextReward(trick);
     this.progress = this.progress.reward(trick);
-    if (!wasLearned && this.progress.isLearned(trick)) {
-      this.celebrate(player, trick);
+    if (learns) {
+      this.announceLearned(player, trick);
     }
-    return true;
+    return learns;
   }
 
-  private void celebrate(final PlayerEntity player, final DogTrick trick) {
-    final DogVocalization voice = this.dog.getVocalization();
-    voice.forceBark(voice.getBarkPitch() * HAPPY_BARK_PITCH_BOOST);
+  private void announceLearned(final PlayerEntity player, final DogTrick trick) {
     player.sendMessage(
         Text.translatable(
             LEARNED_MESSAGE_KEY,

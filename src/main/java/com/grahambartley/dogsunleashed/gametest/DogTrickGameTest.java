@@ -1,19 +1,27 @@
 package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
+import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.ModItems;
+import com.grahambartley.dogsunleashed.block.entity.DogGraveBlockEntity;
+import com.grahambartley.dogsunleashed.entity.DogResurrection;
 import com.grahambartley.dogsunleashed.entity.DogTricks;
 import com.grahambartley.dogsunleashed.entity.DogWheelSubActions;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.trick.DogTrick;
+import com.grahambartley.dogsunleashed.entity.trick.DogTrickWheelActions;
 import com.grahambartley.dogsunleashed.entity.trick.TrickLearningRules;
 import com.grahambartley.dogsunleashed.entity.trick.TrickProgress;
 import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.network.payload.WheelSubActionState;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
+import com.grahambartley.dogsunleashed.pet.PetManager;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.advancement.AdvancementEntry;
 import net.minecraft.item.ItemStack;
@@ -148,6 +156,73 @@ public final class DogTrickGameTest implements FabricGameTest {
     final UnleashedDogEntity dog = dog(context, owner);
     final TrickProgress progress = TrickProgress.of(Map.of(DogTrick.PLAY_DEAD, 5));
     tricks(dog).restore(progress);
+    final PetData pet = petOf(context, dog, owner);
+
+    context.assertEquals(
+        progress,
+        PetData.fromNbt(pet.toNbt()).getTricks(),
+        "Pet data keeps learned tricks after death");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 20)
+  public void aSleepingDogRefusesItsTricks(final TestContext context) {
+    final ServerPlayerEntity owner = ownerAt(context);
+    final UnleashedDogEntity dog = dog(context, owner);
+    tricks(dog).restore(TrickProgress.of(Map.of(DogTrick.BEG, 5)));
+    context.assertEquals("", wheelRefusal(dog, owner, DogTrick.BEG), "An awake dog performs");
+
+    dog.getSleepController().startSleepingInBed(context.getAbsolutePos(REL_DOG));
+
+    context.assertEquals(
+        DogTrickWheelActions.ASLEEP_REFUSAL_KEY,
+        wheelRefusal(dog, owner, DogTrick.BEG),
+        "A sleeping dog refuses");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 40)
+  public void learnedTricksComeBackFromTheGrave(final TestContext context) {
+    final ServerPlayerEntity owner = ownerAt(context);
+    final UnleashedDogEntity dog = dog(context, owner);
+    final TrickProgress progress = TrickProgress.of(Map.of(DogTrick.ROLL_OVER, 5));
+    tricks(dog).restore(progress);
+    registerPet(context, dog, owner);
+    final UUID dogId = dog.getUuid();
+
+    dog.kill();
+
+    context.runAtTick(
+        5,
+        () -> {
+          final List<BlockPos> graves = new ArrayList<>();
+          context.forEachRelativePos(
+              pos -> {
+                if (context.getBlockState(pos).isOf(ModBlocks.DOG_GRAVE)) {
+                  graves.add(context.getAbsolutePos(pos));
+                }
+              });
+          context.assertTrue(graves.size() == 1, "A dead pet leaves a grave");
+          final BlockPos gravePos = graves.get(0);
+          final DogGraveBlockEntity grave =
+              (DogGraveBlockEntity) context.getWorld().getBlockEntity(gravePos);
+          grave.installTotem(UUID.randomUUID());
+
+          context.assertTrue(
+              DogResurrection.resurrect(context.getWorld(), gravePos, grave), "The pet rises");
+          final UnleashedDogEntity risen = (UnleashedDogEntity) context.getWorld().getEntity(dogId);
+          context.assertEquals(progress, tricks(risen).progress(), "It still knows its tricks");
+          context.complete();
+        });
+  }
+
+  private static void registerPet(
+      final TestContext context, final UnleashedDogEntity dog, final ServerPlayerEntity owner) {
+    PetManager.get(context.getWorld().getServer()).registerPet(petOf(context, dog, owner));
+  }
+
+  private static PetData petOf(
+      final TestContext context, final UnleashedDogEntity dog, final ServerPlayerEntity owner) {
     final PetData pet =
         new PetData(
             dog.getUuid(),
@@ -159,14 +234,17 @@ public final class DogTrickGameTest implements FabricGameTest {
             dog.getBlockPos(),
             context.getWorld().getRegistryKey().getValue().toString(),
             PetLifeState.LIVING);
-
     pet.syncFrom(dog);
+    return pet;
+  }
 
-    context.assertEquals(
-        progress,
-        PetData.fromNbt(pet.toNbt()).getTricks(),
-        "Pet data keeps learned tricks after death");
-    context.complete();
+  private static String wheelRefusal(
+      final UnleashedDogEntity dog, final ServerPlayerEntity owner, final DogTrick trick) {
+    return DogWheelSubActions.REGISTERED.statesFor(dog, owner).stream()
+        .filter(state -> state.id() == trick.wheelActionId())
+        .findFirst()
+        .orElseThrow()
+        .refusalKey();
   }
 
   private static boolean onWheel(

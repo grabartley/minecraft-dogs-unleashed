@@ -71,4 +71,12 @@ class TrickProgressTest {
     assertEquals(rewarded(DogTrick.BEG, 3), TrickProgress.of(Map.of(DogTrick.BEG, 3)));
     assertFalse(rewarded(DogTrick.BEG, 3).equals(rewarded(DogTrick.BEG, 2)));
   }
+
+  @ParameterizedTest(name = "{0} rewards so far -> next one teaches it {1}")
+  @CsvSource({"0, false", "3, false", "4, true", "5, false"})
+  @DisplayName("only the fifth reward teaches the trick")
+  void learnsWithNextRewardOnlyOnTheFifth(final int rewards, final boolean learns) {
+    assertEquals(
+        learns, rewarded(DogTrick.ROLL_OVER, rewards).learnsWithNextReward(DogTrick.ROLL_OVER));
+  }
 }

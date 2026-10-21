@@ -54,6 +54,10 @@ public final class TrickProgress {
     return learned;
   }
 
+  public boolean learnsWithNextReward(final DogTrick trick) {
+    return !this.isLearned(trick) && TrickLearningRules.isLearned(this.rewardsFor(trick) + 1);
+  }
+
   public TrickProgress reward(final DogTrick trick) {
     final EnumMap<DogTrick, Integer> next = new EnumMap<>(DogTrick.class);
     next.putAll(this.rewards);
