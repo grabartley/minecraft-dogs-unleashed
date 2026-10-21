@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.render.layer;
 
 import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModComponents;
+import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.block.entity.FrisbeeBlockEntity;
 import com.grahambartley.dogsunleashed.block.entity.StickBlockEntity;
 import com.grahambartley.dogsunleashed.block.entity.TennisBallBlockEntity;
@@ -168,6 +169,21 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
     }
     MouthFrame.level(poseStack, bone);
     poseStack.translate(0.0, profile.verticalOffset(), profile.forwardOffset());
+    if (stack.isOf(ModItems.ROPE_TOY)) {
+      float ropeScale =
+          CarriedToy.ROPE_TOY.scaleIn(this.entityOrigin, poseStack.peek().getPositionMatrix());
+      poseStack.scale(ropeScale, ropeScale, ropeScale);
+      super.renderStackForBone(
+          poseStack,
+          bone,
+          stack,
+          animatable,
+          bufferSource,
+          partialTick,
+          packedLight,
+          packedOverlay);
+      return;
+    }
     float scale = CarriedToy.ITEM.scaleIn(this.entityOrigin, poseStack.peek().getPositionMatrix());
     poseStack.scale(scale, scale, scale);
     poseStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(ITEM_FLAT_DEGREES));

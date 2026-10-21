@@ -76,7 +76,9 @@ class DogTrackedDefaultsTest {
         Arguments.of("fur stage", UnleashedDogEntity.FUR_STAGE, DogFurStage.NATURAL.ordinal()),
         Arguments.of("scent phase", UnleashedDogEntity.SCENT_PHASE, ScentPhase.NONE.id()),
         Arguments.of("napping", UnleashedDogEntity.NAPPING, false),
-        Arguments.of("bond step", UnleashedDogEntity.BOND_STEP, DogBondStep.STRANGER.ordinal()));
+        Arguments.of("bond step", UnleashedDogEntity.BOND_STEP, DogBondStep.STRANGER.ordinal()),
+        Arguments.of("tug player", UnleashedDogEntity.TUG_PLAYER_ID, -1),
+        Arguments.of("tug balance", UnleashedDogEntity.TUG_BALANCE, 0.0f));
   }
 
   @ParameterizedTest(name = "{0}")

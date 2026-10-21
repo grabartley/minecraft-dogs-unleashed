@@ -23,11 +23,7 @@ public final class DogTreatBuffState extends DogComponent {
   public void apply(final float barkPitchBoost) {
     this.dog.getDataTracker().set(UnleashedDogEntity.TREAT_BUFF_TICKS, DogTreatBuff.DURATION_TICKS);
     DogTreatBuff.apply(this.dog);
-    this.dog.getAmbienceEffects().startTailWag();
-    this.dog.getAmbienceEffects().burstHearts();
-    this.dog
-        .getVocalization()
-        .forceBark(this.dog.getVocalization().getBarkPitch() * barkPitchBoost);
+    this.dog.getAmbienceEffects().celebrate(barkPitchBoost);
   }
 
   @Override

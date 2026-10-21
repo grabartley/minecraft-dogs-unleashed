@@ -62,6 +62,7 @@ public final class DogInteractions {
     final ActionResult untamedResult =
         firstHandled(
             List.of(
+                () -> this.dog.getComponents().get(DogTug.class).interact(player, itemStack),
                 () -> this.tryOpenDeliveredBags(player),
                 () -> this.tryOpenInspect(player),
                 () -> this.tryTogglePlayMode(player, itemStack)));

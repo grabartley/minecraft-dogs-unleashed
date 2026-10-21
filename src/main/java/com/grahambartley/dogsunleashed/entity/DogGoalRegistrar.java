@@ -37,6 +37,7 @@ import com.grahambartley.dogsunleashed.entity.goal.SledPullGoal;
 import com.grahambartley.dogsunleashed.entity.goal.SleepInBedGoal;
 import com.grahambartley.dogsunleashed.entity.goal.ThreatStanceGoal;
 import com.grahambartley.dogsunleashed.entity.goal.TrustFollowGoal;
+import com.grahambartley.dogsunleashed.entity.goal.TugGoal;
 import com.grahambartley.dogsunleashed.entity.goal.WildHuntGoal;
 import java.util.EnumSet;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
@@ -76,6 +77,7 @@ public final class DogGoalRegistrar {
     goalSelector.add(1, new SwimGoal(dog));
     goalSelector.add(2, new DogSitGoal(dog));
     goalSelector.add(2, new BuryBoneGoal(dog));
+    goalSelector.add(2, new TugGoal(dog));
     goalSelector.add(3, new SleepInBedGoal(dog));
     goalSelector.add(3, new FetchChaseGoal(dog));
     goalSelector.add(3, new FetchRetrieveGoal(dog));

@@ -14,8 +14,6 @@ import java.util.EnumSet;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.Monster;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 public class PlayChaseGoal extends Goal {
@@ -25,7 +23,6 @@ public class PlayChaseGoal extends Goal {
   private static final double HOSTILE_RANGE = 8.0;
   private static final int REPATH_TICKS = 10;
   private static final int DANGER_CHECK_TICKS = 20;
-  private static final int FLEE_VERTICAL_RANGE = 3;
 
   private final UnleashedDogEntity dog;
   private int checkCooldown;
@@ -121,25 +118,7 @@ public class PlayChaseGoal extends Goal {
       return;
     }
     final Spot spot = PlayChaseRules.fleeTarget(game.centre(), spotOf(this.dog), spotOf(partner));
-    this.dog.getNavigation().startMovingTo(spot.x(), this.standingYAt(spot), spot.z(), RUN_SPEED);
-  }
-
-  private double standingYAt(final Spot spot) {
-    final World world = this.dog.getWorld();
-    final BlockPos level = BlockPos.ofFloored(spot.x(), this.dog.getY(), spot.z());
-    for (int step = 0; step <= 2 * FLEE_VERTICAL_RANGE; step++) {
-      final BlockPos feet = level.up(PlayChaseRules.searchOffset(step));
-      if (isClear(world, feet)
-          && isClear(world, feet.up())
-          && !world.getBlockState(feet.down()).getCollisionShape(world, feet.down()).isEmpty()) {
-        return feet.getY();
-      }
-    }
-    return this.dog.getY();
-  }
-
-  private static boolean isClear(final World world, final BlockPos pos) {
-    return world.getBlockState(pos).getCollisionShape(world, pos).isEmpty();
+    StandingGround.runTo(this.dog, spot, RUN_SPEED);
   }
 
   public boolean mayPlay() {

@@ -12,6 +12,7 @@ public final class DogIdleness {
         && !dog.getSleepController().isAsleep()
         && !dog.getPlaySession().isInPlayMode()
         && !dog.getComponents().get(DogScent.class).isTracking()
+        && dog.getComponents().get(DogTug.class).state() == null
         && orders.attackTarget() == null
         && orders.fetchItem() == null
         && !dog.getCommandController().isHeadingToAnchor();

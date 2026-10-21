@@ -82,7 +82,8 @@ site that matches. Show it a treasure map and it digs at the X, or a trail ruins
 Beagles can smell twice as far. Or send it off exploring from the wheel's Actions, and it comes back
 next morning with a find and a map of where it went. Give it saddlebags and it can carry items to
 another player, even in another dimension, then trot back home to you.
-- **Play fetch.** Throw a stick, a tennis ball or a frisbee. Your dog chases it, picks it up and brings it back to you.
+- **Play fetch and tug.** Throw a stick, a tennis ball or a frisbee. Your dog chases it, picks it up and brings it back to you.
+Or play tug of war with a rope toy, and if your dog wins it runs off with the rope.
 Give a roaming or staying dog a bone and it buries it, then digs it up a few days later and brings it back, sometimes
 with a find. Foxes sneak in at night to steal buried bones, and a dog nearby barks and chases them off.
 Dogs bark at pillagers too, and earn a rosette for helping you win a raid.

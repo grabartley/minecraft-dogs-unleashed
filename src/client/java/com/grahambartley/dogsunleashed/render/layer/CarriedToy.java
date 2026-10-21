@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.render.layer;
 
 import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
+import com.grahambartley.dogsunleashed.render.ModelFit;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -11,6 +12,7 @@ public record CarriedToy(float worldPixels, float modelPixels, float centreHeigh
   public static final CarriedToy FRISBEE = new CarriedToy(7f, 16f, 1f);
   public static final CarriedToy STICK = new CarriedToy(9f, 16f, 0f);
   public static final CarriedToy ITEM = new CarriedToy(7f, 16f, 0f);
+  public static final CarriedToy ROPE_TOY = new CarriedToy(8f, 16f * ModelFit.BLOCK_DIAGONAL, 0f);
 
   public static CarriedToy of(final FetchItemType fetchType) {
     return ofPath(fetchType == null ? null : fetchType.id().getPath());

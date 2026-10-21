@@ -584,5 +584,14 @@
   "advancements.dogs-unleashed.full_team.title": "Tiro completo",
   "advancements.dogs-unleashed.full_team.description": "Engancha seis perros a un trineo.",
   "message.dogs-unleashed.sled.full": "Este trineo ya tiene un tiro completo de seis perros",
-  "info.dogs-unleashed.sled": "Se coloca como un bote. Pon una correa a hasta seis de tus huskies o lobos terribles adultos y luego usa el trineo para engancharlos por parejas. Haz clic derecho en el trineo para subirte, gira con las teclas de movimiento y esprinta mientras el tiro tenga aguante. El tiro va más rápido sobre hielo, rápido sobre nieve, despacio sobre hierba y tierra, y más lento que nunca sobre arena. Un tiro más grande es más rápido y aguanta más. Agáchate + clic derecho en el trineo para volver a poner la correa a tus perros."
+  "info.dogs-unleashed.sled": "Se coloca como un bote. Pon una correa a hasta seis de tus huskies o lobos terribles adultos y luego usa el trineo para engancharlos por parejas. Haz clic derecho en el trineo para subirte, gira con las teclas de movimiento y esprinta mientras el tiro tenga aguante. El tiro va más rápido sobre hielo, rápido sobre nieve, despacio sobre hierba y tierra, y más lento que nunca sobre arena. Un tiro más grande es más rápido y aguanta más. Agáchate + clic derecho en el trineo para volver a poner la correa a tus perros.",
+  "item.dogs-unleashed.rope_toy": "Juguete de cuerda",
+  "info.dogs-unleashed.rope_toy": "Haz clic derecho sobre tu perro con él para empezar a jugar a tirar de la cuerda. Pulsa usar a un ritmo constante para tirar y vigila la barra encima de tu barra rápida. Machacar el botón no sirve de nada. Los perros más grandes y los que tienen un vínculo más fuerte contigo tiran con más fuerza. Si ganas, tu perro suelta la cuerda feliz. Si pierdes, sale corriendo con ella, así que persíguelo y haz clic derecho sobre él para recuperarla.",
+  "message.dogs-unleashed.tug_start": "¡Tira de la cuerda con %s! Pulsa usar a un ritmo constante para tirar.",
+  "message.dogs-unleashed.tug_won": "¡Has ganado! %s soltó la cuerda.",
+  "message.dogs-unleashed.tug_lost": "¡%s ganó y salió corriendo con la cuerda! Atrápalo para recuperarla.",
+  "message.dogs-unleashed.tug_caught": "Atrapaste a %s y recuperaste la cuerda.",
+  "message.dogs-unleashed.tug_stopped": "%s dejó de jugar a tirar de la cuerda.",
+  "message.dogs-unleashed.tug_busy": "%s ya está jugando a tirar de la cuerda.",
+  "message.dogs-unleashed.tug_not_now": "%s no puede jugar a tirar de la cuerda ahora."
 }

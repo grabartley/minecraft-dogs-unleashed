@@ -42,5 +42,7 @@ final class DogTrackedDefaults {
     builder.add(UnleashedDogEntity.SENIOR, false);
     builder.add(UnleashedDogEntity.MUDDY, false);
     builder.add(UnleashedDogEntity.BOND_STEP, DogBondStep.STRANGER.ordinal());
+    builder.add(UnleashedDogEntity.TUG_PLAYER_ID, DogTug.NO_PLAYER);
+    builder.add(UnleashedDogEntity.TUG_BALANCE, 0.0f);
   }
 }

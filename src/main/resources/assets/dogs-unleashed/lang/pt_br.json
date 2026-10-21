@@ -584,5 +584,14 @@
   "advancements.dogs-unleashed.full_team.title": "Matilha completa",
   "advancements.dogs-unleashed.full_team.description": "Atrele seis cachorros a um trenó.",
   "message.dogs-unleashed.sled.full": "Este trenó já tem uma matilha completa de seis cachorros",
-  "info.dogs-unleashed.sled": "Coloque como um barco. Ponha uma guia em até seis dos seus huskies ou lobos-terríveis adultos e use o trenó para atrelá-los em pares. Clique com o botão direito no trenó para subir, vire com as teclas de movimento e corra enquanto a matilha tiver fôlego. A matilha é mais rápida no gelo, rápida na neve, lenta na grama e na terra e mais lenta ainda na areia. Uma matilha maior é mais rápida e dura mais. Agache + clique com o botão direito no trenó para pôr a guia de volta nos seus cachorros."
+  "info.dogs-unleashed.sled": "Coloque como um barco. Ponha uma guia em até seis dos seus huskies ou lobos-terríveis adultos e use o trenó para atrelá-los em pares. Clique com o botão direito no trenó para subir, vire com as teclas de movimento e corra enquanto a matilha tiver fôlego. A matilha é mais rápida no gelo, rápida na neve, lenta na grama e na terra e mais lenta ainda na areia. Uma matilha maior é mais rápida e dura mais. Agache + clique com o botão direito no trenó para pôr a guia de volta nos seus cachorros.",
+  "item.dogs-unleashed.rope_toy": "Brinquedo de corda",
+  "info.dogs-unleashed.rope_toy": "Clique com o botão direito no seu cachorro com ele para começar um cabo de guerra. Aperte usar num ritmo constante para puxar e fique de olho na barra acima da sua barra de atalhos. Apertar sem parar não adianta nada. Cachorros maiores, e os que têm um laço mais forte com você, puxam com mais força. Se você ganhar, seu cachorro solta a corda feliz. Se perder, ele sai correndo com ela, então corra atrás dele e clique com o botão direito nele para pegar a corda de volta.",
+  "message.dogs-unleashed.tug_start": "Cabo de guerra com %s! Aperte usar num ritmo constante para puxar.",
+  "message.dogs-unleashed.tug_won": "Você ganhou! %s soltou a corda.",
+  "message.dogs-unleashed.tug_lost": "%s ganhou e saiu correndo com a corda! Pegue-o para recuperá-la.",
+  "message.dogs-unleashed.tug_caught": "Você pegou %s e recuperou a corda.",
+  "message.dogs-unleashed.tug_stopped": "%s parou de brincar de cabo de guerra.",
+  "message.dogs-unleashed.tug_busy": "%s já está brincando de cabo de guerra.",
+  "message.dogs-unleashed.tug_not_now": "%s não pode brincar de cabo de guerra agora."
 }
