@@ -6,6 +6,7 @@ import com.grahambartley.dogsunleashed.advancement.DogHowledCriterion;
 import com.grahambartley.dogsunleashed.advancement.DogShearBotchedCriterion;
 import com.grahambartley.dogsunleashed.advancement.DogSleptInBedCriterion;
 import com.grahambartley.dogsunleashed.advancement.DogTamedCriterion;
+import com.grahambartley.dogsunleashed.advancement.DogTrickLearnedCriterion;
 import com.grahambartley.dogsunleashed.advancement.FetchReturnedCriterion;
 import com.grahambartley.dogsunleashed.advancement.PetCuredCriterion;
 import com.grahambartley.dogsunleashed.advancement.PetResurrectedCriterion;
@@ -13,9 +14,11 @@ import com.grahambartley.dogsunleashed.block.DogBedBlock;
 import com.grahambartley.dogsunleashed.command.DogsUnleashedCommand;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.entity.DogPlaySession;
+import com.grahambartley.dogsunleashed.entity.DogWheelSubActions;
 import com.grahambartley.dogsunleashed.entity.delivery.DogDeliveries;
 import com.grahambartley.dogsunleashed.entity.expedition.DogExpeditions;
 import com.grahambartley.dogsunleashed.entity.scent.ScentRules;
+import com.grahambartley.dogsunleashed.entity.trick.DogTrickWheelActions;
 import com.grahambartley.dogsunleashed.gametest.util.GameTestFixturePack;
 import com.grahambartley.dogsunleashed.listener.AwayDogListener;
 import com.grahambartley.dogsunleashed.listener.BoneCacheBreakListener;
@@ -63,6 +66,7 @@ public class DogsUnleashed implements ModInitializer {
     PetCuredCriterion.register();
     DogExpeditionReturnedCriterion.register();
     DogDefendedVillageCriterion.register();
+    DogTrickLearnedCriterion.register();
 
     ModSounds.initialize();
     ModComponents.initialize();
@@ -86,6 +90,7 @@ public class DogsUnleashed implements ModInitializer {
     ScentRules.register();
     DogExpeditions.registerWheelAction();
     DogDeliveries.registerWheelAction();
+    DogTrickWheelActions.register(DogWheelSubActions.REGISTERED);
     ModNetworking.registerPayloads();
     ModNetworking.registerServerReceivers();
     GameTestFixturePack.registerWhenTesting();

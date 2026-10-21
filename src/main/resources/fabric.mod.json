@@ -102,6 +102,7 @@
       "com.grahambartley.dogsunleashed.gametest.DogStrangerInteractionGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogGenesGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogPersonalityGameTest",
+      "com.grahambartley.dogsunleashed.gametest.DogTrickGameTest",
       "com.grahambartley.dogsunleashed.gametest.PetManagerConnectionsGameTest",
       "com.grahambartley.dogsunleashed.gametest.PetManagerSummonGameTest",
       "com.grahambartley.dogsunleashed.gametest.PetSyncRefresherGameTest",

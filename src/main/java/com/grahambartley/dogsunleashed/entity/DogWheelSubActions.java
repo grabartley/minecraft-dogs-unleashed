@@ -31,6 +31,7 @@ public final class DogWheelSubActions {
   public List<WheelSubActionState> statesFor(
       final UnleashedDogEntity dog, final ServerPlayerEntity player) {
     return this.actions.stream()
+        .filter(action -> action.visibility().shownFor(dog))
         .map(
             action ->
                 new WheelSubActionState(

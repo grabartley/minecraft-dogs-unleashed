@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.entity;
 
+import com.grahambartley.dogsunleashed.entity.trick.DogTrick;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.AnimationState;
@@ -144,6 +145,13 @@ public final class DogAnimationControllers {
         new AnimationController<>(dog, DogAnimationKeys.COWER, 0, state -> PlayState.STOP)
             .triggerableAnim(
                 DogAnimationKeys.COWER, RawAnimation.begin().thenPlay(DogAnimationKeys.COWER)));
+
+    for (final DogTrick trick : DogTrick.values()) {
+      controllers.add(
+          new AnimationController<>(dog, trick.animationKey(), 0, state -> PlayState.STOP)
+              .triggerableAnim(
+                  trick.animationKey(), RawAnimation.begin().thenPlay(trick.animationKey())));
+    }
 
     controllers.add(
         new AnimationController<>(

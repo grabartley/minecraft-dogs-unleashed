@@ -37,7 +37,9 @@ public final class DogAdvancementGameTest implements FabricGameTest {
           "best_friend_again",
           "winter_is_coming",
           "off_exploring",
-          "rare_find");
+          "rare_find",
+          "good_dog",
+          "show_dog");
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void advancementsLoadFromDataPackResources(final TestContext context) {

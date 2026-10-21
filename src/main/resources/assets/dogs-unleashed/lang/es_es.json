@@ -566,5 +566,15 @@
   "message.dogs-unleashed.delivery.delivered": "%s ha llegado hasta %s",
   "message.dogs-unleashed.delivery.returned": "%s ha vuelto de su entrega",
   "message.dogs-unleashed.delivery.undelivered": "%s no encontró a nadie a quien entregar y vuelve a casa",
-  "message.dogs-unleashed.delivery.away": "%s ha salido a hacer una entrega"
+  "message.dogs-unleashed.delivery.away": "%s ha salido a hacer una entrega",
+  "trick.dogs-unleashed.beg": "Pedir",
+  "trick.dogs-unleashed.roll_over": "Rodar",
+  "trick.dogs-unleashed.play_dead": "Hacerse el muerto",
+  "message.dogs-unleashed.trick_learned": "¡%s ha aprendido un truco nuevo: %s!",
+  "message.dogs-unleashed.trick_shown": "%s está luciéndose: %s",
+  "screen.dogs-unleashed.command_wheel.trick.sleeping": "Tiene demasiado sueño para hacer trucos",
+  "advancements.dogs-unleashed.good_dog.title": "¡Buen perro!",
+  "advancements.dogs-unleashed.good_dog.description": "Premia a tu perro con una golosina para perro para enseñarle su primer truco.",
+  "advancements.dogs-unleashed.show_dog.title": "Perro de exhibición",
+  "advancements.dogs-unleashed.show_dog.description": "Enseña a un perro a pedir, rodar y hacerse el muerto."
 }

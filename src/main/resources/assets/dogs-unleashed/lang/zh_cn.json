@@ -566,5 +566,15 @@
   "message.dogs-unleashed.delivery.delivered": "%s已经到达%s身边",
   "message.dogs-unleashed.delivery.returned": "%s送完货回来了",
   "message.dogs-unleashed.delivery.undelivered": "%s没找到收件人，正在回家",
-  "message.dogs-unleashed.delivery.away": "%s正在送货"
+  "message.dogs-unleashed.delivery.away": "%s正在送货",
+  "trick.dogs-unleashed.beg": "作揖",
+  "trick.dogs-unleashed.roll_over": "打滚",
+  "trick.dogs-unleashed.play_dead": "装死",
+  "message.dogs-unleashed.trick_learned": "%s学会了一个新把戏：%s！",
+  "message.dogs-unleashed.trick_shown": "%s在表演把戏：%s",
+  "screen.dogs-unleashed.command_wheel.trick.sleeping": "太困了，没法表演把戏",
+  "advancements.dogs-unleashed.good_dog.title": "好狗狗！",
+  "advancements.dogs-unleashed.good_dog.description": "用狗零食奖励你的狗，教会它第一个把戏。",
+  "advancements.dogs-unleashed.show_dog.title": "明星犬",
+  "advancements.dogs-unleashed.show_dog.description": "教会一只狗作揖、打滚和装死。"
 }

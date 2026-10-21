@@ -66,7 +66,7 @@ public final class WheelActionNetworkHandler {
       return;
     }
     final UnleashedDogEntity dog = ownedLivingDog(player.getServerWorld(), payload.dogId(), player);
-    if (dog == null) {
+    if (dog == null || !action.visibility().shownFor(dog)) {
       return;
     }
     final String refusal =

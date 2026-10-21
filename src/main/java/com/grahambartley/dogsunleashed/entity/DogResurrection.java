@@ -129,6 +129,7 @@ public final class DogResurrection {
     } else {
       personality.set(petData.getPersonality());
     }
+    dog.getComponents().get(DogTricks.class).restore(petData.getTricks());
     dog.setCustomName(Text.literal(petData.getName()));
     dog.setCustomNameVisible(true);
     dog.setOwnerUuid(petData.getOwnerId());

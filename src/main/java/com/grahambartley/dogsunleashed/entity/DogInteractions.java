@@ -8,6 +8,7 @@ import com.grahambartley.dogsunleashed.block.DogBedBlock;
 import com.grahambartley.dogsunleashed.entity.delivery.DogDeliveries;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
+import com.grahambartley.dogsunleashed.entity.trick.TrickLearningRules;
 import com.grahambartley.dogsunleashed.entity.variant.UnleashedDogCoat;
 import com.grahambartley.dogsunleashed.item.BlankCanvasItem;
 import com.grahambartley.dogsunleashed.item.DogWhistleItem;
@@ -221,7 +222,12 @@ public final class DogInteractions {
       return null;
     }
     itemStack.decrementUnlessCreative(1, player);
-    this.dog.getComponents().get(DogTreatBuffState.class).apply();
+    final boolean learnedTrick =
+        this.dog.getComponents().get(DogTricks.class).rewardOffered(player);
+    this.dog
+        .getComponents()
+        .get(DogTreatBuffState.class)
+        .apply(TrickLearningRules.barkPitchBoost(learnedTrick));
     this.dog.getComponents().get(DogBond.class).reward(DogBondRules.Source.TREAT);
     return ActionResult.SUCCESS;
   }

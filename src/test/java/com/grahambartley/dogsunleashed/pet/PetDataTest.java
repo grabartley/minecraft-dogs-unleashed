@@ -17,6 +17,9 @@ import com.grahambartley.dogsunleashed.entity.genome.DogGenes;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.entity.personality.DogTrait;
 import com.grahambartley.dogsunleashed.entity.personality.DogTraits;
+import com.grahambartley.dogsunleashed.entity.trick.DogTrick;
+import com.grahambartley.dogsunleashed.entity.trick.TrickProgress;
+import com.grahambartley.dogsunleashed.entity.trick.TrickProgressNbt;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyCoat;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
@@ -260,6 +263,31 @@ class PetDataTest {
     final NbtCompound nbt = baselinePet().toNbt();
     nbt.remove(ModNbtKeys.PERSONALITY);
     assertTrue(PetData.fromNbt(nbt).getPersonality().isEmpty());
+  }
+
+  static Stream<TrickProgress> trickProgresses() {
+    return Stream.of(
+        TrickProgress.NONE,
+        TrickProgress.of(Map.of(DogTrick.BEG, 3)),
+        TrickProgress.of(Map.of(DogTrick.ROLL_OVER, 5, DogTrick.PLAY_DEAD, 5)));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("trickProgresses")
+  @DisplayName("learned tricks survive a save and reload so they outlive death")
+  void tricksRoundTrip(final TrickProgress progress) {
+    final NbtCompound nbt = baselinePet().toNbt();
+    nbt.put(ModNbtKeys.TRICKS, TrickProgressNbt.write(progress));
+    final PetData reloaded = PetData.fromNbt(PetData.fromNbt(nbt).toNbt());
+    assertEquals(progress, reloaded.getTricks());
+  }
+
+  @Test
+  @DisplayName("a pet saved before tricks knows none")
+  void legacyPetKnowsNoTricks() {
+    final NbtCompound nbt = baselinePet().toNbt();
+    nbt.remove(ModNbtKeys.TRICKS);
+    assertEquals(TrickProgress.NONE, PetData.fromNbt(nbt).getTricks());
   }
 
   @ParameterizedTest(name = "age {0} ticks, senior {1}, senior parent {2}")
