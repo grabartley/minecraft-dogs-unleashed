@@ -52,30 +52,21 @@ class PlayChaseRulesTest {
   }
 
   static Stream<Arguments> readiness() {
-    final Readiness ready =
-        new Readiness(Playground.FREE_ROAM, true, true, false, false, false, false);
     return Stream.of(
-        Arguments.of(ready, true),
-        Arguments.of(
-            new Readiness(Playground.WILD_PACK, true, true, false, false, false, false), true),
-        Arguments.of(new Readiness(Playground.NONE, true, true, false, false, false, false), false),
-        Arguments.of(
-            new Readiness(Playground.FREE_ROAM, false, true, false, false, false, false), false),
-        Arguments.of(
-            new Readiness(Playground.FREE_ROAM, true, false, false, false, false, false), false),
-        Arguments.of(
-            new Readiness(Playground.FREE_ROAM, true, true, true, false, false, false), false),
-        Arguments.of(
-            new Readiness(Playground.FREE_ROAM, true, true, false, true, false, false), false),
-        Arguments.of(
-            new Readiness(Playground.FREE_ROAM, true, true, false, false, true, false), false),
-        Arguments.of(
-            new Readiness(Playground.FREE_ROAM, true, true, false, false, false, true), false));
+        Arguments.of(new Readiness(Playground.FREE_ROAM, true, true, false, false, false), true),
+        Arguments.of(new Readiness(Playground.WILD_PACK, true, true, false, false, false), true),
+        Arguments.of(new Readiness(Playground.NONE, true, true, false, false, false), false),
+        Arguments.of(new Readiness(Playground.FREE_ROAM, false, true, false, false, false), false),
+        Arguments.of(new Readiness(Playground.FREE_ROAM, true, false, false, false, false), false),
+        Arguments.of(new Readiness(Playground.FREE_ROAM, true, true, true, false, false), false),
+        Arguments.of(new Readiness(Playground.FREE_ROAM, true, true, false, true, false), false),
+        Arguments.of(new Readiness(Playground.FREE_ROAM, true, true, false, false, true), false));
   }
 
   @ParameterizedTest
   @MethodSource("readiness")
-  void aDogPlaysOnlyWhenIdleSafeAwakeAndUnhurt(final Readiness readiness, final boolean expected) {
+  void aDogPlaysOnlyWhenIdleGroundedAwakeAndUnhurt(
+      final Readiness readiness, final boolean expected) {
     assertEquals(expected, readiness.mayPlay());
   }
 
@@ -107,8 +98,15 @@ class PlayChaseRulesTest {
   }
 
   @ParameterizedTest
-  @CsvSource({"0, 1.0, true", "0, 1.5, true", "0, 1.6, false", "99, 4.0, false", "100, 4.0, true"})
-  void rolesSwapOnATagOrAfterFiveSecondsOfChasing(
+  @CsvSource({
+    "0, 1.0, false",
+    "19, 1.5, false",
+    "20, 1.5, true",
+    "20, 1.6, false",
+    "99, 4.0, false",
+    "100, 4.0, true"
+  })
+  void rolesSwapOnATagAfterAShortGraceOrAfterFiveSecondsOfChasing(
       final long legTicks, final double distance, final boolean expected) {
     assertEquals(expected, PlayChaseRules.swapsRoles(legTicks, distance));
   }
@@ -131,11 +129,13 @@ class PlayChaseRulesTest {
   @CsvSource({
     "0, 0, -1, 0, 6, 0",
     "0, 0, 0, 3, 0, -6",
-    "8, 0, 6, 0, 10.5, 0",
     "0, 0, 0, 0, 6, 0",
-    "3, 0, 3, 0, 9, 0"
+    "3, 0, 3, 0, 9, 0",
+    "4, 0, 2, 0, 10, 0",
+    "8, 0, 6, 0, 8, 6",
+    "10, 0, 5, 0, 9.003675719981715, 5.402205431989029"
   })
-  void theRunnerFleesAwayFromTheChaserButStaysInThePlayArea(
+  void theRunnerFleesAwayFromTheChaserAndTurnsAlongTheEdgeOfThePlayArea(
       final double runnerX,
       final double runnerZ,
       final double chaserX,

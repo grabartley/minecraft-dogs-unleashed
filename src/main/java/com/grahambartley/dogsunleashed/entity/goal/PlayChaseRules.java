@@ -15,6 +15,7 @@ public final class PlayChaseRules {
   public static final int MAX_GAME_TICKS = 20 * 20;
   public static final int BOW_TICKS = 30;
   public static final int MAX_CHASE_LEG_TICKS = 5 * 20;
+  public static final int TAG_GRACE_TICKS = 20;
   public static final long REST_TICKS = 60 * 20;
 
   private PlayChaseRules() {}
@@ -31,8 +32,7 @@ public final class PlayChaseRules {
       boolean onGround,
       boolean carrying,
       boolean sleepTime,
-      boolean hurtRecently,
-      boolean inDanger) {
+      boolean hurtRecently) {
 
     public boolean mayPlay() {
       return this.playground != Playground.NONE
@@ -40,8 +40,7 @@ public final class PlayChaseRules {
           && this.onGround
           && !this.carrying
           && !this.sleepTime
-          && !this.hurtRecently
-          && !this.inDanger;
+          && !this.hurtRecently;
     }
   }
 
@@ -82,7 +81,8 @@ public final class PlayChaseRules {
   }
 
   public static boolean swapsRoles(final long legTicks, final double distance) {
-    return distance <= TAG_RANGE || legTicks >= MAX_CHASE_LEG_TICKS;
+    return legTicks >= MAX_CHASE_LEG_TICKS
+        || (legTicks >= TAG_GRACE_TICKS && distance <= TAG_RANGE);
   }
 
   public static boolean isInPlayArea(final Spot centre, final Spot spot) {
@@ -90,27 +90,50 @@ public final class PlayChaseRules {
   }
 
   public static Spot fleeTarget(final Spot centre, final Spot runner, final Spot chaser) {
-    double dx = runner.x - chaser.x;
-    double dz = runner.z - chaser.z;
-    double length = Math.hypot(dx, dz);
-    if (length < 1.0E-6) {
-      dx = runner.x - centre.x;
-      dz = runner.z - centre.z;
-      length = Math.hypot(dx, dz);
+    final double[] away =
+        direction(
+            runner.x - chaser.x, runner.z - chaser.z, runner.x - centre.x, runner.z - centre.z);
+    final Spot straight = step(runner, away[0], away[1]);
+    if (centre.distanceTo(straight) <= roomToRun()) {
+      return clamp(centre, straight);
     }
-    if (length < 1.0E-6) {
-      dx = 1.0;
-      dz = 0.0;
-      length = 1.0;
+    final double[] radial = direction(runner.x - centre.x, runner.z - centre.z, away[0], away[1]);
+    double tx = -radial[1];
+    double tz = radial[0];
+    if (tx * (runner.x - chaser.x) + tz * (runner.z - chaser.z) < 0) {
+      tx = -tx;
+      tz = -tz;
     }
-    final Spot away =
-        new Spot(runner.x + dx / length * FLEE_DISTANCE, runner.z + dz / length * FLEE_DISTANCE);
-    final double fromCentre = centre.distanceTo(away);
-    final double limit = PLAY_AREA_RADIUS - TAG_RANGE;
-    if (fromCentre <= limit) {
-      return away;
+    return clamp(centre, step(runner, tx, tz));
+  }
+
+  private static double roomToRun() {
+    return PLAY_AREA_RADIUS - TAG_RANGE;
+  }
+
+  private static Spot step(final Spot from, final double dx, final double dz) {
+    return new Spot(from.x + dx * FLEE_DISTANCE, from.z + dz * FLEE_DISTANCE);
+  }
+
+  private static Spot clamp(final Spot centre, final Spot spot) {
+    final double fromCentre = centre.distanceTo(spot);
+    if (fromCentre <= roomToRun()) {
+      return spot;
     }
-    final double scale = limit / fromCentre;
-    return new Spot(centre.x + (away.x - centre.x) * scale, centre.z + (away.z - centre.z) * scale);
+    final double scale = roomToRun() / fromCentre;
+    return new Spot(centre.x + (spot.x - centre.x) * scale, centre.z + (spot.z - centre.z) * scale);
+  }
+
+  private static double[] direction(
+      final double dx, final double dz, final double fallbackX, final double fallbackZ) {
+    final double length = Math.hypot(dx, dz);
+    if (length > 1.0E-6) {
+      return new double[] {dx / length, dz / length};
+    }
+    final double fallback = Math.hypot(fallbackX, fallbackZ);
+    if (fallback > 1.0E-6) {
+      return new double[] {fallbackX / fallback, fallbackZ / fallback};
+    }
+    return new double[] {1.0, 0.0};
   }
 }

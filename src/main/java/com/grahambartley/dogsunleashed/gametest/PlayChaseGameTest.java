@@ -6,6 +6,7 @@ import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.DogPlayChase;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.goal.PlayChaseGoal;
+import com.grahambartley.dogsunleashed.entity.goal.PlayChaseRules;
 import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.EntityData;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.goal.PrioritizedGoal;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -149,14 +151,45 @@ public final class PlayChaseGameTest implements FabricGameTest {
         });
   }
 
+  @GameTest(templateName = ARENA, batchId = DAY_BATCH, tickLimit = START_WINDOW_TICKS * 3)
+  public void aDogWhosePartnerNeverJoinsGivesUpAndBothAreFreeAgain(final TestContext context) {
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
+    final UnleashedDogEntity dog = pet(context, owner, REL_A, DogCommand.FREE_ROAM);
+    final UnleashedDogEntity busy = still(pet(context, owner, REL_B, DogCommand.FREE_ROAM));
+
+    play(dog).startWith(busy);
+
+    context.runAtEveryTick(
+        () -> {
+          if (context.getTick() > PlayChaseRules.BOW_TICKS
+              && !play(dog).isPlaying()
+              && !play(busy).isPlaying()) {
+            context.complete();
+          }
+        });
+  }
+
+  @GameTest(templateName = ARENA, batchId = DAY_BATCH, tickLimit = 20)
+  public void aHostileNearbyKeepsADogFromPlaying(final TestContext context) {
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
+    final UnleashedDogEntity dog = still(pet(context, owner, REL_A, DogCommand.FREE_ROAM));
+
+    context.assertTrue(new PlayChaseGoal(dog).mayPlay(), "An idle free-roaming dog may play");
+    context.spawnEntity(EntityType.ZOMBIE, REL_C).setAiDisabled(true);
+    context.assertFalse(
+        new PlayChaseGoal(dog).mayPlay(), "A dog with a zombie close by should not play");
+    context.complete();
+  }
+
   @GameTest(templateName = ARENA, batchId = NIGHT_BATCH, tickLimit = 20)
-  public void dogsDoNotStartGamesDuringSleepHours(final TestContext context) {
+  public void dogsDoNotPlayDuringSleepHours(final TestContext context) {
     final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     final UnleashedDogEntity dog = still(pet(context, owner, REL_A, DogCommand.FREE_ROAM));
     still(pet(context, owner, REL_B, DogCommand.FREE_ROAM));
+    final PlayChaseGoal goal = new PlayChaseGoal(dog);
 
-    context.assertTrue(
-        new PlayChaseGoal(dog).findPlaymate() == null, "Dogs should not play at night");
+    context.assertFalse(goal.mayPlay(), "A dog should not start a game at night");
+    context.assertTrue(goal.findPlaymate() == null, "No dog should be free to play at night");
     context.complete();
   }
 

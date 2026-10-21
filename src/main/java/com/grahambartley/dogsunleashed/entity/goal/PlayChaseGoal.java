@@ -11,9 +11,11 @@ import com.grahambartley.dogsunleashed.entity.goal.PlayChaseRules.Spot;
 import com.grahambartley.dogsunleashed.entity.personality.DogTrait;
 import java.util.Comparator;
 import java.util.EnumSet;
+import net.minecraft.entity.ai.FuzzyTargeting;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.Monster;
+import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
 public class PlayChaseGoal extends Goal {
@@ -22,29 +24,39 @@ public class PlayChaseGoal extends Goal {
   private static final double RUN_SPEED = 1.2;
   private static final double HOSTILE_RANGE = 8.0;
   private static final int REPATH_TICKS = 10;
+  private static final int DANGER_CHECK_TICKS = 20;
+  private static final int FLEE_HORIZONTAL_RANGE = 3;
+  private static final int FLEE_VERTICAL_RANGE = 3;
 
   private final UnleashedDogEntity dog;
   private int checkCooldown;
   private int repathCooldown;
+  private boolean wasChasing;
+  private long dangerCheckedAt = -DANGER_CHECK_TICKS;
+  private boolean inDanger;
 
   public PlayChaseGoal(final UnleashedDogEntity dog) {
     this.dog = dog;
-    this.checkCooldown = PlayChaseRules.CHECK_INTERVAL_TICKS;
+    this.checkCooldown = toGoalTicks(PlayChaseRules.CHECK_INTERVAL_TICKS);
     this.setControls(EnumSet.of(Goal.Control.MOVE, Goal.Control.LOOK));
   }
 
   @Override
   public boolean canStart() {
     if (this.play().isPlaying()) {
-      return this.play().partner() != null && readiness(this.dog).mayPlay();
+      if (this.play().partner() != null && this.mayPlay()) {
+        return true;
+      }
+      this.play().end();
+      return false;
     }
     if (--this.checkCooldown > 0) {
       return false;
     }
-    this.checkCooldown = PlayChaseRules.CHECK_INTERVAL_TICKS;
-    if (this.play().isResting()
-        || !readiness(this.dog).mayPlay()
-        || !PlayChaseRules.startsGame(this.isPlayful(), this.dog.getRandom()::nextInt)) {
+    this.checkCooldown = toGoalTicks(PlayChaseRules.CHECK_INTERVAL_TICKS);
+    if (!PlayChaseRules.startsGame(this.isPlayful(), this.dog.getRandom()::nextInt)
+        || this.play().isResting()
+        || !this.mayPlay()) {
       return false;
     }
     final UnleashedDogEntity playmate = this.findPlaymate();
@@ -60,14 +72,16 @@ public class PlayChaseGoal extends Goal {
     final PlayChaseState game = this.play().game();
     return game != null
         && !game.isOver(this.now())
-        && this.play().partner() != null
+        && !this.play().isStood()
         && PlayChaseRules.isInPlayArea(game.centre(), spotOf(this.dog))
-        && readiness(this.dog).mayPlay();
+        && this.mayPlay();
   }
 
   @Override
   public void start() {
+    this.play().join();
     this.repathCooldown = 0;
+    this.wasChasing = false;
   }
 
   @Override
@@ -88,22 +102,33 @@ public class PlayChaseGoal extends Goal {
       this.dog.getNavigation().stop();
       return;
     }
+    if (game.chasing() != this.wasChasing) {
+      this.wasChasing = game.chasing();
+      this.repathCooldown = 0;
+    }
     if (game.chasing()
         && PlayChaseRules.swapsRoles(game.legTicks(this.now()), this.dog.distanceTo(partner))) {
       this.play().swapRolesWith(partner);
-      this.repathCooldown = 0;
       return;
     }
     if (--this.repathCooldown > 0) {
       return;
     }
-    this.repathCooldown = REPATH_TICKS;
+    this.repathCooldown = this.getTickCount(REPATH_TICKS);
     if (game.chasing()) {
       this.dog.getNavigation().startMovingTo(partner, CHASE_SPEED);
       return;
     }
-    final Spot target = PlayChaseRules.fleeTarget(game.centre(), spotOf(this.dog), spotOf(partner));
-    this.dog.getNavigation().startMovingTo(target.x(), this.dog.getY(), target.z(), RUN_SPEED);
+    final Spot spot = PlayChaseRules.fleeTarget(game.centre(), spotOf(this.dog), spotOf(partner));
+    final Vec3d toward = new Vec3d(spot.x(), this.dog.getY(), spot.z());
+    final Vec3d target =
+        FuzzyTargeting.findTo(this.dog, FLEE_HORIZONTAL_RANGE, FLEE_VERTICAL_RANGE, toward);
+    final Vec3d destination = target != null ? target : toward;
+    this.dog.getNavigation().startMovingTo(destination.x, destination.y, destination.z, RUN_SPEED);
+  }
+
+  public boolean mayPlay() {
+    return readiness(this.dog).mayPlay() && !this.isInDanger();
   }
 
   public @Nullable UnleashedDogEntity findPlaymate() {
@@ -135,8 +160,7 @@ public class PlayChaseGoal extends Goal {
         dog.getFetchCarry().isCarrying(),
         DogSleepWindow.isSleepTime(dog.getWorld().getTimeOfDay(), dog.isBaby(), dog.isUndead()),
         GroundNapRules.isHurtRecently(
-            dog.getWorld().getTime(), dog.getSleepController().getLastHurtAt()),
-        isInDanger(dog));
+            dog.getWorld().getTime(), dog.getSleepController().getLastHurtAt()));
   }
 
   private static Playground playgroundOf(final UnleashedDogEntity dog) {
@@ -144,15 +168,23 @@ public class PlayChaseGoal extends Goal {
         dog.isTamed(), dog.getCommand() == DogCommand.FREE_ROAM, dog.getPack().staysOutOfFights());
   }
 
-  private static boolean isInDanger(final UnleashedDogEntity dog) {
-    return dog.isOnFire()
-        || dog.isInLava()
-        || !dog.getWorld()
-            .getEntitiesByClass(
-                MobEntity.class,
-                dog.getBoundingBox().expand(HOSTILE_RANGE),
-                mob -> mob instanceof Monster && mob.isAlive())
-            .isEmpty();
+  private boolean isInDanger() {
+    if (this.dog.isOnFire() || this.dog.isInLava()) {
+      return true;
+    }
+    final long now = this.now();
+    if (now - this.dangerCheckedAt >= DANGER_CHECK_TICKS) {
+      this.dangerCheckedAt = now;
+      this.inDanger =
+          !this.dog
+              .getWorld()
+              .getEntitiesByClass(
+                  MobEntity.class,
+                  this.dog.getBoundingBox().expand(HOSTILE_RANGE),
+                  mob -> mob instanceof Monster && mob.isAlive())
+              .isEmpty();
+    }
+    return this.inDanger;
   }
 
   private static Spot spotOf(final UnleashedDogEntity dog) {
