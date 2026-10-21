@@ -32,10 +32,10 @@ class PaletteTintTest {
         Arguments.of(
             "a half pull lands halfway", 0xC08040, List.of(new Pull(BLACK, 0.5f)), 0x705030),
         Arguments.of(
-            "shading darker than the base stays darker after the shift",
-            0xA06020,
+            "shading just off the base colour keeps its offset after the shift",
+            0xBC7C3C,
             List.of(new Pull(BLACK, 0.5f)),
-            0x503010),
+            0x6C4C2C),
         Arguments.of(
             "two pulls add their shifts",
             0xC08040,
@@ -50,7 +50,14 @@ class PaletteTintTest {
   @DisplayName("each pixel moves by the weighted gap between its palette colour and the others'")
   void pixelMovesByWeightedGap(
       final String name, final int rgb, final List<Pull> pulls, final int expected) {
-    assertEquals(expected, PaletteTint.tinted(rgb, GOLD, pulls), Integer.toHexString(expected));
+    final int actual = PaletteTint.tinted(rgb, GOLD, pulls);
+    for (final int shift : new int[] {16, 8, 0}) {
+      assertEquals(
+          (expected >> shift) & 0xFF,
+          (actual >> shift) & 0xFF,
+          2,
+          Integer.toHexString(expected) + " against " + Integer.toHexString(actual));
+    }
   }
 
   @Test

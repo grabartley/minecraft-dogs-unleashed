@@ -7,6 +7,8 @@ public record CoatPalette(List<Integer> colours) {
 
   public static final int SIZE = 4;
 
+  private static final float SOFTNESS = 64.0f;
+
   public CoatPalette {
     if (colours.size() != SIZE) {
       throw new IllegalArgumentException("A coat palette has " + SIZE + " colours");
@@ -34,17 +36,18 @@ public record CoatPalette(List<Integer> colours) {
     return this.colours.get(index);
   }
 
-  public int nearestIndex(final int rgb) {
-    int best = 0;
-    int bestDistance = Integer.MAX_VALUE;
+  public float[] closeness(final int rgb) {
+    final float[] weights = new float[SIZE];
+    float total = 0.0f;
     for (int index = 0; index < SIZE; index++) {
-      final int distance = distanceSquared(rgb, this.colour(index));
-      if (distance < bestDistance) {
-        best = index;
-        bestDistance = distance;
-      }
+      final float spread = distanceSquared(rgb, this.colour(index)) + SOFTNESS;
+      weights[index] = 1.0f / (spread * spread);
+      total += weights[index];
     }
-    return best;
+    for (int index = 0; index < SIZE; index++) {
+      weights[index] /= total;
+    }
+    return weights;
   }
 
   private static int distanceSquared(final int a, final int b) {

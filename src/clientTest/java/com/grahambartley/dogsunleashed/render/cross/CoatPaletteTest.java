@@ -16,7 +16,7 @@ class CoatPaletteTest {
   private static final CoatPalette TAN_WHITE_BLACK_PINK =
       new CoatPalette(List.of(0xC08040, 0xFFFFFF, 0x101010, 0xE0A0A0));
 
-  @ParameterizedTest(name = "{0} is nearest {1}")
+  @ParameterizedTest(name = "{0} is closest to {1}")
   @CsvSource({
     "0xC08040, 0",
     "0xB07838, 0",
@@ -25,9 +25,41 @@ class CoatPaletteTest {
     "0x303030, 2",
     "0xE8A8A8, 3"
   })
-  @DisplayName("a pixel takes the palette colour nearest to it")
-  void nearestColourWins(final String rgb, final int expected) {
-    assertEquals(expected, TAN_WHITE_BLACK_PINK.nearestIndex(Integer.decode(rgb)));
+  @DisplayName(
+      "a pixel leans most on the palette colour nearest to it, and the leanings sum to one")
+  void nearestColourLeadsTheCloseness(final String rgb, final int expected) {
+    final float[] closeness = TAN_WHITE_BLACK_PINK.closeness(Integer.decode(rgb));
+
+    float total = 0.0f;
+    for (int index = 0; index < CoatPalette.SIZE; index++) {
+      total += closeness[index];
+      if (index != expected) {
+        assertTrue(closeness[expected] > closeness[index], rgb + " leans on " + index);
+      }
+    }
+    assertEquals(1.0f, total, 1.0e-5f);
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @CsvSource({"0xC08040", "0xFFFFFF", "0x101010", "0xE0A0A0"})
+  @DisplayName("a pixel that is exactly a palette colour leans almost wholly on it")
+  void exactColourLeansWhollyOnIt(final String rgb) {
+    final int colour = Integer.decode(rgb);
+    final int index = TAN_WHITE_BLACK_PINK.colours().indexOf(colour);
+
+    assertTrue(TAN_WHITE_BLACK_PINK.closeness(colour)[index] > 0.99f);
+  }
+
+  @ParameterizedTest(name = "{0} to {1}")
+  @CsvSource({"0xC08040, 0xC28242", "0xC28242, 0xC48444", "0x808080, 0x828282"})
+  @DisplayName("a small change in a pixel makes only a small change in its leanings")
+  void leaningsChangeSmoothly(final String from, final String to) {
+    final float[] before = TAN_WHITE_BLACK_PINK.closeness(Integer.decode(from));
+    final float[] after = TAN_WHITE_BLACK_PINK.closeness(Integer.decode(to));
+
+    for (int index = 0; index < CoatPalette.SIZE; index++) {
+      assertEquals(before[index], after[index], 0.2f, "entry " + index);
+    }
   }
 
   @Test

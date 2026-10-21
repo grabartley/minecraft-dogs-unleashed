@@ -37,6 +37,9 @@ public final class CrossCoatTextures {
   }
 
   public static Identifier tintedOf(final CrossCoat coat) {
+    if (RigModels.loaded(coat.rig()).isEmpty()) {
+      return coat.living();
+    }
     return CACHE.tintedOf(coat);
   }
 

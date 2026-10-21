@@ -11,16 +11,19 @@ public final class PaletteTint {
   private PaletteTint() {}
 
   public static int tinted(final int rgb, final CoatPalette own, final List<Pull> pulls) {
-    final int index = own.nearestIndex(rgb);
-    final int base = own.colour(index);
+    final float[] closeness = own.closeness(rgb);
     float red = (rgb >> 16) & 0xFF;
     float green = (rgb >> 8) & 0xFF;
     float blue = rgb & 0xFF;
-    for (final Pull pull : pulls) {
-      final int target = pull.palette().colour(index);
-      red += pull.weight() * (((target >> 16) & 0xFF) - ((base >> 16) & 0xFF));
-      green += pull.weight() * (((target >> 8) & 0xFF) - ((base >> 8) & 0xFF));
-      blue += pull.weight() * ((target & 0xFF) - (base & 0xFF));
+    for (int index = 0; index < CoatPalette.SIZE; index++) {
+      final int base = own.colour(index);
+      for (final Pull pull : pulls) {
+        final int target = pull.palette().colour(index);
+        final float weight = closeness[index] * pull.weight();
+        red += weight * (((target >> 16) & 0xFF) - ((base >> 16) & 0xFF));
+        green += weight * (((target >> 8) & 0xFF) - ((base >> 8) & 0xFF));
+        blue += weight * ((target & 0xFF) - (base & 0xFF));
+      }
     }
     return (channel(red) << 16) | (channel(green) << 8) | channel(blue);
   }

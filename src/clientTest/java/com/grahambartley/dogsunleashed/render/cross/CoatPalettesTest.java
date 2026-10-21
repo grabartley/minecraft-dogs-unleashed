@@ -14,6 +14,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 import javax.imageio.ImageIO;
@@ -27,12 +28,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 class CoatPalettesTest {
 
   private static final List<UnleashedDogBreed> CROSSING_BREEDS =
-      List.of(
-          UnleashedDogBreed.BEAGLE,
-          UnleashedDogBreed.DACHSHUND,
-          UnleashedDogBreed.GOLDEN_RETRIEVER,
-          UnleashedDogBreed.HUSKY,
-          UnleashedDogBreed.SHIBA_INU);
+      Arrays.stream(UnleashedDogBreed.values())
+          .filter(breed -> breed != UnleashedDogBreed.CROSS_BREED)
+          .filter(breed -> !breed.nature().breedsOnlyWithOwnBreed())
+          .toList();
 
   static Stream<Arguments> shippedCoats() {
     final List<Arguments> coats = new ArrayList<>();
