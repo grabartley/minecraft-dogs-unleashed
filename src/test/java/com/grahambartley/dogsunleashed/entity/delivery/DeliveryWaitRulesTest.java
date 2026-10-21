@@ -40,7 +40,7 @@ class DeliveryWaitRulesTest {
         "CHANGED_DIMENSION, false",
         "UNLOADED_WITH_PLAYER, false"
       })
-  @DisplayName("only a chunk going out of view or unloading counts as the dog being unloaded")
+  @DisplayName("only a chunk going out of view, unloading or the world closing counts as an unload")
   void chunkUnload(final Entity.RemovalReason reason, final boolean expected) {
     assertEquals(expected, DeliveryWaitRules.isChunkUnload(reason));
   }

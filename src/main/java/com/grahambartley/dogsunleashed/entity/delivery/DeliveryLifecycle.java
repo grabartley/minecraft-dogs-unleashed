@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.entity.delivery;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.listener.PetLocationSyncListener;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.MinecraftServer;
@@ -24,6 +25,7 @@ public final class DeliveryLifecycle {
         .filter(delivery -> delivery.leg() == DeliveryLeg.WAITING)
         .ifPresent(
             waiting -> {
+              PetLocationSyncListener.recordLocation(dog, world);
               final NbtCompound snapshot =
                   DeliverySnapshots.withoutTag(dog.writeNbt(new NbtCompound()), WAITING_TAG);
               deliveries.replace(
