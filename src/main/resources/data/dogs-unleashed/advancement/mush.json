@@ -1,0 +1,23 @@
+{
+  "parent": "dogs-unleashed:best_friend",
+  "display": {
+    "icon": {
+      "id": "dogs-unleashed:sled"
+    },
+    "title": {
+      "translate": "advancements.dogs-unleashed.mush.title"
+    },
+    "description": {
+      "translate": "advancements.dogs-unleashed.mush.description"
+    },
+    "frame": "goal"
+  },
+  "criteria": {
+    "travelled": {
+      "trigger": "dogs-unleashed:sled_travelled",
+      "conditions": {
+        "min_blocks": 1000.0
+      }
+    }
+  }
+}

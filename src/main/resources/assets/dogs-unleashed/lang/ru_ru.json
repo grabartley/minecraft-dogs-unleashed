@@ -576,5 +576,14 @@
   "advancements.dogs-unleashed.good_dog.title": "Хороший пёс!",
   "advancements.dogs-unleashed.good_dog.description": "Наградите собаку собачьим лакомством, чтобы научить её первому трюку.",
   "advancements.dogs-unleashed.show_dog.title": "Выставочная собака",
-  "advancements.dogs-unleashed.show_dog.description": "Научите одну собаку служить, переворачиваться и притворяться мёртвой."
+  "advancements.dogs-unleashed.show_dog.description": "Научите одну собаку служить, переворачиваться и притворяться мёртвой.",
+  "entity.dogs-unleashed.sled": "Собачьи сани",
+  "item.dogs-unleashed.sled": "Собачьи сани",
+  "advancements.dogs-unleashed.mush.title": "Хайк!",
+  "advancements.dogs-unleashed.mush.description": "Проедьте 1000 блоков на собачьих санях по снежным биомам.",
+  "advancements.dogs-unleashed.full_team.title": "Полная упряжка",
+  "advancements.dogs-unleashed.full_team.description": "Запрягите шесть собак в одни сани.",
+  "message.dogs-unleashed.sled.full": "В эти сани уже запряжена полная упряжка из шести собак",
+  "message.dogs-unleashed.sled.cannot_pull": "Тянуть сани могут только взрослые хаски и ужасные волки",
+  "info.dogs-unleashed.sled": "Ставятся как лодка. Возьмите на поводок до шести своих взрослых хаски или ужасных волков, затем используйте сани, чтобы запрячь их парами. Нажмите ПКМ по саням, чтобы сесть, рулите клавишами движения и ускоряйтесь, пока у упряжки есть выносливость. Быстрее всего упряжка бежит по льду, быстро по снегу, медленно по траве и земле и медленнее всего по песку. Большая упряжка быстрее и выносливее. Присесть + ПКМ по саням снова берёт ваших собак на поводок."
 }

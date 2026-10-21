@@ -8,6 +8,7 @@ import com.grahambartley.dogsunleashed.config.DireWolfStaminaSettings;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 
 class DireWolfStaminaTest {
@@ -50,6 +51,16 @@ class DireWolfStaminaTest {
     }
     assertEquals(250, ticks);
     assertTrue(state.lockedOut());
+  }
+
+  @ParameterizedTest(name = "a drain scale of {0} costs {1} a tick")
+  @CsvSource({"1.0, 0.4", "2.0, 0.8", "0.5, 0.2", "0.0, 0.0"})
+  void drainScale(final float scale, final float cost) {
+    final DireWolfStamina.State full = new DireWolfStamina.State(100.0f, false);
+    assertEquals(
+        100.0f - cost,
+        DireWolfStamina.next(full, 100.0f, true, true, DEFAULTS, scale).stamina(),
+        EPSILON);
   }
 
   @Test

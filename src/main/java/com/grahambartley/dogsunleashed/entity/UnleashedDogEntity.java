@@ -137,7 +137,8 @@ public class UnleashedDogEntity extends DogMountEntity
           new DogPersonality(this),
           new DogTricks(this),
           new DogSaddlebags(this),
-          new DogRaidDuty(this));
+          new DogRaidDuty(this),
+          new DogSledHarness(this));
   private final DogGenomeCache genomeCache = new DogGenomeCache(this);
   private final DogUndeadState undeadState = new DogUndeadState(this);
   private final DogCuring curing = new DogCuring(this);
@@ -575,6 +576,7 @@ public class UnleashedDogEntity extends DogMountEntity
   @Override
   public void remove(RemovalReason reason) {
     this.play.endOnRemoval(reason);
+    this.components.get(DogSledHarness.class).onRemoved(reason);
     super.remove(reason);
   }
 

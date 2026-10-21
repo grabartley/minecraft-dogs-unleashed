@@ -5,15 +5,21 @@ import com.grahambartley.dogsunleashed.entity.StickProjectileEntity;
 import com.grahambartley.dogsunleashed.entity.TennisBallProjectileEntity;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.sled.SledEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
 
 public class ModEntities {
   private static final float TENNIS_BALL_PROJECTILE_SIZE = 0.25f;
+  private static final float SLED_WIDTH = 1.5f;
+  private static final float SLED_HEIGHT = 0.6f;
+  private static final int SLED_TRACKING_RANGE = 10;
+  private static final Vec3d SLED_SEAT = new Vec3d(0.0, 0.625, -0.125);
 
   public static final EntityType<UnleashedDogEntity> HUSKY = registerDog(UnleashedDogBreed.HUSKY);
 
@@ -81,6 +87,17 @@ public class ModEntities {
                   FrisbeeProjectileEntity::new, SpawnGroup.MISC)
               .dimensions(TENNIS_BALL_PROJECTILE_SIZE, TENNIS_BALL_PROJECTILE_SIZE)
               .build(Identifier.of(DogsUnleashed.MOD_ID, "frisbee_projectile").toString()));
+
+  public static final EntityType<SledEntity> SLED =
+      Registry.register(
+          Registries.ENTITY_TYPE,
+          Identifier.of(DogsUnleashed.MOD_ID, "sled"),
+          EntityType.Builder.<SledEntity>create(SledEntity::new, SpawnGroup.MISC)
+              .dimensions(SLED_WIDTH, SLED_HEIGHT)
+              .passengerAttachments(SLED_SEAT)
+              .maxTrackingRange(SLED_TRACKING_RANGE)
+              .trackingTickInterval(1)
+              .build(Identifier.of(DogsUnleashed.MOD_ID, "sled").toString()));
 
   private static EntityType<UnleashedDogEntity> registerDog(final UnleashedDogBreed breed) {
     return registerDog(breed, false, breed.serializedId());

@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.network;
 import com.grahambartley.dogsunleashed.entity.DogWheelSubActions;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
+import com.grahambartley.dogsunleashed.entity.sled.SledEntity;
 import com.grahambartley.dogsunleashed.item.WhistlePointing;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.EditServerConfigC2SPayload;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.SyncServerConfigS2CPayload;
@@ -24,6 +25,7 @@ import com.grahambartley.dogsunleashed.network.payload.RequestPetsPayload;
 import com.grahambartley.dogsunleashed.network.payload.SelectWheelActionPayload;
 import com.grahambartley.dogsunleashed.network.payload.SelectWheelSubActionPayload;
 import com.grahambartley.dogsunleashed.network.payload.SetPetNamePayload;
+import com.grahambartley.dogsunleashed.network.payload.SledSprintPayload;
 import com.grahambartley.dogsunleashed.network.payload.SummonPetPayload;
 import com.grahambartley.dogsunleashed.network.payload.SyncDogConnectionsPayload;
 import com.grahambartley.dogsunleashed.network.payload.SyncPetManagerStatePayload;
@@ -75,6 +77,7 @@ public final class ModNetworking {
     PayloadTypeRegistry.playS2C()
         .register(OpenDeliveryPickerPayload.ID, OpenDeliveryPickerPayload.CODEC);
     PayloadTypeRegistry.playC2S().register(DeliverDogPayload.ID, DeliverDogPayload.CODEC);
+    PayloadTypeRegistry.playC2S().register(SledSprintPayload.ID, SledSprintPayload.CODEC);
   }
 
   public static void registerServerReceivers() {
@@ -99,6 +102,13 @@ public final class ModNetworking {
         RequestDogConnectionsPayload.ID, DogConnectionsNetworkHandler::handleRequestDogConnections);
     ServerPlayNetworking.registerGlobalReceiver(
         DeliverDogPayload.ID, WheelActionNetworkHandler::handleDeliverDog);
+    ServerPlayNetworking.registerGlobalReceiver(
+        SledSprintPayload.ID,
+        (payload, context) -> {
+          if (context.player().getVehicle() instanceof SledEntity sled) {
+            sled.getDrive().setSprintHeld(payload.held());
+          }
+        });
   }
 
   public static void sendOpenDeliveryPicker(

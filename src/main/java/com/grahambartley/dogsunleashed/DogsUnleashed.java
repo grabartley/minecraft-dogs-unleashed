@@ -10,6 +10,8 @@ import com.grahambartley.dogsunleashed.advancement.DogTrickLearnedCriterion;
 import com.grahambartley.dogsunleashed.advancement.FetchReturnedCriterion;
 import com.grahambartley.dogsunleashed.advancement.PetCuredCriterion;
 import com.grahambartley.dogsunleashed.advancement.PetResurrectedCriterion;
+import com.grahambartley.dogsunleashed.advancement.SledTeamCriterion;
+import com.grahambartley.dogsunleashed.advancement.SledTravelledCriterion;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
 import com.grahambartley.dogsunleashed.command.DogsUnleashedCommand;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
@@ -67,6 +69,8 @@ public class DogsUnleashed implements ModInitializer {
     DogExpeditionReturnedCriterion.register();
     DogDefendedVillageCriterion.register();
     DogTrickLearnedCriterion.register();
+    SledTeamCriterion.register();
+    SledTravelledCriterion.register();
 
     ModSounds.initialize();
     ModComponents.initialize();

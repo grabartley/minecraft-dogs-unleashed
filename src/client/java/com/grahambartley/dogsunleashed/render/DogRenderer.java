@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.render;
 import com.google.common.collect.Sets;
 import com.grahambartley.dogsunleashed.config.SyncedServerConfig;
 import com.grahambartley.dogsunleashed.entity.DogFurStage;
+import com.grahambartley.dogsunleashed.entity.DogSledHarness;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.model.DogModel;
@@ -25,12 +26,15 @@ import com.grahambartley.dogsunleashed.render.layer.DogSheetOverlayLayer;
 import com.grahambartley.dogsunleashed.render.layer.UndeadEyeGlowLayer;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile;
 import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
+import com.grahambartley.dogsunleashed.render.sled.HarnessRing;
+import com.grahambartley.dogsunleashed.render.sled.HarnessRumps;
 import com.grahambartley.dogsunleashed.riding.SeatTransform;
 import com.grahambartley.dogsunleashed.riding.SeatedRiders;
 import com.grahambartley.dogsunleashed.screen.DogCommandWheelScreen;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Frustum;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -38,8 +42,10 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
+import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
@@ -58,6 +64,7 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
   private @Nullable GrowthRigScale frameGrowth;
   private final Matrix4f frameOrigin = new Matrix4f();
   private final Map<String, SeatTransform> frameSeats = new HashMap<>();
+  private @Nullable String frameHarnessRing;
 
   public DogRenderer(EntityRendererFactory.Context context) {
     this(context, new DogModel());
@@ -132,6 +139,10 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
       int packedOverlay,
       int colour) {
     this.frameProfile = RigProfiles.of(animatable.getRigSourceBreed());
+    this.frameHarnessRing =
+        animatable.getComponents().get(DogSledHarness.class).isHitched()
+            ? HarnessRing.boneOf(model, this.frameProfile).orElse(null)
+            : null;
     this.frameStage = animatable.getFur().stage();
     this.frameArmoured = !animatable.getArmour().worn().isEmpty();
     this.frameHiddenEars =
@@ -218,6 +229,9 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
     if (!isReRender && this.frameProfile.seats().contains(bone.getName())) {
       this.captureSeat(poseStack, animatable, bone);
     }
+    if (!isReRender && bone.getName().equals(this.frameHarnessRing)) {
+      this.captureHarnessRing(poseStack, animatable, bone);
+    }
     super.renderRecursively(
         poseStack,
         animatable,
@@ -248,5 +262,16 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
             poseStack.peek().getPositionMatrix(),
             animatable.getRigSourceBreed().renderTransforms().bodyYawOffsetDegrees()));
     poseStack.pop();
+  }
+
+  private void captureHarnessRing(
+      final MatrixStack poseStack, final UnleashedDogEntity animatable, final GeoBone bone) {
+    poseStack.push();
+    RenderUtil.translateMatrixToBone(poseStack, bone);
+    RenderUtil.translateToPivotPoint(poseStack, bone);
+    final Vector3f ring = poseStack.peek().getPositionMatrix().transformPosition(new Vector3f());
+    poseStack.pop();
+    final Vec3d camera = MinecraftClient.getInstance().gameRenderer.getCamera().getPos();
+    HarnessRumps.record(animatable, camera.add(ring.x, ring.y, ring.z));
   }
 }

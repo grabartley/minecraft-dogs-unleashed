@@ -41,6 +41,7 @@ villages, and the wandering trader sometimes sells a puppy in a basket.
 
 The dire wolf is the rare one. It roams the coldest peaks in packs that hunt together and never forgive a player who
 hurts one of them. Earn a pup's trust and it grows into a wolf the size of a horse that you can ride.
+Hitch a team of huskies or dire wolves to a dog sled and race across the snow.
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/main/docs/all%20huskies.png" alt="Husky coat variants" width="800">

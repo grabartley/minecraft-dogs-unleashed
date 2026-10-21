@@ -1,6 +1,6 @@
 package com.grahambartley.dogsunleashed.mixin.client;
 
-import com.grahambartley.dogsunleashed.riding.RiddenDog;
+import com.grahambartley.dogsunleashed.riding.RideStaminaHud;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.InGameHud;
@@ -16,6 +16,6 @@ public abstract class InGameHudMixin {
 
   @ModifyReturnValue(method = "shouldRenderExperience", at = @At("RETURN"))
   private boolean dogsUnleashed$giveTheBarToStamina(final boolean original) {
-    return original && RiddenDog.of(this.client.player) == null;
+    return original && !RideStaminaHud.isShowing(this.client.player);
   }
 }

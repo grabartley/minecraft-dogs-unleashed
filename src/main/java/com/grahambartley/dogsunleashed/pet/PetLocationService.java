@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.pet;
 import com.google.common.collect.Iterables;
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
+import com.grahambartley.dogsunleashed.entity.DogSledHarness;
 import com.grahambartley.dogsunleashed.entity.DogStandingSpot;
 import com.grahambartley.dogsunleashed.entity.DogWorldTransfer;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
@@ -64,6 +65,7 @@ public final class PetLocationService {
         && dog.getCommand().followsOwnerOnRelocation()
         && !dog.isInSittingPose()
         && !dog.getSleepController().isAsleep()
+        && !dog.getComponents().get(DogSledHarness.class).isHitched()
         && !isBesideOwner(dog, player);
   }
 

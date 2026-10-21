@@ -576,5 +576,14 @@
   "advancements.dogs-unleashed.good_dog.title": "Bon chien !",
   "advancements.dogs-unleashed.good_dog.description": "Récompensez votre chien avec une friandise pour chien pour lui apprendre son premier tour.",
   "advancements.dogs-unleashed.show_dog.title": "Chien de concours",
-  "advancements.dogs-unleashed.show_dog.description": "Apprenez à un chien à faire le beau, rouler et faire le mort."
+  "advancements.dogs-unleashed.show_dog.description": "Apprenez à un chien à faire le beau, rouler et faire le mort.",
+  "entity.dogs-unleashed.sled": "Traîneau à chiens",
+  "item.dogs-unleashed.sled": "Traîneau à chiens",
+  "advancements.dogs-unleashed.mush.title": "Mush !",
+  "advancements.dogs-unleashed.mush.description": "Parcourez 1000 blocs en traîneau à chiens dans des biomes enneigés.",
+  "advancements.dogs-unleashed.full_team.title": "Attelage complet",
+  "advancements.dogs-unleashed.full_team.description": "Attelez six chiens à un même traîneau.",
+  "message.dogs-unleashed.sled.full": "Ce traîneau a déjà un attelage complet de six chiens",
+  "message.dogs-unleashed.sled.cannot_pull": "Seuls les huskies et les loups terribles adultes peuvent tirer un traîneau",
+  "info.dogs-unleashed.sled": "Se pose comme un bateau. Mettez une laisse à jusqu'à six de vos huskies ou loups terribles adultes, puis utilisez le traîneau pour les atteler par paires. Clic droit sur le traîneau pour y monter, dirigez avec les touches de déplacement et sprintez tant que l'attelage a de l'endurance. L'attelage va le plus vite sur la glace, vite sur la neige, lentement sur l'herbe et la terre, et encore plus lentement sur le sable. Un attelage plus grand va plus vite et tient plus longtemps. Accroupi + clic droit sur le traîneau remet vos chiens en laisse."
 }
