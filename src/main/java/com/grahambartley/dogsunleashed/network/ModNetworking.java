@@ -3,7 +3,6 @@ package com.grahambartley.dogsunleashed.network;
 import com.grahambartley.dogsunleashed.entity.DogWheelSubActions;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
-import com.grahambartley.dogsunleashed.entity.sled.SledEntity;
 import com.grahambartley.dogsunleashed.item.WhistlePointing;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.EditServerConfigC2SPayload;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.SyncServerConfigS2CPayload;
@@ -11,6 +10,7 @@ import com.grahambartley.dogsunleashed.network.handler.DogConnectionsNetworkHand
 import com.grahambartley.dogsunleashed.network.handler.OwnerNameResolver;
 import com.grahambartley.dogsunleashed.network.handler.PetManagerNetworkHandler;
 import com.grahambartley.dogsunleashed.network.handler.ServerConfigNetworkHandler;
+import com.grahambartley.dogsunleashed.network.handler.SledNetworkHandler;
 import com.grahambartley.dogsunleashed.network.handler.WheelActionNetworkHandler;
 import com.grahambartley.dogsunleashed.network.payload.DeliverDogPayload;
 import com.grahambartley.dogsunleashed.network.payload.OpenCommandWheelPayload;
@@ -103,12 +103,7 @@ public final class ModNetworking {
     ServerPlayNetworking.registerGlobalReceiver(
         DeliverDogPayload.ID, WheelActionNetworkHandler::handleDeliverDog);
     ServerPlayNetworking.registerGlobalReceiver(
-        SledSprintPayload.ID,
-        (payload, context) -> {
-          if (context.player().getVehicle() instanceof SledEntity sled) {
-            sled.getDrive().setSprintHeld(payload.held());
-          }
-        });
+        SledSprintPayload.ID, SledNetworkHandler::handleSprint);
   }
 
   public static void sendOpenDeliveryPicker(

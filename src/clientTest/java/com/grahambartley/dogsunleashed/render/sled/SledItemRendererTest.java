@@ -4,14 +4,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.grahambartley.dogsunleashed.render.rig.ShippedRigs;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 class SledItemRendererTest {
 
-  @Test
-  @DisplayName("the sled's three block length is fitted into one block")
-  void fitsTheShippedSled() {
-    final ModelFit fit = SledItemRenderer.fitOf(ShippedRigs.model("sled"));
-    assertEquals(16.0f / 47.0f, fit.scale(), 1.0e-4f);
+  @ParameterizedTest(name = "{0}, {1} pixels at its longest")
+  @CsvSource({"sled, 47", "dog_house, 32", "rope_toy, 26", "frisbee, 16"})
+  @DisplayName("a model's longest side, rotations included, is fitted into one block")
+  void fitsTheLongestSide(final String model, final float longestPixels) {
+    final ModelFit fit = SledItemRenderer.fitOf(ShippedRigs.model(model));
+    assertEquals(16.0f / longestPixels, fit.scale(), 1.0e-4f);
   }
 }

@@ -54,11 +54,12 @@ public final class SledDrive {
 
   public @Nullable Target targetFor(final UnleashedDogEntity dog) {
     final SledTeam team = this.sled.getTeam();
-    final int index = team.indexOf(dog);
+    final int index = team.slotOf(dog);
     if (index < 0) {
       return null;
     }
-    final SledFormation.Slot slot = SledFormation.slot(index, team.size(), team.widestDog());
+    final SledFormation.Slot slot =
+        SledFormation.slot(index, team.present().size(), team.widestDog());
     final Vec3d position =
         this.sled
             .getPos()
@@ -116,7 +117,7 @@ public final class SledDrive {
       final double distance = toTeam.length();
       if (distance > MIN_FOLLOW_DISTANCE) {
         final double rest =
-            SledFormation.restDistance(this.sled.getTeam().size(), this.sled.getTeam().widestDog());
+            SledFormation.restDistance(dogs.size(), this.sled.getTeam().widestDog());
         horizontal = toTeam.multiply(SledFormation.pull(distance, rest, this.speed) / distance);
         final float towardTeam =
             (float) (MathHelper.atan2(-toTeam.x, toTeam.z) * MathHelper.DEGREES_PER_RADIAN);

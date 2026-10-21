@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.config.DireWolfStaminaSettings;
 import com.grahambartley.dogsunleashed.entity.sled.SledEntity;
+import com.grahambartley.dogsunleashed.entity.sled.SledHitchRules;
 import com.grahambartley.dogsunleashed.entity.sled.SledTeamStamina;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
@@ -54,9 +55,7 @@ public final class DogSledHarness extends DogComponent {
 
   void onRemoved(final Entity.RemovalReason reason) {
     final SledEntity hitched = this.sled();
-    if (hitched != null
-        && reason != Entity.RemovalReason.UNLOADED_TO_CHUNK
-        && reason != Entity.RemovalReason.UNLOADED_WITH_PLAYER) {
+    if (hitched != null && SledHitchRules.dropsLeadOnRemoval(reason)) {
       hitched.getTeam().dropLost(this.dog);
     }
   }

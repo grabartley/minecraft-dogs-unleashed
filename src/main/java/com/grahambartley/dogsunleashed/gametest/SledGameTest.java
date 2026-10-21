@@ -8,6 +8,7 @@ import com.grahambartley.dogsunleashed.entity.DireWolfGrowthStage;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.DogSledHarness;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.sled.SledDrive;
 import com.grahambartley.dogsunleashed.entity.sled.SledEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import com.grahambartley.dogsunleashed.gametest.util.SurvivalTestPlayer;
@@ -19,6 +20,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -38,7 +40,7 @@ public final class SledGameTest implements FabricGameTest {
   private static final float FACING_EAST = -90.0f;
   private static final Vec3d REL_SLED = new Vec3d(1.5, STAND_Y, 4.5);
   private static final Vec3d REL_PLAYER = new Vec3d(1.5, STAND_Y, 6.5);
-  private static final int RACE_TICKS = 30;
+  private static final int RACE_TICKS = 25;
 
   @GameTest(templateName = RANGE, tickLimit = 20)
   public void usingTheSledHitchesLeashedHuskiesAndGrownDireWolves(final TestContext context) {
@@ -155,6 +157,26 @@ public final class SledGameTest implements FabricGameTest {
     context.complete();
   }
 
+  @GameTest(templateName = RANGE, tickLimit = 20)
+  public void nobodyCanPutALeadOnAHitchedDog(final TestContext context) {
+    final ServerPlayerEntity owner = SurvivalTestPlayer.joinAt(context, REL_PLAYER);
+    final ServerPlayerEntity stranger = SurvivalTestPlayer.joinAt(context, REL_PLAYER);
+    final SledEntity sled = sled(context, REL_SLED);
+    final UnleashedDogEntity husky = leashedDog(context, owner, ModEntities.HUSKY, 4, 3);
+    sled.interact(owner, Hand.MAIN_HAND);
+
+    for (final ServerPlayerEntity player : List.of(owner, stranger)) {
+      player.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.LEAD));
+      husky.interact(player, Hand.MAIN_HAND);
+      context.assertFalse(husky.isLeashed(), "A hitched dog was put on a lead");
+      context.assertTrue(player.getMainHandStack().isOf(Items.LEAD), "The lead was used up");
+    }
+    context.assertTrue(sled.getTeam().size() == 1, "The dog left the team");
+    SurvivalTestPlayer.leave(context, owner);
+    SurvivalTestPlayer.leave(context, stranger);
+    context.complete();
+  }
+
   @GameTest(templateName = RANGE, tickLimit = 40)
   public void aHitchedDogThatDiesDropsItsLeadOnce(final TestContext context) {
     final ServerPlayerEntity owner = SurvivalTestPlayer.joinAt(context, REL_PLAYER);
@@ -243,6 +265,8 @@ public final class SledGameTest implements FabricGameTest {
         () -> {
           iceRider.forwardSpeed = 1.0f;
           grassRider.forwardSpeed = 1.0f;
+          walkTeamToSlots(iceSled);
+          walkTeamToSlots(grassSled);
         });
     context.runAtTick(
         RACE_TICKS,
@@ -270,7 +294,11 @@ public final class SledGameTest implements FabricGameTest {
     floor(context, 4, Blocks.SNOW_BLOCK);
     final SledEntity sled = raceTeam(context, rider, 4);
     sled.getDrive().setSprintHeld(true);
-    context.runAtEveryTick(() -> rider.forwardSpeed = 1.0f);
+    context.runAtEveryTick(
+        () -> {
+          rider.forwardSpeed = 1.0f;
+          walkTeamToSlots(sled);
+        });
     context.runAtTick(
         25,
         () -> {
@@ -305,8 +333,12 @@ public final class SledGameTest implements FabricGameTest {
     final ServerPlayerEntity rider = SurvivalTestPlayer.joinAt(context, REL_PLAYER);
     rider.setAttached(ModAttachments.SLED_SNOW_BLOCKS, 999.5);
     floor(context, 4, Blocks.SNOW_BLOCK);
-    raceTeam(context, rider, 4);
-    context.runAtEveryTick(() -> rider.forwardSpeed = 1.0f);
+    final SledEntity sled = raceTeam(context, rider, 4);
+    context.runAtEveryTick(
+        () -> {
+          rider.forwardSpeed = 1.0f;
+          walkTeamToSlots(sled);
+        });
     context.runAtTick(
         RACE_TICKS,
         () -> {
@@ -326,8 +358,19 @@ public final class SledGameTest implements FabricGameTest {
     leashedDog(context, rider, ModEntities.HUSKY, 4, lane - 1);
     leashedDog(context, rider, ModEntities.HUSKY, 4, lane + 1);
     sled.interact(rider, Hand.MAIN_HAND);
+    sled.getTeam().present().forEach(dog -> dog.setAiDisabled(true));
     rider.startRiding(sled);
     return sled;
+  }
+
+  private static void walkTeamToSlots(final SledEntity sled) {
+    for (final UnleashedDogEntity dog : sled.getTeam().present()) {
+      final SledDrive.Target target = sled.getDrive().targetFor(dog);
+      if (target != null) {
+        dog.refreshPositionAndAngles(
+            target.position().x, dog.getY(), target.position().z, dog.getYaw(), 0.0f);
+      }
+    }
   }
 
   private static void floor(final TestContext context, final int lane, final Block block) {

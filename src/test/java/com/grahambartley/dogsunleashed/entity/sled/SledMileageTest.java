@@ -20,4 +20,11 @@ class SledMileageTest {
   void add(final double before, final double blocks, final boolean snowy, final double expected) {
     assertEquals(expected, SledMileage.add(before, blocks, snowy), 1.0e-9);
   }
+
+  @ParameterizedTest(name = "{0} blocks in a tick count as {1}")
+  @CsvSource({"0.3, 0.3", "0.672, 0.672", "5.0, 0.672", "100.0, 0.672"})
+  @DisplayName("a tick never counts more than the fastest sprint, so teleports add nothing extra")
+  void capped(final double blocks, final double expected) {
+    assertEquals(expected, SledMileage.capped(blocks), 1.0e-6);
+  }
 }

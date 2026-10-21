@@ -36,13 +36,20 @@ public final class RideStaminaHud {
 
   public static boolean isShowing(final @Nullable PlayerEntity player) {
     final UnleashedDogEntity dog = RiddenDog.of(player);
-    return (dog != null && dog.getRiding().isRideableStage()) || sledOf(player) != null;
+    final SledEntity sled =
+        player != null && player.getVehicle() instanceof SledEntity riding ? riding : null;
+    return shows(
+        dog != null && dog.getRiding().isRideableStage(), sled == null ? 0 : sled.getTeam().size());
+  }
+
+  public static boolean shows(final boolean ridingRideableDog, final int sledTeamSize) {
+    return ridingRideableDog || sledTeamSize > 0;
   }
 
   private static @Nullable SledEntity sledOf(final @Nullable PlayerEntity player) {
     return player != null
             && player.getVehicle() instanceof SledEntity sled
-            && sled.getTeam().size() > 0
+            && shows(false, sled.getTeam().size())
         ? sled
         : null;
   }

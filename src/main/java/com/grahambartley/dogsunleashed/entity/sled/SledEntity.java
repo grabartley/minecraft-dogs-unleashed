@@ -140,7 +140,8 @@ public class SledEntity extends Entity implements GeoEntity {
     final Vec3d before = this.getPos();
     this.drive.tick(this.team.present(), this.rider(), this.team.canSprint());
     if (this.rider() instanceof ServerPlayerEntity player) {
-      SledMileage.record(player, this, this.getPos().subtract(before).horizontalLength());
+      SledMileage.record(
+          player, this, SledMileage.capped(this.getPos().subtract(before).horizontalLength()));
     }
     this.checkBlockCollision();
   }
@@ -153,18 +154,13 @@ public class SledEntity extends Entity implements GeoEntity {
       }
       return this.team.unhitchOwnedBy(player) > 0 ? ActionResult.CONSUME : ActionResult.PASS;
     }
-    if (this.team.hasLeashedCandidates(player)) {
+    if (this.team.hasDogsToHitch(player)) {
       if (this.getWorld().isClient) {
         return ActionResult.SUCCESS;
       }
       if (this.team.hitchLeashedDogs(player) == 0) {
         player.sendMessage(
-            Text.translatable(
-                    SledHitchRules.room(this.team.size()) == 0
-                        ? "message.dogs-unleashed.sled.full"
-                        : "message.dogs-unleashed.sled.cannot_pull")
-                .formatted(Formatting.GRAY),
-            true);
+            Text.translatable("message.dogs-unleashed.sled.full").formatted(Formatting.GRAY), true);
       }
       return ActionResult.CONSUME;
     }
@@ -249,6 +245,16 @@ public class SledEntity extends Entity implements GeoEntity {
     final Vec3d side =
         SledFormation.offset(new SledFormation.Slot(0.0, this.getWidth()), this.getYaw(), 0.0);
     return this.getPos().add(side);
+  }
+
+  @Override
+  public boolean canUsePortals(final boolean allowVehicles) {
+    return false;
+  }
+
+  @Override
+  public boolean entityDataRequiresOperator() {
+    return true;
   }
 
   @Override

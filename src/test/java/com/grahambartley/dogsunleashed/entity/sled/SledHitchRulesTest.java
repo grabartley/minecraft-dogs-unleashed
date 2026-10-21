@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.grahambartley.dogsunleashed.entity.DireWolfGrowthStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import net.minecraft.entity.Entity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -58,5 +59,18 @@ class SledHitchRulesTest {
       final double distance,
       final boolean expected) {
     assertEquals(expected, SledHitchRules.staysHitched(alive, sameOwner, leashed, distance));
+  }
+
+  @ParameterizedTest(name = "{0} -> drops lead {1}")
+  @CsvSource({
+    "KILLED, true",
+    "DISCARDED, true",
+    "CHANGED_DIMENSION, true",
+    "UNLOADED_TO_CHUNK, false",
+    "UNLOADED_WITH_PLAYER, false"
+  })
+  @DisplayName("a dog that leaves the world drops its lead, one only unloaded keeps its place")
+  void dropsLeadOnRemoval(final Entity.RemovalReason reason, final boolean expected) {
+    assertEquals(expected, SledHitchRules.dropsLeadOnRemoval(reason));
   }
 }

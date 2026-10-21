@@ -516,6 +516,11 @@ public class UnleashedDogEntity extends DogMountEntity
   }
 
   @Override
+  public boolean canBeLeashed() {
+    return super.canBeLeashed() && !this.components.get(DogSledHarness.class).isHitched();
+  }
+
+  @Override
   public boolean isFireImmune() {
     return super.isFireImmune() || this.pendants.isFireImmune();
   }

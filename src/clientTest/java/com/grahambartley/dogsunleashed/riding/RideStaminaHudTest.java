@@ -21,4 +21,12 @@ class RideStaminaHudTest {
   void shownFraction(final float charge, final float stamina, final float expected) {
     assertEquals(expected, RideStaminaHud.shownFraction(charge, stamina));
   }
+
+  @ParameterizedTest(name = "rideable dog {0}, sled team {1} -> {2}")
+  @CsvSource({"true,0,true", "false,0,false", "false,1,true", "false,6,true", "true,3,true"})
+  @DisplayName(
+      "the bar shows on a rideable dog or a sled with dogs hitched, never on an empty sled")
+  void shows(final boolean rideableDog, final int sledTeam, final boolean expected) {
+    assertEquals(expected, RideStaminaHud.shows(rideableDog, sledTeam));
+  }
 }

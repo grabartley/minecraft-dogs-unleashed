@@ -63,6 +63,10 @@ public final class SledTeam {
     return this.indexOf(dog) >= 0;
   }
 
+  public int slotOf(final UnleashedDogEntity dog) {
+    return this.present.indexOf(dog);
+  }
+
   public int indexOf(final UnleashedDogEntity dog) {
     for (int index = 0; index < this.pullers.size(); index++) {
       if (this.pullers.get(index).dog().equals(dog.getUuid())) {
@@ -103,11 +107,14 @@ public final class SledTeam {
     return hitched;
   }
 
-  public boolean hasLeashedCandidates(final PlayerEntity player) {
+  public boolean hasDogsToHitch(final PlayerEntity player) {
     final Box reach = this.sled.getBoundingBox().expand(SledHitchRules.LEAD_REACH);
     return !this.sled
         .getWorld()
-        .getEntitiesByClass(UnleashedDogEntity.class, reach, dog -> dog.getLeashHolder() == player)
+        .getEntitiesByClass(
+            UnleashedDogEntity.class,
+            reach,
+            dog -> dog.getLeashHolder() == player && this.canPull(dog, player))
         .isEmpty();
   }
 
@@ -276,7 +283,9 @@ public final class SledTeam {
   }
 
   private boolean canPull(final UnleashedDogEntity dog, final PlayerEntity player) {
-    return dog.isTamed()
+    return this.indexOf(dog) < 0
+        && !dog.getComponents().get(DogSledHarness.class).isHitched()
+        && dog.isTamed()
         && dog.isOwner(player)
         && dog.isAlive()
         && SledHitchRules.canPull(dog.getBreed(), dog.isBaby(), dog.getGrowth().stage());

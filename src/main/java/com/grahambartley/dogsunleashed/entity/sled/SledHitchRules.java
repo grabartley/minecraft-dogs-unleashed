@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.entity.sled;
 
 import com.grahambartley.dogsunleashed.entity.DireWolfGrowthStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import net.minecraft.entity.Entity;
 
 public final class SledHitchRules {
 
@@ -17,6 +18,11 @@ public final class SledHitchRules {
       case DIRE_WOLF -> stage.number() >= DireWolfGrowthStage.ADULT.number();
       default -> false;
     };
+  }
+
+  public static boolean dropsLeadOnRemoval(final Entity.RemovalReason reason) {
+    return reason != Entity.RemovalReason.UNLOADED_TO_CHUNK
+        && reason != Entity.RemovalReason.UNLOADED_WITH_PLAYER;
   }
 
   public static int room(final int teamSize) {
