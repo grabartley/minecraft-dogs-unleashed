@@ -33,11 +33,15 @@ class SleepClipLatchTest {
             List.of("sleep_2", "", "sleep_3")),
         Arguments.of(
             "keeps the pick across a short gap between rendered frames",
-            List.of(new Frame(100, true, "sleep_2"), new Frame(140, true, "sleep")),
+            List.of(
+                new Frame(100, true, "sleep_2"),
+                new Frame(100 + SleepClipLatch.STALE_TICKS, true, "sleep")),
             List.of("sleep_2", "sleep_2")),
         Arguments.of(
             "picks again after the dog was off screen for a while",
-            List.of(new Frame(100, true, "sleep_2"), new Frame(141, true, "sleep")),
+            List.of(
+                new Frame(100, true, "sleep_2"),
+                new Frame(101 + SleepClipLatch.STALE_TICKS, true, "sleep")),
             List.of("sleep_2", "sleep")),
         Arguments.of(
             "picks again when the clock jumps back",

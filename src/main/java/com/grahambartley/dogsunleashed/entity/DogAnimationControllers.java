@@ -31,8 +31,8 @@ public final class DogAnimationControllers {
                     RawAnimation.begin()
                         .thenLoop(
                             sleepClip.hold(
-                                dog.getWorld().getTime(),
-                                () -> RigSleepClips.shared().clipOf(dog))));
+                                state.getAnimatable().getWorld().getTime(),
+                                () -> RigSleepClips.shared().clipOf(state.getAnimatable()))));
               }
               sleepClip.release();
               if (state.getAnimatable().isInSittingPose()) {

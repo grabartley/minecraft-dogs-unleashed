@@ -43,20 +43,24 @@ class RigSleepClipsTest {
     assertEquals(expected, new RigSleepClips().variantsOf(loadedAnimations, RIG));
   }
 
-  @ParameterizedTest(name = "reloaded {0}")
-  @CsvSource({"false", "true"})
-  @DisplayName("the same file is served from memory, a reloaded file is read again")
-  void reload(final boolean reloaded) {
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("loaded")
+  @DisplayName("the same loaded file is served from memory")
+  void cached(final Map<Identifier, BakedAnimations> loadedAnimations, final List<String> ignored) {
     final RigSleepClips rigClips = new RigSleepClips();
-    final BakedAnimations first = clips("sleep");
-    final List<String> before = rigClips.variantsOf(Map.of(RIG, first), RIG);
-    final BakedAnimations next = reloaded ? clips("sleep", "sleep_2") : first;
-    final List<String> after = rigClips.variantsOf(Map.of(RIG, next), RIG);
-    if (reloaded) {
-      assertEquals(List.of("sleep", "sleep_2"), after);
-    } else {
-      assertSame(before, after);
-    }
+    assertSame(
+        rigClips.variantsOf(loadedAnimations, RIG), rigClips.variantsOf(loadedAnimations, RIG));
+  }
+
+  @ParameterizedTest(name = "{0} then {1}")
+  @CsvSource({"sleep,sleep sleep_2", "sleep sleep_2,sleep", "idle,sleep sleep_3"})
+  @DisplayName("a reloaded animation file is read again")
+  void reloaded(final String before, final String after) {
+    final RigSleepClips rigClips = new RigSleepClips();
+    rigClips.variantsOf(Map.of(RIG, clips(before.split(" "))), RIG);
+    assertEquals(
+        SleepClipRules.variantsOf(List.of(after.split(" "))),
+        rigClips.variantsOf(Map.of(RIG, clips(after.split(" "))), RIG));
   }
 
   private static BakedAnimations clips(final String... names) {
