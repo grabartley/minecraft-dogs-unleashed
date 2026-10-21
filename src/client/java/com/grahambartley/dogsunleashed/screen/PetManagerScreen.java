@@ -473,7 +473,7 @@ public class PetManagerScreen extends Screen {
     return false;
   }
 
-  private enum BreedFilterOption {
+  enum BreedFilterOption {
     ALL(null),
     HUSKY(UnleashedDogBreed.HUSKY),
     DACHSHUND(UnleashedDogBreed.DACHSHUND),
