@@ -33,7 +33,10 @@ public final class TraderCostumeOffer implements TradeOffers.Factory {
   }
 
   public static int priceOf(final World world, final Item costume) {
-    return CostumeTradePrice.emeralds(CostumeRecipeIngredients.tiersOf(world, costume));
+    return CostumeRecipeIngredients.recipesOf(world, costume).stream()
+        .mapToInt(CostumeTradePrice::emeralds)
+        .min()
+        .orElse(CostumeTradePrice.emeralds(List.of()));
   }
 
   private static List<Item> costumes() {

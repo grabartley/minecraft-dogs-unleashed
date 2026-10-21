@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.trade;
 
 import com.grahambartley.dogsunleashed.ModItemTags;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -16,24 +17,26 @@ public final class CostumeRecipeIngredients {
 
   private CostumeRecipeIngredients() {}
 
-  public static List<CostumeTradePrice.Tier> tiersOf(final World world, final Item costume) {
-    return ingredientsOf(world, costume).stream().map(CostumeRecipeIngredients::tierOf).toList();
-  }
-
-  private static Set<Item> ingredientsOf(final World world, final Item costume) {
+  public static List<List<CostumeTradePrice.Tier>> recipesOf(
+      final World world, final Item costume) {
+    final List<List<CostumeTradePrice.Tier>> recipes = new ArrayList<>();
     for (final RecipeEntry<?> entry : world.getRecipeManager().values()) {
       if (entry.value().getResult(world.getRegistryManager()).isOf(costume)) {
-        final Set<Item> items = new LinkedHashSet<>();
-        for (final Ingredient ingredient : entry.value().getIngredients()) {
-          Arrays.stream(ingredient.getMatchingStacks())
-              .findFirst()
-              .map(ItemStack::getItem)
-              .ifPresent(items::add);
-        }
-        return items;
+        recipes.add(ingredientsOf(entry).stream().map(CostumeRecipeIngredients::tierOf).toList());
       }
     }
-    return Set.of();
+    return recipes;
+  }
+
+  private static Set<Item> ingredientsOf(final RecipeEntry<?> entry) {
+    final Set<Item> items = new LinkedHashSet<>();
+    for (final Ingredient ingredient : entry.value().getIngredients()) {
+      Arrays.stream(ingredient.getMatchingStacks())
+          .findFirst()
+          .map(ItemStack::getItem)
+          .ifPresent(items::add);
+    }
+    return items;
   }
 
   private static CostumeTradePrice.Tier tierOf(final Item ingredient) {

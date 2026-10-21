@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.gametest;
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModItemTags;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
+import com.grahambartley.dogsunleashed.trade.RareTraderOffer;
 import com.grahambartley.dogsunleashed.trade.TraderCostumeOffer;
 import com.grahambartley.dogsunleashed.trade.TraderPuppyOffer;
 import java.util.Arrays;
@@ -53,7 +54,7 @@ public final class TraderCostumeOfferGameTest implements FabricGameTest {
   @GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 20)
   public void theRareTraderPoolHoldsOneCostumeOfferBesideThePuppyBasket(final TestContext context) {
     final TradeOffers.Factory[] pool =
-        TradeOffers.WANDERING_TRADER_TRADES.get(TraderPuppyOffer.RARE_POOL);
+        TradeOffers.WANDERING_TRADER_TRADES.get(RareTraderOffer.RARE_POOL);
     final long costumes = Arrays.stream(pool).filter(TraderCostumeOffer.class::isInstance).count();
     final long baskets = Arrays.stream(pool).filter(TraderPuppyOffer.class::isInstance).count();
     context.assertTrue(

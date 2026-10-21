@@ -21,10 +21,10 @@ class RareTraderOfferTest {
 
   static Stream<Arguments> soldItems() {
     return Stream.of(
-        Arguments.of(ModItems.PUPPY_BASKET, 12),
-        Arguments.of(ModCostumeItems.of(DogCostume.SHEEP), 3),
-        Arguments.of(ModCostumeItems.of(DogCostume.ENDER_DRAGON), 13),
-        Arguments.of(ModCostumeItems.of(DogCostume.WARDEN), 64));
+        Arguments.of(ModItems.PUPPY_BASKET, 1),
+        Arguments.of(ModItems.PUPPY_BASKET, 64),
+        Arguments.of(ModCostumeItems.of(DogCostume.SHEEP), 1),
+        Arguments.of(ModCostumeItems.of(DogCostume.SHEEP), 64));
   }
 
   @ParameterizedTest
@@ -36,5 +36,7 @@ class RareTraderOfferTest {
     assertEquals(sold, offer.getSellItem().getItem());
     assertEquals(1, offer.getSellItem().getCount());
     assertEquals(1, offer.getMaxUses());
+    assertEquals(1, offer.getMerchantExperience());
+    assertEquals(0.05F, offer.getPriceMultiplier());
   }
 }

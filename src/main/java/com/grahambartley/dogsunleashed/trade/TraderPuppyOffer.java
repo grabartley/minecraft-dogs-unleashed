@@ -14,12 +14,11 @@ import org.jetbrains.annotations.Nullable;
 
 public final class TraderPuppyOffer implements TradeOffers.Factory {
 
-  public static final int RARE_POOL = RareTraderOffer.RARE_POOL;
   public static final int PRICE_EMERALDS = 12;
 
   public static void register() {
     TradeOfferHelper.registerWanderingTraderOffers(
-        RARE_POOL, factories -> factories.add(new TraderPuppyOffer()));
+        RareTraderOffer.RARE_POOL, factories -> factories.add(new TraderPuppyOffer()));
   }
 
   @Override
@@ -34,7 +33,8 @@ public final class TraderPuppyOffer implements TradeOffers.Factory {
   }
 
   private static List<TradeOffers.Factory> otherRareOffers() {
-    final TradeOffers.Factory[] pool = TradeOffers.WANDERING_TRADER_TRADES.get(RARE_POOL);
+    final TradeOffers.Factory[] pool =
+        TradeOffers.WANDERING_TRADER_TRADES.get(RareTraderOffer.RARE_POOL);
     if (pool == null) {
       return List.of();
     }
