@@ -35,11 +35,12 @@ animated. You can tame them, give them commands, play fetch, put them to bed, an
 | **Golden Retriever** | Beaches                                   | 1, the classic golden     |
 | **Shiba Inu**        | Cherry groves                             | 3: red, black and sesame  |
 | **Dire Wolf**        | Packs in the coldest peaks and ice fields | 6, from smoke grey to albino white |
-| **German Shepherd**  | Savannas, sparse jungles and windswept hills | 3: saddle, sable and black |
+| **German Shepherd**  | Savannas, sparse jungles, windswept hills | 3: saddle, sable and black |
 | **Border Collie**    | Meadows, plains and windswept hills       | 3: black and white, red merle and blue merle |
 
-Breeds differ in size, health, speed and bite. German Shepherds hold a grudge longer, and sheep scatter from a Border Collie. Some coats are rarer than others. Friendly strays also wander into
-villages, and the wandering trader sometimes sells a puppy in a basket.
+Breeds differ in size, health, speed and bite. German Shepherds hold a grudge longer, and sheep scatter from a
+Border Collie. Some coats are rarer than others. Friendly strays also wander into villages, and the wandering trader
+sometimes sells a puppy in a basket.
 
 The dire wolf is the rare one. It roams the coldest peaks in packs that hunt together and never forgive a player who
 hurts one of them. Earn a pup's trust and it grows into a wolf the size of a horse that you can ride.

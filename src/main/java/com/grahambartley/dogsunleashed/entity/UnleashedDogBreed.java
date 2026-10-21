@@ -6,6 +6,7 @@ import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Supplier;
+import net.minecraft.SharedConstants;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.mob.MobEntity;
@@ -420,10 +421,9 @@ public enum UnleashedDogBreed {
     public static final int ORDINARY_SCENT_RANGE = 32;
     public static final Nature ORDINARY =
         new Nature(3, false, false, true, false, false, ORDINARY_SCENT_RANGE, 0, false);
-    private static final int TICKS_PER_SECOND = 20;
 
     public int angerTicksFrom(final int baseTicks) {
-      return baseTicks + extraAngerSeconds * TICKS_PER_SECOND;
+      return baseTicks + extraAngerSeconds * SharedConstants.TICKS_PER_SECOND;
     }
 
     public Nature breedingOnlyWithOwnBreed() {

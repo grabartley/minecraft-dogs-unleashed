@@ -55,7 +55,9 @@ class HeadTopLocatorTest {
     "DIRE_WOLF, 2",
     "GOLDEN_RETRIEVER, 0",
     "BEAGLE, 0",
-    "DACHSHUND, 0"
+    "DACHSHUND, 0",
+    "GERMAN_SHEPHERD, 2",
+    "BORDER_COLLIE, 0"
   })
   @DisplayName("pointed ears rise above the crown and drop ears do not")
   void pointedEarsRise(final UnleashedDogBreed rig, final int rising) {

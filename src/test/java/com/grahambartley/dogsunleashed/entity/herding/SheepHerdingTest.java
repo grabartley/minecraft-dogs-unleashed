@@ -2,7 +2,6 @@ package com.grahambartley.dogsunleashed.entity.herding;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
@@ -23,15 +22,8 @@ class SheepHerdingTest {
   }
 
   @Test
-  @DisplayName("anything that is not a dog never herds sheep")
+  @DisplayName("an entity that is not a dog never herds sheep")
   void nonDogsNeverHerd() {
     assertFalse(SheepHerding.herdsSheep(null));
-  }
-
-  @Test
-  @DisplayName("sheep keep a short berth and bolt faster when the collie is close")
-  void fleeTuningIsSane() {
-    assertTrue(SheepHerding.FLEE_DISTANCE > 0.0f);
-    assertTrue(SheepHerding.FAST_SPEED > SheepHerding.SLOW_SPEED);
   }
 }

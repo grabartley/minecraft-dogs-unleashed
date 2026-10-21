@@ -23,7 +23,15 @@ class ArmourFitTest {
   @ParameterizedTest(name = "{0}")
   @EnumSource(
       value = UnleashedDogBreed.class,
-      names = {"HUSKY", "BEAGLE", "DACHSHUND", "SHIBA_INU", "GOLDEN_RETRIEVER"})
+      names = {
+        "HUSKY",
+        "BEAGLE",
+        "DACHSHUND",
+        "SHIBA_INU",
+        "GOLDEN_RETRIEVER",
+        "GERMAN_SHEPHERD",
+        "BORDER_COLLIE"
+      })
   @DisplayName("every breed with its own rig has torso bones for armour")
   void everyRigHasATorso(final UnleashedDogBreed breed) {
     assertFalse(ArmourFit.torsoBones(breed).isEmpty());
@@ -61,7 +69,9 @@ class ArmourFitTest {
         Arguments.of(UnleashedDogBreed.DACHSHUND, List.of("torso#0", "torso#1", "bunda#0")),
         Arguments.of(UnleashedDogBreed.BEAGLE, List.of("bone#0", "Torso#0")),
         Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, List.of("bone#0", "Torso#0", "Torso#1")),
-        Arguments.of(UnleashedDogBreed.SHIBA_INU, List.of("bone#0", "Torso#0")));
+        Arguments.of(UnleashedDogBreed.SHIBA_INU, List.of("bone#0", "Torso#0")),
+        Arguments.of(UnleashedDogBreed.GERMAN_SHEPHERD, List.of("bone#0", "Torso#0")),
+        Arguments.of(UnleashedDogBreed.BORDER_COLLIE, List.of("bone#0", "Torso#0")));
   }
 
   @ParameterizedTest(name = "{0}")
