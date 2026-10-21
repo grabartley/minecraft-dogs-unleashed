@@ -18,7 +18,8 @@ class CarriedToyTest {
   private static final float PIXELS_PER_BLOCK = 16f;
 
   static Stream<Arguments> toysInDogsOfEverySize() {
-    return Stream.of(CarriedToy.TENNIS_BALL, CarriedToy.FRISBEE, CarriedToy.STICK)
+    return Stream.of(
+            CarriedToy.TENNIS_BALL, CarriedToy.FRISBEE, CarriedToy.STICK, CarriedToy.ROPE_TOY)
         .flatMap(
             toy ->
                 Stream.of(

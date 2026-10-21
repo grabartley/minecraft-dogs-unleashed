@@ -95,7 +95,7 @@ public final class DogTug extends DogComponent {
       return;
     }
     if (this.state.keepingAway()) {
-      if (this.state.isKeepAwayOver(this.now())) {
+      if (this.state.isKeepAwayOver(this.now()) || this.dog.hurtTime > 0) {
         this.clear();
       }
       return;
@@ -220,7 +220,8 @@ public final class DogTug extends DogComponent {
         this.dog.hasPassengers()
             || this.dog.hasVehicle()
             || this.dog.getComponents().get(DogSledHarness.class).isHitched(),
-        this.dog.isOnGround());
+        this.dog.isOnGround(),
+        this.dog.hurtTime > 0);
   }
 
   private long now() {

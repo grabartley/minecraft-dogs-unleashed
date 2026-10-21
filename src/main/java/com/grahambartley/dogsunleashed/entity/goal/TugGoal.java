@@ -54,7 +54,7 @@ public class TugGoal extends Goal {
       return;
     }
     this.dog.getLookControl().lookAt(player);
-    if (!state.keepingAway()) {
+    if (!this.tug().isKeepingAway()) {
       this.dog.getNavigation().stop();
       return;
     }

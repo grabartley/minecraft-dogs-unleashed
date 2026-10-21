@@ -20,10 +20,17 @@ public class FittedGeoItemRenderer<T extends Item & GeoItem>
     implements BuiltinItemRendererRegistry.DynamicItemRenderer {
 
   private final Supplier<GeoModel<T>> model;
+  private final Fitter fitter;
   private FittedRenderer<T> renderer;
 
-  public FittedGeoItemRenderer(final Supplier<GeoModel<T>> model) {
+  public FittedGeoItemRenderer(final Supplier<GeoModel<T>> model, final Fitter fitter) {
     this.model = model;
+    this.fitter = fitter;
+  }
+
+  @FunctionalInterface
+  public interface Fitter {
+    ModelFit fit(Vector3f min, Vector3f max);
   }
 
   @Override
@@ -35,19 +42,19 @@ public class FittedGeoItemRenderer<T extends Item & GeoItem>
       final int light,
       final int overlay) {
     if (this.renderer == null) {
-      this.renderer = new FittedRenderer<>(this.model.get());
+      this.renderer = new FittedRenderer<>(this.model.get(), this.fitter);
     }
     this.renderer.render(stack, mode, matrices, vertexConsumers, light, overlay);
   }
 
-  static ModelFit fitOf(final BakedGeoModel model) {
+  static ModelFit fitOf(final BakedGeoModel model, final Fitter fitter) {
     final CubeGeometry.Bounds bounds = new CubeGeometry.Bounds();
     for (final GeoBone bone : model.topLevelBones()) {
       include(bounds, bone);
     }
     return bounds.isEmpty()
         ? new ModelFit(1.0f, new Vector3f(0.5f, 0.0f, 0.5f))
-        : ModelFit.intoBlock(bounds.min(), bounds.max());
+        : fitter.fit(bounds.min(), bounds.max());
   }
 
   private static void include(final CubeGeometry.Bounds bounds, final GeoBone bone) {
@@ -63,11 +70,13 @@ public class FittedGeoItemRenderer<T extends Item & GeoItem>
 
   private static final class FittedRenderer<T extends Item & GeoItem> extends GeoItemRenderer<T> {
 
+    private final Fitter fitter;
     private BakedGeoModel fittedModel;
     private ModelFit fit;
 
-    FittedRenderer(final GeoModel<T> model) {
+    FittedRenderer(final GeoModel<T> model, final Fitter fitter) {
       super(model);
+      this.fitter = fitter;
     }
 
     @Override
@@ -98,7 +107,7 @@ public class FittedGeoItemRenderer<T extends Item & GeoItem>
       }
       if (this.fittedModel != model) {
         this.fittedModel = model;
-        this.fit = fitOf(model);
+        this.fit = fitOf(model, this.fitter);
       }
       poseStack.translate(-0.5f, -0.51f, -0.5f);
       final Vector3f offset = this.fit.offset();

@@ -9,7 +9,7 @@ public final class TugRules {
   public static final int RHYTHM_MIN_GAP_TICKS = 5;
   public static final int RHYTHM_MAX_GAP_TICKS = 12;
   public static final double RHYTHM_PULL = 0.18;
-  public static final double RUSHED_PULL = 0.04;
+  public static final double RUSHED_PULL = 0.0;
   public static final double LATE_PULL = 0.08;
   public static final double BASE_DOG_PULL = 0.004;
   public static final double PULL_PER_HEALTH = 0.0004;
@@ -33,7 +33,8 @@ public final class TugRules {
       boolean playingFetch,
       boolean sleeping,
       boolean ridden,
-      boolean onGround) {
+      boolean onGround,
+      boolean hurt) {
 
     public boolean mayStart() {
       return this.owner
@@ -42,7 +43,8 @@ public final class TugRules {
           && !this.playingFetch
           && !this.sleeping
           && !this.ridden
-          && this.onGround;
+          && this.onGround
+          && !this.hurt;
     }
   }
 

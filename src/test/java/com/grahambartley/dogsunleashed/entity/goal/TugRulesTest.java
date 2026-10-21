@@ -16,8 +16,8 @@ class TugRulesTest {
   private static final double EPSILON = 1.0e-9;
 
   @ParameterizedTest(name = "{0} ticks since the last pull -> {1}")
-  @CsvSource({"0, 0.04", "4, 0.04", "5, 0.18", "8, 0.18", "12, 0.18", "13, 0.08", "200, 0.08"})
-  @DisplayName("a pull in a steady rhythm counts most, mashing or a slow pull counts less")
+  @CsvSource({"0, 0.0", "4, 0.0", "5, 0.18", "8, 0.18", "12, 0.18", "13, 0.08", "200, 0.08"})
+  @DisplayName("a pull in a steady rhythm counts most, a slow pull less and mashing not at all")
   void playerPullRewardsRhythm(final long gap, final double expected) {
     assertEquals(expected, TugRules.playerPull(gap), EPSILON);
   }
@@ -95,22 +95,36 @@ class TugRulesTest {
 
   static Stream<Arguments> readiness() {
     return Stream.of(
-        Arguments.of("ready", new Readiness(true, false, false, false, false, false, true), true),
         Arguments.of(
-            "not the owner", new Readiness(false, false, false, false, false, false, true), false),
+            "ready", new Readiness(true, false, false, false, false, false, true, false), true),
         Arguments.of(
-            "sneaking", new Readiness(true, true, false, false, false, false, true), false),
-        Arguments.of(
-            "already carrying", new Readiness(true, false, true, false, false, false, true), false),
-        Arguments.of(
-            "playing fetch", new Readiness(true, false, false, true, false, false, true), false),
-        Arguments.of("asleep", new Readiness(true, false, false, false, true, false, true), false),
-        Arguments.of(
-            "ridden or hitched",
-            new Readiness(true, false, false, false, false, true, true),
+            "not the owner",
+            new Readiness(false, false, false, false, false, false, true, false),
             false),
         Arguments.of(
-            "in the air", new Readiness(true, false, false, false, false, false, false), false));
+            "sneaking", new Readiness(true, true, false, false, false, false, true, false), false),
+        Arguments.of(
+            "already carrying",
+            new Readiness(true, false, true, false, false, false, true, false),
+            false),
+        Arguments.of(
+            "playing fetch",
+            new Readiness(true, false, false, true, false, false, true, false),
+            false),
+        Arguments.of(
+            "asleep", new Readiness(true, false, false, false, true, false, true, false), false),
+        Arguments.of(
+            "ridden or hitched",
+            new Readiness(true, false, false, false, false, true, true, false),
+            false),
+        Arguments.of(
+            "in the air",
+            new Readiness(true, false, false, false, false, false, false, false),
+            false),
+        Arguments.of(
+            "just hurt",
+            new Readiness(true, false, false, false, false, false, true, true),
+            false));
   }
 
   @ParameterizedTest(name = "{0} -> {2}")

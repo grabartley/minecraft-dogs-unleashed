@@ -23,6 +23,7 @@ import com.grahambartley.dogsunleashed.render.FittedGeoItemRenderer;
 import com.grahambartley.dogsunleashed.render.FrisbeeBlockEntityRenderer;
 import com.grahambartley.dogsunleashed.render.FrisbeeItemRenderer;
 import com.grahambartley.dogsunleashed.render.FrisbeeProjectileRenderer;
+import com.grahambartley.dogsunleashed.render.ModelFit;
 import com.grahambartley.dogsunleashed.render.StickBlockEntityRenderer;
 import com.grahambartley.dogsunleashed.render.StickProjectileRenderer;
 import com.grahambartley.dogsunleashed.render.TennisBallBlockEntityRenderer;
@@ -133,9 +134,10 @@ public class DogsUnleashedClient implements ClientModInitializer {
     BuiltinItemRendererRegistry.INSTANCE.register(
         ModItems.DOG_WHISTLE, new DogWhistleItemRenderer());
     BuiltinItemRendererRegistry.INSTANCE.register(
-        ModItems.SLED, new FittedGeoItemRenderer<SledItem>(SledModel::new));
+        ModItems.SLED, new FittedGeoItemRenderer<SledItem>(SledModel::new, ModelFit::intoBlock));
     BuiltinItemRendererRegistry.INSTANCE.register(
-        ModItems.ROPE_TOY, new FittedGeoItemRenderer<RopeToyItem>(RopeToyModel::new));
+        ModItems.ROPE_TOY,
+        new FittedGeoItemRenderer<RopeToyItem>(RopeToyModel::new, ModelFit::acrossBlock));
 
     LivingEntityFeatureRendererRegistrationCallback.EVENT.register(
         (entityType, renderer, helper, context) -> {
