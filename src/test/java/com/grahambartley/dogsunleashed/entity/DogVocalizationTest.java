@@ -12,6 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -31,6 +32,18 @@ class DogVocalizationTest {
   void puppyBarksAtRaisedPitch() {
     assertEquals(BARK_PITCH * PUPPY_BARK_PITCH_MULTIPLIER, DogVocalization.barkPitch(true));
     assertTrue(DogVocalization.barkPitch(true) > DogVocalization.barkPitch(false));
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "true, false, true",
+    "true, true, false",
+    "false, false, false",
+    "false, true, false"
+  })
+  @DisplayName("a living dog with an alert sound warns of intruders whatever its bark cooldown")
+  void alertReadiness(final boolean hasAlertSound, final boolean dead, final boolean ready) {
+    assertEquals(ready, DogVocalization.isAlertReady(hasAlertSound, dead));
   }
 
   static Stream<Arguments> barkReadiness() {

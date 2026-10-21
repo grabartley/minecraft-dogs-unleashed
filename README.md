@@ -83,6 +83,7 @@ another player, even in another dimension, then trot back home to you.
 - **Play fetch.** Throw a stick, a tennis ball or a frisbee. Your dog chases it, picks it up and brings it back to you.
 Give a roaming or staying dog a bone and it buries it, then digs it up a few days later and brings it back, sometimes
 with a find. Foxes sneak in at night to steal buried bones, and a dog nearby barks and chases them off.
+Dogs bark at pillagers too, and earn a rosette for helping you win a raid.
 The more time you spend together, the closer your dog grows, from Stranger to Devoted.
 - **Give them a bed.** Craft a dog bed or a dog house in any colour and assign it. Your dog goes to bed by itself at
 night. Dire wolves are too big for either and nap on the ground instead, once by day and once by night.
@@ -91,7 +92,7 @@ the food bowl topped up.
 - **Kit them out.** Open their gear from the command wheel. Craft them armour from leather, iron, gold, diamond or netherite, or use wolf armour. Your tamed wolves can wear it too. It takes hits for them, cracks as it wears, and mends with its own material. Dye leather armour and their collar any colour, and feed them treats for a short speed and damage boost. Hang a pendant on their collar to keep a mob family away from you both, shield them from fire, falls or drowning, heal you while they're near, or save them from death once. Dress them up in a hat, a bandana, a bow, a mob head or a carved pumpkin, or put them in one of seventeen mob costumes, from a spider or a creeper to an ender dragon. Dye the sheep costume any colour. Saddlebags let them carry things for you.
 - **Keep them groomed.** Coats grow out over time, and a long coat slows a dog down. Trim it with shears to collect dog fur. Go
 carefully, or your dog ends up with a bad hair day until it grows back.
-- **Never lose them.** Dogs on Follow or Heel come with you through portals and long teleports. The rest stay where you left them. If you die, they guard your things and call out when you're back. They bark when pillagers come near, and a dog that helps you win a raid earns a rosette. Bind a dog whistle to call one from anywhere, or open the
+- **Never lose them.** Dogs on Follow or Heel come with you through portals and long teleports. The rest stay where you left them. If you die, they guard your things and call out when you're back. Bind a dog whistle to call one from anywhere, or open the
 Pet Manager to see and summon your whole pack.
 - **Raise a family.** Any two living tamed dogs can have puppies, and mixed parents give a mixed breed puppy. Dire wolves only breed with dire wolves. Puppies inherit
 their parents' coat and eye genes, so two parents can carry a rare coat and pass it on. Every dog has a family tree you can explore.

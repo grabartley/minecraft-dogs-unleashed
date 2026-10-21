@@ -22,8 +22,4 @@ public final class RaidDutyRules {
     }
     return ended ? Outcome.FORGET : Outcome.PENDING;
   }
-
-  public static boolean wearsRosette(final boolean cosmeticSlotEmpty) {
-    return cosmeticSlotEmpty;
-  }
 }

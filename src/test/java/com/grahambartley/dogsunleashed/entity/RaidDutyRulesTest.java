@@ -30,10 +30,4 @@ class RaidDutyRulesTest {
       final boolean won, final boolean ended, final RaidDutyRules.Outcome outcome) {
     assertEquals(outcome, RaidDutyRules.outcome(won, ended));
   }
-
-  @ParameterizedTest
-  @CsvSource({"true, true", "false, false"})
-  void theRosetteIsWornOnlyWhenTheCosmeticSlotIsFree(final boolean slotEmpty, final boolean wears) {
-    assertEquals(wears, RaidDutyRules.wearsRosette(slotEmpty));
-  }
 }

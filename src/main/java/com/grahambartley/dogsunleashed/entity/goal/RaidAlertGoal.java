@@ -25,7 +25,7 @@ public class RaidAlertGoal extends Goal {
     if (!this.listens() || this.scanCooldown-- > 0) {
       return false;
     }
-    this.scanCooldown = RaidAlertRules.SCAN_INTERVAL_TICKS;
+    this.scanCooldown = Goal.toGoalTicks(RaidAlertRules.SCAN_INTERVAL_TICKS);
     this.intruder = this.nearestIntruder();
     return this.intruder != null;
   }
@@ -55,6 +55,10 @@ public class RaidAlertGoal extends Goal {
     }
     this.dog.getLookControl().lookAt(this.intruder);
     if (this.barkCooldown-- <= 0) {
+      final RaiderEntity nearest = this.nearestIntruder();
+      if (nearest != null) {
+        this.intruder = nearest;
+      }
       this.dog.getVocalization().alertBark();
       this.barkCooldown = RaidAlertRules.REPEAT_TICKS;
     }

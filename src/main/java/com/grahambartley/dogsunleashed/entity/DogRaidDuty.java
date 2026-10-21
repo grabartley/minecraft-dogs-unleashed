@@ -48,13 +48,13 @@ public final class DogRaidDuty extends DogComponent {
     }
   }
 
-  public void rewardVictory() {
+  private void rewardVictory() {
     if (this.dog.getOwner() instanceof ServerPlayerEntity owner) {
       DogDefendedVillageCriterion.INSTANCE.trigger(owner);
     }
     final ItemStack rosette = new ItemStack(ModCosmeticItems.of(DogCosmetic.ROSETTE));
     final DogEquipmentHolder equipment = this.dog.getEquipmentHolder();
-    if (RaidDutyRules.wearsRosette(equipment.getStack(DogEquipmentSlot.COSMETIC).isEmpty())) {
+    if (equipment.getStack(DogEquipmentSlot.COSMETIC).isEmpty()) {
       equipment.setStack(DogEquipmentSlot.COSMETIC, rosette);
     } else {
       this.dog.dropStack(rosette);

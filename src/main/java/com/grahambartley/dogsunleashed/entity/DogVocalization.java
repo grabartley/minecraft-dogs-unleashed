@@ -51,6 +51,10 @@ public final class DogVocalization {
     return hasBarkSound && !dead && !sleepingInBed && barkCooldownTicks <= 0;
   }
 
+  public static boolean isAlertReady(final boolean hasAlertSound, final boolean dead) {
+    return hasAlertSound && !dead;
+  }
+
   public static boolean hasBarkTrigger(
       final boolean playerHoldingLure,
       final float health,
@@ -141,7 +145,7 @@ public final class DogVocalization {
 
   public void alertBark() {
     final SoundEvent sound = this.alertSound();
-    if (sound != null && !this.dog.isDead()) {
+    if (isAlertReady(sound != null, this.dog.isDead())) {
       this.playBark(sound, this.getBarkPitch(), DogsUnleashed.SERVER_CONFIG.sound().barkVolume());
     }
   }
