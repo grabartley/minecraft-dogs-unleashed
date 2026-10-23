@@ -22,7 +22,7 @@ import software.bernie.geckolib.renderer.GeoBlockRenderer;
 
 public class DogGraveBlockEntityRenderer extends GeoBlockRenderer<DogGraveBlockEntity> {
 
-  private static final float GRAVE_SCALE = 1.285f;
+  static final float GRAVE_SCALE = 1.285f;
   private static final float NAME_TAG_HEIGHT = 1.32f;
   private static final float NAME_TAG_TEXT_SCALE = 0.025f;
   private static final ItemStack TOTEM_STACK = new ItemStack(Items.TOTEM_OF_UNDYING);
@@ -51,8 +51,7 @@ public class DogGraveBlockEntityRenderer extends GeoBlockRenderer<DogGraveBlockE
       int packedOverlay,
       int colour) {
     if (!isReRender) {
-      poseStack.translate(0.5, 0, 0.5);
-      poseStack.scale(GRAVE_SCALE, GRAVE_SCALE, GRAVE_SCALE);
+      PlacedBlockItemPose.apply(poseStack, GRAVE_SCALE);
       poseStack.translate(-0.5, 0, -0.5);
     }
     super.preRender(

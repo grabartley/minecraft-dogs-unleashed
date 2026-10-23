@@ -1,11 +1,13 @@
 package com.grahambartley.dogsunleashed;
 
 import com.grahambartley.dogsunleashed.config.SyncedServerConfig;
+import com.grahambartley.dogsunleashed.item.DogWhistleItem;
 import com.grahambartley.dogsunleashed.item.RopeToyItem;
 import com.grahambartley.dogsunleashed.item.SledItem;
 import com.grahambartley.dogsunleashed.item.armor.DogArmorTier;
 import com.grahambartley.dogsunleashed.item.cosmetic.DogCosmetic;
 import com.grahambartley.dogsunleashed.item.costume.DogCostume;
+import com.grahambartley.dogsunleashed.model.DogWhistleModel;
 import com.grahambartley.dogsunleashed.model.RopeToyModel;
 import com.grahambartley.dogsunleashed.model.SledModel;
 import com.grahambartley.dogsunleashed.network.ModNetworkingClient;
@@ -18,7 +20,6 @@ import com.grahambartley.dogsunleashed.render.DogHouseBlockEntityRenderer;
 import com.grahambartley.dogsunleashed.render.DogHouseItemRenderer;
 import com.grahambartley.dogsunleashed.render.DogRenderer;
 import com.grahambartley.dogsunleashed.render.DogStatueBlockEntityRenderer;
-import com.grahambartley.dogsunleashed.render.DogWhistleItemRenderer;
 import com.grahambartley.dogsunleashed.render.FittedGeoItemRenderer;
 import com.grahambartley.dogsunleashed.render.FrisbeeBlockEntityRenderer;
 import com.grahambartley.dogsunleashed.render.FrisbeeItemRenderer;
@@ -134,7 +135,8 @@ public class DogsUnleashedClient implements ClientModInitializer {
         ModItems.TENNIS_BALL, new TennisBallItemRenderer());
     BuiltinItemRendererRegistry.INSTANCE.register(ModItems.FRISBEE, new FrisbeeItemRenderer());
     BuiltinItemRendererRegistry.INSTANCE.register(
-        ModItems.DOG_WHISTLE, new DogWhistleItemRenderer());
+        ModItems.DOG_WHISTLE,
+        new FittedGeoItemRenderer<DogWhistleItem>(DogWhistleModel::new, ModelFit::centredInBlock));
     BuiltinItemRendererRegistry.INSTANCE.register(
         ModItems.SLED, new FittedGeoItemRenderer<SledItem>(SledModel::new, ModelFit::intoBlock));
     BuiltinItemRendererRegistry.INSTANCE.register(
