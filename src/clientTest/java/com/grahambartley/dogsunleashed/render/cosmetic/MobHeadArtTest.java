@@ -36,16 +36,17 @@ class MobHeadArtTest {
     assertEquals("textures/entity/cosmetic/" + path + ".png", art.texture().getPath());
   }
 
-  @Test
+  @ParameterizedTest(name = "{0}")
+  @EnumSource(
+      value = UnleashedDogBreed.class,
+      names = {"DACHSHUND", "GOLDEN_RETRIEVER", "SHIBA_INU"})
   @DisplayName("a head with a loaded model for the breed has art")
-  void loadedModelHasArt() {
-    final MobHeadArt expected =
-        MobHeadArt.named(MobHead.CARVED_PUMPKIN, UnleashedDogBreed.DACHSHUND);
+  void loadedModelHasArt(final UnleashedDogBreed breed) {
+    final MobHeadArt expected = MobHeadArt.named(MobHead.CARVED_PUMPKIN, breed);
 
     assertEquals(
         Optional.of(expected),
-        MobHeadArt.of(
-            MobHead.CARVED_PUMPKIN, UnleashedDogBreed.DACHSHUND, expected.model()::equals));
+        MobHeadArt.of(MobHead.CARVED_PUMPKIN, breed, expected.model()::equals));
   }
 
   @Test
