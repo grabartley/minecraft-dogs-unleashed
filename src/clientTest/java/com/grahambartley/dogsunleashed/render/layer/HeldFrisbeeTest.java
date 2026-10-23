@@ -134,6 +134,56 @@ class HeldFrisbeeTest {
     assertEquals(facesSouth ? mouth.max().z : mouth.min().z, nearRim.z, 1.0e-3f);
   }
 
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("rigs")
+  @DisplayName("with the head and mouth animated, the near rim stays where the mouth bone took it")
+  void nearRimFollowsAnAnimatedMouth(final UnleashedDogBreed rig) {
+    final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
+    final RigProfile profile = BUNDLED.profileOf(rig);
+    final MouthGrip grip =
+        MouthGrip.of(model, profile, rig.renderTransforms().bodyYawOffsetDegrees()).orElseThrow();
+    final GeoBone mouth = model.getBone(grip.boneName()).orElseThrow();
+    final GeoBone head = model.getBone(profile.bonesIn(Slot.HEAD).iterator().next()).orElseThrow();
+    head.setRotY(head.getRotY() + 0.35f);
+    head.setRotX(head.getRotX() - 0.2f);
+    mouth.setRotX(mouth.getRotX() + 0.3f);
+    mouth.setRotZ(mouth.getRotZ() - 0.15f);
+    final boolean facesSouth = Math.abs(rig.renderTransforms().bodyYawOffsetDegrees()) == 180.0f;
+
+    final Vector3f nearRim =
+        placedAsTheLayerDrawsIt(model, grip)
+            .transformPosition(new Vector3f(0, 0, facesSouth ? -0.5f : 0.5f));
+    final Vector3f expected = LivePose.of(mouth).transformPosition(grip.point());
+
+    assertEquals(expected.x, nearRim.x, 1.0e-3f);
+    assertEquals(expected.y, nearRim.y, 1.0e-3f);
+    assertEquals(expected.z, nearRim.z, 1.0e-3f);
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("rigs")
+  @DisplayName("at rest the disc runs straight out of the muzzle, tipped 15 degrees down")
+  void restsLevelOutOfTheMuzzle(final UnleashedDogBreed rig) {
+    final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
+    final RigProfile profile = BUNDLED.profileOf(rig);
+    final MouthGrip grip =
+        MouthGrip.of(model, profile, rig.renderTransforms().bodyYawOffsetDegrees()).orElseThrow();
+    final float out =
+        Math.abs(rig.renderTransforms().bodyYawOffsetDegrees()) == 180.0f ? 1.0f : -1.0f;
+    final CubeGeometry.Bounds head = RenderedBounds.of(model, profile.bonesIn(Slot.HEAD));
+    final float diameter = 1.25f * (head.max().x - head.min().x);
+    final double tip = Math.toRadians(15.0);
+
+    final Matrix4f disc = placedAsTheLayerDrawsIt(model, grip);
+    final Vector3f span =
+        disc.transformPosition(new Vector3f(0, 0, out * 0.5f))
+            .sub(disc.transformPosition(new Vector3f(0, 0, -out * 0.5f)));
+
+    assertEquals(0.0f, span.x, 1.0e-3f);
+    assertEquals(-diameter * Math.sin(tip), span.y, 1.0e-3f);
+    assertEquals(out * diameter * Math.cos(tip), span.z, 1.0e-3f);
+  }
+
   private static Matrix4f placedAsTheLayerDrawsIt(final BakedGeoModel model, final MouthGrip grip) {
     final GeoBone mouth = model.getBone(grip.boneName()).orElseThrow();
     final MatrixStack stack = new MatrixStack();

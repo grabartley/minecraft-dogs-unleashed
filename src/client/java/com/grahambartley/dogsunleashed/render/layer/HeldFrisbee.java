@@ -19,8 +19,7 @@ public final class HeldFrisbee {
       final GeoBone mouth,
       final MouthGrip grip,
       final float modelDiameter) {
-    stack.multiply(
-        MouthFrame.rotationOf(mouth.getRotX(), mouth.getRotY(), mouth.getRotZ()).conjugate());
+    MouthFrame.undoBoneRotation(stack, mouth);
     final Vector3f point =
         grip.point()
             .sub(
@@ -28,7 +27,7 @@ public final class HeldFrisbee {
                 mouth.getPivotY() / PIXELS_PER_BLOCK,
                 mouth.getPivotZ() / PIXELS_PER_BLOCK);
     stack.translate(point.x, point.y, point.z);
-    stack.multiply(MouthFrame.restRotationOf(mouth).conjugate());
+    MouthFrame.levelToRest(stack, mouth);
     stack.multiplyPositionMatrix(gripToDisc(grip, modelDiameter));
   }
 

@@ -10,7 +10,15 @@ public final class MouthFrame {
   private MouthFrame() {}
 
   public static void level(final MatrixStack poseStack, final GeoBone mouth) {
+    undoBoneRotation(poseStack, mouth);
+    levelToRest(poseStack, mouth);
+  }
+
+  static void undoBoneRotation(final MatrixStack poseStack, final GeoBone mouth) {
     poseStack.multiply(rotationOf(mouth.getRotX(), mouth.getRotY(), mouth.getRotZ()).conjugate());
+  }
+
+  static void levelToRest(final MatrixStack poseStack, final GeoBone mouth) {
     poseStack.multiply(restRotationOf(mouth).conjugate());
   }
 

@@ -18,32 +18,9 @@ public final class RenderedBounds {
 
   public static CubeGeometry.Bounds of(final BakedGeoModel model, final Set<String> bones) {
     final CubeGeometry.Bounds bounds = new CubeGeometry.Bounds();
-    for (final String name : bones) {
-      model
-          .getBone(name)
-          .ifPresent(
-              bone -> {
-                final Matrix4f boneMatrix = LivePose.of(bone);
-                for (final GeoCube cube : bone.getCubes()) {
-                  final MatrixStack stack = new MatrixStack();
-                  stack.peek().getPositionMatrix().set(boneMatrix);
-                  RenderUtil.translateToPivotPoint(stack, cube);
-                  RenderUtil.rotateMatrixAroundCube(stack, cube);
-                  RenderUtil.translateAwayFromPivotPoint(stack, cube);
-                  for (final GeoQuad quad : cube.quads()) {
-                    if (quad == null) {
-                      continue;
-                    }
-                    for (final GeoVertex vertex : quad.vertices()) {
-                      bounds.include(
-                          stack
-                              .peek()
-                              .getPositionMatrix()
-                              .transformPosition(new Vector3f(vertex.position())));
-                    }
-                  }
-                }
-              });
+    for (final CubeGeometry.Bounds cube : cubesOf(model, bones)) {
+      bounds.include(cube.min());
+      bounds.include(cube.max());
     }
     return bounds;
   }
