@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 import com.grahambartley.dogsunleashed.block.DogStatueLook;
+import com.grahambartley.dogsunleashed.block.DogStatuePose;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.portrait.DogPortrait;
 import com.grahambartley.dogsunleashed.portrait.PortraitSize;
@@ -51,7 +52,8 @@ class ModPortraitsTest {
         new DogPortrait(
             new DogStatueLook(UnleashedDogBreed.DACHSHUND, false, 0, -1, 0, 0, null, null),
             "Frank",
-            PortraitSize.LARGE);
+            PortraitSize.LARGE,
+            DogStatuePose.STAND);
     final ItemStack stack = ModPortraits.portraitStack(portrait);
     assertSame(ModPortraits.DOG_PORTRAIT, stack.getItem());
     assertEquals(portrait, stack.get(ModComponents.DOG_PORTRAIT));

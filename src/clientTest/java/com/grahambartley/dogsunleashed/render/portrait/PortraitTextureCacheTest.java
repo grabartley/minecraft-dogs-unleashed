@@ -6,19 +6,31 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
+import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
+import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.block.DogStatueLook;
+import com.grahambartley.dogsunleashed.block.DogStatuePose;
+import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.portrait.DogPortrait;
+import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfit;
 import com.grahambartley.dogsunleashed.portrait.PortraitSize;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import net.minecraft.client.texture.TextureManager;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+@ExtendWith(MinecraftBootstrapExtension.class)
 class PortraitTextureCacheTest {
 
   private static final DogStatueLook BEAGLE =
@@ -37,7 +49,26 @@ class PortraitTextureCacheTest {
   }
 
   private static DogPortrait portrait(final String name, final PortraitSize size) {
-    return new DogPortrait(BEAGLE, name, size);
+    return new DogPortrait(BEAGLE, name, size, DogStatuePose.SIT);
+  }
+
+  private static void bakeTicks(final PortraitTextureCache cache, final int ticks) {
+    for (int tick = 0; tick < ticks; tick++) {
+      cache.bakeNextPending();
+    }
+  }
+
+  @ParameterizedTest(name = "{0} portraits queued, {1} ticks")
+  @CsvSource({"1, 1", "3, 1", "3, 2", "3, 3", "3, 5"})
+  @DisplayName(
+      "one portrait is baked per tick, oldest first, so a wall of portraits never stalls a frame")
+  void bakesOnePortraitPerTick(final int queued, final int ticks) {
+    final PortraitTextureCache cache = cache(true);
+    final List<PortraitSize> sizes = List.of(PortraitSize.values()).subList(0, queued);
+    sizes.forEach(size -> cache.textureOf(portrait("Bentley", size)));
+    bakeTicks(cache, ticks);
+    final int baked = Math.min(queued, ticks);
+    assertEquals(sizes.subList(0, baked), this.bakes.stream().map(DogPortrait::size).toList());
   }
 
   @ParameterizedTest(name = "{0} frames")
@@ -47,7 +78,7 @@ class PortraitTextureCacheTest {
     final PortraitTextureCache cache = cache(true);
     for (int frame = 0; frame < frames; frame++) {
       cache.textureOf(portrait("Bentley", PortraitSize.SMALL));
-      cache.bakePending();
+      cache.bakeNextPending();
     }
     assertEquals(1, this.bakes.size());
     assertEquals(
@@ -70,7 +101,7 @@ class PortraitTextureCacheTest {
     final PortraitTextureCache cache = cache(true);
     cache.textureOf(portrait("Bentley", PortraitSize.WIDE));
     cache.textureOf(portrait("Rex", PortraitSize.WIDE));
-    cache.bakePending();
+    cache.bakeNextPending();
     assertEquals(1, this.bakes.size());
     assertEquals(
         cache.textureOf(portrait("Bentley", PortraitSize.WIDE)),
@@ -84,8 +115,59 @@ class PortraitTextureCacheTest {
     for (final PortraitSize size : PortraitSize.values()) {
       cache.textureOf(portrait("Bentley", size));
     }
-    cache.bakePending();
+    bakeTicks(cache, PortraitSize.values().length);
     assertEquals(PortraitSize.values().length, this.bakes.size());
+  }
+
+  @ParameterizedTest(name = "a beagle painted {0} then {1} bakes {2} textures")
+  @CsvSource({"SIT, STAND, 2", "STAND, HOWL, 2", "SIT, HOWL, 1", "STAND, STAND, 1"})
+  @DisplayName(
+      "each shown pose gets its own texture, and a howl on a breed that cannot howl shares the sitting one")
+  void eachShownPoseIsBakedOnce(
+      final DogStatuePose first, final DogStatuePose second, final int textures) {
+    final PortraitTextureCache cache = cache(true);
+    cache.textureOf(new DogPortrait(BEAGLE, "Bentley", PortraitSize.SMALL, first));
+    cache.textureOf(new DogPortrait(BEAGLE, "Bentley", PortraitSize.SMALL, second));
+    bakeTicks(cache, 2);
+    assertEquals(textures, this.bakes.size());
+  }
+
+  private static DogPortrait dressed(final boolean muddy, final DyeColor collar) {
+    return new DogPortrait(
+        BEAGLE,
+        "Bentley",
+        PortraitSize.SMALL,
+        DogStatuePose.SIT,
+        new DogPortraitOutfit(
+            Map.of(DogEquipmentSlot.SADDLEBAGS, new ItemStack(ModItems.SADDLEBAGS)),
+            Optional.of(collar),
+            ItemStack.EMPTY,
+            Optional.empty(),
+            muddy,
+            false,
+            false));
+  }
+
+  @ParameterizedTest(name = "muddy {0} then {1}, collar {2} then {3}, bakes {4}")
+  @CsvSource({
+    "false, false, RED, RED, 1",
+    "false, true, RED, RED, 2",
+    "true, true, RED, BLUE, 2",
+    "true, true, LIME, LIME, 1"
+  })
+  @DisplayName(
+      "each outfit gets its own texture, and the same outfit in separate stacks shares one")
+  void eachOutfitIsBakedOnce(
+      final boolean firstMuddy,
+      final boolean secondMuddy,
+      final DyeColor firstCollar,
+      final DyeColor secondCollar,
+      final int textures) {
+    final PortraitTextureCache cache = cache(true);
+    cache.textureOf(dressed(firstMuddy, firstCollar));
+    cache.textureOf(dressed(secondMuddy, secondCollar));
+    bakeTicks(cache, 2);
+    assertEquals(textures, this.bakes.size());
   }
 
   @Test
@@ -93,9 +175,9 @@ class PortraitTextureCacheTest {
   void failedBakeIsNotRetried() {
     final PortraitTextureCache cache = cache(false);
     cache.textureOf(portrait("Bentley", PortraitSize.SMALL));
-    cache.bakePending();
+    cache.bakeNextPending();
     assertNull(cache.textureOf(portrait("Bentley", PortraitSize.SMALL)));
-    cache.bakePending();
+    cache.bakeNextPending();
     assertEquals(1, this.bakes.size());
   }
 
@@ -104,13 +186,13 @@ class PortraitTextureCacheTest {
   void clearRebakesOnce() {
     final PortraitTextureCache cache = cache(true);
     cache.textureOf(portrait("Bentley", PortraitSize.SMALL));
-    cache.bakePending();
+    cache.bakeNextPending();
     final TextureManager textures = mock(TextureManager.class);
     cache.clear(textures);
     verify(textures).destroyTexture(Identifier.of("dogs-unleashed", "portrait/baked_0"));
     for (int frame = 0; frame < 10; frame++) {
       cache.textureOf(portrait("Bentley", PortraitSize.SMALL));
-      cache.bakePending();
+      cache.bakeNextPending();
     }
     assertEquals(2, this.bakes.size());
   }
@@ -120,12 +202,12 @@ class PortraitTextureCacheTest {
   void clearDropsQueuedAndFailedBakes() {
     final PortraitTextureCache cache = cache(false);
     cache.textureOf(portrait("Bentley", PortraitSize.SMALL));
-    cache.bakePending();
+    cache.bakeNextPending();
     cache.textureOf(portrait("Bentley", PortraitSize.LARGE));
     final TextureManager textures = mock(TextureManager.class);
     cache.clear(textures);
     verifyNoInteractions(textures);
-    cache.bakePending();
+    cache.bakeNextPending();
     assertEquals(1, this.bakes.size());
   }
 
@@ -140,9 +222,9 @@ class PortraitTextureCacheTest {
               throw new IllegalStateException("no world");
             });
     cache.textureOf(portrait("Bentley", PortraitSize.SMALL));
-    cache.bakePending();
+    cache.bakeNextPending();
     assertNull(cache.textureOf(portrait("Bentley", PortraitSize.SMALL)));
-    cache.bakePending();
+    cache.bakeNextPending();
     assertEquals(1, this.bakes.size());
   }
 }

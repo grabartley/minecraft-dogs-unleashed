@@ -1,12 +1,6 @@
 name: CI/CD
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       bump:
@@ -98,18 +92,6 @@ jobs:
         with:
           name: coverage-report
           path: build/reports/jacoco/test/html/
-
-      # ---------- Non-release builds (PR + push to main) ----------
-      - name: Build snapshot JAR
-        if: github.event_name == 'pull_request' || github.event_name == 'push'
-        run: ./gradlew build -Pversion=1.0.0-SNAPSHOT-${{ github.sha }}
-
-      - name: Upload snapshot JAR
-        if: github.event_name == 'pull_request' || github.event_name == 'push'
-        uses: actions/upload-artifact@v4
-        with:
-          name: dogs-unleashed-${{ github.sha }}
-          path: build/libs/*.jar
 
       # ---------- Release-only (manual trigger) ----------
       # The repo carries an abandoned v0.0.1-v0.7.1 tag lineage that collides with the real

@@ -2,7 +2,6 @@ package com.grahambartley.dogsunleashed.render.statue;
 
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.block.DogStatue;
-import com.grahambartley.dogsunleashed.block.DogStatuePose;
 import com.grahambartley.dogsunleashed.block.entity.DogStatueBlockEntity;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.HashMap;
@@ -81,10 +80,7 @@ public final class StatueFigures {
     }
     dog.setPosition(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
     statue.look().applyTo(dog);
-    final DogStatuePose pose = statue.shownPose();
-    dog.setSitting(pose.sits());
-    dog.setInSittingPose(pose.sits());
-    dog.getAnimationState().setHowling(pose.howling());
+    statue.shownPose().applyTo(dog);
     return dog;
   }
 

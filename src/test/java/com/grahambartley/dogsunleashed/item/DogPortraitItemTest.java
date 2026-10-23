@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
 import com.grahambartley.dogsunleashed.ModPortraits;
 import com.grahambartley.dogsunleashed.block.DogStatueLook;
+import com.grahambartley.dogsunleashed.block.DogStatuePose;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.portrait.DogPortrait;
 import com.grahambartley.dogsunleashed.portrait.PortraitSize;
@@ -36,24 +37,29 @@ class DogPortraitItemTest {
 
   @ParameterizedTest(name = "{0} at {1}")
   @CsvSource({"Mochi, SMALL", "Bentley, WIDE", "Frank, LARGE"})
-  @DisplayName("the tooltip names the dog, then gives the portrait's size")
+  @DisplayName("the tooltip names the dog, then gives the portrait's size and the pose hint")
   void tooltipNamesTheDog(final String name, final PortraitSize size) {
     final List<Text> tooltip =
-        tooltipOf(ModPortraits.portraitStack(new DogPortrait(LOOK, name, size)));
-    assertEquals(2, tooltip.size());
+        tooltipOf(ModPortraits.portraitStack(new DogPortrait(LOOK, name, size, DogStatuePose.SIT)));
+    assertEquals(3, tooltip.size());
     assertEquals(name, tooltip.get(0).getString());
     final TranslatableTextContent dimensions =
         (TranslatableTextContent) tooltip.get(1).getContent();
     assertEquals("painting.dimensions", dimensions.getKey());
     assertEquals(List.of(size.width(), size.height()), List.of(dimensions.getArgs()));
+    assertEquals(
+        DogPortraitItem.POSE_HINT_KEY,
+        ((TranslatableTextContent) tooltip.get(2).getContent()).getKey());
   }
 
   @Test
-  @DisplayName("a portrait of a dog with no name shows only its size")
+  @DisplayName("a portrait of a dog with no name shows only its size and the pose hint")
   void unnamedPortraitShowsOnlyTheSize() {
     assertEquals(
-        1,
-        tooltipOf(ModPortraits.portraitStack(new DogPortrait(LOOK, "", PortraitSize.SMALL)))
+        2,
+        tooltipOf(
+                ModPortraits.portraitStack(
+                    new DogPortrait(LOOK, "", PortraitSize.SMALL, DogStatuePose.SIT)))
             .size());
   }
 

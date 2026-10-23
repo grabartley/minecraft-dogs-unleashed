@@ -72,6 +72,7 @@
   "item.dogs-unleashed.blank_canvas.hint": "对你的一只狗使用，即可为它画一幅肖像",
   "item.dogs-unleashed.blank_canvas.hint.size": "潜行并使用可更改尺寸",
   "item.dogs-unleashed.dog_portrait": "狗狗肖像",
+  "item.dogs-unleashed.dog_portrait.hint.pose": "挂起后空手使用，即可更换姿势",
   "item.dogs-unleashed.dog_whistle.unbound": "右键点击你的狗来绑定",
   "item.dogs-unleashed.dog_whistle.bound": "已绑定到%1$s",
   "message.dogs-unleashed.whistle.bound": "%1$s现在会响应这只哨子",

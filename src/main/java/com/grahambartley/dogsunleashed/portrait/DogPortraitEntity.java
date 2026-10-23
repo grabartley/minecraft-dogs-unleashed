@@ -16,12 +16,15 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
+import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
 public class DogPortraitEntity extends AbstractDecorationEntity {
@@ -54,7 +57,7 @@ public class DogPortraitEntity extends AbstractDecorationEntity {
   }
 
   private void setPortrait(final DogPortrait portrait) {
-    this.dataTracker.set(PORTRAIT, portrait.toNbt());
+    this.dataTracker.set(PORTRAIT, portrait.toNbt(this.getRegistryManager()));
   }
 
   @Override
@@ -65,7 +68,9 @@ public class DogPortraitEntity extends AbstractDecorationEntity {
   @Override
   public void onTrackedDataSet(final TrackedData<?> data) {
     if (PORTRAIT.equals(data)) {
-      this.portrait = DogPortrait.fromNbt(this.dataTracker.get(PORTRAIT)).orElse(null);
+      this.portrait =
+          DogPortrait.fromNbt(this.getRegistryManager(), this.dataTracker.get(PORTRAIT))
+              .orElse(null);
       this.updateAttachmentPosition();
     }
   }
@@ -78,7 +83,7 @@ public class DogPortraitEntity extends AbstractDecorationEntity {
   @Override
   public void writeCustomDataToNbt(final NbtCompound nbt) {
     if (this.portrait != null) {
-      nbt.put(PORTRAIT_KEY, this.portrait.toNbt());
+      nbt.put(PORTRAIT_KEY, this.portrait.toNbt(this.getRegistryManager()));
     }
     nbt.putByte(FACING_KEY, (byte) this.facing.getHorizontal());
     super.writeCustomDataToNbt(nbt);
@@ -86,10 +91,25 @@ public class DogPortraitEntity extends AbstractDecorationEntity {
 
   @Override
   public void readCustomDataFromNbt(final NbtCompound nbt) {
-    DogPortrait.fromNbt(nbt.getCompound(PORTRAIT_KEY)).ifPresent(this::setPortrait);
+    DogPortrait.fromNbt(this.getRegistryManager(), nbt.getCompound(PORTRAIT_KEY))
+        .ifPresent(this::setPortrait);
     this.facing = Direction.fromHorizontal(nbt.getByte(FACING_KEY));
     super.readCustomDataFromNbt(nbt);
     this.setFacing(this.facing);
+  }
+
+  @Override
+  public ActionResult interact(final PlayerEntity player, final Hand hand) {
+    if (!PortraitPoseRules.poses(
+        this.portrait != null, hand == Hand.MAIN_HAND, player.getMainHandStack().isEmpty())) {
+      return ActionResult.PASS;
+    }
+    if (!this.getWorld().isClient) {
+      this.setPortrait(this.portrait.nextPose());
+      this.playSound(SoundEvents.ENTITY_ITEM_FRAME_ROTATE_ITEM, 1.0f, 1.0f);
+      this.emitGameEvent(GameEvent.BLOCK_CHANGE, player);
+    }
+    return ActionResult.success(this.getWorld().isClient);
   }
 
   @Override

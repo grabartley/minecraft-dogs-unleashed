@@ -10,16 +10,13 @@ public record DogStatue(DogStatueLook look, DogStatuePose pose, String name) {
 
   public static final int MAX_NAME_LENGTH = 50;
 
-  private static final Codec<DogStatuePose> POSE_CODEC =
-      Codec.STRING.xmap(DogStatuePose::fromSerializedName, DogStatuePose::serializedName);
-
   public static final Codec<DogStatue> CODEC =
       RecordCodecBuilder.create(
           instance ->
               instance
                   .group(
                       DogStatueLook.CODEC.fieldOf("look").forGetter(DogStatue::look),
-                      POSE_CODEC
+                      DogStatuePose.CODEC
                           .optionalFieldOf("pose", DogStatuePose.SIT)
                           .forGetter(DogStatue::pose),
                       Codec.string(0, MAX_NAME_LENGTH)
@@ -49,10 +46,10 @@ public record DogStatue(DogStatueLook look, DogStatuePose pose, String name) {
   }
 
   public DogStatue nextPose() {
-    return this.withPose(this.pose.next(this.look.howls()));
+    return this.withPose(this.pose.next(this.look));
   }
 
   public DogStatuePose shownPose() {
-    return this.pose.shownFor(this.look.howls());
+    return this.pose.shownFor(this.look);
   }
 }
