@@ -18,11 +18,7 @@
       "trigger": "dogs-unleashed:pet_resurrected"
     }
   },
-  "requirements": [
-    [
-      "resurrected_a_pet"
-    ]
-  ],
+  "requirements": [["resurrected_a_pet"]],
   "rewards": {
     "experience": 50
   }

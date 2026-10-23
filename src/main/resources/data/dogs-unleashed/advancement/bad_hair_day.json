@@ -18,9 +18,5 @@
       "trigger": "dogs-unleashed:dog_shear_botched"
     }
   },
-  "requirements": [
-    [
-      "dog_shear_botched"
-    ]
-  ]
+  "requirements": [["dog_shear_botched"]]
 }

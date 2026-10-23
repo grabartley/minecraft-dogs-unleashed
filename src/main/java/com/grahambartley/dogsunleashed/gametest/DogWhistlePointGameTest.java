@@ -8,6 +8,7 @@ import com.grahambartley.dogsunleashed.entity.DogWorldTransfer;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
+import com.grahambartley.dogsunleashed.gametest.util.AdvancementTestHelper;
 import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.item.DogWhistleItem;
 import com.grahambartley.dogsunleashed.item.WhistlePointing;
@@ -62,6 +63,22 @@ public final class DogWhistlePointGameTest implements FabricGameTest {
         context.getAbsolutePos(TARGET_SPOT).equals(dog.getCommandController().getAnchorPos()),
         "The dog should stay on top of the pointed block, but its spot is "
             + dog.getCommandController().getAnchorPos());
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 20)
+  public void anObeyedPointEarnsOverThere(TestContext context) {
+    final ServerPlayerEntity owner = placeOwner(context);
+    spawnBoundDog(context, owner, true);
+
+    WhistlePointing.point(
+        owner,
+        PointWithWhistlePayload.atBlock(
+            Hand.MAIN_HAND, context.getAbsolutePos(FAR_FLOOR), Direction.UP));
+
+    context.assertTrue(
+        AdvancementTestHelper.isDone(context, owner, "over_there"),
+        "An obeyed whistle point should earn over_there");
     context.complete();
   }
 

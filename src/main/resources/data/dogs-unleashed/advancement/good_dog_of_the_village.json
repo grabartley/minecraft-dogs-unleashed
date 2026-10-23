@@ -17,11 +17,7 @@
       "trigger": "dogs-unleashed:dog_defended_village"
     }
   },
-  "requirements": [
-    [
-      "dog_defended_village"
-    ]
-  ],
+  "requirements": [["dog_defended_village"]],
   "rewards": {
     "experience": 100
   }

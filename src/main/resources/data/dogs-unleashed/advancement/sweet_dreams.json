@@ -17,9 +17,5 @@
       "trigger": "dogs-unleashed:dog_slept_in_bed"
     }
   },
-  "requirements": [
-    [
-      "dog_slept_in_bed"
-    ]
-  ]
+  "requirements": [["dog_slept_in_bed"]]
 }

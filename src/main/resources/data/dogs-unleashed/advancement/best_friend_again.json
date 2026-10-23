@@ -18,11 +18,7 @@
       "trigger": "dogs-unleashed:pet_cured"
     }
   },
-  "requirements": [
-    [
-      "cured_a_pet"
-    ]
-  ],
+  "requirements": [["cured_a_pet"]],
   "rewards": {
     "experience": 50
   }

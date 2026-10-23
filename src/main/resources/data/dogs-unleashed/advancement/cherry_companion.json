@@ -22,9 +22,5 @@
       }
     }
   },
-  "requirements": [
-    [
-      "tamed_shibainu"
-    ]
-  ]
+  "requirements": [["tamed_shibainu"]]
 }

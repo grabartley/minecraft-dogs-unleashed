@@ -8,6 +8,7 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.scent.ScentPhase;
 import com.grahambartley.dogsunleashed.entity.scent.ScentProgress;
 import com.grahambartley.dogsunleashed.entity.scent.ScentRules;
+import com.grahambartley.dogsunleashed.gametest.util.AdvancementTestHelper;
 import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.Blocks;
@@ -247,6 +248,27 @@ public final class DogScentGameTest implements FabricGameTest {
             && scent(loaded).rule().matchesItem(Items.RAW_IRON.getDefaultStack()),
         "The loaded scent should still be the raw iron rule");
     context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 300)
+  public void findingTheTargetEarnsOnTheScent(TestContext context) {
+    final ServerPlayerEntity owner = placeOwner(context);
+    final UnleashedDogEntity dog = spawnOwnedDog(context, owner);
+    spawnStill(context, EntityType.COW, TARGET_SPOT);
+    give(dog, owner, Items.LEATHER);
+    context.assertFalse(
+        AdvancementTestHelper.isDone(context, owner, "on_the_scent"),
+        "Starting a scent should not earn on_the_scent yet");
+
+    context.runAtEveryTick(
+        () -> {
+          if (scent(dog).phase() == ScentPhase.POINTING) {
+            context.assertTrue(
+                AdvancementTestHelper.isDone(context, owner, "on_the_scent"),
+                "Arriving at the target should earn on_the_scent");
+            context.complete();
+          }
+        });
   }
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 300)

@@ -9,13 +9,17 @@ import com.grahambartley.dogsunleashed.advancement.DogMilestone;
 import com.grahambartley.dogsunleashed.advancement.DogMilestoneCriterion;
 import com.grahambartley.dogsunleashed.advancement.PetCuredCriterion;
 import com.grahambartley.dogsunleashed.advancement.PetResurrectedCriterion;
+import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
+import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
 import com.grahambartley.dogsunleashed.entity.goal.FetchReturnGoal;
+import com.grahambartley.dogsunleashed.gametest.util.AdvancementTestHelper;
 import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import com.grahambartley.dogsunleashed.gametest.util.PendantTestHelper;
+import com.grahambartley.dogsunleashed.screenhandler.DogEquipmentScreenHandler;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -25,8 +29,12 @@ import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.advancement.AdvancementDisplay;
 import net.minecraft.advancement.AdvancementEntry;
 import net.minecraft.advancement.criterion.Criteria;
+import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.TagKey;
+import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
@@ -89,11 +97,12 @@ public final class DogAdvancementGameTest implements FabricGameTest {
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void advancementTreeBranchesByTheme(final TestContext context) {
     context.assertTrue(
-        getAdvancement(context, "root").value().parent().isEmpty(), "root should have no parent");
+        AdvancementTestHelper.advancement(context, "root").value().parent().isEmpty(),
+        "root should have no parent");
     PARENTS.forEach(
         (child, parent) ->
             context.assertTrue(
-                getAdvancement(context, child)
+                AdvancementTestHelper.advancement(context, child)
                     .value()
                     .parent()
                     .equals(Optional.of(Identifier.of(DogsUnleashed.MOD_ID, parent))),
@@ -136,7 +145,7 @@ public final class DogAdvancementGameTest implements FabricGameTest {
                     case CHALLENGE -> 100;
                   };
               context.assertEquals(
-                  getAdvancement(context, id).value().rewards().experience(),
+                  AdvancementTestHelper.advancement(context, id).value().rewards().experience(),
                   expected,
                   id + " experience reward");
             });
@@ -151,7 +160,7 @@ public final class DogAdvancementGameTest implements FabricGameTest {
       MILESTONE_ADVANCEMENTS.forEach(
           (other, id) ->
               context.assertTrue(
-                  isDone(context, player, id) == (other == milestone),
+                  AdvancementTestHelper.isDone(context, player, id) == (other == milestone),
                   milestone.asString()
                       + " should "
                       + (other == milestone ? "" : "not ")
@@ -172,7 +181,8 @@ public final class DogAdvancementGameTest implements FabricGameTest {
     dog.interactMob(owner, Hand.MAIN_HAND);
 
     context.assertTrue(
-        isDone(context, owner, "collar_couture"), "Dyeing the collar should earn collar_couture");
+        AdvancementTestHelper.isDone(context, owner, "collar_couture"),
+        "Dyeing the collar should earn collar_couture");
     context.complete();
   }
 
@@ -188,8 +198,42 @@ public final class DogAdvancementGameTest implements FabricGameTest {
 
     context.assertTrue(!dog.getArmour().worn().isEmpty(), "The dog should be wearing the armour");
     context.assertTrue(
-        isDone(context, owner, "dressed_to_impress"),
+        AdvancementTestHelper.isDone(context, owner, "dressed_to_impress"),
         "Equipping gear should earn dressed_to_impress");
+    context.complete();
+  }
+
+  @GameTest(templateName = PendantTestHelper.ARENA)
+  public void placingArmourInTheGearScreenEarnsDressedToImpress(final TestContext context) {
+    final ServerPlayerEntity owner =
+        PendantTestHelper.survivalOwnerAt(context, PendantTestHelper.OWNER_POS);
+    final UnleashedDogEntity dog =
+        PendantTestHelper.dogWearing(context, null, owner, PendantTestHelper.DOG_POS);
+    final DogEquipmentScreenHandler handler =
+        new DogEquipmentScreenHandler(1, owner.getInventory(), dog);
+    handler.setCursorStack(new ItemStack(Items.WOLF_ARMOR));
+
+    handler.onSlotClick(DogEquipmentSlot.ARMOUR.ordinal(), 0, SlotActionType.PICKUP, owner);
+
+    context.assertTrue(
+        !dog.getArmour().worn().isEmpty(), "The gear screen should put the armour on the dog");
+    context.assertTrue(
+        AdvancementTestHelper.isDone(context, owner, "dressed_to_impress"),
+        "Placing gear in the gear screen should earn dressed_to_impress");
+    context.complete();
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void everyLivingDogTypeIsTaggedAsADog(final TestContext context) {
+    final TagKey<EntityType<?>> dogs =
+        TagKey.of(RegistryKeys.ENTITY_TYPE, Identifier.of(DogsUnleashed.MOD_ID, "dogs"));
+    for (final UnleashedDogBreed breed : UnleashedDogBreed.values()) {
+      final EntityType<?> living = ModEntities.getDogEntityType(breed);
+      context.assertTrue(living.isIn(dogs), breed.serializedId() + " should be in #dogs");
+      context.assertFalse(
+          ModEntities.getZombieDogEntityType(breed).isIn(dogs),
+          "zombie " + breed.serializedId() + " should not be in #dogs");
+    }
     context.complete();
   }
 
@@ -199,9 +243,12 @@ public final class DogAdvancementGameTest implements FabricGameTest {
         PendantTestHelper.survivalOwnerAt(context, PendantTestHelper.OWNER_POS);
     breed(context, owner, DogTestData.HUSKY, DogTestData.BEAGLE);
 
-    context.assertTrue(isDone(context, owner, "puppy_love"), "A puppy should earn puppy_love");
     context.assertTrue(
-        isDone(context, owner, "mixed_heritage"), "A cross should earn mixed_heritage");
+        AdvancementTestHelper.isDone(context, owner, "puppy_love"),
+        "A puppy should earn puppy_love");
+    context.assertTrue(
+        AdvancementTestHelper.isDone(context, owner, "mixed_heritage"),
+        "A cross should earn mixed_heritage");
     context.complete();
   }
 
@@ -211,9 +258,12 @@ public final class DogAdvancementGameTest implements FabricGameTest {
         PendantTestHelper.survivalOwnerAt(context, PendantTestHelper.OWNER_POS);
     breed(context, owner, DogTestData.HUSKY, DogTestData.HUSKY);
 
-    context.assertTrue(isDone(context, owner, "puppy_love"), "A puppy should earn puppy_love");
+    context.assertTrue(
+        AdvancementTestHelper.isDone(context, owner, "puppy_love"),
+        "A puppy should earn puppy_love");
     context.assertFalse(
-        isDone(context, owner, "mixed_heritage"), "A pure puppy should not earn mixed_heritage");
+        AdvancementTestHelper.isDone(context, owner, "mixed_heritage"),
+        "A pure puppy should not earn mixed_heritage");
     context.complete();
   }
 
@@ -225,8 +275,9 @@ public final class DogAdvancementGameTest implements FabricGameTest {
     final UnleashedDogEntity shiba =
         context.spawnEntity(ModEntities.SHIBA_INU, new BlockPos(2, 1, 0));
 
-    final AdvancementEntry bestFriend = getAdvancement(context, "best_friend");
-    final AdvancementEntry cherryCompanion = getAdvancement(context, "cherry_companion");
+    final AdvancementEntry bestFriend = AdvancementTestHelper.advancement(context, "best_friend");
+    final AdvancementEntry cherryCompanion =
+        AdvancementTestHelper.advancement(context, "cherry_companion");
 
     Criteria.TAME_ANIMAL.trigger(player, husky);
     Criteria.TAME_ANIMAL.trigger(player, shiba);
@@ -243,7 +294,7 @@ public final class DogAdvancementGameTest implements FabricGameTest {
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void wholePackRequiresEveryFoundingBreed(final TestContext context) {
     final ServerPlayerEntity player = CreativeTestPlayer.join(context);
-    final AdvancementEntry wholePack = getAdvancement(context, "the_whole_pack");
+    final AdvancementEntry wholePack = AdvancementTestHelper.advancement(context, "the_whole_pack");
 
     player.getAdvancementTracker().grantCriterion(wholePack, "tamed_husky");
     player.getAdvancementTracker().grantCriterion(wholePack, "tamed_dachshund");
@@ -271,10 +322,12 @@ public final class DogAdvancementGameTest implements FabricGameTest {
 
     context.setBlockState(relBedPos, ModBlocks.DOG_BED.getDefaultState());
 
-    final AdvancementEntry barkAtTheMoon = getAdvancement(context, "bark_at_the_moon");
-    final AdvancementEntry fetch = getAdvancement(context, "fetch");
-    final AdvancementEntry sweetDreams = getAdvancement(context, "sweet_dreams");
-    final AdvancementEntry foreverInOurHearts = getAdvancement(context, "forever_in_our_hearts");
+    final AdvancementEntry barkAtTheMoon =
+        AdvancementTestHelper.advancement(context, "bark_at_the_moon");
+    final AdvancementEntry fetch = AdvancementTestHelper.advancement(context, "fetch");
+    final AdvancementEntry sweetDreams = AdvancementTestHelper.advancement(context, "sweet_dreams");
+    final AdvancementEntry foreverInOurHearts =
+        AdvancementTestHelper.advancement(context, "forever_in_our_hearts");
 
     final BlockPos absDogPos = context.getAbsolutePos(new BlockPos(1, 1, 0));
     player.refreshPositionAndAngles(absDogPos, 0.0f, 0.0f);
@@ -312,8 +365,10 @@ public final class DogAdvancementGameTest implements FabricGameTest {
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
   public void resurrectionAndCureTriggersUnlockTheirAdvancements(final TestContext context) {
     final ServerPlayerEntity player = CreativeTestPlayer.join(context);
-    final AdvancementEntry secondLeashOfLife = getAdvancement(context, "second_leash_of_life");
-    final AdvancementEntry bestFriendAgain = getAdvancement(context, "best_friend_again");
+    final AdvancementEntry secondLeashOfLife =
+        AdvancementTestHelper.advancement(context, "second_leash_of_life");
+    final AdvancementEntry bestFriendAgain =
+        AdvancementTestHelper.advancement(context, "best_friend_again");
 
     PetResurrectedCriterion.INSTANCE.trigger(player);
     PetCuredCriterion.INSTANCE.trigger(player);
@@ -344,26 +399,10 @@ public final class DogAdvancementGameTest implements FabricGameTest {
     mother.breed(context.getWorld(), father);
   }
 
-  private static boolean isDone(
-      final TestContext context, final ServerPlayerEntity player, final String path) {
-    return player.getAdvancementTracker().getProgress(getAdvancement(context, path)).isDone();
-  }
-
   private static AdvancementDisplay display(final TestContext context, final String path) {
-    return getAdvancement(context, path)
+    return AdvancementTestHelper.advancement(context, path)
         .value()
         .display()
         .orElseThrow(() -> new IllegalStateException(path + " has no display"));
-  }
-
-  private static AdvancementEntry getAdvancement(final TestContext context, final String path) {
-    final AdvancementEntry advancement =
-        context
-            .getWorld()
-            .getServer()
-            .getAdvancementLoader()
-            .get(Identifier.of(DogsUnleashed.MOD_ID, path));
-    context.assertTrue(advancement != null, "Missing advancement: " + path);
-    return advancement;
   }
 }

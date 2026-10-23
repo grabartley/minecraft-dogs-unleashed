@@ -519,7 +519,7 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 | FAM-13 | The family tree shows parents, mates, siblings and children (32 each at most), with pan, zoom, expand and focus |
 | FAM-14 | The family tree shows each dog's visible genes, and marks the genes it carries once breeding has revealed them |
 | FAM-15 | A player may view the family tree of a dog they own, or of a dog related to one they own |
-| FAM-16 | The player who started the breeding earns "Puppy Love" for any puppy and "Mixed Heritage" for a cross |
+| FAM-16 | The player who started the breeding earns "Puppy Love" when any puppy is born and "Mixed Heritage" when a cross is born |
 
 **Not supported:** breeding undead dogs; crosses with a dire wolf; choosing a puppy's coat.
 
@@ -826,6 +826,8 @@ The mod has its own advancement tab, on a pink background scattered with paw pri
 | ADV-5 | Fetch! | A dog bringing a toy back |
 | ADV-6 | Sweet Dreams | A dog falling asleep in its bed |
 | ADV-7 | Forever in Our Hearts | Holding a dog's grave as an item |
+
+The tab as a whole:
 
 | ID | Requirement |
 |---|---|
