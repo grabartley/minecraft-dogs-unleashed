@@ -70,5 +70,15 @@
       }
     }
   },
-  "requirements": [["tamed_husky", "tamed_dachshund", "tamed_beagle", "tamed_goldenretriever", "tamed_shibainu", "tamed_direwolf", "tamed_pinscher"]]
+  "requirements": [
+    [
+      "tamed_husky",
+      "tamed_dachshund",
+      "tamed_beagle",
+      "tamed_goldenretriever",
+      "tamed_shibainu",
+      "tamed_direwolf",
+      "tamed_pinscher"
+    ]
+  ]
 }

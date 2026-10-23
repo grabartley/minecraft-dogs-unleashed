@@ -10,12 +10,17 @@
     "description": {
       "translate": "advancements.dogs-unleashed.bad_hair_day.description"
     },
-    "frame": "task"
+    "frame": "task",
+    "hidden": true
   },
   "criteria": {
     "dog_shear_botched": {
       "trigger": "dogs-unleashed:dog_shear_botched"
     }
   },
-  "requirements": [["dog_shear_botched"]]
+  "requirements": [
+    [
+      "dog_shear_botched"
+    ]
+  ]
 }

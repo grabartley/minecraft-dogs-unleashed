@@ -3,6 +3,8 @@ package com.grahambartley.dogsunleashed.item;
 import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.ModSounds;
+import com.grahambartley.dogsunleashed.advancement.DogMilestone;
+import com.grahambartley.dogsunleashed.advancement.DogMilestoneCriterion;
 import com.grahambartley.dogsunleashed.entity.DogPointedOrders;
 import com.grahambartley.dogsunleashed.entity.DogStandingSpot;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
@@ -78,6 +80,7 @@ public final class WhistlePointing {
     playPointNote(player);
     showMarker(player, marker.get());
     dog.getCommandController().acknowledge();
+    DogMilestoneCriterion.INSTANCE.trigger(player, DogMilestone.WHISTLE_POINT);
   }
 
   public static Optional<Vec3d> order(

@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    "dogs-unleashed:husky",
+    "dogs-unleashed:dachshund",
+    "dogs-unleashed:beagle",
+    "dogs-unleashed:goldenretriever",
+    "dogs-unleashed:shibainu",
+    "dogs-unleashed:direwolf",
+    "dogs-unleashed:pinscher",
+    "dogs-unleashed:crossbreed"
+  ]
+}

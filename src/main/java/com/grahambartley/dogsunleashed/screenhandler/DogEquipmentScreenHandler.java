@@ -1,6 +1,8 @@
 package com.grahambartley.dogsunleashed.screenhandler;
 
 import com.grahambartley.dogsunleashed.ModScreenHandlers;
+import com.grahambartley.dogsunleashed.advancement.DogMilestone;
+import com.grahambartley.dogsunleashed.advancement.DogMilestoneCriterion;
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.DogSaddlebags;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
@@ -60,7 +62,8 @@ public class DogEquipmentScreenHandler extends ScreenHandler {
               index,
               DogSlotLayout.x(index),
               DogSlotLayout.y(index),
-              this.ownerView));
+              this.ownerView,
+              playerInventory.player));
     }
     for (int row = 0; row < PLAYER_INVENTORY_ROWS; row++) {
       for (int column = 0; column < PLAYER_INVENTORY_COLUMNS; column++) {
@@ -186,16 +189,27 @@ public class DogEquipmentScreenHandler extends ScreenHandler {
 
     private final DogEquipmentInventory equipment;
     private final boolean ownerView;
+    private final PlayerEntity viewer;
 
     private DogEquipmentItemSlot(
         final DogEquipmentInventory equipment,
         final int index,
         final int x,
         final int y,
-        final boolean ownerView) {
+        final boolean ownerView,
+        final PlayerEntity viewer) {
       super(equipment, index, x, y);
       this.equipment = equipment;
       this.ownerView = ownerView;
+      this.viewer = viewer;
+    }
+
+    @Override
+    public void setStack(final ItemStack stack, final ItemStack previousStack) {
+      super.setStack(stack, previousStack);
+      if (!stack.isEmpty()) {
+        DogMilestoneCriterion.INSTANCE.trigger(this.viewer, DogMilestone.GEAR_EQUIPPED);
+      }
     }
 
     @Override

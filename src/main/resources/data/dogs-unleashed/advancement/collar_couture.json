@@ -1,0 +1,28 @@
+{
+  "parent": "dogs-unleashed:best_friend",
+  "display": {
+    "icon": {
+      "id": "minecraft:red_dye"
+    },
+    "title": {
+      "translate": "advancements.dogs-unleashed.collar_couture.title"
+    },
+    "description": {
+      "translate": "advancements.dogs-unleashed.collar_couture.description"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "collar_couture": {
+      "trigger": "dogs-unleashed:dog_milestone",
+      "conditions": {
+        "milestone": "collar_dyed"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "collar_couture"
+    ]
+  ]
+}

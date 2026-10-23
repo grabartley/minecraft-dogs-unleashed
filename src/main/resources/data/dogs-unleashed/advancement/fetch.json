@@ -17,5 +17,9 @@
       "trigger": "dogs-unleashed:fetch_returned"
     }
   },
-  "requirements": [["returned_fetch_item"]]
+  "requirements": [
+    [
+      "returned_fetch_item"
+    ]
+  ]
 }

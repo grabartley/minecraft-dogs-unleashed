@@ -9,7 +9,7 @@
     "description": {
       "translate": "advancements.dogs-unleashed.root.description"
     },
-    "background": "minecraft:textures/block/cherry_planks.png",
+    "background": "dogs-unleashed:textures/gui/advancements/backgrounds/paw_prints.png",
     "frame": "task",
     "show_toast": false,
     "announce_to_chat": false
@@ -19,5 +19,9 @@
       "trigger": "minecraft:tick"
     }
   },
-  "requirements": [["tick"]]
+  "requirements": [
+    [
+      "tick"
+    ]
+  ]
 }

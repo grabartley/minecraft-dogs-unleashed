@@ -1,5 +1,5 @@
 {
-  "parent": "dogs-unleashed:best_friend",
+  "parent": "dogs-unleashed:mush",
   "display": {
     "icon": {
       "id": "minecraft:lead"

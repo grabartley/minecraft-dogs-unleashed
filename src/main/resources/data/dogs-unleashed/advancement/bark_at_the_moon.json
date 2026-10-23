@@ -17,5 +17,12 @@
       "trigger": "dogs-unleashed:dog_howled"
     }
   },
-  "requirements": [["heard_husky_howl"]]
+  "requirements": [
+    [
+      "heard_husky_howl"
+    ]
+  ],
+  "rewards": {
+    "experience": 50
+  }
 }
