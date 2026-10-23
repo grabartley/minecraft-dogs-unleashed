@@ -25,6 +25,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
+import software.bernie.geckolib.util.RenderUtil;
 
 class HeldFrisbeeTest {
 
@@ -82,13 +83,7 @@ class HeldFrisbeeTest {
     final RigProfile profile = BUNDLED.profileOf(rig);
     final MouthGrip grip =
         MouthGrip.of(model, profile, rig.renderTransforms().bodyYawOffsetDegrees()).orElseThrow();
-    final GeoBone mouth = model.getBone(grip.boneName()).orElseThrow();
-    final MatrixStack stack = new MatrixStack();
-    stack.peek().getPositionMatrix().set(LivePose.of(mouth));
-    stack.translate(grip.point().x, grip.point().y, grip.point().z);
-    MouthFrame.level(stack, mouth);
-    stack.multiplyPositionMatrix(HeldFrisbee.gripToDisc(grip, 1.0f));
-    final Matrix4f disc = stack.peek().getPositionMatrix();
+    final Matrix4f disc = placedAsTheLayerDrawsIt(model, grip);
 
     final Set<String> body = new HashSet<>();
     for (final Slot slot :
@@ -117,6 +112,35 @@ class HeldFrisbeeTest {
         }
       }
     }
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("rigs")
+  @DisplayName("as the layer draws it, the near rim sits on the front of the muzzle")
+  void nearRimSitsOnTheMuzzleFront(final UnleashedDogBreed rig) {
+    final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
+    final RigProfile profile = BUNDLED.profileOf(rig);
+    final MouthGrip grip =
+        MouthGrip.of(model, profile, rig.renderTransforms().bodyYawOffsetDegrees()).orElseThrow();
+    final CubeGeometry.Bounds mouth = RenderedBounds.of(model, profile.bonesIn(Slot.MOUTH));
+    final boolean facesSouth = Math.abs(rig.renderTransforms().bodyYawOffsetDegrees()) == 180.0f;
+
+    final Vector3f nearRim =
+        placedAsTheLayerDrawsIt(model, grip)
+            .transformPosition(new Vector3f(0, 0, facesSouth ? -0.5f : 0.5f));
+
+    assertEquals((mouth.min().x + mouth.max().x) / 2.0f, nearRim.x, 1.0e-3f);
+    assertEquals(mouth.min().y + (mouth.max().y - mouth.min().y) * 0.25f, nearRim.y, 1.0e-3f);
+    assertEquals(facesSouth ? mouth.max().z : mouth.min().z, nearRim.z, 1.0e-3f);
+  }
+
+  private static Matrix4f placedAsTheLayerDrawsIt(final BakedGeoModel model, final MouthGrip grip) {
+    final GeoBone mouth = model.getBone(grip.boneName()).orElseThrow();
+    final MatrixStack stack = new MatrixStack();
+    stack.peek().getPositionMatrix().set(LivePose.of(mouth));
+    RenderUtil.translateAndRotateMatrixForBone(stack, mouth);
+    HeldFrisbee.place(stack, mouth, grip, 1.0f);
+    return stack.peek().getPositionMatrix();
   }
 
   private static boolean inside(final Vector3f point, final CubeGeometry.Bounds cube) {

@@ -176,12 +176,11 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
   }
 
   private boolean carriesOn(GeoBone bone, T animatable) {
-    if (animatable.getFetchCarry().activeType() == FetchTypes.FRISBEE
-        && !animatable.getFetchCarry().isCarryingFetchedItem()) {
-      return this.frameGrip.map(MouthGrip::boneName).filter(bone.getName()::equals).isPresent();
-    }
-    return RigProfiles.of(animatable.getRigSourceBreed())
-        .mouthBone()
+    return CarryBone.of(
+            animatable.getFetchCarry().activeType() == FetchTypes.FRISBEE,
+            animatable.getFetchCarry().isCarryingFetchedItem(),
+            this.frameGrip.map(MouthGrip::boneName),
+            RigProfiles.of(animatable.getRigSourceBreed()).mouthBone())
         .filter(bone.getName()::equals)
         .isPresent();
   }
@@ -194,10 +193,7 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
       VertexConsumerProvider bufferSource,
       int packedLight,
       int packedOverlay) {
-    poseStack.translate(grip.point().x, grip.point().y, grip.point().z);
-    MouthFrame.level(poseStack, bone);
-    poseStack.multiplyPositionMatrix(
-        HeldFrisbee.gripToDisc(grip, CarriedToy.FRISBEE.modelPixels() / PIXELS_PER_BLOCK));
+    HeldFrisbee.place(poseStack, bone, grip, CarriedToy.FRISBEE.modelPixels() / PIXELS_PER_BLOCK);
     poseStack.translate(0.0, CarriedToy.FRISBEE.centreDrop(), 0.0);
     DyeColor color = stack.getOrDefault(ModComponents.FRISBEE_COLOR, DyeColor.WHITE);
     frisbeeDummy.setColor(color);

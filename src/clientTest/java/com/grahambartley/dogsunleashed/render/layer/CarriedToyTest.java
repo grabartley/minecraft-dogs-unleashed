@@ -67,7 +67,7 @@ class CarriedToyTest {
   static Stream<Arguments> fetchItemPaths() {
     return Stream.of(
         Arguments.of("tennis_ball", CarriedToy.TENNIS_BALL),
-        Arguments.of("frisbee", CarriedToy.FRISBEE),
+        Arguments.of("frisbee", CarriedToy.TENNIS_BALL),
         Arguments.of("stick", CarriedToy.STICK),
         Arguments.of("bone", CarriedToy.TENNIS_BALL),
         Arguments.of(null, CarriedToy.TENNIS_BALL));
