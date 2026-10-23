@@ -5,18 +5,49 @@ import static com.grahambartley.dogsunleashed.ModConstants.FULL_MOON_PHASE;
 import static com.grahambartley.dogsunleashed.ModConstants.LOW_HEALTH_THRESHOLD;
 import static com.grahambartley.dogsunleashed.ModConstants.PUPPY_BARK_PITCH_MULTIPLIER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
+import com.grahambartley.dogsunleashed.ModSounds;
 import java.util.stream.Stream;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
+@ExtendWith(MinecraftBootstrapExtension.class)
 class DogVocalizationTest {
+
+  static Stream<Arguments> riseHowls() {
+    return Stream.of(
+        Arguments.of(UnleashedDogBreed.HUSKY, ModSounds.HUSKY_HOWL),
+        Arguments.of(UnleashedDogBreed.DIRE_WOLF, ModSounds.DIRE_WOLF_HOWL),
+        Arguments.of(UnleashedDogBreed.BEAGLE, null));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("riseHowls")
+  @DisplayName("a raised dog howls with its voice breed's own howl, or not at all")
+  void riseHowlUsesTheVoiceBreedsOwnHowl(
+      final UnleashedDogBreed voiceBreed, final SoundEvent expected) {
+    assertEquals(expected, DogVocalization.riseHowlSound(voiceBreed));
+  }
+
+  @ParameterizedTest
+  @EnumSource(UnleashedDogBreed.class)
+  @DisplayName("only breeds that howl get a rise howl, and it is never the zombie groan")
+  void riseHowlFollowsTheBreedsVoice(final UnleashedDogBreed voiceBreed) {
+    final SoundEvent sound = DogVocalization.riseHowlSound(voiceBreed);
+    assertEquals(voiceBreed.howls(), sound != null);
+    assertNotEquals(SoundEvents.ENTITY_ZOMBIE_AMBIENT, sound);
+  }
 
   private static final float MAX_HEALTH = 20.0f;
   private static final int NEW_MOON_PHASE = 4;

@@ -63,6 +63,17 @@ public final class ResurrectionRitualGameTest implements FabricGameTest {
           DogGenome.BASELINE_FUR_GROWTH_RATE,
           UnleashedDogBreed.BEAGLE);
 
+  private static final DogGenome HUSKY_VOICED_GENOME =
+      new DogGenome(
+          List.of(
+              new BreedShare(UnleashedDogBreed.BEAGLE, 0.6f),
+              new BreedShare(UnleashedDogBreed.HUSKY, 0.4f)),
+          18.0,
+          0.29,
+          4.0,
+          DogGenome.BASELINE_FUR_GROWTH_RATE,
+          UnleashedDogBreed.HUSKY);
+
   @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
   public void totemFromThePlayersHandInstallsOnTheGrave(final TestContext context) {
     final PlayerEntity player = context.createMockPlayer(GameMode.SURVIVAL);
@@ -198,22 +209,31 @@ public final class ResurrectionRitualGameTest implements FabricGameTest {
 
   @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
   public void aRaisedHuskyHowls(final TestContext context) {
-    assertRaisedPetHowls(context, UnleashedDogBreed.HUSKY, true);
+    assertRaisedPetHowlsWhen(context, "Husky", DogGenome.pure(UnleashedDogBreed.HUSKY), true);
   }
 
   @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
   public void aRaisedDireWolfHowls(final TestContext context) {
-    assertRaisedPetHowls(context, UnleashedDogBreed.DIRE_WOLF, true);
+    assertRaisedPetHowlsWhen(
+        context, "DireWolf", DogGenome.pure(UnleashedDogBreed.DIRE_WOLF), true);
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
+  public void aRaisedCrossBreedWithAHuskyVoiceHowls(final TestContext context) {
+    assertRaisedPetHowlsWhen(context, "HuskyVoice", HUSKY_VOICED_GENOME, true);
   }
 
   @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
   public void aRaisedBeagleStaysQuiet(final TestContext context) {
-    assertRaisedPetHowls(context, UnleashedDogBreed.BEAGLE, false);
+    assertRaisedPetHowlsWhen(context, "Beagle", DogGenome.pure(UnleashedDogBreed.BEAGLE), false);
   }
 
-  private static void assertRaisedPetHowls(
-      final TestContext context, final UnleashedDogBreed breed, final boolean expected) {
-    final PetData pet = deceasedPetWithGrave(context, "Balto", true, DogGenome.pure(breed));
+  private static void assertRaisedPetHowlsWhen(
+      final TestContext context,
+      final String name,
+      final DogGenome genome,
+      final boolean expected) {
+    final PetData pet = deceasedPetWithGrave(context, name, true, genome);
 
     context.runAtTick(STRIKE_TICK, () -> strikeRod(context));
 
@@ -224,7 +244,10 @@ public final class ResurrectionRitualGameTest implements FabricGameTest {
           context.assertTrue(dog != null, "An undead dog should stand where the grave was");
           context.assertTrue(
               dog.getAnimationState().isHowling() == expected,
-              "A raised " + breed + " should howl: " + expected);
+              "A raised " + name + " should howl: " + expected);
+          context.assertTrue(
+              dog.getVocalization().getHowlCooldownTicks() == 0,
+              "The rise howl should leave the full-moon howl cooldown untouched");
           context.complete();
         });
   }
