@@ -2,12 +2,14 @@ package com.grahambartley.dogsunleashed.render.fur;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.grahambartley.dogsunleashed.item.cosmetic.DogCosmetic;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile.Slot;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.DisplayName;
@@ -35,16 +37,24 @@ class FurCoverTest {
           List.of(),
           Map.of());
 
-  private static FurCover wearing(final String gear) {
+  private static Set<Slot> slots(final String gear) {
     final Set<String> worn = Set.of(gear.split(" "));
-    return new FurCover(
+    final Optional<DogCosmetic.Mount> cosmetic =
+        worn.contains("hat")
+            ? Optional.of(DogCosmetic.Mount.HEAD)
+            : worn.contains("bandana") ? Optional.of(DogCosmetic.Mount.COLLAR) : Optional.empty();
+    return FurCover.slotsCovered(
         worn.contains("armour"),
         worn.contains("saddlebags"),
         worn.contains("harness"),
         worn.contains("costume"),
-        worn.contains("hat"),
-        worn.contains("bandana"),
+        cosmetic,
+        worn.contains("mobhead"),
         worn.contains("pendant"));
+  }
+
+  private static FurCover wearing(final String gear) {
+    return new FurCover(slots(gear));
   }
 
   @ParameterizedTest(name = "{0} covers {1}")
@@ -54,17 +64,19 @@ class FurCoverTest {
     "saddlebags, TORSO",
     "harness, TORSO",
     "hat, HEAD",
+    "mobhead, HEAD",
     "bandana, NECK",
     "pendant, NECK",
-    "armour hat pendant, TORSO HEAD NECK"
+    "armour hat pendant, TORSO HEAD NECK",
+    "saddlebags mobhead bandana, TORSO HEAD NECK"
   })
   @DisplayName("each piece of gear covers the slot it sits on")
-  void gearCoversItsSlot(final String gear, final String slots) {
-    final Set<Slot> expected =
-        slots.isEmpty()
+  void gearCoversItsSlot(final String gear, final String expected) {
+    final Set<Slot> slots =
+        expected.isEmpty()
             ? EnumSet.noneOf(Slot.class)
-            : Arrays.stream(slots.split(" ")).map(Slot::valueOf).collect(Collectors.toSet());
-    assertEquals(expected, wearing(gear).coveredSlots());
+            : Arrays.stream(expected.split(" ")).map(Slot::valueOf).collect(Collectors.toSet());
+    assertEquals(slots, slots(gear));
   }
 
   @ParameterizedTest(name = "costume covers {0}")
@@ -84,7 +96,14 @@ class FurCoverTest {
   })
   @DisplayName("a costume covers every body slot, since the suit is drawn over the whole dog")
   void costumeCoversTheWholeBody(final Slot slot) {
-    assertEquals(true, wearing("costume").coveredSlots().contains(slot));
+    assertEquals(true, slots("costume").contains(slot));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @CsvSource({"FUR_SHAGGY", "FUR_OVERGROWN"})
+  @DisplayName("a costume never lists the fur slots themselves as covered")
+  void costumeLeavesFurSlotsOut(final Slot slot) {
+    assertEquals(false, slots("costume").contains(slot));
   }
 
   @ParameterizedTest(name = "{0}: {1} on {2} hidden={3}")
@@ -97,6 +116,7 @@ class FurCoverTest {
     "saddlebags, shag_body, body, true",
     "harness, mop_body, body, true",
     "hat, mop_head, head, true",
+    "mobhead, mop_head, head, true",
     "hat, shag_body, body, false",
     "bandana, shag_neck, neck, true",
     "pendant, shag_neck, neck, true",
@@ -117,5 +137,12 @@ class FurCoverTest {
   @DisplayName("a rig with no fur art hides nothing, whatever it wears")
   void noFurArtHidesNothing(final String gear) {
     assertEquals(false, wearing(gear).hides(RigProfile.EMPTY, "body", "root"));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @CsvSource({"shag_body, body", "mop_head, head", "shag_neck, neck"})
+  @DisplayName("a dog wearing nothing hides no fur")
+  void nothingWornHidesNothing(final String bone, final String parent) {
+    assertEquals(false, FurCover.NONE.hides(PROFILE, bone, parent));
   }
 }
