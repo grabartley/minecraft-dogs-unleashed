@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 import net.minecraft.client.util.math.MatrixStack;
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.junit.jupiter.api.DisplayName;
@@ -39,7 +40,7 @@ class HeldFrisbeeTest {
   @CsvSource({"-1, 0.4375, 1", "1, 0.2, 1", "-1, 0.3, 2", "1, 0.8, 0.5"})
   @DisplayName("the near rim of the disc is at the grip")
   void nearRimIsAtTheGrip(final float forwardZ, final float discScale, final float model) {
-    final Matrix4f disc = HeldFrisbee.gripToDisc(new Vector3f(0, 0, forwardZ), discScale, model);
+    final Matrix4f disc = discOf(forwardZ, discScale, model);
     final Vector3f nearRim =
         disc.transformPosition(new Vector3f(0, 0, -Math.signum(forwardZ) * model / 2.0f));
     assertEquals(0.0f, nearRim.length(), TOLERANCE);
@@ -49,13 +50,33 @@ class HeldFrisbeeTest {
   @CsvSource({"-1, 0.4375, 1", "1, 0.2, 1", "-1, 0.3, 2", "1, 0.8, 0.5"})
   @DisplayName("the far rim sticks out in front of the muzzle, tipped a little nose-down")
   void farRimSticksOutTippedDown(final float forwardZ, final float discScale, final float model) {
-    final Matrix4f disc = HeldFrisbee.gripToDisc(new Vector3f(0, 0, forwardZ), discScale, model);
+    final Matrix4f disc = discOf(forwardZ, discScale, model);
     final Vector3f farRim =
         disc.transformPosition(new Vector3f(0, 0, Math.signum(forwardZ) * model / 2.0f));
     final float diameter = discScale * model;
     assertEquals(-diameter * Math.sin(TIP), farRim.y, TOLERANCE);
     assertEquals(Math.signum(forwardZ) * diameter * Math.cos(TIP), farRim.z, TOLERANCE);
     assertEquals(0.0f, farRim.x, TOLERANCE);
+  }
+
+  @ParameterizedTest(name = "forward z {0}, disc scale {1}, model {2}")
+  @CsvSource({"-1, 0.4375, 1", "1, 0.2, 1", "-1, 0.3, 2", "1, 0.8, 0.5"})
+  @DisplayName("placing the disc only turns the normals, so it is lit like the dog")
+  void keepsNormalsUnitLength(final float forwardZ, final float discScale, final float model) {
+    final MatrixStack stack = new MatrixStack();
+    stack.scale(16.0f, -16.0f, 16.0f);
+    final Matrix3f before = new Matrix3f(stack.peek().getNormalMatrix());
+    HeldFrisbee.gripToDisc(stack, new Vector3f(0, 0, forwardZ), discScale, model);
+    final Matrix3f turn = new Matrix3f(before).invert().mul(stack.peek().getNormalMatrix());
+    assertEquals(1.0f, turn.determinant(), TOLERANCE);
+    assertEquals(1.0f, turn.transform(new Vector3f(1, 0, 0)).length(), TOLERANCE);
+    assertEquals(1.0f, turn.transform(new Vector3f(0, 1, 0)).length(), TOLERANCE);
+  }
+
+  private static Matrix4f discOf(final float forwardZ, final float discScale, final float model) {
+    final MatrixStack stack = new MatrixStack();
+    HeldFrisbee.gripToDisc(stack, new Vector3f(0, 0, forwardZ), discScale, model);
+    return stack.peek().getPositionMatrix();
   }
 
   static Stream<UnleashedDogBreed> rigs() {

@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.render.layer;
 
 import net.minecraft.client.util.math.MatrixStack;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import software.bernie.geckolib.cache.object.GeoBone;
 
@@ -29,15 +30,22 @@ public final class HeldFrisbee {
     MouthFrame.levelToRest(stack, mouth);
     final float discScale =
         CarriedToy.FRISBEE.scaleIn(entityOrigin, stack.peek().getPositionMatrix());
-    stack.multiplyPositionMatrix(
-        gripToDisc(grip.forward(), discScale, CarriedToy.FRISBEE.modelPixels() / PIXELS_PER_BLOCK));
+    gripToDisc(
+        stack, grip.forward(), discScale, CarriedToy.FRISBEE.modelPixels() / PIXELS_PER_BLOCK);
   }
 
-  public static Matrix4f gripToDisc(
-      final Vector3f forward, final float discScale, final float modelDiameter) {
-    return new Matrix4f()
-        .rotate((float) Math.toRadians(NOSE_DOWN_DEGREES), new Vector3f(UP).cross(forward))
-        .translate(new Vector3f(forward).mul(discScale * modelDiameter / 2.0f))
-        .scale(discScale);
+  public static void gripToDisc(
+      final MatrixStack stack,
+      final Vector3f forward,
+      final float discScale,
+      final float modelDiameter) {
+    stack.multiply(
+        new Quaternionf()
+            .rotationAxis(
+                (float) Math.toRadians(NOSE_DOWN_DEGREES),
+                new Vector3f(UP).cross(forward).normalize()));
+    final Vector3f out = new Vector3f(forward).mul(discScale * modelDiameter / 2.0f);
+    stack.translate(out.x, out.y, out.z);
+    stack.scale(discScale, discScale, discScale);
   }
 }
