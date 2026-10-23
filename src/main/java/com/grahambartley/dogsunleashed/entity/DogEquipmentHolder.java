@@ -1,6 +1,8 @@
 package com.grahambartley.dogsunleashed.entity;
 
 import com.grahambartley.dogsunleashed.ModNbtKeys;
+import com.grahambartley.dogsunleashed.advancement.DogMilestone;
+import com.grahambartley.dogsunleashed.advancement.DogMilestoneCriterion;
 import com.grahambartley.dogsunleashed.screenhandler.DogEquipmentScreenHandler;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
@@ -103,6 +105,7 @@ public final class DogEquipmentHolder {
       final PlayerEntity player, final DogEquipmentSlot slot, final ItemStack heldStack) {
     final ItemStack previous = this.getStack(slot);
     this.setStack(slot, heldStack.copyWithCount(1));
+    DogMilestoneCriterion.INSTANCE.trigger(player, DogMilestone.GEAR_EQUIPPED);
     heldStack.decrementUnlessCreative(1, player);
     if (!previous.isEmpty()) {
       player.giveItemStack(previous);

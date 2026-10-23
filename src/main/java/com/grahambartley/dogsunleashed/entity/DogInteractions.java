@@ -3,6 +3,8 @@ package com.grahambartley.dogsunleashed.entity;
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.ModPortraits;
+import com.grahambartley.dogsunleashed.advancement.DogMilestone;
+import com.grahambartley.dogsunleashed.advancement.DogMilestoneCriterion;
 import com.grahambartley.dogsunleashed.advancement.DogTamedCriterion;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
 import com.grahambartley.dogsunleashed.entity.delivery.DogDeliveries;
@@ -260,6 +262,7 @@ public final class DogInteractions {
       return null;
     }
     this.dog.getComponents().get(DogCollar.class).setColor(dyeItem.getColor());
+    DogMilestoneCriterion.INSTANCE.trigger(player, DogMilestone.COLLAR_DYED);
     itemStack.decrementUnlessCreative(1, player);
     return ActionResult.SUCCESS;
   }

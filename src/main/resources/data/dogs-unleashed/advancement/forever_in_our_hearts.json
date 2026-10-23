@@ -24,5 +24,8 @@
       }
     }
   },
-  "requirements": [["picked_up_preserved_grave"]]
+  "requirements": [["picked_up_preserved_grave"]],
+  "rewards": {
+    "experience": 100
+  }
 }

@@ -310,6 +310,7 @@ Right-clicking your own dog opens the command wheel. The dog takes a standing co
 | POINT-6 | A point plays a whistle note different from the summon, and briefly marks the target for the owner only |
 | POINT-7 | If the bound dog is not loaded, sitting, sleeping or ridden, the action bar says why |
 | POINT-8 | The server re-checks ownership, range and line of sight. It never trusts the client's choice of target |
+| POINT-9 | The first point a dog obeys earns "Over There!" |
 
 **Not supported:** pointing for other players' dogs; pointing without a whistle.
 
@@ -409,6 +410,7 @@ The gear screen, opened from the wheel, has slots for armour, a pendant, a cosme
 | GEAR-20 | Saddlebags (leather and a chest) add 9 item slots to the gear screen and show on the dog |
 | GEAR-21 | The gear screen closes if the owner moves out of 8 blocks or the dog dies |
 | GEAR-22 | The gear screen looks like vanilla's horse inventory: the vanilla container background and slot art, a live view of the dog in the preview box, and greyed empty-slot icons for the pendant, cosmetic and costume slots. Hovering an empty dog slot names it and says what it holds |
+| GEAR-23 | Putting any gear on your dog, by hand or in the gear screen, earns "Dressed to Impress". Dyeing its collar earns "Collar Couture" |
 
 #### Costumes
 
@@ -517,6 +519,7 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 | FAM-13 | The family tree shows parents, mates, siblings and children (32 each at most), with pan, zoom, expand and focus |
 | FAM-14 | The family tree shows each dog's visible genes, and marks the genes it carries once breeding has revealed them |
 | FAM-15 | A player may view the family tree of a dog they own, or of a dog related to one they own |
+| FAM-16 | The player who started the breeding earns "Puppy Love" when any puppy is born and "Mixed Heritage" when a cross is born |
 
 **Not supported:** breeding undead dogs; crosses with a dire wolf; choosing a puppy's coat.
 
@@ -611,6 +614,7 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 | NOSE-10 | Giving the item again, any command, or 2 minutes without progress stops tracking |
 | NOSE-11 | Only the owner can give a scent. Wild dogs and other players' dogs ignore scent items |
 | NOSE-12 | Any other item still opens the wheel, and food still feeds |
+| NOSE-13 | A dog tracking a scent to its target earns its owner "On the Scent" |
 
 **Not supported:** tracking players; making maps.
 
@@ -811,7 +815,7 @@ New features add their own settings (SPAWN-10, GROOM-10, AGE-1 and others) under
 
 **Actor:** Any player.
 
-The mod has its own advancement tab. Advancements for a feature are stated with that feature. These are the ones that belong to no single feature.
+The mod has its own advancement tab, on a pink background scattered with paw prints. Advancements for a feature are stated with that feature. These are the ones that belong to no single feature.
 
 | ID | Advancement | Earned by |
 |---|---|---|
@@ -822,6 +826,14 @@ The mod has its own advancement tab. Advancements for a feature are stated with 
 | ADV-5 | Fetch! | A dog bringing a toy back |
 | ADV-6 | Sweet Dreams | A dog falling asleep in its bed |
 | ADV-7 | Forever in Our Hearts | Holding a dog's grave as an item |
+
+The tab as a whole:
+
+| ID | Requirement |
+|---|---|
+| ADV-8 | The tab branches by theme from Best Friend. Advancements that build on each other chain: The Whole Pack before Winter is Coming, Good Dog! before Show Dog, Mush! before Full Team, Off Exploring before Look What I Found, Puppy Love before Mixed Heritage, and Forever in Our Hearts before Second Leash of Life before Best Friend Again |
+| ADV-9 | Bad Hair Day, Second Leash of Life and Best Friend Again stay hidden until earned |
+| ADV-10 | Goal advancements give 50 experience and challenge advancements give 100 |
 
 **Enforcement:** server.
 

@@ -1,0 +1,28 @@
+{
+  "parent": "dogs-unleashed:best_friend",
+  "display": {
+    "icon": {
+      "id": "dogs-unleashed:dog_whistle"
+    },
+    "title": {
+      "translate": "advancements.dogs-unleashed.over_there.title"
+    },
+    "description": {
+      "translate": "advancements.dogs-unleashed.over_there.description"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "over_there": {
+      "trigger": "dogs-unleashed:dog_milestone",
+      "conditions": {
+        "milestone": "whistle_point"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "over_there"
+    ]
+  ]
+}

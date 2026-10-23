@@ -61,7 +61,9 @@ Shared assets live under `src/main/resources/assets/dogs-unleashed/`:
    sound referenced by the preset `Voice`.
 3. **Entity type**: `src/main/java/com/grahambartley/dogsunleashed/ModEntities.java` - new
    `EntityType<UnleashedDogEntity>` constant via `registerDog(breed)` plus a `getDogEntityType`
-   switch case. Attribute registration is the existing `values()` loop; no further wiring.
+   switch case. Attribute registration is the existing `values()` loop. Add the living entity id
+   to `src/main/resources/data/dogs-unleashed/tags/entity_type/dogs.json` so breeding it earns
+   Puppy Love; `DogAdvancementGameTest` fails if it is missing.
 4. **Spawn egg**: `src/main/java/com/grahambartley/dogsunleashed/ModItems.java` plus
    `src/main/resources/assets/dogs-unleashed/models/item/{breed_id}_spawn_egg.json`, parented to
    vanilla's `minecraft:item/template_spawn_egg` with no `display` overrides, so it is held and

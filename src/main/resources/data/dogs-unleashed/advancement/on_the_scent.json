@@ -1,0 +1,28 @@
+{
+  "parent": "dogs-unleashed:best_friend",
+  "display": {
+    "icon": {
+      "id": "minecraft:brush"
+    },
+    "title": {
+      "translate": "advancements.dogs-unleashed.on_the_scent.title"
+    },
+    "description": {
+      "translate": "advancements.dogs-unleashed.on_the_scent.description"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "on_the_scent": {
+      "trigger": "dogs-unleashed:dog_milestone",
+      "conditions": {
+        "milestone": "scent_found"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "on_the_scent"
+    ]
+  ]
+}

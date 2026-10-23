@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed;
 import com.grahambartley.dogsunleashed.advancement.DogDefendedVillageCriterion;
 import com.grahambartley.dogsunleashed.advancement.DogExpeditionReturnedCriterion;
 import com.grahambartley.dogsunleashed.advancement.DogHowledCriterion;
+import com.grahambartley.dogsunleashed.advancement.DogMilestoneCriterion;
 import com.grahambartley.dogsunleashed.advancement.DogShearBotchedCriterion;
 import com.grahambartley.dogsunleashed.advancement.DogSleptInBedCriterion;
 import com.grahambartley.dogsunleashed.advancement.DogTamedCriterion;
@@ -71,6 +72,7 @@ public class DogsUnleashed implements ModInitializer {
     DogTrickLearnedCriterion.register();
     SledTeamCriterion.register();
     SledTravelledCriterion.register();
+    DogMilestoneCriterion.register();
 
     ModSounds.initialize();
     ModComponents.initialize();

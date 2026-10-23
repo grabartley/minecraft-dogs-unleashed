@@ -24,5 +24,8 @@
     [
       "every_trick_learned"
     ]
-  ]
+  ],
+  "rewards": {
+    "experience": 50
+  }
 }

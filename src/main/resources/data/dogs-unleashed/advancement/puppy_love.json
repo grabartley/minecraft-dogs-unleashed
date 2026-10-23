@@ -1,0 +1,36 @@
+{
+  "parent": "dogs-unleashed:best_friend",
+  "display": {
+    "icon": {
+      "id": "dogs-unleashed:puppy_basket"
+    },
+    "title": {
+      "translate": "advancements.dogs-unleashed.puppy_love.title"
+    },
+    "description": {
+      "translate": "advancements.dogs-unleashed.puppy_love.description"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "puppy_love": {
+      "trigger": "minecraft:bred_animals",
+      "conditions": {
+        "child": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "#dogs-unleashed:dogs"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "puppy_love"
+    ]
+  ]
+}

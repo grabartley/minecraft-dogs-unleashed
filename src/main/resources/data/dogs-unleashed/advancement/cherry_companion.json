@@ -1,5 +1,5 @@
 {
-  "parent": "dogs-unleashed:root",
+  "parent": "dogs-unleashed:best_friend",
   "display": {
     "icon": {
       "id": "minecraft:pink_petals"
