@@ -34,7 +34,7 @@ public class DogBedItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
     this.dummyEntity.setColor(stack.getOrDefault(ModComponents.DOG_BED_COLOR, DyeColor.WHITE));
 
     matrices.push();
-    matrices.multiplyPositionMatrix(PlacedBlockItemPose.of(DogBedBlockEntityRenderer.BED_SCALE));
+    PlacedBlockItemPose.apply(matrices, DogBedBlockEntityRenderer.BED_SCALE);
 
     final BakedGeoModel bakedModel =
         this.renderer

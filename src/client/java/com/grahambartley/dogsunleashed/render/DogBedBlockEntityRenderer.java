@@ -31,7 +31,7 @@ public class DogBedBlockEntityRenderer extends GeoBlockRenderer<DogBedBlockEntit
       int packedLight,
       int packedOverlay,
       int colour) {
-    poseStack.multiplyPositionMatrix(PlacedBlockItemPose.of(BED_SCALE));
+    PlacedBlockItemPose.apply(poseStack, BED_SCALE);
     poseStack.translate(-0.5, 0, -0.5);
     super.preRender(
         poseStack,

@@ -51,7 +51,7 @@ public class DogGraveBlockEntityRenderer extends GeoBlockRenderer<DogGraveBlockE
       int packedOverlay,
       int colour) {
     if (!isReRender) {
-      poseStack.multiplyPositionMatrix(PlacedBlockItemPose.of(GRAVE_SCALE));
+      PlacedBlockItemPose.apply(poseStack, GRAVE_SCALE);
       poseStack.translate(-0.5, 0, -0.5);
     }
     super.preRender(
