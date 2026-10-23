@@ -37,7 +37,6 @@ import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
 public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockAndItemGeoLayer<T> {
   private static final int FULL_BRIGHT_COLOR = 0xFFFFFFFF;
   private static final float NO_PARTIAL_TICK = 1.0f;
-  private static final float PIXELS_PER_BLOCK = 16.0f;
   private static final float ITEM_FLAT_DEGREES = 90.0f;
   private static final float DIAGONAL_SPRITE_TO_CROSSWISE_DEGREES = -45.0f;
 
@@ -193,7 +192,7 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
       VertexConsumerProvider bufferSource,
       int packedLight,
       int packedOverlay) {
-    HeldFrisbee.place(poseStack, bone, grip, CarriedToy.FRISBEE.modelPixels() / PIXELS_PER_BLOCK);
+    HeldFrisbee.place(poseStack, bone, grip, this.entityOrigin);
     poseStack.translate(0.0, CarriedToy.FRISBEE.centreDrop(), 0.0);
     DyeColor color = stack.getOrDefault(ModComponents.FRISBEE_COLOR, DyeColor.WHITE);
     frisbeeDummy.setColor(color);

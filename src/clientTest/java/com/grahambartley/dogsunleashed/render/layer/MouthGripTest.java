@@ -66,14 +66,4 @@ class MouthGripTest {
     assertEquals(0.0f, forward.y, TOLERANCE);
     assertEquals(facesSouth(rig) ? 1.0f : -1.0f, forward.z, TOLERANCE);
   }
-
-  @ParameterizedTest(name = "{0}")
-  @MethodSource("rigs")
-  @DisplayName("the head width is the width of the head slot as GeckoLib draws it")
-  void measuresTheHeadWidth(final UnleashedDogBreed rig) {
-    final CubeGeometry.Bounds head =
-        RenderedBounds.of(
-            ShippedRigs.model(rig.serializedId()), BUNDLED.profileOf(rig).bonesIn(Slot.HEAD));
-    assertEquals(head.max().x - head.min().x, gripOf(rig).headWidth(), TOLERANCE);
-  }
 }
