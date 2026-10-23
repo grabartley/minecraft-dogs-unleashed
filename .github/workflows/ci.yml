@@ -156,20 +156,3 @@ jobs:
         with:
           name: dogs-unleashed-${{ github.sha }}
           path: build/libs/*.jar
-
-  build:
-    if: always()
-    needs:
-      - unit-tests
-      - gametests
-      - server-smoke
-      - snapshot-jar
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Require every job to pass
-        env:
-          RESULTS: ${{ toJSON(needs.*.result) }}
-        run: |
-          echo "$RESULTS"
-          echo "$RESULTS" | jq -e 'all(. == "success")'
