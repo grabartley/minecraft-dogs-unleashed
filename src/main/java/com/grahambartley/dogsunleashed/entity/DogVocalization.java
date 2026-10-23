@@ -103,8 +103,16 @@ public final class DogVocalization {
     if (this.dog.isUndead()) {
       return SoundEvents.ENTITY_ZOMBIE_AMBIENT;
     }
-    final SoundEvent howl = this.dog.getVoiceBreed().howlSound();
+    return breedHowl(this.dog.getVoiceBreed());
+  }
+
+  private static SoundEvent breedHowl(final UnleashedDogBreed voiceBreed) {
+    final SoundEvent howl = voiceBreed.howlSound();
     return howl != null ? howl : ModSounds.HUSKY_HOWL;
+  }
+
+  static @Nullable SoundEvent riseHowlSound(final UnleashedDogBreed voiceBreed) {
+    return voiceBreed.howls() ? breedHowl(voiceBreed) : null;
   }
 
   boolean canBark() {
@@ -227,14 +235,25 @@ public final class DogVocalization {
     }
   }
 
+  void riseHowl() {
+    final SoundEvent sound = riseHowlSound(this.dog.getVoiceBreed());
+    if (sound != null) {
+      this.startHowl(sound, DogsUnleashed.SERVER_CONFIG.sound().howlVolume());
+    }
+  }
+
   private void howl() {
     this.howl(DogsUnleashed.SERVER_CONFIG.sound().howlVolume());
   }
 
   private void howl(final float volume) {
-    this.dog.getAnimationState().setHowling(true);
-    this.dog.playSound(this.howlSound(), volume, HOWL_PITCH);
+    this.startHowl(this.howlSound(), volume);
     this.howlCooldownTicks = HOWL_COOLDOWN_TICKS;
+  }
+
+  private void startHowl(final SoundEvent sound, final float volume) {
+    this.dog.getAnimationState().setHowling(true);
+    this.dog.playSound(sound, volume, HOWL_PITCH);
     this.howlActiveTicks = HOWL_DURATION_TICKS;
   }
 
