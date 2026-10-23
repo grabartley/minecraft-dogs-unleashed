@@ -40,11 +40,11 @@ public record DogPortrait(DogStatueLook look, String name, PortraitSize size, Do
   }
 
   public DogPortrait nextPose() {
-    return new DogPortrait(this.look, this.name, this.size, this.pose.next(this.look.howls()));
+    return new DogPortrait(this.look, this.name, this.size, this.pose.next(this.look));
   }
 
   public DogStatuePose shownPose() {
-    return this.pose.shownFor(this.look.howls());
+    return this.pose.shownFor(this.look);
   }
 
   public PortraitBackground background() {

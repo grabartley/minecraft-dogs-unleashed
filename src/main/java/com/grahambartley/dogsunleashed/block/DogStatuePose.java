@@ -20,6 +20,14 @@ public enum DogStatuePose {
     };
   }
 
+  public DogStatuePose next(final DogStatueLook look) {
+    return this.next(look.howls());
+  }
+
+  public DogStatuePose shownFor(final DogStatueLook look) {
+    return this.shownFor(look.howls());
+  }
+
   public DogStatuePose shownFor(final boolean howls) {
     return this == HOWL && !howls ? SIT : this;
   }

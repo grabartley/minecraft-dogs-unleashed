@@ -24,6 +24,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
+import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
 public class DogPortraitEntity extends AbstractDecorationEntity {
@@ -96,12 +97,14 @@ public class DogPortraitEntity extends AbstractDecorationEntity {
 
   @Override
   public ActionResult interact(final PlayerEntity player, final Hand hand) {
-    if (this.portrait == null || hand != Hand.MAIN_HAND || !player.getMainHandStack().isEmpty()) {
+    if (!PortraitPoseRules.poses(
+        this.portrait != null, hand == Hand.MAIN_HAND, player.getMainHandStack().isEmpty())) {
       return ActionResult.PASS;
     }
     if (!this.getWorld().isClient) {
       this.setPortrait(this.portrait.nextPose());
       this.playSound(SoundEvents.ENTITY_ITEM_FRAME_ROTATE_ITEM, 1.0f, 1.0f);
+      this.emitGameEvent(GameEvent.BLOCK_CHANGE, player);
     }
     return ActionResult.success(this.getWorld().isClient);
   }

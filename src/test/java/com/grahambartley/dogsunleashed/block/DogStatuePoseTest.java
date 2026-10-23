@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.block;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.NbtString;
@@ -64,5 +65,23 @@ class DogStatuePoseTest {
     final NbtElement saved = DogStatuePose.CODEC.encodeStart(NbtOps.INSTANCE, pose).getOrThrow();
     assertEquals(NbtString.of(pose.serializedName()), saved);
     assertEquals(pose, DogStatuePose.CODEC.parse(NbtOps.INSTANCE, saved).getOrThrow());
+  }
+
+  @ParameterizedTest(name = "a {0} at {1} is next {2} and shows as {3}")
+  @CsvSource({
+    "HUSKY, STAND, HOWL, STAND",
+    "HUSKY, HOWL, SIT, HOWL",
+    "BEAGLE, STAND, SIT, STAND",
+    "BEAGLE, HOWL, SIT, SIT"
+  })
+  @DisplayName("a dog's look decides whether its breed reaches and shows the howl pose")
+  void lookDecidesTheHowl(
+      final UnleashedDogBreed breed,
+      final DogStatuePose pose,
+      final DogStatuePose next,
+      final DogStatuePose shown) {
+    final DogStatueLook look = new DogStatueLook(breed, false, 1, -1, 0, 0, null, null);
+    assertEquals(next, pose.next(look));
+    assertEquals(shown, pose.shownFor(look));
   }
 }

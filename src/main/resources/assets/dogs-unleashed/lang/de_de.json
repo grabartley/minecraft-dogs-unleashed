@@ -72,7 +72,7 @@
   "item.dogs-unleashed.blank_canvas.hint": "Benutze sie an einem deiner Hunde, um sein Porträt zu malen",
   "item.dogs-unleashed.blank_canvas.hint.size": "Schleiche und benutze sie, um die Größe zu ändern",
   "item.dogs-unleashed.dog_portrait": "Hundeporträt",
-  "item.dogs-unleashed.dog_portrait.hint.pose": "Benutze es an der Wand mit leerer Hand, um die Pose zu ändern",
+  "item.dogs-unleashed.dog_portrait.hint.pose": "Benutze es nach dem Aufhängen mit leerer Hand, um die Pose zu ändern",
   "item.dogs-unleashed.dog_whistle.unbound": "Rechtsklicke deinen Hund, um sie zu binden",
   "item.dogs-unleashed.dog_whistle.bound": "Gebunden an %1$s",
   "message.dogs-unleashed.whistle.bound": "%1$s hört jetzt auf diese Pfeife",

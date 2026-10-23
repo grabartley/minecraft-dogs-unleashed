@@ -6,6 +6,7 @@ import java.util.Map;
 public final class PortraitFraming {
 
   private static final int SOLID_ALPHA = 0x80;
+  private static final int OPAQUE_ALPHA = 0xFF;
   private static final double FILL_HEIGHT = 0.82;
   private static final double FILL_WIDTH = 0.9;
   private static final double FOOT_ROOM = 0.06;
@@ -88,6 +89,7 @@ public final class PortraitFraming {
     int solid = 0;
     int best = 0;
     int bestVotes = 0;
+    int fallback = 0;
     for (int y = startY; y < endY; y++) {
       for (int x = startX; x < endX; x++) {
         samples++;
@@ -96,7 +98,11 @@ public final class PortraitFraming {
           continue;
         }
         solid++;
-        final int colour = pixel | 0xFF000000;
+        if ((pixel >>> 24) < OPAQUE_ALPHA) {
+          fallback = pixel | 0xFF000000;
+          continue;
+        }
+        final int colour = pixel;
         final int count = votes.merge(colour, 1, Integer::sum);
         if (count > bestVotes) {
           best = colour;
@@ -104,6 +110,9 @@ public final class PortraitFraming {
         }
       }
     }
-    return solid * 2 >= samples ? best : 0;
+    if (solid * 2 < samples) {
+      return 0;
+    }
+    return bestVotes > 0 ? best : fallback;
   }
 }

@@ -72,7 +72,7 @@
   "item.dogs-unleashed.blank_canvas.hint": "Используйте на одной из ваших собак, чтобы написать её портрет",
   "item.dogs-unleashed.blank_canvas.hint.size": "Присядьте и используйте, чтобы сменить размер",
   "item.dogs-unleashed.dog_portrait": "Портрет собаки",
-  "item.dogs-unleashed.dog_portrait.hint.pose": "Используйте на стене пустой рукой, чтобы сменить позу",
+  "item.dogs-unleashed.dog_portrait.hint.pose": "Повесив его, используйте пустой рукой, чтобы сменить позу",
   "item.dogs-unleashed.dog_whistle.unbound": "ПКМ по собаке, чтобы привязать",
   "item.dogs-unleashed.dog_whistle.bound": "Привязан к: %1$s",
   "message.dogs-unleashed.whistle.bound": "Теперь %1$s откликается на этот свисток",

@@ -46,10 +46,10 @@ public record DogStatue(DogStatueLook look, DogStatuePose pose, String name) {
   }
 
   public DogStatue nextPose() {
-    return this.withPose(this.pose.next(this.look.howls()));
+    return this.withPose(this.pose.next(this.look));
   }
 
   public DogStatuePose shownPose() {
-    return this.pose.shownFor(this.look.howls());
+    return this.pose.shownFor(this.look);
   }
 }
