@@ -9,7 +9,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.ValueSource;
 
 class PortraitFramingTest {
 
@@ -111,20 +110,23 @@ class PortraitFramingTest {
     assertTrue(Arrays.stream(out).anyMatch(pixel -> pixel == DOG), "the dog is painted");
   }
 
-  @ParameterizedTest(name = "an edge alpha of {0}")
-  @ValueSource(ints = {0x80, 0xC0, 0xFE})
-  @DisplayName("a half-see-through edge never paints over the dog's solid colour beside it")
-  void translucentEdgesLoseToSolidColour(final int edgeAlpha) {
+  @ParameterizedTest(name = "an edge alpha of {0}, solid stripes {1}")
+  @CsvSource({"128, true", "192, true", "254, true", "128, false", "254, false"})
+  @DisplayName(
+      "a half-see-through edge never paints its own darkened colour, so cells take the solid colour or stay clear")
+  void translucentEdgesNeverPaint(final int edgeAlpha, final boolean solidStripes) {
     final int size = 128;
     final int edge = (edgeAlpha << 24) | 0x101010;
     final int[] pixels = new int[size * size];
     for (int y = 20; y < 110; y++) {
       for (int x = 20; x < 110; x++) {
-        pixels[y * size + x] = x % 3 == 0 ? DOG : edge;
+        pixels[y * size + x] = solidStripes && x % 2 == 0 ? DOG : edge;
       }
     }
     final int[] out =
         PortraitFraming.fit(new PortraitComposer.Layer(pixels, size, size), 64, 64, FRAME_BORDER);
-    assertTrue(Arrays.stream(out).allMatch(pixel -> pixel == 0 || pixel == DOG), "solid wins");
+    assertTrue(Arrays.stream(out).allMatch(pixel -> pixel == 0 || pixel == DOG), "no edge colour");
+    assertEquals(
+        solidStripes, Arrays.stream(out).anyMatch(pixel -> pixel == DOG), "solid stripes paint");
   }
 }

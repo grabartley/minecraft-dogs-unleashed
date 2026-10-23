@@ -163,4 +163,14 @@ class DogPortraitTest {
                 DogStatuePose.SIT)
             .background());
   }
+
+  @ParameterizedTest(name = "{0}")
+  @EnumSource(DogStatuePose.class)
+  @DisplayName("changing a portrait's pose keeps its dog, name and size")
+  void withPoseKeepsTheRest(final DogStatuePose pose) {
+    final DogPortrait portrait =
+        new DogPortrait(BEAGLE, "Bentley", PortraitSize.LARGE, DogStatuePose.SIT);
+    assertEquals(
+        new DogPortrait(BEAGLE, "Bentley", PortraitSize.LARGE, pose), portrait.withPose(pose));
+  }
 }

@@ -39,8 +39,12 @@ public record DogPortrait(DogStatueLook look, String name, PortraitSize size, Do
     return new DogPortrait(look, DogStatue.cut(name), size, DogStatuePose.SIT);
   }
 
+  public DogPortrait withPose(final DogStatuePose pose) {
+    return new DogPortrait(this.look, this.name, this.size, pose);
+  }
+
   public DogPortrait nextPose() {
-    return new DogPortrait(this.look, this.name, this.size, this.pose.next(this.look));
+    return this.withPose(this.pose.next(this.look));
   }
 
   public DogStatuePose shownPose() {

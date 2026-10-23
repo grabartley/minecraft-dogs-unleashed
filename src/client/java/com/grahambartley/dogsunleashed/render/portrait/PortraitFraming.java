@@ -36,6 +36,9 @@ public final class PortraitFraming {
     final double drawnHeight = bounds.height() * scale;
     final double left = (width - drawnWidth) / 2.0;
     final double top = height - frame - innerHeight * FOOT_ROOM - drawnHeight;
+    final int cellSide = (int) Math.ceil(1.0 / scale) + 2;
+    final int[] colours = new int[cellSide * cellSide];
+    final int[] votes = new int[colours.length];
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
         out[y * width + x] =
@@ -44,7 +47,9 @@ public final class PortraitFraming {
                 bounds.left() + (x - left) / scale,
                 bounds.top() + (y - top) / scale,
                 bounds.left() + (x + 1 - left) / scale,
-                bounds.top() + (y + 1 - top) / scale);
+                bounds.top() + (y + 1 - top) / scale,
+                colours,
+                votes);
       }
     }
     return out;
@@ -73,7 +78,9 @@ public final class PortraitFraming {
       final double fromX,
       final double fromY,
       final double toX,
-      final double toY) {
+      final double toY,
+      final int[] colours,
+      final int[] votes) {
     final int startX = Math.max(0, (int) Math.floor(fromX));
     final int startY = Math.max(0, (int) Math.floor(fromY));
     final int endX = Math.min(layer.width(), (int) Math.ceil(toX));
@@ -81,14 +88,11 @@ public final class PortraitFraming {
     if (startX >= endX || startY >= endY) {
       return 0;
     }
-    final int[] colours = new int[(endX - startX) * (endY - startY)];
-    final int[] votes = new int[colours.length];
     int distinct = 0;
     int samples = 0;
     int solid = 0;
     int best = 0;
     int bestVotes = 0;
-    int fallback = 0;
     for (int y = startY; y < endY; y++) {
       for (int x = startX; x < endX; x++) {
         samples++;
@@ -98,7 +102,6 @@ public final class PortraitFraming {
         }
         solid++;
         if ((pixel >>> 24) < OPAQUE_ALPHA) {
-          fallback = pixel | 0xFF000000;
           continue;
         }
         int slot = 0;
@@ -106,7 +109,8 @@ public final class PortraitFraming {
           slot++;
         }
         if (slot == distinct) {
-          colours[distinct++] = pixel;
+          colours[distinct] = pixel;
+          votes[distinct++] = 0;
         }
         if (++votes[slot] > bestVotes) {
           best = pixel;
@@ -114,9 +118,6 @@ public final class PortraitFraming {
         }
       }
     }
-    if (solid * 2 < samples) {
-      return 0;
-    }
-    return bestVotes > 0 ? best : fallback;
+    return solid * 2 < samples ? 0 : best;
   }
 }
