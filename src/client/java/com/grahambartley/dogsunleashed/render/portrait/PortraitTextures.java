@@ -16,7 +16,7 @@ public final class PortraitTextures {
 
   public static final Identifier RELOADER_ID = Identifier.of(MOD_ID, "portrait_textures");
 
-  private static final int PIXELS_PER_BLOCK = 32;
+  private static final int PIXELS_PER_BLOCK = 64;
   private static final int FRAME_ART_PIXELS_PER_BLOCK = 16;
   private static final int FRAME_BORDER = PIXELS_PER_BLOCK / FRAME_ART_PIXELS_PER_BLOCK;
 
@@ -46,7 +46,7 @@ public final class PortraitTextures {
     if (!addLayer(layers, Identifier.of(MOD_ID, portrait.background().texturePath(size)))) {
       return null;
     }
-    try (NativeImage dog = BAKER.bake(portrait.look())) {
+    try (NativeImage dog = BAKER.bake(portrait.look(), portrait.shownPose())) {
       if (dog == null) {
         return null;
       }

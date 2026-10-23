@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 import com.grahambartley.dogsunleashed.block.DogStatueLook;
+import com.grahambartley.dogsunleashed.block.DogStatuePose;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.portrait.DogPortrait;
 import com.grahambartley.dogsunleashed.portrait.PortraitSize;
@@ -17,6 +18,7 @@ import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 class PortraitTextureCacheTest {
@@ -37,7 +39,7 @@ class PortraitTextureCacheTest {
   }
 
   private static DogPortrait portrait(final String name, final PortraitSize size) {
-    return new DogPortrait(BEAGLE, name, size);
+    return new DogPortrait(BEAGLE, name, size, DogStatuePose.SIT);
   }
 
   @ParameterizedTest(name = "{0} frames")
@@ -86,6 +88,19 @@ class PortraitTextureCacheTest {
     }
     cache.bakePending();
     assertEquals(PortraitSize.values().length, this.bakes.size());
+  }
+
+  @ParameterizedTest(name = "a beagle painted {0} then {1} bakes {2} textures")
+  @CsvSource({"SIT, STAND, 2", "STAND, HOWL, 2", "SIT, HOWL, 1", "STAND, STAND, 1"})
+  @DisplayName(
+      "each shown pose gets its own texture, and a howl on a breed that cannot howl shares the sitting one")
+  void eachShownPoseIsBakedOnce(
+      final DogStatuePose first, final DogStatuePose second, final int textures) {
+    final PortraitTextureCache cache = cache(true);
+    cache.textureOf(new DogPortrait(BEAGLE, "Bentley", PortraitSize.SMALL, first));
+    cache.textureOf(new DogPortrait(BEAGLE, "Bentley", PortraitSize.SMALL, second));
+    cache.bakePending();
+    assertEquals(textures, this.bakes.size());
   }
 
   @Test

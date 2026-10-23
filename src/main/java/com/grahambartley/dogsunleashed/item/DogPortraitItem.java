@@ -19,6 +19,8 @@ import net.minecraft.world.event.GameEvent;
 
 public class DogPortraitItem extends Item {
 
+  public static final String POSE_HINT_KEY = "item.dogs-unleashed.dog_portrait.hint.pose";
+
   public DogPortraitItem(final Settings settings) {
     super(settings);
   }
@@ -63,5 +65,6 @@ public class DogPortraitItem extends Item {
       tooltip.add(Text.literal(portrait.name()).formatted(Formatting.YELLOW));
     }
     tooltip.add(BlankCanvasItem.dimensionsOf(portrait.size()).formatted(Formatting.GRAY));
+    tooltip.add(Text.translatable(POSE_HINT_KEY).formatted(Formatting.GRAY));
   }
 }

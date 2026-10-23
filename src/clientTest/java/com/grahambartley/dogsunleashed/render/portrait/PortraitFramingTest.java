@@ -92,4 +92,29 @@ class PortraitFramingTest {
             canvasWithDog(128, 30, 30, 40, 40), 32, 32, FRAME_ART_BORDER_AT_32_PIXELS_PER_BLOCK);
     assertEquals(DOG, out[16 * 32 + 16]);
   }
+
+  @ParameterizedTest(name = "{0}px stripes framed at {1}x{2}")
+  @CsvSource({"1, 32, 32", "3, 64, 32", "7, 64, 64", "16, 128, 128", "1, 128, 64"})
+  @DisplayName(
+      "the painted dog only uses colours from the render with hard edges, never a blurred mix")
+  void scalingNeverBlendsColours(final int stripe, final int frameWidth, final int frameHeight) {
+    final int size = 256;
+    final int other = 0xFFE0C090;
+    final int[] pixels = new int[size * size];
+    for (int y = 40; y < 200; y++) {
+      for (int x = 30; x < 220; x++) {
+        pixels[y * size + x] = (x / stripe + y / stripe) % 2 == 0 ? DOG : other;
+      }
+    }
+    final int[] out =
+        PortraitFraming.fit(
+            new PortraitComposer.Layer(pixels, size, size),
+            frameWidth,
+            frameHeight,
+            FRAME_ART_BORDER_AT_32_PIXELS_PER_BLOCK);
+    assertTrue(
+        Arrays.stream(out).allMatch(pixel -> pixel == 0 || pixel == DOG || pixel == other),
+        "only render colours or clear");
+    assertTrue(Arrays.stream(out).anyMatch(pixel -> pixel == DOG), "the dog is painted");
+  }
 }

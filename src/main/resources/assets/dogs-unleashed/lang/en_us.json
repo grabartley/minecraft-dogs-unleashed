@@ -72,6 +72,7 @@
   "item.dogs-unleashed.blank_canvas.hint": "Use on one of your dogs to paint its portrait",
   "item.dogs-unleashed.blank_canvas.hint.size": "Sneak and use to change the size",
   "item.dogs-unleashed.dog_portrait": "Dog Portrait",
+  "item.dogs-unleashed.dog_portrait.hint.pose": "Use it on the wall with an empty hand to change the pose",
   "item.dogs-unleashed.dog_whistle.unbound": "Right-click your dog to bind it",
   "item.dogs-unleashed.dog_whistle.bound": "Bound to %1$s",
   "message.dogs-unleashed.whistle.bound": "%1$s answers this whistle now",

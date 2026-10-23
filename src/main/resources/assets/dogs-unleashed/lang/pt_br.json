@@ -72,6 +72,7 @@
   "item.dogs-unleashed.blank_canvas.hint": "Use em um dos seus cachorros para pintar o retrato dele",
   "item.dogs-unleashed.blank_canvas.hint.size": "Agache e use para mudar o tamanho",
   "item.dogs-unleashed.dog_portrait": "Retrato de cachorro",
+  "item.dogs-unleashed.dog_portrait.hint.pose": "Use na parede com a mão vazia para mudar a pose",
   "item.dogs-unleashed.dog_whistle.unbound": "Clique com o botão direito no seu cachorro para vinculá-lo",
   "item.dogs-unleashed.dog_whistle.bound": "Vinculado a %1$s",
   "message.dogs-unleashed.whistle.bound": "%1$s agora atende a este apito",

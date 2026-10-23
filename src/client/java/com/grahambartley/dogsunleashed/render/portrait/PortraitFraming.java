@@ -1,7 +1,11 @@
 package com.grahambartley.dogsunleashed.render.portrait;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public final class PortraitFraming {
 
+  private static final int SOLID_ALPHA = 0x80;
   private static final double FILL_HEIGHT = 0.82;
   private static final double FILL_WIDTH = 0.9;
   private static final double FOOT_ROOM = 0.06;
@@ -37,7 +41,7 @@ public final class PortraitFraming {
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
         out[y * width + x] =
-            average(
+            dominant(
                 dog,
                 bounds.left() + (x - left) / scale,
                 bounds.top() + (y - top) / scale,
@@ -66,7 +70,7 @@ public final class PortraitFraming {
     return right == 0 ? null : new Bounds(left, top, right, bottom);
   }
 
-  private static int average(
+  private static int dominant(
       final PortraitComposer.Layer layer,
       final double fromX,
       final double fromY,
@@ -79,27 +83,27 @@ public final class PortraitFraming {
     if (startX >= endX || startY >= endY) {
       return 0;
     }
-    final long[] premultiplied = new long[3];
-    long alpha = 0;
+    final Map<Integer, Integer> votes = new HashMap<>();
     int samples = 0;
+    int solid = 0;
+    int best = 0;
+    int bestVotes = 0;
     for (int y = startY; y < endY; y++) {
       for (int x = startX; x < endX; x++) {
-        final int pixel = layer.pixels()[y * layer.width() + x];
-        final int pixelAlpha = pixel >>> 24;
-        alpha += pixelAlpha;
-        for (int channel = 0; channel < 3; channel++) {
-          premultiplied[channel] += (long) ((pixel >>> (channel * 8)) & 0xFF) * pixelAlpha;
-        }
         samples++;
+        final int pixel = layer.pixels()[y * layer.width() + x];
+        if ((pixel >>> 24) < SOLID_ALPHA) {
+          continue;
+        }
+        solid++;
+        final int colour = pixel | 0xFF000000;
+        final int count = votes.merge(colour, 1, Integer::sum);
+        if (count > bestVotes) {
+          best = colour;
+          bestVotes = count;
+        }
       }
     }
-    if (alpha == 0) {
-      return 0;
-    }
-    int out = (int) (alpha / samples) << 24;
-    for (int channel = 0; channel < 3; channel++) {
-      out |= (int) (premultiplied[channel] / alpha) << (channel * 8);
-    }
-    return out;
+    return solid * 2 >= samples ? best : 0;
   }
 }

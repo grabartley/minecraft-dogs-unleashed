@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.render.portrait;
 
 import com.grahambartley.dogsunleashed.block.DogStatueLook;
+import com.grahambartley.dogsunleashed.block.DogStatuePose;
 import com.grahambartley.dogsunleashed.portrait.DogPortrait;
 import com.grahambartley.dogsunleashed.portrait.PortraitSize;
 import java.util.HashMap;
@@ -23,9 +24,9 @@ public final class PortraitTextureCache {
     Identifier bake(DogPortrait portrait);
   }
 
-  private record Key(DogStatueLook look, PortraitSize size) {
+  private record Key(DogStatueLook look, PortraitSize size, DogStatuePose pose) {
     static Key of(final DogPortrait portrait) {
-      return new Key(portrait.look(), portrait.size());
+      return new Key(portrait.look(), portrait.size(), portrait.shownPose());
     }
   }
 

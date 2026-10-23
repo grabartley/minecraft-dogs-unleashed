@@ -2,6 +2,9 @@ package com.grahambartley.dogsunleashed.block;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.NbtString;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -52,5 +55,14 @@ class DogStatuePoseTest {
   @DisplayName("an unknown saved pose reads as sitting rather than failing the load")
   void unknownNameIsSitting(final String name) {
     assertEquals(DogStatuePose.SIT, DogStatuePose.fromSerializedName(name));
+  }
+
+  @ParameterizedTest(name = "{0} survives the codec")
+  @EnumSource(DogStatuePose.class)
+  @DisplayName("every pose survives the codec statues and portraits save it with")
+  void codecRoundTrips(final DogStatuePose pose) {
+    final NbtElement saved = DogStatuePose.CODEC.encodeStart(NbtOps.INSTANCE, pose).getOrThrow();
+    assertEquals(NbtString.of(pose.serializedName()), saved);
+    assertEquals(pose, DogStatuePose.CODEC.parse(NbtOps.INSTANCE, saved).getOrThrow());
   }
 }

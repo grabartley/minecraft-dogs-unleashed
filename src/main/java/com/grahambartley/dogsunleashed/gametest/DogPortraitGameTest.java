@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.gametest;
 import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.ModPortraits;
 import com.grahambartley.dogsunleashed.block.DogStatueLook;
+import com.grahambartley.dogsunleashed.block.DogStatuePose;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
@@ -196,6 +197,27 @@ public final class DogPortraitGameTest implements FabricGameTest {
 
     context.assertFalse(dog.isAlive(), "the dog is gone");
     context.assertEquals(hung.portrait().map(DogPortrait::look).orElse(null), look, "hung look");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = "portrait")
+  public void usingAHungPortraitWithAnEmptyHandStepsThroughThePoses(final TestContext context) {
+    final ServerPlayerEntity player = SurvivalTestPlayer.joinAt(context, REL_PLAYER);
+    final DogPortrait portrait = huskyPortrait(PortraitSize.SMALL);
+    final DogPortraitEntity hung = hang(context, player, portrait);
+    player.setStackInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
+
+    for (final DogStatuePose expected :
+        List.of(DogStatuePose.STAND, DogStatuePose.HOWL, DogStatuePose.SIT)) {
+      hung.interact(player, Hand.MAIN_HAND);
+      context.assertEquals(
+          hung.portrait().map(DogPortrait::pose).orElse(null), expected, "hung pose");
+    }
+    player.setStackInHand(Hand.MAIN_HAND, new ItemStack(ModPortraits.BLANK_CANVAS));
+    hung.interact(player, Hand.MAIN_HAND);
+    SurvivalTestPlayer.leave(context, player);
+    context.assertEquals(
+        hung.portrait().orElse(null), portrait, "a full hand leaves the pose alone");
     context.complete();
   }
 

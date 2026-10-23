@@ -16,6 +16,8 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
@@ -90,6 +92,18 @@ public class DogPortraitEntity extends AbstractDecorationEntity {
     this.facing = Direction.fromHorizontal(nbt.getByte(FACING_KEY));
     super.readCustomDataFromNbt(nbt);
     this.setFacing(this.facing);
+  }
+
+  @Override
+  public ActionResult interact(final PlayerEntity player, final Hand hand) {
+    if (this.portrait == null || hand != Hand.MAIN_HAND || !player.getMainHandStack().isEmpty()) {
+      return ActionResult.PASS;
+    }
+    if (!this.getWorld().isClient) {
+      this.setPortrait(this.portrait.nextPose());
+      this.playSound(SoundEvents.ENTITY_ITEM_FRAME_ROTATE_ITEM, 1.0f, 1.0f);
+    }
+    return ActionResult.success(this.getWorld().isClient);
   }
 
   @Override
