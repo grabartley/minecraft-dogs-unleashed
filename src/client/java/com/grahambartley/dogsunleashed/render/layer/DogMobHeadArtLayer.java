@@ -2,8 +2,6 @@ package com.grahambartley.dogsunleashed.render.layer;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.render.cosmetic.MobHeadArt;
-import com.grahambartley.dogsunleashed.render.cosmetic.MobHeadArtPlacement;
-import com.grahambartley.dogsunleashed.render.rig.RestPose;
 import java.util.Optional;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -63,7 +61,6 @@ public class DogMobHeadArtLayer extends GeoRenderLayer<UnleashedDogEntity> {
         continue;
       }
       poseStack.push();
-      poseStack.multiplyPositionMatrix(MobHeadArtPlacement.modelToBone(RestPose.of(bone)));
       this.getRenderer()
           .renderRecursively(
               poseStack,
