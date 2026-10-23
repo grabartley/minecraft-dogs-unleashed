@@ -3,16 +3,13 @@ package com.grahambartley.dogsunleashed.entity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
 import java.util.Objects;
 
-public record FetchCarryProfiles(
-    CarryProfile tennisBall, CarryProfile stick, CarryProfile frisbee) {
+public record FetchCarryProfiles(CarryProfile tennisBall, CarryProfile stick) {
   static final String TENNIS_BALL_PATH = "tennis_ball";
   static final String STICK_PATH = "stick";
-  static final String FRISBEE_PATH = "frisbee";
 
   public FetchCarryProfiles {
     Objects.requireNonNull(tennisBall, "tennisBall");
     Objects.requireNonNull(stick, "stick");
-    Objects.requireNonNull(frisbee, "frisbee");
   }
 
   public CarryProfile forFetchItem(FetchItemType fetchType) {
@@ -29,7 +26,6 @@ public record FetchCarryProfiles(
     return switch (path) {
       case TENNIS_BALL_PATH -> tennisBall;
       case STICK_PATH -> stick;
-      case FRISBEE_PATH -> frisbee;
       default -> tennisBall;
     };
   }
