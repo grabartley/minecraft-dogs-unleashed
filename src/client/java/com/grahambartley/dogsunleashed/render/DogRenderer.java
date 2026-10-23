@@ -10,6 +10,7 @@ import com.grahambartley.dogsunleashed.model.DogModel;
 import com.grahambartley.dogsunleashed.render.cosmetic.HatFits;
 import com.grahambartley.dogsunleashed.render.cosmetic.MobHeadFits;
 import com.grahambartley.dogsunleashed.render.cross.CrossBreedRendering;
+import com.grahambartley.dogsunleashed.render.fur.FurCover;
 import com.grahambartley.dogsunleashed.render.fur.FurLook;
 import com.grahambartley.dogsunleashed.render.growth.GrowthRigScale;
 import com.grahambartley.dogsunleashed.render.layer.DogArmourLayer;
@@ -58,7 +59,7 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
 
   private RigProfile frameProfile = RigProfile.EMPTY;
   private DogFurStage frameStage = DogFurStage.NATURAL;
-  private boolean frameArmoured;
+  private FurCover frameFurCover = FurCover.NONE;
   private Set<String> frameHiddenEars = Set.of();
   private final HatFits hatFits = new HatFits();
   private final MobHeadFits mobHeadFits = new MobHeadFits();
@@ -146,7 +147,7 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
             ? HarnessRing.boneOf(model, this.frameProfile).orElse(null)
             : null;
     this.frameStage = animatable.getFur().stage();
-    this.frameArmoured = !animatable.getArmour().worn().isEmpty();
+    this.frameFurCover = FurCover.on(animatable);
     this.frameHiddenEars =
         CrossBreedRendering.hiddenEars(
             animatable,
@@ -210,11 +211,10 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
       int colour) {
     if (this.frameHiddenEars.contains(bone.getName())
         || !FurLook.shows(this.frameProfile, bone.getName(), this.frameStage)
-        || (this.frameArmoured
-            && FurLook.flattenedByArmour(
-                this.frameProfile,
-                bone.getName(),
-                bone.getParent() == null ? null : bone.getParent().getName()))) {
+        || this.frameFurCover.hides(
+            this.frameProfile,
+            bone.getName(),
+            bone.getParent() == null ? null : bone.getParent().getName())) {
       return;
     }
     final float growthScale =
