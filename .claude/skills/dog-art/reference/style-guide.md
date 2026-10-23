@@ -22,10 +22,12 @@ still reads well because its markings are large shapes. Match the breed you are 
 not mix densities inside one rig. A breed that renders far larger than a normal dog needs a bigger sheet to keep its
 texels per block near the others: the dire wolf alpha draws 2.25 times its yearling size, which is why it is 256x256.
 
-The dire wolf sheet is 256x256 so its geometry keeps its texel budget, but the coats are painted in
-flat cells about one visible unit wide (3 to 6 texels), with the tones stepped in about 16 luma
-levels. That matches the husky's paint scale of about 11 cells per block. The eyes, fangs and the
-closed eyelids are painted texel by texel.
+The dire wolf sheet is 256x256 so its geometry keeps its texel budget, but the fur is painted in
+flat cells about one visible unit wide (3 to 6 texels), each snapped to a step of 16 luma levels
+with a small offset per cell so large gradients break into blocks, not contour bands. That matches
+the husky's paint scale of about 11 cells per block and leaves 140 to 620 colours per coat. The
+eyes, eyelids, fangs, nose and lip lines are kept texel by texel. The fur overlays use the same
+cells, snapped to the colours already in each file.
 
 ## Rest-Pose Proportions
 
