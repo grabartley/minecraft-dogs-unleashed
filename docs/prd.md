@@ -436,7 +436,7 @@ A dog can be dressed up as a Minecraft mob. A vanilla mob head goes in the cosme
 
 | ID | Requirement |
 |---|---|
-| COSTUME-1 | The cosmetic slot also takes the vanilla mob heads (zombie, skeleton, wither skeleton, creeper, piglin and dragon) and a carved pumpkin. The dragon head's jaw opens when the dog barks |
+| COSTUME-1 | The cosmetic slot also takes the vanilla mob heads (zombie, skeleton, wither skeleton, creeper, piglin and dragon) and a carved pumpkin. The dragon head's jaw opens when the dog barks. A breed with hand-drawn art for a head shows that art instead of the stretched vanilla block, which today is the dachshund's carved pumpkin |
 | COSTUME-2 | The costume slot takes the costumes in the table above, and nothing else |
 | COSTUME-3 | Each costume is crafted from the ingredients in the table. The sheep costume takes dye like leather armour |
 | COSTUME-4 | The wandering trader sometimes offers one costume for emeralds, picked at random from the table |
