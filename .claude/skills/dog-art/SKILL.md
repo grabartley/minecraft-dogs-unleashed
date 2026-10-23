@@ -175,10 +175,11 @@ assumption that produced it: the reference is always the shipped asset on `main`
   the same way. Blockbench and the game mirror x, so the first side patch of a box UV is the dog's
   right flank and the third is its left. The renderer draws that mirrored frame, so a mark painted
   into the left ear's patch shows on the dog's left in its output and in game.
-- Sheets are 128x128 for the beagle, dachshund, golden retriever and shiba inu and 64x64 for the
-  husky. Texel density on the thinnest axis of a cube sits at a median of 2.5 for the beagle and
-  dachshund, 4 for the shiba inu, 5 for the golden retriever and about 1 for the husky. New art
-  matches the breed it sits on. A new breed uses 128x128 at 4 to 5.
+- Sheets are 128x128 for the beagle, dachshund, golden retriever, shiba inu and husky. The husky's
+  art sits in the top left 64x64 of its sheet. Texel density on the thinnest axis of a cube sits at
+  a median of 2.5 for the beagle and dachshund, 4 for the shiba inu, 5 for the golden retriever
+  and about 1 for the husky. New art matches the breed it sits on. A new breed uses 128x128 at 4
+  to 5.
 - That density comes from the rig idiom: cubes are authored large with a big negative `inflate`.
   The shiba inu head is an 8-unit cube with inflate -3, so it draws 2 units wide with 8 texels
   across it, 4 per unit. The husky is native scale with no inflate trick. The small rigs are 6 to

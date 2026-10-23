@@ -10,7 +10,7 @@ quoting it in an issue, and update this file when a breed changes.
 | Beagle | 128x128 | 128 | 2.5 (1.7 to 10) | 21 | 1.5 |
 | Dachshund | 128x128 | 128 | 2.5 (1.0 to 12.5) | 52 | 1.3, faces +z |
 | Golden retriever | 128x128 | 128 | 5.0 (1.5 to 16.7) | 66 | 1.7 |
-| Husky | 64x64 | 64 | 0.9 (0.6 to 40) | 26 | 1.3 |
+| Husky | 128x128 | 128 | 0.9 (0.6 to 40) | 26 | 1.3 |
 | Shiba inu | 128x128 | 128 | 4.0 (1.7 to 10) | 33 | 1.5 |
 | Dire wolf | 256x256 | 256 | 4.4 (3.0 to 8.6) | 76 | 1.47, up to 2.25x that at the alpha stage |
 
