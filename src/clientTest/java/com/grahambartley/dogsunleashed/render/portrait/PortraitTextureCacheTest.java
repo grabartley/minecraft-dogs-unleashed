@@ -6,21 +6,31 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
+import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
+import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.block.DogStatueLook;
 import com.grahambartley.dogsunleashed.block.DogStatuePose;
+import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.portrait.DogPortrait;
+import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfit;
 import com.grahambartley.dogsunleashed.portrait.PortraitSize;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import net.minecraft.client.texture.TextureManager;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+@ExtendWith(MinecraftBootstrapExtension.class)
 class PortraitTextureCacheTest {
 
   private static final DogStatueLook BEAGLE =
@@ -118,6 +128,43 @@ class PortraitTextureCacheTest {
     final PortraitTextureCache cache = cache(true);
     cache.textureOf(new DogPortrait(BEAGLE, "Bentley", PortraitSize.SMALL, first));
     cache.textureOf(new DogPortrait(BEAGLE, "Bentley", PortraitSize.SMALL, second));
+    bakeTicks(cache, 2);
+    assertEquals(textures, this.bakes.size());
+  }
+
+  private static DogPortrait dressed(final boolean muddy, final DyeColor collar) {
+    return new DogPortrait(
+        BEAGLE,
+        "Bentley",
+        PortraitSize.SMALL,
+        DogStatuePose.SIT,
+        new DogPortraitOutfit(
+            Map.of(DogEquipmentSlot.SADDLEBAGS, new ItemStack(ModItems.SADDLEBAGS)),
+            Optional.of(collar),
+            ItemStack.EMPTY,
+            muddy,
+            false,
+            false));
+  }
+
+  @ParameterizedTest(name = "muddy {0} then {1}, collar {2} then {3}, bakes {4}")
+  @CsvSource({
+    "false, false, RED, RED, 1",
+    "false, true, RED, RED, 2",
+    "true, true, RED, BLUE, 2",
+    "true, true, LIME, LIME, 1"
+  })
+  @DisplayName(
+      "each outfit gets its own texture, and the same outfit in separate stacks shares one")
+  void eachOutfitIsBakedOnce(
+      final boolean firstMuddy,
+      final boolean secondMuddy,
+      final DyeColor firstCollar,
+      final DyeColor secondCollar,
+      final int textures) {
+    final PortraitTextureCache cache = cache(true);
+    cache.textureOf(dressed(firstMuddy, firstCollar));
+    cache.textureOf(dressed(secondMuddy, secondCollar));
     bakeTicks(cache, 2);
     assertEquals(textures, this.bakes.size());
   }

@@ -6,6 +6,7 @@ import com.grahambartley.dogsunleashed.block.DogStatueLook;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.pet.PetNames;
 import com.grahambartley.dogsunleashed.portrait.DogPortrait;
+import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfits;
 import com.grahambartley.dogsunleashed.portrait.PortraitSize;
 import java.util.List;
 import net.minecraft.entity.player.PlayerEntity;
@@ -38,7 +39,8 @@ public class BlankCanvasItem extends Item {
   public static DogPortrait paint(
       final ItemStack canvas, final PlayerEntity painter, final UnleashedDogEntity dog) {
     final DogPortrait portrait =
-        DogPortrait.painted(DogStatueLook.of(dog), titleOf(dog), sizeOf(canvas));
+        DogPortrait.painted(
+            DogStatueLook.of(dog), titleOf(dog), sizeOf(canvas), DogPortraitOutfits.of(dog));
     canvas.decrementUnlessCreative(1, painter);
     final ItemStack painting = ModPortraits.portraitStack(portrait);
     if (!painter.getInventory().insertStack(painting)) {

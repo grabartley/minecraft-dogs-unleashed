@@ -4,7 +4,6 @@ import com.grahambartley.dogsunleashed.block.DogStatuePose;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.render.DogRenderer;
 import com.grahambartley.dogsunleashed.render.PosedDogModel;
-import com.grahambartley.dogsunleashed.render.layer.DogFurOverlayLayer;
 import com.grahambartley.dogsunleashed.render.statue.StatuePoseFrame;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -20,7 +19,7 @@ public final class PortraitDogRenderer extends DogRenderer {
     super(context, posedModel);
     this.posedModel = posedModel;
     this.shadowRadius = 0.0f;
-    this.addRenderLayer(new DogFurOverlayLayer(this));
+    this.addDogLayers(context);
   }
 
   public static PortraitDogRenderer create(final MinecraftClient client) {

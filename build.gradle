@@ -76,8 +76,8 @@ loom {
 
 sourceSets {
 	clientTest {
-		compileClasspath += sourceSets.client.compileClasspath + sourceSets.client.output + sourceSets.main.output
-		runtimeClasspath += sourceSets.client.runtimeClasspath + sourceSets.client.output + sourceSets.main.output
+		compileClasspath += sourceSets.client.compileClasspath + sourceSets.client.output + sourceSets.main.output + sourceSets.test.output
+		runtimeClasspath += sourceSets.client.runtimeClasspath + sourceSets.client.output + sourceSets.main.output + sourceSets.test.output
 	}
 }
 
@@ -114,6 +114,9 @@ dependencies {
 	clientTestRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	clientTestImplementation 'org.mockito:mockito-core:5.10.0'
 	clientTestImplementation 'org.mockito:mockito-junit-jupiter:5.10.0'
+	clientTestImplementation("net.fabricmc:fabric-loader-junit:${project.loader_version}") {
+		exclude group: "net.fabricmc", module: "fabric-loader"
+	}
 }
 
 processResources {

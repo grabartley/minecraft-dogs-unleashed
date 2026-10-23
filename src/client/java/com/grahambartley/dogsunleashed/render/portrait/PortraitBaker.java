@@ -4,6 +4,8 @@ import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.block.DogStatueLook;
 import com.grahambartley.dogsunleashed.block.DogStatuePose;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfit;
+import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfits;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.VertexSorter;
 import net.minecraft.client.MinecraftClient;
@@ -40,9 +42,10 @@ public final class PortraitBaker {
     this.renderer = null;
   }
 
-  public @Nullable NativeImage bake(final DogStatueLook look, final DogStatuePose pose) {
+  public @Nullable NativeImage bake(
+      final DogStatueLook look, final DogStatuePose pose, final DogPortraitOutfit outfit) {
     final MinecraftClient client = MinecraftClient.getInstance();
-    final UnleashedDogEntity dog = posedDogOf(client, look, pose);
+    final UnleashedDogEntity dog = posedDogOf(client, look, pose, outfit);
     if (dog == null) {
       return null;
     }
@@ -77,14 +80,21 @@ public final class PortraitBaker {
   }
 
   private static @Nullable UnleashedDogEntity posedDogOf(
-      final MinecraftClient client, final DogStatueLook look, final DogStatuePose pose) {
-    final EntityType<UnleashedDogEntity> type = ModEntities.getDogEntityType(look.breed());
+      final MinecraftClient client,
+      final DogStatueLook look,
+      final DogStatuePose pose,
+      final DogPortraitOutfit outfit) {
+    final EntityType<UnleashedDogEntity> type =
+        outfit.undead()
+            ? ModEntities.getZombieDogEntityType(look.breed())
+            : ModEntities.getDogEntityType(look.breed());
     final UnleashedDogEntity dog =
         client.world == null || type == null ? null : type.create(client.world);
     if (dog == null) {
       return null;
     }
     look.applyTo(dog);
+    DogPortraitOutfits.dress(dog, outfit);
     pose.applyTo(dog);
     dog.setYaw(FACING_YAW);
     dog.setBodyYaw(FACING_YAW);

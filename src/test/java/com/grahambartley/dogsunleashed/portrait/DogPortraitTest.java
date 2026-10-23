@@ -4,17 +4,26 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
+import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.block.DogStatue;
 import com.grahambartley.dogsunleashed.block.DogStatueLook;
 import com.grahambartley.dogsunleashed.block.DogStatuePose;
+import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import io.netty.buffer.Unpooled;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.Registries;
+import net.minecraft.util.DyeColor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +35,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(MinecraftBootstrapExtension.class)
 class DogPortraitTest {
+
+  private static final DynamicRegistryManager REGISTRIES =
+      DynamicRegistryManager.of(Registries.REGISTRIES);
 
   private static final DogStatueLook BEAGLE =
       new DogStatueLook(UnleashedDogBreed.BEAGLE, false, 1, -1, 0, 0, null, null);
@@ -56,21 +68,37 @@ class DogPortraitTest {
                     UnleashedDogBreed.CROSS_BREED, false, -1, -1, 1, 0, MOSTLY_SHIBA, null),
                 "Mochi",
                 PortraitSize.LARGE,
-                DogStatuePose.STAND)));
+                DogStatuePose.STAND)),
+        Arguments.of(
+            new DogPortrait(
+                BEAGLE,
+                "Pumpkin",
+                PortraitSize.WIDE,
+                DogStatuePose.STAND,
+                new DogPortraitOutfit(
+                    Map.of(
+                        DogEquipmentSlot.ARMOUR, new ItemStack(Items.WOLF_ARMOR),
+                        DogEquipmentSlot.SADDLEBAGS, new ItemStack(ModItems.SADDLEBAGS)),
+                    Optional.of(DyeColor.PINK),
+                    new ItemStack(ModItems.FRISBEE),
+                    true,
+                    true,
+                    false))));
   }
 
   @ParameterizedTest(name = "[{index}] {0}")
   @MethodSource("portraits")
   @DisplayName("a portrait survives NBT, so a hung portrait keeps its dog across a reload")
   void nbtRoundTrips(final DogPortrait portrait) {
-    assertEquals(portrait, DogPortrait.fromNbt(portrait.toNbt()).orElseThrow());
+    assertEquals(
+        portrait, DogPortrait.fromNbt(REGISTRIES, portrait.toNbt(REGISTRIES)).orElseThrow());
   }
 
   @ParameterizedTest(name = "[{index}] {0}")
   @MethodSource("portraits")
   @DisplayName("a portrait survives the network codec, so every player sees the same dog")
   void packetRoundTrips(final DogPortrait portrait) {
-    final PacketByteBuf buffer = new PacketByteBuf(Unpooled.buffer());
+    final RegistryByteBuf buffer = new RegistryByteBuf(Unpooled.buffer(), REGISTRIES);
     DogPortrait.PACKET_CODEC.encode(buffer, portrait);
     assertEquals(portrait, DogPortrait.PACKET_CODEC.decode(buffer));
   }
@@ -78,7 +106,7 @@ class DogPortraitTest {
   @Test
   @DisplayName("NBT with no look reads as no portrait rather than a wrong dog")
   void missingLookIsNoPortrait() {
-    assertTrue(DogPortrait.fromNbt(new NbtCompound()).isEmpty());
+    assertTrue(DogPortrait.fromNbt(REGISTRIES, new NbtCompound()).isEmpty());
   }
 
   @ParameterizedTest(name = "\"{0}\" is titled \"{1}\"")
@@ -89,7 +117,8 @@ class DogPortraitTest {
   })
   @DisplayName("a painted portrait keeps the dog's name, cut like a statue's")
   void paintedKeepsTheName(final String name, final String title) {
-    final DogPortrait portrait = DogPortrait.painted(BEAGLE, name, PortraitSize.WIDE);
+    final DogPortrait portrait =
+        DogPortrait.painted(BEAGLE, name, PortraitSize.WIDE, DogPortraitOutfit.NONE);
     assertEquals(title, portrait.name());
     assertEquals(DogStatue.cut(name), portrait.name());
     assertEquals(PortraitSize.WIDE, portrait.size());
@@ -140,11 +169,12 @@ class DogPortraitTest {
   @EnumSource(PortraitSize.class)
   @DisplayName("a portrait saved before poses existed loads sitting, as it was painted")
   void portraitWithoutAPoseLoadsSitting(final PortraitSize size) {
-    final NbtCompound saved = new DogPortrait(BEAGLE, "Bentley", size, DogStatuePose.STAND).toNbt();
+    final NbtCompound saved =
+        new DogPortrait(BEAGLE, "Bentley", size, DogStatuePose.STAND).toNbt(REGISTRIES);
     saved.remove("pose");
     assertEquals(
         new DogPortrait(BEAGLE, "Bentley", size, DogStatuePose.SIT),
-        DogPortrait.fromNbt(saved).orElseThrow());
+        DogPortrait.fromNbt(REGISTRIES, saved).orElseThrow());
   }
 
   @Test
@@ -172,5 +202,22 @@ class DogPortraitTest {
         new DogPortrait(BEAGLE, "Bentley", PortraitSize.LARGE, DogStatuePose.SIT);
     assertEquals(
         new DogPortrait(BEAGLE, "Bentley", PortraitSize.LARGE, pose), portrait.withPose(pose));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @EnumSource(DogStatuePose.class)
+  @DisplayName("posing a portrait keeps the outfit the dog was painted in")
+  void poseKeepsTheOutfit(final DogStatuePose pose) {
+    final DogPortraitOutfit outfit =
+        new DogPortraitOutfit(
+            Map.of(DogEquipmentSlot.SADDLEBAGS, new ItemStack(ModItems.SADDLEBAGS)),
+            Optional.of(DyeColor.BLUE),
+            ItemStack.EMPTY,
+            true,
+            false,
+            false);
+    final DogPortrait portrait = DogPortrait.painted(BEAGLE, "Bentley", PortraitSize.SMALL, outfit);
+    assertEquals(outfit, portrait.withPose(pose).outfit());
+    assertEquals(outfit, portrait.nextPose().outfit());
   }
 }

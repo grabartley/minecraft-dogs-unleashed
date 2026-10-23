@@ -57,7 +57,7 @@ public class DogPortraitEntity extends AbstractDecorationEntity {
   }
 
   private void setPortrait(final DogPortrait portrait) {
-    this.dataTracker.set(PORTRAIT, portrait.toNbt());
+    this.dataTracker.set(PORTRAIT, portrait.toNbt(this.getRegistryManager()));
   }
 
   @Override
@@ -68,7 +68,9 @@ public class DogPortraitEntity extends AbstractDecorationEntity {
   @Override
   public void onTrackedDataSet(final TrackedData<?> data) {
     if (PORTRAIT.equals(data)) {
-      this.portrait = DogPortrait.fromNbt(this.dataTracker.get(PORTRAIT)).orElse(null);
+      this.portrait =
+          DogPortrait.fromNbt(this.getRegistryManager(), this.dataTracker.get(PORTRAIT))
+              .orElse(null);
       this.updateAttachmentPosition();
     }
   }
@@ -81,7 +83,7 @@ public class DogPortraitEntity extends AbstractDecorationEntity {
   @Override
   public void writeCustomDataToNbt(final NbtCompound nbt) {
     if (this.portrait != null) {
-      nbt.put(PORTRAIT_KEY, this.portrait.toNbt());
+      nbt.put(PORTRAIT_KEY, this.portrait.toNbt(this.getRegistryManager()));
     }
     nbt.putByte(FACING_KEY, (byte) this.facing.getHorizontal());
     super.writeCustomDataToNbt(nbt);
@@ -89,7 +91,8 @@ public class DogPortraitEntity extends AbstractDecorationEntity {
 
   @Override
   public void readCustomDataFromNbt(final NbtCompound nbt) {
-    DogPortrait.fromNbt(nbt.getCompound(PORTRAIT_KEY)).ifPresent(this::setPortrait);
+    DogPortrait.fromNbt(this.getRegistryManager(), nbt.getCompound(PORTRAIT_KEY))
+        .ifPresent(this::setPortrait);
     this.facing = Direction.fromHorizontal(nbt.getByte(FACING_KEY));
     super.readCustomDataFromNbt(nbt);
     this.setFacing(this.facing);
