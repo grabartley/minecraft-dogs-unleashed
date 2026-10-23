@@ -1,5 +1,5 @@
 {
-  "parent": "dogs-unleashed:best_friend",
+  "parent": "dogs-unleashed:the_whole_pack",
   "display": {
     "icon": {
       "id": "minecraft:blue_ice"
@@ -75,5 +75,8 @@
     [
       "tamed_white"
     ]
-  ]
+  ],
+  "rewards": {
+    "experience": 100
+  }
 }

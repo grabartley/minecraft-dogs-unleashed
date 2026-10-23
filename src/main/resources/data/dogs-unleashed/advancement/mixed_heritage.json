@@ -1,0 +1,39 @@
+{
+  "parent": "dogs-unleashed:puppy_love",
+  "display": {
+    "icon": {
+      "id": "dogs-unleashed:dog_portrait"
+    },
+    "title": {
+      "translate": "advancements.dogs-unleashed.mixed_heritage.title"
+    },
+    "description": {
+      "translate": "advancements.dogs-unleashed.mixed_heritage.description"
+    },
+    "frame": "goal"
+  },
+  "criteria": {
+    "mixed_heritage": {
+      "trigger": "minecraft:bred_animals",
+      "conditions": {
+        "child": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "dogs-unleashed:crossbreed"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "mixed_heritage"
+    ]
+  ],
+  "rewards": {
+    "experience": 50
+  }
+}

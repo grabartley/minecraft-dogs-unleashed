@@ -1,5 +1,7 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
+import com.grahambartley.dogsunleashed.advancement.DogMilestone;
+import com.grahambartley.dogsunleashed.advancement.DogMilestoneCriterion;
 import com.grahambartley.dogsunleashed.entity.DogScent;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.scent.ScentLeadRules;
@@ -173,6 +175,7 @@ public class ScentTrackGoal extends Goal {
     this.scent().settle();
     this.scent().setPhase(ScentLeadRules.arrivalPhase(kind));
     this.scent().cues().found();
+    DogMilestoneCriterion.INSTANCE.trigger(this.dog.getOwner(), DogMilestone.SCENT_FOUND);
   }
 
   private void giveUp() {

@@ -19,5 +19,8 @@
         "min_blocks": 1000.0
       }
     }
+  },
+  "rewards": {
+    "experience": 50
   }
 }

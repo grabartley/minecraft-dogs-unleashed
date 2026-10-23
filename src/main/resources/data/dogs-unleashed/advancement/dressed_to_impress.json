@@ -1,0 +1,28 @@
+{
+  "parent": "dogs-unleashed:best_friend",
+  "display": {
+    "icon": {
+      "id": "dogs-unleashed:bandana"
+    },
+    "title": {
+      "translate": "advancements.dogs-unleashed.dressed_to_impress.title"
+    },
+    "description": {
+      "translate": "advancements.dogs-unleashed.dressed_to_impress.description"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "dressed_to_impress": {
+      "trigger": "dogs-unleashed:dog_milestone",
+      "conditions": {
+        "milestone": "gear_equipped"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "dressed_to_impress"
+    ]
+  ]
+}
