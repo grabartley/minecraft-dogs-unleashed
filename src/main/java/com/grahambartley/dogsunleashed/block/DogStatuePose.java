@@ -1,5 +1,7 @@
 package com.grahambartley.dogsunleashed.block;
 
+import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.mojang.serialization.Codec;
 import java.util.Locale;
 
 public enum DogStatuePose {
@@ -7,12 +9,23 @@ public enum DogStatuePose {
   STAND,
   HOWL;
 
+  public static final Codec<DogStatuePose> CODEC =
+      Codec.STRING.xmap(DogStatuePose::fromSerializedName, DogStatuePose::serializedName);
+
   public DogStatuePose next(final boolean howls) {
     return switch (this) {
       case SIT -> STAND;
       case STAND -> howls ? HOWL : SIT;
       case HOWL -> SIT;
     };
+  }
+
+  public DogStatuePose next(final DogStatueLook look) {
+    return this.next(look.howls());
+  }
+
+  public DogStatuePose shownFor(final DogStatueLook look) {
+    return this.shownFor(look.howls());
   }
 
   public DogStatuePose shownFor(final boolean howls) {
@@ -25,6 +38,12 @@ public enum DogStatuePose {
 
   public boolean howling() {
     return this == HOWL;
+  }
+
+  public void applyTo(final UnleashedDogEntity dog) {
+    dog.setSitting(this.sits());
+    dog.setInSittingPose(this.sits());
+    dog.getAnimationState().setHowling(this.howling());
   }
 
   public String serializedName() {
