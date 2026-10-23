@@ -68,10 +68,10 @@ class ProjectedOverlaysTest {
     final ProjectedOverlays overlays = overlays(shipped(), BUNDLED::profileOf);
 
     overlays.textureOf(UnleashedDogBreed.HUSKY, SHEET);
-    overlays.textureOf(UnleashedDogBreed.BEAGLE, SHEET);
+    overlays.textureOf(UnleashedDogBreed.DIRE_WOLF, SHEET);
 
-    assertTrue(this.registered.get(0).hasSize(64, 64));
-    assertTrue(this.registered.get(1).hasSize(128, 128));
+    assertTrue(this.registered.get(0).hasSize(128, 128));
+    assertTrue(this.registered.get(1).hasSize(256, 256));
   }
 
   @Test
