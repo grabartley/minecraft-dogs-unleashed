@@ -12,15 +12,31 @@ import net.minecraft.item.ItemStack;
 
 public final class PortraitGear {
 
-  static final List<ComponentType<?>> SHOWN_COMPONENTS =
+  static final List<ComponentType<?>> UNSEEN_COMPONENTS =
       List.of(
-          DataComponentTypes.DYED_COLOR,
-          DataComponentTypes.TRIM,
-          DataComponentTypes.PROFILE,
-          DataComponentTypes.BANNER_PATTERNS,
-          DataComponentTypes.BASE_COLOR,
-          DataComponentTypes.DAMAGE,
-          DataComponentTypes.MAX_DAMAGE);
+          DataComponentTypes.CUSTOM_NAME,
+          DataComponentTypes.LORE,
+          DataComponentTypes.CUSTOM_DATA,
+          DataComponentTypes.ENCHANTMENTS,
+          DataComponentTypes.STORED_ENCHANTMENTS,
+          DataComponentTypes.REPAIR_COST,
+          DataComponentTypes.ATTRIBUTE_MODIFIERS,
+          DataComponentTypes.CAN_PLACE_ON,
+          DataComponentTypes.CAN_BREAK,
+          DataComponentTypes.CONTAINER,
+          DataComponentTypes.CONTAINER_LOOT,
+          DataComponentTypes.BUNDLE_CONTENTS,
+          DataComponentTypes.CHARGED_PROJECTILES,
+          DataComponentTypes.WRITABLE_BOOK_CONTENT,
+          DataComponentTypes.WRITTEN_BOOK_CONTENT,
+          DataComponentTypes.BLOCK_ENTITY_DATA,
+          DataComponentTypes.ENTITY_DATA,
+          DataComponentTypes.BUCKET_ENTITY_DATA,
+          DataComponentTypes.BEES,
+          DataComponentTypes.RECIPES,
+          DataComponentTypes.LODESTONE_TRACKER,
+          DataComponentTypes.DEBUG_STICK_STATE,
+          DataComponentTypes.LOCK);
 
   public static final Codec<ItemStack> LENIENT_CODEC =
       new Codec<>() {
@@ -45,19 +61,12 @@ public final class PortraitGear {
     if (stack.isEmpty()) {
       return ItemStack.EMPTY;
     }
-    final ItemStack shown = new ItemStack(stack.getItem());
-    SHOWN_COMPONENTS.forEach(type -> copy(stack, shown, type));
-    if (stack.hasGlint()) {
+    final boolean glints = stack.hasGlint();
+    final ItemStack shown = stack.copyWithCount(1);
+    UNSEEN_COMPONENTS.forEach(shown::remove);
+    if (glints && !shown.hasGlint()) {
       shown.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
     }
     return shown;
-  }
-
-  private static <T> void copy(
-      final ItemStack from, final ItemStack to, final ComponentType<T> type) {
-    final T value = from.get(type);
-    if (value != null) {
-      to.set(type, value);
-    }
   }
 }

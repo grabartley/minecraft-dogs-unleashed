@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
+import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import java.util.Map;
@@ -231,5 +232,22 @@ class DogPortraitOutfitTest {
     outfit.gear().get(DogEquipmentSlot.ARMOUR).setCount(0);
     assertEquals(hash, outfit.hashCode());
     assertTrue(outfit.carried().isOf(Items.STICK));
+  }
+
+  @Test
+  @DisplayName("a carried coloured frisbee keeps its colour through saving")
+  void frisbeeColourRoundTrips() {
+    final ItemStack frisbee = new ItemStack(ModItems.FRISBEE);
+    frisbee.set(ModComponents.FRISBEE_COLOR, DyeColor.PURPLE);
+    final DogPortraitOutfit outfit =
+        new DogPortraitOutfit(
+            Map.of(),
+            Optional.empty(),
+            frisbee,
+            Optional.of(Identifier.of("dogs-unleashed", "frisbee")),
+            false,
+            false,
+            false);
+    assertEquals(DyeColor.PURPLE, load(save(outfit)).carried().get(ModComponents.FRISBEE_COLOR));
   }
 }

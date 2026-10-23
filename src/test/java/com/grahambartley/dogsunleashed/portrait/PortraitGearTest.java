@@ -6,8 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
+import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.ModItems;
+import java.util.List;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ContainerComponent;
 import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -17,10 +20,12 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
+import net.minecraft.util.DyeColor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 @ExtendWith(MinecraftBootstrapExtension.class)
@@ -51,6 +56,30 @@ class PortraitGearTest {
     final ItemStack shown = PortraitGear.shownPart(armour);
     assertEquals(colour, shown.get(DataComponentTypes.DYED_COLOR).rgb());
     assertEquals(40, shown.getDamage());
+  }
+
+  @ParameterizedTest(name = "a frisbee coloured {0}")
+  @EnumSource(
+      value = DyeColor.class,
+      names = {"RED", "LIME", "BLACK"})
+  @DisplayName(
+      "the mod's own colour on an item is kept, so a coloured frisbee paints in its colour")
+  void keepsModColours(final DyeColor colour) {
+    final ItemStack frisbee = new ItemStack(ModItems.FRISBEE);
+    frisbee.set(ModComponents.FRISBEE_COLOR, colour);
+    assertEquals(colour, PortraitGear.shownPart(frisbee).get(ModComponents.FRISBEE_COLOR));
+  }
+
+  @Test
+  @DisplayName("a box carried in a dog's mouth keeps its look but not its contents")
+  void dropsContainerContents() {
+    final ItemStack box = new ItemStack(Items.SHULKER_BOX);
+    box.set(
+        DataComponentTypes.CONTAINER,
+        ContainerComponent.fromStacks(List.of(new ItemStack(Items.WRITTEN_BOOK, 16))));
+    final ItemStack shown = PortraitGear.shownPart(box);
+    assertTrue(shown.isOf(Items.SHULKER_BOX));
+    assertNull(shown.get(DataComponentTypes.CONTAINER));
   }
 
   @Test
