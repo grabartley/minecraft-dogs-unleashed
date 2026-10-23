@@ -77,12 +77,11 @@ class UnleashedDogBreedTest {
 
   @ParameterizedTest
   @MethodSource("rigBreeds")
-  @DisplayName("every rig breed declares carry profiles for tennis ball, stick, and frisbee")
+  @DisplayName("every rig breed declares carry profiles for the tennis ball and the stick")
   void everyRigBreedDeclaresCarryProfilesForEveryFetchItem(final UnleashedDogBreed breed) {
     final FetchCarryProfiles profiles = breed.fetchCarryProfiles().orElseThrow();
     assertNotNull(profiles.tennisBall(), "tennis ball profile for " + breed);
     assertNotNull(profiles.stick(), "stick profile for " + breed);
-    assertNotNull(profiles.frisbee(), "frisbee profile for " + breed);
   }
 
   static Stream<UnleashedDogBreed> rigBreeds() {
@@ -102,8 +101,7 @@ class UnleashedDogBreedTest {
   @DisplayName("every carry profile has finite offsets")
   void everyCarryProfileHasFiniteOffsets(final UnleashedDogBreed breed) {
     final FetchCarryProfiles profiles = breed.fetchCarryProfiles().orElseThrow();
-    for (final CarryProfile profile :
-        List.of(profiles.tennisBall(), profiles.stick(), profiles.frisbee())) {
+    for (final CarryProfile profile : List.of(profiles.tennisBall(), profiles.stick())) {
       assertTrue(
           Double.isFinite(profile.verticalOffset()),
           "vertical offset must be finite: " + breed + " " + profile);
@@ -111,22 +109,6 @@ class UnleashedDogBreedTest {
           Double.isFinite(profile.forwardOffset()),
           "forward offset must be finite: " + breed + " " + profile);
     }
-  }
-
-  @ParameterizedTest
-  @MethodSource("rigBreeds")
-  @DisplayName("the frisbee sits further forward than the ball because the dog grips its rim")
-  void frisbeeSitsFurtherForwardThanTheBall(final UnleashedDogBreed breed) {
-    final FetchCarryProfiles profiles = breed.fetchCarryProfiles().orElseThrow();
-    assertTrue(
-        Math.abs(profiles.frisbee().forwardOffset())
-            > Math.abs(profiles.tennisBall().forwardOffset()),
-        "frisbee must sit further forward than the ball for breed="
-            + breed
-            + ": frisbee="
-            + profiles.frisbee()
-            + " tennisBall="
-            + profiles.tennisBall());
   }
 
   @ParameterizedTest

@@ -9,7 +9,6 @@ import com.grahambartley.dogsunleashed.render.rig.RigProfile.Slot;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Stream;
-import net.minecraft.client.util.math.MatrixStack;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.junit.jupiter.api.DisplayName;
@@ -19,10 +18,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.cache.object.GeoCube;
-import software.bernie.geckolib.cache.object.GeoQuad;
-import software.bernie.geckolib.cache.object.GeoVertex;
-import software.bernie.geckolib.util.RenderUtil;
 
 class SlotAnchorTest {
 
@@ -66,43 +61,10 @@ class SlotAnchorTest {
     final Matrix4f boxToModel =
         LivePose.of(model.getBone(anchor.boneName()).orElseThrow())
             .mul(CostumePartFit.partToBone(anchor, 0.0f));
-    final CubeGeometry.Bounds rendered = renderedBounds(model, bones);
+    final CubeGeometry.Bounds rendered = RenderedBounds.of(model, bones);
 
     assertPoint(rendered.min(), boxToModel.transformPosition(new Vector3f(-0.5f)));
     assertPoint(rendered.max(), boxToModel.transformPosition(new Vector3f(0.5f)));
-  }
-
-  private static CubeGeometry.Bounds renderedBounds(
-      final BakedGeoModel model, final Set<String> bones) {
-    final CubeGeometry.Bounds bounds = new CubeGeometry.Bounds();
-    for (final String name : bones) {
-      model
-          .getBone(name)
-          .ifPresent(
-              bone -> {
-                final Matrix4f boneMatrix = LivePose.of(bone);
-                for (final GeoCube cube : bone.getCubes()) {
-                  final MatrixStack stack = new MatrixStack();
-                  stack.peek().getPositionMatrix().set(boneMatrix);
-                  RenderUtil.translateToPivotPoint(stack, cube);
-                  RenderUtil.rotateMatrixAroundCube(stack, cube);
-                  RenderUtil.translateAwayFromPivotPoint(stack, cube);
-                  for (final GeoQuad quad : cube.quads()) {
-                    if (quad == null) {
-                      continue;
-                    }
-                    for (final GeoVertex vertex : quad.vertices()) {
-                      bounds.include(
-                          stack
-                              .peek()
-                              .getPositionMatrix()
-                              .transformPosition(new Vector3f(vertex.position())));
-                    }
-                  }
-                }
-              });
-    }
-    return bounds;
   }
 
   private static void assertPoint(final Vector3f expected, final Vector3f actual) {

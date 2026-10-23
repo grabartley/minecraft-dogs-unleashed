@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.render.layer;
 
+import com.google.common.collect.MapMaker;
 import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.ModItems;
@@ -14,6 +15,8 @@ import com.grahambartley.dogsunleashed.model.FrisbeeModel;
 import com.grahambartley.dogsunleashed.model.StickModel;
 import com.grahambartley.dogsunleashed.model.TennisBallModel;
 import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
+import java.util.Map;
+import java.util.Optional;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -34,6 +37,7 @@ import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
 public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockAndItemGeoLayer<T> {
   private static final int FULL_BRIGHT_COLOR = 0xFFFFFFFF;
   private static final float NO_PARTIAL_TICK = 1.0f;
+  private static final float PIXELS_PER_BLOCK = 16.0f;
   private static final float ITEM_FLAT_DEGREES = 90.0f;
   private static final float DIAGONAL_SPRITE_TO_CROSSWISE_DEGREES = -45.0f;
 
@@ -44,6 +48,8 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
   private final GeoBlockRenderer<FrisbeeBlockEntity> frisbeeRenderer;
   private final FrisbeeBlockEntity frisbeeDummy;
   private final Matrix4f entityOrigin;
+  private final Map<BakedGeoModel, Optional<MouthGrip>> grips = new MapMaker().weakKeys().makeMap();
+  private Optional<MouthGrip> frameGrip = Optional.empty();
 
   public DogCarryFetchItemLayer(GeoRenderer<T> renderer, Matrix4f entityOrigin) {
     super(renderer);
@@ -59,14 +65,32 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
   }
 
   @Override
+  public void preRender(
+      MatrixStack poseStack,
+      T animatable,
+      BakedGeoModel bakedModel,
+      RenderLayer renderType,
+      VertexConsumerProvider bufferSource,
+      VertexConsumer buffer,
+      float partialTick,
+      int packedLight,
+      int packedOverlay) {
+    this.frameGrip =
+        this.grips.computeIfAbsent(
+            bakedModel,
+            model ->
+                MouthGrip.of(
+                    model,
+                    RigProfiles.of(animatable.getRigSourceBreed()),
+                    animatable.getRigSourceBreed().renderTransforms().bodyYawOffsetDegrees()));
+  }
+
+  @Override
   protected ItemStack getStackForBone(GeoBone bone, T animatable) {
     if (animatable.isInvisible() || !animatable.getFetchCarry().isCarrying()) {
       return null;
     }
-    if (!RigProfiles.of(animatable.getRigSourceBreed())
-        .mouthBone()
-        .filter(bone.getName()::equals)
-        .isPresent()) {
+    if (!this.carriesOn(bone, animatable)) {
       return null;
     }
 
@@ -107,6 +131,13 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
     if (fetchType == null) {
       return;
     }
+    if (fetchType == FetchTypes.FRISBEE) {
+      this.frameGrip.ifPresent(
+          grip ->
+              this.renderFrisbee(
+                  poseStack, bone, grip, stack, bufferSource, packedLight, packedOverlay));
+      return;
+    }
     CarryProfile profile = animatable.getRigSourceBreed().carryProfileFor(fetchType).orElse(null);
     if (profile == null) {
       return;
@@ -140,17 +171,44 @@ public class DogCarryFetchItemLayer<T extends UnleashedDogEntity> extends BlockA
           FULL_BRIGHT_COLOR);
       return;
     }
-    if (fetchType == FetchTypes.FRISBEE) {
-      DyeColor color = stack.getOrDefault(ModComponents.FRISBEE_COLOR, DyeColor.WHITE);
-      frisbeeDummy.setColor(color);
-      int tint = color.getEntityColor() | 0xFF000000;
-      renderGeo(
-          frisbeeRenderer, frisbeeDummy, poseStack, bufferSource, packedLight, packedOverlay, tint);
-      return;
-    }
-
     super.renderStackForBone(
         poseStack, bone, stack, animatable, bufferSource, partialTick, packedLight, packedOverlay);
+  }
+
+  private boolean carriesOn(GeoBone bone, T animatable) {
+    if (animatable.getFetchCarry().activeType() == FetchTypes.FRISBEE
+        && !animatable.getFetchCarry().isCarryingFetchedItem()) {
+      return this.frameGrip.map(MouthGrip::boneName).filter(bone.getName()::equals).isPresent();
+    }
+    return RigProfiles.of(animatable.getRigSourceBreed())
+        .mouthBone()
+        .filter(bone.getName()::equals)
+        .isPresent();
+  }
+
+  private void renderFrisbee(
+      MatrixStack poseStack,
+      GeoBone bone,
+      MouthGrip grip,
+      ItemStack stack,
+      VertexConsumerProvider bufferSource,
+      int packedLight,
+      int packedOverlay) {
+    poseStack.translate(grip.point().x, grip.point().y, grip.point().z);
+    MouthFrame.level(poseStack, bone);
+    poseStack.multiplyPositionMatrix(
+        HeldFrisbee.gripToDisc(grip, CarriedToy.FRISBEE.modelPixels() / PIXELS_PER_BLOCK));
+    poseStack.translate(0.0, CarriedToy.FRISBEE.centreDrop(), 0.0);
+    DyeColor color = stack.getOrDefault(ModComponents.FRISBEE_COLOR, DyeColor.WHITE);
+    frisbeeDummy.setColor(color);
+    renderGeo(
+        frisbeeRenderer,
+        frisbeeDummy,
+        poseStack,
+        bufferSource,
+        packedLight,
+        packedOverlay,
+        color.getEntityColor() | 0xFF000000);
   }
 
   private void renderFetchedItem(

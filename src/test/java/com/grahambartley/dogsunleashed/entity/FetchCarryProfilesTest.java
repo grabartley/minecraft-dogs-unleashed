@@ -16,15 +16,11 @@ class FetchCarryProfilesTest {
 
   private static final CarryProfile TENNIS = new CarryProfile(0.10, -0.40);
   private static final CarryProfile STICK = new CarryProfile(0.00, -0.50);
-  private static final CarryProfile FRISBEE = new CarryProfile(0.20, -0.30);
 
-  private final FetchCarryProfiles profiles = new FetchCarryProfiles(TENNIS, STICK, FRISBEE);
+  private final FetchCarryProfiles profiles = new FetchCarryProfiles(TENNIS, STICK);
 
   static Stream<Arguments> knownPaths() {
-    return Stream.of(
-        Arguments.of("tennis_ball", TENNIS),
-        Arguments.of("stick", STICK),
-        Arguments.of("frisbee", FRISBEE));
+    return Stream.of(Arguments.of("tennis_ball", TENNIS), Arguments.of("stick", STICK));
   }
 
   @ParameterizedTest(name = "\"{0}\" -> {1}")
@@ -35,7 +31,7 @@ class FetchCarryProfilesTest {
   }
 
   @ParameterizedTest(name = "\"{0}\" falls back to tennis ball")
-  @ValueSource(strings = {"ball_of_yarn", "", "TENNIS_BALL", "stick "})
+  @ValueSource(strings = {"ball_of_yarn", "", "TENNIS_BALL", "stick ", "frisbee"})
   @DisplayName("unknown paths fall back to the tennis ball profile")
   void unknownPathFallsBackToTennisBall(final String path) {
     assertSame(TENNIS, profiles.forFetchItemPath(path));
@@ -55,15 +51,10 @@ class FetchCarryProfilesTest {
 
   static Stream<Arguments> nullComponentSlots() {
     final Function<CarryProfile, FetchCarryProfiles> nullTennis =
-        ignored -> new FetchCarryProfiles(null, STICK, FRISBEE);
+        ignored -> new FetchCarryProfiles(null, STICK);
     final Function<CarryProfile, FetchCarryProfiles> nullStick =
-        ignored -> new FetchCarryProfiles(TENNIS, null, FRISBEE);
-    final Function<CarryProfile, FetchCarryProfiles> nullFrisbee =
-        ignored -> new FetchCarryProfiles(TENNIS, STICK, null);
-    return Stream.of(
-        Arguments.of("tennisBall", nullTennis),
-        Arguments.of("stick", nullStick),
-        Arguments.of("frisbee", nullFrisbee));
+        ignored -> new FetchCarryProfiles(TENNIS, null);
+    return Stream.of(Arguments.of("tennisBall", nullTennis), Arguments.of("stick", nullStick));
   }
 
   @ParameterizedTest(name = "null {0}")
