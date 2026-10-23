@@ -1,0 +1,147 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.carved_pumpkin_shibainu",
+				"texture_width": 128,
+				"texture_height": 128,
+				"visible_bounds_width": 2,
+				"visible_bounds_height": 2.5,
+				"visible_bounds_offset": [
+					0,
+					0.75,
+					0
+				]
+			},
+			"bones": [
+				{
+					"name": "head",
+					"pivot": [
+						0,
+						3.85,
+						-3.15
+					]
+				},
+				{
+					"name": "costume_head",
+					"parent": "head",
+					"pivot": [
+						0,
+						0.75,
+						-4.3
+					],
+					"rotation": [
+						10,
+						0,
+						0
+					],
+					"cubes": [
+						{
+							"origin": [
+								-5,
+								1.45,
+								-6.7
+							],
+							"size": [
+								10,
+								10,
+								10
+							],
+							"inflate": -3,
+							"uv": [
+								88,
+								7
+							]
+						},
+						{
+							"origin": [
+								-1.5,
+								6.25,
+								-3.9
+							],
+							"size": [
+								4,
+								6,
+								4
+							],
+							"inflate": -1.6,
+							"pivot": [
+								1.5,
+								6.25,
+								-2.9
+							],
+							"rotation": [
+								0,
+								0,
+								-11
+							],
+							"uv": {
+								"north": {
+									"uv": [
+										4,
+										93
+									],
+									"uv_size": [
+										4,
+										6
+									]
+								},
+								"east": {
+									"uv": [
+										0,
+										93
+									],
+									"uv_size": [
+										4,
+										6
+									]
+								},
+								"south": {
+									"uv": [
+										12,
+										93
+									],
+									"uv_size": [
+										4,
+										6
+									]
+								},
+								"west": {
+									"uv": [
+										8,
+										93
+									],
+									"uv_size": [
+										4,
+										6
+									]
+								},
+								"up": {
+									"uv": [
+										4,
+										89
+									],
+									"uv_size": [
+										4,
+										4
+									]
+								},
+								"down": {
+									"uv": [
+										8,
+										93
+									],
+									"uv_size": [
+										4,
+										-4
+									]
+								}
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}

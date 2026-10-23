@@ -1,0 +1,142 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.carved_pumpkin_goldenretriever",
+				"texture_width": 128,
+				"texture_height": 128,
+				"visible_bounds_width": 2,
+				"visible_bounds_height": 2.5,
+				"visible_bounds_offset": [
+					0,
+					0.75,
+					0
+				]
+			},
+			"bones": [
+				{
+					"name": "head",
+					"pivot": [
+						0,
+						5.55,
+						-3.15
+					]
+				},
+				{
+					"name": "costume_head",
+					"parent": "head",
+					"pivot": [
+						0,
+						2.3,
+						-5.9
+					],
+					"cubes": [
+						{
+							"origin": [
+								-5,
+								3,
+								-8.3
+							],
+							"size": [
+								10,
+								10,
+								10
+							],
+							"inflate": -3,
+							"uv": [
+								88,
+								7
+							]
+						},
+						{
+							"origin": [
+								-1.2999999999999998,
+								7.5,
+								-5.5
+							],
+							"size": [
+								4,
+								6,
+								4
+							],
+							"inflate": -1.6,
+							"pivot": [
+								1.7,
+								7.5,
+								-4.5
+							],
+							"rotation": [
+								0,
+								0,
+								-11
+							],
+							"uv": {
+								"north": {
+									"uv": [
+										18,
+										100
+									],
+									"uv_size": [
+										4,
+										6
+									]
+								},
+								"east": {
+									"uv": [
+										14,
+										100
+									],
+									"uv_size": [
+										4,
+										6
+									]
+								},
+								"south": {
+									"uv": [
+										26,
+										100
+									],
+									"uv_size": [
+										4,
+										6
+									]
+								},
+								"west": {
+									"uv": [
+										22,
+										100
+									],
+									"uv_size": [
+										4,
+										6
+									]
+								},
+								"up": {
+									"uv": [
+										18,
+										96
+									],
+									"uv_size": [
+										4,
+										4
+									]
+								},
+								"down": {
+									"uv": [
+										22,
+										100
+									],
+									"uv_size": [
+										4,
+										-4
+									]
+								}
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}

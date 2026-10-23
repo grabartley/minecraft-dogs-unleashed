@@ -22,6 +22,8 @@ class MobHeadArtTest {
   @ParameterizedTest(name = "{0} on {1}")
   @CsvSource({
     "CARVED_PUMPKIN, DACHSHUND, carved_pumpkin/dachshund",
+    "CARVED_PUMPKIN, GOLDEN_RETRIEVER, carved_pumpkin/goldenretriever",
+    "CARVED_PUMPKIN, SHIBA_INU, carved_pumpkin/shibainu",
     "CARVED_PUMPKIN, HUSKY, carved_pumpkin/husky",
     "CREEPER, BEAGLE, creeper_head/beagle"
   })
@@ -34,16 +36,17 @@ class MobHeadArtTest {
     assertEquals("textures/entity/cosmetic/" + path + ".png", art.texture().getPath());
   }
 
-  @Test
+  @ParameterizedTest(name = "{0}")
+  @EnumSource(
+      value = UnleashedDogBreed.class,
+      names = {"DACHSHUND", "GOLDEN_RETRIEVER", "SHIBA_INU"})
   @DisplayName("a head with a loaded model for the breed has art")
-  void loadedModelHasArt() {
-    final MobHeadArt expected =
-        MobHeadArt.named(MobHead.CARVED_PUMPKIN, UnleashedDogBreed.DACHSHUND);
+  void loadedModelHasArt(final UnleashedDogBreed breed) {
+    final MobHeadArt expected = MobHeadArt.named(MobHead.CARVED_PUMPKIN, breed);
 
     assertEquals(
         Optional.of(expected),
-        MobHeadArt.of(
-            MobHead.CARVED_PUMPKIN, UnleashedDogBreed.DACHSHUND, expected.model()::equals));
+        MobHeadArt.of(MobHead.CARVED_PUMPKIN, breed, expected.model()::equals));
   }
 
   @Test
@@ -60,10 +63,13 @@ class MobHeadArtTest {
             .isEmpty());
   }
 
-  @Test
-  @DisplayName("the dachshund ships its carved pumpkin")
-  void dachshundShipsItsPumpkin() {
-    final MobHeadArt art = MobHeadArt.named(MobHead.CARVED_PUMPKIN, UnleashedDogBreed.DACHSHUND);
+  @ParameterizedTest(name = "{0}")
+  @EnumSource(
+      value = UnleashedDogBreed.class,
+      names = {"DACHSHUND", "GOLDEN_RETRIEVER", "SHIBA_INU"})
+  @DisplayName("a breed with drawn art ships its carved pumpkin")
+  void drawnBreedShipsItsPumpkin(final UnleashedDogBreed breed) {
+    final MobHeadArt art = MobHeadArt.named(MobHead.CARVED_PUMPKIN, breed);
 
     assertNotNull(resource(art.model()));
     assertNotNull(resource(art.texture()));
