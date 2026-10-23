@@ -23,7 +23,6 @@ Shared engineering standards across all the mods in this family live in [`../sta
 | [0013](0013-costume-parts-play-their-own-clips-on-the-dogs-animation-controllers.md) | Costume parts play their own clips on the dog's animation controllers |
 | [0014](0014-a-cross-stands-on-one-parents-rig-and-takes-colour-ears-and-shape-from-the-rest.md) | A cross stands on one parent's rig and takes colour, ears and shape from the rest |
 | [0015](0015-a-sled-follows-its-team-and-owns-the-list-of-dogs-pulling-it.md) | A sled follows its team and owns the list of dogs pulling it |
-| [0016](0016-a-mob-head-can-be-drawn-from-hand-made-art-for-one-breed.md) | A mob head can be drawn from hand-made art for one breed |
 
 ## Writing A New Record
 

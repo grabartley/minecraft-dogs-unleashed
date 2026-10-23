@@ -24,11 +24,11 @@ Animations: keep keyframes, times, easing and bone names exactly as drawn. Check
 
 ## 3. Fit it into the repo's structure
 
-- Follow the existing asset paths and naming for the kind of thing it is. Mob head art is `geo/cosmetic/<head item>/<breed>.geo.json` and `textures/entity/cosmetic/<head item>/<breed>.png` (ADR 0016). Costumes follow ADR 0012. Props follow `geo-prop`.
+- Follow the existing asset paths and naming for the kind of thing it is. Mob head art is `geo/cosmetic/<head item>/<breed>.geo.json` and `textures/entity/cosmetic/<head item>/<breed>.png`. Costumes follow ADR 0012. Props follow `geo-prop`.
 - Prefer data over code. A new breed or item should only need new files. A new rule goes in a small class with a matching `FooTest`, not into a class that is already big.
 - Draw the art in the space it was drawn in. If it was drawn in the rig's space, attach it to the bone of the same name, with no rotation on the art's own bone, and do not scale, fit or move it. It then gets the same transforms as the rig's own cubes on that bone. If that bone has a rotated parent (the husky's neck is one), check the art against a reference before shipping, because it has not been proven for that case.
 - Keep behaviour that was not asked for. Other breeds, other heads and other cosmetics must render as before. A breed without art keeps its current look.
-- Update the docs the change invalidates: an ADR when the rule is new, the PRD row when player-visible behaviour changes. The README only changes when the player-facing pitch changes.
+- Update the docs the change invalidates, such as a PRD row when player-visible behaviour changes. The README only changes when the player-facing pitch changes.
 - No code comments, no emoji, no em dashes. Translate any new lang key in every lang file.
 
 ## 4. Tests
