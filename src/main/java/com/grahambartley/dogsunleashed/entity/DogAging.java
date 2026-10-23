@@ -71,8 +71,12 @@ public final class DogAging extends DogComponent {
             settings.seniorAfterDays()));
   }
 
-  private void showSenior(final boolean senior) {
+  public void showSeniorCoat(final boolean senior) {
     this.dog.getDataTracker().set(UnleashedDogEntity.SENIOR, senior);
+  }
+
+  private void showSenior(final boolean senior) {
+    this.showSeniorCoat(senior);
     final EntityAttributeInstance speed =
         this.dog.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED);
     if (speed == null || speed.hasModifier(MOVEMENT_SPEED_MODIFIER_ID) == senior) {
