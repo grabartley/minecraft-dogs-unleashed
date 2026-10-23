@@ -40,28 +40,8 @@ public class DogGraveItemRenderer implements BuiltinItemRendererRegistry.Dynamic
     dummyEntity.setFlowerColor(flowerColor);
 
     matrices.push();
-
-    switch (mode) {
-      case GUI -> {
-        ItemRenderTransforms.applyDisplayPose(matrices, 0.5, 0.25, 0.0, 30.0f, 45.0f, 0.6f);
-      }
-      case GROUND -> ItemRenderTransforms.applyGroundPose(matrices, 0.5, 0.2, 0.5, 0.8f);
-      case FIXED -> {
-        ItemRenderTransforms.applyDisplayPose(matrices, 0.5, 0.2, 0.5, 30.0f, 45.0f, 1.0f);
-      }
-      case THIRD_PERSON_LEFT_HAND, THIRD_PERSON_RIGHT_HAND -> {
-        ItemRenderTransforms.applyDisplayPose(matrices, 0.5, 0.35, 0.5, 75.0f, 45.0f, 0.8f);
-      }
-      case FIRST_PERSON_LEFT_HAND -> {
-        ItemRenderTransforms.applyFirstPersonPose(
-            matrices, 0.6, 0.25, 0.3, 10.0f, -80.0f, -10.0f, 0.6f);
-      }
-      case FIRST_PERSON_RIGHT_HAND -> {
-        ItemRenderTransforms.applyFirstPersonPose(
-            matrices, 0.4, 0.25, 0.3, 10.0f, 80.0f, 10.0f, 0.6f);
-      }
-      default -> ItemRenderTransforms.applyGroundPose(matrices, 0.5, 0.2, 0.5, 0.8f);
-    }
+    matrices.multiplyPositionMatrix(
+        PlacedBlockItemPose.of(DogGraveBlockEntityRenderer.GRAVE_SCALE));
 
     final BakedGeoModel bakedModel =
         renderer.getGeoModel().getBakedModel(renderer.getGeoModel().getModelResource(dummyEntity));

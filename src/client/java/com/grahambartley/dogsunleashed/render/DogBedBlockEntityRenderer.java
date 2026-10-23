@@ -13,7 +13,7 @@ import software.bernie.geckolib.renderer.GeoBlockRenderer;
 
 public class DogBedBlockEntityRenderer extends GeoBlockRenderer<DogBedBlockEntity> {
 
-  private static final float BED_SCALE = 2.0f;
+  static final float BED_SCALE = 2.0f;
 
   public DogBedBlockEntityRenderer(BlockEntityRendererFactory.Context context) {
     super(new DogBedModel());
