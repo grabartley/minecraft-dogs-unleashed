@@ -22,6 +22,8 @@ class MobHeadArtTest {
   @ParameterizedTest(name = "{0} on {1}")
   @CsvSource({
     "CARVED_PUMPKIN, DACHSHUND, carved_pumpkin/dachshund",
+    "CARVED_PUMPKIN, GOLDEN_RETRIEVER, carved_pumpkin/goldenretriever",
+    "CARVED_PUMPKIN, SHIBA_INU, carved_pumpkin/shibainu",
     "CARVED_PUMPKIN, HUSKY, carved_pumpkin/husky",
     "CREEPER, BEAGLE, creeper_head/beagle"
   })
@@ -60,10 +62,13 @@ class MobHeadArtTest {
             .isEmpty());
   }
 
-  @Test
-  @DisplayName("the dachshund ships its carved pumpkin")
-  void dachshundShipsItsPumpkin() {
-    final MobHeadArt art = MobHeadArt.named(MobHead.CARVED_PUMPKIN, UnleashedDogBreed.DACHSHUND);
+  @ParameterizedTest(name = "{0}")
+  @EnumSource(
+      value = UnleashedDogBreed.class,
+      names = {"DACHSHUND", "GOLDEN_RETRIEVER", "SHIBA_INU"})
+  @DisplayName("a breed with drawn art ships its carved pumpkin")
+  void drawnBreedShipsItsPumpkin(final UnleashedDogBreed breed) {
+    final MobHeadArt art = MobHeadArt.named(MobHead.CARVED_PUMPKIN, breed);
 
     assertNotNull(resource(art.model()));
     assertNotNull(resource(art.texture()));
