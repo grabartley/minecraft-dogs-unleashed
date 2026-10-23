@@ -48,13 +48,18 @@ public class FittedGeoItemRenderer<T extends Item & GeoItem>
   }
 
   static ModelFit fitOf(final BakedGeoModel model, final Fitter fitter) {
+    final CubeGeometry.Bounds bounds = boundsOf(model);
+    return bounds.isEmpty()
+        ? new ModelFit(1.0f, new Vector3f(0.5f, 0.0f, 0.5f))
+        : fitter.fit(bounds.min(), bounds.max());
+  }
+
+  static CubeGeometry.Bounds boundsOf(final BakedGeoModel model) {
     final CubeGeometry.Bounds bounds = new CubeGeometry.Bounds();
     for (final GeoBone bone : model.topLevelBones()) {
       include(bounds, bone);
     }
-    return bounds.isEmpty()
-        ? new ModelFit(1.0f, new Vector3f(0.5f, 0.0f, 0.5f))
-        : fitter.fit(bounds.min(), bounds.max());
+    return bounds;
   }
 
   private static void include(final CubeGeometry.Bounds bounds, final GeoBone bone) {
