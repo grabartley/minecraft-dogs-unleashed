@@ -25,9 +25,9 @@ texels per block near the others: the dire wolf alpha draws 2.25 times its yearl
 The dire wolf sheet is 256x256 so its geometry keeps its texel budget, but the fur is painted in
 flat cells about one visible unit wide (3 to 6 texels), each snapped to a step of 16 luma levels
 with a small offset per cell so large gradients break into blocks, not contour bands. That matches
-the husky's paint scale of about 11 cells per block and leaves 140 to 620 colours per coat. Faces
-under 6 texels across (ear tips, the small snout cubes) are one flat cell each. The eyes, eyelids,
-fangs, nose, lip lines and the mouth interior (teeth, gums, tongue) are kept texel by texel. The
+the husky's paint scale of about 11 cells per block and leaves about 120 to 570 colours per coat
+(330 to 3,000 before). Faces under 6 texels across (ear tips, overgrown fur tufts) are one flat cell each. The eyes, eyelids,
+fangs, the whole muzzle tip, lip lines and the mouth interior (teeth, gums, tongue) are kept texel by texel. The
 botched and grey muzzle overlays use the same cells, each snapped to the most common colour already
 in its file. The trimmed overlay is left as it was: its single-texel stubble is the point of it.
 
