@@ -21,6 +21,7 @@ class MobHeadArtTest {
 
   @ParameterizedTest(name = "{0} on {1}")
   @CsvSource({
+    "CARVED_PUMPKIN, BEAGLE, carved_pumpkin/beagle",
     "CARVED_PUMPKIN, DACHSHUND, carved_pumpkin/dachshund",
     "CARVED_PUMPKIN, GOLDEN_RETRIEVER, carved_pumpkin/goldenretriever",
     "CARVED_PUMPKIN, SHIBA_INU, carved_pumpkin/shibainu",
@@ -39,7 +40,7 @@ class MobHeadArtTest {
   @ParameterizedTest(name = "{0}")
   @EnumSource(
       value = UnleashedDogBreed.class,
-      names = {"DACHSHUND", "GOLDEN_RETRIEVER", "SHIBA_INU"})
+      names = {"BEAGLE", "DACHSHUND", "GOLDEN_RETRIEVER", "SHIBA_INU"})
   @DisplayName("a head with a loaded model for the breed has art")
   void loadedModelHasArt(final UnleashedDogBreed breed) {
     final MobHeadArt expected = MobHeadArt.named(MobHead.CARVED_PUMPKIN, breed);
@@ -66,7 +67,7 @@ class MobHeadArtTest {
   @ParameterizedTest(name = "{0}")
   @EnumSource(
       value = UnleashedDogBreed.class,
-      names = {"DACHSHUND", "GOLDEN_RETRIEVER", "SHIBA_INU"})
+      names = {"BEAGLE", "DACHSHUND", "GOLDEN_RETRIEVER", "SHIBA_INU"})
   @DisplayName("a breed with drawn art ships its carved pumpkin")
   void drawnBreedShipsItsPumpkin(final UnleashedDogBreed breed) {
     final MobHeadArt art = MobHeadArt.named(MobHead.CARVED_PUMPKIN, breed);
