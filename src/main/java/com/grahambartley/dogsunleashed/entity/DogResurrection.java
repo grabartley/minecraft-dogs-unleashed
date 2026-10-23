@@ -82,6 +82,7 @@ public final class DogResurrection {
     petManager.updatePet(petData);
 
     playRitualEffects(world, gravePos);
+    undeadDog.getVocalization().riseHowl();
     triggerAdvancement(world, installerId);
     return true;
   }

@@ -197,6 +197,39 @@ public final class ResurrectionRitualGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
+  public void aRaisedHuskyHowls(final TestContext context) {
+    assertRaisedPetHowls(context, UnleashedDogBreed.HUSKY, true);
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
+  public void aRaisedDireWolfHowls(final TestContext context) {
+    assertRaisedPetHowls(context, UnleashedDogBreed.DIRE_WOLF, true);
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
+  public void aRaisedBeagleStaysQuiet(final TestContext context) {
+    assertRaisedPetHowls(context, UnleashedDogBreed.BEAGLE, false);
+  }
+
+  private static void assertRaisedPetHowls(
+      final TestContext context, final UnleashedDogBreed breed, final boolean expected) {
+    final PetData pet = deceasedPetWithGrave(context, "Balto", true, DogGenome.pure(breed));
+
+    context.runAtTick(STRIKE_TICK, () -> strikeRod(context));
+
+    context.runAtTick(
+        ASSERT_TICK,
+        () -> {
+          final UnleashedDogEntity dog = raisedDog(context, pet.getPetId());
+          context.assertTrue(dog != null, "An undead dog should stand where the grave was");
+          context.assertTrue(
+              dog.getAnimationState().isHowling() == expected,
+              "A raised " + breed + " should howl: " + expected);
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = TICK_LIMIT)
   public void aRaisedPetIsWeakerThanItWasAlive(final TestContext context) {
     final PetData pet = deceasedPetWithGrave(context, "Wraith", true);
 
@@ -408,12 +441,20 @@ public final class ResurrectionRitualGameTest implements FabricGameTest {
 
   private static PetData deceasedPetWithGrave(
       final TestContext context, final String name, final boolean withTotem) {
+    return deceasedPetWithGrave(context, name, withTotem, GENOME);
+  }
+
+  private static PetData deceasedPetWithGrave(
+      final TestContext context,
+      final String name,
+      final boolean withTotem,
+      final DogGenome genome) {
     final ServerWorld world = context.getWorld();
     final UUID ownerId = UUID.randomUUID();
 
     final UnleashedDogEntity dog = context.spawnEntity(ModEntities.CROSS_BREED, REL_DOG);
     dog.setAiDisabled(true);
-    dog.applyGenome(GENOME);
+    dog.applyGenome(genome);
     dog.getComponents().get(DogCollar.class).setColor(COLLAR);
     dog.getComponents().get(DogAging.class).setAdultAgeTicks(ADULT_AGE_TICKS);
     dog.setOwnerUuid(ownerId);

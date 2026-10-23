@@ -103,7 +103,11 @@ public final class DogVocalization {
     if (this.dog.isUndead()) {
       return SoundEvents.ENTITY_ZOMBIE_AMBIENT;
     }
-    final SoundEvent howl = this.dog.getVoiceBreed().howlSound();
+    return breedHowl(this.dog.getVoiceBreed());
+  }
+
+  private static SoundEvent breedHowl(final UnleashedDogBreed voiceBreed) {
+    final SoundEvent howl = voiceBreed.howlSound();
     return howl != null ? howl : ModSounds.HUSKY_HOWL;
   }
 
@@ -225,6 +229,18 @@ public final class DogVocalization {
           this.getBarkPitch(),
           DeathWatchRules.callOutVolume(DogsUnleashed.SERVER_CONFIG.sound().barkVolume()));
     }
+  }
+
+  void riseHowl() {
+    if (!this.dog.getVoiceBreed().howls()) {
+      return;
+    }
+    this.dog.getAnimationState().setHowling(true);
+    this.dog.playSound(
+        breedHowl(this.dog.getVoiceBreed()),
+        DogsUnleashed.SERVER_CONFIG.sound().howlVolume(),
+        HOWL_PITCH);
+    this.howlActiveTicks = HOWL_DURATION_TICKS;
   }
 
   private void howl() {
