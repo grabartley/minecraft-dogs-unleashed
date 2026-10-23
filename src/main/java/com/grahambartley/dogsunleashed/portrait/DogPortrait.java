@@ -37,7 +37,7 @@ public record DogPortrait(
                           .optionalFieldOf("pose", DogStatuePose.SIT)
                           .forGetter(DogPortrait::pose),
                       DogPortraitOutfit.CODEC
-                          .optionalFieldOf("outfit", DogPortraitOutfit.NONE)
+                          .lenientOptionalFieldOf("outfit", DogPortraitOutfit.NONE)
                           .forGetter(DogPortrait::outfit))
                   .apply(instance, DogPortrait::new));
 

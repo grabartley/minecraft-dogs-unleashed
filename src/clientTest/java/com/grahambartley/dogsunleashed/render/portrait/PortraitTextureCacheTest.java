@@ -142,6 +142,7 @@ class PortraitTextureCacheTest {
             Map.of(DogEquipmentSlot.SADDLEBAGS, new ItemStack(ModItems.SADDLEBAGS)),
             Optional.of(collar),
             ItemStack.EMPTY,
+            Optional.empty(),
             muddy,
             false,
             false));

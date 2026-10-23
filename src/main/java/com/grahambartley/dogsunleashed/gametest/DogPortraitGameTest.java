@@ -7,11 +7,13 @@ import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.ModPortraits;
 import com.grahambartley.dogsunleashed.block.DogStatueLook;
 import com.grahambartley.dogsunleashed.block.DogStatuePose;
+import com.grahambartley.dogsunleashed.entity.DogAging;
 import com.grahambartley.dogsunleashed.entity.DogCollar;
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.DogMud;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import com.grahambartley.dogsunleashed.gametest.util.SurvivalTestPlayer;
@@ -139,8 +141,22 @@ public final class DogPortraitGameTest implements FabricGameTest {
             new ItemStack(Registries.ITEM.get(Identifier.of(DogsUnleashed.MOD_ID, "party_hat"))));
     dog.getEquipmentHolder()
         .setStack(DogEquipmentSlot.SADDLEBAGS, new ItemStack(ModItems.SADDLEBAGS));
+    dog.getEquipmentHolder()
+        .setStack(
+            DogEquipmentSlot.PENDANT,
+            new ItemStack(
+                Registries.ITEM.get(
+                    Identifier.of(DogsUnleashed.MOD_ID, "warding_undead_pendant"))));
+    dog.getEquipmentHolder()
+        .setStack(
+            DogEquipmentSlot.COSTUME,
+            new ItemStack(
+                Registries.ITEM.get(Identifier.of(DogsUnleashed.MOD_ID, "spider_costume"))));
     dog.getComponents().get(DogCollar.class).setColor(DyeColor.LIME);
     dog.getComponents().get(DogMud.class).makeMuddy();
+    dog.getComponents().get(DogAging.class).showSeniorCoat(true);
+    dog.getFetchCarry().setActiveType(FetchTypes.TENNIS_BALL);
+    dog.getFetchCarry().setCarrying(true);
   }
 
   @GameTest(templateName = ARENA, batchId = "portrait")
@@ -164,6 +180,11 @@ public final class DogPortraitGameTest implements FabricGameTest {
         outfit.worn(DogEquipmentSlot.SADDLEBAGS).isOf(ModItems.SADDLEBAGS), "painted saddlebags");
     context.assertEquals(outfit.collar().orElse(null), DyeColor.LIME, "painted collar");
     context.assertTrue(outfit.muddy(), "painted mud");
+    context.assertTrue(!outfit.worn(DogEquipmentSlot.PENDANT).isEmpty(), "painted pendant");
+    context.assertTrue(!outfit.worn(DogEquipmentSlot.COSTUME).isEmpty(), "painted costume");
+    context.assertTrue(outfit.senior(), "painted senior coat");
+    context.assertEquals(
+        outfit.fetchType().orElse(null), FetchTypes.TENNIS_BALL.id(), "painted fetch toy");
     context.complete();
   }
 
@@ -180,7 +201,21 @@ public final class DogPortraitGameTest implements FabricGameTest {
     model.setAiDisabled(true);
     DogPortraitOutfits.dress(model, outfit);
 
-    context.assertEquals(DogPortraitOutfits.of(model), outfit, "outfit after dressing");
+    context.assertEquals(
+        model.getEquipmentHolder().getStack(DogEquipmentSlot.ARMOUR).getItem(),
+        Items.WOLF_ARMOR,
+        "dressed armour");
+    context.assertTrue(
+        model.getEquipmentHolder().getStack(DogEquipmentSlot.SADDLEBAGS).isOf(ModItems.SADDLEBAGS),
+        "dressed saddlebags");
+    context.assertEquals(
+        model.getComponents().get(DogCollar.class).getColor(), DyeColor.LIME, "dressed collar");
+    context.assertTrue(model.isTamed(), "a collared model is tamed so the collar shows");
+    context.assertTrue(model.getComponents().get(DogMud.class).isMuddy(), "dressed mud");
+    context.assertTrue(model.getComponents().get(DogAging.class).isSenior(), "dressed senior coat");
+    context.assertTrue(model.getFetchCarry().isCarrying(), "dressed carrying");
+    context.assertEquals(
+        model.getFetchCarry().activeType(), FetchTypes.TENNIS_BALL, "dressed fetch toy");
     context.complete();
   }
 

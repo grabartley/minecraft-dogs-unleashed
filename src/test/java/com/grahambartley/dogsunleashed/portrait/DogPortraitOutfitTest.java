@@ -20,11 +20,13 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.DyeColor;
+import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(MinecraftBootstrapExtension.class)
@@ -50,7 +52,8 @@ class DogPortraitOutfitTest {
                     DogEquipmentSlot.SADDLEBAGS,
                     new ItemStack(ModItems.SADDLEBAGS)),
                 Optional.of(DyeColor.LIME),
-                new ItemStack(ModItems.TENNIS_BALL),
+                ItemStack.EMPTY,
+                Optional.of(Identifier.of("dogs-unleashed", "tennis_ball")),
                 true,
                 false,
                 false)),
@@ -59,6 +62,7 @@ class DogPortraitOutfitTest {
                 Map.of(DogEquipmentSlot.COSMETIC, new ItemStack(Items.CARVED_PUMPKIN)),
                 Optional.empty(),
                 ItemStack.EMPTY,
+                Optional.empty(),
                 false,
                 true,
                 true)));
@@ -92,6 +96,7 @@ class DogPortraitOutfitTest {
             outfit.gear(),
             outfit.collar(),
             outfit.carried(),
+            outfit.fetchType(),
             outfit.muddy(),
             outfit.senior(),
             outfit.undead());
@@ -108,6 +113,7 @@ class DogPortraitOutfitTest {
             Map.of(DogEquipmentSlot.ARMOUR, dyedArmour(first)),
             Optional.empty(),
             ItemStack.EMPTY,
+            Optional.empty(),
             false,
             false,
             false);
@@ -116,6 +122,7 @@ class DogPortraitOutfitTest {
             Map.of(DogEquipmentSlot.ARMOUR, dyedArmour(second)),
             Optional.empty(),
             ItemStack.EMPTY,
+            Optional.empty(),
             false,
             false,
             false);
@@ -134,6 +141,7 @@ class DogPortraitOutfitTest {
             Map.of(DogEquipmentSlot.ARMOUR, ItemStack.EMPTY),
             Optional.empty(),
             ItemStack.EMPTY,
+            Optional.empty(),
             false,
             false,
             false);
@@ -151,6 +159,7 @@ class DogPortraitOutfitTest {
             Map.of(DogEquipmentSlot.SADDLEBAGS, saddlebags),
             Optional.empty(),
             ItemStack.EMPTY,
+            Optional.empty(),
             false,
             false,
             false);
@@ -162,5 +171,65 @@ class DogPortraitOutfitTest {
   @DisplayName("an outfit saved with nothing in it reads back as no outfit")
   void emptySaveIsNone() {
     assertEquals(DogPortraitOutfit.NONE, load(new NbtCompound()));
+  }
+
+  @Test
+  @DisplayName(
+      "gear naming an item that no longer exists is dropped and the rest of the outfit loads")
+  void unknownItemIsDropped() {
+    final NbtCompound saved =
+        (NbtCompound)
+            save(
+                new DogPortraitOutfit(
+                    Map.of(
+                        DogEquipmentSlot.ARMOUR, new ItemStack(Items.WOLF_ARMOR),
+                        DogEquipmentSlot.SADDLEBAGS, new ItemStack(ModItems.SADDLEBAGS)),
+                    Optional.of(DyeColor.LIME),
+                    ItemStack.EMPTY,
+                    Optional.empty(),
+                    true,
+                    false,
+                    false));
+    saved.getCompound("gear").getCompound("saddlebags").putString("id", "gone:old_bag");
+    final DogPortraitOutfit loaded = load(saved);
+    assertTrue(loaded.worn(DogEquipmentSlot.ARMOUR).isOf(Items.WOLF_ARMOR));
+    assertTrue(loaded.worn(DogEquipmentSlot.SADDLEBAGS).isEmpty());
+    assertEquals(Optional.of(DyeColor.LIME), loaded.collar());
+    assertTrue(loaded.muddy());
+  }
+
+  @ParameterizedTest(name = "carried {0}, fetch type {1} carries {2}")
+  @CsvSource({"true, false, true", "false, true, true", "true, true, true", "false, false, false"})
+  @DisplayName("a dog is carrying when it holds an item or a fetch toy")
+  void carryingFollowsTheToy(final boolean item, final boolean type, final boolean carrying) {
+    final DogPortraitOutfit outfit =
+        new DogPortraitOutfit(
+            Map.of(),
+            Optional.empty(),
+            item ? new ItemStack(Items.STICK) : ItemStack.EMPTY,
+            type ? Optional.of(Identifier.of("dogs-unleashed", "frisbee")) : Optional.empty(),
+            false,
+            false,
+            false);
+    assertEquals(carrying, outfit.carrying());
+  }
+
+  @Test
+  @DisplayName("changing a stack handed out by an outfit leaves the outfit alone")
+  void accessorsHandOutCopies() {
+    final DogPortraitOutfit outfit =
+        new DogPortraitOutfit(
+            Map.of(DogEquipmentSlot.ARMOUR, new ItemStack(Items.WOLF_ARMOR)),
+            Optional.empty(),
+            new ItemStack(Items.STICK),
+            Optional.empty(),
+            false,
+            false,
+            false);
+    final int hash = outfit.hashCode();
+    outfit.carried().setCount(0);
+    outfit.gear().get(DogEquipmentSlot.ARMOUR).setCount(0);
+    assertEquals(hash, outfit.hashCode());
+    assertTrue(outfit.carried().isOf(Items.STICK));
   }
 }

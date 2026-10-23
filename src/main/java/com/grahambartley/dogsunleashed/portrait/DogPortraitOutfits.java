@@ -7,6 +7,7 @@ import com.grahambartley.dogsunleashed.entity.DogFetchCarry;
 import com.grahambartley.dogsunleashed.entity.DogMud;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
+import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
@@ -21,12 +22,16 @@ public final class DogPortraitOutfits {
     for (final DogEquipmentSlot slot : DogEquipmentSlot.values()) {
       gear.put(slot, dog.getEquipmentHolder().getStack(slot));
     }
+    final DogFetchCarry carry = dog.getFetchCarry();
     return new DogPortraitOutfit(
         gear,
         dog.isTamed()
             ? Optional.of(dog.getComponents().get(DogCollar.class).getColor())
             : Optional.empty(),
-        carriedBy(dog.getFetchCarry()),
+        carry.isCarrying() ? carry.carriedStack() : ItemStack.EMPTY,
+        carry.isCarrying()
+            ? Optional.ofNullable(carry.activeType()).map(FetchItemType::id)
+            : Optional.empty(),
         dog.getComponents().get(DogMud.class).isMuddy(),
         dog.getComponents().get(DogAging.class).isSenior(),
         dog.isUndead());
@@ -43,25 +48,15 @@ public final class DogPortraitOutfits {
               dog.setTamed(true, false);
               dog.getComponents().get(DogCollar.class).setColor(colour);
             });
-    if (!outfit.carried().isEmpty()) {
-      dog.getFetchCarry().setActiveType(null);
-      dog.getFetchCarry().setCarriedStack(outfit.carried());
-      dog.getFetchCarry().setCarrying(true);
+    if (outfit.carrying()) {
+      final DogFetchCarry carry = dog.getFetchCarry();
+      carry.setActiveType(outfit.fetchType().map(FetchTypes::forId).orElse(null));
+      carry.setCarriedStack(outfit.carried());
+      carry.setCarrying(true);
     }
     if (outfit.muddy()) {
       dog.getComponents().get(DogMud.class).makeMuddy();
     }
-    dog.getComponents().get(DogAging.class).showSenior(outfit.senior());
-  }
-
-  private static ItemStack carriedBy(final DogFetchCarry carry) {
-    if (!carry.isCarrying()) {
-      return ItemStack.EMPTY;
-    }
-    final FetchItemType type = carry.activeType();
-    if (carry.isCarryingFetchedItem() || type == null || !carry.carriedStack().isEmpty()) {
-      return carry.carriedStack().copy();
-    }
-    return new ItemStack(type.item());
+    dog.getComponents().get(DogAging.class).showSeniorCoat(outfit.senior());
   }
 }

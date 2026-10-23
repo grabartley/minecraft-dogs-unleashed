@@ -32,6 +32,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 @ExtendWith(MinecraftBootstrapExtension.class)
 class DogPortraitTest {
@@ -81,6 +82,7 @@ class DogPortraitTest {
                         DogEquipmentSlot.SADDLEBAGS, new ItemStack(ModItems.SADDLEBAGS)),
                     Optional.of(DyeColor.PINK),
                     new ItemStack(ModItems.FRISBEE),
+                    Optional.empty(),
                     true,
                     true,
                     false))));
@@ -213,11 +215,25 @@ class DogPortraitTest {
             Map.of(DogEquipmentSlot.SADDLEBAGS, new ItemStack(ModItems.SADDLEBAGS)),
             Optional.of(DyeColor.BLUE),
             ItemStack.EMPTY,
+            Optional.empty(),
             true,
             false,
             false);
     final DogPortrait portrait = DogPortrait.painted(BEAGLE, "Bentley", PortraitSize.SMALL, outfit);
     assertEquals(outfit, portrait.withPose(pose).outfit());
     assertEquals(outfit, portrait.nextPose().outfit());
+  }
+
+  @ParameterizedTest(name = "an outfit saved as {0}")
+  @ValueSource(strings = {"broken", "42"})
+  @DisplayName("a portrait with an outfit it cannot read still loads its dog, undressed")
+  void unreadableOutfitKeepsTheDog(final String garbage) {
+    final NbtCompound saved =
+        new DogPortrait(BEAGLE, "Bentley", PortraitSize.SMALL, DogStatuePose.STAND)
+            .toNbt(REGISTRIES);
+    saved.putString("outfit", garbage);
+    final DogPortrait loaded = DogPortrait.fromNbt(REGISTRIES, saved).orElseThrow();
+    assertEquals(BEAGLE, loaded.look());
+    assertEquals(DogPortraitOutfit.NONE, loaded.outfit());
   }
 }
