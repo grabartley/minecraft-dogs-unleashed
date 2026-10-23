@@ -1,8 +1,5 @@
 package com.grahambartley.dogsunleashed.render.portrait;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public final class PortraitFraming {
 
   private static final int SOLID_ALPHA = 0x80;
@@ -84,7 +81,9 @@ public final class PortraitFraming {
     if (startX >= endX || startY >= endY) {
       return 0;
     }
-    final Map<Integer, Integer> votes = new HashMap<>();
+    final int[] colours = new int[(endX - startX) * (endY - startY)];
+    final int[] votes = new int[colours.length];
+    int distinct = 0;
     int samples = 0;
     int solid = 0;
     int best = 0;
@@ -102,11 +101,16 @@ public final class PortraitFraming {
           fallback = pixel | 0xFF000000;
           continue;
         }
-        final int colour = pixel;
-        final int count = votes.merge(colour, 1, Integer::sum);
-        if (count > bestVotes) {
-          best = colour;
-          bestVotes = count;
+        int slot = 0;
+        while (slot < distinct && colours[slot] != pixel) {
+          slot++;
+        }
+        if (slot == distinct) {
+          colours[distinct++] = pixel;
+        }
+        if (++votes[slot] > bestVotes) {
+          best = pixel;
+          bestVotes = votes[slot];
         }
       }
     }

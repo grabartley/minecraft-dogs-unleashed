@@ -42,6 +42,25 @@ class PortraitTextureCacheTest {
     return new DogPortrait(BEAGLE, name, size, DogStatuePose.SIT);
   }
 
+  private static void bakeTicks(final PortraitTextureCache cache, final int ticks) {
+    for (int tick = 0; tick < ticks; tick++) {
+      cache.bakeNextPending();
+    }
+  }
+
+  @ParameterizedTest(name = "{0} portraits queued, {1} ticks")
+  @CsvSource({"1, 1", "3, 1", "3, 2", "3, 3", "3, 5"})
+  @DisplayName(
+      "one portrait is baked per tick, oldest first, so a wall of portraits never stalls a frame")
+  void bakesOnePortraitPerTick(final int queued, final int ticks) {
+    final PortraitTextureCache cache = cache(true);
+    final List<PortraitSize> sizes = List.of(PortraitSize.values()).subList(0, queued);
+    sizes.forEach(size -> cache.textureOf(portrait("Bentley", size)));
+    bakeTicks(cache, ticks);
+    final int baked = Math.min(queued, ticks);
+    assertEquals(sizes.subList(0, baked), this.bakes.stream().map(DogPortrait::size).toList());
+  }
+
   @ParameterizedTest(name = "{0} frames")
   @ValueSource(ints = {1, 2, 60, 600})
   @DisplayName("a portrait is baked once, not every frame it is drawn")
@@ -49,7 +68,7 @@ class PortraitTextureCacheTest {
     final PortraitTextureCache cache = cache(true);
     for (int frame = 0; frame < frames; frame++) {
       cache.textureOf(portrait("Bentley", PortraitSize.SMALL));
-      cache.bakePending();
+      cache.bakeNextPending();
     }
     assertEquals(1, this.bakes.size());
     assertEquals(
@@ -72,7 +91,7 @@ class PortraitTextureCacheTest {
     final PortraitTextureCache cache = cache(true);
     cache.textureOf(portrait("Bentley", PortraitSize.WIDE));
     cache.textureOf(portrait("Rex", PortraitSize.WIDE));
-    cache.bakePending();
+    cache.bakeNextPending();
     assertEquals(1, this.bakes.size());
     assertEquals(
         cache.textureOf(portrait("Bentley", PortraitSize.WIDE)),
@@ -86,7 +105,7 @@ class PortraitTextureCacheTest {
     for (final PortraitSize size : PortraitSize.values()) {
       cache.textureOf(portrait("Bentley", size));
     }
-    cache.bakePending();
+    bakeTicks(cache, PortraitSize.values().length);
     assertEquals(PortraitSize.values().length, this.bakes.size());
   }
 
@@ -99,7 +118,7 @@ class PortraitTextureCacheTest {
     final PortraitTextureCache cache = cache(true);
     cache.textureOf(new DogPortrait(BEAGLE, "Bentley", PortraitSize.SMALL, first));
     cache.textureOf(new DogPortrait(BEAGLE, "Bentley", PortraitSize.SMALL, second));
-    cache.bakePending();
+    bakeTicks(cache, 2);
     assertEquals(textures, this.bakes.size());
   }
 
@@ -108,9 +127,9 @@ class PortraitTextureCacheTest {
   void failedBakeIsNotRetried() {
     final PortraitTextureCache cache = cache(false);
     cache.textureOf(portrait("Bentley", PortraitSize.SMALL));
-    cache.bakePending();
+    cache.bakeNextPending();
     assertNull(cache.textureOf(portrait("Bentley", PortraitSize.SMALL)));
-    cache.bakePending();
+    cache.bakeNextPending();
     assertEquals(1, this.bakes.size());
   }
 
@@ -119,13 +138,13 @@ class PortraitTextureCacheTest {
   void clearRebakesOnce() {
     final PortraitTextureCache cache = cache(true);
     cache.textureOf(portrait("Bentley", PortraitSize.SMALL));
-    cache.bakePending();
+    cache.bakeNextPending();
     final TextureManager textures = mock(TextureManager.class);
     cache.clear(textures);
     verify(textures).destroyTexture(Identifier.of("dogs-unleashed", "portrait/baked_0"));
     for (int frame = 0; frame < 10; frame++) {
       cache.textureOf(portrait("Bentley", PortraitSize.SMALL));
-      cache.bakePending();
+      cache.bakeNextPending();
     }
     assertEquals(2, this.bakes.size());
   }
@@ -135,12 +154,12 @@ class PortraitTextureCacheTest {
   void clearDropsQueuedAndFailedBakes() {
     final PortraitTextureCache cache = cache(false);
     cache.textureOf(portrait("Bentley", PortraitSize.SMALL));
-    cache.bakePending();
+    cache.bakeNextPending();
     cache.textureOf(portrait("Bentley", PortraitSize.LARGE));
     final TextureManager textures = mock(TextureManager.class);
     cache.clear(textures);
     verifyNoInteractions(textures);
-    cache.bakePending();
+    cache.bakeNextPending();
     assertEquals(1, this.bakes.size());
   }
 
@@ -155,9 +174,9 @@ class PortraitTextureCacheTest {
               throw new IllegalStateException("no world");
             });
     cache.textureOf(portrait("Bentley", PortraitSize.SMALL));
-    cache.bakePending();
+    cache.bakeNextPending();
     assertNull(cache.textureOf(portrait("Bentley", PortraitSize.SMALL)));
-    cache.bakePending();
+    cache.bakeNextPending();
     assertEquals(1, this.bakes.size());
   }
 }

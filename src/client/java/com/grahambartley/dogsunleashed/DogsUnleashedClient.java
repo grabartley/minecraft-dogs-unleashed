@@ -186,7 +186,7 @@ public class DogsUnleashedClient implements ClientModInitializer {
         new CacheReloader(
             PortraitTextures.RELOADER_ID,
             () -> PortraitTextures.reset(MinecraftClient.getInstance().getTextureManager())));
-    ClientTickEvents.END_CLIENT_TICK.register(client -> PortraitTextures.cache().bakePending());
+    ClientTickEvents.END_CLIENT_TICK.register(client -> PortraitTextures.cache().bakeNextPending());
     resources.registerReloadListener(
         new CacheReloader(RigProfiles.RELOADER_ID, RigProfiles.shared()::clear));
     resources.registerReloadListener(
