@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.render.layer;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.item.cosmetic.MobHead;
 import com.grahambartley.dogsunleashed.render.cosmetic.DrawnCosmetic;
+import com.grahambartley.dogsunleashed.render.cosmetic.MobHeadArt;
 import com.grahambartley.dogsunleashed.render.cosmetic.MobHeadFit;
 import com.grahambartley.dogsunleashed.render.cosmetic.MobHeadFits;
 import com.grahambartley.dogsunleashed.render.cosmetic.MobHeadMotion;
@@ -74,7 +75,10 @@ public class DogMobHeadLayer extends GeoRenderLayer<UnleashedDogEntity> {
       final float partialTick,
       final int packedLight,
       final int packedOverlay) {
-    this.frameHead = DrawnCosmetic.mobHeadOn(animatable);
+    this.frameHead =
+        MobHeadArt.on(animatable).isPresent()
+            ? Optional.empty()
+            : DrawnCosmetic.mobHeadOn(animatable);
     this.frameFit =
         this.frameHead.flatMap(
             head -> this.fits.of(bakedModel, RigProfiles.of(animatable.getRigSourceBreed()), head));

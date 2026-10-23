@@ -23,7 +23,6 @@ public record CarriedToy(float worldPixels, float modelPixels, float centreHeigh
       return TENNIS_BALL;
     }
     return switch (path) {
-      case "frisbee" -> FRISBEE;
       case "stick" -> STICK;
       default -> TENNIS_BALL;
     };

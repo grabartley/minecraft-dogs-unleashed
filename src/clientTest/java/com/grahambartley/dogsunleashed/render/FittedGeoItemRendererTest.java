@@ -18,6 +18,15 @@ class FittedGeoItemRendererTest {
   }
 
   @ParameterizedTest(name = "{0}, {1} pixels at its longest")
+  @CsvSource({"dog_whistle, 12"})
+  @DisplayName("a held tool's longest side fills the block, centred on every axis")
+  void centresTheLongestSide(final String model, final float longestPixels) {
+    final ModelFit fit =
+        FittedGeoItemRenderer.fitOf(ShippedRigs.model(model), ModelFit::centredInBlock);
+    assertEquals(16.0f / longestPixels, fit.scale(), 1.0e-4f);
+  }
+
+  @ParameterizedTest(name = "{0}, {1} pixels at its longest")
   @CsvSource({"rope_toy, 26"})
   @DisplayName("a held toy's longest side is fitted across the block's diagonal")
   void fitsTheLongestSideAcrossTheDiagonal(final String model, final float longestPixels) {

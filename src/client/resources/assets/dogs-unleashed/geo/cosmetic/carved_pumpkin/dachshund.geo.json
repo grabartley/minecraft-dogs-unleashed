@@ -1,0 +1,142 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.carved_pumpkin_dachshund",
+				"texture_width": 128,
+				"texture_height": 128,
+				"visible_bounds_width": 2,
+				"visible_bounds_height": 2.5,
+				"visible_bounds_offset": [
+					0,
+					0.75,
+					0
+				]
+			},
+			"bones": [
+				{
+					"name": "head",
+					"pivot": [
+						0,
+						0.4,
+						0
+					]
+				},
+				{
+					"name": "costume_head",
+					"parent": "head",
+					"pivot": [
+						0,
+						0,
+						0
+					],
+					"cubes": [
+						{
+							"origin": [
+								-5,
+								0.7,
+								-2.4
+							],
+							"size": [
+								10,
+								10,
+								10
+							],
+							"inflate": -3,
+							"uv": [
+								46,
+								90
+							]
+						},
+						{
+							"origin": [
+								-1.2999999999999998,
+								5.2,
+								0.4
+							],
+							"size": [
+								4,
+								5.999999999999999,
+								4
+							],
+							"inflate": -1.6,
+							"pivot": [
+								1.7,
+								5.2,
+								1.4
+							],
+							"rotation": [
+								0,
+								0,
+								-11
+							],
+							"uv": {
+								"north": {
+									"uv": [
+										5,
+										104
+									],
+									"uv_size": [
+										4,
+										6
+									]
+								},
+								"east": {
+									"uv": [
+										1,
+										104
+									],
+									"uv_size": [
+										4,
+										6
+									]
+								},
+								"south": {
+									"uv": [
+										13,
+										104
+									],
+									"uv_size": [
+										4,
+										6
+									]
+								},
+								"west": {
+									"uv": [
+										9,
+										104
+									],
+									"uv_size": [
+										4,
+										6
+									]
+								},
+								"up": {
+									"uv": [
+										5,
+										100
+									],
+									"uv_size": [
+										4,
+										4
+									]
+								},
+								"down": {
+									"uv": [
+										9,
+										104
+									],
+									"uv_size": [
+										4,
+										-4
+									]
+								}
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}

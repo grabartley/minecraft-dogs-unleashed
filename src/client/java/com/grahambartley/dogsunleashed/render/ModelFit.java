@@ -21,9 +21,17 @@ public record ModelFit(float scale, Vector3f offset) {
             0.5f - (min.z + max.z) / 2.0f * scale));
   }
 
+  public static ModelFit centredInBlock(final Vector3f min, final Vector3f max) {
+    final float longest = Math.max(max.x - min.x, Math.max(max.y - min.y, max.z - min.z));
+    return centred(min, max, longest > 0.0f ? 1.0f / longest : 1.0f);
+  }
+
   public static ModelFit acrossBlock(final Vector3f min, final Vector3f max) {
     final float longest = Math.max(max.x - min.x, Math.max(max.y - min.y, max.z - min.z));
-    final float scale = longest > 0.0f ? BLOCK_DIAGONAL / longest : 1.0f;
+    return centred(min, max, longest > 0.0f ? BLOCK_DIAGONAL / longest : 1.0f);
+  }
+
+  private static ModelFit centred(final Vector3f min, final Vector3f max, final float scale) {
     return new ModelFit(
         scale,
         new Vector3f(
