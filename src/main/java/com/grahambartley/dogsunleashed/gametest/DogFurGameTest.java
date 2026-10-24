@@ -328,6 +328,8 @@ public final class DogFurGameTest implements FabricGameTest {
     context.assertTrue(
         reloaded.getFur().stage() == DogFurStage.NATURAL,
         "A beagle saved shaggy settles to natural, was " + reloaded.getFur().stage());
+    context.assertEquals(
+        reloaded.getFur().ticksInStage(), 0, "The shaggy clock does not carry over");
     context.complete();
   }
 

@@ -77,6 +77,11 @@ public final class DogFurRules {
     return DogFurStage.fromOrdinal(savedOrdinal).atMost(maxStage);
   }
 
+  public static int savedTicks(
+      final int savedOrdinal, final DogFurStage loaded, final int savedTicks) {
+    return loaded.ordinal() == savedOrdinal ? Math.max(0, savedTicks) : 0;
+  }
+
   public static DogFurStage spawnStage(final int rollPercent, final DogFurStage maxStage) {
     final DogFurStage rolled;
     if (rollPercent < SPAWN_NATURAL_PERCENT) {

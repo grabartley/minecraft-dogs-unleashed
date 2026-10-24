@@ -157,18 +157,39 @@ class DogFurRulesTest {
 
   @ParameterizedTest(name = "saved {0} capped at {1} -> {2}")
   @CsvSource({
+    "0, NATURAL, BOTCHED",
+    "1, NATURAL, TRIMMED",
+    "2, NATURAL, NATURAL",
     "3, NATURAL, NATURAL",
     "4, NATURAL, NATURAL",
-    "2, NATURAL, NATURAL",
-    "1, NATURAL, TRIMMED",
-    "0, NATURAL, BOTCHED",
     "4, SHAGGY, SHAGGY",
-    "4, OVERGROWN, OVERGROWN",
-    "9, OVERGROWN, NATURAL",
-    "-1, SHAGGY, NATURAL"
+    "4, OVERGROWN, OVERGROWN"
   })
   @DisplayName("a saved coat loads at most at the breed's max stage")
-  void savedStage(final int savedOrdinal, final DogFurStage cap, final DogFurStage expected) {
+  void savedStageCapsAtTheMax(
+      final int savedOrdinal, final DogFurStage cap, final DogFurStage expected) {
     assertEquals(expected, DogFurRules.savedStage(savedOrdinal, cap));
+  }
+
+  @ParameterizedTest(name = "saved {0} capped at {1} -> {2}")
+  @CsvSource({"-1, SHAGGY, NATURAL", "9, OVERGROWN, NATURAL"})
+  @DisplayName("an unknown saved stage loads as natural")
+  void savedStageFallsBackToNatural(
+      final int savedOrdinal, final DogFurStage cap, final DogFurStage expected) {
+    assertEquals(expected, DogFurRules.savedStage(savedOrdinal, cap));
+  }
+
+  @ParameterizedTest(name = "saved {0} loaded {1} with {2} ticks -> {3}")
+  @CsvSource({
+    "2, NATURAL, 500, 500",
+    "4, OVERGROWN, 1234, 1234",
+    "3, NATURAL, 500, 0",
+    "9, NATURAL, 500, 0",
+    "1, TRIMMED, -5, 0"
+  })
+  @DisplayName("a coat keeps its growth clock only when it loads at the stage it was saved at")
+  void savedTicks(
+      final int savedOrdinal, final DogFurStage loaded, final int ticks, final int expected) {
+    assertEquals(expected, DogFurRules.savedTicks(savedOrdinal, loaded, ticks));
   }
 }
