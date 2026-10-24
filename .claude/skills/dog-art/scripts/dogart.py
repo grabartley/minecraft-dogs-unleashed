@@ -4,6 +4,7 @@
 Commands:
   render     geo png out.png [--view front|front34|left|right|back|back34|top | --yaw D --pitch D] [--scale N] [--spin 180] [--asleep] [--fur-stage natural|shaggy|overgrown]
   turntable  geo png out.png [--views left,front34,front,top] [--scale N] [--spin 180] [--asleep] [--fur-stage ...]
+  suit       geo png sheet.png out.png [--profile rig.json] [--views left,front34,front,top] [--scale N] [--spin 180] [--atlas atlas.png] [--fur-stage ...]
   faces      geo png [--profile rig.json]
   uvmap      geo png out.png [--profile rig.json] [--zoom N]
   palette    png
@@ -38,6 +39,7 @@ import layer
 import layout
 import pngio
 import render
+import suit
 
 SLOT_COLOURS = {
     "head": (255, 99, 71), "mouth": (255, 165, 0), "eyes": (255, 255, 0),
@@ -80,6 +82,23 @@ def cmd_render(args):
 def cmd_turntable(args):
     tex_w, tex_h, cubes = rig(args)
     texture = pngio.read_png(args.png)
+    panels = [render.render_view(cubes, texture, tex_w, tex_h, *render.view_angles(v, args.spin), args.scale) for v in args.views.split(",")]
+    w, h, image = render.strip(panels)
+    pngio.write_png(args.out, w, h, image)
+    print(f"wrote {args.out} {w}x{h} views={args.views}")
+
+
+def cmd_suit(args):
+    tex_w, tex_h, cubes = rig(args)
+    width, height, coat = pngio.read_png(args.png)
+    atlas, skipped = suit.suit_atlas(args.geo, profile_for(args), args.sheet, args.spin)
+    for texture in skipped:
+        print(f"override {texture} is missing or not {tex_w}x{tex_h}, projecting the sheet instead", file=sys.stderr)
+    projected = suit.resized(atlas, width, height)
+    if args.atlas:
+        pngio.write_png(args.atlas, width, height, projected)
+        print(f"wrote {args.atlas} {width}x{height}")
+    texture = (width, height, suit.composite(projected, coat))
     panels = [render.render_view(cubes, texture, tex_w, tex_h, *render.view_angles(v, args.spin), args.scale) for v in args.views.split(",")]
     w, h, image = render.strip(panels)
     pngio.write_png(args.out, w, h, image)
@@ -323,6 +342,16 @@ def main(argv=None):
     p.add_argument("--views", default="left,front34,front,top")
     add_rig_options(p)
     p.set_defaults(func=cmd_turntable)
+
+    p = commands.add_parser("suit", help="a costume suit sheet projected onto the rig the way the game does, over the coat")
+    p.add_argument("geo")
+    p.add_argument("png")
+    p.add_argument("sheet")
+    p.add_argument("out")
+    p.add_argument("--views", default="left,front34,front,top")
+    p.add_argument("--atlas", help="also write the bare projected suit at the coat's size")
+    add_rig_options(p)
+    p.set_defaults(func=cmd_suit)
 
     p = commands.add_parser("faces")
     p.add_argument("geo")
