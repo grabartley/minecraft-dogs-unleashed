@@ -179,7 +179,8 @@ class DogsUnleashedCommandTest {
         Arguments.of(4, "dachshund", 100),
         Arguments.of(5, "beagle", 75),
         Arguments.of(6, "goldenretriever", 100),
-        Arguments.of(7, "shibainu", 100));
+        Arguments.of(7, "shibainu", 100),
+        Arguments.of(8, "direwolf", 100));
   }
 
   @ParameterizedTest(name = "line {0} -> {1}={2}")

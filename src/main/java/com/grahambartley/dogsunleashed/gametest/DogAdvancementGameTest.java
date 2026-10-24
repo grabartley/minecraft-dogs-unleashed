@@ -292,7 +292,7 @@ public final class DogAdvancementGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void wholePackRequiresAllFiveBreeds(final TestContext context) {
+  public void wholePackRequiresEveryFoundingBreed(final TestContext context) {
     final ServerPlayerEntity player = CreativeTestPlayer.join(context);
     final AdvancementEntry wholePack = AdvancementTestHelper.advancement(context, "the_whole_pack");
 

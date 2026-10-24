@@ -4,11 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -152,5 +154,21 @@ class PetManagerScreenTest {
     assertEquals(
         screenHeight - PetManagerScreen.keybindHintY(screenHeight),
         240 - PetManagerScreen.keybindHintY(240));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @EnumSource(UnleashedDogBreed.class)
+  @DisplayName("every breed has a filter option that filters to that breed")
+  void everyBreedHasItsOwnFilterOption(final UnleashedDogBreed breed) {
+    final PetManagerScreen.BreedFilterOption option =
+        PetManagerScreen.BreedFilterOption.fromBreed(breed);
+    assertEquals(breed, option.breed());
+    assertFalse(option.isAllBreeds());
+  }
+
+  @Test
+  @DisplayName("no breed selects the show-all option")
+  void noBreedSelectsAll() {
+    assertTrue(PetManagerScreen.BreedFilterOption.fromBreed(null).isAllBreeds());
   }
 }
