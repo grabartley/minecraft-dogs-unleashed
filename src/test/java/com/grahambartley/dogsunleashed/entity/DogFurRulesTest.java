@@ -52,35 +52,20 @@ class DogFurRulesTest {
     assertEquals(2, blended.shearYieldPerStage());
   }
 
-  @Test
-  @DisplayName("a half husky, half shiba inu caps at shaggy, since the shiba inu stops at natural")
-  void huskyShibaCrossCapsAtShaggy() {
-    final DogGenome genome =
-        new DogGenome(
-            List.of(
-                new BreedShare(UnleashedDogBreed.HUSKY, 0.5f),
-                new BreedShare(UnleashedDogBreed.SHIBA_INU, 0.5f)),
-            20.0,
-            0.3,
-            4.0,
-            DogGenome.BASELINE_FUR_GROWTH_RATE,
-            UnleashedDogBreed.HUSKY);
-
-    final FurProfile blended = DogFurRules.profileFor(UnleashedDogBreed.CROSS_BREED, genome);
-
-    assertEquals(DogFurStage.SHAGGY, blended.maxStage());
-    assertEquals(162000, blended.baseTicksPerStage());
-    assertEquals(2, blended.shearYieldPerStage());
+  static Stream<Arguments> naturalCapCrosses() {
+    return Stream.of(
+        Arguments.of(UnleashedDogBreed.SHIBA_INU, 162000),
+        Arguments.of(UnleashedDogBreed.DACHSHUND, 180000));
   }
 
-  @Test
-  @DisplayName("a half husky, half dachshund caps at shaggy, since the dachshund stops at natural")
-  void huskyDachshundCrossCapsAtShaggy() {
+  @ParameterizedTest(name = "half husky, half {0}")
+  @MethodSource("naturalCapCrosses")
+  @DisplayName("a half husky cross with a breed that stops at natural caps at shaggy")
+  void huskyCrossWithANaturalCapCapsAtShaggy(
+      final UnleashedDogBreed other, final int expectedTicksPerStage) {
     final DogGenome genome =
         new DogGenome(
-            List.of(
-                new BreedShare(UnleashedDogBreed.HUSKY, 0.5f),
-                new BreedShare(UnleashedDogBreed.DACHSHUND, 0.5f)),
+            List.of(new BreedShare(UnleashedDogBreed.HUSKY, 0.5f), new BreedShare(other, 0.5f)),
             20.0,
             0.3,
             4.0,
@@ -90,7 +75,7 @@ class DogFurRulesTest {
     final FurProfile blended = DogFurRules.profileFor(UnleashedDogBreed.CROSS_BREED, genome);
 
     assertEquals(DogFurStage.SHAGGY, blended.maxStage());
-    assertEquals(180000, blended.baseTicksPerStage());
+    assertEquals(expectedTicksPerStage, blended.baseTicksPerStage());
     assertEquals(2, blended.shearYieldPerStage());
   }
 
