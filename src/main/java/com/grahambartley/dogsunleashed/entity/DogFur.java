@@ -76,17 +76,20 @@ public final class DogFur {
   }
 
   void tick() {
-    final FurProfile profile = this.profile();
     final DogFurStage stage = this.stage();
-    if (stage != stage.atMost(profile.maxStage())) {
-      this.setStage(profile.maxStage());
-      return;
+    if (stage.ordinal() > DogFurStage.NATURAL.ordinal()) {
+      final DogFurStage settled = DogFurRules.settledStage(stage, this.profile().maxStage());
+      if (settled != stage) {
+        this.setStage(settled);
+        return;
+      }
     }
     final DogsUnleashedConfig config = DogsUnleashed.SERVER_CONFIG;
     if (this.dog.isBaby() || !config.fur().furGrowthEnabled()) {
       return;
     }
-    if (stage.ordinal() >= profile.maxStage().ordinal()) {
+    final FurProfile profile = this.profile();
+    if (stage == profile.maxStage()) {
       return;
     }
     final OptionalInt budget =

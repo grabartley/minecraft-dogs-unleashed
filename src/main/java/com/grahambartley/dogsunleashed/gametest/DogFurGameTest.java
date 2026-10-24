@@ -76,7 +76,7 @@ public final class DogFurGameTest implements FabricGameTest {
   public Collection<TestFunction> anAdultGrowsOneStageWhenItsTimeIsUp() {
     return perBreed(
         "grows",
-        data -> data.breed().furProfile().maxStage() != DogFurStage.NATURAL,
+        data -> data.breed().furProfile().maxStage().ordinal() > DogFurStage.NATURAL.ordinal(),
         DogFurGameTest::testGrows);
   }
 
@@ -111,19 +111,6 @@ public final class DogFurGameTest implements FabricGameTest {
 
     context.assertTrue(
         dog.getFur().stage() == max, data.breed() + " should never grow past " + max);
-    context.complete();
-  }
-
-  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
-  public void aShibaInuCoatStopsAtNatural(final TestContext context) {
-    final UnleashedDogEntity dog = wildAdult(context, DogTestData.SHIBA_INU);
-    seed(dog, DogFurStage.NATURAL, ticksPerStage(dog, DogFurStage.NATURAL) - TICKS_BEFORE_DUE);
-
-    tick(dog, TICKS_RUN);
-
-    context.assertTrue(
-        dog.getFur().stage() == DogFurStage.NATURAL,
-        "A shiba inu never grows past natural, was " + dog.getFur().stage());
     context.complete();
   }
 
