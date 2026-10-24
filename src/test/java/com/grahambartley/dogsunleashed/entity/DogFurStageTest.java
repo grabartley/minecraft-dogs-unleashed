@@ -65,7 +65,10 @@ class DogFurStageTest {
     "OVERGROWN, SHAGGY, SHAGGY",
     "SHAGGY, SHAGGY, SHAGGY",
     "NATURAL, SHAGGY, NATURAL",
-    "TRIMMED, OVERGROWN, TRIMMED"
+    "TRIMMED, OVERGROWN, TRIMMED",
+    "OVERGROWN, NATURAL, NATURAL",
+    "SHAGGY, NATURAL, NATURAL",
+    "BOTCHED, NATURAL, BOTCHED"
   })
   @DisplayName("atMost clamps a stage to a breed's cap")
   void atMostClamps(final DogFurStage stage, final DogFurStage cap, final DogFurStage expected) {
