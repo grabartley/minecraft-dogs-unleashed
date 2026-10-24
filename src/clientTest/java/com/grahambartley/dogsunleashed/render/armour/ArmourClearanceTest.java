@@ -63,7 +63,7 @@ class ArmourClearanceTest {
   }
 
   @ParameterizedTest(name = "{0}")
-  @CsvSource({"GOLDEN_RETRIEVER, goldenretriever", "DIRE_WOLF, direwolf"})
+  @CsvSource({"GOLDEN_RETRIEVER, goldenretriever", "DIRE_WOLF, direwolf", "BEAGLE, beagle"})
   @DisplayName("fur bones never widen the armour, so it fits as it would with no fur on the rig")
   void furNeverWidensArmour(final UnleashedDogBreed breed, final String rig) {
     final RigProfile profile = RigProfiles.of(breed);
