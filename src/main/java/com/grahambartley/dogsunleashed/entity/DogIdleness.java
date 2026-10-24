@@ -18,7 +18,7 @@ public final class DogIdleness {
         || dog.getComponents().get(DogBoneBurial.class).isDigging();
   }
 
-  public static boolean isOnErrand(final UnleashedDogEntity dog) {
+  private static boolean isOnErrand(final UnleashedDogEntity dog) {
     final DogPointedOrders orders = dog.getComponents().get(DogPointedOrders.class);
     return dog.getPlaySession().isInPlayMode()
         || dog.getComponents().get(DogScent.class).isTracking()
