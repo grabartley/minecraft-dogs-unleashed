@@ -23,6 +23,11 @@ class AnimationExport(unittest.TestCase):
         self.assertEqual(tail["position"]["0.0"]["vector"], [-1, 2, 3])
         self.assertEqual(tail["scale"]["0.0"]["vector"], [1.1, 1.2, 1.3])
 
+    def test_flipped_zeros_are_written_without_a_sign(self):
+        for channel in ("rotation", "position"):
+            vector = anim.export_animations(project([key(channel, 0, [0, 0, 0])]))["animations"]["clip"]["bones"]["tail"][channel]["0.0"]["vector"]
+            self.assertEqual([str(v) for v in vector], ["0.0", "0.0", "0.0"])
+
     def test_legacy_projects_export_as_stored(self):
         out = anim.export_animations(project([key("rotation", 0, [10, 20, 30])], version="4.10"))
         self.assertEqual(out["animations"]["clip"]["bones"]["tail"]["rotation"]["0.0"]["vector"], [10, 20, 30])

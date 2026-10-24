@@ -91,7 +91,7 @@ def export_animations(project, step=0.05, tolerance=0.2):
                     (float(k["time"]), to_geckolib(keyframe_value(k), channel, v5), k.get("interpolation", "linear"))
                     for k in animator.get("keyframes", []) if k["channel"] == channel)
                 if keys:
-                    channels[channel] = {fmt(time): {"vector": [round(v, 4) for v in value]}
+                    channels[channel] = {fmt(time): {"vector": [round(v, 4) + 0.0 for v in value]}
                                          for time, value in channel_frames(keys, step, tolerance)}
             if channels:
                 bones[animator["name"]] = channels

@@ -12,8 +12,9 @@ Commands:
   patch      base.png block.txt out.png --at U V
   tobbmodel  geo png out.bbmodel [--name N]
   geocompare a.geo.json b.geo.json [--tolerance T]
-  animexport project.bbmodel out.animation.json [--step S] [--bones a,b [--drop c]]
+  animexport project.bbmodel out.animation.json [--step S] [--bones a,b [--drop c] [--clips d,e]]
   animimport project.bbmodel in.animation.json out.bbmodel [--replace]
+  animlayer  in.animation.json out.animation.json --clips a,b [--over sit,idle,walk]
   tidygeo    in.geo.json out.geo.json [--places N] [--identifier ID]
   textures   project.bbmodel out_dir [--only name ...]
 
@@ -33,6 +34,7 @@ import anim
 import bake
 import bbmodel
 import checks
+import layer
 import layout
 import pngio
 import render
@@ -231,11 +233,19 @@ def cmd_tidygeo(args):
 
 
 def cmd_animexport(args):
+    if args.clips and not args.bones:
+        print("--clips needs --bones", file=sys.stderr)
+        return 1
     exported = anim.export_animations(anim.load_project(args.project), args.step)
     if args.bones:
         bones = args.bones.split(",")
         with open(args.out) as handle:
-            exported = layout.splice_tracks(json.load(handle), exported, bones, args.drop.split(",") if args.drop else ())
+            try:
+                exported = layout.splice_tracks(json.load(handle), exported, bones, args.drop.split(",") if args.drop else (),
+                                                args.clips.split(",") if args.clips else None)
+            except ValueError as error:
+                print(error, file=sys.stderr)
+                return 1
         print(f"spliced {', '.join(bones)} into {args.out}")
     text = layout.text_like(args.out, exported, layout.animation_text)
     with open(args.out, "w") as handle:
@@ -263,6 +273,25 @@ def cmd_animimport(args):
         print(f"skipped bones the project lacks: {', '.join(skipped)}")
     if eased:
         print(f"catmullrom is a spline in Blockbench but an ease per segment in GeckoLib, so these play differently there: {', '.join(eased)}")
+
+
+def cmd_animlayer(args):
+    with open(args.animations) as handle:
+        source = json.load(handle)
+    animations = source["animations"]
+    clips = args.clips.split(",")
+    bases = args.over.split(",")
+    missing = [name for name in clips + bases if name not in animations]
+    if missing:
+        print(f"no such clips: {', '.join(missing)}", file=sys.stderr)
+        return 1
+    with open(args.out, "w") as handle:
+        header = {key: value for key, value in source.items() if key != "animations"}
+        handle.write(layout.animation_text({**header, "animations": layer.composites(animations, clips, bases)}))
+    for name in clips:
+        for base in bases:
+            channels = layer.inherited(animations[name], animations[base])
+            print(f"{name}@{base}: {', '.join(f'{bone}.{channel}' for bone, channel in channels) or 'nothing inherited'}")
 
 
 def add_rig_options(parser):
@@ -363,7 +392,15 @@ def main(argv=None):
     p.add_argument("--step", type=float, default=0.05, help="seconds between baked keys for catmullrom channels")
     p.add_argument("--bones", help="comma-separated bones whose tracks replace the ones in the existing out file; every other track stays")
     p.add_argument("--drop", help="comma-separated bones to remove from the existing out file, such as renamed ones")
+    p.add_argument("--clips", help="comma-separated clips to splice into; every other clip stays as it is")
     p.set_defaults(func=cmd_animexport)
+
+    p = commands.add_parser("animlayer", help="clips as the game draws them over a base clip, for review in Blockbench")
+    p.add_argument("animations")
+    p.add_argument("out")
+    p.add_argument("--clips", required=True, help="comma-separated clips that play over the base")
+    p.add_argument("--over", default="sit,idle,walk", help="comma-separated base clips the movement controller plays underneath")
+    p.set_defaults(func=cmd_animlayer)
 
     p = commands.add_parser("textures")
     p.add_argument("project")
