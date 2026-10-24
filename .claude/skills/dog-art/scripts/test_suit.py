@@ -17,7 +17,7 @@ def shipped(rig):
 
 
 def rects(regions):
-    return sorted((x, y, w, h) for _, _, x, y, w, h in regions)
+    return sorted((x, y, w, h) for _, x, y, w, h in regions)
 
 
 def label(slot, face):
@@ -71,7 +71,8 @@ class SheetMatchesOverlaySheet(unittest.TestCase):
 
     def test_fur_has_no_cell(self):
         for slot in ("fur_shaggy", "fur_overgrown"):
-            self.assertIsNone(suit.cell_of(slot, "north"))
+            with self.subTest(slot=slot):
+                self.assertIsNone(suit.cell_of(slot, "north"))
 
     def test_cells_sit_in_their_square_and_never_overlap(self):
         cells = [suit.cell_of(slot, face) for slot in suit.SLOTS for face in suit.FACES]
@@ -87,7 +88,8 @@ class FacingMatchesModelFacing(unittest.TestCase):
     def test_no_turn_keeps_every_face(self):
         for face in suit.FACES:
             for degrees in (0.0, 360.0):
-                self.assertEqual(suit.turned_by(degrees)(face), face)
+                with self.subTest(face=face, degrees=degrees):
+                    self.assertEqual(suit.turned_by(degrees)(face), face)
 
     def test_turns_match_model_facing_test(self):
         for face, degrees, expected in (("north", 180, "south"), ("south", 180, "north"), ("east", 180, "west"),
@@ -100,7 +102,8 @@ class FacingMatchesModelFacing(unittest.TestCase):
     def test_facing_breaks_ties_in_direction_order_like_get_facing(self):
         for normal, expected in (((0, 0, 0), "north"), ((1, 1, 0), "up"), ((0, -1, -1), "down"),
                                  ((-1, 0, 1), "south"), ((0.2, 0, -0.9), "north"), ((-0.9, 0.1, 0), "west")):
-            self.assertEqual(suit.facing(normal), expected)
+            with self.subTest(normal=normal):
+                self.assertEqual(suit.facing(normal), expected)
 
 
 class RegionsMatchSlotRegions(unittest.TestCase):
@@ -108,16 +111,16 @@ class RegionsMatchSlotRegions(unittest.TestCase):
         for mirror, expected in ((False, {"east": (10, 26), "west": (20, 26)}), (True, {"west": (10, 26), "east": (20, 26)})):
             cube = {"origin": [1, 2, 3], "size": [4, 5, 6], "uv": [10, 20], "mirror": mirror}
             with self.subTest(mirror=mirror):
-                found = {suit.region_of(cube, face, 64, 64)[1]: suit.region_of(cube, face, 64, 64)[2:4] for face in ("west", "east")}
+                found = {suit.region_of(cube, face, 64, 64)[0]: suit.region_of(cube, face, 64, 64)[1:3] for face in ("west", "east")}
                 self.assertEqual(found, expected)
-                self.assertEqual(suit.region_of(cube, "north", 64, 64)[1:], ("north", 16, 26, 4, 5))
-                self.assertEqual(suit.region_of(cube, "down", 64, 64)[1:], ("down", 20, 20, 4, 6))
+                self.assertEqual(suit.region_of(cube, "north", 64, 64), ("north", 16, 26, 4, 5))
+                self.assertEqual(suit.region_of(cube, "down", 64, 64), ("down", 20, 20, 4, 6))
 
     def test_a_cube_turned_a_quarter_about_y_takes_the_turned_direction(self):
         for rotation, north_becomes in (([0, 90, 0], "east"), ([0, -90, 0], "west"), ([0, 180, 0], "south"), ([90, 0, 0], "down")):
             cube = {"origin": [0, 0, 0], "size": [4, 4, 4], "uv": [0, 0], "rotation": rotation, "pivot": [0, 0, 0]}
             with self.subTest(rotation=rotation):
-                self.assertEqual(suit.region_of(cube, "north", 64, 64)[1], north_becomes)
+                self.assertEqual(suit.region_of(cube, "north", 64, 64)[0], north_becomes)
 
     def test_fractional_and_flat_edges(self):
         self.assertEqual(suit.covered(3.7, 4.5, 64), (3, 8))
@@ -129,20 +132,20 @@ class RegionsMatchSlotRegions(unittest.TestCase):
 
     def test_beagle_head_matches_its_hand_laid_box_uv(self):
         geo, profile = shipped("beagle")
-        self.assertEqual(rects(suit.regions_of(geo, profile, "head")),
+        self.assertEqual(rects(suit.regions_by_slot(geo, profile)[2]["head"]),
                          [(0, 46, 6, 6), (6, 40, 6, 6), (6, 46, 6, 6), (12, 40, 6, 6), (12, 46, 6, 6), (18, 46, 6, 6)])
 
     def test_shiba_tail_is_clipped_to_the_atlas(self):
         geo, profile = shipped("shibainu")
         description, _, _ = bake.load_geo(geo)
-        self.assertEqual(max(y + h for _, _, _, y, _, h in suit.regions_of(geo, profile, "tail")), description["texture_height"])
+        self.assertEqual(max(y + h for _, _, y, _, h in suit.regions_by_slot(geo, profile)[2]["tail"]), description["texture_height"])
 
     def test_every_shipped_slot_is_the_box_uv_of_its_named_cubes(self):
         for rig in RIGS:
             geo, profile = shipped(rig)
             for slot in suit.SLOTS:
                 with self.subTest(rig=rig, slot=slot):
-                    regions = suit.regions_of(geo, profile, slot)
+                    regions = suit.regions_by_slot(geo, profile)[2][slot]
                     self.assertEqual(rects(regions), box_uv_faces(geo, profile.get(slot, [])))
                     self.assertTrue(regions, f"{rig} {slot} has no texture footprint")
 
@@ -151,11 +154,11 @@ class ProjectionMatchesOverlayProjector(unittest.TestCase):
     def test_a_region_takes_the_cell_for_its_direction(self):
         for face in suit.FACES:
             with self.subTest(face=face):
-                atlas = suit.project(labelled_sheet(), 32, 32, suit.turned_by(0), {"head": [("head", face, 4, 6, 3, 2)]})
+                atlas = suit.project(labelled_sheet(), 32, 32, suit.turned_by(0), {"head": [(face, 4, 6, 3, 2)]})
                 self.assertEqual({atlas[y][x] for y in (6, 7) for x in (4, 5, 6)}, {label("head", face)})
 
     def test_a_turned_rig_takes_the_cell_of_the_side_it_is_drawn_on(self):
-        atlas = suit.project(labelled_sheet(), 32, 32, suit.turned_by(180), {"head": [("head", "north", 0, 0, 2, 2)]})
+        atlas = suit.project(labelled_sheet(), 32, 32, suit.turned_by(180), {"head": [("north", 0, 0, 2, 2)]})
         self.assertEqual(atlas[0][0], label("head", "south"))
 
     def test_corners_land_on_the_cell_corners(self):
@@ -163,17 +166,17 @@ class ProjectionMatchesOverlayProjector(unittest.TestCase):
         cx, cy, cw, ch = suit.cell_of("torso", "north")
         for value, (x, y) in enumerate(((cx, cy), (cx + cw - 1, cy), (cx, cy + ch - 1), (cx + cw - 1, cy + ch - 1)), 1):
             pixels[y][x] = (value, 0, 0, 255)
-        atlas = suit.project((suit.WIDTH, suit.HEIGHT, pixels), 32, 48, suit.turned_by(0), {"torso": [("body", "north", 0, 0, 32, 48)]})
+        atlas = suit.project((suit.WIDTH, suit.HEIGHT, pixels), 32, 48, suit.turned_by(0), {"torso": [("north", 0, 0, 32, 48)]})
         self.assertEqual([atlas[y][x][0] for x, y in ((0, 0), (31, 0), (0, 47), (31, 47))], [1, 2, 3, 4])
 
     def test_outside_regions_stays_clear_and_off_edge_is_clipped(self):
-        atlas = suit.project(labelled_sheet(), 32, 32, suit.turned_by(0), {"head": [("head", "up", 31, 31, 4, 4)]})
+        atlas = suit.project(labelled_sheet(), 32, 32, suit.turned_by(0), {"head": [("up", 31, 31, 4, 4)]})
         self.assertEqual(atlas[31][31], label("head", "up"))
         self.assertEqual(atlas[2][2], (0, 0, 0, 0))
 
     def test_an_override_wins_for_its_own_slot_only(self):
         green = [[(0, 255, 0, 255)] * 32 for _ in range(32)]
-        regions = {"head": [("head", "north", 0, 0, 2, 2)], "tail": [("tail", "north", 10, 10, 2, 2)]}
+        regions = {"head": [("north", 0, 0, 2, 2)], "tail": [("north", 10, 10, 2, 2)]}
         atlas = suit.project(labelled_sheet(), 32, 32, suit.turned_by(0), regions, {"head": green})
         self.assertEqual(atlas[1][1], (0, 255, 0, 255))
         self.assertEqual(atlas[11][11], label("tail", "north"))
@@ -184,14 +187,14 @@ class ProjectionMatchesOverlayProjector(unittest.TestCase):
             geo, profile = shipped(rig)
             description, _, _ = bake.load_geo(geo)
             width, height = description["texture_width"], description["texture_height"]
-            regions = {slot: suit.regions_of(geo, profile, slot) for slot in suit.SLOTS}
+            regions = suit.regions_by_slot(geo, profile)[2]
             atlas = suit.project(labelled_sheet(), width, height, suit.turned_by(0), regions)
             every = [(slot, region) for slot in suit.SLOTS for region in regions[slot]]
             for slot, region in every:
-                _, face, x, y, w, h = region
+                face, x, y, w, h = region
                 with self.subTest(rig=rig, slot=slot, region=region):
                     self.assertTrue(all(atlas[yy][xx][3] for yy in range(y, y + h) for xx in range(x, x + w)))
-                    if not any(other is not region and overlap(other[2:], region[2:]) for _, other in every):
+                    if not any(other is not region and overlap(other[1:], region[1:]) for _, other in every):
                         self.assertEqual(atlas[y][x], label(slot, face))
 
 

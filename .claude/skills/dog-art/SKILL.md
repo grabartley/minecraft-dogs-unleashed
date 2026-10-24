@@ -88,7 +88,7 @@ ever committed. `.gitignore` refuses them.
 |---|---|---|
 | `render geo png out --view left [--asleep] [--fur-stage shaggy]` | A quick textured look at an export from one angle, with no engine download | 0.2 s |
 | `turntable geo png out` | Left, three-quarter, front and top in one strip, for before and after pairs | 0.5 s |
-| `suit geo png sheet.png out [--atlas atlas.png] [--spin 180]` | A costume suit sheet projected onto the rig the way the game does, over the coat, as a turntable strip | 1 s |
+| `suit geo png sheet.png out.png [--profile rig.json] [--views ...] [--atlas atlas.png] [--spin 180]` | A costume suit sheet projected onto the rig the way the game does, over the coat, as a turntable strip | 1 s |
 | `faces geo png --profile rig.json` | Which texture pixels are the snout top, the left ear, the belly | instant |
 | `uvmap geo png out --profile rig.json` | The same, drawn over the sheet in a colour per rig slot | instant |
 | `palette png` | Every colour, grouped by hue, sorted by tone, with counts | instant |

@@ -69,26 +69,30 @@ def covered(start, size, atlas):
     return max(0, math.floor(snapped(low))), min(atlas - 1, math.ceil(snapped(high)) - 1)
 
 
-def region_of(cube, face, atlas_w, atlas_h, bone=""):
+def region_of(cube, face, atlas_w, atlas_h):
     u, v, w, h = bake.face_patches(cube, cube.get("mirror") is True)[face]
     x0, x1 = covered(u, w, atlas_w)
     y0, y1 = covered(v, h, atlas_h)
     if x1 < x0 or y1 < y0:
         return None
-    return (bone, face_direction(cube, face), x0, y0, x1 - x0 + 1, y1 - y0 + 1)
+    return (face_direction(cube, face), x0, y0, x1 - x0 + 1, y1 - y0 + 1)
 
 
-def regions_of(geo_path, profile, slot):
-    description, _, bones = bake.load_geo(geo_path)
-    atlas_w, atlas_h = description.get("texture_width", 64), description.get("texture_height", 64)
+def regions_of(bones, atlas_w, atlas_h, profile, slot):
     regions = []
     for name in profile.get(slot, []):
-        for cube in bones.get(name, {}).get("cubes", []) if isinstance(name, str) else ():
+        for cube in bones.get(name, {}).get("cubes", []):
             for face in QUAD_ORDER:
-                region = region_of(cube, face, atlas_w, atlas_h, name)
+                region = region_of(cube, face, atlas_w, atlas_h)
                 if region:
                     regions.append(region)
     return regions
+
+
+def regions_by_slot(geo_path, profile):
+    description, _, bones = bake.load_geo(geo_path)
+    atlas_w, atlas_h = description.get("texture_width", 64), description.get("texture_height", 64)
+    return atlas_w, atlas_h, {slot: regions_of(bones, atlas_w, atlas_h, profile, slot) for slot in SLOTS}
 
 
 def project(sheet, atlas_w, atlas_h, turn, regions, overrides=None):
@@ -97,7 +101,7 @@ def project(sheet, atlas_w, atlas_h, turn, regions, overrides=None):
     atlas = [[TRANSPARENT] * atlas_w for _ in range(atlas_h)]
     for slot in SLOTS:
         override = overrides.get(slot)
-        for _, face, rx, ry, rw, rh in regions.get(slot, ()):
+        for face, rx, ry, rw, rh in regions.get(slot, ()):
             cell = cell_of(slot, turn(face))
             for row in range(rh):
                 for column in range(rw):
@@ -163,8 +167,6 @@ def suit_atlas(geo_path, profile, sheet_path, yaw_degrees=0):
     sheet = pngio.read_png(sheet_path)
     if sheet[:2] != (WIDTH, HEIGHT):
         raise SystemExit(f"{sheet_path} is {sheet[0]}x{sheet[1]} but a suit sheet must be {WIDTH}x{HEIGHT}")
-    description, _, _ = bake.load_geo(geo_path)
-    atlas_w, atlas_h = description.get("texture_width", 64), description.get("texture_height", 64)
-    regions = {slot: regions_of(geo_path, profile, slot) for slot in SLOTS}
+    atlas_w, atlas_h, regions = regions_by_slot(geo_path, profile)
     overrides, skipped = overrides_for(profile, sheet_path, atlas_w, atlas_h)
     return project(sheet, atlas_w, atlas_h, turned_by(yaw_degrees), regions, overrides), skipped

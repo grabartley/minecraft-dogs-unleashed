@@ -4,7 +4,7 @@
 Commands:
   render     geo png out.png [--view front|front34|left|right|back|back34|top | --yaw D --pitch D] [--scale N] [--spin 180] [--asleep] [--fur-stage natural|shaggy|overgrown]
   turntable  geo png out.png [--views left,front34,front,top] [--scale N] [--spin 180] [--asleep] [--fur-stage ...]
-  suit       geo png sheet.png out.png [--profile rig.json] [--views left,front34,front,top] [--scale N] [--spin 180] [--atlas out.png] [--fur-stage ...]
+  suit       geo png sheet.png out.png [--profile rig.json] [--views left,front34,front,top] [--scale N] [--spin 180] [--atlas atlas.png] [--fur-stage ...]
   faces      geo png [--profile rig.json]
   uvmap      geo png out.png [--profile rig.json] [--zoom N]
   palette    png
