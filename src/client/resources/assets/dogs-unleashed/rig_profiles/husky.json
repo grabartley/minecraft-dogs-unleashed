@@ -56,6 +56,33 @@
     "backrightleg",
     "lowestbackrightleg"
   ],
+  "fur_shaggy": [
+    "fur_shaggy_torso",
+    "fur_shaggy_chest",
+    "fur_shaggy_neck",
+    "fur_shaggy_ear_left",
+    "fur_shaggy_ear_right",
+    "fur_shaggy_leg_front_left",
+    "fur_shaggy_leg_back_left",
+    "fur_shaggy_leg_front_right",
+    "fur_shaggy_leg_back_right",
+    "fur_shaggy_tail"
+  ],
+  "fur_overgrown": [
+    "fur_overgrown_torso",
+    "fur_overgrown_chest",
+    "fur_overgrown_neck",
+    "fur_overgrown_head",
+    "fur_overgrown_ear_left",
+    "fur_overgrown_ear_right",
+    "fur_overgrown_leg_front_left",
+    "fur_overgrown_leg_back_left",
+    "fur_overgrown_leg_front_right",
+    "fur_overgrown_leg_back_right",
+    "fur_overgrown_tail"
+  ],
+  "trimmed_overlay": "dogs-unleashed:textures/entity/fur/husky_trimmed.png",
+  "botched_overlay": "dogs-unleashed:textures/entity/fur/husky_botched.png",
   "sheet_overrides": {
     "dogs-unleashed:textures/entity/overlay/harness.png": {
       "torso": "dogs-unleashed:textures/entity/overlay/harness_husky_torso.png",
