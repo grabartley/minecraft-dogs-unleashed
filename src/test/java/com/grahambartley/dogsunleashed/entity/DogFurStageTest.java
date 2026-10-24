@@ -21,24 +21,26 @@ class DogFurStageTest {
 
   static Stream<Arguments> ladder() {
     return Stream.of(
-        Arguments.of(DogFurStage.BOTCHED, 0, false, false, DogFurStage.TRIMMED),
-        Arguments.of(DogFurStage.TRIMMED, 0, false, false, DogFurStage.NATURAL),
-        Arguments.of(DogFurStage.NATURAL, 5, false, true, DogFurStage.SHAGGY),
-        Arguments.of(DogFurStage.SHAGGY, 12, false, true, DogFurStage.OVERGROWN),
-        Arguments.of(DogFurStage.OVERGROWN, 20, true, true, DogFurStage.OVERGROWN));
+        Arguments.of(DogFurStage.BOTCHED, 0, 50, false, false, DogFurStage.TRIMMED),
+        Arguments.of(DogFurStage.TRIMMED, 0, 100, false, false, DogFurStage.NATURAL),
+        Arguments.of(DogFurStage.NATURAL, 5, 150, false, true, DogFurStage.SHAGGY),
+        Arguments.of(DogFurStage.SHAGGY, 12, 200, false, true, DogFurStage.OVERGROWN),
+        Arguments.of(DogFurStage.OVERGROWN, 20, 0, true, true, DogFurStage.OVERGROWN));
   }
 
   @ParameterizedTest(name = "{0}")
   @MethodSource("ladder")
   @DisplayName(
-      "each stage has the botch chance, speed penalty, trim rule and next stage from the spec")
+      "each stage has the botch chance, growth time, speed penalty, trim rule and next stage")
   void stageLadder(
       final DogFurStage stage,
       final int botchChance,
+      final int growthTime,
       final boolean slows,
       final boolean trimmable,
       final DogFurStage next) {
     assertEquals(botchChance, stage.botchChancePercent());
+    assertEquals(growthTime, stage.growthTimePercent());
     assertEquals(slows, stage.slowsMovement());
     assertEquals(trimmable, stage.canBeTrimmed());
     assertEquals(next, stage.next());

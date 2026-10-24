@@ -308,6 +308,11 @@ public class UnleashedDogEntity extends DogMountEntity
     return this.animationState;
   }
 
+  @Override
+  public double getBoneResetTime() {
+    return this.animationState.poseBlendOut().boneResetTicks(this.getWorld().getTime());
+  }
+
   public DogVocalization getVocalization() {
     return this.vocalization;
   }

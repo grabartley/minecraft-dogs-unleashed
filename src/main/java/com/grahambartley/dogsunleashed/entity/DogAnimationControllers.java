@@ -1,6 +1,8 @@
 package com.grahambartley.dogsunleashed.entity;
 
 import com.grahambartley.dogsunleashed.entity.trick.DogTrick;
+import java.util.ArrayList;
+import java.util.List;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.AnimationState;
@@ -22,12 +24,19 @@ public final class DogAnimationControllers {
   public static void register(
       final UnleashedDogEntity dog, final AnimatableManager.ControllerRegistrar controllers) {
     final SleepClipLatch sleepClip = new SleepClipLatch();
+    final List<AnimationController<UnleashedDogEntity>> poses = new ArrayList<>();
+    poses.add(pose(dog, DogAnimationKeys.PLAY_BOW));
+    poses.add(pose(dog, DogAnimationKeys.COWER));
+    for (final DogTrick trick : DogTrick.values()) {
+      poses.add(pose(dog, trick.animationKey()));
+    }
     controllers.add(
         new AnimationController<>(
             dog,
             "movement",
             0,
             state -> {
+              blendOutOfPoses(dog, state.getController(), poses);
               if (state.getAnimatable().getSleepController().isAsleep()) {
                 return state.setAndContinue(
                     RawAnimation.begin()
@@ -161,23 +170,7 @@ public final class DogAnimationControllers {
             .triggerableAnim(
                 DogAnimationKeys.BARK, RawAnimation.begin().thenPlay(DogAnimationKeys.BARK)));
 
-    controllers.add(
-        new AnimationController<>(dog, DogAnimationKeys.PLAY_BOW, 0, state -> PlayState.STOP)
-            .triggerableAnim(
-                DogAnimationKeys.PLAY_BOW,
-                RawAnimation.begin().thenPlay(DogAnimationKeys.PLAY_BOW)));
-
-    controllers.add(
-        new AnimationController<>(dog, DogAnimationKeys.COWER, 0, state -> PlayState.STOP)
-            .triggerableAnim(
-                DogAnimationKeys.COWER, RawAnimation.begin().thenPlay(DogAnimationKeys.COWER)));
-
-    for (final DogTrick trick : DogTrick.values()) {
-      controllers.add(
-          new AnimationController<>(dog, trick.animationKey(), 0, state -> PlayState.STOP)
-              .triggerableAnim(
-                  trick.animationKey(), RawAnimation.begin().thenPlay(trick.animationKey())));
-    }
+    poses.forEach(controllers::add);
 
     controllers.add(
         new AnimationController<>(
@@ -195,6 +188,33 @@ public final class DogAnimationControllers {
               }
               return PlayState.STOP;
             }));
+  }
+
+  private static AnimationController<UnleashedDogEntity> pose(
+      final UnleashedDogEntity dog, final String key) {
+    return new AnimationController<>(dog, key, PoseBlendOut.TICKS, state -> PlayState.STOP)
+        .triggerableAnim(key, RawAnimation.begin().thenPlayAndHold(key));
+  }
+
+  private static void blendOutOfPoses(
+      final UnleashedDogEntity dog,
+      final AnimationController<UnleashedDogEntity> movement,
+      final List<AnimationController<UnleashedDogEntity>> poses) {
+    final List<AnimationController<UnleashedDogEntity>> held =
+        poses.stream()
+            .filter(pose -> pose.getAnimationState() == AnimationController.State.PAUSED)
+            .toList();
+    switch (PoseBlendOut.step(
+        !held.isEmpty(), movement.getAnimationState() == AnimationController.State.RUNNING)) {
+      case BLEND_BACK -> {
+        held.forEach(pose -> dog.stopTriggeredAnim(pose.getName(), null));
+        movement.transitionLength(PoseBlendOut.TICKS);
+        movement.forceAnimationReset();
+        dog.getAnimationState().poseBlendOut().handBack(dog.getWorld().getTime());
+      }
+      case SNAP -> movement.transitionLength(0);
+      case KEEP -> {}
+    }
   }
 
   static boolean isGalloping(final UnleashedDogEntity dog) {

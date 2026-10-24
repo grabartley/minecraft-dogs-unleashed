@@ -70,7 +70,7 @@ public final class DogFurGameTest implements FabricGameTest {
 
   private static void testGrows(final TestContext context, final DogTestData data) {
     final UnleashedDogEntity dog = wildAdult(context, data);
-    seed(dog, DogFurStage.NATURAL, ticksPerStage(dog) - TICKS_BEFORE_DUE);
+    seed(dog, DogFurStage.NATURAL, ticksPerStage(dog, DogFurStage.NATURAL) - TICKS_BEFORE_DUE);
 
     tick(dog, TICKS_RUN);
 
@@ -93,7 +93,7 @@ public final class DogFurGameTest implements FabricGameTest {
   private static void testStopsAtMax(final TestContext context, final DogTestData data) {
     final UnleashedDogEntity dog = wildAdult(context, data);
     final DogFurStage max = dog.getFur().profile().maxStage();
-    seed(dog, max, ticksPerStage(dog) - TICKS_BEFORE_DUE);
+    seed(dog, max, ticksPerStage(dog, DogFurStage.SHAGGY) - TICKS_BEFORE_DUE);
 
     tick(dog, TICKS_RUN);
 
@@ -106,7 +106,7 @@ public final class DogFurGameTest implements FabricGameTest {
   public void aPuppyKeepsItsCoat(final TestContext context) {
     final UnleashedDogEntity puppy = wildAdult(context, DogTestData.HUSKY);
     puppy.setBaby(true);
-    seed(puppy, DogFurStage.NATURAL, ticksPerStage(puppy) - TICKS_BEFORE_DUE);
+    seed(puppy, DogFurStage.NATURAL, ticksPerStage(puppy, DogFurStage.NATURAL) - TICKS_BEFORE_DUE);
 
     tick(puppy, TICKS_RUN);
 
@@ -117,7 +117,7 @@ public final class DogFurGameTest implements FabricGameTest {
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
   public void disabledFurGrowthFreezesTheCoat(final TestContext context) {
     final UnleashedDogEntity dog = wildAdult(context, DogTestData.HUSKY);
-    seed(dog, DogFurStage.NATURAL, ticksPerStage(dog) - TICKS_BEFORE_DUE);
+    seed(dog, DogFurStage.NATURAL, ticksPerStage(dog, DogFurStage.NATURAL) - TICKS_BEFORE_DUE);
 
     withConfig(
         config -> config.withFur(config.fur().withFurGrowthEnabled(false)),
@@ -125,14 +125,16 @@ public final class DogFurGameTest implements FabricGameTest {
 
     context.assertTrue(dog.getFur().stage() == DogFurStage.NATURAL, "Frozen coats do not grow");
     context.assertEquals(
-        dog.getFur().ticksInStage(), ticksPerStage(dog) - TICKS_BEFORE_DUE, "The clock holds");
+        dog.getFur().ticksInStage(),
+        ticksPerStage(dog, DogFurStage.NATURAL) - TICKS_BEFORE_DUE,
+        "The clock holds");
     context.complete();
   }
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
   public void aBotchedTrimGrowsOutIntoATrimmedCoat(final TestContext context) {
     final UnleashedDogEntity dog = wildAdult(context, DogTestData.HUSKY);
-    seed(dog, DogFurStage.BOTCHED, ticksPerStage(dog) - TICKS_BEFORE_DUE);
+    seed(dog, DogFurStage.BOTCHED, ticksPerStage(dog, DogFurStage.BOTCHED) - TICKS_BEFORE_DUE);
 
     tick(dog, TICKS_RUN);
 
@@ -344,9 +346,10 @@ public final class DogFurGameTest implements FabricGameTest {
     dog.readCustomDataFromNbt(nbt);
   }
 
-  private static int ticksPerStage(final UnleashedDogEntity dog) {
+  private static int ticksPerStage(final UnleashedDogEntity dog, final DogFurStage stage) {
     return DogFurRules.ticksPerStage(
             dog.getFur().profile(),
+            stage,
             1.0,
             DogsUnleashed.SERVER_CONFIG.fur().furGrowthRateMultiplierPercent())
         .orElseThrow();

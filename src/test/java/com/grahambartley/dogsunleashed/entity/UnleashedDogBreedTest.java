@@ -299,13 +299,14 @@ class UnleashedDogBreedTest {
 
   static Stream<Arguments> furProfiles() {
     return Stream.of(
-        Arguments.of(UnleashedDogBreed.HUSKY, DogFurStage.OVERGROWN, 48000, 2),
-        Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, DogFurStage.OVERGROWN, 48000, 2),
-        Arguments.of(UnleashedDogBreed.SHIBA_INU, DogFurStage.OVERGROWN, 60000, 2),
-        Arguments.of(UnleashedDogBreed.PINSCHER, DogFurStage.SHAGGY, 72000, 1),
-        Arguments.of(UnleashedDogBreed.DIRE_WOLF, DogFurStage.OVERGROWN, 48000, 2),
-        Arguments.of(UnleashedDogBreed.BEAGLE, DogFurStage.SHAGGY, 72000, 1),
-        Arguments.of(UnleashedDogBreed.DACHSHUND, DogFurStage.SHAGGY, 72000, 1));
+        Arguments.of(UnleashedDogBreed.HUSKY, DogFurStage.OVERGROWN, 144000, 2),
+        Arguments.of(UnleashedDogBreed.GOLDEN_RETRIEVER, DogFurStage.OVERGROWN, 144000, 2),
+        Arguments.of(UnleashedDogBreed.SHIBA_INU, DogFurStage.OVERGROWN, 180000, 2),
+        Arguments.of(UnleashedDogBreed.PINSCHER, DogFurStage.SHAGGY, 216000, 1),
+        Arguments.of(UnleashedDogBreed.DIRE_WOLF, DogFurStage.OVERGROWN, 144000, 2),
+        Arguments.of(UnleashedDogBreed.BEAGLE, DogFurStage.SHAGGY, 216000, 1),
+        Arguments.of(UnleashedDogBreed.DACHSHUND, DogFurStage.SHAGGY, 216000, 1),
+        Arguments.of(UnleashedDogBreed.CROSS_BREED, DogFurStage.SHAGGY, 180000, 1));
   }
 
   @ParameterizedTest(name = "{0}")
@@ -314,10 +315,10 @@ class UnleashedDogBreedTest {
   void furProfilesMatchTheSpec(
       final UnleashedDogBreed breed,
       final DogFurStage maxStage,
-      final int ticksPerStage,
+      final int baseTicksPerStage,
       final int yieldPerStage) {
     assertEquals(
-        new UnleashedDogBreed.FurProfile(maxStage, ticksPerStage, yieldPerStage),
+        new UnleashedDogBreed.FurProfile(maxStage, baseTicksPerStage, yieldPerStage),
         breed.furProfile());
   }
 
