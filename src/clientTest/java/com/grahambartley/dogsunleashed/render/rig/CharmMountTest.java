@@ -4,6 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.grahambartley.dogsunleashed.entity.DogFurStage;
+import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import com.grahambartley.dogsunleashed.render.fur.DrawnFur;
+import com.grahambartley.dogsunleashed.render.fur.FurCover;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,6 +25,7 @@ class CharmMountTest {
 
   private static final float EPSILON = 1.0e-5f;
   private static final float MODEL_UNITS_PER_BLOCK = 16.0f;
+  private static final RigProfiles BUNDLED = new RigProfiles(RigProfiles::openBundled);
 
   private static Vector3f place(final String rig, final String mouth, final String animation) {
     final BakedGeoModel dog = ShippedRigs.model(rig);
@@ -37,14 +42,24 @@ class CharmMountTest {
         CubeGeometry.posedBoundsOf(ShippedRigs.model("pendant_ward").topLevelBones().get(0));
     final Vector3f push =
         CharmMount.clearanceInBone(
-            PoseClearance.liveBoxesOf(dog, sides.body()),
+            PoseClearance.liveBoxesOf(dog, drawnAtNatural(dog, rig, sides.body())),
             List.of(),
-            () -> PoseClearance.liveBoxesOf(dog, sides.head()),
+            () -> PoseClearance.liveBoxesOf(dog, drawnAtNatural(dog, rig, sides.head())),
             boneToModel,
             charmToBone,
             charm,
             spot.facesNegativeZ());
     return boneToModel.transformDirection(new Vector3f(push));
+  }
+
+  private static Set<String> drawnAtNatural(
+      final BakedGeoModel dog, final String rig, final Set<String> bones) {
+    return DrawnFur.keep(
+        bones,
+        BUNDLED.profileOf(UnleashedDogBreed.fromSerializedId(rig)),
+        DogFurStage.NATURAL,
+        FurCover.NONE,
+        name -> dog.getBone(name).map(GeoBone::getParent).map(GeoBone::getName).orElse(null));
   }
 
   @ParameterizedTest(name = "{0} {2}")
