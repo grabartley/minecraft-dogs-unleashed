@@ -19,7 +19,6 @@ import org.jetbrains.annotations.Nullable;
 public final class DogTricks extends DogComponent {
 
   public static final String LEARNED_MESSAGE_KEY = "message.dogs-unleashed.trick_learned";
-  public static final String SHOWN_MESSAGE_KEY = "message.dogs-unleashed.trick_shown";
 
   private final UnleashedDogEntity dog;
   private TrickProgress progress = TrickProgress.NONE;
@@ -49,19 +48,7 @@ public final class DogTricks extends DogComponent {
   public void offer(final DogTrick trick) {
     this.offered = trick;
     this.offeredAt = this.dog.getWorld().getTime();
-    this.perform(trick);
-  }
-
-  public void perform(final DogTrick trick) {
-    this.dog.triggerAnim(trick.animationKey(), trick.animationKey());
-    if (this.dog.getOwner() instanceof PlayerEntity owner) {
-      owner.sendMessage(
-          Text.translatable(
-              SHOWN_MESSAGE_KEY,
-              PetNames.tamedNameOf(this.dog),
-              Text.translatable(trick.translationKey())),
-          true);
-    }
+    this.performance().perform(trick);
   }
 
   public boolean rewardOffered(final PlayerEntity player) {
@@ -91,6 +78,10 @@ public final class DogTricks extends DogComponent {
     }
   }
 
+  private DogTrickPerformance performance() {
+    return this.dog.getComponents().get(DogTrickPerformance.class);
+  }
+
   @Override
   void tick() {
     if (this.offered != null && this.offered().isEmpty()) {
@@ -105,16 +96,12 @@ public final class DogTricks extends DogComponent {
       return;
     }
     if (TrickLearningRules.mayOffer(
-        this.dog.isTamed(), this.isIdle(), this.dog.distanceTo(owner))) {
+        this.dog.isTamed(),
+        DogIdleness.isFreeForChores(this.dog) && this.performance().readiness().mayStart(),
+        this.dog.distanceTo(owner))) {
       TrickLearningRules.pickUnlearned(this.progress, this.dog.getRandom()::nextInt)
           .ifPresent(this::offer);
     }
-  }
-
-  private boolean isIdle() {
-    return DogIdleness.isFreeForChores(this.dog)
-        && !this.dog.hasVehicle()
-        && !this.dog.hasPassengers();
   }
 
   @Override

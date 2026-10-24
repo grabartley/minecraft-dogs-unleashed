@@ -5,15 +5,20 @@ import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.block.entity.DogGraveBlockEntity;
+import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.DogResurrection;
+import com.grahambartley.dogsunleashed.entity.DogSledHarness;
+import com.grahambartley.dogsunleashed.entity.DogTrickPerformance;
 import com.grahambartley.dogsunleashed.entity.DogTricks;
 import com.grahambartley.dogsunleashed.entity.DogWheelSubActions;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.sled.SledEntity;
 import com.grahambartley.dogsunleashed.entity.trick.DogTrick;
 import com.grahambartley.dogsunleashed.entity.trick.DogTrickWheelActions;
 import com.grahambartley.dogsunleashed.entity.trick.TrickLearningRules;
 import com.grahambartley.dogsunleashed.entity.trick.TrickProgress;
 import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
+import com.grahambartley.dogsunleashed.gametest.util.SurvivalTestPlayer;
 import com.grahambartley.dogsunleashed.network.payload.WheelSubActionState;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
@@ -39,6 +44,12 @@ public final class DogTrickGameTest implements FabricGameTest {
   private static final String ARENA = "dogs-unleashed:dog_arena";
   private static final BlockPos REL_DOG = new BlockPos(3, 2, 3);
   private static final Vec3d REL_OWNER = new Vec3d(3.5, 2, 1.5);
+  private static final String RANGE = "dogs-unleashed:dog_range";
+  private static final Vec3d REL_SLED = new Vec3d(1.5, 2, 4.5);
+  private static final Vec3d REL_SLED_DRIVER = new Vec3d(1.5, 2, 6.5);
+  private static final BlockPos REL_TEAM_DOG = new BlockPos(4, 2, 3);
+  private static final BlockPos REL_FAR_CORNER = new BlockPos(0, 2, 6);
+  private static final int TRICK_START = 5;
 
   @GameTest(templateName = ARENA, tickLimit = 20)
   public void fiveRewardedTricksAreLearned(final TestContext context) {
@@ -181,6 +192,145 @@ public final class DogTrickGameTest implements FabricGameTest {
     context.complete();
   }
 
+  @GameTest(templateName = ARENA, tickLimit = 20)
+  public void aDogAlreadyDoingATrickRefusesAnother(final TestContext context) {
+    final ServerPlayerEntity owner = ownerAt(context);
+    final UnleashedDogEntity dog = dog(context, owner);
+    tricks(dog).restore(TrickProgress.of(Map.of(DogTrick.BEG, 5)));
+
+    performance(dog).perform(DogTrick.BEG);
+
+    context.assertEquals(
+        DogTrickWheelActions.BUSY_REFUSAL_KEY,
+        wheelRefusal(dog, owner, DogTrick.BEG),
+        "A dog mid trick is too busy for another");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = 20)
+  public void gettingHurtStopsATrick(final TestContext context) {
+    final ServerPlayerEntity owner = ownerAt(context);
+    final UnleashedDogEntity dog = dog(context, owner);
+    performance(dog).perform(DogTrick.PLAY_DEAD);
+
+    dog.damage(context.getWorld().getDamageSources().generic(), 1.0f);
+
+    context.runAtTick(
+        3,
+        () -> {
+          context.assertFalse(performance(dog).isPerforming(), "A hurt dog drops its trick");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = TRICK_START + 120)
+  public void aDogHoldsStillThroughItsTrick(final TestContext context) {
+    final ServerPlayerEntity owner = ownerAt(context);
+    final UnleashedDogEntity dog = standingDog(context, owner);
+    final Vec3d[] start = new Vec3d[1];
+
+    context.runAtTick(TRICK_START, () -> performance(dog).perform(DogTrick.PLAY_DEAD));
+    context.runAtTick(TRICK_START + 3, () -> start[0] = dog.getPos());
+    context.runAtEveryTick(
+        () -> {
+          if (context.getTick() > TRICK_START + 3 && performance(dog).isPerforming()) {
+            walkToFarCorner(context, dog);
+          }
+        });
+    context.runAtTick(
+        TRICK_START + DogTrick.PLAY_DEAD.durationTicks() - 4,
+        () -> {
+          context.assertTrue(performance(dog).isPerforming(), "The trick is still running");
+          final double moved = dog.getPos().subtract(start[0]).horizontalLength();
+          context.assertTrue(moved < 0.05, "A dog mid trick moved " + moved + " blocks");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = TRICK_START + 120)
+  public void aDogMovesAgainOnceItsTrickEnds(final TestContext context) {
+    final ServerPlayerEntity owner = ownerAt(context);
+    final UnleashedDogEntity dog = standingDog(context, owner);
+    final int trickEnd = TRICK_START + DogTrick.BEG.durationTicks();
+    final Vec3d[] start = new Vec3d[1];
+
+    context.runAtTick(TRICK_START, () -> performance(dog).perform(DogTrick.BEG));
+    context.runAtTick(
+        trickEnd + 2,
+        () -> {
+          context.assertFalse(performance(dog).isPerforming(), "The trick has ended");
+          start[0] = dog.getPos();
+        });
+    context.runAtEveryTick(
+        () -> {
+          if (context.getTick() > trickEnd + 2) {
+            walkToFarCorner(context, dog);
+          }
+        });
+    context.runAtTick(
+        trickEnd + 60,
+        () -> {
+          final double moved = dog.getPos().subtract(start[0]).horizontalLength();
+          context.assertTrue(moved > 1.0, "A dog done with its trick only moved " + moved);
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = ARENA, tickLimit = TRICK_START + 40)
+  public void aSitOrderDoesNotWaitForTheTrick(final TestContext context) {
+    final ServerPlayerEntity owner = ownerAt(context);
+    final UnleashedDogEntity dog = standingDog(context, owner);
+
+    context.runAtTick(TRICK_START, () -> performance(dog).perform(DogTrick.PLAY_DEAD));
+    context.runAtTick(TRICK_START + 4, () -> dog.getCommandController().apply(DogCommand.SIT));
+    context.runAtTick(
+        TRICK_START + 20,
+        () -> {
+          context.assertTrue(performance(dog).isPerforming(), "The trick is still running");
+          context.assertTrue(dog.isInSittingPose(), "A dog told to sit sits straight away");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = RANGE, tickLimit = 20)
+  public void aDogPullingASledIsTooBusyForTricks(final TestContext context) {
+    final ServerPlayerEntity owner = SurvivalTestPlayer.joinAt(context, REL_SLED_DRIVER);
+    final SledEntity sled = sled(context);
+    final UnleashedDogEntity husky = leashedHusky(context, owner);
+    tricks(husky).restore(TrickProgress.of(Map.of(DogTrick.ROLL_OVER, 5)));
+
+    sled.interact(owner, Hand.MAIN_HAND);
+
+    context.assertTrue(
+        husky.getComponents().get(DogSledHarness.class).isHitched(), "The husky is hitched");
+    context.assertFalse(
+        performance(husky).readiness().mayStart(), "A hitched dog offers no tricks");
+    context.assertEquals(
+        DogTrickWheelActions.BUSY_REFUSAL_KEY,
+        wheelRefusal(husky, owner, DogTrick.ROLL_OVER),
+        "A hitched dog refuses tricks from the wheel");
+    SurvivalTestPlayer.leave(context, owner);
+    context.complete();
+  }
+
+  @GameTest(templateName = RANGE, tickLimit = 20)
+  public void hitchingADogMidTrickStopsIt(final TestContext context) {
+    final ServerPlayerEntity owner = SurvivalTestPlayer.joinAt(context, REL_SLED_DRIVER);
+    final SledEntity sled = sled(context);
+    final UnleashedDogEntity husky = leashedHusky(context, owner);
+    performance(husky).perform(DogTrick.PLAY_DEAD);
+
+    sled.interact(owner, Hand.MAIN_HAND);
+
+    context.runAtTick(
+        3,
+        () -> {
+          context.assertFalse(performance(husky).isPerforming(), "Hitching ends the trick");
+          SurvivalTestPlayer.leave(context, owner);
+          context.complete();
+        });
+  }
+
   @GameTest(templateName = ARENA, tickLimit = 40)
   public void learnedTricksComeBackFromTheGrave(final TestContext context) {
     final ServerPlayerEntity owner = ownerAt(context);
@@ -283,6 +433,39 @@ public final class DogTrickGameTest implements FabricGameTest {
     dog.setOwnerUuid(owner.getUuid());
     dog.setInSittingPose(true);
     return dog;
+  }
+
+  private static UnleashedDogEntity standingDog(
+      final TestContext context, final ServerPlayerEntity owner) {
+    final UnleashedDogEntity dog = context.spawnEntity(ModEntities.BEAGLE, REL_DOG);
+    dog.setTamed(true, true);
+    dog.setOwnerUuid(owner.getUuid());
+    dog.getCommandController().apply(DogCommand.FREE_ROAM);
+    return dog;
+  }
+
+  private static void walkToFarCorner(final TestContext context, final UnleashedDogEntity dog) {
+    final BlockPos corner = context.getAbsolutePos(REL_FAR_CORNER);
+    dog.getNavigation().startMovingTo(corner.getX() + 0.5, corner.getY(), corner.getZ() + 0.5, 1.0);
+  }
+
+  private static SledEntity sled(final TestContext context) {
+    final SledEntity sled = context.spawnEntity(ModEntities.SLED, REL_SLED);
+    sled.placeFacing(-90.0f);
+    return sled;
+  }
+
+  private static UnleashedDogEntity leashedHusky(
+      final TestContext context, final ServerPlayerEntity owner) {
+    final UnleashedDogEntity husky = context.spawnEntity(ModEntities.HUSKY, REL_TEAM_DOG);
+    husky.setOwner(owner);
+    husky.getCommandController().apply(DogCommand.FOLLOW);
+    husky.attachLeash(owner, true);
+    return husky;
+  }
+
+  private static DogTrickPerformance performance(final UnleashedDogEntity dog) {
+    return dog.getComponents().get(DogTrickPerformance.class);
   }
 
   private static DogTricks tricks(final UnleashedDogEntity dog) {

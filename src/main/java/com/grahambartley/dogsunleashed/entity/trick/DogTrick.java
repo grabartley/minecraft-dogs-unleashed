@@ -5,18 +5,26 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public enum DogTrick {
-  BEG(2, DogAnimationKeys.BEG, "dogs-unleashed:dog_treat"),
-  ROLL_OVER(3, DogAnimationKeys.ROLL_OVER, "minecraft:slime_ball"),
-  PLAY_DEAD(4, DogAnimationKeys.PLAY_DEAD, "minecraft:skeleton_skull");
+  BEG(2, DogAnimationKeys.BEG, "dogs-unleashed:dog_treat", 48),
+  ROLL_OVER(3, DogAnimationKeys.ROLL_OVER, "minecraft:slime_ball", 76),
+  PLAY_DEAD(4, DogAnimationKeys.PLAY_DEAD, "minecraft:skeleton_skull", 104);
+
+  public static final long NOT_STARTED = Long.MIN_VALUE;
 
   private final int wheelActionId;
   private final String serializedId;
   private final String iconItemId;
+  private final int durationTicks;
 
-  DogTrick(final int wheelActionId, final String serializedId, final String iconItemId) {
+  DogTrick(
+      final int wheelActionId,
+      final String serializedId,
+      final String iconItemId,
+      final int durationTicks) {
     this.wheelActionId = wheelActionId;
     this.serializedId = serializedId;
     this.iconItemId = iconItemId;
+    this.durationTicks = durationTicks;
   }
 
   public int wheelActionId() {
@@ -33,6 +41,14 @@ public enum DogTrick {
 
   public String iconItemId() {
     return this.iconItemId;
+  }
+
+  public int durationTicks() {
+    return this.durationTicks;
+  }
+
+  public boolean isRunning(final long startedAt, final long now) {
+    return startedAt != NOT_STARTED && now >= startedAt && now < startedAt + this.durationTicks;
   }
 
   public String translationKey() {

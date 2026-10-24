@@ -8,7 +8,7 @@ public final class TrickLearningRules {
 
   public static final int REWARDS_TO_LEARN = 5;
   public static final int REWARD_WINDOW_TICKS = 5 * 20;
-  public static final int OFFER_ONE_IN_TICKS = 3 * 60 * 20;
+  public static final int OFFER_ONE_IN_TICKS = 10 * 60 * 20;
   public static final double OWNER_RANGE = 8.0;
   public static final long NEVER = Long.MIN_VALUE;
   public static final float LEARNED_BARK_PITCH_BOOST = 1.2f;
