@@ -321,6 +321,7 @@ public final class DogFurGameTest implements FabricGameTest {
     final NbtCompound saved = new NbtCompound();
     beagle.writeCustomDataToNbt(saved);
     saved.putInt(ModNbtKeys.FUR_STAGE, DogFurStage.SHAGGY.ordinal());
+    saved.putInt(ModNbtKeys.FUR_TICKS_IN_STAGE, 1234);
 
     final UnleashedDogEntity reloaded = wildAdult(context, DogTestData.BEAGLE);
     reloaded.readCustomDataFromNbt(saved);
