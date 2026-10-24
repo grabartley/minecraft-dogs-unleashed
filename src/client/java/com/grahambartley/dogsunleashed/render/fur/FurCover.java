@@ -27,7 +27,8 @@ public record FurCover(Set<Slot> covered) {
             WornCostume.on(dog).isPresent(),
             DrawnCosmetic.on(dog).map(DogCosmetic::mount),
             DrawnCosmetic.mobHeadOn(dog).isPresent(),
-            dog.getPendants().worn() != null));
+            dog.getPendants().worn() != null,
+            dog.isTamed() && !dog.isInvisible()));
   }
 
   public static Set<Slot> slotsCovered(
@@ -37,7 +38,8 @@ public record FurCover(Set<Slot> covered) {
       final boolean costume,
       final Optional<DogCosmetic.Mount> cosmetic,
       final boolean mobHead,
-      final boolean pendant) {
+      final boolean pendant,
+      final boolean collar) {
     final EnumSet<Slot> covered = EnumSet.noneOf(Slot.class);
     if (costume) {
       Arrays.stream(Slot.values()).filter(slot -> !slot.isFur()).forEach(covered::add);
@@ -49,7 +51,7 @@ public record FurCover(Set<Slot> covered) {
     if (mobHead || cosmetic.filter(DogCosmetic.Mount.HEAD::equals).isPresent()) {
       covered.add(Slot.HEAD);
     }
-    if (pendant || cosmetic.filter(DogCosmetic.Mount.COLLAR::equals).isPresent()) {
+    if (pendant || collar || cosmetic.filter(DogCosmetic.Mount.COLLAR::equals).isPresent()) {
       covered.add(Slot.NECK);
     }
     return covered;

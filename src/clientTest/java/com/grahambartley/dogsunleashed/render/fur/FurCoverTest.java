@@ -50,7 +50,8 @@ class FurCoverTest {
         worn.contains("costume"),
         cosmetic,
         worn.contains("mobhead"),
-        worn.contains("pendant"));
+        worn.contains("pendant"),
+        worn.contains("collar"));
   }
 
   private static FurCover wearing(final String gear) {
@@ -67,6 +68,7 @@ class FurCoverTest {
     "mobhead, HEAD",
     "bandana, NECK",
     "pendant, NECK",
+    "collar, NECK",
     "armour hat pendant, TORSO HEAD NECK",
     "saddlebags mobhead bandana, TORSO HEAD NECK"
   })
@@ -120,6 +122,8 @@ class FurCoverTest {
     "hat, shag_body, body, false",
     "bandana, shag_neck, neck, true",
     "pendant, shag_neck, neck, true",
+    "collar, shag_neck, neck, true",
+    "collar, shag_body, body, false",
     "costume, shag_tail, tail, true",
     "costume, mop_head, head, true",
     "armour, body, body, false",
