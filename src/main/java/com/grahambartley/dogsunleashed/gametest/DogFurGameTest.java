@@ -22,6 +22,7 @@ import com.grahambartley.dogsunleashed.gametest.util.PendantTestHelper;
 import com.grahambartley.dogsunleashed.item.armor.DogArmorTier;
 import java.util.Collection;
 import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.advancement.AdvancementEntry;
@@ -51,7 +52,15 @@ public final class DogFurGameTest implements FabricGameTest {
 
   private static Collection<TestFunction> perBreed(
       final String name, final BiConsumer<TestContext, DogTestData> body) {
+    return perBreed(name, data -> true, body);
+  }
+
+  private static Collection<TestFunction> perBreed(
+      final String name,
+      final Predicate<DogTestData> breeds,
+      final BiConsumer<TestContext, DogTestData> body) {
     return DogTestData.getAllBreeds().stream()
+        .filter(breeds)
         .map(
             data ->
                 GeneratedGameTest.of(
@@ -65,7 +74,10 @@ public final class DogFurGameTest implements FabricGameTest {
 
   @CustomTestProvider
   public Collection<TestFunction> anAdultGrowsOneStageWhenItsTimeIsUp() {
-    return perBreed("grows", DogFurGameTest::testGrows);
+    return perBreed(
+        "grows",
+        data -> data.breed().furProfile().maxStage() != DogFurStage.NATURAL,
+        DogFurGameTest::testGrows);
   }
 
   private static void testGrows(final TestContext context, final DogTestData data) {
@@ -99,6 +111,37 @@ public final class DogFurGameTest implements FabricGameTest {
 
     context.assertTrue(
         dog.getFur().stage() == max, data.breed() + " should never grow past " + max);
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void aShibaInuCoatStopsAtNatural(final TestContext context) {
+    final UnleashedDogEntity dog = wildAdult(context, DogTestData.SHIBA_INU);
+    seed(dog, DogFurStage.NATURAL, ticksPerStage(dog, DogFurStage.NATURAL) - TICKS_BEFORE_DUE);
+
+    tick(dog, TICKS_RUN);
+
+    context.assertTrue(
+        dog.getFur().stage() == DogFurStage.NATURAL,
+        "A shiba inu never grows past natural, was " + dog.getFur().stage());
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void aShibaInuSavedOvergrownSettlesToNatural(final TestContext context) {
+    final UnleashedDogEntity dog = wildAdult(context, DogTestData.SHIBA_INU);
+    seed(dog, DogFurStage.OVERGROWN, 0);
+
+    tick(dog, 1);
+
+    context.assertTrue(
+        dog.getFur().stage() == DogFurStage.NATURAL,
+        "A shiba inu saved overgrown settles to natural, was " + dog.getFur().stage());
+    final EntityAttributeInstance speed =
+        dog.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED);
+    context.assertTrue(
+        speed != null && !speed.hasModifier(DogFur.OVERGROWN_SPEED_MODIFIER_ID),
+        "A settled coat no longer slows the shiba inu");
     context.complete();
   }
 

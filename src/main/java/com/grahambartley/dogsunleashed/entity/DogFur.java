@@ -76,12 +76,16 @@ public final class DogFur {
   }
 
   void tick() {
+    final FurProfile profile = this.profile();
+    final DogFurStage stage = this.stage();
+    if (stage != stage.atMost(profile.maxStage())) {
+      this.setStage(profile.maxStage());
+      return;
+    }
     final DogsUnleashedConfig config = DogsUnleashed.SERVER_CONFIG;
     if (this.dog.isBaby() || !config.fur().furGrowthEnabled()) {
       return;
     }
-    final FurProfile profile = this.profile();
-    final DogFurStage stage = this.stage();
     if (stage.ordinal() >= profile.maxStage().ordinal()) {
       return;
     }
