@@ -35,6 +35,17 @@ class Layout(unittest.TestCase):
         self.assertEqual(spliced["animations"]["idle"]["bones"], {"tail": {"rotation": [1, 0, 0]}, "eyelid_left": {"position": [1, 0, 0]}})
         self.assertEqual(spliced["animations"]["walk"]["bones"], {"tail": {"rotation": [2, 0, 0]}})
 
+    def test_splicing_limited_to_clips_keeps_other_clips_and_bone_order(self):
+        for clips, walk_tail in ((["idle"], [2, 0, 0]), (["idle", "walk"], [9, 9, 9])):
+            shipped = {"animations": {"idle": {"bones": {"tail": {"rotation": [1, 0, 0]}, "head": {"rotation": [3, 0, 0]}}},
+                                      "walk": {"bones": {"tail": {"rotation": [2, 0, 0]}}}}}
+            exported = {"animations": {"idle": {"bones": {"tail": {"rotation": [9, 9, 9]}}},
+                                       "walk": {"bones": {"tail": {"rotation": [9, 9, 9]}}}}}
+            spliced = layout.splice_tracks(shipped, exported, ["tail"], clips=clips)
+            self.assertEqual(list(spliced["animations"]["idle"]["bones"]), ["tail", "head"])
+            self.assertEqual(spliced["animations"]["idle"]["bones"]["tail"], {"rotation": [9, 9, 9]})
+            self.assertEqual(spliced["animations"]["walk"]["bones"]["tail"], {"rotation": walk_tail})
+
 
 if __name__ == "__main__":
     unittest.main()
