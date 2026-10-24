@@ -4,8 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.grahambartley.dogsunleashed.entity.DogFurStage;
+import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import com.grahambartley.dogsunleashed.render.fur.DrawnFur;
+import com.grahambartley.dogsunleashed.render.fur.FurCover;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -22,11 +27,23 @@ class CharmMountTest {
   private static final float EPSILON = 1.0e-5f;
   private static final float MODEL_UNITS_PER_BLOCK = 16.0f;
 
+  private static final FurCover PENDANT_AND_COLLAR =
+      new FurCover(
+          FurCover.slotsCovered(false, false, false, false, Optional.empty(), false, true, true));
+
   private static Vector3f place(final String rig, final String mouth, final String animation) {
+    return place(rig, mouth, animation, DogFurStage.NATURAL);
+  }
+
+  private static Vector3f place(
+      final String rig, final String mouth, final String animation, final DogFurStage stage) {
     final BakedGeoModel dog = ShippedRigs.model(rig);
     final CollarBandLocator.CollarSpot spot =
         CollarBandLocator.locate(dog, mouth, ShippedRigs.collarMask(rig)).orElseThrow();
-    final CharmMount.Sides sides = CharmMount.sidesOf(dog, spot, mouth);
+    final CharmMount.Sides found = CharmMount.sidesOf(dog, spot, mouth);
+    final CharmMount.Sides sides =
+        new CharmMount.Sides(
+            drawn(dog, rig, stage, found.body()), drawn(dog, rig, stage, found.head()));
     if (!animation.equals("rest")) {
       ShippedRigs.pose(dog, rig, animation);
     }
@@ -45,6 +62,27 @@ class CharmMountTest {
             charm,
             spot.facesNegativeZ());
     return boneToModel.transformDirection(new Vector3f(push));
+  }
+
+  private static Set<String> drawn(
+      final BakedGeoModel dog, final String rig, final DogFurStage stage, final Set<String> bones) {
+    return DrawnFur.keep(
+        bones,
+        RigProfiles.of(UnleashedDogBreed.fromSerializedId(rig)),
+        stage,
+        PENDANT_AND_COLLAR,
+        name -> dog.getBone(name).map(GeoBone::getParent).map(GeoBone::getName).orElse(null));
+  }
+
+  @ParameterizedTest(name = "{0} {3}")
+  @CsvSource({"husky, snout, rest, SHAGGY", "husky, snout, rest, OVERGROWN"})
+  @DisplayName("a charm comes forward over the chest fur drawn at that stage")
+  void drawnChestFurPushesTheCharmClear(
+      final String rig, final String mouth, final String pose, final DogFurStage stage) {
+    final Vector3f push = place(rig, mouth, pose, stage);
+
+    assertTrue(push.length() > 0.0f, rig + " should have needed a push over its " + stage + " fur");
+    assertTrue(push.length() < 1.5f / MODEL_UNITS_PER_BLOCK, rig + " pushed too far: " + push);
   }
 
   @ParameterizedTest(name = "{0} {2}")
