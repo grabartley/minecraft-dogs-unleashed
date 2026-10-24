@@ -19,21 +19,26 @@ public final class DogAnimationControllers {
   private static final int TUG_TRANSITION_TICKS = 4;
   private static final int EAT_TRANSITION_TICKS = 4;
   private static final int POSE_BLEND_TICKS = 5;
+  private static final int BONE_RESET_TICKS = 1;
 
   private DogAnimationControllers() {}
 
   public static void register(
       final UnleashedDogEntity dog, final AnimatableManager.ControllerRegistrar controllers) {
     final SleepClipLatch sleepClip = new SleepClipLatch();
-    final PoseBlendOut poseBlendOut = new PoseBlendOut();
     final List<AnimationController<UnleashedDogEntity>> poses = new ArrayList<>();
+    poses.add(pose(dog, DogAnimationKeys.PLAY_BOW));
+    poses.add(pose(dog, DogAnimationKeys.COWER));
+    for (final DogTrick trick : DogTrick.values()) {
+      poses.add(pose(dog, trick.animationKey()));
+    }
     controllers.add(
         new AnimationController<>(
             dog,
             "movement",
             0,
             state -> {
-              blendOutOfPoses(state.getController(), poseBlendOut, poses);
+              blendOutOfPoses(dog, state.getController(), poses);
               if (state.getAnimatable().getSleepController().isAsleep()) {
                 return state.setAndContinue(
                     RawAnimation.begin()
@@ -167,11 +172,6 @@ public final class DogAnimationControllers {
             .triggerableAnim(
                 DogAnimationKeys.BARK, RawAnimation.begin().thenPlay(DogAnimationKeys.BARK)));
 
-    poses.add(pose(dog, DogAnimationKeys.PLAY_BOW));
-    poses.add(pose(dog, DogAnimationKeys.COWER));
-    for (final DogTrick trick : DogTrick.values()) {
-      poses.add(pose(dog, trick.animationKey()));
-    }
     poses.forEach(controllers::add);
 
     controllers.add(
@@ -195,19 +195,30 @@ public final class DogAnimationControllers {
   private static AnimationController<UnleashedDogEntity> pose(
       final UnleashedDogEntity dog, final String key) {
     return new AnimationController<>(dog, key, POSE_BLEND_TICKS, state -> PlayState.STOP)
-        .triggerableAnim(key, RawAnimation.begin().thenPlay(key));
+        .triggerableAnim(key, RawAnimation.begin().thenPlayAndHold(key));
   }
 
   private static void blendOutOfPoses(
+      final UnleashedDogEntity dog,
       final AnimationController<UnleashedDogEntity> movement,
-      final PoseBlendOut poseBlendOut,
       final List<AnimationController<UnleashedDogEntity>> poses) {
-    if (poseBlendOut.ended(
-        poses.stream().anyMatch(AnimationController::isPlayingTriggeredAnimation))) {
-      movement.transitionLength(POSE_BLEND_TICKS);
-      movement.forceAnimationReset();
-    } else if (movement.getAnimationState() == AnimationController.State.RUNNING) {
-      movement.transitionLength(0);
+    final List<AnimationController<UnleashedDogEntity>> held =
+        poses.stream()
+            .filter(pose -> pose.getAnimationState() == AnimationController.State.PAUSED)
+            .toList();
+    switch (PoseBlendOut.step(
+        !held.isEmpty(), movement.getAnimationState() == AnimationController.State.RUNNING)) {
+      case BLEND_BACK -> {
+        held.forEach(pose -> dog.stopTriggeredAnim(pose.getName(), null));
+        movement.transitionLength(POSE_BLEND_TICKS);
+        movement.forceAnimationReset();
+        dog.getAnimationState().setBoneResetTicks(POSE_BLEND_TICKS);
+      }
+      case SNAP -> {
+        movement.transitionLength(0);
+        dog.getAnimationState().setBoneResetTicks(BONE_RESET_TICKS);
+      }
+      case KEEP -> {}
     }
   }
 

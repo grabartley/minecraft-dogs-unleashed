@@ -2,11 +2,18 @@ package com.grahambartley.dogsunleashed.entity;
 
 public final class PoseBlendOut {
 
-  private boolean wasPosing = false;
+  public enum Step {
+    BLEND_BACK,
+    SNAP,
+    KEEP
+  }
 
-  public boolean ended(final boolean posing) {
-    final boolean ended = this.wasPosing && !posing;
-    this.wasPosing = posing;
-    return ended;
+  private PoseBlendOut() {}
+
+  public static Step step(final boolean poseHeld, final boolean movementRunning) {
+    if (poseHeld) {
+      return Step.BLEND_BACK;
+    }
+    return movementRunning ? Step.SNAP : Step.KEEP;
   }
 }

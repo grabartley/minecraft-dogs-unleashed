@@ -2,8 +2,7 @@ package com.grahambartley.dogsunleashed.entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.grahambartley.dogsunleashed.entity.PoseBlendOut.Step;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -12,37 +11,28 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class PoseBlendOutTest {
 
-  static Stream<Arguments> frames() {
+  static Stream<Arguments> cases() {
     return Stream.of(
         Arguments.of(
-            "never posing never ends", List.of(false, false, false), List.of(false, false, false)),
+            "a held pose hands back to a running movement clip", true, true, Step.BLEND_BACK),
         Arguments.of(
-            "ends on the first frame after the pose",
-            List.of(true, true, false, false),
-            List.of(false, false, true, false)),
+            "a held pose hands back while movement is still blending",
+            true,
+            false,
+            Step.BLEND_BACK),
         Arguments.of(
-            "a pose still playing has not ended",
-            List.of(true, true, true),
-            List.of(false, false, false)),
-        Arguments.of(
-            "each pose ends once",
-            List.of(true, false, true, false),
-            List.of(false, true, false, true)),
-        Arguments.of(
-            "a one frame pose still ends",
-            List.of(false, true, false),
-            List.of(false, false, true)));
+            "a running movement clip goes back to switching instantly", false, true, Step.SNAP),
+        Arguments.of("a movement clip mid blend keeps its blend", false, false, Step.KEEP));
   }
 
   @ParameterizedTest(name = "{0}")
-  @MethodSource("frames")
-  @DisplayName("the movement clip blends back once, on the frame after a pose stops")
-  void ends(final String scenario, final List<Boolean> posing, final List<Boolean> expected) {
-    final PoseBlendOut blend = new PoseBlendOut();
-    final List<Boolean> ended = new ArrayList<>();
-    for (final boolean frame : posing) {
-      ended.add(blend.ended(frame));
-    }
-    assertEquals(expected, ended);
+  @MethodSource("cases")
+  @DisplayName("the movement clip blends back only when a pose has finished and is holding")
+  void steps(
+      final String scenario,
+      final boolean poseHeld,
+      final boolean movementRunning,
+      final Step expected) {
+    assertEquals(expected, PoseBlendOut.step(poseHeld, movementRunning));
   }
 }
