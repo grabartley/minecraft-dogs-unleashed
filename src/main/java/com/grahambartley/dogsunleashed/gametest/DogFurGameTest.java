@@ -114,21 +114,28 @@ public final class DogFurGameTest implements FabricGameTest {
     context.complete();
   }
 
-  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
-  public void aShibaInuSavedOvergrownSettlesToNatural(final TestContext context) {
-    final UnleashedDogEntity dog = wildAdult(context, DogTestData.SHIBA_INU);
+  @CustomTestProvider
+  public Collection<TestFunction> aCoatSavedOvergrownSettlesToNatural() {
+    return perBreed(
+        "settles",
+        data -> data.breed().furProfile().maxStage() == DogFurStage.NATURAL,
+        DogFurGameTest::testSettles);
+  }
+
+  private static void testSettles(final TestContext context, final DogTestData data) {
+    final UnleashedDogEntity dog = wildAdult(context, data);
     seed(dog, DogFurStage.OVERGROWN, 0);
 
     tick(dog, 1);
 
     context.assertTrue(
         dog.getFur().stage() == DogFurStage.NATURAL,
-        "A shiba inu saved overgrown settles to natural, was " + dog.getFur().stage());
+        data.breed() + " saved overgrown settles to natural, was " + dog.getFur().stage());
     final EntityAttributeInstance speed =
         dog.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED);
     context.assertTrue(
         speed != null && !speed.hasModifier(DogFur.OVERGROWN_SPEED_MODIFIER_ID),
-        "A settled coat no longer slows the shiba inu");
+        "A settled coat no longer slows the " + data.breed());
     context.complete();
   }
 

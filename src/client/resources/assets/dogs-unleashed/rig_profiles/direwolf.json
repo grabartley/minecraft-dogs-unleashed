@@ -62,19 +62,32 @@
     "leg_back_right_foot"
   ],
   "fur_shaggy": [
-    "fur_shaggy_mane",
-    "fur_shaggy_cheeks",
+    "fur_shaggy_ruff",
+    "fur_shaggy_chest",
+    "fur_shaggy_coat",
+    "fur_shaggy_rump",
     "fur_shaggy_leg_front_left",
     "fur_shaggy_leg_front_right",
-    "fur_shaggy_belly",
-    "fur_shaggy_tail"
+    "fur_shaggy_leg_back_left",
+    "fur_shaggy_leg_back_right",
+    "fur_shaggy_tail",
+    "fur_shaggy_tail_mid",
+    "fur_shaggy_tail_tip",
+    "fur_shaggy_cheeks"
   ],
   "fur_overgrown": [
-    "fur_overgrown_mane",
-    "fur_overgrown_head",
-    "fur_overgrown_body",
+    "fur_overgrown_ruff",
+    "fur_overgrown_chest",
+    "fur_overgrown_coat",
+    "fur_overgrown_rump",
+    "fur_overgrown_leg_front_left",
+    "fur_overgrown_leg_front_right",
+    "fur_overgrown_leg_back_left",
+    "fur_overgrown_leg_back_right",
     "fur_overgrown_tail",
-    "fur_overgrown_hips"
+    "fur_overgrown_tail_mid",
+    "fur_overgrown_tail_tip",
+    "fur_overgrown_head"
   ],
   "trimmed_overlay": "dogs-unleashed:textures/entity/direwolf_trimmed.png",
   "botched_overlay": "dogs-unleashed:textures/entity/direwolf_botched.png",
