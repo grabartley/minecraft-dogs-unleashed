@@ -56,8 +56,7 @@ class UndeadDogEyesTest {
           UnleashedDogBreed.HUSKY,
               List.of("husky_blackwhite_blueblue", "husky_graywhite_hazelhazel"),
           UnleashedDogBreed.DACHSHUND, List.of("dachshund_blacktan", "dachshund_red"),
-          UnleashedDogBreed.SHIBA_INU, List.of("shibainu_red", "shibainu_sesame"),
-          UnleashedDogBreed.PINSCHER, List.of("pinscher_blacktan", "pinscher_red"));
+          UnleashedDogBreed.SHIBA_INU, List.of("shibainu_red", "shibainu_sesame"));
 
   private static final int PUPIL_MAX_LUMA = 90;
 

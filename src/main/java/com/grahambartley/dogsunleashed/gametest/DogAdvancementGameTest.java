@@ -300,13 +300,12 @@ public final class DogAdvancementGameTest implements FabricGameTest {
     player.getAdvancementTracker().grantCriterion(wholePack, "tamed_dachshund");
     player.getAdvancementTracker().grantCriterion(wholePack, "tamed_beagle");
     player.getAdvancementTracker().grantCriterion(wholePack, "tamed_goldenretriever");
-    player.getAdvancementTracker().grantCriterion(wholePack, "tamed_shibainu");
 
     context.assertTrue(
         !player.getAdvancementTracker().getProgress(wholePack).isDone(),
         "the_whole_pack should stay locked until every breed is tamed");
 
-    player.getAdvancementTracker().grantCriterion(wholePack, "tamed_pinscher");
+    player.getAdvancementTracker().grantCriterion(wholePack, "tamed_shibainu");
 
     context.assertTrue(
         player.getAdvancementTracker().getProgress(wholePack).isDone(),

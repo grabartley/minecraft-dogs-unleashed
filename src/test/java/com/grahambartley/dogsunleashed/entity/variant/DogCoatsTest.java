@@ -31,10 +31,7 @@ class DogCoatsTest {
         Arguments.of("beagle lilac 2", UnleashedDogBreed.BEAGLE, BeagleCoat.LILAC_2),
         Arguments.of("shiba sesame", UnleashedDogBreed.SHIBA_INU, ShibaInuCoat.SESAME),
         Arguments.of("dire wolf smoke grey", UnleashedDogBreed.DIRE_WOLF, DireWolfCoat.SMOKEGREY),
-        Arguments.of("dire wolf white", UnleashedDogBreed.DIRE_WOLF, DireWolfCoat.WHITE),
-        Arguments.of("pinscher black tan", UnleashedDogBreed.PINSCHER, PinscherCoat.BLACK_TAN),
-        Arguments.of(
-            "pinscher chocolate tan", UnleashedDogBreed.PINSCHER, PinscherCoat.CHOCOLATE_TAN));
+        Arguments.of("dire wolf white", UnleashedDogBreed.DIRE_WOLF, DireWolfCoat.WHITE));
   }
 
   @ParameterizedTest(name = "{0}")
@@ -89,11 +86,7 @@ class DogCoatsTest {
         Arguments.of(
             UnleashedDogBreed.DIRE_WOLF,
             (BiFunction<SpawnReason, Integer, UnleashedDogCoat>)
-                DireWolfCoatRolls::resolveCoatFromRoll),
-        Arguments.of(
-            UnleashedDogBreed.PINSCHER,
-            (BiFunction<SpawnReason, Integer, UnleashedDogCoat>)
-                PinscherCoatRolls::resolveCoatFromRoll));
+                DireWolfCoatRolls::resolveCoatFromRoll));
   }
 
   @ParameterizedTest(name = "{0}")

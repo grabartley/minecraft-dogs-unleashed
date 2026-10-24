@@ -17,8 +17,7 @@ class ModBlockTagsTest {
         Arguments.of(
             UnleashedDogBreed.GOLDEN_RETRIEVER.serializedId(), "spawnable_on/goldenretriever"),
         Arguments.of(UnleashedDogBreed.HUSKY.serializedId(), "spawnable_on/husky"),
-        Arguments.of(UnleashedDogBreed.DIRE_WOLF.serializedId(), "spawnable_on/direwolf"),
-        Arguments.of(UnleashedDogBreed.PINSCHER.serializedId(), "spawnable_on/pinscher"));
+        Arguments.of(UnleashedDogBreed.DIRE_WOLF.serializedId(), "spawnable_on/direwolf"));
   }
 
   @ParameterizedTest(name = "{0} spawns on #dogs-unleashed:{1}")
