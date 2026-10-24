@@ -10,8 +10,8 @@ import com.grahambartley.dogsunleashed.model.DogModel;
 import com.grahambartley.dogsunleashed.render.cosmetic.HatFits;
 import com.grahambartley.dogsunleashed.render.cosmetic.MobHeadFits;
 import com.grahambartley.dogsunleashed.render.cross.CrossBreedRendering;
+import com.grahambartley.dogsunleashed.render.fur.DrawnFur;
 import com.grahambartley.dogsunleashed.render.fur.FurCover;
-import com.grahambartley.dogsunleashed.render.fur.FurLook;
 import com.grahambartley.dogsunleashed.render.growth.GrowthRigScale;
 import com.grahambartley.dogsunleashed.render.layer.DogArmourLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogCarryFetchItemLayer;
@@ -214,9 +214,10 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
       int packedOverlay,
       int colour) {
     if (this.frameHiddenEars.contains(bone.getName())
-        || !FurLook.shows(this.frameProfile, bone.getName(), this.frameStage)
-        || this.frameFurCover.hides(
+        || !DrawnFur.draws(
             this.frameProfile,
+            this.frameStage,
+            this.frameFurCover,
             bone.getName(),
             bone.getParent() == null ? null : bone.getParent().getName())) {
       return;

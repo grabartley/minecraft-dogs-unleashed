@@ -58,10 +58,7 @@ public record FurCover(Set<Slot> covered) {
   }
 
   public boolean hides(final RigProfile profile, final String bone, final @Nullable String parent) {
-    if (parent == null
-        || this.covered.isEmpty()
-        || !(profile.bonesIn(Slot.FUR_SHAGGY).contains(bone)
-            || profile.bonesIn(Slot.FUR_OVERGROWN).contains(bone))) {
+    if (parent == null || this.covered.isEmpty() || !FurLook.isFur(profile, bone)) {
       return false;
     }
     return this.covered.stream().anyMatch(slot -> profile.bonesIn(slot).contains(parent));

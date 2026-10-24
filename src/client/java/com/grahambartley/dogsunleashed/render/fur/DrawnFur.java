@@ -32,10 +32,16 @@ public final class DrawnFur {
       final FurCover cover,
       final Function<String, @Nullable String> parentOf) {
     return bones.stream()
-        .filter(
-            bone ->
-                FurLook.shows(profile, bone, stage)
-                    && !cover.hides(profile, bone, parentOf.apply(bone)))
+        .filter(bone -> draws(profile, stage, cover, bone, parentOf.apply(bone)))
         .collect(Collectors.toUnmodifiableSet());
+  }
+
+  public static boolean draws(
+      final RigProfile profile,
+      final DogFurStage stage,
+      final FurCover cover,
+      final String bone,
+      final @Nullable String parent) {
+    return FurLook.shows(profile, bone, stage) && !cover.hides(profile, bone, parent);
   }
 }

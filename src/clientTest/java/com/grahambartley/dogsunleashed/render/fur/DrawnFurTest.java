@@ -76,4 +76,18 @@ class DrawnFurTest {
     assertEquals(
         BONES, DrawnFur.keep(BONES, RigProfile.EMPTY, stage, wearing("collar"), PARENTS::get));
   }
+
+  @ParameterizedTest(name = "{1} at {0} wearing {2} draws={3}")
+  @CsvSource({
+    "SHAGGY, shag_neck, none, true",
+    "SHAGGY, shag_neck, collar, false",
+    "NATURAL, shag_body, none, false",
+    "OVERGROWN, mop_body, armour, false",
+    "OVERGROWN, body, armour, true"
+  })
+  @DisplayName("one bone is drawn only when its stage shows it and no gear covers it")
+  void drawsOneBone(
+      final DogFurStage stage, final String bone, final String gear, final boolean expected) {
+    assertEquals(expected, DrawnFur.draws(PROFILE, stage, wearing(gear), bone, PARENTS.get(bone)));
+  }
 }

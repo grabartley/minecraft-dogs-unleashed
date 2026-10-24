@@ -48,6 +48,13 @@ class FurLookTest {
     assertEquals(expected, FurLook.shows(PROFILE, bone, stage));
   }
 
+  @ParameterizedTest(name = "{0} is fur={1}")
+  @CsvSource({"shag, true", "mop, true", "body, false", "head, false"})
+  @DisplayName("only bones listed in a fur slot count as fur")
+  void knowsFurBones(final String bone, final boolean expected) {
+    assertEquals(expected, FurLook.isFur(PROFILE, bone));
+  }
+
   @ParameterizedTest(name = "{0} draws {1} overlays")
   @CsvSource({"BOTCHED, 2", "TRIMMED, 1", "NATURAL, 0", "SHAGGY, 0", "OVERGROWN, 0"})
   @DisplayName("a trimmed coat gets the trim overlay, and a botched one the botch on top")

@@ -24,6 +24,11 @@ public final class FurLook {
     return true;
   }
 
+  public static boolean isFur(final RigProfile profile, final String bone) {
+    return profile.bonesIn(Slot.FUR_SHAGGY).contains(bone)
+        || profile.bonesIn(Slot.FUR_OVERGROWN).contains(bone);
+  }
+
   public static List<Identifier> overlays(final RigProfile profile, final DogFurStage stage) {
     final Stream<Overlay> layers =
         switch (stage) {
