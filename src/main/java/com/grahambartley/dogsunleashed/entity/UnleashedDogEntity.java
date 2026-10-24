@@ -140,6 +140,7 @@ public class UnleashedDogEntity extends DogMountEntity
           new DogBond(this),
           new DogPersonality(this),
           new DogTricks(this),
+          new DogTrickPerformance(this),
           new DogSaddlebags(this),
           new DogRaidDuty(this),
           new DogSledHarness(this),

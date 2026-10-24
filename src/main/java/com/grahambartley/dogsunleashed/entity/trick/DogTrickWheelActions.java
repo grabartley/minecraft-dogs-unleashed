@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.entity.trick;
 
+import com.grahambartley.dogsunleashed.entity.DogTrickPerformance;
 import com.grahambartley.dogsunleashed.entity.DogTricks;
 import com.grahambartley.dogsunleashed.entity.DogWheelSubAction;
 import com.grahambartley.dogsunleashed.entity.DogWheelSubActions;
@@ -26,9 +27,9 @@ public final class DogTrickWheelActions {
         trick.wheelActionId(),
         trick.translationKey(),
         Identifier.of(trick.iconItemId()),
-        (dog, player) -> refusalKey(tricksOf(dog).readiness()),
-        (dog, player) -> tricksOf(dog).perform(trick),
-        dog -> tricksOf(dog).progress().isLearned(trick));
+        (dog, player) -> refusalKey(performanceOf(dog).readiness()),
+        (dog, player) -> performanceOf(dog).perform(trick),
+        dog -> dog.getComponents().get(DogTricks.class).progress().isLearned(trick));
   }
 
   static @Nullable String refusalKey(final TrickReadiness readiness) {
@@ -38,7 +39,7 @@ public final class DogTrickWheelActions {
     return readiness.mayStart() ? null : BUSY_REFUSAL_KEY;
   }
 
-  private static DogTricks tricksOf(final UnleashedDogEntity dog) {
-    return dog.getComponents().get(DogTricks.class);
+  private static DogTrickPerformance performanceOf(final UnleashedDogEntity dog) {
+    return dog.getComponents().get(DogTrickPerformance.class);
   }
 }

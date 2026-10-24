@@ -1,6 +1,6 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
-import com.grahambartley.dogsunleashed.entity.DogTricks;
+import com.grahambartley.dogsunleashed.entity.DogTrickPerformance;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.EnumSet;
 import net.minecraft.entity.ai.goal.Goal;
@@ -16,13 +16,13 @@ public class PerformTrickGoal extends Goal {
 
   @Override
   public boolean canStart() {
-    return !this.dog.isInSittingPose()
-        && this.dog.getComponents().get(DogTricks.class).isPerforming();
+    return !this.dog.isInSittingPose() && this.shouldContinue();
   }
 
   @Override
   public boolean shouldContinue() {
-    return this.dog.getComponents().get(DogTricks.class).isPerforming();
+    return !this.dog.isSitting()
+        && this.dog.getComponents().get(DogTrickPerformance.class).isPerforming();
   }
 
   @Override

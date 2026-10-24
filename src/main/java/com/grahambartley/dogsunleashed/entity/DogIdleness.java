@@ -12,6 +12,12 @@ public final class DogIdleness {
         && !isOnErrand(dog);
   }
 
+  public static boolean isOccupied(final UnleashedDogEntity dog) {
+    return isOnErrand(dog)
+        || dog.getComponents().get(DogBowlMeal.class).isEating()
+        || dog.getComponents().get(DogBoneBurial.class).isDigging();
+  }
+
   public static boolean isOnErrand(final UnleashedDogEntity dog) {
     final DogPointedOrders orders = dog.getComponents().get(DogPointedOrders.class);
     return dog.getPlaySession().isInPlayMode()

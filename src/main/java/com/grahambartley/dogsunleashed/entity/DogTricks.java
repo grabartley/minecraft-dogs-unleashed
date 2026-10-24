@@ -6,7 +6,6 @@ import com.grahambartley.dogsunleashed.entity.trick.DogTrick;
 import com.grahambartley.dogsunleashed.entity.trick.TrickLearningRules;
 import com.grahambartley.dogsunleashed.entity.trick.TrickProgress;
 import com.grahambartley.dogsunleashed.entity.trick.TrickProgressNbt;
-import com.grahambartley.dogsunleashed.entity.trick.TrickReadiness;
 import com.grahambartley.dogsunleashed.pet.PetNames;
 import java.util.Optional;
 import net.minecraft.entity.LivingEntity;
@@ -25,8 +24,6 @@ public final class DogTricks extends DogComponent {
   private TrickProgress progress = TrickProgress.NONE;
   private @Nullable DogTrick offered;
   private long offeredAt = TrickLearningRules.NEVER;
-  private @Nullable DogTrick performing;
-  private long performingSince = TrickLearningRules.NEVER;
 
   DogTricks(final UnleashedDogEntity dog) {
     this.dog = dog;
@@ -51,32 +48,7 @@ public final class DogTricks extends DogComponent {
   public void offer(final DogTrick trick) {
     this.offered = trick;
     this.offeredAt = this.dog.getWorld().getTime();
-    this.perform(trick);
-  }
-
-  public boolean isPerforming() {
-    return this.performing != null
-        && this.performing.isRunning(this.performingSince, this.dog.getWorld().getTime());
-  }
-
-  public TrickReadiness readiness() {
-    return new TrickReadiness(
-        this.dog.getSleepController().isAsleep(),
-        this.dog.getComponents().get(DogSledHarness.class).isHitched(),
-        this.dog.hasVehicle() || this.dog.hasPassengers(),
-        this.dog.getTarget() != null,
-        this.dog.hurtTime > 0,
-        this.dog.isTouchingWater(),
-        DogIdleness.isOnErrand(this.dog)
-            || this.dog.getComponents().get(DogBowlMeal.class).isEating()
-            || this.dog.getComponents().get(DogBoneBurial.class).isDigging(),
-        this.isPerforming());
-  }
-
-  public void perform(final DogTrick trick) {
-    this.performing = trick;
-    this.performingSince = this.dog.getWorld().getTime();
-    this.dog.triggerAnim(trick.animationKey(), trick.animationKey());
+    this.performance().perform(trick);
   }
 
   public boolean rewardOffered(final PlayerEntity player) {
@@ -106,19 +78,12 @@ public final class DogTricks extends DogComponent {
     }
   }
 
-  private void stopPerforming() {
-    if (this.isPerforming()) {
-      this.dog.stopTriggeredAnim(this.performing.animationKey(), this.performing.animationKey());
-    }
-    this.performing = null;
-    this.performingSince = TrickLearningRules.NEVER;
+  private DogTrickPerformance performance() {
+    return this.dog.getComponents().get(DogTrickPerformance.class);
   }
 
   @Override
   void tick() {
-    if (this.performing != null && (!this.isPerforming() || this.readiness().interruptsTrick())) {
-      this.stopPerforming();
-    }
     if (this.offered != null && this.offered().isEmpty()) {
       this.offered = null;
       this.offeredAt = TrickLearningRules.NEVER;
@@ -132,7 +97,7 @@ public final class DogTricks extends DogComponent {
     }
     if (TrickLearningRules.mayOffer(
         this.dog.isTamed(),
-        DogIdleness.isFreeForChores(this.dog) && this.readiness().mayStart(),
+        DogIdleness.isFreeForChores(this.dog) && this.performance().readiness().mayStart(),
         this.dog.distanceTo(owner))) {
       TrickLearningRules.pickUnlearned(this.progress, this.dog.getRandom()::nextInt)
           .ifPresent(this::offer);

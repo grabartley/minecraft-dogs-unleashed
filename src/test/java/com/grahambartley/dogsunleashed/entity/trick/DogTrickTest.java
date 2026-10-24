@@ -120,11 +120,11 @@ class DogTrickTest {
   @EnumSource(DogTrick.class)
   @DisplayName("a trick that never started is not running")
   void neverStartedIsNotRunning(final DogTrick trick) {
-    assertFalse(trick.isRunning(TrickLearningRules.NEVER, 0));
+    assertFalse(trick.isRunning(DogTrick.NOT_STARTED, 0));
   }
 
   private static List<Double> clipSeconds(final DogTrick trick) throws IOException {
-    try (Stream<Path> files = Files.list(ANIMATIONS)) {
+    try (Stream<Path> files = Files.walk(ANIMATIONS)) {
       final List<Double> seconds = new ArrayList<>();
       for (final Path file : files.filter(f -> f.toString().endsWith(".animation.json")).toList()) {
         try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {

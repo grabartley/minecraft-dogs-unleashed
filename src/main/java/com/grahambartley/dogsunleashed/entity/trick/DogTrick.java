@@ -9,6 +9,8 @@ public enum DogTrick {
   ROLL_OVER(3, DogAnimationKeys.ROLL_OVER, "minecraft:slime_ball", 76),
   PLAY_DEAD(4, DogAnimationKeys.PLAY_DEAD, "minecraft:skeleton_skull", 104);
 
+  public static final long NOT_STARTED = Long.MIN_VALUE;
+
   private final int wheelActionId;
   private final String serializedId;
   private final String iconItemId;
@@ -46,9 +48,7 @@ public enum DogTrick {
   }
 
   public boolean isRunning(final long startedAt, final long now) {
-    return startedAt != TrickLearningRules.NEVER
-        && now >= startedAt
-        && now < startedAt + this.durationTicks;
+    return startedAt != NOT_STARTED && now >= startedAt && now < startedAt + this.durationTicks;
   }
 
   public String translationKey() {
