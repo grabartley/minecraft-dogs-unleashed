@@ -21,13 +21,13 @@ public final class DogFurRules {
       return breed.furProfile();
     }
     double maxStage = 0.0;
-    double ticksPerStage = 0.0;
+    double baseTicksPerStage = 0.0;
     double yield = 0.0;
     double total = 0.0;
     for (final BreedShare share : genome.composition()) {
       final FurProfile ancestor = share.breed().furProfile();
       maxStage += ancestor.maxStage().ordinal() * share.share();
-      ticksPerStage += ancestor.ticksPerStage() * share.share();
+      baseTicksPerStage += ancestor.baseTicksPerStage() * share.share();
       yield += ancestor.shearYieldPerStage() * share.share();
       total += share.share();
     }
@@ -36,17 +36,23 @@ public final class DogFurRules {
     }
     return new FurProfile(
         DogFurStage.fromOrdinal((int) Math.round(maxStage / total)),
-        (int) Math.round(ticksPerStage / total),
+        (int) Math.round(baseTicksPerStage / total),
         Math.max(1, (int) Math.round(yield / total)));
   }
 
   public static OptionalInt ticksPerStage(
-      final FurProfile profile, final double furGrowthRate, final int rateMultiplierPercent) {
+      final FurProfile profile,
+      final DogFurStage growingFrom,
+      final double furGrowthRate,
+      final int rateMultiplierPercent) {
     if (furGrowthRate <= 0.0 || rateMultiplierPercent <= 0) {
       return OptionalInt.empty();
     }
     final double ticks =
-        profile.ticksPerStage() / furGrowthRate * PERCENT / (double) rateMultiplierPercent;
+        (double) profile.baseTicksPerStage()
+            * growingFrom.growthTimePercent()
+            / furGrowthRate
+            / rateMultiplierPercent;
     return OptionalInt.of((int) Math.max(1L, Math.round(ticks)));
   }
 

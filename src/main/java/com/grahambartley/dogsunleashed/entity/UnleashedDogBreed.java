@@ -36,7 +36,7 @@ public enum UnleashedDogBreed {
       new Voice(true, null, null, () -> ModSounds.HUSKY_HOWL, null, false),
       true,
       new RenderTransforms(1.3f, 0.5f, 0.0f, 1.31f),
-      new FurProfile(DogFurStage.OVERGROWN, 48000, 2),
+      new FurProfile(DogFurStage.OVERGROWN, 144000, 2),
       Nature.ORDINARY),
   DACHSHUND(
       "dachshund",
@@ -54,7 +54,7 @@ public enum UnleashedDogBreed {
           false),
       false,
       new RenderTransforms(1.3f, 0.75f, 180.0f, 0.57f),
-      new FurProfile(DogFurStage.SHAGGY, 72000, 1),
+      new FurProfile(DogFurStage.SHAGGY, 216000, 1),
       Nature.ORDINARY),
   BEAGLE(
       "beagle",
@@ -75,7 +75,7 @@ public enum UnleashedDogBreed {
           false, () -> ModSounds.BEAGLE_BARK, () -> ModSounds.BEAGLE_ALERT, null, null, false),
       false,
       new RenderTransforms(1.5f, 0.75f, 0.0f, 0.88f),
-      new FurProfile(DogFurStage.SHAGGY, 72000, 1),
+      new FurProfile(DogFurStage.SHAGGY, 216000, 1),
       Nature.ORDINARY.trackingScentUpTo(64)),
   GOLDEN_RETRIEVER(
       "goldenretriever",
@@ -93,7 +93,7 @@ public enum UnleashedDogBreed {
           false),
       false,
       new RenderTransforms(1.7f, 0.85f, 0.0f, 1.31f),
-      new FurProfile(DogFurStage.OVERGROWN, 48000, 2),
+      new FurProfile(DogFurStage.OVERGROWN, 144000, 2),
       Nature.ORDINARY),
   SHIBA_INU(
       "shibainu",
@@ -111,7 +111,7 @@ public enum UnleashedDogBreed {
           false),
       false,
       new RenderTransforms(1.5f, 0.75f, 0.0f, 0.88f),
-      new FurProfile(DogFurStage.OVERGROWN, 60000, 2),
+      new FurProfile(DogFurStage.OVERGROWN, 180000, 2),
       Nature.ORDINARY),
   DIRE_WOLF(
       "direwolf",
@@ -137,7 +137,7 @@ public enum UnleashedDogBreed {
           true),
       false,
       new RenderTransforms(1.47f, 0.735f, 0.0f, 1.31f),
-      new FurProfile(DogFurStage.OVERGROWN, 48000, 2),
+      new FurProfile(DogFurStage.OVERGROWN, 144000, 2),
       Nature.ORDINARY
           .breedingOnlyWithOwnBreed()
           .growingThroughStages()
@@ -155,7 +155,7 @@ public enum UnleashedDogBreed {
           false, () -> ModSounds.PINSCHER_BARK, () -> ModSounds.PINSCHER_ALERT, null, null, false),
       false,
       new RenderTransforms(1.0f, 0.5f, 0.0f, 0.59f),
-      new FurProfile(DogFurStage.SHAGGY, 72000, 1),
+      new FurProfile(DogFurStage.SHAGGY, 216000, 1),
       Nature.ORDINARY),
   CROSS_BREED(
       "crossbreed",
@@ -167,7 +167,7 @@ public enum UnleashedDogBreed {
       new Voice(false, null, null, null, null, false),
       false,
       new RenderTransforms(1.5f, 0.75f, 0.0f, 0.88f),
-      new FurProfile(DogFurStage.SHAGGY, 60000, 1),
+      new FurProfile(DogFurStage.SHAGGY, 180000, 1),
       Nature.ORDINARY);
 
   public static final UnleashedDogBreed FALLBACK_RIG = HUSKY;
@@ -356,7 +356,7 @@ public enum UnleashedDogBreed {
   public record RenderTransforms(
       float adultScale, float babyScale, float bodyYawOffsetDegrees, float portraitHeight) {}
 
-  public record FurProfile(DogFurStage maxStage, int ticksPerStage, int shearYieldPerStage) {}
+  public record FurProfile(DogFurStage maxStage, int baseTicksPerStage, int shearYieldPerStage) {}
 
   public record Nature(
       int tameSuccessChance,

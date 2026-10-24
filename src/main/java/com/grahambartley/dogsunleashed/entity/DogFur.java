@@ -87,7 +87,7 @@ public final class DogFur {
     }
     final OptionalInt budget =
         DogFurRules.ticksPerStage(
-            profile, this.growthRate(), config.fur().furGrowthRateMultiplierPercent());
+            profile, stage, this.growthRate(), config.fur().furGrowthRateMultiplierPercent());
     if (budget.isEmpty()) {
       return;
     }

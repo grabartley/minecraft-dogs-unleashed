@@ -461,7 +461,7 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 | ID | Requirement |
 |---|---|
 | GROOM-1 | Fur grows through trimmed, natural, shaggy and overgrown, up to the breed's maximum (dachshunds and beagles stop at shaggy) |
-| GROOM-2 | Growth takes 40 to 60 minutes per stage depending on breed, scaled by Fur Growth Speed. Puppies don't grow fur. With Fur Growth off, or at 0%, nothing grows |
+| GROOM-2 | Trimmed to natural takes 2 to 3 hours of play depending on breed. Natural to shaggy takes 1.5 times that and shaggy to overgrown twice that. A botched trim grows back in half that. All of it is scaled by Fur Growth Speed. Puppies don't grow fur. With Fur Growth off, or at 0%, nothing grows |
 | GROOM-3 | An overgrown dog is 10% slower |
 | GROOM-4 | The owner trims with shears, getting dog fur: one share from natural, two from shaggy, three from overgrown, times the breed's yield. Puppies and already-trimmed dogs refuse |
 | GROOM-5 | A trim goes wrong 5% of the time from natural, 12% from shaggy and 20% from overgrown, scaled by Bad Haircut Chance. A botched dog whines, earns "Bad Hair Day", gives double fur and looks botched until it grows back |
