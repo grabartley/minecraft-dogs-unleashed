@@ -3,7 +3,7 @@ package com.grahambartley.dogsunleashed.entity;
 public final class DogAnimationState {
 
   private final UnleashedDogEntity dog;
-  private double boneResetTicks = 1;
+  private final PoseBlendOut poseBlendOut = new PoseBlendOut();
 
   DogAnimationState(final UnleashedDogEntity dog) {
     this.dog = dog;
@@ -45,11 +45,7 @@ public final class DogAnimationState {
     this.dog.getDataTracker().set(UnleashedDogEntity.TAIL_WAG_TIMER, ticks);
   }
 
-  public double boneResetTicks() {
-    return this.boneResetTicks;
-  }
-
-  void setBoneResetTicks(final double ticks) {
-    this.boneResetTicks = ticks;
+  public PoseBlendOut poseBlendOut() {
+    return this.poseBlendOut;
   }
 }

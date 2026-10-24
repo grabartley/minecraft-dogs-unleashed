@@ -18,8 +18,6 @@ public final class DogAnimationControllers {
   private static final int BONE_DIG_TRANSITION_TICKS = 4;
   private static final int TUG_TRANSITION_TICKS = 4;
   private static final int EAT_TRANSITION_TICKS = 4;
-  private static final int POSE_BLEND_TICKS = 5;
-  private static final int BONE_RESET_TICKS = 1;
 
   private DogAnimationControllers() {}
 
@@ -194,7 +192,7 @@ public final class DogAnimationControllers {
 
   private static AnimationController<UnleashedDogEntity> pose(
       final UnleashedDogEntity dog, final String key) {
-    return new AnimationController<>(dog, key, POSE_BLEND_TICKS, state -> PlayState.STOP)
+    return new AnimationController<>(dog, key, PoseBlendOut.TICKS, state -> PlayState.STOP)
         .triggerableAnim(key, RawAnimation.begin().thenPlayAndHold(key));
   }
 
@@ -210,14 +208,11 @@ public final class DogAnimationControllers {
         !held.isEmpty(), movement.getAnimationState() == AnimationController.State.RUNNING)) {
       case BLEND_BACK -> {
         held.forEach(pose -> dog.stopTriggeredAnim(pose.getName(), null));
-        movement.transitionLength(POSE_BLEND_TICKS);
+        movement.transitionLength(PoseBlendOut.TICKS);
         movement.forceAnimationReset();
-        dog.getAnimationState().setBoneResetTicks(POSE_BLEND_TICKS);
+        dog.getAnimationState().poseBlendOut().handBack(dog.getWorld().getTime());
       }
-      case SNAP -> {
-        movement.transitionLength(0);
-        dog.getAnimationState().setBoneResetTicks(BONE_RESET_TICKS);
-      }
+      case SNAP -> movement.transitionLength(0);
       case KEEP -> {}
     }
   }
