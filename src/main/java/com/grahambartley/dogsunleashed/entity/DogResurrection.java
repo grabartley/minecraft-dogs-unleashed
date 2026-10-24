@@ -119,7 +119,7 @@ public final class DogResurrection {
             petData.getGrowthStage(),
             petData.getGrowthBattlesWon(),
             petData.getGrowthTicksInStage());
-    dog.getFur().setStage(DogFurStage.fromOrdinal(petData.getFurStage()));
+    dog.getFur().restoreStage(DogFurStage.fromOrdinal(petData.getFurStage()));
     dog.getComponents()
         .get(DogAging.class)
         .restore(petData.getAdultAgeTicks(), petData.hasSeniorParent());

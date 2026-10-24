@@ -75,6 +75,10 @@ public final class DogFur {
     this.syncSpeedModifier();
   }
 
+  public void restoreStage(final DogFurStage saved) {
+    this.setStage(saved.atMost(this.profile().maxStage()));
+  }
+
   void tick() {
     final DogsUnleashedConfig config = DogsUnleashed.SERVER_CONFIG;
     if (this.dog.isBaby() || !config.fur().furGrowthEnabled()) {
@@ -165,7 +169,7 @@ public final class DogFur {
       this.syncSpeedModifier();
       return;
     }
-    this.setStage(DogFurStage.fromOrdinal(nbt.getInt(ModNbtKeys.FUR_STAGE)));
+    this.restoreStage(DogFurStage.fromOrdinal(nbt.getInt(ModNbtKeys.FUR_STAGE)));
     this.ticksInStage = Math.max(0, nbt.getInt(ModNbtKeys.FUR_TICKS_IN_STAGE));
   }
 

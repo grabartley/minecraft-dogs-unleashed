@@ -315,6 +315,27 @@ public final class DogFurGameTest implements FabricGameTest {
     context.complete();
   }
 
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void aSavedCoatLongerThanTheBreedAllowsReloadsAtItsLongest(final TestContext context) {
+    final UnleashedDogEntity dog = wildAdult(context, DogTestData.DACHSHUND);
+    final NbtCompound saved = new NbtCompound();
+    dog.writeCustomDataToNbt(saved);
+    saved.putInt(ModNbtKeys.FUR_STAGE, DogFurStage.OVERGROWN.ordinal());
+
+    final UnleashedDogEntity reloaded = wildAdult(context, DogTestData.DACHSHUND);
+    reloaded.readCustomDataFromNbt(saved);
+
+    context.assertTrue(
+        reloaded.getFur().stage() == DogFurStage.NATURAL,
+        "A dachshund's coat reloads no longer than natural, was " + reloaded.getFur().stage());
+    context.assertFalse(
+        reloaded
+            .getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED)
+            .hasModifier(DogFur.OVERGROWN_SPEED_MODIFIER_ID),
+        "No overgrown penalty on a coat that cannot be overgrown");
+    context.complete();
+  }
+
   private static void assertUntouched(
       final TestContext context,
       final UnleashedDogEntity dog,

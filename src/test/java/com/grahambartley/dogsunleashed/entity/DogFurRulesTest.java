@@ -53,6 +53,25 @@ class DogFurRulesTest {
   }
 
   @Test
+  @DisplayName("a half husky, half dachshund caps at shaggy, a stage short of the husky")
+  void dachshundBloodShortensTheCoat() {
+    final DogGenome genome =
+        new DogGenome(
+            List.of(
+                new BreedShare(UnleashedDogBreed.HUSKY, 0.5f),
+                new BreedShare(UnleashedDogBreed.DACHSHUND, 0.5f)),
+            20.0,
+            0.3,
+            4.0,
+            DogGenome.BASELINE_FUR_GROWTH_RATE,
+            UnleashedDogBreed.HUSKY);
+
+    assertEquals(
+        DogFurStage.SHAGGY,
+        DogFurRules.profileFor(UnleashedDogBreed.CROSS_BREED, genome).maxStage());
+  }
+
+  @Test
   @DisplayName("a mostly beagle cross caps at shaggy like a beagle")
   void mostlyBeagleCapsAtShaggy() {
     final DogGenome genome =
