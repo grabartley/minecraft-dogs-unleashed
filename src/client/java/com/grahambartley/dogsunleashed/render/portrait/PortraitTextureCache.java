@@ -1,9 +1,12 @@
 package com.grahambartley.dogsunleashed.render.portrait;
 
 import com.grahambartley.dogsunleashed.block.DogStatueLook;
+import com.grahambartley.dogsunleashed.block.DogStatuePose;
 import com.grahambartley.dogsunleashed.portrait.DogPortrait;
+import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfit;
 import com.grahambartley.dogsunleashed.portrait.PortraitSize;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -23,9 +26,10 @@ public final class PortraitTextureCache {
     Identifier bake(DogPortrait portrait);
   }
 
-  private record Key(DogStatueLook look, PortraitSize size) {
+  private record Key(
+      DogStatueLook look, PortraitSize size, DogStatuePose pose, DogPortraitOutfit outfit) {
     static Key of(final DogPortrait portrait) {
-      return new Key(portrait.look(), portrait.size());
+      return new Key(portrait.look(), portrait.size(), portrait.shownPose(), portrait.outfit());
     }
   }
 
@@ -47,9 +51,14 @@ public final class PortraitTextureCache {
     return null;
   }
 
-  public void bakePending() {
-    this.pending.forEach((key, portrait) -> this.baked.put(key, this.tryBake(portrait)));
-    this.pending.clear();
+  public void bakeNextPending() {
+    final Iterator<Map.Entry<Key, DogPortrait>> next = this.pending.entrySet().iterator();
+    if (!next.hasNext()) {
+      return;
+    }
+    final Map.Entry<Key, DogPortrait> entry = next.next();
+    next.remove();
+    this.baked.put(entry.getKey(), this.tryBake(entry.getValue()));
   }
 
   private Optional<Identifier> tryBake(final DogPortrait portrait) {
