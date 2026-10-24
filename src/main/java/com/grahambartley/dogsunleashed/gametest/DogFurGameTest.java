@@ -70,13 +70,17 @@ public final class DogFurGameTest implements FabricGameTest {
 
   private static void testGrows(final TestContext context, final DogTestData data) {
     final UnleashedDogEntity dog = wildAdult(context, data);
-    seed(dog, DogFurStage.NATURAL, ticksPerStage(dog, DogFurStage.NATURAL) - TICKS_BEFORE_DUE);
+    final DogFurStage from =
+        dog.getFur().profile().maxStage().ordinal() > DogFurStage.NATURAL.ordinal()
+            ? DogFurStage.NATURAL
+            : DogFurStage.TRIMMED;
+    seed(dog, from, ticksPerStage(dog, from) - TICKS_BEFORE_DUE);
 
     tick(dog, TICKS_RUN);
 
     context.assertTrue(
-        dog.getFur().stage() == DogFurStage.SHAGGY,
-        data.breed() + " should be shaggy once its stage time is up, was " + dog.getFur().stage());
+        dog.getFur().stage() == from.next(),
+        data.breed() + " should grow to " + from.next() + ", was " + dog.getFur().stage());
     final boolean capped = dog.getFur().stage() == dog.getFur().profile().maxStage();
     context.assertEquals(
         dog.getFur().ticksInStage(),

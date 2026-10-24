@@ -142,7 +142,10 @@ class DogFurRulesTest {
         Arguments.of(94, DogFurStage.OVERGROWN, DogFurStage.SHAGGY),
         Arguments.of(95, DogFurStage.OVERGROWN, DogFurStage.OVERGROWN),
         Arguments.of(99, DogFurStage.OVERGROWN, DogFurStage.OVERGROWN),
-        Arguments.of(99, DogFurStage.SHAGGY, DogFurStage.SHAGGY));
+        Arguments.of(99, DogFurStage.SHAGGY, DogFurStage.SHAGGY),
+        Arguments.of(0, DogFurStage.NATURAL, DogFurStage.NATURAL),
+        Arguments.of(70, DogFurStage.NATURAL, DogFurStage.NATURAL),
+        Arguments.of(99, DogFurStage.NATURAL, DogFurStage.NATURAL));
   }
 
   @ParameterizedTest(name = "roll {0} capped at {1} -> {2}")

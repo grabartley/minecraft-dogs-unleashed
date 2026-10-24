@@ -54,7 +54,7 @@ public enum UnleashedDogBreed {
           false),
       false,
       new RenderTransforms(1.3f, 0.75f, 180.0f, 0.57f),
-      new FurProfile(DogFurStage.SHAGGY, 216000, 1),
+      new FurProfile(DogFurStage.NATURAL, 216000, 1),
       Nature.ORDINARY),
   BEAGLE(
       "beagle",
