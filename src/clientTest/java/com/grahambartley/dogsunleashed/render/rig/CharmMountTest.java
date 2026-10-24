@@ -10,6 +10,7 @@ import com.grahambartley.dogsunleashed.render.fur.DrawnFur;
 import com.grahambartley.dogsunleashed.render.fur.FurCover;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -103,7 +104,7 @@ class CharmMountTest {
       final BakedGeoModel dog, final String rig, final DogFurStage stage, final Set<String> bones) {
     return DrawnFur.keep(
         bones,
-        RigProfiles.of(UnleashedDogBreed.fromSerializedId(rig)),
+        RigProfiles.of(Objects.requireNonNull(UnleashedDogBreed.fromSerializedIdOrNull(rig), rig)),
         stage,
         PENDANT_AND_COLLAR,
         name -> dog.getBone(name).map(GeoBone::getParent).map(GeoBone::getName).orElse(null));
@@ -130,6 +131,17 @@ class CharmMountTest {
   @DisplayName("with the head up the husky's charm hangs clear of its chest fur")
   void chestFurLeavesTheCharmClear(final String clip, final DogFurStage stage) {
     assertEquals(0.0f, place("husky", "snout", clip, stage, HEAD_IGNORED).length(), EPSILON);
+  }
+
+  @ParameterizedTest(name = "husky {0}")
+  @CsvSource({"dig, false", "eat, true", "sniff, false", "sleep, true"})
+  @DisplayName(
+      "with the head down and no fur the husky's chest covers the charm only when eating or asleep")
+  void loweredHeadOnTheBareChest(final String clip, final boolean covered) {
+    assertEquals(
+        covered,
+        place("husky", "snout", clip, DogFurStage.NATURAL, HEAD_IGNORED).length() > 0.0f,
+        clip);
   }
 
   @ParameterizedTest(name = "husky {0} {1}")
