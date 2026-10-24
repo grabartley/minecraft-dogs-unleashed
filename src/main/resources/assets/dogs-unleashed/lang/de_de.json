@@ -582,6 +582,7 @@
   "message.dogs-unleashed.trick_learned": "%s hat einen neuen Trick gelernt: %s!",
   "message.dogs-unleashed.trick_shown": "%s zeigt einen Trick: %s",
   "screen.dogs-unleashed.command_wheel.trick.sleeping": "Zu müde für Tricks",
+  "screen.dogs-unleashed.command_wheel.trick.busy": "Zu beschäftigt für Tricks",
   "advancements.dogs-unleashed.good_dog.title": "Braver Hund!",
   "advancements.dogs-unleashed.good_dog.description": "Belohne deinen Hund mit einem Hundeleckerli, um ihm seinen ersten Trick beizubringen.",
   "advancements.dogs-unleashed.show_dog.title": "Vorzeigehund",

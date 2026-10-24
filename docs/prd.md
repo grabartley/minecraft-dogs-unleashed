@@ -36,7 +36,7 @@ Dogs Unleashed adds real dog breeds to Minecraft, each with its own look, coats,
 | A breed that grows into a mount | The dire wolf grows through five stages, earns its alpha form in battle and can be ridden (DIRE-1 to DIRE-13, RIDE-1 to RIDE-9) |
 | Dogs with a nose | A dog tracks a scent to a mob, an ore, a dig site or a treasure map's X (NOSE-1 to NOSE-12). No other dog mod tracks structures or map targets |
 | Point and command | Look at something and send your dog to it, with no menu (POINT-1 to POINT-8) |
-| Learning by doing | Dogs learn tricks the way real dogs do, by being rewarded for what they already do (TRICK-1 to TRICK-7) |
+| Learning by doing | Dogs learn tricks the way real dogs do, by being rewarded for what they already do (TRICK-1 to TRICK-8) |
 | Sled teams | Up to six dogs pull a sled, and team size and surface decide speed (SLED-1 to SLED-11) |
 | Real inheritance | Coats, eyes and personality come from genes with dominant and carried alleles (FAM-9 to FAM-15) |
 
@@ -633,6 +633,7 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 | TRICK-5 | Learned tricks are never forgotten, through death and resurrection |
 | TRICK-6 | How fast a pup learns depends on its parents (AGE-3) |
 | TRICK-7 | Advancements reward a first trick and all three |
+| TRICK-8 | A dog stays put until its trick ends. A busy dog, such as one pulling a sled, ridden, fighting, fetching or asleep, never starts a trick on its own, and the Actions ring says it is busy |
 
 **Not supported:** teaching another player's dog; tricks on demand without learning them.
 

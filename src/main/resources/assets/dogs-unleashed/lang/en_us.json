@@ -582,6 +582,7 @@
   "message.dogs-unleashed.trick_learned": "%s learned a new trick: %s!",
   "message.dogs-unleashed.trick_shown": "%s is showing off: %s",
   "screen.dogs-unleashed.command_wheel.trick.sleeping": "Too sleepy for tricks",
+  "screen.dogs-unleashed.command_wheel.trick.busy": "Too busy for tricks",
   "advancements.dogs-unleashed.good_dog.title": "Good Dog!",
   "advancements.dogs-unleashed.good_dog.description": "Reward your dog with a Dog Treat to teach it its first trick.",
   "advancements.dogs-unleashed.show_dog.title": "Show Dog",

@@ -11,11 +11,17 @@ import com.grahambartley.dogsunleashed.entity.expedition.DogExpeditions;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -23,6 +29,9 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 
 class DogTrickTest {
+
+  private static final Path ANIMATIONS =
+      Path.of("src/client/resources/assets/dogs-unleashed/animations");
 
   @ParameterizedTest(name = "{0} is saved as {1}, plays {2} and sits in wheel slot {3}")
   @CsvSource({
@@ -77,6 +86,40 @@ class DogTrickTest {
               .getAsJsonObject("conditions")
               .get("min_learned")
               .getAsInt());
+    }
+  }
+
+  @ParameterizedTest
+  @EnumSource(DogTrick.class)
+  @DisplayName("each trick lasts exactly as long as its longest clip on any rig")
+  void lastsAsLongAsItsLongestClip(final DogTrick trick) throws IOException {
+    final List<Double> seconds = clipSeconds(trick);
+    assertFalse(seconds.isEmpty());
+    final double longest = seconds.stream().mapToDouble(Double::doubleValue).max().orElseThrow();
+    assertEquals((int) Math.ceil(longest * 20), trick.durationTicks());
+  }
+
+  @ParameterizedTest(name = "{0} started at {1} ends at {2}")
+  @CsvSource({"BEG, 0, 48", "ROLL_OVER, 100, 176", "PLAY_DEAD, 1000, 1104"})
+  @DisplayName("a trick ends its length after it starts")
+  void endsAfterItsLength(final DogTrick trick, final long startedAt, final long endsAt) {
+    assertEquals(endsAt, trick.endsAt(startedAt));
+  }
+
+  private static List<Double> clipSeconds(final DogTrick trick) throws IOException {
+    try (Stream<Path> files = Files.list(ANIMATIONS)) {
+      final List<Double> seconds = new ArrayList<>();
+      for (final Path file : files.filter(f -> f.toString().endsWith(".animation.json")).toList()) {
+        try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
+          final JsonObject clips =
+              JsonParser.parseReader(reader).getAsJsonObject().getAsJsonObject("animations");
+          if (clips.has(trick.animationKey())) {
+            seconds.add(
+                clips.getAsJsonObject(trick.animationKey()).get("animation_length").getAsDouble());
+          }
+        }
+      }
+      return seconds;
     }
   }
 }

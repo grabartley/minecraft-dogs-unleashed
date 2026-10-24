@@ -11,6 +11,7 @@ public final class DogTrickWheelActions {
 
   public static final String ASLEEP_REFUSAL_KEY =
       "screen.dogs-unleashed.command_wheel.trick.sleeping";
+  public static final String BUSY_REFUSAL_KEY = "screen.dogs-unleashed.command_wheel.trick.busy";
 
   private DogTrickWheelActions() {}
 
@@ -25,13 +26,16 @@ public final class DogTrickWheelActions {
         trick.wheelActionId(),
         trick.translationKey(),
         Identifier.of(trick.iconItemId()),
-        (dog, player) -> refusalKey(dog),
+        (dog, player) -> refusalKey(tricksOf(dog).readiness()),
         (dog, player) -> tricksOf(dog).perform(trick),
         dog -> tricksOf(dog).progress().isLearned(trick));
   }
 
-  private static @Nullable String refusalKey(final UnleashedDogEntity dog) {
-    return dog.getSleepController().isAsleep() ? ASLEEP_REFUSAL_KEY : null;
+  static @Nullable String refusalKey(final TrickReadiness readiness) {
+    if (readiness.asleep()) {
+      return ASLEEP_REFUSAL_KEY;
+    }
+    return readiness.mayStart() ? null : BUSY_REFUSAL_KEY;
   }
 
   private static DogTricks tricksOf(final UnleashedDogEntity dog) {

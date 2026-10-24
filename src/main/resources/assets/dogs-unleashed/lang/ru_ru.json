@@ -582,6 +582,7 @@
   "message.dogs-unleashed.trick_learned": "%s выучил новый трюк: %s!",
   "message.dogs-unleashed.trick_shown": "%s показывает трюк: %s",
   "screen.dogs-unleashed.command_wheel.trick.sleeping": "Слишком сонный для трюков",
+  "screen.dogs-unleashed.command_wheel.trick.busy": "Слишком занят для трюков",
   "advancements.dogs-unleashed.good_dog.title": "Хороший пёс!",
   "advancements.dogs-unleashed.good_dog.description": "Наградите собаку собачьим лакомством, чтобы научить её первому трюку.",
   "advancements.dogs-unleashed.show_dog.title": "Выставочная собака",
