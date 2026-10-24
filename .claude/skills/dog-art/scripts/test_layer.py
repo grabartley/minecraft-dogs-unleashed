@@ -36,6 +36,15 @@ class Layer(unittest.TestCase):
         for channel in ([1, 2, 3], "math.sin(query.anim_time)", 5):
             self.assertEqual(layer.tile(channel, 1.0, 3.0), channel)
 
+    def test_only_a_map_of_numeric_times_counts_as_keyed(self):
+        for channel, expected in (({"0": [0, 0, 0]}, True), ({"0.0": [0, 0, 0], "1.5": [1, 0, 0]}, True),
+                                  ({}, False), ({"vector": [0, 0, 0]}, False), ([0, 0, 0], False), ("math.sin(1)", False)):
+            self.assertEqual(layer.is_keyed(channel), expected)
+
+    def test_a_base_without_length_is_not_tiled(self):
+        for period in (0, 0.0, -1):
+            self.assertEqual(layer.tile(BASE["bones"]["tail"]["rotation"], period, 3.0), BASE["bones"]["tail"]["rotation"])
+
     def test_clip_length_falls_back_to_the_last_key(self):
         for clip, length in (({"animation_length": 2.4, "bones": {}}, 2.4), ({"bones": {"a": {"rotation": {"0": [0, 0, 0], "1.5": [0, 0, 0]}}}}, 1.5), ({"bones": {}}, 0.0)):
             self.assertEqual(layer.clip_length(clip), length)

@@ -46,6 +46,21 @@ class Layout(unittest.TestCase):
             self.assertEqual(spliced["animations"]["idle"]["bones"]["tail"], {"rotation": [9, 9, 9]})
             self.assertEqual(spliced["animations"]["walk"]["bones"]["tail"], {"rotation": walk_tail})
 
+    def test_dropping_with_clips_drops_only_inside_those_clips(self):
+        shipped = {"animations": {"idle": {"bones": {"old": {"rotation": [1, 0, 0]}}},
+                                  "walk": {"bones": {"old": {"rotation": [2, 0, 0]}}}}}
+        exported = {"animations": {"idle": {"bones": {}}, "walk": {"bones": {}}}}
+        spliced = layout.splice_tracks(shipped, exported, ["tail"], dropped=["old"], clips=["idle"])
+        self.assertEqual(spliced["animations"]["idle"]["bones"], {})
+        self.assertEqual(spliced["animations"]["walk"]["bones"], {"old": {"rotation": [2, 0, 0]}})
+
+    def test_a_clip_missing_from_either_file_is_refused(self):
+        for shipped_clips, exported_clips in ((["idle"], ["idle", "beg"]), (["idle", "beg"], ["idle"])):
+            shipped = {"animations": {name: {"bones": {}} for name in shipped_clips}}
+            exported = {"animations": {name: {"bones": {}} for name in exported_clips}}
+            with self.assertRaisesRegex(ValueError, "beg"):
+                layout.splice_tracks(shipped, exported, ["tail"], clips=["idle", "beg"])
+
 
 if __name__ == "__main__":
     unittest.main()

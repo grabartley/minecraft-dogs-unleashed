@@ -46,6 +46,10 @@ def text_like(path, data, writer, default_newline="\n"):
 
 
 def splice_tracks(shipped, exported, bones, dropped=(), clips=None):
+    if clips is not None:
+        missing = [name for name in clips if name not in shipped["animations"] or name not in exported.get("animations", {})]
+        if missing:
+            raise ValueError(f"no such clips: {', '.join(missing)}")
     for name, clip in shipped["animations"].items():
         if clips is not None and name not in clips:
             continue

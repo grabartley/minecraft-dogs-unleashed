@@ -233,12 +233,19 @@ def cmd_tidygeo(args):
 
 
 def cmd_animexport(args):
+    if args.clips and not args.bones:
+        print("--clips needs --bones", file=sys.stderr)
+        return 1
     exported = anim.export_animations(anim.load_project(args.project), args.step)
     if args.bones:
         bones = args.bones.split(",")
         with open(args.out) as handle:
-            exported = layout.splice_tracks(json.load(handle), exported, bones, args.drop.split(",") if args.drop else (),
-                                            args.clips.split(",") if args.clips else None)
+            try:
+                exported = layout.splice_tracks(json.load(handle), exported, bones, args.drop.split(",") if args.drop else (),
+                                                args.clips.split(",") if args.clips else None)
+            except ValueError as error:
+                print(error, file=sys.stderr)
+                return 1
         print(f"spliced {', '.join(bones)} into {args.out}")
     text = layout.text_like(args.out, exported, layout.animation_text)
     with open(args.out, "w") as handle:
@@ -270,7 +277,8 @@ def cmd_animimport(args):
 
 def cmd_animlayer(args):
     with open(args.animations) as handle:
-        animations = json.load(handle)["animations"]
+        source = json.load(handle)
+    animations = source["animations"]
     clips = args.clips.split(",")
     bases = args.over.split(",")
     missing = [name for name in clips + bases if name not in animations]
@@ -278,7 +286,8 @@ def cmd_animlayer(args):
         print(f"no such clips: {', '.join(missing)}", file=sys.stderr)
         return 1
     with open(args.out, "w") as handle:
-        handle.write(layout.animation_text({"format_version": "1.8.0", "animations": layer.composites(animations, clips, bases)}))
+        header = {key: value for key, value in source.items() if key != "animations"}
+        handle.write(layout.animation_text({**header, "animations": layer.composites(animations, clips, bases)}))
     for name in clips:
         for base in bases:
             channels = layer.inherited(animations[name], animations[base])
