@@ -304,7 +304,7 @@ class UnleashedDogBreedTest {
         Arguments.of(UnleashedDogBreed.SHIBA_INU, DogFurStage.NATURAL, 180000, 2),
         Arguments.of(UnleashedDogBreed.PINSCHER, DogFurStage.SHAGGY, 216000, 1),
         Arguments.of(UnleashedDogBreed.DIRE_WOLF, DogFurStage.OVERGROWN, 144000, 2),
-        Arguments.of(UnleashedDogBreed.BEAGLE, DogFurStage.SHAGGY, 216000, 1),
+        Arguments.of(UnleashedDogBreed.BEAGLE, DogFurStage.NATURAL, 216000, 1),
         Arguments.of(UnleashedDogBreed.DACHSHUND, DogFurStage.NATURAL, 216000, 1),
         Arguments.of(UnleashedDogBreed.CROSS_BREED, DogFurStage.SHAGGY, 180000, 1));
   }

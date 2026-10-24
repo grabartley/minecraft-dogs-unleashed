@@ -140,6 +140,19 @@ public final class DogFurGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void aBeagleSavedShaggySettlesToNatural(final TestContext context) {
+    final UnleashedDogEntity dog = wildAdult(context, DogTestData.BEAGLE);
+    seed(dog, DogFurStage.SHAGGY, 0);
+
+    tick(dog, 1);
+
+    context.assertTrue(
+        dog.getFur().stage() == DogFurStage.NATURAL,
+        "A beagle saved shaggy settles to natural, was " + dog.getFur().stage());
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
   public void aPuppyKeepsItsCoat(final TestContext context) {
     final UnleashedDogEntity puppy = wildAdult(context, DogTestData.HUSKY);
     puppy.setBaby(true);

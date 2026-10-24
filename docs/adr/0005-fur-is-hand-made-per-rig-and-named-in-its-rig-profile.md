@@ -25,6 +25,6 @@ Armour, pendants and carried items moved onto the same profile in this change. A
 
 Fur looks as good as the artist can make it, and a new breed gets fur by adding bones to its rig and listing them in its profile, with no code change. A test fails if a profile names a bone the rig does not have or an overlay that does not ship.
 
-The cost is art time: shaggy and overgrown fur bones and two overlays for each of five breeds. Until a breed's art lands, its fur stages work in game (growth, trimming, the speed penalty, the drops and the advancement) but look like the natural coat.
+The cost is art time: fur bones up to each breed's longest coat, and two overlays for every breed. A breed whose coat stops at natural, such as the beagle, dachshund or shiba inu, needs no fur bones. Until a breed's art lands, its fur stages work in game (growth, trimming, the speed penalty, the drops and the advancement) but look like the natural coat.
 
 Profiles are data the build does not compile, so a typo in a bone name is only caught by the profile test, not by the compiler.

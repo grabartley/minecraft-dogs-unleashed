@@ -47,7 +47,7 @@ class DogFurRulesTest {
 
     final FurProfile blended = DogFurRules.profileFor(UnleashedDogBreed.CROSS_BREED, genome);
 
-    assertEquals(DogFurStage.OVERGROWN, blended.maxStage());
+    assertEquals(DogFurStage.SHAGGY, blended.maxStage());
     assertEquals(180000, blended.baseTicksPerStage());
     assertEquals(2, blended.shearYieldPerStage());
   }
@@ -98,8 +98,8 @@ class DogFurRulesTest {
   }
 
   @Test
-  @DisplayName("a mostly beagle cross caps at shaggy like a beagle")
-  void mostlyBeagleCapsAtShaggy() {
+  @DisplayName("a mostly beagle cross caps at natural like a beagle")
+  void mostlyBeagleCapsAtNatural() {
     final DogGenome genome =
         new DogGenome(
             List.of(
@@ -112,7 +112,7 @@ class DogFurRulesTest {
             UnleashedDogBreed.BEAGLE);
 
     assertEquals(
-        DogFurStage.SHAGGY,
+        DogFurStage.NATURAL,
         DogFurRules.profileFor(UnleashedDogBreed.CROSS_BREED, genome).maxStage());
   }
 
@@ -187,7 +187,9 @@ class DogFurRulesTest {
         Arguments.of(94, DogFurStage.OVERGROWN, DogFurStage.SHAGGY),
         Arguments.of(95, DogFurStage.OVERGROWN, DogFurStage.OVERGROWN),
         Arguments.of(99, DogFurStage.OVERGROWN, DogFurStage.OVERGROWN),
-        Arguments.of(99, DogFurStage.SHAGGY, DogFurStage.SHAGGY));
+        Arguments.of(99, DogFurStage.SHAGGY, DogFurStage.SHAGGY),
+        Arguments.of(70, DogFurStage.NATURAL, DogFurStage.NATURAL),
+        Arguments.of(99, DogFurStage.NATURAL, DogFurStage.NATURAL));
   }
 
   @ParameterizedTest(name = "roll {0} capped at {1} -> {2}")
