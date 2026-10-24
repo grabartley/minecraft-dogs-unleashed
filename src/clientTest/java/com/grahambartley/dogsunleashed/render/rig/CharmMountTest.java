@@ -32,11 +32,15 @@ class CharmMountTest {
           FurCover.slotsCovered(false, false, false, false, Optional.empty(), false, true, true));
 
   private static Vector3f place(final String rig, final String mouth, final String animation) {
-    return place(rig, mouth, animation, DogFurStage.NATURAL);
+    return place(rig, mouth, animation, DogFurStage.NATURAL, true);
   }
 
   private static Vector3f place(
-      final String rig, final String mouth, final String animation, final DogFurStage stage) {
+      final String rig,
+      final String mouth,
+      final String animation,
+      final DogFurStage stage,
+      final boolean headRefuses) {
     final BakedGeoModel dog = ShippedRigs.model(rig);
     final CollarBandLocator.CollarSpot spot =
         CollarBandLocator.locate(dog, mouth, ShippedRigs.collarMask(rig)).orElseThrow();
@@ -56,7 +60,7 @@ class CharmMountTest {
         CharmMount.clearanceInBone(
             PoseClearance.liveBoxesOf(dog, sides.body()),
             List.of(),
-            () -> PoseClearance.liveBoxesOf(dog, sides.head()),
+            headRefuses ? () -> PoseClearance.liveBoxesOf(dog, sides.head()) : List::of,
             boneToModel,
             charmToBone,
             charm,
@@ -74,15 +78,19 @@ class CharmMountTest {
         name -> dog.getBone(name).map(GeoBone::getParent).map(GeoBone::getName).orElse(null));
   }
 
-  @ParameterizedTest(name = "{0} {3}")
-  @CsvSource({"husky, snout, rest, SHAGGY", "husky, snout, rest, OVERGROWN"})
-  @DisplayName("a charm comes forward over the chest fur drawn at that stage")
-  void drawnChestFurPushesTheCharmClear(
+  @ParameterizedTest(name = "{0} {2} {3}")
+  @CsvSource({
+    "husky, snout, rest, SHAGGY",
+    "husky, snout, rest, OVERGROWN",
+    "husky, snout, sit, SHAGGY",
+    "husky, snout, sit, OVERGROWN",
+    "husky, snout, howl_sit, SHAGGY",
+    "husky, snout, howl_sit, OVERGROWN"
+  })
+  @DisplayName("chest fur grows below and behind the charm, so the charm hangs clear of it")
+  void chestFurLeavesTheCharmClear(
       final String rig, final String mouth, final String pose, final DogFurStage stage) {
-    final Vector3f push = place(rig, mouth, pose, stage);
-
-    assertTrue(push.length() > 0.0f, rig + " should have needed a push over its " + stage + " fur");
-    assertTrue(push.length() < 1.5f / MODEL_UNITS_PER_BLOCK, rig + " pushed too far: " + push);
+    assertEquals(0.0f, place(rig, mouth, pose, stage, false).length(), EPSILON);
   }
 
   @ParameterizedTest(name = "{0} {2}")
