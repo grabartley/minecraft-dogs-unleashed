@@ -4,6 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import com.grahambartley.dogsunleashed.render.rig.RigProfile.Slot;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,8 +25,17 @@ class CharmMountTest {
   private static final float EPSILON = 1.0e-5f;
   private static final float MODEL_UNITS_PER_BLOCK = 16.0f;
 
+  private static final RigProfiles BUNDLED = new RigProfiles(RigProfiles::openBundled);
+
+  private static BakedGeoModel naturalCoat(final String rig) {
+    final RigProfile profile = BUNDLED.profileOf(UnleashedDogBreed.fromSerializedIdOrNull(rig));
+    final Set<String> fur = new HashSet<>(profile.bonesIn(Slot.FUR_SHAGGY));
+    fur.addAll(profile.bonesIn(Slot.FUR_OVERGROWN));
+    return ShippedRigs.modelWithout(rig, fur);
+  }
+
   private static Vector3f place(final String rig, final String mouth, final String animation) {
-    final BakedGeoModel dog = ShippedRigs.model(rig);
+    final BakedGeoModel dog = naturalCoat(rig);
     final CollarBandLocator.CollarSpot spot =
         CollarBandLocator.locate(dog, mouth, ShippedRigs.collarMask(rig)).orElseThrow();
     final CharmMount.Sides sides = CharmMount.sidesOf(dog, spot, mouth);
