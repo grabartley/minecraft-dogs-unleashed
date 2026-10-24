@@ -111,7 +111,7 @@ public enum UnleashedDogBreed {
           false),
       false,
       new RenderTransforms(1.5f, 0.75f, 0.0f, 0.88f),
-      new FurProfile(DogFurStage.OVERGROWN, 180000, 2),
+      new FurProfile(DogFurStage.NATURAL, 180000, 2),
       Nature.ORDINARY),
   DIRE_WOLF(
       "direwolf",

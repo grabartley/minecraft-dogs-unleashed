@@ -53,6 +53,45 @@ class DogFurRulesTest {
   }
 
   @Test
+  @DisplayName("a half husky, half shiba inu caps at shaggy, since the shiba inu stops at natural")
+  void huskyShibaCrossCapsAtShaggy() {
+    final DogGenome genome =
+        new DogGenome(
+            List.of(
+                new BreedShare(UnleashedDogBreed.HUSKY, 0.5f),
+                new BreedShare(UnleashedDogBreed.SHIBA_INU, 0.5f)),
+            20.0,
+            0.3,
+            4.0,
+            DogGenome.BASELINE_FUR_GROWTH_RATE,
+            UnleashedDogBreed.HUSKY);
+
+    final FurProfile blended = DogFurRules.profileFor(UnleashedDogBreed.CROSS_BREED, genome);
+
+    assertEquals(DogFurStage.SHAGGY, blended.maxStage());
+    assertEquals(162000, blended.baseTicksPerStage());
+    assertEquals(2, blended.shearYieldPerStage());
+  }
+
+  @ParameterizedTest(name = "{0} capped at {1} settles to {2}")
+  @CsvSource({
+    "OVERGROWN, NATURAL, NATURAL",
+    "SHAGGY, NATURAL, NATURAL",
+    "NATURAL, NATURAL, NATURAL",
+    "TRIMMED, NATURAL, TRIMMED",
+    "BOTCHED, NATURAL, BOTCHED",
+    "OVERGROWN, SHAGGY, SHAGGY",
+    "SHAGGY, SHAGGY, SHAGGY",
+    "NATURAL, SHAGGY, NATURAL",
+    "TRIMMED, SHAGGY, TRIMMED",
+    "BOTCHED, SHAGGY, BOTCHED"
+  })
+  @DisplayName("a coat above its breed's cap settles to the cap and any other coat stays put")
+  void settledStage(final DogFurStage stage, final DogFurStage cap, final DogFurStage expected) {
+    assertEquals(expected, DogFurRules.settledStage(stage, cap));
+  }
+
+  @Test
   @DisplayName("a mostly beagle cross caps at shaggy like a beagle")
   void mostlyBeagleCapsAtShaggy() {
     final DogGenome genome =
