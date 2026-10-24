@@ -45,13 +45,22 @@ def text_like(path, data, writer, default_newline="\n"):
     return writer(data, newline)
 
 
-def splice_tracks(shipped, exported, bones, dropped=()):
+def splice_tracks(shipped, exported, bones, dropped=(), clips=None):
     for name, clip in shipped["animations"].items():
-        tracks = clip.setdefault("bones", {})
-        for bone in [b for b in tracks if b in bones or b in dropped]:
-            del tracks[bone]
-        for bone in bones:
-            track = exported.get("animations", {}).get(name, {}).get("bones", {}).get(bone)
-            if track:
+        if clips is not None and name not in clips:
+            continue
+        old = clip.get("bones", {})
+        new = exported.get("animations", {}).get(name, {}).get("bones", {})
+        tracks = {}
+        for bone, track in old.items():
+            if bone in dropped:
+                continue
+            if bone not in bones:
                 tracks[bone] = track
+            elif new.get(bone):
+                tracks[bone] = new[bone]
+        for bone in bones:
+            if bone not in tracks and new.get(bone):
+                tracks[bone] = new[bone]
+        clip["bones"] = tracks
     return shipped

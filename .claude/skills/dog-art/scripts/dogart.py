@@ -12,7 +12,7 @@ Commands:
   patch      base.png block.txt out.png --at U V
   tobbmodel  geo png out.bbmodel [--name N]
   geocompare a.geo.json b.geo.json [--tolerance T]
-  animexport project.bbmodel out.animation.json [--step S] [--bones a,b [--drop c]]
+  animexport project.bbmodel out.animation.json [--step S] [--bones a,b [--drop c] [--clips d,e]]
   animimport project.bbmodel in.animation.json out.bbmodel [--replace]
   tidygeo    in.geo.json out.geo.json [--places N] [--identifier ID]
   textures   project.bbmodel out_dir [--only name ...]
@@ -235,7 +235,8 @@ def cmd_animexport(args):
     if args.bones:
         bones = args.bones.split(",")
         with open(args.out) as handle:
-            exported = layout.splice_tracks(json.load(handle), exported, bones, args.drop.split(",") if args.drop else ())
+            exported = layout.splice_tracks(json.load(handle), exported, bones, args.drop.split(",") if args.drop else (),
+                                            args.clips.split(",") if args.clips else None)
         print(f"spliced {', '.join(bones)} into {args.out}")
     text = layout.text_like(args.out, exported, layout.animation_text)
     with open(args.out, "w") as handle:
@@ -363,6 +364,7 @@ def main(argv=None):
     p.add_argument("--step", type=float, default=0.05, help="seconds between baked keys for catmullrom channels")
     p.add_argument("--bones", help="comma-separated bones whose tracks replace the ones in the existing out file; every other track stays")
     p.add_argument("--drop", help="comma-separated bones to remove from the existing out file, such as renamed ones")
+    p.add_argument("--clips", help="comma-separated clips to splice into; every other clip stays as it is")
     p.set_defaults(func=cmd_animexport)
 
     p = commands.add_parser("textures")

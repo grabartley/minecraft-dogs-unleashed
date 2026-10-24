@@ -54,8 +54,9 @@ maps, checks and diffs the exports. The workflow is:
    draws the project convention correctly. The older breeds' projects started without clips;
    `python3 $D animimport project.bbmodel <repo animation path> out.bbmodel` loads the shipped
    clips into a copy of a project so they can be rendered and edited there. When only some bones'
-   keys changed, `animexport ... --bones a,b [--drop old]` replaces just those tracks in the
-   shipped file and keeps the rest and its layout as they were.
+   keys changed, `animexport ... --bones a,b [--drop old] [--clips c,d]` replaces just those tracks in the
+   shipped file, only in the named clips when `--clips` is given, and keeps the rest and its
+   layout as they were.
 6. Textures live in the project too. Every coat is a texture in the project, all on the same UV
    layout. The MCP only reads files under `~/blockbench`, so put edited sheets in the rig's
    `coats/` folder and add them with `bbmodel_add_texture`. Pass the model's top-level groups as
@@ -86,7 +87,7 @@ ever committed. `.gitignore` refuses them.
 | `tobbmodel geo png out.bbmodel` | A Blockbench project of a shipped rig with its texture embedded | instant |
 | `geocompare a.geo.json b.geo.json` | Bone-by-bone, cube-by-cube numeric diff of two rigs, including floored box UV sizes | instant |
 | `tidygeo in.geo.json out.geo.json [--identifier ID]` | Round an MCP export's float noise away and write it in the target file's layout | instant |
-| `animexport project.bbmodel out.json [--step S] [--bones a,b]` | GeckoLib animation JSON from a project's clips, sign-corrected and spline-baked, or just some bones' tracks spliced into the shipped file | instant |
+| `animexport project.bbmodel out.json [--step S] [--bones a,b] [--clips c,d]` | GeckoLib animation JSON from a project's clips, sign-corrected and spline-baked, or just some bones' tracks spliced into the shipped file | instant |
 | `textures project.bbmodel out_dir [--only coat ...]` | The coat sheets embedded in a project, written back as PNGs | instant |
 
 It needs nothing but the system Python, and it is split by concern: `pngio.py`, `bake.py`,
