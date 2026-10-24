@@ -73,6 +73,10 @@ public final class DogFurRules {
     return botched ? full * BOTCHED_YIELD_MULTIPLIER : full;
   }
 
+  public static DogFurStage savedStage(final int savedOrdinal, final DogFurStage maxStage) {
+    return DogFurStage.fromOrdinal(savedOrdinal).atMost(maxStage);
+  }
+
   public static DogFurStage spawnStage(final int rollPercent, final DogFurStage maxStage) {
     final DogFurStage rolled;
     if (rollPercent < SPAWN_NATURAL_PERCENT) {

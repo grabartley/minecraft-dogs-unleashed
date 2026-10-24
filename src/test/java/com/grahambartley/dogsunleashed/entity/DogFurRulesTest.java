@@ -47,14 +47,14 @@ class DogFurRulesTest {
 
     final FurProfile blended = DogFurRules.profileFor(UnleashedDogBreed.CROSS_BREED, genome);
 
-    assertEquals(DogFurStage.OVERGROWN, blended.maxStage());
+    assertEquals(DogFurStage.SHAGGY, blended.maxStage());
     assertEquals(180000, blended.baseTicksPerStage());
     assertEquals(2, blended.shearYieldPerStage());
   }
 
   @Test
-  @DisplayName("a mostly beagle cross caps at shaggy like a beagle")
-  void mostlyBeagleCapsAtShaggy() {
+  @DisplayName("a mostly beagle cross caps at natural like a beagle")
+  void mostlyBeagleCapsAtNatural() {
     final DogGenome genome =
         new DogGenome(
             List.of(
@@ -67,7 +67,7 @@ class DogFurRulesTest {
             UnleashedDogBreed.BEAGLE);
 
     assertEquals(
-        DogFurStage.SHAGGY,
+        DogFurStage.NATURAL,
         DogFurRules.profileFor(UnleashedDogBreed.CROSS_BREED, genome).maxStage());
   }
 
@@ -142,7 +142,10 @@ class DogFurRulesTest {
         Arguments.of(94, DogFurStage.OVERGROWN, DogFurStage.SHAGGY),
         Arguments.of(95, DogFurStage.OVERGROWN, DogFurStage.OVERGROWN),
         Arguments.of(99, DogFurStage.OVERGROWN, DogFurStage.OVERGROWN),
-        Arguments.of(99, DogFurStage.SHAGGY, DogFurStage.SHAGGY));
+        Arguments.of(99, DogFurStage.SHAGGY, DogFurStage.SHAGGY),
+        Arguments.of(0, DogFurStage.NATURAL, DogFurStage.NATURAL),
+        Arguments.of(70, DogFurStage.NATURAL, DogFurStage.NATURAL),
+        Arguments.of(99, DogFurStage.NATURAL, DogFurStage.NATURAL));
   }
 
   @ParameterizedTest(name = "roll {0} capped at {1} -> {2}")
@@ -150,5 +153,22 @@ class DogFurRulesTest {
   @DisplayName("wild adults roll 70% natural, 25% shaggy, 5% overgrown, capped by breed")
   void spawnStage(final int roll, final DogFurStage cap, final DogFurStage expected) {
     assertEquals(expected, DogFurRules.spawnStage(roll, cap));
+  }
+
+  @ParameterizedTest(name = "saved {0} capped at {1} -> {2}")
+  @CsvSource({
+    "3, NATURAL, NATURAL",
+    "4, NATURAL, NATURAL",
+    "2, NATURAL, NATURAL",
+    "1, NATURAL, TRIMMED",
+    "0, NATURAL, BOTCHED",
+    "4, SHAGGY, SHAGGY",
+    "4, OVERGROWN, OVERGROWN",
+    "9, OVERGROWN, NATURAL",
+    "-1, SHAGGY, NATURAL"
+  })
+  @DisplayName("a saved coat loads at most at the breed's max stage")
+  void savedStage(final int savedOrdinal, final DogFurStage cap, final DogFurStage expected) {
+    assertEquals(expected, DogFurRules.savedStage(savedOrdinal, cap));
   }
 }

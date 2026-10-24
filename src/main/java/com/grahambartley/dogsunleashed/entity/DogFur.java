@@ -165,7 +165,8 @@ public final class DogFur {
       this.syncSpeedModifier();
       return;
     }
-    this.setStage(DogFurStage.fromOrdinal(nbt.getInt(ModNbtKeys.FUR_STAGE)));
+    this.setStage(
+        DogFurRules.savedStage(nbt.getInt(ModNbtKeys.FUR_STAGE), this.profile().maxStage()));
     this.ticksInStage = Math.max(0, nbt.getInt(ModNbtKeys.FUR_TICKS_IN_STAGE));
   }
 

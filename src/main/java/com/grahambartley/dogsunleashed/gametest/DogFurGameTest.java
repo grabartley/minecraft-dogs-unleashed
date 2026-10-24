@@ -70,13 +70,17 @@ public final class DogFurGameTest implements FabricGameTest {
 
   private static void testGrows(final TestContext context, final DogTestData data) {
     final UnleashedDogEntity dog = wildAdult(context, data);
-    seed(dog, DogFurStage.NATURAL, ticksPerStage(dog, DogFurStage.NATURAL) - TICKS_BEFORE_DUE);
+    final DogFurStage from =
+        dog.getFur().profile().maxStage().ordinal() > DogFurStage.NATURAL.ordinal()
+            ? DogFurStage.NATURAL
+            : DogFurStage.TRIMMED;
+    seed(dog, from, ticksPerStage(dog, from) - TICKS_BEFORE_DUE);
 
     tick(dog, TICKS_RUN);
 
     context.assertTrue(
-        dog.getFur().stage() == DogFurStage.SHAGGY,
-        data.breed() + " should be shaggy once its stage time is up, was " + dog.getFur().stage());
+        dog.getFur().stage() == from.next(),
+        data.breed() + " should grow to " + from.next() + ", was " + dog.getFur().stage());
     final boolean capped = dog.getFur().stage() == dog.getFur().profile().maxStage();
     context.assertEquals(
         dog.getFur().ticksInStage(),
@@ -308,6 +312,22 @@ public final class DogFurGameTest implements FabricGameTest {
             .getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED)
             .hasModifier(DogFur.OVERGROWN_SPEED_MODIFIER_ID),
         "The overgrown penalty comes back with the coat");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void aBeagleSavedShaggyLoadsNatural(final TestContext context) {
+    final UnleashedDogEntity beagle = wildAdult(context, DogTestData.BEAGLE);
+    final NbtCompound saved = new NbtCompound();
+    beagle.writeCustomDataToNbt(saved);
+    saved.putInt(ModNbtKeys.FUR_STAGE, DogFurStage.SHAGGY.ordinal());
+
+    final UnleashedDogEntity reloaded = wildAdult(context, DogTestData.BEAGLE);
+    reloaded.readCustomDataFromNbt(saved);
+
+    context.assertTrue(
+        reloaded.getFur().stage() == DogFurStage.NATURAL,
+        "A beagle saved shaggy settles to natural, was " + reloaded.getFur().stage());
     context.complete();
   }
 

@@ -75,7 +75,7 @@ public enum UnleashedDogBreed {
           false, () -> ModSounds.BEAGLE_BARK, () -> ModSounds.BEAGLE_ALERT, null, null, false),
       false,
       new RenderTransforms(1.5f, 0.75f, 0.0f, 0.88f),
-      new FurProfile(DogFurStage.SHAGGY, 216000, 1),
+      new FurProfile(DogFurStage.NATURAL, 216000, 1),
       Nature.ORDINARY.trackingScentUpTo(64)),
   GOLDEN_RETRIEVER(
       "goldenretriever",
