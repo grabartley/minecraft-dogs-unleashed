@@ -12,13 +12,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.stream.Stream;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 
@@ -31,8 +35,35 @@ class CharmMountTest {
       new FurCover(
           FurCover.slotsCovered(false, false, false, false, Optional.empty(), false, true, true));
 
+  private static final BiFunction<BakedGeoModel, Set<String>, List<PoseClearance.Box>>
+      HEAD_REFUSES = PoseClearance::liveBoxesOf;
+
+  private static final BiFunction<BakedGeoModel, Set<String>, List<PoseClearance.Box>>
+      HEAD_IGNORED = (dog, bones) -> List.of();
+
+  private static final List<String> HUSKY_HEAD_UP_CLIPS =
+      List.of(
+          "rest",
+          "idle",
+          "walk",
+          "run",
+          "sit",
+          "howl",
+          "howl_sit",
+          "head_tilt",
+          "beg",
+          "cower",
+          "play_bow",
+          "play_dead",
+          "roll_over",
+          "shake",
+          "tug",
+          "tug_win");
+
+  private static final List<String> HUSKY_HEAD_DOWN_CLIPS = List.of("dig", "eat", "sniff", "sleep");
+
   private static Vector3f place(final String rig, final String mouth, final String animation) {
-    return place(rig, mouth, animation, DogFurStage.NATURAL, true);
+    return place(rig, mouth, animation, DogFurStage.NATURAL, HEAD_REFUSES);
   }
 
   private static Vector3f place(
@@ -40,7 +71,7 @@ class CharmMountTest {
       final String mouth,
       final String animation,
       final DogFurStage stage,
-      final boolean headRefuses) {
+      final BiFunction<BakedGeoModel, Set<String>, List<PoseClearance.Box>> head) {
     final BakedGeoModel dog = ShippedRigs.model(rig);
     final CollarBandLocator.CollarSpot spot =
         CollarBandLocator.locate(dog, mouth, ShippedRigs.collarMask(rig)).orElseThrow();
@@ -60,7 +91,7 @@ class CharmMountTest {
         CharmMount.clearanceInBone(
             PoseClearance.liveBoxesOf(dog, sides.body()),
             List.of(),
-            headRefuses ? () -> PoseClearance.liveBoxesOf(dog, sides.head()) : List::of,
+            () -> head.apply(dog, sides.head()),
             boneToModel,
             charmToBone,
             charm,
@@ -78,19 +109,35 @@ class CharmMountTest {
         name -> dog.getBone(name).map(GeoBone::getParent).map(GeoBone::getName).orElse(null));
   }
 
-  @ParameterizedTest(name = "{0} {2} {3}")
-  @CsvSource({
-    "husky, snout, rest, SHAGGY",
-    "husky, snout, rest, OVERGROWN",
-    "husky, snout, sit, SHAGGY",
-    "husky, snout, sit, OVERGROWN",
-    "husky, snout, howl_sit, SHAGGY",
-    "husky, snout, howl_sit, OVERGROWN"
-  })
-  @DisplayName("chest fur grows below and behind the charm, so the charm hangs clear of it")
-  void chestFurLeavesTheCharmClear(
-      final String rig, final String mouth, final String pose, final DogFurStage stage) {
-    assertEquals(0.0f, place(rig, mouth, pose, stage, false).length(), EPSILON);
+  private static Stream<Arguments> overFur(final List<String> clips) {
+    return clips.stream()
+        .flatMap(
+            clip ->
+                Stream.of(DogFurStage.SHAGGY, DogFurStage.OVERGROWN)
+                    .map(stage -> Arguments.of(clip, stage)));
+  }
+
+  static Stream<Arguments> huskyHeadUpOverFur() {
+    return overFur(HUSKY_HEAD_UP_CLIPS);
+  }
+
+  static Stream<Arguments> huskyHeadDownOverFur() {
+    return overFur(HUSKY_HEAD_DOWN_CLIPS);
+  }
+
+  @ParameterizedTest(name = "husky {0} {1}")
+  @MethodSource("huskyHeadUpOverFur")
+  @DisplayName("with the head up the husky's charm hangs clear of its chest fur")
+  void chestFurLeavesTheCharmClear(final String clip, final DogFurStage stage) {
+    assertEquals(0.0f, place("husky", "snout", clip, stage, HEAD_IGNORED).length(), EPSILON);
+  }
+
+  @ParameterizedTest(name = "husky {0} {1}")
+  @MethodSource("huskyHeadDownOverFur")
+  @DisplayName("with the head down the husky's charm stays at the collar and tucks into its fur")
+  void loweredHeadTucksTheCharmIntoTheFur(final String clip, final DogFurStage stage) {
+    assertTrue(place("husky", "snout", clip, stage, HEAD_IGNORED).length() > 0.0f, clip);
+    assertEquals(0.0f, place("husky", "snout", clip, stage, HEAD_REFUSES).length(), EPSILON);
   }
 
   @ParameterizedTest(name = "{0} {2}")
