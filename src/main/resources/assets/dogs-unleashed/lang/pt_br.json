@@ -580,7 +580,6 @@
   "trick.dogs-unleashed.roll_over": "Rolar",
   "trick.dogs-unleashed.play_dead": "Fingir de morto",
   "message.dogs-unleashed.trick_learned": "%s aprendeu um truque novo: %s!",
-  "message.dogs-unleashed.trick_shown": "%s está se exibindo: %s",
   "screen.dogs-unleashed.command_wheel.trick.sleeping": "Com sono demais para fazer truques",
   "screen.dogs-unleashed.command_wheel.trick.busy": "Ocupado demais para fazer truques",
   "advancements.dogs-unleashed.good_dog.title": "Bom Cachorro!",

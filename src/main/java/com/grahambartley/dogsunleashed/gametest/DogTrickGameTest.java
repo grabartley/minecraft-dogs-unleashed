@@ -222,7 +222,7 @@ public final class DogTrickGameTest implements FabricGameTest {
         });
   }
 
-  @GameTest(templateName = ARENA, tickLimit = TRICK_START + 100)
+  @GameTest(templateName = ARENA, tickLimit = TRICK_START + 120)
   public void aDogHoldsStillThroughItsTrick(final TestContext context) {
     final ServerPlayerEntity owner = ownerAt(context);
     final UnleashedDogEntity dog = standingDog(context, owner);

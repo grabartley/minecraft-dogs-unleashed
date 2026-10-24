@@ -20,14 +20,13 @@ import org.jetbrains.annotations.Nullable;
 public final class DogTricks extends DogComponent {
 
   public static final String LEARNED_MESSAGE_KEY = "message.dogs-unleashed.trick_learned";
-  public static final String SHOWN_MESSAGE_KEY = "message.dogs-unleashed.trick_shown";
 
   private final UnleashedDogEntity dog;
   private TrickProgress progress = TrickProgress.NONE;
   private @Nullable DogTrick offered;
   private long offeredAt = TrickLearningRules.NEVER;
   private @Nullable DogTrick performing;
-  private long performingUntil = TrickLearningRules.NEVER;
+  private long performingSince = TrickLearningRules.NEVER;
 
   DogTricks(final UnleashedDogEntity dog) {
     this.dog = dog;
@@ -56,7 +55,8 @@ public final class DogTricks extends DogComponent {
   }
 
   public boolean isPerforming() {
-    return this.performing != null && this.dog.getWorld().getTime() < this.performingUntil;
+    return this.performing != null
+        && this.performing.isRunning(this.performingSince, this.dog.getWorld().getTime());
   }
 
   public TrickReadiness readiness() {
@@ -75,16 +75,8 @@ public final class DogTricks extends DogComponent {
 
   public void perform(final DogTrick trick) {
     this.performing = trick;
-    this.performingUntil = trick.endsAt(this.dog.getWorld().getTime());
+    this.performingSince = this.dog.getWorld().getTime();
     this.dog.triggerAnim(trick.animationKey(), trick.animationKey());
-    if (this.dog.getOwner() instanceof PlayerEntity owner) {
-      owner.sendMessage(
-          Text.translatable(
-              SHOWN_MESSAGE_KEY,
-              PetNames.tamedNameOf(this.dog),
-              Text.translatable(trick.translationKey())),
-          true);
-    }
   }
 
   public boolean rewardOffered(final PlayerEntity player) {
@@ -115,11 +107,11 @@ public final class DogTricks extends DogComponent {
   }
 
   private void stopPerforming() {
-    if (this.performing != null && this.isPerforming()) {
+    if (this.isPerforming()) {
       this.dog.stopTriggeredAnim(this.performing.animationKey(), this.performing.animationKey());
     }
     this.performing = null;
-    this.performingUntil = TrickLearningRules.NEVER;
+    this.performingSince = TrickLearningRules.NEVER;
   }
 
   @Override

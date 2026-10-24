@@ -41,14 +41,14 @@ class TrickLearningRulesTest {
   }
 
   @ParameterizedTest(name = "roll {0} -> offer {1}")
-  @CsvSource({"0, true", "1, false", "3599, false"})
-  @DisplayName("a dog shows off about once every three minutes")
-  void rollsOneInThreeMinutes(final int roll, final boolean offers) {
+  @CsvSource({"0, true", "1, false", "11999, false"})
+  @DisplayName("a dog shows off about once every ten minutes")
+  void rollsOneInTenMinutes(final int roll, final boolean offers) {
     assertEquals(
         offers,
         TrickLearningRules.rollsOffer(
             bound -> {
-              assertEquals(3 * 60 * 20, bound);
+              assertEquals(10 * 60 * 20, bound);
               return roll;
             }));
   }

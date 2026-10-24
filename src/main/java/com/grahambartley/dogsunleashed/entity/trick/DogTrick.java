@@ -45,8 +45,10 @@ public enum DogTrick {
     return this.durationTicks;
   }
 
-  public long endsAt(final long startedAt) {
-    return startedAt + this.durationTicks;
+  public boolean isRunning(final long startedAt, final long now) {
+    return startedAt != TrickLearningRules.NEVER
+        && now >= startedAt
+        && now < startedAt + this.durationTicks;
   }
 
   public String translationKey() {

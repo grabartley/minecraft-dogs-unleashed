@@ -7,7 +7,7 @@ public record TrickReadiness(
     boolean fighting,
     boolean hurt,
     boolean inWater,
-    boolean onErrand,
+    boolean occupied,
     boolean performing) {
 
   public boolean interruptsTrick() {
@@ -20,6 +20,6 @@ public record TrickReadiness(
   }
 
   public boolean mayStart() {
-    return !this.interruptsTrick() && !this.onErrand && !this.performing;
+    return !this.interruptsTrick() && !this.occupied && !this.performing;
   }
 }

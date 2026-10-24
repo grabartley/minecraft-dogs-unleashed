@@ -57,7 +57,7 @@ class DogTrickWheelActionsTest {
     "fighting, " + DogTrickWheelActions.BUSY_REFUSAL_KEY,
     "hurt, " + DogTrickWheelActions.BUSY_REFUSAL_KEY,
     "inWater, " + DogTrickWheelActions.BUSY_REFUSAL_KEY,
-    "onErrand, " + DogTrickWheelActions.BUSY_REFUSAL_KEY,
+    "occupied, " + DogTrickWheelActions.BUSY_REFUSAL_KEY,
     "performing, " + DogTrickWheelActions.BUSY_REFUSAL_KEY
   })
   @DisplayName("a sleeping dog is too sleepy and any other busy dog is too busy")

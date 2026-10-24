@@ -99,11 +99,28 @@ class DogTrickTest {
     assertEquals((int) Math.ceil(longest * 20), trick.durationTicks());
   }
 
-  @ParameterizedTest(name = "{0} started at {1} ends at {2}")
-  @CsvSource({"BEG, 0, 48", "ROLL_OVER, 100, 176", "PLAY_DEAD, 1000, 1104"})
-  @DisplayName("a trick ends its length after it starts")
-  void endsAfterItsLength(final DogTrick trick, final long startedAt, final long endsAt) {
-    assertEquals(endsAt, trick.endsAt(startedAt));
+  @ParameterizedTest(name = "{0} started at {1} is running at {2}: {3}")
+  @CsvSource({
+    "BEG, 0, 0, true",
+    "BEG, 0, 47, true",
+    "BEG, 0, 48, false",
+    "ROLL_OVER, 100, 175, true",
+    "ROLL_OVER, 100, 176, false",
+    "PLAY_DEAD, 1000, 1103, true",
+    "PLAY_DEAD, 1000, 1104, false",
+    "PLAY_DEAD, 1000, 999, false"
+  })
+  @DisplayName("a trick runs for its length from the tick it starts")
+  void runsForItsLength(
+      final DogTrick trick, final long startedAt, final long now, final boolean running) {
+    assertEquals(running, trick.isRunning(startedAt, now));
+  }
+
+  @ParameterizedTest
+  @EnumSource(DogTrick.class)
+  @DisplayName("a trick that never started is not running")
+  void neverStartedIsNotRunning(final DogTrick trick) {
+    assertFalse(trick.isRunning(TrickLearningRules.NEVER, 0));
   }
 
   private static List<Double> clipSeconds(final DogTrick trick) throws IOException {

@@ -17,7 +17,7 @@ class TrickReadinessTest {
     "fighting, true, false",
     "hurt, true, false",
     "inWater, true, false",
-    "onErrand, false, false",
+    "occupied, false, false",
     "performing, false, false"
   })
   @DisplayName("each busy state blocks a new trick, and only the urgent ones stop a running one")
@@ -35,7 +35,7 @@ class TrickReadinessTest {
         state.equals("fighting"),
         state.equals("hurt"),
         state.equals("inWater"),
-        state.equals("onErrand"),
+        state.equals("occupied"),
         state.equals("performing"));
   }
 }
