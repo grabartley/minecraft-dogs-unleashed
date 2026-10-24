@@ -88,6 +88,7 @@ ever committed. `.gitignore` refuses them.
 |---|---|---|
 | `render geo png out --view left [--asleep] [--fur-stage shaggy]` | A quick textured look at an export from one angle, with no engine download | 0.2 s |
 | `turntable geo png out` | Left, three-quarter, front and top in one strip, for before and after pairs | 0.5 s |
+| `suit geo png sheet.png out [--atlas atlas.png] [--spin 180]` | A costume suit sheet projected onto the rig the way the game does, over the coat, as a turntable strip | 1 s |
 | `faces geo png --profile rig.json` | Which texture pixels are the snout top, the left ear, the belly | instant |
 | `uvmap geo png out --profile rig.json` | The same, drawn over the sheet in a colour per rig slot | instant |
 | `palette png` | Every colour, grouped by hue, sorted by tone, with counts | instant |
@@ -103,7 +104,7 @@ ever committed. `.gitignore` refuses them.
 | `textures project.bbmodel out_dir [--only coat ...]` | The coat sheets embedded in a project, written back as PNGs | instant |
 
 It needs nothing but the system Python, and it is split by concern: `pngio.py`, `bake.py`,
-`render.py`, `checks.py`, `bbmodel.py`, `anim.py`, `layer.py`, `layout.py`, each with its own `test_*.py`, and `dogart.py` as the
+`render.py`, `checks.py`, `bbmodel.py`, `anim.py`, `layer.py`, `layout.py`, `suit.py`, each with its own `test_*.py`, and `dogart.py` as the
 command line. The geometry follows GeckoLib 4.7's `BakedModelFactory` exactly: x mirrored, bone
 and cube x and y angles negated, box UV sizes floored, the first side patch on the model's +x
 face, the bottom face laid out front to back, mirrored cubes swapping their side patches and
@@ -122,6 +123,11 @@ from the animation file beside the geo, and keeps the open render's frame. Diff 
 `--asleep` render of the same view to see exactly what closing the eyes changes. Fur bones follow `--fur-stage` the way `FurLook` does in
 the client. Blockbench's renderer knows none of this, so a contact sheet of the project shows open
 eyes; render the `sleep` clip to see them closed.
+
+Review a costume suit sheet with `suit` on every rig before it goes in game. It fills each slot
+face from the sheet cell for its direction, as `OverlayProjector` does, uses the rig's
+`sheet_overrides`, and turns the directions by `--spin`, so pass `--spin 180` for the dachshund
+here too. It shows the suit only, not the costume's parts model.
 
 Views: `front`, `front34`, `left`, `right`, `back`, `back34`, `top`, or `--yaw` and `--pitch`.
 `left` is the dog's own left. The dachshund rig faces the other way (its body yaw offset is 180 in
