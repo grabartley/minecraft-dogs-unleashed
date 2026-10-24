@@ -19,7 +19,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class DogFurRulesTest {
 
-  private static final FurProfile HUSKY_PROFILE = new FurProfile(DogFurStage.OVERGROWN, 48000, 2);
+  private static final FurProfile HUSKY_PROFILE = new FurProfile(DogFurStage.OVERGROWN, 144000, 2);
 
   @ParameterizedTest(name = "{0}")
   @EnumSource(
@@ -48,7 +48,7 @@ class DogFurRulesTest {
     final FurProfile blended = DogFurRules.profileFor(UnleashedDogBreed.CROSS_BREED, genome);
 
     assertEquals(DogFurStage.OVERGROWN, blended.maxStage());
-    assertEquals(60000, blended.ticksPerStage());
+    assertEquals(180000, blended.baseTicksPerStage());
     assertEquals(2, blended.shearYieldPerStage());
   }
 
@@ -71,18 +71,30 @@ class DogFurRulesTest {
         DogFurRules.profileFor(UnleashedDogBreed.CROSS_BREED, genome).maxStage());
   }
 
-  @ParameterizedTest(name = "rate {0} at {1}% is {2} ticks")
-  @CsvSource({"1.0, 100, 48000", "2.0, 100, 24000", "1.0, 200, 24000", "0.5, 50, 192000"})
-  @DisplayName("ticks per stage divide by the genome rate and the config multiplier")
-  void ticksPerStageScales(final double rate, final int percent, final int expected) {
-    assertEquals(OptionalInt.of(expected), DogFurRules.ticksPerStage(HUSKY_PROFILE, rate, percent));
+  @ParameterizedTest(name = "from {0} at rate {1} and {2}% is {3} ticks")
+  @CsvSource({
+    "BOTCHED, 1.0, 100, 72000",
+    "TRIMMED, 1.0, 100, 144000",
+    "NATURAL, 1.0, 100, 216000",
+    "SHAGGY, 1.0, 100, 288000",
+    "NATURAL, 2.0, 100, 108000",
+    "SHAGGY, 1.0, 200, 144000",
+    "TRIMMED, 0.5, 50, 576000"
+  })
+  @DisplayName(
+      "ticks per stage scale the base by the stage, then divide by the genome rate and config")
+  void ticksPerStageScales(
+      final DogFurStage from, final double rate, final int percent, final int expected) {
+    assertEquals(
+        OptionalInt.of(expected), DogFurRules.ticksPerStage(HUSKY_PROFILE, from, rate, percent));
   }
 
   @ParameterizedTest(name = "rate {0} at {1}%")
   @CsvSource({"1.0, 0", "0.0, 100", "-1.0, 100"})
   @DisplayName("a zero multiplier or a non-positive rate freezes growth")
   void zeroFreezesGrowth(final double rate, final int percent) {
-    assertTrue(DogFurRules.ticksPerStage(HUSKY_PROFILE, rate, percent).isEmpty());
+    assertTrue(
+        DogFurRules.ticksPerStage(HUSKY_PROFILE, DogFurStage.TRIMMED, rate, percent).isEmpty());
   }
 
   @ParameterizedTest(name = "from {0} at {1}% is {2}%")
