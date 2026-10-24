@@ -4,13 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.render.rig.CubeGeometry;
-import com.grahambartley.dogsunleashed.render.rig.RigProfile;
-import com.grahambartley.dogsunleashed.render.rig.RigProfile.Slot;
-import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
 import com.grahambartley.dogsunleashed.render.rig.ShippedRigs;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import org.joml.Vector3f;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -63,14 +58,11 @@ class ArmourClearanceTest {
   }
 
   @ParameterizedTest(name = "{0}")
-  @CsvSource({"GOLDEN_RETRIEVER, goldenretriever", "DIRE_WOLF, direwolf"})
+  @CsvSource({"GOLDEN_RETRIEVER, goldenretriever", "DACHSHUND, dachshund", "DIRE_WOLF, direwolf"})
   @DisplayName("fur bones never widen the armour, so it fits as it would with no fur on the rig")
   void furNeverWidensArmour(final UnleashedDogBreed breed, final String rig) {
-    final RigProfile profile = RigProfiles.of(breed);
-    final Set<String> fur = new HashSet<>(profile.bonesIn(Slot.FUR_SHAGGY));
-    fur.addAll(profile.bonesIn(Slot.FUR_OVERGROWN));
     assertEquals(
-        ArmourClearance.inflationFor(ShippedRigs.modelWithout(rig, fur), breed).x,
+        ArmourClearance.inflationFor(ShippedRigs.naturalCoat(rig), breed).x,
         ArmourClearance.inflationFor(ShippedRigs.model(rig), breed).x,
         EPSILON);
   }

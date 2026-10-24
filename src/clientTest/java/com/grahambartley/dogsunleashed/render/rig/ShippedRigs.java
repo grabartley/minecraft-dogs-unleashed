@@ -3,6 +3,8 @@ package com.grahambartley.dogsunleashed.render.rig;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import com.grahambartley.dogsunleashed.render.rig.RigProfile.Slot;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +12,7 @@ import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -71,6 +74,13 @@ public final class ShippedRigs {
         BakedModelFactory.DEFAULT_FACTORY.constructGeoModel(GeometryTree.fromModel(raw));
     saveRestPose(baked.topLevelBones());
     return baked;
+  }
+
+  public static BakedGeoModel naturalCoat(final String name) {
+    final RigProfile profile = RigProfiles.of(UnleashedDogBreed.fromSerializedId(name));
+    final Set<String> fur = new HashSet<>(profile.bonesIn(Slot.FUR_SHAGGY));
+    fur.addAll(profile.bonesIn(Slot.FUR_OVERGROWN));
+    return modelWithout(name, fur);
   }
 
   public static Animation animation(final String rig, final String animationName) {

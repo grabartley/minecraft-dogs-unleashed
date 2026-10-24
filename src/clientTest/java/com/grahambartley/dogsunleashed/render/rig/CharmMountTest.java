@@ -4,9 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
-import com.grahambartley.dogsunleashed.render.rig.RigProfile.Slot;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,17 +22,12 @@ class CharmMountTest {
   private static final float EPSILON = 1.0e-5f;
   private static final float MODEL_UNITS_PER_BLOCK = 16.0f;
 
-  private static final RigProfiles BUNDLED = new RigProfiles(RigProfiles::openBundled);
-
-  private static BakedGeoModel naturalCoat(final String rig) {
-    final RigProfile profile = BUNDLED.profileOf(UnleashedDogBreed.fromSerializedIdOrNull(rig));
-    final Set<String> fur = new HashSet<>(profile.bonesIn(Slot.FUR_SHAGGY));
-    fur.addAll(profile.bonesIn(Slot.FUR_OVERGROWN));
-    return ShippedRigs.modelWithout(rig, fur);
+  private static Vector3f place(final String rig, final String mouth, final String animation) {
+    return place(ShippedRigs.naturalCoat(rig), rig, mouth, animation);
   }
 
-  private static Vector3f place(final String rig, final String mouth, final String animation) {
-    final BakedGeoModel dog = naturalCoat(rig);
+  private static Vector3f place(
+      final BakedGeoModel dog, final String rig, final String mouth, final String animation) {
     final CollarBandLocator.CollarSpot spot =
         CollarBandLocator.locate(dog, mouth, ShippedRigs.collarMask(rig)).orElseThrow();
     final CharmMount.Sides sides = CharmMount.sidesOf(dog, spot, mouth);
@@ -73,6 +65,18 @@ class CharmMountTest {
 
     assertTrue(push.length() > 0.0f, rig + " should have needed a push");
     assertTrue(push.length() < 1.5f / MODEL_UNITS_PER_BLOCK, rig + " pushed too far: " + push);
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @CsvSource({"sit"})
+  @DisplayName("a pendant on a shaggy dachshund comes forward clear of its chest fur, within reach")
+  void shaggyChestFurPushesTheCharmClear(final String pose) {
+    final BakedGeoModel shaggy = ShippedRigs.modelWithout("dachshund", Set.of("fur_shaggy_neck"));
+    final float natural = place("dachshund", "mouth", pose).length();
+    final float push = place(shaggy, "dachshund", "mouth", pose).length();
+
+    assertTrue(push > natural, "chest fur should push the charm further out: " + push);
+    assertTrue(push < 1.5f / MODEL_UNITS_PER_BLOCK, "pushed too far: " + push);
   }
 
   @ParameterizedTest(name = "{0} {2}")
