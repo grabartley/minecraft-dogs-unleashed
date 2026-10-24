@@ -13,7 +13,6 @@ public class ModSounds {
       registerSound("entity.goldenretriever.bark");
   public static final SoundEvent SHIBA_INU_BARK = registerSound("entity.shibainu.bark");
   public static final SoundEvent DIRE_WOLF_BARK = registerSound("entity.direwolf.bark");
-  public static final SoundEvent PINSCHER_BARK = registerSound("entity.pinscher.bark");
 
   public static final SoundEvent BEAGLE_ALERT = registerSound("entity.beagle.alert");
   public static final SoundEvent DACHSHUND_ALERT = registerSound("entity.dachshund.alert");
@@ -21,7 +20,6 @@ public class ModSounds {
       registerSound("entity.goldenretriever.alert");
   public static final SoundEvent SHIBA_INU_ALERT = registerSound("entity.shibainu.alert");
   public static final SoundEvent DIRE_WOLF_ALERT = registerSound("entity.direwolf.alert");
-  public static final SoundEvent PINSCHER_ALERT = registerSound("entity.pinscher.alert");
 
   public static final SoundEvent HUSKY_HOWL = registerSound("entity.husky.howl");
   public static final SoundEvent DIRE_WOLF_HOWL = registerSound("entity.direwolf.howl");

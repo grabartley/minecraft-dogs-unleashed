@@ -170,16 +170,6 @@ public class ModItems {
               UnleashedDogBreed.DIRE_WOLF.spawnEggColors().secondary(),
               new Item.Settings()));
 
-  public static final Item PINSCHER_SPAWN_EGG =
-      Registry.register(
-          Registries.ITEM,
-          Identifier.of(DogsUnleashed.MOD_ID, "pinscher_spawn_egg"),
-          new SpawnEggItem(
-              ModEntities.PINSCHER,
-              UnleashedDogBreed.PINSCHER.spawnEggColors().primary(),
-              UnleashedDogBreed.PINSCHER.spawnEggColors().secondary(),
-              new Item.Settings()));
-
   public static @Nullable Item getSpawnEgg(final UnleashedDogBreed breed) {
     return switch (breed) {
       case HUSKY -> HUSKY_SPAWN_EGG;
@@ -188,7 +178,6 @@ public class ModItems {
       case GOLDEN_RETRIEVER -> GOLDEN_RETRIEVER_SPAWN_EGG;
       case SHIBA_INU -> SHIBA_INU_SPAWN_EGG;
       case DIRE_WOLF -> DIRE_WOLF_SPAWN_EGG;
-      case PINSCHER -> PINSCHER_SPAWN_EGG;
       case CROSS_BREED -> null;
     };
   }
@@ -254,7 +243,5 @@ public class ModItems {
         .register(entries -> entries.add(SHIBA_INU_SPAWN_EGG));
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS)
         .register(entries -> entries.add(DIRE_WOLF_SPAWN_EGG));
-    ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS)
-        .register(entries -> entries.add(PINSCHER_SPAWN_EGG));
   }
 }

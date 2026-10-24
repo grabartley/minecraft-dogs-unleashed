@@ -292,7 +292,7 @@ public final class DogAdvancementGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void wholePackRequiresEveryFoundingBreed(final TestContext context) {
+  public void wholePackRequiresAllFiveBreeds(final TestContext context) {
     final ServerPlayerEntity player = CreativeTestPlayer.join(context);
     final AdvancementEntry wholePack = AdvancementTestHelper.advancement(context, "the_whole_pack");
 
@@ -300,13 +300,12 @@ public final class DogAdvancementGameTest implements FabricGameTest {
     player.getAdvancementTracker().grantCriterion(wholePack, "tamed_dachshund");
     player.getAdvancementTracker().grantCriterion(wholePack, "tamed_beagle");
     player.getAdvancementTracker().grantCriterion(wholePack, "tamed_goldenretriever");
-    player.getAdvancementTracker().grantCriterion(wholePack, "tamed_shibainu");
 
     context.assertTrue(
         !player.getAdvancementTracker().getProgress(wholePack).isDone(),
         "the_whole_pack should stay locked until every breed is tamed");
 
-    player.getAdvancementTracker().grantCriterion(wholePack, "tamed_pinscher");
+    player.getAdvancementTracker().grantCriterion(wholePack, "tamed_shibainu");
 
     context.assertTrue(
         player.getAdvancementTracker().getProgress(wholePack).isDone(),

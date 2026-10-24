@@ -27,7 +27,7 @@ public enum PortraitBackground {
   public static PortraitBackground of(final UnleashedDogBreed breed) {
     return switch (breed) {
       case HUSKY -> SNOW;
-      case DACHSHUND, PINSCHER -> PLAINS;
+      case DACHSHUND -> PLAINS;
       case BEAGLE -> FOREST;
       case GOLDEN_RETRIEVER -> BEACH;
       case SHIBA_INU -> CHERRY_GROVE;

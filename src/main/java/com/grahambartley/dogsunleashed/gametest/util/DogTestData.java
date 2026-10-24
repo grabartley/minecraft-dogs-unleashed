@@ -36,9 +36,6 @@ public record DogTestData(
   public static final DogTestData SHIBA_INU =
       fromPreset(UnleashedDogBreed.SHIBA_INU, ModSounds.SHIBA_INU_BARK);
 
-  public static final DogTestData PINSCHER =
-      fromPreset(UnleashedDogBreed.PINSCHER, ModSounds.PINSCHER_BARK);
-
   public static final DogTestData DIRE_WOLF =
       fromPreset(UnleashedDogBreed.DIRE_WOLF, ModSounds.DIRE_WOLF_BARK);
 
@@ -58,6 +55,6 @@ public record DogTestData(
   }
 
   public static List<DogTestData> getAllBreeds() {
-    return List.of(HUSKY, DACHSHUND, BEAGLE, GOLDEN_RETRIEVER, SHIBA_INU, DIRE_WOLF, PINSCHER);
+    return List.of(HUSKY, DACHSHUND, BEAGLE, GOLDEN_RETRIEVER, SHIBA_INU, DIRE_WOLF);
   }
 }

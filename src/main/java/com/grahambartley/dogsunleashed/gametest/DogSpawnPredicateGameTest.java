@@ -71,20 +71,6 @@ public final class DogSpawnPredicateGameTest implements FabricGameTest {
         data -> new SurfaceCase(Blocks.SAND, data.breed() == UnleashedDogBreed.GOLDEN_RETRIEVER));
   }
 
-  @CustomTestProvider
-  public List<TestFunction> spawnPredicateAcceptsRedSandOnlyForPinschersPerBreed() {
-    return generatePerBreed(
-        "redsand",
-        data -> new SurfaceCase(Blocks.RED_SAND, data.breed() == UnleashedDogBreed.PINSCHER));
-  }
-
-  @CustomTestProvider
-  public List<TestFunction> spawnPredicateAcceptsTerracottaOnlyForPinschersPerBreed() {
-    return generatePerBreed(
-        "terracotta",
-        data -> new SurfaceCase(Blocks.TERRACOTTA, data.breed() == UnleashedDogBreed.PINSCHER));
-  }
-
   private List<TestFunction> generatePerBreed(
       final String behavior, final SurfaceCase surfaceCase) {
     return generatePerBreed(behavior, data -> surfaceCase);

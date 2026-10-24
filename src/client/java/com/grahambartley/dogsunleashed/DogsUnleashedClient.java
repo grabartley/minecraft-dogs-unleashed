@@ -103,7 +103,6 @@ public class DogsUnleashedClient implements ClientModInitializer {
     EntityRendererRegistry.register(ModEntities.BEAGLE, DogRenderer::new);
     EntityRendererRegistry.register(ModEntities.GOLDEN_RETRIEVER, DogRenderer::new);
     EntityRendererRegistry.register(ModEntities.SHIBA_INU, DogRenderer::new);
-    EntityRendererRegistry.register(ModEntities.PINSCHER, DogRenderer::new);
     EntityRendererRegistry.register(ModEntities.DIRE_WOLF, DogRenderer::new);
     EntityRendererRegistry.register(ModEntities.CROSS_BREED, DogRenderer::new);
     EntityRendererRegistry.register(ModEntities.ZOMBIE_HUSKY, DogRenderer::new);
@@ -111,7 +110,6 @@ public class DogsUnleashedClient implements ClientModInitializer {
     EntityRendererRegistry.register(ModEntities.ZOMBIE_BEAGLE, DogRenderer::new);
     EntityRendererRegistry.register(ModEntities.ZOMBIE_GOLDEN_RETRIEVER, DogRenderer::new);
     EntityRendererRegistry.register(ModEntities.ZOMBIE_SHIBA_INU, DogRenderer::new);
-    EntityRendererRegistry.register(ModEntities.ZOMBIE_PINSCHER, DogRenderer::new);
     EntityRendererRegistry.register(ModEntities.ZOMBIE_DIRE_WOLF, DogRenderer::new);
     EntityRendererRegistry.register(ModEntities.ZOMBIE_CROSS_BREED, DogRenderer::new);
 

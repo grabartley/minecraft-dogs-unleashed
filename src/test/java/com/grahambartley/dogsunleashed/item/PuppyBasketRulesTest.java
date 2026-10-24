@@ -18,8 +18,7 @@ class PuppyBasketRulesTest {
             UnleashedDogBreed.DACHSHUND,
             UnleashedDogBreed.BEAGLE,
             UnleashedDogBreed.GOLDEN_RETRIEVER,
-            UnleashedDogBreed.SHIBA_INU,
-            UnleashedDogBreed.PINSCHER),
+            UnleashedDogBreed.SHIBA_INU),
         PuppyBasketRules.BREEDS);
   }
 
@@ -30,10 +29,9 @@ class PuppyBasketRulesTest {
     "2, BEAGLE",
     "3, GOLDEN_RETRIEVER",
     "4, SHIBA_INU",
-    "5, PINSCHER",
-    "6, HUSKY",
-    "-1, PINSCHER",
-    "2147483647, DACHSHUND"
+    "5, HUSKY",
+    "-1, SHIBA_INU",
+    "2147483647, BEAGLE"
   })
   void anyRollPicksABreed(final int roll, final UnleashedDogBreed breed) {
     assertEquals(breed, PuppyBasketRules.pick(roll));
