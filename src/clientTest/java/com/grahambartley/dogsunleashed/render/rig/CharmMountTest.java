@@ -10,6 +10,7 @@ import com.grahambartley.dogsunleashed.render.fur.DrawnFur;
 import com.grahambartley.dogsunleashed.render.fur.FurCover;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -25,12 +26,19 @@ class CharmMountTest {
 
   private static final float EPSILON = 1.0e-5f;
   private static final float MODEL_UNITS_PER_BLOCK = 16.0f;
+  private static final float RESTING_CONTACT = 0.3f / MODEL_UNITS_PER_BLOCK;
+
+  private record Placement(
+      Vector3f push,
+      Matrix4f charmToModel,
+      List<PoseClearance.Box> body,
+      CubeGeometry.Bounds charm) {}
 
   private static Vector3f place(final String rig, final String mouth, final String animation) {
-    return place(rig, mouth, animation, DogFurStage.NATURAL);
+    return place(rig, mouth, animation, DogFurStage.NATURAL).push();
   }
 
-  private static Vector3f place(
+  private static Placement place(
       final String rig, final String mouth, final String animation, final DogFurStage stage) {
     final BakedGeoModel dog = ShippedRigs.model(rig);
     final CollarBandLocator.CollarSpot spot =
@@ -44,23 +52,29 @@ class CharmMountTest {
     final Matrix4f charmToBone = CharmMount.charmToBone(spot);
     final CubeGeometry.Bounds charm =
         CubeGeometry.posedBoundsOf(ShippedRigs.model("pendant_ward").topLevelBones().get(0));
+    final List<PoseClearance.Box> body =
+        PoseClearance.liveBoxesOf(dog, drawn(dog, rig, stage, sides.body()));
     final Vector3f push =
         CharmMount.clearanceInBone(
-            PoseClearance.liveBoxesOf(dog, drawn(dog, rig, stage, sides.body())),
+            body,
             List.of(),
             () -> PoseClearance.liveBoxesOf(dog, drawn(dog, rig, stage, sides.head())),
             boneToModel,
             charmToBone,
             charm,
             spot.facesNegativeZ());
-    return boneToModel.transformDirection(new Vector3f(push));
+    return new Placement(
+        boneToModel.transformDirection(new Vector3f(push)),
+        new Matrix4f(boneToModel).mul(charmToBone),
+        body,
+        charm);
   }
 
   private static Set<String> drawn(
       final BakedGeoModel dog, final String rig, final DogFurStage stage, final Set<String> bones) {
     return DrawnFur.keep(
         bones,
-        RigProfiles.of(UnleashedDogBreed.fromSerializedId(rig)),
+        RigProfiles.of(Objects.requireNonNull(UnleashedDogBreed.fromSerializedIdOrNull(rig), rig)),
         stage,
         FurCover.NONE,
         name -> dog.getBone(name).map(GeoBone::getParent).map(GeoBone::getName).orElse(null));
@@ -111,35 +125,15 @@ class CharmMountTest {
   @DisplayName("a charm over grown chest fur rests on the front of the fur")
   void grownChestFurCarriesTheCharm(
       final String rig, final String mouth, final String pose, final DogFurStage stage) {
-    final BakedGeoModel dog = ShippedRigs.model(rig);
-    final CollarBandLocator.CollarSpot spot =
-        CollarBandLocator.locate(dog, mouth, ShippedRigs.collarMask(rig)).orElseThrow();
-    final CharmMount.Sides sides = CharmMount.sidesOf(dog, spot, mouth);
-    if (!pose.equals("rest")) {
-      ShippedRigs.pose(dog, rig, pose);
-    }
-    final Matrix4f boneToModel = LivePose.of(dog.getBone(spot.boneName()).orElseThrow());
-    final Matrix4f charmToModel = new Matrix4f(boneToModel).mul(CharmMount.charmToBone(spot));
-    final CubeGeometry.Bounds charm =
-        CubeGeometry.posedBoundsOf(ShippedRigs.model("pendant_ward").topLevelBones().get(0));
-    final List<PoseClearance.Box> body =
-        PoseClearance.liveBoxesOf(dog, drawn(dog, rig, stage, sides.body()));
-    final Vector3f push =
-        boneToModel.transformDirection(
-            CharmMount.clearanceInBone(
-                body,
-                List.of(),
-                () -> PoseClearance.liveBoxesOf(dog, drawn(dog, rig, stage, sides.head())),
-                boneToModel,
-                CharmMount.charmToBone(spot),
-                charm,
-                spot.facesNegativeZ()));
-    final Vector3f backOff = new Vector3f(push).normalize().mul(-0.3f / MODEL_UNITS_PER_BLOCK);
+    final Placement placed = place(rig, mouth, pose, stage);
+    final Vector3f push = placed.push();
+    final List<PoseClearance.Box> body = placed.body();
+    final Vector3f backOff = new Vector3f(push).normalize().mul(-RESTING_CONTACT);
 
     assertTrue(push.length() > 0.0f, rig + " " + stage + " should come out onto its chest fur");
     boolean touches = false;
-    for (final Vector3f face : CharmMount.faceCentreLine(charm)) {
-      final Vector3f rested = charmToModel.transformPosition(new Vector3f(face)).add(push);
+    for (final Vector3f face : CharmMount.faceCentreLine(placed.charm())) {
+      final Vector3f rested = placed.charmToModel().transformPosition(new Vector3f(face)).add(push);
       assertFalse(
           body.stream().anyMatch(box -> box.contains(rested)), rig + " " + stage + " is buried");
       final Vector3f nearer = new Vector3f(rested).add(backOff);
