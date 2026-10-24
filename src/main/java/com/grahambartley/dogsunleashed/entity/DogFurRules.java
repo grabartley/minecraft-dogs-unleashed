@@ -49,10 +49,10 @@ public final class DogFurRules {
       return OptionalInt.empty();
     }
     final double ticks =
-        profile.baseTicksPerStage()
+        (double) profile.baseTicksPerStage()
             * growingFrom.growthTimePercent()
             / furGrowthRate
-            / (double) rateMultiplierPercent;
+            / rateMultiplierPercent;
     return OptionalInt.of((int) Math.max(1L, Math.round(ticks)));
   }
 

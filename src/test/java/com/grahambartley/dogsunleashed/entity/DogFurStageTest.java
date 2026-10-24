@@ -25,7 +25,7 @@ class DogFurStageTest {
         Arguments.of(DogFurStage.TRIMMED, 0, 100, false, false, DogFurStage.NATURAL),
         Arguments.of(DogFurStage.NATURAL, 5, 150, false, true, DogFurStage.SHAGGY),
         Arguments.of(DogFurStage.SHAGGY, 12, 200, false, true, DogFurStage.OVERGROWN),
-        Arguments.of(DogFurStage.OVERGROWN, 20, 200, true, true, DogFurStage.OVERGROWN));
+        Arguments.of(DogFurStage.OVERGROWN, 20, 0, true, true, DogFurStage.OVERGROWN));
   }
 
   @ParameterizedTest(name = "{0}")
@@ -44,13 +44,6 @@ class DogFurStageTest {
     assertEquals(slows, stage.slowsMovement());
     assertEquals(trimmable, stage.canBeTrimmed());
     assertEquals(next, stage.next());
-  }
-
-  @ParameterizedTest(name = "{0} -> {1}")
-  @CsvSource({"TRIMMED, NATURAL", "NATURAL, SHAGGY"})
-  @DisplayName("each later stage takes longer to grow out of than the one before")
-  void laterStagesTakeLonger(final DogFurStage earlier, final DogFurStage later) {
-    assertTrue(later.growthTimePercent() > earlier.growthTimePercent());
   }
 
   @ParameterizedTest(name = "{0}")

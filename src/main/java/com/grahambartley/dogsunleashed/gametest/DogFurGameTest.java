@@ -93,7 +93,7 @@ public final class DogFurGameTest implements FabricGameTest {
   private static void testStopsAtMax(final TestContext context, final DogTestData data) {
     final UnleashedDogEntity dog = wildAdult(context, data);
     final DogFurStage max = dog.getFur().profile().maxStage();
-    seed(dog, max, ticksPerStage(dog, max) - TICKS_BEFORE_DUE);
+    seed(dog, max, ticksPerStage(dog, DogFurStage.SHAGGY) - TICKS_BEFORE_DUE);
 
     tick(dog, TICKS_RUN);
 

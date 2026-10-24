@@ -7,7 +7,7 @@ public enum DogFurStage {
   TRIMMED(0, 100),
   NATURAL(5, 150),
   SHAGGY(12, 200),
-  OVERGROWN(20, 200);
+  OVERGROWN(20, 0);
 
   public static final double OVERGROWN_SPEED_MULTIPLIER = -0.10;
 
