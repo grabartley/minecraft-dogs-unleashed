@@ -8,10 +8,11 @@ import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.render.fur.DrawnFur;
 import com.grahambartley.dogsunleashed.render.fur.FurCover;
+import com.grahambartley.dogsunleashed.render.rig.RigProfile.Slot;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
@@ -32,9 +33,7 @@ class CharmMountTest {
   private static final float EPSILON = 1.0e-5f;
   private static final float MODEL_UNITS_PER_BLOCK = 16.0f;
 
-  private static final FurCover PENDANT_AND_COLLAR =
-      new FurCover(
-          FurCover.slotsCovered(false, false, false, false, Optional.empty(), false, true, true));
+  private static final FurCover PENDANT_AND_COLLAR = new FurCover(EnumSet.of(Slot.NECK));
 
   private static final BiFunction<BakedGeoModel, Set<String>, List<PoseClearance.Box>>
       HEAD_REFUSES = PoseClearance::liveBoxesOf;
