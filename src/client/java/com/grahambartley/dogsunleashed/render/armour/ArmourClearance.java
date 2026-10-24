@@ -2,7 +2,9 @@ package com.grahambartley.dogsunleashed.render.armour;
 
 import com.google.common.collect.MapMaker;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import com.grahambartley.dogsunleashed.render.fur.FurLook;
 import com.grahambartley.dogsunleashed.render.rig.CubeGeometry;
+import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -79,7 +81,8 @@ public final class ArmourClearance {
         }
         if (ArmourFit.covers(breed, bone.getName(), bone.getCubes().get(i))) {
           armour.add(box);
-        } else if (!ArmourFit.torsoBones(breed).contains(bone.getName())) {
+        } else if (!ArmourFit.torsoBones(breed).contains(bone.getName())
+            && !FurLook.isFur(RigProfiles.of(breed), bone.getName())) {
           others.add(box);
         }
       }

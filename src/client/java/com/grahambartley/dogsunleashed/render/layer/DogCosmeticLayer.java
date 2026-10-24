@@ -11,6 +11,7 @@ import com.grahambartley.dogsunleashed.render.cosmetic.CosmeticFit;
 import com.grahambartley.dogsunleashed.render.cosmetic.DrawnCosmetic;
 import com.grahambartley.dogsunleashed.render.cosmetic.HatFit;
 import com.grahambartley.dogsunleashed.render.cosmetic.HatFits;
+import com.grahambartley.dogsunleashed.render.fur.DrawnFur;
 import com.grahambartley.dogsunleashed.render.rig.CharmMount;
 import com.grahambartley.dogsunleashed.render.rig.CollarBandLocator.CollarSpot;
 import com.grahambartley.dogsunleashed.render.rig.CollarSpots;
@@ -155,9 +156,14 @@ public class DogCosmeticLayer extends GeoRenderLayer<UnleashedDogEntity> {
         CosmeticFit.collarWidth(cosmetic, collar.get().chestWidth()) / this.widthOf(model);
     final Vector3f clearance =
         CharmMount.clearanceInBone(
-            PoseClearance.liveBoxesOf(this.frameModel, collar.get().sides().body()),
+            PoseClearance.liveBoxesOf(
+                this.frameModel,
+                DrawnFur.on(this.frameModel, animatable, collar.get().sides().body())),
             ArmourShell.boxes(this.frameModel, animatable, collar.get().sides().head()),
-            () -> PoseClearance.liveBoxesOf(this.frameModel, collar.get().sides().head()),
+            () ->
+                PoseClearance.liveBoxesOf(
+                    this.frameModel,
+                    DrawnFur.on(this.frameModel, animatable, collar.get().sides().head())),
             LivePose.of(bone),
             CharmMount.placedToBone(spot, scale),
             this.boundsOf(model),

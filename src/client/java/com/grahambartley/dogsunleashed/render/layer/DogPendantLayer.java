@@ -4,6 +4,7 @@ import com.google.common.collect.MapMaker;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.item.pendant.PendantType;
 import com.grahambartley.dogsunleashed.render.armour.ArmourShell;
+import com.grahambartley.dogsunleashed.render.fur.DrawnFur;
 import com.grahambartley.dogsunleashed.render.rig.CharmMount;
 import com.grahambartley.dogsunleashed.render.rig.CollarBandLocator.CollarSpot;
 import com.grahambartley.dogsunleashed.render.rig.CollarSpots;
@@ -85,9 +86,14 @@ public class DogPendantLayer extends GeoRenderLayer<UnleashedDogEntity> {
     }
     final Vector3f clearance =
         CharmMount.clearanceInBone(
-            PoseClearance.liveBoxesOf(this.frameModel, mount.get().sides().body()),
+            PoseClearance.liveBoxesOf(
+                this.frameModel,
+                DrawnFur.on(this.frameModel, animatable, mount.get().sides().body())),
             ArmourShell.boxes(this.frameModel, animatable, mount.get().sides().head()),
-            () -> PoseClearance.liveBoxesOf(this.frameModel, mount.get().sides().head()),
+            () ->
+                PoseClearance.liveBoxesOf(
+                    this.frameModel,
+                    DrawnFur.on(this.frameModel, animatable, mount.get().sides().head())),
             LivePose.of(bone),
             mount.get().charmToBone(),
             this.charmBounds.computeIfAbsent(charmModel, DogPendantLayer::boundsOf),

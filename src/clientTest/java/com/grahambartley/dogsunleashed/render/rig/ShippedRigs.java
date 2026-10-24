@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.render.rig;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.awt.image.BufferedImage;
@@ -11,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import javax.imageio.ImageIO;
@@ -44,6 +46,27 @@ public final class ShippedRigs {
 
   public static BakedGeoModel modelAt(final String path) {
     final Model raw = KeyFramesAdapter.GEO_GSON.fromJson(json(path), Model.class);
+    final BakedGeoModel baked =
+        BakedModelFactory.DEFAULT_FACTORY.constructGeoModel(GeometryTree.fromModel(raw));
+    saveRestPose(baked.topLevelBones());
+    return baked;
+  }
+
+  public static BakedGeoModel modelWithout(final String name, final Set<String> bones) {
+    final JsonObject geo = json("geo/" + name + ".geo.json");
+    final JsonArray kept = new JsonArray();
+    geo.getAsJsonArray("minecraft:geometry")
+        .get(0)
+        .getAsJsonObject()
+        .getAsJsonArray("bones")
+        .forEach(
+            bone -> {
+              if (!bones.contains(bone.getAsJsonObject().get("name").getAsString())) {
+                kept.add(bone);
+              }
+            });
+    geo.getAsJsonArray("minecraft:geometry").get(0).getAsJsonObject().add("bones", kept);
+    final Model raw = KeyFramesAdapter.GEO_GSON.fromJson(geo, Model.class);
     final BakedGeoModel baked =
         BakedModelFactory.DEFAULT_FACTORY.constructGeoModel(GeometryTree.fromModel(raw));
     saveRestPose(baked.topLevelBones());
