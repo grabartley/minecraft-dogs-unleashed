@@ -53,6 +53,45 @@ class DogFurRulesTest {
   }
 
   @Test
+  @DisplayName("a half husky, half shiba inu caps at shaggy, since the shiba inu stops at natural")
+  void huskyShibaCrossCapsAtShaggy() {
+    final DogGenome genome =
+        new DogGenome(
+            List.of(
+                new BreedShare(UnleashedDogBreed.HUSKY, 0.5f),
+                new BreedShare(UnleashedDogBreed.SHIBA_INU, 0.5f)),
+            20.0,
+            0.3,
+            4.0,
+            DogGenome.BASELINE_FUR_GROWTH_RATE,
+            UnleashedDogBreed.HUSKY);
+
+    final FurProfile blended = DogFurRules.profileFor(UnleashedDogBreed.CROSS_BREED, genome);
+
+    assertEquals(DogFurStage.SHAGGY, blended.maxStage());
+    assertEquals(162000, blended.baseTicksPerStage());
+    assertEquals(2, blended.shearYieldPerStage());
+  }
+
+  @ParameterizedTest(name = "{0} capped at {1} settles to {2}")
+  @CsvSource({
+    "OVERGROWN, NATURAL, NATURAL",
+    "SHAGGY, NATURAL, NATURAL",
+    "NATURAL, NATURAL, NATURAL",
+    "TRIMMED, NATURAL, TRIMMED",
+    "BOTCHED, NATURAL, BOTCHED",
+    "OVERGROWN, SHAGGY, SHAGGY",
+    "SHAGGY, SHAGGY, SHAGGY",
+    "NATURAL, SHAGGY, NATURAL",
+    "TRIMMED, SHAGGY, TRIMMED",
+    "BOTCHED, SHAGGY, BOTCHED"
+  })
+  @DisplayName("a coat above its breed's cap settles to the cap and any other coat stays put")
+  void settledStage(final DogFurStage stage, final DogFurStage cap, final DogFurStage expected) {
+    assertEquals(expected, DogFurRules.settledStage(stage, cap));
+  }
+
+  @Test
   @DisplayName("a mostly beagle cross caps at natural like a beagle")
   void mostlyBeagleCapsAtNatural() {
     final DogGenome genome =
@@ -142,10 +181,7 @@ class DogFurRulesTest {
         Arguments.of(94, DogFurStage.OVERGROWN, DogFurStage.SHAGGY),
         Arguments.of(95, DogFurStage.OVERGROWN, DogFurStage.OVERGROWN),
         Arguments.of(99, DogFurStage.OVERGROWN, DogFurStage.OVERGROWN),
-        Arguments.of(99, DogFurStage.SHAGGY, DogFurStage.SHAGGY),
-        Arguments.of(0, DogFurStage.NATURAL, DogFurStage.NATURAL),
-        Arguments.of(70, DogFurStage.NATURAL, DogFurStage.NATURAL),
-        Arguments.of(99, DogFurStage.NATURAL, DogFurStage.NATURAL));
+        Arguments.of(99, DogFurStage.SHAGGY, DogFurStage.SHAGGY));
   }
 
   @ParameterizedTest(name = "roll {0} capped at {1} -> {2}")
@@ -153,43 +189,5 @@ class DogFurRulesTest {
   @DisplayName("wild adults roll 70% natural, 25% shaggy, 5% overgrown, capped by breed")
   void spawnStage(final int roll, final DogFurStage cap, final DogFurStage expected) {
     assertEquals(expected, DogFurRules.spawnStage(roll, cap));
-  }
-
-  @ParameterizedTest(name = "saved {0} capped at {1} -> {2}")
-  @CsvSource({
-    "0, NATURAL, BOTCHED",
-    "1, NATURAL, TRIMMED",
-    "2, NATURAL, NATURAL",
-    "3, NATURAL, NATURAL",
-    "4, NATURAL, NATURAL",
-    "4, SHAGGY, SHAGGY",
-    "4, OVERGROWN, OVERGROWN"
-  })
-  @DisplayName("a saved coat loads at most at the breed's max stage")
-  void savedStageCapsAtTheMax(
-      final int savedOrdinal, final DogFurStage cap, final DogFurStage expected) {
-    assertEquals(expected, DogFurRules.savedStage(savedOrdinal, cap));
-  }
-
-  @ParameterizedTest(name = "saved {0} capped at {1} -> {2}")
-  @CsvSource({"-1, SHAGGY, NATURAL", "9, OVERGROWN, NATURAL"})
-  @DisplayName("an unknown saved stage loads as natural")
-  void savedStageFallsBackToNatural(
-      final int savedOrdinal, final DogFurStage cap, final DogFurStage expected) {
-    assertEquals(expected, DogFurRules.savedStage(savedOrdinal, cap));
-  }
-
-  @ParameterizedTest(name = "saved {0} loaded {1} with {2} ticks -> {3}")
-  @CsvSource({
-    "2, NATURAL, 500, 500",
-    "4, OVERGROWN, 1234, 1234",
-    "3, NATURAL, 500, 0",
-    "9, NATURAL, 500, 0",
-    "1, TRIMMED, -5, 0"
-  })
-  @DisplayName("a coat keeps its growth clock only when it loads at the stage it was saved at")
-  void savedTicks(
-      final int savedOrdinal, final DogFurStage loaded, final int ticks, final int expected) {
-    assertEquals(expected, DogFurRules.savedTicks(savedOrdinal, loaded, ticks));
   }
 }

@@ -73,13 +73,8 @@ public final class DogFurRules {
     return botched ? full * BOTCHED_YIELD_MULTIPLIER : full;
   }
 
-  public static DogFurStage savedStage(final int savedOrdinal, final DogFurStage maxStage) {
-    return DogFurStage.fromOrdinal(savedOrdinal).atMost(maxStage);
-  }
-
-  public static int savedTicks(
-      final int savedOrdinal, final DogFurStage loaded, final int savedTicks) {
-    return loaded.ordinal() == savedOrdinal ? Math.max(0, savedTicks) : 0;
+  public static DogFurStage settledStage(final DogFurStage stage, final DogFurStage maxStage) {
+    return stage.atMost(maxStage);
   }
 
   public static DogFurStage spawnStage(final int rollPercent, final DogFurStage maxStage) {

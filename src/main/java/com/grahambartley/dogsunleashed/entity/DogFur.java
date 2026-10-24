@@ -76,13 +76,20 @@ public final class DogFur {
   }
 
   void tick() {
+    final DogFurStage stage = this.stage();
+    if (stage.ordinal() > DogFurStage.NATURAL.ordinal()) {
+      final DogFurStage settled = DogFurRules.settledStage(stage, this.profile().maxStage());
+      if (settled != stage) {
+        this.setStage(settled);
+        return;
+      }
+    }
     final DogsUnleashedConfig config = DogsUnleashed.SERVER_CONFIG;
     if (this.dog.isBaby() || !config.fur().furGrowthEnabled()) {
       return;
     }
     final FurProfile profile = this.profile();
-    final DogFurStage stage = this.stage();
-    if (stage.ordinal() >= profile.maxStage().ordinal()) {
+    if (stage == profile.maxStage()) {
       return;
     }
     final OptionalInt budget =
@@ -165,11 +172,8 @@ public final class DogFur {
       this.syncSpeedModifier();
       return;
     }
-    final int savedOrdinal = nbt.getInt(ModNbtKeys.FUR_STAGE);
-    final DogFurStage loaded = DogFurRules.savedStage(savedOrdinal, this.profile().maxStage());
-    this.setStage(loaded);
-    this.ticksInStage =
-        DogFurRules.savedTicks(savedOrdinal, loaded, nbt.getInt(ModNbtKeys.FUR_TICKS_IN_STAGE));
+    this.setStage(DogFurStage.fromOrdinal(nbt.getInt(ModNbtKeys.FUR_STAGE)));
+    this.ticksInStage = Math.max(0, nbt.getInt(ModNbtKeys.FUR_TICKS_IN_STAGE));
   }
 
   private double growthRate() {

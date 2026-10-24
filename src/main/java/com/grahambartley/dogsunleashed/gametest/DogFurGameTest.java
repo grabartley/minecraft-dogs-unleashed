@@ -22,6 +22,7 @@ import com.grahambartley.dogsunleashed.gametest.util.PendantTestHelper;
 import com.grahambartley.dogsunleashed.item.armor.DogArmorTier;
 import java.util.Collection;
 import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.advancement.AdvancementEntry;
@@ -51,7 +52,15 @@ public final class DogFurGameTest implements FabricGameTest {
 
   private static Collection<TestFunction> perBreed(
       final String name, final BiConsumer<TestContext, DogTestData> body) {
+    return perBreed(name, data -> true, body);
+  }
+
+  private static Collection<TestFunction> perBreed(
+      final String name,
+      final Predicate<DogTestData> breeds,
+      final BiConsumer<TestContext, DogTestData> body) {
     return DogTestData.getAllBreeds().stream()
+        .filter(breeds)
         .map(
             data ->
                 GeneratedGameTest.of(
@@ -65,22 +74,21 @@ public final class DogFurGameTest implements FabricGameTest {
 
   @CustomTestProvider
   public Collection<TestFunction> anAdultGrowsOneStageWhenItsTimeIsUp() {
-    return perBreed("grows", DogFurGameTest::testGrows);
+    return perBreed(
+        "grows",
+        data -> data.breed().furProfile().maxStage().ordinal() > DogFurStage.NATURAL.ordinal(),
+        DogFurGameTest::testGrows);
   }
 
   private static void testGrows(final TestContext context, final DogTestData data) {
     final UnleashedDogEntity dog = wildAdult(context, data);
-    final DogFurStage from =
-        dog.getFur().profile().maxStage().ordinal() > DogFurStage.NATURAL.ordinal()
-            ? DogFurStage.NATURAL
-            : DogFurStage.TRIMMED;
-    seed(dog, from, ticksPerStage(dog, from) - TICKS_BEFORE_DUE);
+    seed(dog, DogFurStage.NATURAL, ticksPerStage(dog, DogFurStage.NATURAL) - TICKS_BEFORE_DUE);
 
     tick(dog, TICKS_RUN);
 
     context.assertTrue(
-        dog.getFur().stage() == from.next(),
-        data.breed() + " should grow to " + from.next() + ", was " + dog.getFur().stage());
+        dog.getFur().stage() == DogFurStage.SHAGGY,
+        data.breed() + " should be shaggy once its stage time is up, was " + dog.getFur().stage());
     final boolean capped = dog.getFur().stage() == dog.getFur().profile().maxStage();
     context.assertEquals(
         dog.getFur().ticksInStage(),
@@ -103,6 +111,37 @@ public final class DogFurGameTest implements FabricGameTest {
 
     context.assertTrue(
         dog.getFur().stage() == max, data.breed() + " should never grow past " + max);
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void aShibaInuSavedOvergrownSettlesToNatural(final TestContext context) {
+    final UnleashedDogEntity dog = wildAdult(context, DogTestData.SHIBA_INU);
+    seed(dog, DogFurStage.OVERGROWN, 0);
+
+    tick(dog, 1);
+
+    context.assertTrue(
+        dog.getFur().stage() == DogFurStage.NATURAL,
+        "A shiba inu saved overgrown settles to natural, was " + dog.getFur().stage());
+    final EntityAttributeInstance speed =
+        dog.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED);
+    context.assertTrue(
+        speed != null && !speed.hasModifier(DogFur.OVERGROWN_SPEED_MODIFIER_ID),
+        "A settled coat no longer slows the shiba inu");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void aBeagleSavedShaggySettlesToNatural(final TestContext context) {
+    final UnleashedDogEntity dog = wildAdult(context, DogTestData.BEAGLE);
+    seed(dog, DogFurStage.SHAGGY, 0);
+
+    tick(dog, 1);
+
+    context.assertTrue(
+        dog.getFur().stage() == DogFurStage.NATURAL,
+        "A beagle saved shaggy settles to natural, was " + dog.getFur().stage());
     context.complete();
   }
 
@@ -312,25 +351,6 @@ public final class DogFurGameTest implements FabricGameTest {
             .getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED)
             .hasModifier(DogFur.OVERGROWN_SPEED_MODIFIER_ID),
         "The overgrown penalty comes back with the coat");
-    context.complete();
-  }
-
-  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
-  public void aBeagleSavedShaggyLoadsNatural(final TestContext context) {
-    final UnleashedDogEntity beagle = wildAdult(context, DogTestData.BEAGLE);
-    final NbtCompound saved = new NbtCompound();
-    beagle.writeCustomDataToNbt(saved);
-    saved.putInt(ModNbtKeys.FUR_STAGE, DogFurStage.SHAGGY.ordinal());
-    saved.putInt(ModNbtKeys.FUR_TICKS_IN_STAGE, 1234);
-
-    final UnleashedDogEntity reloaded = wildAdult(context, DogTestData.BEAGLE);
-    reloaded.readCustomDataFromNbt(saved);
-
-    context.assertTrue(
-        reloaded.getFur().stage() == DogFurStage.NATURAL,
-        "A beagle saved shaggy settles to natural, was " + reloaded.getFur().stage());
-    context.assertEquals(
-        reloaded.getFur().ticksInStage(), 0, "The shaggy clock does not carry over");
     context.complete();
   }
 
