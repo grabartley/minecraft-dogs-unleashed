@@ -119,6 +119,24 @@ class RigAnchorsTest {
     assertEquals(anchor, anchors.anchors().get("tuft"));
   }
 
+  @ParameterizedTest(name = "{0}")
+  @CsvSource({"small_head", "big_head"})
+  @DisplayName("two loose head bones that would hang off each other hang off the torso instead")
+  void anchorLoopsFallBackToTheRoot(final String bone) {
+    final RigAnchors anchors =
+        RigAnchors.of(
+            parents("body", null, "small_head", null, "big_head", null, "neck", "small_head"),
+            profile(
+                "{\"torso\": [\"body\"], \"head\": [\"small_head\", \"big_head\"],"
+                    + " \"neck\": [\"neck\"]}"),
+            Map.of(
+                "body", new Extent(new Vector3f(), 8.0f),
+                "small_head", new Extent(new Vector3f(), 1.0f),
+                "big_head", new Extent(new Vector3f(), 2.0f)));
+
+    assertEquals("body", anchors.anchors().get(bone));
+  }
+
   @Test
   @DisplayName("logical parents keep real parents and add the anchors of loose parts")
   void logicalParentsAddAnchors() {

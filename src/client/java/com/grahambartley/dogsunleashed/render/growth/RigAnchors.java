@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import software.bernie.geckolib.cache.object.GeoBone;
@@ -74,7 +75,9 @@ public record RigAnchors(@Nullable String root, Map<String, String> anchors) {
         anchors.put(entry.getKey(), finder.anchorOf(entry.getKey(), root.get()));
       }
     }
-    anchors.replaceAll((bone, anchor) -> loops(bone, anchors) ? root.get() : anchor);
+    final Set<String> looping =
+        anchors.keySet().stream().filter(bone -> loops(bone, anchors)).collect(Collectors.toSet());
+    looping.forEach(bone -> anchors.put(bone, root.get()));
     return new RigAnchors(root.get(), anchors);
   }
 
@@ -145,9 +148,11 @@ public record RigAnchors(@Nullable String root, Map<String, String> anchors) {
         return Slot.TORSO;
       }
       final Extent torso = this.extents.get(root);
-      return torso == null
-              || own.center().distanceSquared(this.extents.get(head.get()).center())
-                  < own.center().distanceSquared(torso.center())
+      if (torso == null) {
+        return Slot.TORSO;
+      }
+      return own.center().distanceSquared(this.extents.get(head.get()).center())
+              < own.center().distanceSquared(torso.center())
           ? Slot.HEAD
           : Slot.TORSO;
     }

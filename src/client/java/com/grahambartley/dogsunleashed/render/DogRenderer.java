@@ -56,8 +56,6 @@ import software.bernie.geckolib.util.RenderUtil;
 
 public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
 
-  private static final float MODEL_UNITS_PER_BLOCK = 16.0f;
-
   private RigProfile frameProfile = RigProfile.EMPTY;
   private DogFurStage frameStage = DogFurStage.NATURAL;
   private FurCover frameFurCover = FurCover.NONE;

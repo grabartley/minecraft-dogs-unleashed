@@ -20,7 +20,8 @@ public final class GrowthBoneTransform {
     final Optional<AnchoredPlacement.Shift> shift = growth.shiftOf(bone.getName());
     if (shift.isPresent()) {
       poseStack.push();
-      scaleBetween(poseStack, shift.get().to(), shift.get().scale(), shift.get().from());
+      final AnchoredPlacement.Shift found = shift.get();
+      scaleBetween(poseStack, found.to(), found.scale(), found.from());
       return true;
     }
     final float scale = growth.localScale(bone.getName());
