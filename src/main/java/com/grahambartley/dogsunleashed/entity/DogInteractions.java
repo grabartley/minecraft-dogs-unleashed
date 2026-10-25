@@ -154,13 +154,14 @@ public final class DogInteractions {
             player.isSneaking(),
             DogDeliveries.isWaitingFor(this.dog, player),
             DogEquipmentScreenHandler.isViewing(player.currentScreenHandler, this.dog));
-    if (click == BagsClick.PASS) {
-      return null;
-    }
-    if (click == BagsClick.OPEN) {
-      player.openHandledScreen(this.dog);
-    }
-    return ActionResult.SUCCESS;
+    return switch (click) {
+      case PASS -> null;
+      case OPEN -> {
+        player.openHandledScreen(this.dog);
+        yield ActionResult.SUCCESS;
+      }
+      case KEEP_OPEN -> ActionResult.CONSUME;
+    };
   }
 
   private @Nullable ActionResult tryOpenInspect(final PlayerEntity player) {

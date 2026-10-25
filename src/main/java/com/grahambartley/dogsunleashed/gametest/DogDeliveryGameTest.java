@@ -213,8 +213,7 @@ public final class DogDeliveryGameTest implements FabricGameTest {
         3,
         () -> {
           context.assertTrue(
-              recipient.currentScreenHandler instanceof DogEquipmentScreenHandler bags
-                  && bags.dog() == arrived,
+              DogEquipmentScreenHandler.isViewing(recipient.currentScreenHandler, arrived),
               "The bags stay open");
           context.assertFalse(arrived.isRemoved(), "The dog waits while the bags are open");
           context.assertEquals(
