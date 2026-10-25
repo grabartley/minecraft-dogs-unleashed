@@ -50,12 +50,12 @@ public final class DogAnimationControllers {
               if (state.getAnimatable().isInSittingPose()) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.SIT));
               }
-              final float limbSpeed = state.getAnimatable().limbAnimator.getSpeed();
-              if (isGalloping(state.getAnimatable(), limbSpeed)) {
+              if (isGalloping(state.getAnimatable())) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.RUN));
               }
               if (WalkRules.walks(
-                  limbSpeed, playing(state.getController(), DogAnimationKeys.WALK))) {
+                  state.getAnimatable().limbAnimator.getSpeed(),
+                  playing(state.getController(), DogAnimationKeys.WALK))) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.WALK));
               }
               return state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.IDLE));
@@ -247,12 +247,12 @@ public final class DogAnimationControllers {
     return current != null && clip.equals(current.name());
   }
 
-  static boolean isGalloping(final UnleashedDogEntity dog, final float limbSpeed) {
+  static boolean isGalloping(final UnleashedDogEntity dog) {
     final boolean hitched = dog.getComponents().get(DogSledHarness.class).isHitched();
     return GallopRules.gallops(
         dog.getRiding().isRidden(),
         hitched,
-        limbSpeed,
+        dog.limbAnimator.getSpeed(),
         hitched && RigClipPresence.has(dog, DogAnimationKeys.RUN));
   }
 }

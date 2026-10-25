@@ -7,6 +7,7 @@ import com.grahambartley.dogsunleashed.item.SledItem;
 import com.grahambartley.dogsunleashed.item.armor.DogArmorTier;
 import com.grahambartley.dogsunleashed.item.cosmetic.DogCosmetic;
 import com.grahambartley.dogsunleashed.item.costume.DogCostume;
+import com.grahambartley.dogsunleashed.model.DogModel;
 import com.grahambartley.dogsunleashed.model.DogWhistleModel;
 import com.grahambartley.dogsunleashed.model.RopeToyModel;
 import com.grahambartley.dogsunleashed.model.SledModel;
@@ -46,6 +47,7 @@ import com.grahambartley.dogsunleashed.render.overlay.SledHarnessCoat;
 import com.grahambartley.dogsunleashed.render.pawprint.PawPrints;
 import com.grahambartley.dogsunleashed.render.portrait.DogPortraitEntityRenderer;
 import com.grahambartley.dogsunleashed.render.portrait.PortraitTextures;
+import com.grahambartley.dogsunleashed.render.rig.PrivateRigBones;
 import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
 import com.grahambartley.dogsunleashed.render.rig.SlotRegions;
 import com.grahambartley.dogsunleashed.render.sled.HarnessLines;
@@ -98,20 +100,22 @@ public class DogsUnleashedClient implements ClientModInitializer {
         registerDyeTint(ModCostumeItems.of(costume), costume.undyedColor());
       }
     }
-    EntityRendererRegistry.register(ModEntities.HUSKY, DogRenderer::new);
-    EntityRendererRegistry.register(ModEntities.DACHSHUND, DogRenderer::new);
-    EntityRendererRegistry.register(ModEntities.BEAGLE, DogRenderer::new);
-    EntityRendererRegistry.register(ModEntities.GOLDEN_RETRIEVER, DogRenderer::new);
-    EntityRendererRegistry.register(ModEntities.SHIBA_INU, DogRenderer::new);
-    EntityRendererRegistry.register(ModEntities.DIRE_WOLF, DogRenderer::new);
-    EntityRendererRegistry.register(ModEntities.CROSS_BREED, DogRenderer::new);
-    EntityRendererRegistry.register(ModEntities.ZOMBIE_HUSKY, DogRenderer::new);
-    EntityRendererRegistry.register(ModEntities.ZOMBIE_DACHSHUND, DogRenderer::new);
-    EntityRendererRegistry.register(ModEntities.ZOMBIE_BEAGLE, DogRenderer::new);
-    EntityRendererRegistry.register(ModEntities.ZOMBIE_GOLDEN_RETRIEVER, DogRenderer::new);
-    EntityRendererRegistry.register(ModEntities.ZOMBIE_SHIBA_INU, DogRenderer::new);
-    EntityRendererRegistry.register(ModEntities.ZOMBIE_DIRE_WOLF, DogRenderer::new);
-    EntityRendererRegistry.register(ModEntities.ZOMBIE_CROSS_BREED, DogRenderer::new);
+    final DogModel liveDogs = new DogModel();
+    EntityRendererRegistry.register(ModEntities.HUSKY, DogRenderer.sharing(liveDogs));
+    EntityRendererRegistry.register(ModEntities.DACHSHUND, DogRenderer.sharing(liveDogs));
+    EntityRendererRegistry.register(ModEntities.BEAGLE, DogRenderer.sharing(liveDogs));
+    EntityRendererRegistry.register(ModEntities.GOLDEN_RETRIEVER, DogRenderer.sharing(liveDogs));
+    EntityRendererRegistry.register(ModEntities.SHIBA_INU, DogRenderer.sharing(liveDogs));
+    EntityRendererRegistry.register(ModEntities.DIRE_WOLF, DogRenderer.sharing(liveDogs));
+    EntityRendererRegistry.register(ModEntities.CROSS_BREED, DogRenderer.sharing(liveDogs));
+    EntityRendererRegistry.register(ModEntities.ZOMBIE_HUSKY, DogRenderer.sharing(liveDogs));
+    EntityRendererRegistry.register(ModEntities.ZOMBIE_DACHSHUND, DogRenderer.sharing(liveDogs));
+    EntityRendererRegistry.register(ModEntities.ZOMBIE_BEAGLE, DogRenderer.sharing(liveDogs));
+    EntityRendererRegistry.register(
+        ModEntities.ZOMBIE_GOLDEN_RETRIEVER, DogRenderer.sharing(liveDogs));
+    EntityRendererRegistry.register(ModEntities.ZOMBIE_SHIBA_INU, DogRenderer.sharing(liveDogs));
+    EntityRendererRegistry.register(ModEntities.ZOMBIE_DIRE_WOLF, DogRenderer.sharing(liveDogs));
+    EntityRendererRegistry.register(ModEntities.ZOMBIE_CROSS_BREED, DogRenderer.sharing(liveDogs));
 
     BlockEntityRendererFactories.register(ModBlockEntities.DOG_BED, DogBedBlockEntityRenderer::new);
     BlockEntityRendererFactories.register(
@@ -174,6 +178,8 @@ public class DogsUnleashedClient implements ClientModInitializer {
                     .clear(MinecraftClient.getInstance().getTextureManager())));
     resources.registerReloadListener(
         new CacheReloader(RigSlotSizes.RELOADER_ID, RigSlotSizes::clear));
+    resources.registerReloadListener(
+        new CacheReloader(PrivateRigBones.RELOADER_ID, () -> PrivateRigBones.shared().clear()));
     resources.registerReloadListener(
         new CacheReloader(
             StatueCoatTextures.RELOADER_ID,
