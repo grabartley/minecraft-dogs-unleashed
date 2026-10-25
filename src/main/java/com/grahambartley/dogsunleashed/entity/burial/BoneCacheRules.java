@@ -8,6 +8,8 @@ public final class BoneCacheRules {
 
   public static final int BURY_RADIUS = 16;
   public static final int DIG_TICKS = 60;
+  public static final int SNIFF_MIN_TICKS = 60;
+  public static final int SNIFF_SPREAD_TICKS = 60;
   public static final int DAYS_UNTIL_DIG_UP = 3;
   public static final long TICKS_PER_DAY = 24000L;
   public static final int BONUS_ODDS = 5;
@@ -21,6 +23,10 @@ public final class BoneCacheRules {
 
   public static boolean digsUpOn(final DogCommand command) {
     return DIGGING_UP_COMMANDS.contains(command);
+  }
+
+  public static int sniffTicks(final int roll) {
+    return SNIFF_MIN_TICKS + Math.floorMod(roll, SNIFF_SPREAD_TICKS + 1);
   }
 
   public static boolean standsToBury(final DogCommand command) {

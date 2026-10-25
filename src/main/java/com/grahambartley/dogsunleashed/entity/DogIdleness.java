@@ -5,13 +5,12 @@ public final class DogIdleness {
   private DogIdleness() {}
 
   public static boolean isFreeForChores(final UnleashedDogEntity dog) {
-    return !dog.isInSittingPose() && isFreeOnceStanding(dog);
+    return !dog.isInSittingPose() && isFreeIgnoringSitPose(dog);
   }
 
-  public static boolean isFreeOnceStanding(final UnleashedDogEntity dog) {
+  public static boolean isFreeIgnoringSitPose(final UnleashedDogEntity dog) {
     return dog.getTarget() == null
         && !dog.isLeashed()
-        && !dog.getComponents().get(DogDeathWatch.class).isKeepingWatch()
         && !dog.getSleepController().isAsleep()
         && !isOnErrand(dog);
   }

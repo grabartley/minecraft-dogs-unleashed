@@ -1,14 +1,16 @@
 package com.grahambartley.dogsunleashed.entity.burial;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.entity.DogCommand;
+import java.util.Arrays;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class BoneCacheRulesTest {
 
@@ -28,22 +30,24 @@ class BoneCacheRulesTest {
     assertEquals(command == DogCommand.SIT, BoneCacheRules.standsToBury(command));
   }
 
-  @ParameterizedTest(name = "taken on {0}")
-  @EnumSource(DogCommand.class)
-  @DisplayName("a dog keeps burying while its command is unchanged")
-  void keepsBuryingOnTheSameCommand(final DogCommand command) {
-    assertTrue(BoneCacheRules.keepsBurying(command, command));
+  static Stream<Arguments> commandPairs() {
+    return Arrays.stream(DogCommand.values())
+        .flatMap(
+            takenOn -> Arrays.stream(DogCommand.values()).map(now -> Arguments.of(takenOn, now)));
   }
 
-  @ParameterizedTest(name = "taken on {0}")
-  @EnumSource(DogCommand.class)
-  @DisplayName("a new command calls the dog off its burial")
-  void stopsBuryingOnANewCommand(final DogCommand command) {
-    for (final DogCommand other : DogCommand.values()) {
-      if (other != command) {
-        assertFalse(BoneCacheRules.keepsBurying(command, other), other.name());
-      }
-    }
+  @ParameterizedTest(name = "taken on {0}, now {1}")
+  @MethodSource("commandPairs")
+  @DisplayName("a dog keeps burying only while its command is unchanged")
+  void keepsBuryingOnlyOnTheSameCommand(final DogCommand takenOn, final DogCommand now) {
+    assertEquals(takenOn == now, BoneCacheRules.keepsBurying(takenOn, now));
+  }
+
+  @ParameterizedTest(name = "roll {0} -> {1} ticks")
+  @CsvSource({"0, 60", "1, 61", "30, 90", "60, 120", "61, 60", "-1, 120"})
+  @DisplayName("a dog sniffs around for three to six seconds before it picks a spot")
+  void sniffTicks(final int roll, final int expected) {
+    assertEquals(expected, BoneCacheRules.sniffTicks(roll));
   }
 
   @ParameterizedTest(name = "buried at {0}, now {1}: due {2}")

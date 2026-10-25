@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.entity;
 
+import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.entity.burial.BoneCache;
 import com.grahambartley.dogsunleashed.entity.burial.BoneCacheRules;
 import com.grahambartley.dogsunleashed.entity.burial.BoneCaches;
@@ -8,6 +9,8 @@ import java.util.UUID;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
@@ -26,7 +29,8 @@ public final class DogBoneBurial extends DogComponent {
     return this.dog.isTamed()
         && this.dog.getOwner() != null
         && !this.dog.getFetchCarry().isCarrying()
-        && DogIdleness.isFreeOnceStanding(this.dog);
+        && !this.dog.getComponents().get(DogDeathWatch.class).isKeepingWatch()
+        && DogIdleness.isFreeIgnoringSitPose(this.dog);
   }
 
   void takeBone(final PlayerEntity player, final ItemStack stack) {
@@ -42,6 +46,7 @@ public final class DogBoneBurial extends DogComponent {
 
   public boolean canBuryNow() {
     return this.isBuryPending()
+        && this.dog.getOwner() != null
         && this.takenOn != null
         && BoneCacheRules.keepsBurying(this.takenOn, this.dog.getCommand())
         && DogIdleness.isFreeForChores(this.dog);
@@ -59,6 +64,21 @@ public final class DogBoneBurial extends DogComponent {
     if (sitsBackDown) {
       this.dropBone();
       this.dog.setSitting(true);
+    }
+  }
+
+  @Override
+  void writeNbt(final NbtCompound nbt) {
+    if (this.buryPending && this.takenOn != null) {
+      nbt.putInt(ModNbtKeys.BONE_BURY_COMMAND, this.takenOn.id());
+    }
+  }
+
+  @Override
+  void readNbt(final NbtCompound nbt) {
+    if (nbt.contains(ModNbtKeys.BONE_BURY_COMMAND, NbtElement.NUMBER_TYPE)) {
+      this.takenOn = DogCommand.fromId(nbt.getInt(ModNbtKeys.BONE_BURY_COMMAND));
+      this.buryPending = true;
     }
   }
 
