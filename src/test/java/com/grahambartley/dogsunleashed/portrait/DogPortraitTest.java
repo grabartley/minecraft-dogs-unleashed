@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
 import com.grahambartley.dogsunleashed.ModItems;
+import com.grahambartley.dogsunleashed.TestRegistries;
 import com.grahambartley.dogsunleashed.block.DogStatue;
 import com.grahambartley.dogsunleashed.block.DogStatueLook;
 import com.grahambartley.dogsunleashed.block.DogStatuePose;
@@ -13,7 +14,6 @@ import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
-import io.netty.buffer.Unpooled;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -96,7 +96,7 @@ class DogPortraitTest {
   @MethodSource("portraits")
   @DisplayName("a portrait survives the network codec, so every player sees the same dog")
   void packetRoundTrips(final DogPortrait portrait) {
-    final RegistryByteBuf buffer = new RegistryByteBuf(Unpooled.buffer(), REGISTRIES);
+    final RegistryByteBuf buffer = TestRegistries.buf();
     DogPortrait.PACKET_CODEC.encode(buffer, portrait);
     assertEquals(portrait, DogPortrait.PACKET_CODEC.decode(buffer));
   }

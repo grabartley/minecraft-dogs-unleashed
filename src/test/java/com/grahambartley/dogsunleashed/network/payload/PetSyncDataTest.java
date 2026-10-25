@@ -1,18 +1,15 @@
 package com.grahambartley.dogsunleashed.network.payload;
 
 import static com.grahambartley.dogsunleashed.TestRegistries.REGISTRIES;
-import static com.grahambartley.dogsunleashed.network.payload.PayloadTestFixtures.newRegistryBuf;
-import static com.grahambartley.dogsunleashed.network.payload.PayloadTestFixtures.samplePet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
-import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
+import com.grahambartley.dogsunleashed.TestRegistries;
 import com.grahambartley.dogsunleashed.config.AgingSettings;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
 import com.grahambartley.dogsunleashed.entity.DogBondStep;
-import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.personality.DogTrait;
 import com.grahambartley.dogsunleashed.entity.personality.DogTraits;
@@ -22,17 +19,12 @@ import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfit;
+import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfitFixture;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.util.DyeColor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,13 +41,15 @@ class PetSyncDataTest {
   @DisplayName("codec round-trips a cross-breed pet with genome fields")
   void codecRoundTripsCrossBreedGenomeFields() {
     final PetSyncData pet =
-        samplePet(
-            UnleashedDogBreed.CROSS_BREED,
-            "Pixel",
-            List.of(
-                new BreedShare(UnleashedDogBreed.HUSKY, 0.5f),
-                new BreedShare(UnleashedDogBreed.BEAGLE, 0.5f)));
-    final RegistryByteBuf buf = newRegistryBuf();
+        PetSyncDataFixture.pet()
+            .breed(UnleashedDogBreed.CROSS_BREED)
+            .name("Pixel")
+            .composition(
+                List.of(
+                    new BreedShare(UnleashedDogBreed.HUSKY, 0.5f),
+                    new BreedShare(UnleashedDogBreed.BEAGLE, 0.5f)))
+            .build();
+    final RegistryByteBuf buf = TestRegistries.buf();
     PetSyncData.CODEC.encode(buf, pet);
     assertEquals(pet, PetSyncData.CODEC.decode(buf));
   }
@@ -70,7 +64,7 @@ class PetSyncDataTest {
             .name("Balto")
             .lifeState(lifeState)
             .build();
-    final RegistryByteBuf buf = newRegistryBuf();
+    final RegistryByteBuf buf = TestRegistries.buf();
     PetSyncData.CODEC.encode(buf, pet);
 
     final PetSyncData decoded = PetSyncData.CODEC.decode(buf);
@@ -90,7 +84,7 @@ class PetSyncDataTest {
             .baby(baby)
             .senior(senior)
             .build();
-    final RegistryByteBuf buf = newRegistryBuf();
+    final RegistryByteBuf buf = TestRegistries.buf();
     PetSyncData.CODEC.encode(buf, pet);
     final PetSyncData decoded = PetSyncData.CODEC.decode(buf);
     assertEquals(pet, decoded);
@@ -131,7 +125,7 @@ class PetSyncDataTest {
   @DisplayName("codec round-trips every bond step so the client can name it")
   void codecRoundTripsBond(final DogBondStep bond) {
     final PetSyncData pet = PetSyncDataFixture.pet().bond(bond).build();
-    final RegistryByteBuf buf = newRegistryBuf();
+    final RegistryByteBuf buf = TestRegistries.buf();
     PetSyncData.CODEC.encode(buf, pet);
     assertEquals(bond, PetSyncData.CODEC.decode(buf).bond());
   }
@@ -153,29 +147,33 @@ class PetSyncDataTest {
     return Stream.of(
         Arguments.of(
             "pure breed ignores composition",
-            samplePet(UnleashedDogBreed.BEAGLE, "Rex"),
+            PetSyncDataFixture.pet().breed(UnleashedDogBreed.BEAGLE).name("Rex").build(),
             UnleashedDogBreed.BEAGLE),
         Arguments.of(
             "cross-breed without composition falls back to its own breed",
-            samplePet(UnleashedDogBreed.CROSS_BREED, "Pixel"),
+            PetSyncDataFixture.pet().breed(UnleashedDogBreed.CROSS_BREED).name("Pixel").build(),
             UnleashedDogBreed.CROSS_BREED),
         Arguments.of(
             "cross-breed resolves the dominant composition breed",
-            samplePet(
-                UnleashedDogBreed.CROSS_BREED,
-                "Pixel",
-                List.of(
-                    new BreedShare(UnleashedDogBreed.SHIBA_INU, 0.25f),
-                    new BreedShare(UnleashedDogBreed.HUSKY, 0.75f))),
+            PetSyncDataFixture.pet()
+                .breed(UnleashedDogBreed.CROSS_BREED)
+                .name("Pixel")
+                .composition(
+                    List.of(
+                        new BreedShare(UnleashedDogBreed.SHIBA_INU, 0.25f),
+                        new BreedShare(UnleashedDogBreed.HUSKY, 0.75f)))
+                .build(),
             UnleashedDogBreed.HUSKY),
         Arguments.of(
             "cross-breed breaks share ties by serialized id",
-            samplePet(
-                UnleashedDogBreed.CROSS_BREED,
-                "Pixel",
-                List.of(
-                    new BreedShare(UnleashedDogBreed.SHIBA_INU, 0.5f),
-                    new BreedShare(UnleashedDogBreed.BEAGLE, 0.5f))),
+            PetSyncDataFixture.pet()
+                .breed(UnleashedDogBreed.CROSS_BREED)
+                .name("Pixel")
+                .composition(
+                    List.of(
+                        new BreedShare(UnleashedDogBreed.SHIBA_INU, 0.5f),
+                        new BreedShare(UnleashedDogBreed.BEAGLE, 0.5f)))
+                .build(),
             UnleashedDogBreed.BEAGLE));
   }
 
@@ -199,7 +197,7 @@ class PetSyncDataTest {
   @DisplayName("codec round-trips the personality so the cards can show it")
   void codecRoundTripsPersonality(final DogTraits traits) {
     final PetSyncData pet = PetSyncDataFixture.pet().personality(traits).build();
-    final RegistryByteBuf buf = newRegistryBuf();
+    final RegistryByteBuf buf = TestRegistries.buf();
     PetSyncData.CODEC.encode(buf, pet);
     assertEquals(traits, PetSyncData.CODEC.decode(buf).personality());
   }
@@ -207,22 +205,7 @@ class PetSyncDataTest {
   static Stream<Arguments> looks() {
     return Stream.of(
         Arguments.of(0, DogPortraitOutfit.NONE),
-        Arguments.of(
-            4,
-            new DogPortraitOutfit(
-                Map.of(
-                    DogEquipmentSlot.ARMOUR,
-                    new ItemStack(Items.WOLF_ARMOR),
-                    DogEquipmentSlot.PENDANT,
-                    new ItemStack(Items.EMERALD),
-                    DogEquipmentSlot.SADDLEBAGS,
-                    new ItemStack(ModItems.SADDLEBAGS)),
-                Optional.of(DyeColor.LIME),
-                new ItemStack(Items.STICK),
-                Optional.empty(),
-                true,
-                true,
-                false)));
+        Arguments.of(4, DogPortraitOutfitFixture.dressed()));
   }
 
   @ParameterizedTest(name = "growth stage {0}")
@@ -232,9 +215,10 @@ class PetSyncDataTest {
     final PetSyncData pet =
         PetSyncDataFixture.pet()
             .breed(UnleashedDogBreed.DIRE_WOLF)
-            .growth(growthStage, outfit)
+            .growthStage(growthStage)
+            .outfit(outfit)
             .build();
-    final RegistryByteBuf buf = newRegistryBuf();
+    final RegistryByteBuf buf = TestRegistries.buf();
     PetSyncData.CODEC.encode(buf, pet);
     final PetSyncData decoded = PetSyncData.CODEC.decode(buf);
     assertEquals(growthStage, decoded.growthStage());
@@ -251,11 +235,7 @@ class PetSyncDataTest {
     nbt.putUuid(ModNbtKeys.OWNER_ID, UUID.randomUUID());
     nbt.putString(ModNbtKeys.BREED_TYPE, UnleashedDogBreed.DIRE_WOLF.serializedId());
     nbt.putInt(ModNbtKeys.GROWTH_STAGE, growthStage);
-    nbt.put(
-        ModNbtKeys.PORTRAIT_OUTFIT,
-        DogPortraitOutfit.CODEC
-            .encodeStart(REGISTRIES.getOps(NbtOps.INSTANCE), outfit)
-            .getOrThrow());
+    nbt.put(ModNbtKeys.PORTRAIT_OUTFIT, DogPortraitOutfitFixture.save(outfit));
     final PetSyncData synced =
         PetSyncData.from(PetData.fromNbt(nbt, REGISTRIES), PetAwayStatus.HOME);
     assertEquals(growthStage, synced.growthStage());

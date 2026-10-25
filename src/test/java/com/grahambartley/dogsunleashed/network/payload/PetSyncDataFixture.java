@@ -1,12 +1,13 @@
 package com.grahambartley.dogsunleashed.network.payload;
 
 import com.grahambartley.dogsunleashed.entity.DogBondStep;
+import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.personality.DogTraits;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
-import com.grahambartley.dogsunleashed.pet.PortraitLook;
 import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfit;
 import java.util.List;
 import java.util.UUID;
@@ -19,7 +20,12 @@ public final class PetSyncDataFixture {
   private float health = 12.5f;
   private float maxHealth = 25.0f;
   private PetLifeState lifeState = PetLifeState.LIVING;
-  private PortraitLook look = PortraitLook.DEFAULT;
+  private boolean baby;
+  private int coatVariant = UnleashedDogEntity.UNSET_VARIANT;
+  private int huskyEyeVariant = UnleashedDogEntity.UNSET_VARIANT;
+  private int furStage = DogFurStage.NATURAL.ordinal();
+  private int growthStage;
+  private DogPortraitOutfit outfit = DogPortraitOutfit.NONE;
   private float movementSpeed = 0.29f;
   private float attackDamage = 3.5f;
   private List<BreedShare> composition = List.of();
@@ -60,57 +66,35 @@ public final class PetSyncDataFixture {
     return this;
   }
 
-  public PetSyncDataFixture look(final PortraitLook look) {
-    this.look = look;
+  public PetSyncDataFixture baby(final boolean baby) {
+    this.baby = baby;
     return this;
   }
 
-  public PetSyncDataFixture baby(final boolean baby) {
-    return this.look(
-        new PortraitLook(
-            baby,
-            this.look.coatVariant(),
-            this.look.huskyEyeVariant(),
-            this.look.furStage(),
-            this.look.growthStage(),
-            this.look.outfit()));
-  }
-
   public PetSyncDataFixture variants(final int coatVariant, final int huskyEyeVariant) {
-    return this.look(
-        new PortraitLook(
-            this.look.baby(),
-            coatVariant,
-            huskyEyeVariant,
-            this.look.furStage(),
-            this.look.growthStage(),
-            this.look.outfit()));
+    this.coatVariant = coatVariant;
+    this.huskyEyeVariant = huskyEyeVariant;
+    return this;
   }
 
   public PetSyncDataFixture furStage(final int furStage) {
-    return this.look(
-        new PortraitLook(
-            this.look.baby(),
-            this.look.coatVariant(),
-            this.look.huskyEyeVariant(),
-            furStage,
-            this.look.growthStage(),
-            this.look.outfit()));
+    this.furStage = furStage;
+    return this;
   }
 
-  public PetSyncDataFixture growth(final int growthStage, final DogPortraitOutfit outfit) {
-    return this.look(
-        new PortraitLook(
-            this.look.baby(),
-            this.look.coatVariant(),
-            this.look.huskyEyeVariant(),
-            this.look.furStage(),
-            growthStage,
-            outfit));
+  public PetSyncDataFixture growthStage(final int growthStage) {
+    this.growthStage = growthStage;
+    return this;
+  }
+
+  public PetSyncDataFixture outfit(final DogPortraitOutfit outfit) {
+    this.outfit = outfit;
+    return this;
   }
 
   public PetSyncDataFixture senior(final boolean senior) {
-    return this.look(this.look.withSenior(senior));
+    this.outfit = this.outfit.withSenior(senior);
+    return this;
   }
 
   public PetSyncDataFixture stats(final float movementSpeed, final float attackDamage) {
@@ -151,7 +135,12 @@ public final class PetSyncDataFixture {
         -20,
         "minecraft:overworld",
         this.lifeState,
-        this.look,
+        this.baby,
+        this.coatVariant,
+        this.huskyEyeVariant,
+        this.furStage,
+        this.growthStage,
+        this.outfit,
         this.movementSpeed,
         this.attackDamage,
         this.composition,

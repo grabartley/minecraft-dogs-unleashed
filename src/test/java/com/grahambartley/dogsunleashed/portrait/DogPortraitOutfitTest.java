@@ -8,8 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
 import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.ModItems;
+import com.grahambartley.dogsunleashed.TestRegistries;
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
-import io.netty.buffer.Unpooled;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -67,12 +67,6 @@ class DogPortraitOutfitTest {
                 true)));
   }
 
-  private static NbtElement save(final DogPortraitOutfit outfit) {
-    return DogPortraitOutfit.CODEC
-        .encodeStart(REGISTRIES.getOps(NbtOps.INSTANCE), outfit)
-        .getOrThrow();
-  }
-
   private static DogPortraitOutfit load(final NbtElement saved) {
     return DogPortraitOutfit.CODEC.parse(REGISTRIES.getOps(NbtOps.INSTANCE), saved).getOrThrow();
   }
@@ -81,7 +75,7 @@ class DogPortraitOutfitTest {
   @MethodSource("outfits")
   @DisplayName("an outfit survives saving, gear colours and all")
   void outfitRoundTrips(final DogPortraitOutfit outfit) {
-    final DogPortraitOutfit loaded = load(save(outfit));
+    final DogPortraitOutfit loaded = load(DogPortraitOutfitFixture.save(outfit));
     assertEquals(outfit, loaded);
     assertEquals(outfit.hashCode(), loaded.hashCode());
   }
@@ -178,7 +172,7 @@ class DogPortraitOutfitTest {
   void unknownItemIsDropped() {
     final NbtCompound saved =
         (NbtCompound)
-            save(
+            DogPortraitOutfitFixture.save(
                 new DogPortraitOutfit(
                     Map.of(
                         DogEquipmentSlot.ARMOUR, new ItemStack(Items.WOLF_ARMOR),
@@ -246,14 +240,16 @@ class DogPortraitOutfitTest {
             false,
             false,
             false);
-    assertEquals(DyeColor.PURPLE, load(save(outfit)).carried().get(ModComponents.FRISBEE_COLOR));
+    assertEquals(
+        DyeColor.PURPLE,
+        load(DogPortraitOutfitFixture.save(outfit)).carried().get(ModComponents.FRISBEE_COLOR));
   }
 
   @ParameterizedTest
   @MethodSource("outfits")
   @DisplayName("an outfit survives the network round trip")
   void packetRoundTrips(final DogPortraitOutfit outfit) {
-    final RegistryByteBuf buf = new RegistryByteBuf(Unpooled.buffer(), REGISTRIES);
+    final RegistryByteBuf buf = TestRegistries.buf();
     DogPortraitOutfit.PACKET_CODEC.encode(buf, outfit);
     assertEquals(outfit, DogPortraitOutfit.PACKET_CODEC.decode(buf));
   }

@@ -1,10 +1,9 @@
 package com.grahambartley.dogsunleashed.network.payload;
 
-import static com.grahambartley.dogsunleashed.network.payload.PayloadTestFixtures.newRegistryBuf;
-import static com.grahambartley.dogsunleashed.network.payload.PayloadTestFixtures.samplePet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
+import com.grahambartley.dogsunleashed.TestRegistries;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import java.util.List;
@@ -23,28 +22,28 @@ class OpenDogInspectPayloadTest {
     return Stream.of(
         Arguments.of(
             "wild dog",
-            samplePet(UnleashedDogBreed.HUSKY, ""),
+            PetSyncDataFixture.pet().breed(UnleashedDogBreed.HUSKY).name("").build(),
             false,
             "",
             List.of(new BreedShare(UnleashedDogBreed.HUSKY, 1.0f)),
             WildTrustView.NONE),
         Arguments.of(
             "wild dire wolf pup",
-            samplePet(UnleashedDogBreed.DIRE_WOLF, ""),
+            PetSyncDataFixture.pet().breed(UnleashedDogBreed.DIRE_WOLF).name("").build(),
             false,
             "",
             List.of(new BreedShare(UnleashedDogBreed.DIRE_WOLF, 1.0f)),
             WildTrustView.building(45)),
         Arguments.of(
             "wild dire wolf adult",
-            samplePet(UnleashedDogBreed.DIRE_WOLF, ""),
+            PetSyncDataFixture.pet().breed(UnleashedDogBreed.DIRE_WOLF).name("").build(),
             false,
             "",
             List.of(new BreedShare(UnleashedDogBreed.DIRE_WOLF, 1.0f)),
             WildTrustView.TOO_WILD),
         Arguments.of(
             "tamed dog with owner",
-            samplePet(UnleashedDogBreed.BEAGLE, "Rex"),
+            PetSyncDataFixture.pet().breed(UnleashedDogBreed.BEAGLE).name("Rex").build(),
             true,
             "Steve",
             List.of(
@@ -53,7 +52,7 @@ class OpenDogInspectPayloadTest {
             WildTrustView.NONE),
         Arguments.of(
             "tamed dog with unknown owner",
-            samplePet(UnleashedDogBreed.SHIBA_INU, "小白"),
+            PetSyncDataFixture.pet().breed(UnleashedDogBreed.SHIBA_INU).name("小白").build(),
             true,
             "",
             List.of(new BreedShare(UnleashedDogBreed.SHIBA_INU, 1.0f)),
@@ -72,7 +71,7 @@ class OpenDogInspectPayloadTest {
       final WildTrustView trust) {
     final OpenDogInspectPayload payload =
         new OpenDogInspectPayload(pet, tamed, ownerName, composition, trust);
-    final RegistryByteBuf buf = newRegistryBuf();
+    final RegistryByteBuf buf = TestRegistries.buf();
     OpenDogInspectPayload.CODEC.encode(buf, payload);
     assertEquals(payload, OpenDogInspectPayload.CODEC.decode(buf));
   }

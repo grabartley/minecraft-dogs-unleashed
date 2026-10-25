@@ -7,12 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
-import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
-import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
-import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.genome.AllelePair;
 import com.grahambartley.dogsunleashed.entity.genome.DogGeneLocus;
 import com.grahambartley.dogsunleashed.entity.genome.DogGeneTrait;
@@ -27,15 +24,13 @@ import com.grahambartley.dogsunleashed.entity.variant.HuskyCoat;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfit;
+import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfitFixture;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 import org.junit.jupiter.api.DisplayName;
@@ -51,38 +46,26 @@ import org.junit.jupiter.params.provider.ValueSource;
 @ExtendWith(MinecraftBootstrapExtension.class)
 class PetDataTest {
 
-  private static final float BASE_HEALTH = 18.0f;
-  private static final BlockPos BASE_POS = new BlockPos(10, 64, -20);
-  private static final String BASE_DIM = "minecraft:overworld";
-  private static final boolean BASE_BABY = false;
-  private static final int BASE_COAT = UnleashedDogEntity.UNSET_VARIANT;
-  private static final int BASE_EYE = UnleashedDogEntity.UNSET_VARIANT;
-  private static final int BASE_FUR = DogFurStage.NATURAL.ordinal();
+  private static final float BASE_HEALTH = PetDataFixture.HEALTH;
+  private static final BlockPos BASE_POS = PetDataFixture.POS;
+  private static final String BASE_DIM = PetDataFixture.DIMENSION;
 
   private static PetData baselinePet() {
-    return new PetData(
-        UUID.randomUUID(),
-        UUID.randomUUID(),
-        UnleashedDogBreed.HUSKY,
-        "Balto",
-        BASE_HEALTH,
-        20.0f,
-        BASE_POS,
-        BASE_DIM,
-        PetLifeState.LIVING);
+    return PetDataFixture.pet();
   }
 
-  private static PortraitLook baseLook() {
-    return new PortraitLook(BASE_BABY, BASE_COAT, BASE_EYE, BASE_FUR, 0, DogPortraitOutfit.NONE);
+  private static PetData reload(final NbtCompound nbt) {
+    return PetData.fromNbt(PetData.fromNbt(nbt, REGISTRIES).toNbt(REGISTRIES), REGISTRIES);
   }
 
-  private static DogPortraitOutfit outfit(
-      final Map<DogEquipmentSlot, ItemStack> gear,
-      final Optional<DyeColor> collar,
-      final boolean muddy,
-      final boolean senior) {
-    return new DogPortraitOutfit(
-        gear, collar, ItemStack.EMPTY, Optional.empty(), muddy, senior, false);
+  private static PortraitLook baselineLookWith(final Consumer<NbtCompound> change) {
+    final NbtCompound nbt = baselinePet().toNbt(REGISTRIES);
+    change.accept(nbt);
+    return reload(nbt).portraitLook();
+  }
+
+  private static Consumer<NbtCompound> wearing(final DogPortraitOutfit outfit) {
+    return nbt -> PetDataFixture.wear(nbt, outfit);
   }
 
   @ParameterizedTest(name = "differsFrom is true when {0} changes")
@@ -93,109 +76,33 @@ class PetDataTest {
       final float health,
       final BlockPos pos,
       final String dimension,
-      final PortraitLook look) {
+      final Consumer<NbtCompound> lookChange) {
     assertTrue(
-        baselinePet().differsFrom(health, pos, dimension, look, 0),
+        baselinePet().differsFrom(health, pos, dimension, baselineLookWith(lookChange), 0),
         "expected differsFrom to flag a change in " + changedField);
   }
 
   static Stream<Arguments> changedFieldCases() {
-    final PortraitLook base = baseLook();
+    final Consumer<NbtCompound> same = nbt -> {};
     return Stream.of(
-        Arguments.of("health", BASE_HEALTH - 5.0f, BASE_POS, BASE_DIM, base),
-        Arguments.of("position", BASE_HEALTH, BASE_POS.add(1, 0, 0), BASE_DIM, base),
-        Arguments.of("dimension", BASE_HEALTH, BASE_POS, "minecraft:the_nether", base),
-        Arguments.of("dimension going null", BASE_HEALTH, BASE_POS, null, base),
-        Arguments.of(
-            "baby",
-            BASE_HEALTH,
-            BASE_POS,
-            BASE_DIM,
-            new PortraitLook(!BASE_BABY, BASE_COAT, BASE_EYE, BASE_FUR, 0, DogPortraitOutfit.NONE)),
-        Arguments.of(
-            "coatVariant",
-            BASE_HEALTH,
-            BASE_POS,
-            BASE_DIM,
-            new PortraitLook(
-                BASE_BABY, BASE_COAT + 1, BASE_EYE, BASE_FUR, 0, DogPortraitOutfit.NONE)),
-        Arguments.of(
-            "huskyEyeVariant",
-            BASE_HEALTH,
-            BASE_POS,
-            BASE_DIM,
-            new PortraitLook(
-                BASE_BABY, BASE_COAT, BASE_EYE + 1, BASE_FUR, 0, DogPortraitOutfit.NONE)),
-        Arguments.of(
+        Arguments.of("health", BASE_HEALTH - 5.0f, BASE_POS, BASE_DIM, same),
+        Arguments.of("position", BASE_HEALTH, BASE_POS.add(1, 0, 0), BASE_DIM, same),
+        Arguments.of("dimension", BASE_HEALTH, BASE_POS, "minecraft:the_nether", same),
+        Arguments.of("dimension going null", BASE_HEALTH, BASE_POS, null, same),
+        lookCase("baby", nbt -> nbt.putBoolean(ModNbtKeys.PORTRAIT_BABY, true)),
+        lookCase("coatVariant", nbt -> nbt.putInt(ModNbtKeys.PORTRAIT_COAT_VARIANT, 1)),
+        lookCase("huskyEyeVariant", nbt -> nbt.putInt(ModNbtKeys.PORTRAIT_HUSKY_EYE, 1)),
+        lookCase(
             "furStage",
-            BASE_HEALTH,
-            BASE_POS,
-            BASE_DIM,
-            new PortraitLook(
-                BASE_BABY,
-                BASE_COAT,
-                BASE_EYE,
-                DogFurStage.OVERGROWN.ordinal(),
-                0,
-                DogPortraitOutfit.NONE)),
-        Arguments.of(
-            "growthStage",
-            BASE_HEALTH,
-            BASE_POS,
-            BASE_DIM,
-            new PortraitLook(BASE_BABY, BASE_COAT, BASE_EYE, BASE_FUR, 2, DogPortraitOutfit.NONE)),
-        Arguments.of(
-            "collar",
-            BASE_HEALTH,
-            BASE_POS,
-            BASE_DIM,
-            new PortraitLook(
-                BASE_BABY,
-                BASE_COAT,
-                BASE_EYE,
-                BASE_FUR,
-                0,
-                outfit(Map.of(), Optional.of(DyeColor.LIME), false, false))),
-        Arguments.of(
-            "senior",
-            BASE_HEALTH,
-            BASE_POS,
-            BASE_DIM,
-            new PortraitLook(
-                BASE_BABY,
-                BASE_COAT,
-                BASE_EYE,
-                BASE_FUR,
-                0,
-                outfit(Map.of(), Optional.empty(), false, true))),
-        Arguments.of(
-            "mud",
-            BASE_HEALTH,
-            BASE_POS,
-            BASE_DIM,
-            new PortraitLook(
-                BASE_BABY,
-                BASE_COAT,
-                BASE_EYE,
-                BASE_FUR,
-                0,
-                outfit(Map.of(), Optional.empty(), true, false))),
-        Arguments.of(
-            "gear",
-            BASE_HEALTH,
-            BASE_POS,
-            BASE_DIM,
-            new PortraitLook(
-                BASE_BABY,
-                BASE_COAT,
-                BASE_EYE,
-                BASE_FUR,
-                0,
-                outfit(
-                    Map.of(DogEquipmentSlot.ARMOUR, new ItemStack(Items.WOLF_ARMOR)),
-                    Optional.empty(),
-                    false,
-                    false))));
+            nbt -> nbt.putInt(ModNbtKeys.PORTRAIT_FUR_STAGE, DogFurStage.OVERGROWN.ordinal())),
+        lookCase("growthStage", nbt -> nbt.putInt(ModNbtKeys.GROWTH_STAGE, 4)),
+        lookCase("collar", wearing(DogPortraitOutfitFixture.collarOnly(DyeColor.LIME))),
+        lookCase("senior coat", wearing(DogPortraitOutfit.NONE.withSenior(true))),
+        lookCase("gear and mud", wearing(DogPortraitOutfitFixture.dressed())));
+  }
+
+  private static Arguments lookCase(final String field, final Consumer<NbtCompound> change) {
+    return Arguments.of(field, BASE_HEALTH, BASE_POS, BASE_DIM, change);
   }
 
   @ParameterizedTest(name = "differsFrom is false when the position is an equal {0}")
@@ -203,7 +110,7 @@ class PetDataTest {
   @DisplayName("differsFrom returns false when all tracked fields match")
   void differsFromIgnoresUnchangedState(final String label, final BlockPos equalPos) {
     assertFalse(
-        baselinePet().differsFrom(BASE_HEALTH, equalPos, BASE_DIM, baseLook(), 0),
+        baselinePet().differsFrom(BASE_HEALTH, equalPos, BASE_DIM, baselinePet().portraitLook(), 0),
         "expected differsFrom to report no change for an unchanged pet (" + label + ")");
   }
 
@@ -217,39 +124,22 @@ class PetDataTest {
   @ValueSource(ints = {1, 50, 700})
   @DisplayName("differsFrom returns true when the bond grows")
   void differsFromDetectsBondGrowth(final int bondPoints) {
-    assertTrue(baselinePet().differsFrom(BASE_HEALTH, BASE_POS, BASE_DIM, baseLook(), bondPoints));
+    assertTrue(
+        baselinePet()
+            .differsFrom(
+                BASE_HEALTH, BASE_POS, BASE_DIM, baselinePet().portraitLook(), bondPoints));
   }
 
-  static Stream<Arguments> savedOutfits() {
-    return Stream.of(
-        Arguments.of(DogPortraitOutfit.NONE),
-        Arguments.of(
-            outfit(
-                Map.of(
-                    DogEquipmentSlot.ARMOUR,
-                    new ItemStack(Items.WOLF_ARMOR),
-                    DogEquipmentSlot.SADDLEBAGS,
-                    new ItemStack(ModItems.SADDLEBAGS),
-                    DogEquipmentSlot.COSMETIC,
-                    new ItemStack(Items.CARVED_PUMPKIN)),
-                Optional.of(DyeColor.BLUE),
-                true,
-                true)));
+  static Stream<DogPortraitOutfit> savedOutfits() {
+    return DogPortraitOutfitFixture.samples();
   }
 
-  @ParameterizedTest(name = "{0}")
+  @ParameterizedTest
   @MethodSource("savedOutfits")
   @DisplayName("the portrait outfit survives a save and reload")
   void outfitRoundTrips(final DogPortraitOutfit outfit) {
-    final NbtCompound nbt = baselinePet().toNbt(REGISTRIES);
-    nbt.put(
-        ModNbtKeys.PORTRAIT_OUTFIT,
-        DogPortraitOutfit.CODEC
-            .encodeStart(REGISTRIES.getOps(NbtOps.INSTANCE), outfit)
-            .getOrThrow());
-
     final PetData reloaded =
-        PetData.fromNbt(PetData.fromNbt(nbt, REGISTRIES).toNbt(REGISTRIES), REGISTRIES);
+        reload(PetDataFixture.wearing(baselinePet(), outfit).toNbt(REGISTRIES));
 
     assertEquals(outfit, reloaded.getOutfit());
     assertEquals(outfit, reloaded.portraitLook().outfit());
@@ -270,8 +160,7 @@ class PetDataTest {
   void bondRoundTrips(final int saved, final int expected) {
     final NbtCompound nbt = baselinePet().toNbt(REGISTRIES);
     nbt.putInt(ModNbtKeys.BOND_POINTS, saved);
-    final PetData reloaded =
-        PetData.fromNbt(PetData.fromNbt(nbt, REGISTRIES).toNbt(REGISTRIES), REGISTRIES);
+    final PetData reloaded = reload(nbt);
     assertEquals(expected, reloaded.getBondPoints());
   }
 
@@ -288,8 +177,7 @@ class PetDataTest {
   void personalityRoundTrips(final DogTraits traits) {
     final NbtCompound nbt = baselinePet().toNbt(REGISTRIES);
     nbt.put(ModNbtKeys.PERSONALITY, traits.toNbt());
-    final PetData reloaded =
-        PetData.fromNbt(PetData.fromNbt(nbt, REGISTRIES).toNbt(REGISTRIES), REGISTRIES);
+    final PetData reloaded = reload(nbt);
     assertEquals(traits, reloaded.getPersonality());
   }
 
@@ -314,8 +202,7 @@ class PetDataTest {
   void tricksRoundTrip(final TrickProgress progress) {
     final NbtCompound nbt = baselinePet().toNbt(REGISTRIES);
     nbt.put(ModNbtKeys.TRICKS, TrickProgressNbt.write(progress));
-    final PetData reloaded =
-        PetData.fromNbt(PetData.fromNbt(nbt, REGISTRIES).toNbt(REGISTRIES), REGISTRIES);
+    final PetData reloaded = reload(nbt);
     assertEquals(progress, reloaded.getTricks());
   }
 
@@ -334,27 +221,25 @@ class PetDataTest {
     final NbtCompound nbt = baselinePet().toNbt(REGISTRIES);
     nbt.putLong(ModNbtKeys.ADULT_AGE_TICKS, ageTicks);
     nbt.putBoolean(ModNbtKeys.SENIOR_PARENT, seniorParent);
-    final PetData reloaded =
-        PetData.fromNbt(PetData.fromNbt(nbt, REGISTRIES).toNbt(REGISTRIES), REGISTRIES);
+    final PetData reloaded = reload(nbt);
     assertEquals(ageTicks, reloaded.getAdultAgeTicks());
     assertEquals(seniorParent, reloaded.hasSeniorParent());
   }
 
-  @ParameterizedTest(name = "collar {0}, senior {1}")
-  @CsvSource({"BLUE, true", "LIME, false"})
-  @DisplayName("a pet saved before outfits moves its collar and senior coat into its outfit")
-  void legacyCollarAndSeniorMoveIntoTheOutfit(final DyeColor collar, final boolean senior) {
+  @ParameterizedTest
+  @EnumSource(
+      value = DyeColor.class,
+      names = {"BLUE", "LIME"})
+  @DisplayName("a pet saved before outfits moves its collar into its outfit")
+  void legacyCollarMovesIntoTheOutfit(final DyeColor collar) {
     final NbtCompound nbt = baselinePet().toNbt(REGISTRIES);
     nbt.remove(ModNbtKeys.PORTRAIT_OUTFIT);
     nbt.putInt(ModNbtKeys.PORTRAIT_COLLAR, collar.getId());
-    nbt.putBoolean(ModNbtKeys.SENIOR, senior);
 
-    final PetData reloaded =
-        PetData.fromNbt(PetData.fromNbt(nbt, REGISTRIES).toNbt(REGISTRIES), REGISTRIES);
+    final PetData reloaded = reload(nbt);
 
-    assertEquals(Optional.of(collar), reloaded.getOutfit().collar());
+    assertEquals(DogPortraitOutfitFixture.collarOnly(collar), reloaded.getOutfit());
     assertEquals(collar.getId(), reloaded.getCollarColorId());
-    assertEquals(senior, reloaded.isSenior());
   }
 
   @Test
@@ -362,10 +247,8 @@ class PetDataTest {
   void legacySaveIsNotSenior() {
     final NbtCompound nbt = baselinePet().toNbt(REGISTRIES);
     nbt.remove(ModNbtKeys.ADULT_AGE_TICKS);
-    nbt.remove(ModNbtKeys.SENIOR);
     final PetData reloaded = PetData.fromNbt(nbt, REGISTRIES);
     assertEquals(0L, reloaded.getAdultAgeTicks());
-    assertFalse(reloaded.isSenior());
   }
 
   @Test
@@ -374,8 +257,7 @@ class PetDataTest {
     final NbtCompound nbt = baselinePet().toNbt(REGISTRIES);
     nbt.putInt(ModNbtKeys.PORTRAIT_FUR_STAGE, DogFurStage.BOTCHED.ordinal());
 
-    final PetData reloaded =
-        PetData.fromNbt(PetData.fromNbt(nbt, REGISTRIES).toNbt(REGISTRIES), REGISTRIES);
+    final PetData reloaded = reload(nbt);
 
     assertEquals(DogFurStage.BOTCHED.ordinal(), reloaded.getFurStage());
   }
@@ -399,8 +281,7 @@ class PetDataTest {
     nbt.putInt(ModNbtKeys.GROWTH_BATTLES_WON, 17);
     nbt.putInt(ModNbtKeys.GROWTH_TICKS_IN_STAGE, 12345);
 
-    final PetData reloaded =
-        PetData.fromNbt(PetData.fromNbt(nbt, REGISTRIES).toNbt(REGISTRIES), REGISTRIES);
+    final PetData reloaded = reload(nbt);
 
     assertEquals(5, reloaded.getGrowthStage());
     assertEquals(17, reloaded.getGrowthBattlesWon());

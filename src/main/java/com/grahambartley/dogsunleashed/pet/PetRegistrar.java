@@ -23,17 +23,7 @@ public final class PetRegistrar {
     }
 
     final PetData petData =
-        new PetData(
-            dog.getUuid(),
-            ownerUuid,
-            dog.getBreed(),
-            DogNames.getRandomName(),
-            dog.getHealth(),
-            dog.getMaxHealth(),
-            dog.getBlockPos(),
-            serverWorld.getRegistryKey().getValue().toString(),
-            PetLifeState.LIVING);
-    petData.syncFrom(dog);
+        PetData.snapshotOf(dog, ownerUuid, DogNames.getRandomName(), PetLifeState.LIVING);
     petData.recordParents(
         dog.getLineage().getParentDogUuid(), dog.getLineage().getSecondParentDogUuid());
     petManager.registerPet(petData);
