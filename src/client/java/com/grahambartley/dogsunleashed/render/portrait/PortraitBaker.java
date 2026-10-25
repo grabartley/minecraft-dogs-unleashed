@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.render.portrait;
 
 import com.grahambartley.dogsunleashed.block.DogStatuePose;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.portrait.DogFacing;
 import com.grahambartley.dogsunleashed.portrait.DogLook;
 import com.grahambartley.dogsunleashed.portrait.DogLooks;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -83,7 +84,7 @@ public final class PortraitBaker {
       return null;
     }
     pose.applyTo(dog);
-    DogLooks.face(dog, FACING_YAW);
+    DogFacing.face(dog, FACING_YAW);
     return dog;
   }
 

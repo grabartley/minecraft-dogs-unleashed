@@ -56,9 +56,6 @@ public final class DogPortraitRenderer {
     if (client.world == null) {
       return null;
     }
-    if (pet.breed() == null) {
-      return null;
-    }
     final DogLook look = pet.portraitLook();
     final EntityType<UnleashedDogEntity> type = DogLooks.entityType(look);
     if (type == null) {

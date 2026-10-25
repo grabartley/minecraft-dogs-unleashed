@@ -128,7 +128,7 @@ class PetLookNbtTest {
     assertEquals(pure.movementSpeed(), genome.movementSpeed(), 1e-6);
     assertEquals(pure.attackDamage(), genome.attackDamage(), 1e-6);
     assertEquals(pure.furGrowthRate(), genome.furGrowthRate(), 1e-6);
-    assertEquals(UnleashedDogBreed.BEAGLE, genome.voiceBreed());
+    assertEquals(pure.voiceBreed(), genome.voiceBreed());
   }
 
   static Stream<Arguments> legacyLooks() {
@@ -152,15 +152,17 @@ class PetLookNbtTest {
             (Consumer<NbtCompound>) nbt -> {},
             DogStatueLook.unseen(UnleashedDogBreed.BEAGLE)),
         Arguments.of(
-            "a look naming an unknown breed",
+            "a look naming an unknown breed keeps the rest of the look on the fallback breed",
             UnleashedDogBreed.BEAGLE,
             (Consumer<NbtCompound>)
                 nbt -> {
-                  final NbtCompound broken = new NbtCompound();
-                  broken.putString(ModNbtKeys.BREED_TYPE, "poodle");
-                  nbt.put(ModNbtKeys.PET_LOOK, broken);
+                  final NbtCompound saved =
+                      new DogStatueLook(UnleashedDogBreed.BEAGLE, true, 2, -1, 3, 4, null, null)
+                          .toNbt();
+                  saved.putString(ModNbtKeys.BREED_TYPE, "poodle");
+                  nbt.put(ModNbtKeys.PET_LOOK, saved);
                 },
-            DogStatueLook.unseen(UnleashedDogBreed.BEAGLE)),
+            new DogStatueLook(UnleashedDogBreed.HUSKY, true, 2, -1, 3, 4, null, null)),
         Arguments.of(
             "a saved genome next to an older loose breed mix",
             UnleashedDogBreed.HUSKY,

@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.render.statue;
 import com.grahambartley.dogsunleashed.block.DogStatue;
 import com.grahambartley.dogsunleashed.block.entity.DogStatueBlockEntity;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.portrait.DogFacing;
 import com.grahambartley.dogsunleashed.portrait.DogLook;
 import com.grahambartley.dogsunleashed.portrait.DogLooks;
 import java.util.HashMap;
@@ -53,7 +54,7 @@ public final class StatueFigures {
     }
     final Figure current = this.figures.get(base.getPos());
     if (current != null && current.statue().equals(statue)) {
-      DogLooks.face(current.dog(), facing.asRotation());
+      DogFacing.face(current.dog(), facing.asRotation());
       return current;
     }
     final UnleashedDogEntity dog = world == null ? null : carve(world, base.getPos(), statue);
@@ -61,7 +62,7 @@ public final class StatueFigures {
       this.figures.remove(base.getPos());
       return null;
     }
-    DogLooks.face(dog, facing.asRotation());
+    DogFacing.face(dog, facing.asRotation());
     final Figure figure = new Figure(statue, dog);
     this.figures.put(base.getPos(), figure);
     return figure;

@@ -39,11 +39,14 @@ final class PetLookNbt {
   }
 
   static DogStatueLook readLook(final NbtCompound nbt) {
-    final DogStatueLook saved =
-        nbt.contains(ModNbtKeys.PET_LOOK, NbtElement.COMPOUND_TYPE)
-            ? DogStatueLook.fromNbt(nbt.getCompound(ModNbtKeys.PET_LOOK))
-            : null;
-    return saved != null ? saved : legacyLook(nbt);
+    if (!nbt.contains(ModNbtKeys.PET_LOOK, NbtElement.COMPOUND_TYPE)) {
+      return legacyLook(nbt);
+    }
+    final NbtCompound saved = nbt.getCompound(ModNbtKeys.PET_LOOK).copy();
+    saved.putString(
+        ModNbtKeys.BREED_TYPE,
+        UnleashedDogBreed.fromSerializedId(saved.getString(ModNbtKeys.BREED_TYPE)).serializedId());
+    return DogStatueLook.fromNbt(saved);
   }
 
   static DogPortraitOutfit readOutfit(
@@ -104,6 +107,6 @@ final class PetLookNbt {
         pure.movementSpeed(),
         pure.attackDamage(),
         pure.furGrowthRate(),
-        DogGenome.dominantOf(composition));
+        pure.voiceBreed());
   }
 }
