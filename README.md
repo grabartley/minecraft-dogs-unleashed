@@ -43,72 +43,63 @@ The dire wolf is the rare one. It roams the coldest peaks in packs that hunt tog
 hurts one of them. Earn a pup's trust and it grows into a wolf the size of a horse that you can ride.
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/main/docs/all%20huskies.png" alt="Husky coat variants" width="800">
+<img src="https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/main/docs/images/huskies.png" alt="Husky coats" width="600">
 </p>
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/main/docs/New%20Project.png" alt="Husky eye variants" width="600">
+<img src="https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/main/docs/images/husky_eyes.png" alt="Husky eye colours" width="480">
 </p>
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/main/docs/allsal.png" alt="Dachshund coat variants" width="800">
+<img src="https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/main/docs/images/dachshunds.png" alt="Dachshund coats" width="800">
 </p>
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/main/docs/allbeagles.png" alt="Beagle coat variants" width="800">
+<img src="https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/main/docs/images/beagles.png" alt="Beagle coats" width="640">
 </p>
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/main/docs/goldenretriever.png" alt="Golden Retriever coat" width="400">
+<img src="https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/main/docs/images/golden_retriever.png" alt="Golden Retriever" width="220">
 </p>
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/main/docs/allshibas.png" alt="Shiba Inu coat variants" width="800">
+<img src="https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/main/docs/images/shibas.png" alt="Shiba Inu coats" width="600">
 </p>
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/main/docs/alldirewolves.png" alt="Dire Wolf coat variants" width="800">
+<img src="https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/main/docs/images/dire_wolves.png" alt="Dire Wolf coats" width="700">
 </p>
 
 ## What you can do
 
 - **Give real commands.** Right-click your dog to open a command wheel: Follow, Heel, Stay, Sit, Hunt, Guard, Free Roam
 and Go to Bed. Or sneak and blow its whistle at something to send it there, set it on a mob, or have it fetch a dropped
-item. Hunting dogs leave your other pets, villagers and golems alone, but name your farm animals to keep them safe.
+item.
 - **Teach tricks.** Catch your dog begging, rolling over or playing dead and toss it a treat. Reward a trick a few
-times and it's learned for good, ready to show off from the wheel's Actions.
-- **Follow their nose.** Hand your dog a mob drop, a raw ore or a brush and it leads you to the nearest mob, ore or dig
-site that matches. Show it a treasure map and it digs at the X, or a trail ruins sherd and it finds the ruins.
-Beagles can smell twice as far. Or send it off exploring from the wheel's Actions, and it comes back
-next morning with a find and a map of where it went. Give it saddlebags and it can carry items to
-another player, even in another dimension, then trot back home to you.
-- **Play fetch and tug.** Throw a stick, a tennis ball or a frisbee. Your dog chases it, picks it up and brings it back to you.
-Or play tug of war with a rope toy, and if your dog wins it runs off with the rope.
-Give a roaming or staying dog a bone and it buries it, then digs it up a few days later and brings it back, sometimes
-with a find. Foxes sneak in at night to steal buried bones, and a dog nearby barks and chases them off.
-Dogs bark at pillagers too, and earn a rosette for helping you win a raid.
-Left to roam, two dogs will sometimes play bow and chase each other around, and wild dire wolf pups play too.
-The more time you spend together, the closer your dog grows, from Stranger to Devoted.
-Every dog has a personality too: brave, timid, greedy, lazy, clingy or playful.
-Dogs are nervous in the Nether and stick close to you, and in the End they bark at endermen instead of attacking them.
-- **Give them a bed.** Craft a dog bed or a dog house in any colour and assign it. Your dog goes to bed by itself at
-night. Dire wolves are too big for either and nap on the ground instead, once by day and once by night.
-Set out a food bowl and a water bowl too, and a hurt dog will eat or drink there while you're away. Hoppers can keep
-the food bowl topped up.
-- **Kit them out.** Open their gear from the command wheel. Craft them armour from leather, iron, gold, diamond or netherite, or use wolf armour. Your tamed wolves can wear it too. It takes hits for them, cracks as it wears, and mends with its own material. Dye leather armour and their collar any colour, and feed them treats for a short speed and damage boost. Hang a pendant on their collar to keep a mob family away from you both, shield them from fire, falls or drowning, heal you while they're near, or save them from death once. Dress them up in a hat, a bandana, a bow, a mob head or a carved pumpkin, or put them in one of seventeen mob costumes, from a spider or a creeper to an ender dragon. The wandering trader sometimes sells one. Dye the sheep costume any colour. Saddlebags let them carry things for you, and a team of huskies or dire wolves can pull you across the snow on a dog sled.
-- **Keep them groomed.** Most coats grow out over time, and a long coat slows a dog down. Trim it with shears to collect dog fur. Go
-carefully, or your dog ends up with a bad hair day until it grows back.
-- **Never lose them.** Dogs on Follow or Heel come with you through portals and long teleports. The rest stay where you left them. If you die, they guard your things and call out when you're back. Bind a dog whistle to call one from anywhere, or open the
-Pet Manager to see and summon your whole pack.
-- **Raise a family.** Any two living tamed dogs can have puppies, and mixed parents give a mixed breed puppy that looks like both, with blended colours and a shape somewhere between. Dire wolves only breed with dire wolves. Puppies inherit
-their parents' personalities and their coat and eye genes, so two parents can carry a rare coat and pass it on. Every dog has a family tree you can explore.
-Turn on Dog Aging and your dogs grow old with you, going grey around the muzzle and napping more, but never dying of age.
-- **Bring them back.** A tamed dog that dies leaves a grave. Put a totem in it and a lightning rod above it, then wait
-for lightning to strike it. Your dog comes back undead and burns in daylight unless it has shade, armour, or a fire pendant. Cure it the same way you
-cure a zombie villager. If it dies while undead, it is gone for good, unless it wears a Pendant of Loyalty.
-Carve any of your dogs, living or lost, into a stone, gold or copper statue with its name on the front, or paint its portrait, gear and all, on a canvas to hang on your wall, and pose either one sitting, standing or, for breeds that howl, howling.
-- **Little touches.** Huskies and dire wolves howl at the full moon, dogs tilt their heads at food, and they shake off after rain or a
-swim. Muddy dogs leave paw prints until you wash them in a water cauldron. There is also an advancement tab to work through.
+times and it's learned for good.
+- **Follow their nose.** Hand your dog a mob drop, a raw ore, a brush, a treasure map or a trail ruins sherd and it leads
+you to what it smells. Send it off exploring and it comes back with a find and a map of where it went.
+- **Play together.** Throw a stick, a tennis ball or a frisbee and your dog brings it back, or play tug of war with a
+rope toy. Give it a bone and it buries it, then digs it up days later, sometimes with a find.
+- **Give them a home.** Craft a dog bed or a dog house in any colour and your dog goes to bed by itself at night. Set
+out a food bowl and a water bowl too, and a hurt dog will eat or drink there while you're away.
+- **Kit them out.** Craft them armour, dye their collar, and hang a pendant on it to keep mobs away, shield them from
+harm or heal you. Saddlebags let them carry items to another player, even in another dimension, and a team of huskies
+or dire wolves can pull you across the snow on a sled.
+- **Dress them up.** Put a hat, a bandana, a bow, a mob head or a carved pumpkin on them, or one of seventeen mob
+costumes, from a spider or a creeper to an ender dragon.
+- **Keep them groomed.** Coats grow out over time. Trim them with shears to collect dog fur, but go carefully or your
+dog ends up with a bad hair day.
+- **Never lose them.** Dogs on Follow or Heel come with you through portals and long teleports. Bind a dog whistle to
+call one from anywhere, or open the Pet Manager to see and summon your whole pack.
+- **Raise a family.** Two tamed dogs can have puppies, and mixed parents give a mixed breed puppy that looks like
+both. Puppies take after their parents, rare coats included, and every dog has a family tree. Turn on Dog Aging and
+your dogs grow old with you, without ever dying of age.
+- **Bring them back.** A tamed dog that dies leaves a grave, and you can bring it back as an undead dog, then
+cure it. Carve any dog into a statue or paint its portrait for your wall.
+- **Little touches.** Every dog has a personality and grows closer to you over time. Huskies and dire wolves howl at
+the full moon, dogs tilt their heads at food, shake off after a swim, and leave muddy paw prints until you wash them.
+They bark at pillagers and earn a rosette for helping you win a raid, and stick close to you in the Nether.
 
 ## Install
 
