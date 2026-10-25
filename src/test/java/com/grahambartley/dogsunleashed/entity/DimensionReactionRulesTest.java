@@ -38,6 +38,19 @@ class DimensionReactionRulesTest {
     assertEquals(0.5, DimensionReactionRules.closestFollowDistanceScale());
   }
 
+  @ParameterizedTest(name = "alive {0}, asleep {1}, uneasy {2} -> {3}")
+  @CsvSource({
+    "true, false, true, true",
+    "true, true, true, false",
+    "false, false, true, false",
+    "true, false, false, false"
+  })
+  @DisplayName("only a living, awake, uneasy dog shows its unease")
+  void runsUnease(
+      final boolean alive, final boolean asleep, final boolean uneasy, final boolean expected) {
+    assertEquals(expected, DimensionReactionRules.runsUnease(alive, asleep, uneasy));
+  }
+
   @ParameterizedTest(name = "reacted {0}, {1} ticks since, roll {2} -> {3}")
   @CsvSource({
     "false, 0, 7, true",

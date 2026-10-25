@@ -5,7 +5,7 @@ public final class DimensionReactionRules {
   public static final double NETHER_FOLLOW_DISTANCE_SCALE = 0.5;
   public static final double CALM_FOLLOW_DISTANCE_SCALE = 1.0;
   public static final long UNEASE_MIN_GAP_TICKS = 60 * 20;
-  public static final int UNEASE_ODDS = 120 * 20;
+  public static final int UNEASE_ONE_IN_TICKS = 120 * 20;
   public static final long ENDERMAN_BARK_EVERY_TICKS = 3 * 20;
   public static final double ENDERMAN_BARK_RANGE = 12.0;
 
@@ -21,6 +21,11 @@ public final class DimensionReactionRules {
 
   public static double followDistanceScale(final boolean uneasy) {
     return uneasy ? NETHER_FOLLOW_DISTANCE_SCALE : CALM_FOLLOW_DISTANCE_SCALE;
+  }
+
+  public static boolean runsUnease(
+      final boolean alive, final boolean asleep, final boolean uneasy) {
+    return alive && !asleep && uneasy;
   }
 
   public static boolean actsUneasyNow(

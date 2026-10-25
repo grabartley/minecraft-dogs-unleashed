@@ -4,12 +4,13 @@ import com.grahambartley.dogsunleashed.entity.DimensionReactionRules;
 
 public final class NetherUneaseSchedule {
 
-  private boolean reacted;
+  private boolean reactedSinceArrival;
   private long ticksSinceReaction;
 
   public boolean tick(final int roll) {
-    if (DimensionReactionRules.actsUneasyNow(this.reacted, this.ticksSinceReaction, roll)) {
-      this.reacted = true;
+    if (DimensionReactionRules.actsUneasyNow(
+        this.reactedSinceArrival, this.ticksSinceReaction, roll)) {
+      this.reactedSinceArrival = true;
       this.ticksSinceReaction = 0;
       return true;
     }

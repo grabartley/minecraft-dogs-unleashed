@@ -33,7 +33,8 @@ public class NetherUneaseGoal extends Goal {
 
   @Override
   public void tick() {
-    if (!this.schedule.tick(this.dog.getRandom().nextInt(DimensionReactionRules.UNEASE_ODDS))) {
+    if (!this.schedule.tick(
+        this.dog.getRandom().nextInt(DimensionReactionRules.UNEASE_ONE_IN_TICKS))) {
       return;
     }
     this.dog.playSound(
@@ -44,8 +45,9 @@ public class NetherUneaseGoal extends Goal {
   }
 
   private boolean isUneasy() {
-    return this.dog.isAlive()
-        && !this.dog.getSleepController().isAsleep()
-        && DogDimensionReaction.isUneasy(this.dog);
+    return DimensionReactionRules.runsUnease(
+        this.dog.isAlive(),
+        this.dog.getSleepController().isAsleep(),
+        DogDimensionReaction.isUneasy(this.dog));
   }
 }

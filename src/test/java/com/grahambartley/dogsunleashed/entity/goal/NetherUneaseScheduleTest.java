@@ -1,6 +1,5 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -48,16 +47,17 @@ class NetherUneaseScheduleTest {
     assertFalse(schedule.tick(HIT), "a reaction starts a new gap");
   }
 
-  @ParameterizedTest(name = "odds {0}")
-  @ValueSource(ints = {DimensionReactionRules.UNEASE_ODDS})
-  @DisplayName("a missing roll never reacts after arrival")
-  void missesNeverReact(final int odds) {
+  @ParameterizedTest(name = "roll {0}")
+  @ValueSource(ints = {1, 2, DimensionReactionRules.UNEASE_ONE_IN_TICKS - 1})
+  @DisplayName("a losing roll never reacts after the gap")
+  void losingRollsNeverReact(final int roll) {
     final NetherUneaseSchedule schedule = new NetherUneaseSchedule();
     schedule.tick(MISS);
-    int reactions = 0;
-    for (int tick = 0; tick < odds * 4; tick++) {
-      reactions += schedule.tick(MISS) ? 1 : 0;
+    for (long tick = 0; tick < DimensionReactionRules.UNEASE_MIN_GAP_TICKS; tick++) {
+      schedule.tick(HIT);
     }
-    assertEquals(0, reactions);
+    for (int tick = 0; tick < DimensionReactionRules.UNEASE_ONE_IN_TICKS; tick++) {
+      assertFalse(schedule.tick(roll), "tick " + tick);
+    }
   }
 }
