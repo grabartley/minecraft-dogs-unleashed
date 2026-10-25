@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.math.BlockPos;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,6 +23,9 @@ import org.junit.jupiter.params.provider.EnumSource;
 
 @ExtendWith(MinecraftBootstrapExtension.class)
 class BreedCompositionTest {
+
+  private static final DynamicRegistryManager REGISTRIES =
+      DynamicRegistryManager.of(Registries.REGISTRIES);
 
   private final Map<UUID, PetData> pets = new HashMap<>();
 
@@ -125,9 +130,9 @@ class BreedCompositionTest {
   private UUID registerDogWithStoredComposition(
       final UUID parentAId, final UUID parentBId, final List<BreedShare> composition) {
     final UUID id = registerDog(UnleashedDogBreed.CROSS_BREED, parentAId, parentBId);
-    final NbtCompound nbt = pets.get(id).toNbt();
+    final NbtCompound nbt = pets.get(id).toNbt(REGISTRIES);
     nbt.put(ModNbtKeys.COMPOSITION, DogGenome.compositionToNbt(composition));
-    pets.put(id, PetData.fromNbt(nbt));
+    pets.put(id, PetData.fromNbt(nbt, REGISTRIES));
     return id;
   }
 

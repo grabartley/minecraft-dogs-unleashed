@@ -6,6 +6,8 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
+import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfit;
+import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfits;
 import java.util.UUID;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.DyeColor;
@@ -20,7 +22,9 @@ record PortraitDogAppearance(
     @Nullable DogGenome genome,
     int coatVariant,
     int eyeColorVariant,
-    int furStage) {
+    int furStage,
+    int growthStage,
+    DogPortraitOutfit outfit) {
 
   private static final int COLLAR_COLOR_COUNT = DyeColor.values().length;
 
@@ -36,13 +40,16 @@ record PortraitDogAppearance(
         pet.displayBreed().hasEyeColorVariants()
             ? pet.huskyEyeVariant()
             : UnleashedDogEntity.UNSET_VARIANT,
-        pet.furStage());
+        pet.furStage(),
+        pet.growthStage(),
+        pet.outfit());
   }
 
   void applyTo(final UnleashedDogEntity dog) {
     dog.setBaby(this.baby);
     dog.getComponents().get(DogCollar.class).setColor(this.collarColor);
     dog.readCustomDataFromNbt(this.toNbt());
+    DogPortraitOutfits.dress(dog, this.outfit);
   }
 
   NbtCompound toNbt() {
@@ -57,6 +64,7 @@ record PortraitDogAppearance(
       nbt.putInt(ModNbtKeys.EYE_COLOR_VARIANT, this.eyeColorVariant);
     }
     nbt.putInt(ModNbtKeys.FUR_STAGE, this.furStage);
+    nbt.putInt(ModNbtKeys.GROWTH_STAGE, this.growthStage);
     return nbt;
   }
 

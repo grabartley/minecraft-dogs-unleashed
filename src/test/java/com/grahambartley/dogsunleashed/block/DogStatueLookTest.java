@@ -22,6 +22,8 @@ import java.util.UUID;
 import java.util.stream.Stream;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.Registries;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,6 +34,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(MinecraftBootstrapExtension.class)
 class DogStatueLookTest {
+
+  private static final DynamicRegistryManager REGISTRIES =
+      DynamicRegistryManager.of(Registries.REGISTRIES);
 
   private static final DogGenome MOSTLY_HUSKY =
       new DogGenome(
@@ -137,7 +142,7 @@ class DogStatueLookTest {
     record.putInt(ModNbtKeys.GROWTH_STAGE, 0);
     record.put(ModNbtKeys.GENES, HUSKY_GENES.toNbt());
 
-    final DogStatueLook look = DogStatueLook.of(PetData.fromNbt(record));
+    final DogStatueLook look = DogStatueLook.of(PetData.fromNbt(record, REGISTRIES));
 
     assertEquals(
         new DogStatueLook(UnleashedDogBreed.HUSKY, true, 2, 1, 3, 0, null, HUSKY_GENES), look);

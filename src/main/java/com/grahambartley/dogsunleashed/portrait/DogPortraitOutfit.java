@@ -9,6 +9,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 
@@ -60,6 +63,9 @@ public record DogPortraitOutfit(
                           .optionalFieldOf("undead", false)
                           .forGetter(DogPortraitOutfit::undead))
                   .apply(instance, DogPortraitOutfit::new));
+
+  public static final PacketCodec<RegistryByteBuf, DogPortraitOutfit> PACKET_CODEC =
+      PacketCodecs.registryCodec(CODEC);
 
   public DogPortraitOutfit {
     final Map<DogEquipmentSlot, ItemStack> worn = new EnumMap<>(DogEquipmentSlot.class);

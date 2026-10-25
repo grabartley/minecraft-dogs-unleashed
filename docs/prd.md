@@ -494,6 +494,7 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 | FIND-10 | The Pet Manager shows saved data for dogs that aren't loaded. It never loads chunks to fill the list |
 | FIND-11 | The Pet Manager key is unbound by default, and a one-time toast suggests binding it |
 | FIND-12 | When a player joins, their tamed dogs within 32 blocks wag and show hearts, at most once a minute per dog |
+| FIND-13 | Dog previews in the Pet Manager, pet details, family tree and inspect card show the dog as it looks: worn gear, fur, senior coat, mud and dire wolf growth. A dog that is not loaded shows the look it last had |
 
 **Not supported:** summoning a deceased or lost dog; seeing other players' dogs in the Pet Manager.
 

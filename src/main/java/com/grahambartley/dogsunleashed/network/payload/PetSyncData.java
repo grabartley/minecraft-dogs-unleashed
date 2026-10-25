@@ -17,6 +17,8 @@ import com.grahambartley.dogsunleashed.pet.PetAge;
 import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
+import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfit;
+import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfits;
 import java.util.List;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.network.RegistryByteBuf;
@@ -46,7 +48,9 @@ public record PetSyncData(
     PetAwayStatus away,
     boolean senior,
     DogBondStep bond,
-    DogTraits personality) {
+    DogTraits personality,
+    int growthStage,
+    DogPortraitOutfit outfit) {
 
   public static final PacketCodec<RegistryByteBuf, PetSyncData> CODEC =
       PacketCodec.of(PetSyncData::write, PetSyncData::read);
@@ -75,7 +79,9 @@ public record PetSyncData(
         away,
         seniorOf(petData),
         DogBondStep.ofPoints(petData.getBondPoints()),
-        petData.getPersonality());
+        petData.getPersonality(),
+        petData.getGrowthStage(),
+        petData.getOutfit());
   }
 
   public static PetSyncData fromDog(final UnleashedDogEntity dog) {
@@ -107,7 +113,9 @@ public record PetSyncData(
         PetAwayStatus.HOME,
         dog.getComponents().get(DogAging.class).isSenior(),
         dog.getComponents().get(DogBond.class).step(),
-        dog.getComponents().get(DogPersonality.class).traits());
+        dog.getComponents().get(DogPersonality.class).traits(),
+        dog.getGrowth().stage().number(),
+        DogPortraitOutfits.of(dog));
   }
 
   static boolean seniorOf(final PetData petData) {
@@ -166,6 +174,8 @@ public record PetSyncData(
     buf.writeBoolean(this.senior);
     buf.writeVarInt(this.bond.ordinal());
     this.personality.write(buf);
+    buf.writeVarInt(this.growthStage);
+    DogPortraitOutfit.PACKET_CODEC.encode(buf, this.outfit);
   }
 
   static PetSyncData read(final RegistryByteBuf buf) {
@@ -192,6 +202,8 @@ public record PetSyncData(
         PetAwayStatus.byId(buf.readVarInt()),
         buf.readBoolean(),
         DogBondStep.byId(buf.readVarInt()),
-        DogTraits.read(buf));
+        DogTraits.read(buf),
+        buf.readVarInt(),
+        DogPortraitOutfit.PACKET_CODEC.decode(buf));
   }
 }

@@ -1,9 +1,10 @@
 package com.grahambartley.dogsunleashed.network.payload;
 
-import static com.grahambartley.dogsunleashed.network.payload.PayloadTestFixtures.newBuf;
+import static com.grahambartley.dogsunleashed.network.payload.PayloadTestFixtures.newRegistryBuf;
 import static com.grahambartley.dogsunleashed.network.payload.PayloadTestFixtures.samplePet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.genome.DogGeneLocus;
 import com.grahambartley.dogsunleashed.entity.genome.DogGeneTrait;
@@ -13,7 +14,9 @@ import java.util.UUID;
 import net.minecraft.network.RegistryByteBuf;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(MinecraftBootstrapExtension.class)
 class SyncDogConnectionsPayloadTest {
 
   @Test
@@ -46,7 +49,7 @@ class SyncDogConnectionsPayloadTest {
             List.of(),
             List.of(),
             false);
-    final RegistryByteBuf buf = newBuf();
+    final RegistryByteBuf buf = newRegistryBuf();
     SyncDogConnectionsPayload.CODEC.encode(buf, payload);
     assertEquals(payload, SyncDogConnectionsPayload.CODEC.decode(buf));
   }

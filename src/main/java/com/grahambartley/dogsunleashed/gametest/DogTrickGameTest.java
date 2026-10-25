@@ -171,7 +171,10 @@ public final class DogTrickGameTest implements FabricGameTest {
 
     context.assertEquals(
         progress,
-        PetData.fromNbt(pet.toNbt()).getTricks(),
+        PetData.fromNbt(
+                pet.toNbt(context.getWorld().getRegistryManager()),
+                context.getWorld().getRegistryManager())
+            .getTricks(),
         "Pet data keeps learned tricks after death");
     context.complete();
   }

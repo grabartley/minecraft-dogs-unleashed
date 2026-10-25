@@ -11,6 +11,7 @@ import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
 import com.grahambartley.dogsunleashed.network.payload.RidingView;
 import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
+import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfit;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -91,7 +92,9 @@ class DogStatsPanelTest {
         PetAwayStatus.HOME,
         false,
         DogBondStep.STRANGER,
-        DogTraits.NONE);
+        DogTraits.NONE,
+        0,
+        DogPortraitOutfit.NONE);
   }
 
   @Test

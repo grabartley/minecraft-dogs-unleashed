@@ -9,10 +9,13 @@ import com.grahambartley.dogsunleashed.entity.personality.DogTraits;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
+import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfit;
 import io.netty.buffer.Unpooled;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.Registries;
 
 final class PayloadTestFixtures {
 
@@ -25,6 +28,10 @@ final class PayloadTestFixtures {
 
   static RegistryByteBuf newBuf() {
     return new RegistryByteBuf(Unpooled.buffer(), null);
+  }
+
+  static RegistryByteBuf newRegistryBuf() {
+    return new RegistryByteBuf(Unpooled.buffer(), DynamicRegistryManager.of(Registries.REGISTRIES));
   }
 
   static PetSyncData samplePet(final UnleashedDogBreed breed, final String name) {
@@ -56,6 +63,8 @@ final class PayloadTestFixtures {
         PetAwayStatus.HOME,
         false,
         DogBondStep.STRANGER,
-        DogTraits.NONE);
+        DogTraits.NONE,
+        0,
+        DogPortraitOutfit.NONE);
   }
 }

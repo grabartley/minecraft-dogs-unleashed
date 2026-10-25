@@ -11,6 +11,7 @@ import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
 import com.grahambartley.dogsunleashed.network.payload.RidingView;
 import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
+import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfit;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -189,6 +190,8 @@ class PetLifeStateDisplayTest {
         away,
         senior,
         DogBondStep.STRANGER,
-        DogTraits.NONE);
+        DogTraits.NONE,
+        0,
+        DogPortraitOutfit.NONE);
   }
 }

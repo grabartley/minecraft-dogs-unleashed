@@ -1,19 +1,22 @@
 package com.grahambartley.dogsunleashed.network.payload;
 
-import static com.grahambartley.dogsunleashed.network.payload.PayloadTestFixtures.newBuf;
+import static com.grahambartley.dogsunleashed.network.payload.PayloadTestFixtures.newRegistryBuf;
 import static com.grahambartley.dogsunleashed.network.payload.PayloadTestFixtures.samplePet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import java.util.List;
 import java.util.stream.Stream;
 import net.minecraft.network.RegistryByteBuf;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+@ExtendWith(MinecraftBootstrapExtension.class)
 class OpenDogInspectPayloadTest {
 
   static Stream<Arguments> payloads() {
@@ -69,7 +72,7 @@ class OpenDogInspectPayloadTest {
       final WildTrustView trust) {
     final OpenDogInspectPayload payload =
         new OpenDogInspectPayload(pet, tamed, ownerName, composition, trust);
-    final RegistryByteBuf buf = newBuf();
+    final RegistryByteBuf buf = newRegistryBuf();
     OpenDogInspectPayload.CODEC.encode(buf, payload);
     assertEquals(payload, OpenDogInspectPayload.CODEC.decode(buf));
   }

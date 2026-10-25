@@ -18,6 +18,7 @@ import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
 import com.grahambartley.dogsunleashed.network.payload.RidingView;
 import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
+import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfit;
 import com.grahambartley.dogsunleashed.screen.FamilyTreeGeneLines.GeneLine;
 import java.util.Arrays;
 import java.util.List;
@@ -113,7 +114,9 @@ class FamilyTreeGeneLinesTest {
             PetAwayStatus.HOME,
             false,
             DogBondStep.STRANGER,
-            DogTraits.NONE),
+            DogTraits.NONE,
+            0,
+            DogPortraitOutfit.NONE),
         "owner",
         "Owner",
         genes,

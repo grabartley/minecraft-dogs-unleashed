@@ -18,12 +18,16 @@ import com.grahambartley.dogsunleashed.entity.trick.TrickProgress;
 import com.grahambartley.dogsunleashed.entity.trick.TrickProgressNbt;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
+import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfit;
+import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfits;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
@@ -64,6 +68,7 @@ public final class PetData {
   private int bondPoints;
   private DogTraits personality = DogTraits.NONE;
   private TrickProgress tricks = TrickProgress.NONE;
+  private DogPortraitOutfit outfit = DogPortraitOutfit.NONE;
 
   public PetData(
       UUID petId,
@@ -218,6 +223,10 @@ public final class PetData {
     return attackDamage;
   }
 
+  public DogPortraitOutfit getOutfit() {
+    return outfit;
+  }
+
   public int getGrowthStage() {
     return growthStage;
   }
@@ -294,6 +303,7 @@ public final class PetData {
     this.genes = dog.getGenes().genes();
     this.personality = dog.getComponents().get(DogPersonality.class).traits();
     this.tricks = dog.getComponents().get(DogTricks.class).progress();
+    this.outfit = DogPortraitOutfits.of(dog);
   }
 
   public static int coatVariantOf(final UnleashedDogEntity dog) {
@@ -308,7 +318,7 @@ public final class PetData {
   }
 
   public PortraitLook portraitLook() {
-    return new PortraitLook(baby, collarColor, coatVariant, huskyEyeVariant, furStage, senior);
+    return new PortraitLook(baby, coatVariant, huskyEyeVariant, furStage, growthStage, outfit);
   }
 
   public boolean differsFrom(
@@ -324,7 +334,7 @@ public final class PetData {
         || !this.portraitLook().equals(look);
   }
 
-  public NbtCompound toNbt() {
+  public NbtCompound toNbt(final RegistryWrapper.WrapperLookup registries) {
     final NbtCompound nbt = new NbtCompound();
     nbt.putUuid(ModNbtKeys.PET_ID, petId);
     nbt.putUuid(ModNbtKeys.OWNER_ID, ownerId);
@@ -363,6 +373,10 @@ public final class PetData {
     }
     nbt.put(ModNbtKeys.PERSONALITY, personality.toNbt());
     nbt.put(ModNbtKeys.TRICKS, TrickProgressNbt.write(tricks));
+    DogPortraitOutfit.CODEC
+        .encodeStart(registries.getOps(NbtOps.INSTANCE), outfit)
+        .result()
+        .ifPresent(saved -> nbt.put(ModNbtKeys.PORTRAIT_OUTFIT, saved));
     if (parentAId != null) {
       nbt.putUuid(ModNbtKeys.PARENT_A_ID, parentAId);
     }
@@ -378,7 +392,8 @@ public final class PetData {
         : PetLifeState.fromLegacyAliveFlag(nbt.getBoolean(ModNbtKeys.ALIVE));
   }
 
-  public static PetData fromNbt(NbtCompound nbt) {
+  public static PetData fromNbt(
+      final NbtCompound nbt, final RegistryWrapper.WrapperLookup registries) {
     final PetData pet =
         new PetData(
             nbt.getUuid(ModNbtKeys.PET_ID),
@@ -437,6 +452,13 @@ public final class PetData {
     }
     if (nbt.contains(ModNbtKeys.TRICKS, NbtElement.COMPOUND_TYPE)) {
       pet.tricks = TrickProgressNbt.read(nbt.getCompound(ModNbtKeys.TRICKS));
+    }
+    if (nbt.contains(ModNbtKeys.PORTRAIT_OUTFIT, NbtElement.COMPOUND_TYPE)) {
+      pet.outfit =
+          DogPortraitOutfit.CODEC
+              .parse(registries.getOps(NbtOps.INSTANCE), nbt.get(ModNbtKeys.PORTRAIT_OUTFIT))
+              .result()
+              .orElse(DogPortraitOutfit.NONE);
     }
     if (nbt.containsUuid(ModNbtKeys.PARENT_A_ID)) {
       pet.parentAId = nbt.getUuid(ModNbtKeys.PARENT_A_ID);

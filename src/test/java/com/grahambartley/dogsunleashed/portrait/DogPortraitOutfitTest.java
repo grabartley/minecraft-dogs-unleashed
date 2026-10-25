@@ -8,6 +8,7 @@ import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
 import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
+import io.netty.buffer.Unpooled;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -18,6 +19,7 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.DyeColor;
@@ -249,5 +251,14 @@ class DogPortraitOutfitTest {
             false,
             false);
     assertEquals(DyeColor.PURPLE, load(save(outfit)).carried().get(ModComponents.FRISBEE_COLOR));
+  }
+
+  @ParameterizedTest
+  @MethodSource("outfits")
+  @DisplayName("an outfit survives the network round trip")
+  void packetRoundTrips(final DogPortraitOutfit outfit) {
+    final RegistryByteBuf buf = new RegistryByteBuf(Unpooled.buffer(), REGISTRIES);
+    DogPortraitOutfit.PACKET_CODEC.encode(buf, outfit);
+    assertEquals(outfit, DogPortraitOutfit.PACKET_CODEC.decode(buf));
   }
 }

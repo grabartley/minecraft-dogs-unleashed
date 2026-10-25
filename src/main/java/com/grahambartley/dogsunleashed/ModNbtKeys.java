@@ -19,6 +19,7 @@ public final class ModNbtKeys {
   public static final String PORTRAIT_COAT_VARIANT = "portraitCoatVariant";
   public static final String PORTRAIT_HUSKY_EYE = "PortraitHuskyEye";
   public static final String PORTRAIT_FUR_STAGE = "PortraitFurStage";
+  public static final String PORTRAIT_OUTFIT = "PortraitOutfit";
   public static final String PARENT_A_ID = "ParentAId";
   public static final String PARENT_B_ID = "ParentBId";
   public static final String COMPOSITION = "Composition";

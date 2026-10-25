@@ -48,14 +48,19 @@ public final class DogPortraitOutfits {
               dog.setTamed(true, false);
               dog.getComponents().get(DogCollar.class).setColor(colour);
             });
+    final DogFetchCarry carry = dog.getFetchCarry();
+    carry.setCarrying(false);
+    carry.setActiveType(null);
     if (outfit.carrying()) {
-      final DogFetchCarry carry = dog.getFetchCarry();
       carry.setActiveType(outfit.fetchType().map(FetchTypes::forId).orElse(null));
       carry.setCarriedStack(outfit.carried());
       carry.setCarrying(true);
     }
+    final DogMud mud = dog.getComponents().get(DogMud.class);
     if (outfit.muddy()) {
-      dog.getComponents().get(DogMud.class).makeMuddy();
+      mud.makeMuddy();
+    } else {
+      mud.wash();
     }
     dog.getComponents().get(DogAging.class).showSeniorCoat(outfit.senior());
   }

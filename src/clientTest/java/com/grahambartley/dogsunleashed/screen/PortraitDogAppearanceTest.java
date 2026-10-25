@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.entity.DogBondStep;
+import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
@@ -18,9 +19,14 @@ import com.grahambartley.dogsunleashed.network.payload.RidingView;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
+import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfit;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.DyeColor;
 import org.junit.jupiter.api.DisplayName;
@@ -263,7 +269,9 @@ class PortraitDogAppearanceTest {
             PetAwayStatus.HOME,
             false,
             DogBondStep.STRANGER,
-            DogTraits.NONE);
+            DogTraits.NONE,
+            0,
+            DogPortraitOutfit.NONE);
 
     assertEquals(expected, PortraitDogAppearance.of(pet).undead());
   }
@@ -306,7 +314,9 @@ class PortraitDogAppearanceTest {
         PetAwayStatus.HOME,
         false,
         DogBondStep.STRANGER,
-        DogTraits.NONE);
+        DogTraits.NONE,
+        0,
+        DogPortraitOutfit.NONE);
   }
 
   @Test
@@ -337,10 +347,70 @@ class PortraitDogAppearanceTest {
             PetAwayStatus.HOME,
             false,
             DogBondStep.STRANGER,
-            DogTraits.NONE);
+            DogTraits.NONE,
+            0,
+            DogPortraitOutfit.NONE);
 
     final NbtCompound nbt = PortraitDogAppearance.of(overgrown).toNbt();
 
     assertEquals(DogFurStage.OVERGROWN.ordinal(), nbt.getInt(ModNbtKeys.FUR_STAGE));
+  }
+
+  static Stream<Arguments> lookCases() {
+    return Stream.of(
+        Arguments.of(0, DogPortraitOutfit.NONE),
+        Arguments.of(
+            3,
+            new DogPortraitOutfit(
+                Map.of(
+                    DogEquipmentSlot.ARMOUR,
+                    new ItemStack(Items.WOLF_ARMOR),
+                    DogEquipmentSlot.COSTUME,
+                    new ItemStack(Items.CARVED_PUMPKIN)),
+                Optional.of(DyeColor.BLUE),
+                ItemStack.EMPTY,
+                Optional.empty(),
+                true,
+                true,
+                false)));
+  }
+
+  @ParameterizedTest(name = "growth stage {0}")
+  @MethodSource("lookCases")
+  @DisplayName("the portrait dog wears the pet's outfit and grows to its stage")
+  void appearanceCarriesOutfitAndGrowth(final int growthStage, final DogPortraitOutfit outfit) {
+    final PetSyncData base = pet(UnleashedDogBreed.DIRE_WOLF, List.of());
+    final PetSyncData dressed =
+        new PetSyncData(
+            base.petId(),
+            base.breed(),
+            base.name(),
+            base.health(),
+            base.maxHealth(),
+            base.posX(),
+            base.posY(),
+            base.posZ(),
+            base.dimension(),
+            base.lifeState(),
+            base.baby(),
+            base.collarColor(),
+            base.coatVariant(),
+            base.huskyEyeVariant(),
+            base.furStage(),
+            base.movementSpeed(),
+            base.attackDamage(),
+            base.composition(),
+            base.riding(),
+            base.away(),
+            base.senior(),
+            base.bond(),
+            base.personality(),
+            growthStage,
+            outfit);
+
+    final PortraitDogAppearance appearance = PortraitDogAppearance.of(dressed);
+
+    assertEquals(outfit, appearance.outfit());
+    assertEquals(growthStage, appearance.toNbt().getInt(ModNbtKeys.GROWTH_STAGE));
   }
 }
