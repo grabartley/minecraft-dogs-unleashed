@@ -10,7 +10,7 @@ import net.minecraft.sound.SoundEvents;
 public class NetherUneaseGoal extends Goal {
 
   private final UnleashedDogEntity dog;
-  private long uneasyTicks;
+  private final NetherUneaseSchedule schedule = new NetherUneaseSchedule();
 
   public NetherUneaseGoal(final UnleashedDogEntity dog) {
     this.dog = dog;
@@ -32,20 +32,15 @@ public class NetherUneaseGoal extends Goal {
   }
 
   @Override
-  public void start() {
-    this.uneasyTicks = 0;
-  }
-
-  @Override
   public void tick() {
-    if (DimensionReactionRules.whinesNow(this.uneasyTicks, this.dog.getId())) {
-      this.dog.playSound(
-          SoundEvents.ENTITY_WOLF_WHINE, 1.0f, this.dog.getVocalization().getBarkPitch());
+    if (!this.schedule.tick(this.dog.getRandom().nextInt(DimensionReactionRules.UNEASE_ODDS))) {
+      return;
     }
-    if (DimensionReactionRules.cowersNow(this.uneasyTicks, this.dog.isInSittingPose())) {
+    this.dog.playSound(
+        SoundEvents.ENTITY_WOLF_WHINE, 1.0f, this.dog.getVocalization().getBarkPitch());
+    if (DimensionReactionRules.cowersWhenUneasy(this.dog.isInSittingPose())) {
       this.dog.triggerAnim(DogAnimationKeys.COWER, DogAnimationKeys.COWER);
     }
-    this.uneasyTicks++;
   }
 
   private boolean isUneasy() {

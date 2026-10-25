@@ -38,27 +38,28 @@ class DimensionReactionRulesTest {
     assertEquals(0.5, DimensionReactionRules.closestFollowDistanceScale());
   }
 
-  @ParameterizedTest(name = "{0} ticks, stagger {1} -> {2}")
+  @ParameterizedTest(name = "reacted {0}, {1} ticks since, roll {2} -> {3}")
   @CsvSource({
-    "0, 0, false",
-    "600, 0, true",
-    "599, 0, false",
-    "1200, 0, true",
-    "590, 10, true",
-    "600, 10, false",
-    "1, 599, true",
-    "600, 1200, true"
+    "false, 0, 7, true",
+    "false, 5000, 7, true",
+    "true, 0, 0, false",
+    "true, 1199, 0, false",
+    "true, 1200, 0, true",
+    "true, 1200, 1, false",
+    "true, 99999, 2399, false",
+    "true, 99999, 0, true"
   })
-  @DisplayName("an uneasy dog whines every thirty seconds, staggered per dog, never at once")
-  void whinesNow(final long uneasyTicks, final int stagger, final boolean expected) {
-    assertEquals(expected, DimensionReactionRules.whinesNow(uneasyTicks, stagger));
+  @DisplayName("an uneasy dog reacts on arrival, then by chance once a minute has passed")
+  void actsUneasyNow(
+      final boolean reacted, final long ticksSince, final int roll, final boolean expected) {
+    assertEquals(expected, DimensionReactionRules.actsUneasyNow(reacted, ticksSince, roll));
   }
 
-  @ParameterizedTest(name = "{0} ticks, sitting {1} -> {2}")
-  @CsvSource({"0, false, true", "50, false, false", "100, false, true", "100, true, false"})
-  @DisplayName("an uneasy dog cowers every five seconds unless it is sitting")
-  void cowersNow(final long uneasyTicks, final boolean sitting, final boolean expected) {
-    assertEquals(expected, DimensionReactionRules.cowersNow(uneasyTicks, sitting));
+  @ParameterizedTest(name = "sitting {0} -> {1}")
+  @CsvSource({"false, true", "true, false"})
+  @DisplayName("an uneasy dog cowers unless it is sitting")
+  void cowersWhenUneasy(final boolean sitting, final boolean expected) {
+    assertEquals(expected, DimensionReactionRules.cowersWhenUneasy(sitting));
   }
 
   @ParameterizedTest(name = "in End {0}, enderman {1} -> {2}")
