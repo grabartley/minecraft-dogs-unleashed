@@ -14,27 +14,28 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 class DogGearSlotRoutingTest {
 
-  private static final DogGearSlotRouting ROUTING = new DogGearSlotRouting(5, 27, 9, 9);
+  private static final DogGearSlotRouting ROUTING = new DogGearSlotRouting(9, 5, 27, 9);
 
   @Test
-  @DisplayName("the player inventory follows the gear and the bags come last")
+  @DisplayName("the bags come first so sort mods find them, then the gear, then the player")
   void sectionStarts() {
-    assertEquals(5, ROUTING.mainStart());
-    assertEquals(32, ROUTING.hotbarStart());
-    assertEquals(41, ROUTING.bagStart());
+    assertEquals(0, ROUTING.bagStart());
+    assertEquals(9, ROUTING.gearStart());
+    assertEquals(14, ROUTING.mainStart());
+    assertEquals(41, ROUTING.hotbarStart());
     assertEquals(50, ROUTING.total());
   }
 
   @ParameterizedTest(name = "slot {0} is {1}")
   @CsvSource({
-    "0, GEAR",
-    "4, GEAR",
-    "5, MAIN",
-    "31, MAIN",
-    "32, HOTBAR",
-    "40, HOTBAR",
-    "41, BAGS",
-    "49, BAGS"
+    "0, BAGS",
+    "8, BAGS",
+    "9, GEAR",
+    "13, GEAR",
+    "14, MAIN",
+    "40, MAIN",
+    "41, HOTBAR",
+    "49, HOTBAR"
   })
   @DisplayName("every slot index belongs to one section")
   void sectionOfIndex(final int index, final Section expected) {

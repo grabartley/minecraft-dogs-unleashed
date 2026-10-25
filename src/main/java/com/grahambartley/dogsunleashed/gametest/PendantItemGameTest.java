@@ -55,7 +55,7 @@ public final class PendantItemGameTest implements FabricGameTest {
     final DogEquipmentScreenHandler handler =
         new DogEquipmentScreenHandler(1, owner.getInventory(), dog);
 
-    handler.quickMove(owner, DogEquipmentScreenHandler.DOG_SLOT_COUNT + 27);
+    handler.quickMove(owner, DogEquipmentScreenHandler.ROUTING.hotbarStart());
 
     context.assertTrue(
         dog.getPendants().worn() == type,
