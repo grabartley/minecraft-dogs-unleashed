@@ -70,7 +70,7 @@ class DeliveryWaitRulesTest {
     "false, false, false, PASS",
     "false, false, true, PASS"
   })
-  @DisplayName("a second packet from the same right-click keeps the recipient's bags open")
+  @DisplayName("the recipient's click opens the bags, keeps them open, or passes")
   void recipientClick(
       final boolean sneaking,
       final boolean waitingFor,

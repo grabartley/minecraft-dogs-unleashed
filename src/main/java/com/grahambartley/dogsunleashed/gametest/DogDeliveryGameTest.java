@@ -220,7 +220,6 @@ public final class DogDeliveryGameTest implements FabricGameTest {
               AwayDogs.statusOf(server(context), arrived.getUuid()),
               PetAwayStatus.WAITING,
               "Status");
-          recipient.closeHandledScreen();
           finish(context, arrived);
         });
   }
