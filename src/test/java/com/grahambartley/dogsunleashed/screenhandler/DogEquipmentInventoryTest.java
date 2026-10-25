@@ -66,4 +66,11 @@ class DogEquipmentInventoryTest {
     assertTrue(inventory.getStack(0).isEmpty());
     assertTrue(inventory.removeStack(0).isEmpty());
   }
+
+  @ParameterizedTest(name = "{0}")
+  @EnumSource(DogEquipmentSlot.class)
+  @DisplayName("without a dog nothing holds the gear on, so it can always be taken")
+  void withoutADogGearCanBeTaken(final DogEquipmentSlot slot) {
+    assertTrue(new DogEquipmentInventory(null, slot).canTake(null));
+  }
 }

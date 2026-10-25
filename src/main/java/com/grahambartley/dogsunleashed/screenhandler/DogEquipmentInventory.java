@@ -2,7 +2,6 @@ package com.grahambartley.dogsunleashed.screenhandler;
 
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
-import com.grahambartley.dogsunleashed.entity.delivery.DogDeliveries;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
@@ -10,7 +9,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class DogEquipmentInventory implements Inventory {
 
-  public static final int MAX_INTERACTION_DISTANCE = 8;
   private static final int SIZE = 1;
   private static final int MAX_STACK_SIZE = 1;
 
@@ -25,15 +23,6 @@ public class DogEquipmentInventory implements Inventory {
 
   public DogEquipmentSlot slot() {
     return this.slot;
-  }
-
-  public static boolean canReach(
-      final @Nullable UnleashedDogEntity dog, final PlayerEntity player) {
-    return dog != null
-        && dog.isAlive()
-        && dog.isTamed()
-        && (dog.isOwner(player) || DogDeliveries.isWaitingFor(dog, player))
-        && player.canInteractWithEntity(dog, MAX_INTERACTION_DISTANCE);
   }
 
   @Override
@@ -87,7 +76,7 @@ public class DogEquipmentInventory implements Inventory {
 
   @Override
   public boolean canPlayerUse(final PlayerEntity player) {
-    return canReach(this.dog, player);
+    return true;
   }
 
   @Override

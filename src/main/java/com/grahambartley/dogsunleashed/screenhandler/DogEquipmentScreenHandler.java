@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class DogEquipmentScreenHandler extends ScreenHandler {
 
-  public static final int DOG_SLOT_COUNT = DogEquipmentSlot.values().length;
+  public static final int MAX_INTERACTION_DISTANCE = 8;
   public static final int SLOT_SPACING = DogSlotLayout.SLOT_SPACING;
   public static final int PLAYER_INVENTORY_X = 8;
   public static final int PLAYER_INVENTORY_Y = 84;
@@ -35,7 +35,7 @@ public class DogEquipmentScreenHandler extends ScreenHandler {
   public static final DogGearSlotRouting ROUTING =
       new DogGearSlotRouting(
           DogSaddlebags.SIZE,
-          DOG_SLOT_COUNT,
+          DogEquipmentSlot.values().length,
           PLAYER_INVENTORY_ROWS * PLAYER_INVENTORY_COLUMNS,
           PLAYER_INVENTORY_COLUMNS);
   public static final int BAG_SLOT_START = ROUTING.bagStart();
@@ -120,7 +120,11 @@ public class DogEquipmentScreenHandler extends ScreenHandler {
 
   @Override
   public boolean canUse(final PlayerEntity player) {
-    return DogEquipmentInventory.canReach(this.dog, player);
+    return this.dog != null
+        && this.dog.isAlive()
+        && this.dog.isTamed()
+        && (this.dog.isOwner(player) || DogDeliveries.isWaitingFor(this.dog, player))
+        && player.canInteractWithEntity(this.dog, MAX_INTERACTION_DISTANCE);
   }
 
   @Override

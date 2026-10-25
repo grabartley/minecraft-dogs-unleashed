@@ -1,10 +1,10 @@
 package com.grahambartley.dogsunleashed.gametest;
 
-import static com.grahambartley.dogsunleashed.gametest.DogSaddlebagsGameTest.bags;
-import static com.grahambartley.dogsunleashed.gametest.DogSaddlebagsGameTest.open;
-import static com.grahambartley.dogsunleashed.gametest.DogSaddlebagsGameTest.wearingBags;
 import static com.grahambartley.dogsunleashed.gametest.util.PendantTestHelper.ARENA;
 import static com.grahambartley.dogsunleashed.gametest.util.PendantTestHelper.OWNER_POS;
+import static com.grahambartley.dogsunleashed.gametest.util.SaddlebagsTestHelper.bags;
+import static com.grahambartley.dogsunleashed.gametest.util.SaddlebagsTestHelper.open;
+import static com.grahambartley.dogsunleashed.gametest.util.SaddlebagsTestHelper.wearingBags;
 
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
