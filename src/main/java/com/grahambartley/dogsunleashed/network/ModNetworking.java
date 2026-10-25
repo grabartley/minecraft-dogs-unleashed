@@ -30,6 +30,7 @@ import com.grahambartley.dogsunleashed.network.payload.SummonPetPayload;
 import com.grahambartley.dogsunleashed.network.payload.SyncDogConnectionsPayload;
 import com.grahambartley.dogsunleashed.network.payload.SyncPetManagerStatePayload;
 import com.grahambartley.dogsunleashed.network.payload.SyncPetsPayload;
+import com.grahambartley.dogsunleashed.network.payload.WhistleBlowPayload;
 import com.grahambartley.dogsunleashed.network.payload.WildTrustView;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import com.grahambartley.dogsunleashed.pet.PetManager;
@@ -55,6 +56,7 @@ public final class ModNetworking {
     PayloadTypeRegistry.playC2S()
         .register(RequestPetManagerStatePayload.ID, RequestPetManagerStatePayload.CODEC);
     PayloadTypeRegistry.playS2C().register(SyncPetsPayload.ID, SyncPetsPayload.CODEC);
+    PayloadTypeRegistry.playS2C().register(WhistleBlowPayload.ID, WhistleBlowPayload.CODEC);
     PayloadTypeRegistry.playS2C()
         .register(SyncPetManagerStatePayload.ID, SyncPetManagerStatePayload.CODEC);
     PayloadTypeRegistry.playS2C()

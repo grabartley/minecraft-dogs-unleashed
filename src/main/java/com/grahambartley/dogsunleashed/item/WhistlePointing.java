@@ -78,6 +78,7 @@ public final class WhistlePointing {
     }
     player.getItemCooldownManager().set(ModItems.DOG_WHISTLE, DogWhistleItem.BLOW_COOLDOWN_TICKS);
     playPointNote(player);
+    WhistleBlowing.show(player, payload.hand());
     showMarker(player, marker.get());
     dog.getCommandController().acknowledge();
     DogMilestoneCriterion.INSTANCE.trigger(player, DogMilestone.WHISTLE_POINT);

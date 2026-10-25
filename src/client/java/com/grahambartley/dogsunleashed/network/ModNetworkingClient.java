@@ -19,6 +19,7 @@ import com.grahambartley.dogsunleashed.network.payload.SummonPetPayload;
 import com.grahambartley.dogsunleashed.network.payload.SyncDogConnectionsPayload;
 import com.grahambartley.dogsunleashed.network.payload.SyncPetManagerStatePayload;
 import com.grahambartley.dogsunleashed.network.payload.SyncPetsPayload;
+import com.grahambartley.dogsunleashed.network.payload.WhistleBlowPayload;
 import com.grahambartley.dogsunleashed.pet.PetAliveFilter;
 import com.grahambartley.dogsunleashed.screen.DeliveryPickerScreen;
 import com.grahambartley.dogsunleashed.screen.DogBreedNames;
@@ -26,9 +27,12 @@ import com.grahambartley.dogsunleashed.screen.DogCommandWheelScreen;
 import com.grahambartley.dogsunleashed.screen.DogInspectScreen;
 import com.grahambartley.dogsunleashed.screen.PetManagerScreen;
 import com.grahambartley.dogsunleashed.screen.PetNamingScreen;
+import com.grahambartley.dogsunleashed.whistle.WhistleBlowPoses;
 import java.util.UUID;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.world.ClientWorld;
 
 public final class ModNetworkingClient {
 
@@ -51,6 +55,18 @@ public final class ModNetworkingClient {
     ClientPlayNetworking.registerGlobalReceiver(
         OpenDeliveryPickerPayload.ID,
         (payload, context) -> context.client().setScreen(new DeliveryPickerScreen(payload)));
+    ClientPlayNetworking.registerGlobalReceiver(
+        WhistleBlowPayload.ID, ModNetworkingClient::handleWhistleBlow);
+    ClientPlayConnectionEvents.DISCONNECT.register(
+        (handler, client) -> WhistleBlowPoses.SHARED.clear());
+  }
+
+  private static void handleWhistleBlow(
+      WhistleBlowPayload payload, ClientPlayNetworking.Context context) {
+    final ClientWorld world = context.client().world;
+    if (world != null) {
+      WhistleBlowPoses.SHARED.start(payload.entityId(), payload.hand(), world.getTime());
+    }
   }
 
   public static void sendDeliverDog(final UUID dogId, final UUID recipientId) {

@@ -59,7 +59,7 @@ public class DogWhistleItem extends Item implements GeoItem {
     final PetData bound =
         WhistleBinding.boundPet(pets, stack.get(ModComponents.WHISTLE_TARGET_PET));
 
-    playWhistle(player);
+    playWhistle(player, hand);
     player.getItemCooldownManager().set(this, BLOW_COOLDOWN_TICKS);
 
     if (bound == null) {
@@ -74,7 +74,8 @@ public class DogWhistleItem extends Item implements GeoItem {
     return TypedActionResult.success(stack, false);
   }
 
-  private static void playWhistle(final ServerPlayerEntity player) {
+  private static void playWhistle(final ServerPlayerEntity player, final Hand hand) {
+    WhistleBlowing.show(player, hand);
     player
         .getWorld()
         .playSound(
