@@ -64,6 +64,10 @@ public final class DogAmbienceEffects {
     return randomWagHit.getAsBoolean() ? TAIL_WAG_DURATION_TICKS : currentTimer;
   }
 
+  public static boolean canShake(final boolean sitting, final boolean asleep) {
+    return !sitting && !asleep;
+  }
+
   public static boolean isShakeParticleTick(final int shakeProgress) {
     return SHAKE_DURATION_TICKS - shakeProgress == SHAKE_PARTICLE_START_TICK;
   }
@@ -81,6 +85,10 @@ public final class DogAmbienceEffects {
     }
 
     final int shakeProgress = this.dog.getAnimationState().getShakeProgress();
+    if (shakeProgress > 0 && !this.canShakeNow()) {
+      this.dog.getAnimationState().setShakeProgress(0);
+      return;
+    }
     if (shakeProgress > 0) {
       if (isShakeParticleTick(shakeProgress)) {
         this.spawnShakeParticles();
@@ -179,9 +187,13 @@ public final class DogAmbienceEffects {
   }
 
   private void startShaking() {
-    if (!this.dog.getAnimationState().isShaking() && !this.dog.isInSittingPose()) {
+    if (!this.dog.getAnimationState().isShaking() && this.canShakeNow()) {
       this.dog.getAnimationState().setShakeProgress(SHAKE_DURATION_TICKS);
     }
+  }
+
+  private boolean canShakeNow() {
+    return canShake(this.dog.isInSittingPose(), this.dog.getSleepController().isAsleep());
   }
 
   private void spawnShakeParticles() {
