@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.network.payload;
 
 import static com.grahambartley.dogsunleashed.network.PacketLimits.OWNER_NAME_MAX_LENGTH;
 import static com.grahambartley.dogsunleashed.network.PacketLimits.PARENTS_MAX_SIZE;
+import static com.grahambartley.dogsunleashed.network.PacketLimits.PARENT_ID_MAX_LENGTH;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,9 +37,7 @@ public record ConnectionDogSyncData(
     buf.writeString(this.ownerName, OWNER_NAME_MAX_LENGTH);
     GeneSyncData.writeList(buf, this.genes);
     buf.writeBoolean(this.carriedGenesRevealed);
-    buf.writeCollection(
-        this.parentIds.subList(0, Math.min(this.parentIds.size(), PARENTS_MAX_SIZE)),
-        PacketByteBuf::writeString);
+    buf.writeCollection(this.parentIds, (out, id) -> out.writeString(id, PARENT_ID_MAX_LENGTH));
   }
 
   static ConnectionDogSyncData read(final RegistryByteBuf buf) {
@@ -50,6 +49,6 @@ public record ConnectionDogSyncData(
         buf.readBoolean(),
         buf.readCollection(
             PacketByteBuf.getMaxValidator(ArrayList::new, PARENTS_MAX_SIZE),
-            PacketByteBuf::readString));
+            in -> in.readString(PARENT_ID_MAX_LENGTH)));
   }
 }

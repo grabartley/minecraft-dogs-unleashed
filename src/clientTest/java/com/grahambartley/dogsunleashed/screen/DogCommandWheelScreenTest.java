@@ -61,13 +61,27 @@ class DogCommandWheelScreenTest {
   }
 
   @Test
+  @DisplayName("hover detection stops before the caption, so pointing at text selects nothing")
+  void captionSitsOutsideTheHoverBand() {
+    final int captionTop = DogCommandWheelScreen.OUTER_RADIUS + DogCommandWheelScreen.CAPTION_GAP;
+    assertEquals(
+        -1,
+        DogCommandWheelScreen.sectorIndexAt(
+            0,
+            captionTop,
+            11,
+            DogCommandWheelScreen.INNER_RADIUS,
+            DogCommandWheelScreen.OUTER_RADIUS + DogCommandWheelScreen.OUTER_DETECT_MARGIN));
+  }
+
+  @Test
   @DisplayName("the ring and its two caption lines fit the shortest GUI-scaled screen")
   void wheelFitsTheSmallestGuiScreen() {
     final int belowCentre =
         DogCommandWheelScreen.OUTER_RADIUS
             + DogCommandWheelScreen.CAPTION_GAP
             + 2 * FONT_HEIGHT
-            + 2;
+            + DogCommandWheelScreen.CAPTION_LINE_GAP;
     assertTrue(belowCentre <= SMALLEST_GUI_HEIGHT / 2, "wheel reaches " + belowCentre);
   }
 

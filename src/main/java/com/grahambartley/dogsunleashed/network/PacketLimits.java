@@ -9,6 +9,7 @@ public final class PacketLimits {
   public static final int GENES_MAX_SIZE = 8;
   public static final int CARRIED_ALLELES_MAX_SIZE = 2;
   public static final int PARENTS_MAX_SIZE = 2;
+  public static final int PARENT_ID_MAX_LENGTH = 36;
   public static final int DELIVERY_RECIPIENTS_MAX_SIZE = 64;
 
   private PacketLimits() {}

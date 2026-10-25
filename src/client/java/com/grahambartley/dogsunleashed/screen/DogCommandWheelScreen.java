@@ -32,11 +32,12 @@ public class DogCommandWheelScreen extends Screen {
   private static final DogWheelAction[] ACTIONS = DogWheelAction.values();
   private static final String ACTIONS_SECTOR_KEY = "command.dogs-unleashed.actions";
 
-  static final int OUTER_RADIUS = 60;
-  static final int INNER_RADIUS = 26;
+  static final int OUTER_RADIUS = 90;
+  static final int INNER_RADIUS = 42;
   static final int CAPTION_GAP = 6;
+  static final int CAPTION_LINE_GAP = 2;
   private static final int INNER_DETECT_MARGIN = 4;
-  private static final int OUTER_DETECT_MARGIN = 14;
+  static final int OUTER_DETECT_MARGIN = 4;
   private static final float SECTOR_GAP_DEGREES = 1.5f;
   private static final float TESSELLATION_STEP_DEGREES = 2.5f;
   static final int ICON_SIZE = 16;
@@ -239,7 +240,7 @@ public class DogCommandWheelScreen extends Screen {
         Text.translatable(
             this.ring.isSubRingOpen() ? ACTIONS_SECTOR_KEY : this.currentCommand.translationKey()),
         centerX,
-        top + this.textRenderer.fontHeight + 2,
+        top + this.textRenderer.fontHeight + CAPTION_LINE_GAP,
         SUBTITLE_COLOR);
   }
 
