@@ -29,6 +29,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 
@@ -50,14 +51,13 @@ class SlotRegionsTest {
 
   @ParameterizedTest(name = "{0} {1}")
   @MethodSource("rigsAndSlots")
-  @DisplayName("naming a slot's overlay bones gives the same regions as naming the slot")
+  @DisplayName("naming a slot's bones gives the same regions as naming the slot")
   void bonesGiveTheSlotsRegions(final UnleashedDogBreed rig, final Slot slot) {
     final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
     final RigProfile profile = BUNDLED.profileOf(rig);
 
     assertEquals(
-        SlotRegions.of(model, profile, slot),
-        SlotRegions.ofBones(model, profile.overlayBonesIn(slot)));
+        SlotRegions.of(model, profile, slot), SlotRegions.ofBones(model, profile.bonesIn(slot)));
   }
 
   @ParameterizedTest(name = "{0} {1}")
@@ -89,11 +89,10 @@ class SlotRegionsTest {
         SlotRegions.of(ShippedRigs.model(rig.serializedId()), profile, slot);
 
     for (final SlotRegion region : regions) {
-      assertTrue(
-          profile.overlayBonesIn(slot).contains(region.boneName()), region + " is off the slot");
+      assertTrue(profile.bonesIn(slot).contains(region.boneName()), region + " is off the slot");
     }
     assertEquals(
-        sorted(boxUvFaces(rig.serializedId(), profile.overlayBonesIn(slot))),
+        sorted(boxUvFaces(rig.serializedId(), profile.bonesIn(slot))),
         sorted(regions.stream().map(r -> new Rect(r.x(), r.y(), r.width(), r.height())).toList()));
   }
 
@@ -278,5 +277,23 @@ class SlotRegionsTest {
         .getAsJsonArray("minecraft:geometry")
         .get(0)
         .getAsJsonObject();
+  }
+
+  @ParameterizedTest(name = "{0} {1}")
+  @CsvSource({"HEAD, false, true", "NECK, true, false"})
+  @DisplayName(
+      "the shiba's cheeks take the neck's cells in a costume suit and the head's otherwise")
+  void shibaCheeksMoveForSuitsOnly(final Slot slot, final boolean inSuit, final boolean inOverlay) {
+    final BakedGeoModel model = ShippedRigs.model("shibainu");
+    final RigProfile profile = BUNDLED.profileOf(UnleashedDogBreed.SHIBA_INU);
+
+    assertEquals(
+        inSuit,
+        SlotRegions.suitOf(model, profile, slot).stream()
+            .anyMatch(region -> region.boneName().equals("bone4")));
+    assertEquals(
+        inOverlay,
+        SlotRegions.of(model, profile, slot).stream()
+            .anyMatch(region -> region.boneName().equals("bone4")));
   }
 }

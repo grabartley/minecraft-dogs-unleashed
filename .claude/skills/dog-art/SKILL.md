@@ -134,7 +134,7 @@ lands on the eyes of every rig, and on the smallest faces each texel samples a w
 the cell, so even a one pixel rim at the side covers an eye. `OverlayProjectorTest` projects every
 costume onto every rig and fails when a pupil, or the texel either side of it, is painted. A
 small extra cube on the face, such as the shiba's cheeks, takes another slot's cells through the
-profile's `overlay_slots`, and `suit` follows it.
+profile's `suit_slots` in a suit only, and `suit` follows it.
 
 Views: `front`, `front34`, `left`, `right`, `back`, `back34`, `top`, or `--yaw` and `--pitch`.
 `left` is the dog's own left. The dachshund rig faces the other way (its body yaw offset is 180 in

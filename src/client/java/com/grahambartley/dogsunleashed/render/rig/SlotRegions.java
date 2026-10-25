@@ -28,6 +28,8 @@ public final class SlotRegions {
   private final Function<UnleashedDogBreed, RigProfile> profiles;
   private final Map<UnleashedDogBreed, Map<Slot, List<SlotRegion>>> byRig =
       new EnumMap<>(UnleashedDogBreed.class);
+  private final Map<UnleashedDogBreed, Map<Slot, List<SlotRegion>>> suitsByRig =
+      new EnumMap<>(UnleashedDogBreed.class);
 
   public SlotRegions(
       final RigModels.Lookup models, final Function<UnleashedDogBreed, RigProfile> profiles) {
@@ -40,7 +42,24 @@ public final class SlotRegions {
   }
 
   public synchronized List<SlotRegion> regionsOf(final UnleashedDogBreed rig, final Slot slot) {
-    final Map<Slot, List<SlotRegion>> slots = this.byRig.get(rig);
+    return this.cached(this.byRig, rig, slot, SlotRegions::of);
+  }
+
+  public synchronized List<SlotRegion> suitRegionsOf(final UnleashedDogBreed rig, final Slot slot) {
+    return this.cached(this.suitsByRig, rig, slot, SlotRegions::suitOf);
+  }
+
+  @FunctionalInterface
+  private interface Finder {
+    List<SlotRegion> find(BakedGeoModel model, RigProfile profile, Slot slot);
+  }
+
+  private List<SlotRegion> cached(
+      final Map<UnleashedDogBreed, Map<Slot, List<SlotRegion>>> cache,
+      final UnleashedDogBreed rig,
+      final Slot slot,
+      final Finder finder) {
+    final Map<Slot, List<SlotRegion>> slots = cache.get(rig);
     if (slots != null && slots.containsKey(slot)) {
       return slots.get(slot);
     }
@@ -48,18 +67,24 @@ public final class SlotRegions {
     if (model.isEmpty()) {
       return List.of();
     }
-    final List<SlotRegion> regions = of(model.get(), this.profiles.apply(rig), slot);
-    this.byRig.computeIfAbsent(rig, key -> new EnumMap<>(Slot.class)).put(slot, regions);
+    final List<SlotRegion> regions = finder.find(model.get(), this.profiles.apply(rig), slot);
+    cache.computeIfAbsent(rig, key -> new EnumMap<>(Slot.class)).put(slot, regions);
     return regions;
   }
 
   public synchronized void clear() {
     this.byRig.clear();
+    this.suitsByRig.clear();
   }
 
   public static List<SlotRegion> of(
       final BakedGeoModel model, final RigProfile profile, final Slot slot) {
-    return ofBones(model, profile.overlayBonesIn(slot));
+    return ofBones(model, profile.bonesIn(slot));
+  }
+
+  public static List<SlotRegion> suitOf(
+      final BakedGeoModel model, final RigProfile profile, final Slot slot) {
+    return ofBones(model, profile.suitBonesIn(slot));
   }
 
   public static List<SlotRegion> ofBones(

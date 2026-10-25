@@ -27,6 +27,8 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 
 class ProjectedOverlaysTest {
@@ -239,6 +241,37 @@ class ProjectedOverlaysTest {
     overlays.textureOf(UnleashedDogBreed.BEAGLE, SHEET);
 
     verify(textures).destroyTexture(projected);
+    assertEquals(2, this.registered.size());
+  }
+
+  @ParameterizedTest(name = "suit {0}")
+  @ValueSource(booleans = {true, false})
+  @DisplayName("a costume suit gives the shiba's cheeks the neck's cells, other sheets the head's")
+  void suitsFollowSuitSlots(final boolean suit) {
+    this.images.put(SHEET, labelledHeadSheet());
+    final ProjectedOverlays overlays = overlays(shipped(), BUNDLED::profileOf);
+
+    if (suit) {
+      overlays.suitTextureOf(UnleashedDogBreed.SHIBA_INU, SHEET);
+    } else {
+      overlays.textureOf(UnleashedDogBreed.SHIBA_INU, SHEET);
+    }
+
+    final PixelGrid projected = this.registered.getFirst();
+    assertEquals(suit ? 0 : SHEET_COLOUR, projected.colourAt(77, 91));
+    assertEquals(SHEET_COLOUR, projected.colourAt(52, 52));
+  }
+
+  @Test
+  @DisplayName("a sheet asked for as a suit and as an overlay is projected and cached apart")
+  void suitAndOverlayAreCachedApart() {
+    this.images.put(SHEET, labelledHeadSheet());
+    final ProjectedOverlays overlays = overlays(shipped(), BUNDLED::profileOf);
+
+    overlays.suitTextureOf(UnleashedDogBreed.SHIBA_INU, SHEET);
+    overlays.textureOf(UnleashedDogBreed.SHIBA_INU, SHEET);
+    overlays.suitTextureOf(UnleashedDogBreed.SHIBA_INU, SHEET);
+
     assertEquals(2, this.registered.size());
   }
 

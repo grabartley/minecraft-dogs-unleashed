@@ -27,7 +27,7 @@ public class DogCostumeSuitLayer extends TranslucentOverlayLayer {
   protected List<Identifier> overlaysOf(final UnleashedDogEntity dog) {
     return WornCostume.on(dog)
         .map(CostumeAssets::sheet)
-        .flatMap(sheet -> ProjectedOverlays.shared().textureOf(dog.getRigSourceBreed(), sheet))
+        .flatMap(sheet -> ProjectedOverlays.shared().suitTextureOf(dog.getRigSourceBreed(), sheet))
         .stream()
         .toList();
   }

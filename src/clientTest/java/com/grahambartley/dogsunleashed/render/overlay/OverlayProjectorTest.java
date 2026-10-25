@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.render.overlay;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.item.costume.DogCostume;
@@ -237,7 +238,7 @@ class OverlayProjectorTest {
             (int) model.properties().textureWidth(),
             (int) model.properties().textureHeight(),
             ModelFacing.turnedBy(rig.renderTransforms().bodyYawOffsetDegrees()),
-            slot -> regions.regionsOf(rig, slot),
+            slot -> regions.suitRegionsOf(rig, slot),
             slot -> Optional.empty());
 
     for (final Texel pupil : profiles.profileOf(rig).pupils()) {
@@ -254,6 +255,7 @@ class OverlayProjectorTest {
     final String path =
         "/assets/dogs-unleashed/textures/entity/costume/" + costume.itemId() + ".png";
     try (InputStream in = OverlayProjectorTest.class.getResourceAsStream(path)) {
+      assertNotNull(in, costume + " has no suit sheet");
       final BufferedImage image = ImageIO.read(in);
       final PixelGrid sheet = PixelGrid.blank(image.getWidth(), image.getHeight());
       for (int y = 0; y < image.getHeight(); y++) {

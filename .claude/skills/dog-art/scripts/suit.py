@@ -78,15 +78,15 @@ def region_of(cube, face, atlas_w, atlas_h):
     return (face_direction(cube, face), x0, y0, x1 - x0 + 1, y1 - y0 + 1)
 
 
-def overlay_bones(profile, slot):
-    moved = profile.get("overlay_slots", {})
+def suit_bones(profile, slot):
+    moved = profile.get("suit_slots", {})
     kept = [name for name in profile.get(slot, []) if moved.get(name, slot) == slot]
     return kept + [name for name, target in moved.items() if target == slot and name not in kept]
 
 
 def regions_of(bones, atlas_w, atlas_h, profile, slot):
     regions = []
-    for name in overlay_bones(profile, slot):
+    for name in suit_bones(profile, slot):
         for cube in bones.get(name, {}).get("cubes", []):
             for face in QUAD_ORDER:
                 region = region_of(cube, face, atlas_w, atlas_h)

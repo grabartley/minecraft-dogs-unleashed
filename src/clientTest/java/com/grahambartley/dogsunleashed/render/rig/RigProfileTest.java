@@ -195,40 +195,48 @@ class RigProfileTest {
     }
   }
 
+  private static final RigProfile CHEEKY =
+      RigProfile.parse(
+          JsonParser.parseString(
+                  """
+                  {
+                    "head": ["head", "cheek"],
+                    "neck": ["neck"],
+                    "torso": ["Torso"],
+                    "suit_slots": {"cheek": "neck"}
+                  }
+                  """)
+              .getAsJsonObject());
+
   @ParameterizedTest(name = "{0} {1}")
   @CsvSource({"HEAD, head", "NECK, neck;cheek", "MOUTH, ''", "TORSO, Torso"})
-  @DisplayName("an overlay slot moves a bone to another slot for overlays and keeps its own slot")
-  void overlaySlotsMoveBones(final Slot slot, final String expected) {
-    final RigProfile profile =
-        RigProfile.parse(
-            JsonParser.parseString(
-                    """
-                    {
-                      "head": ["head", "cheek"],
-                      "neck": ["neck"],
-                      "torso": ["Torso"],
-                      "overlay_slots": {"cheek": "neck"}
-                    }
-                    """)
-                .getAsJsonObject());
-
+  @DisplayName("a suit slot moves a bone to another slot for costume suits")
+  void suitSlotsMoveBones(final Slot slot, final String expected) {
     assertEquals(
-        expected.isEmpty() ? Set.of() : Set.of(expected.split(";")), profile.overlayBonesIn(slot));
-    assertTrue(profile.bonesIn(Slot.HEAD).contains("cheek"));
+        expected.isEmpty() ? Set.of() : Set.of(expected.split(";")), CHEEKY.suitBonesIn(slot));
+  }
+
+  @Test
+  @DisplayName("a suit slot leaves the bone in its own slot for everything else")
+  void suitSlotsKeepTheBonesOwnSlot() {
+    assertEquals(Set.of("head", "cheek"), CHEEKY.bonesIn(Slot.HEAD));
+    assertEquals(Set.of("neck"), CHEEKY.bonesIn(Slot.NECK));
   }
 
   @ParameterizedTest(name = "{0}")
   @ValueSource(
       strings = {
-        "{\"head\": [\"head\", \"cheek\"], \"overlay_slots\": \"neck\"}",
-        "{\"head\": [\"head\", \"cheek\"], \"overlay_slots\": {\"cheek\": 7}}",
-        "{\"head\": [\"head\", \"cheek\"], \"overlay_slots\": {\"cheek\": \"nose\"}}",
-        "{\"head\": [\"head\", \"cheek\"], \"overlay_slots\": {\"cheek\": \"fur_shaggy\"}}"
+        "{\"head\": [\"head\", \"cheek\"], \"suit_slots\": \"neck\"}",
+        "{\"head\": [\"head\", \"cheek\"], \"suit_slots\": {\"cheek\": 7}}",
+        "{\"head\": [\"head\", \"cheek\"], \"suit_slots\": {\"cheek\": \"nose\"}}",
+        "{\"head\": [\"head\", \"cheek\"], \"suit_slots\": {\"cheek\": \"fur_shaggy\"}}",
+        "{\"head\": [\"head\", \"cheek\"], \"suit_slots\": {\"chin\": \"neck\"}}"
       })
-  @DisplayName("a malformed overlay slot is ignored and the bone stays in its own slot")
-  void malformedOverlaySlotsAreIgnored(final String json) {
+  @DisplayName("a malformed suit slot, or one naming a bone in no slot, is ignored")
+  void malformedSuitSlotsAreIgnored(final String json) {
     final RigProfile profile = RigProfile.parse(JsonParser.parseString(json).getAsJsonObject());
 
-    assertEquals(Set.of("head", "cheek"), profile.overlayBonesIn(Slot.HEAD));
+    assertEquals(Set.of("head", "cheek"), profile.suitBonesIn(Slot.HEAD));
+    assertEquals(Set.of(), profile.suitBonesIn(Slot.NECK));
   }
 }
