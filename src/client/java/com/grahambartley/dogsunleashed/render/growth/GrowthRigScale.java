@@ -12,6 +12,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.WeakHashMap;
+import org.joml.Vector3f;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 
@@ -25,10 +26,18 @@ public final class GrowthRigScale {
 
   private final GrowthScaleTree tree;
   private final GrowthGroundFit fit;
+  private final AnchoredPlacement placement;
+  private final Map<String, GeoBone> bones;
 
-  private GrowthRigScale(final GrowthScaleTree tree, final GrowthGroundFit fit) {
+  private GrowthRigScale(
+      final GrowthScaleTree tree,
+      final GrowthGroundFit fit,
+      final AnchoredPlacement placement,
+      final Map<String, GeoBone> bones) {
     this.tree = tree;
     this.fit = fit;
+    this.placement = placement;
+    this.bones = bones;
   }
 
   public static GrowthRigScale of(
@@ -47,6 +56,14 @@ public final class GrowthRigScale {
 
   public float localScale(final String bone) {
     return this.tree.localScale(bone);
+  }
+
+  public Optional<AnchoredPlacement.Shift> shiftOf(final String bone) {
+    return this.placement.shiftOf(bone, name -> posedPivotOf(this.bones.get(name)));
+  }
+
+  public Optional<String> anchorOf(final String bone) {
+    return Optional.ofNullable(this.placement.anchors().anchors().get(bone));
   }
 
   public float lift() {
@@ -73,11 +90,15 @@ public final class GrowthRigScale {
     profile.bonesIn(Slot.TAIL).forEach(bone -> slotScales.put(bone, scales.tail()));
     LEG_SLOTS.forEach(
         slot -> profile.bonesIn(slot).forEach(bone -> slotScales.put(bone, scales.legs())));
-    final GrowthScaleTree tree = GrowthScaleTree.of(parents, slotScales);
+    final RigAnchors anchors = RigAnchors.of(parents, profile, extentsOf(bones));
+    final Map<String, String> logicalParents = anchors.logicalParents(parents);
+    final GrowthScaleTree tree = GrowthScaleTree.of(logicalParents, slotScales);
+    final AnchoredPlacement placement =
+        new AnchoredPlacement(anchors, restPivotOf(bones.get(anchors.root())), tree);
 
     final List<GrowthGroundFit.Leg> legs = new ArrayList<>();
     for (final Slot slot : LEG_SLOTS) {
-      legOf(bones, profile.bonesIn(slot), tree).ifPresent(legs::add);
+      legOf(bones, logicalParents, profile.bonesIn(slot), tree).ifPresent(legs::add);
     }
     final CubeGeometry.Bounds whole = new CubeGeometry.Bounds();
     bones.values().forEach(bone -> include(whole, bone));
@@ -88,16 +109,49 @@ public final class GrowthRigScale {
             .findFirst()
             .orElse(null);
     if (legs.isEmpty() || whole.isEmpty() || head == null) {
-      return new GrowthRigScale(tree, GrowthGroundFit.NONE);
+      return new GrowthRigScale(tree, GrowthGroundFit.NONE, placement, bones);
     }
     return new GrowthRigScale(
         tree,
         GrowthGroundFit.of(
-            legs, whole.max().y, head.getPivotY() / MODEL_UNITS_PER_BLOCK, scales.head()));
+            legs, whole.max().y, head.getPivotY() / MODEL_UNITS_PER_BLOCK, scales.head()),
+        placement,
+        bones);
+  }
+
+  private static Map<String, RigAnchors.Extent> extentsOf(final Map<String, GeoBone> bones) {
+    final Map<String, RigAnchors.Extent> extents = new HashMap<>();
+    bones.forEach(
+        (name, bone) -> {
+          final CubeGeometry.Bounds own = CubeGeometry.posedBoundsOf(bone);
+          if (!own.isEmpty()) {
+            final Vector3f size = own.max().sub(own.min());
+            extents.put(name, new RigAnchors.Extent(own.center(), size.x * size.y * size.z));
+          }
+        });
+    return extents;
+  }
+
+  private static Vector3f restPivotOf(final GeoBone bone) {
+    return bone == null
+        ? new Vector3f()
+        : new Vector3f(bone.getPivotX(), bone.getPivotY(), bone.getPivotZ());
+  }
+
+  static Vector3f posedPivotOf(final GeoBone bone) {
+    return bone == null
+        ? new Vector3f()
+        : new Vector3f(
+            bone.getPivotX() - bone.getPosX(),
+            bone.getPivotY() + bone.getPosY(),
+            bone.getPivotZ() + bone.getPosZ());
   }
 
   private static Optional<GrowthGroundFit.Leg> legOf(
-      final Map<String, GeoBone> bones, final Set<String> slotBones, final GrowthScaleTree tree) {
+      final Map<String, GeoBone> bones,
+      final Map<String, String> logicalParents,
+      final Set<String> slotBones,
+      final GrowthScaleTree tree) {
     GeoBone root = null;
     final CubeGeometry.Bounds bounds = new CubeGeometry.Bounds();
     for (final String name : slotBones) {
@@ -110,10 +164,10 @@ public final class GrowthRigScale {
         root = bone;
       }
     }
-    if (root == null || bounds.isEmpty() || root.getParent() == null) {
+    final GeoBone parent = root == null ? null : bones.get(logicalParents.get(root.getName()));
+    if (parent == null || bounds.isEmpty()) {
       return Optional.empty();
     }
-    final GeoBone parent = root.getParent();
     return Optional.of(
         new GrowthGroundFit.Leg(
             parent.getPivotY() / MODEL_UNITS_PER_BLOCK,

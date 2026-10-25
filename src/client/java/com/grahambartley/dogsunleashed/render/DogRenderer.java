@@ -12,6 +12,7 @@ import com.grahambartley.dogsunleashed.render.cosmetic.MobHeadFits;
 import com.grahambartley.dogsunleashed.render.cross.CrossBreedRendering;
 import com.grahambartley.dogsunleashed.render.fur.DrawnFur;
 import com.grahambartley.dogsunleashed.render.fur.FurCover;
+import com.grahambartley.dogsunleashed.render.growth.AnchoredPlacement;
 import com.grahambartley.dogsunleashed.render.growth.GrowthRigScale;
 import com.grahambartley.dogsunleashed.render.layer.DogArmourLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogCarryFetchItemLayer;
@@ -35,6 +36,7 @@ import com.grahambartley.dogsunleashed.riding.SeatedRiders;
 import com.grahambartley.dogsunleashed.screen.DogCommandWheelScreen;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Frustum;
@@ -222,9 +224,19 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
             bone.getParent() == null ? null : bone.getParent().getName())) {
       return;
     }
+    final Optional<AnchoredPlacement.Shift> shift =
+        this.frameGrowth == null ? Optional.empty() : this.frameGrowth.shiftOf(bone.getName());
     final float growthScale =
         this.frameGrowth == null ? 1.0f : this.frameGrowth.localScale(bone.getName());
-    if (growthScale != 1.0f) {
+    final boolean scaled = shift.isPresent() || growthScale != 1.0f;
+    if (shift.isPresent()) {
+      poseStack.push();
+      final Vector3f to = shift.get().to().div(MODEL_UNITS_PER_BLOCK);
+      final Vector3f from = shift.get().from().div(MODEL_UNITS_PER_BLOCK);
+      poseStack.translate(to.x, to.y, to.z);
+      poseStack.scale(shift.get().scale(), shift.get().scale(), shift.get().scale());
+      poseStack.translate(-from.x, -from.y, -from.z);
+    } else if (growthScale != 1.0f) {
       poseStack.push();
       final float pivotX = bone.getPivotX() / MODEL_UNITS_PER_BLOCK;
       final float pivotY = bone.getPivotY() / MODEL_UNITS_PER_BLOCK;
@@ -251,7 +263,7 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
         packedLight,
         packedOverlay,
         colour);
-    if (growthScale != 1.0f) {
+    if (scaled) {
       poseStack.pop();
     }
   }
