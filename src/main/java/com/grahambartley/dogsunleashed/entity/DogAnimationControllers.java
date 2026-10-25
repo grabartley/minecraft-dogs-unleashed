@@ -8,13 +8,11 @@ import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.Animation;
 import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 
 public final class DogAnimationControllers {
 
-  private static final double MOVEMENT_THRESHOLD = 0.001;
   private static final int HEAD_TILT_TRANSITION_TICKS = 5;
   private static final int GROWL_TRANSITION_TICKS = 4;
   private static final int SCENT_TRANSITION_TICKS = 4;
@@ -55,7 +53,7 @@ public final class DogAnimationControllers {
               if (isGalloping(state.getAnimatable())) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.RUN));
               }
-              if (isMoving(state)) {
+              if (WalkRules.walks(state.getAnimatable().limbAnimator.getSpeed())) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.WALK));
               }
               return state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.IDLE));
@@ -248,10 +246,5 @@ public final class DogAnimationControllers {
         hitched,
         dog.limbAnimator.getSpeed(),
         hitched && RigClipPresence.has(dog, DogAnimationKeys.RUN));
-  }
-
-  static boolean isMoving(final AnimationState<UnleashedDogEntity> animationState) {
-    return animationState.getAnimatable().getVelocity().horizontalLengthSquared()
-        > MOVEMENT_THRESHOLD;
   }
 }
