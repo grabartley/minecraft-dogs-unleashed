@@ -62,11 +62,13 @@ public final class DogArmourGameTest implements FabricGameTest {
 
   private static final String BATCH = "dog-armour";
   private static final int TICK_LIMIT = 20;
-  private static final int FIRST_HOTBAR_SLOT_INDEX = DogEquipmentScreenHandler.DOG_SLOT_COUNT + 27;
+  private static final int FIRST_HOTBAR_SLOT_INDEX =
+      DogEquipmentScreenHandler.ROUTING.hotbarStart();
   private static final float HIT = 4.0f;
   private static final float BIG_HIT = 20.0f;
   private static final int ARMOUR_APPLIED_TICK = 2;
-  private static final int ARMOUR_SLOT_INDEX = DogEquipmentSlot.ARMOUR.ordinal();
+  private static final int ARMOUR_SLOT_INDEX =
+      DogEquipmentScreenHandler.gearSlotIndex(DogEquipmentSlot.ARMOUR);
 
   private record Armour(String id, Item item, Item repairItem, int mendedPerItem) {}
 

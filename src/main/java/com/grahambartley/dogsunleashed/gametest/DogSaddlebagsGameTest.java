@@ -83,7 +83,7 @@ public final class DogSaddlebagsGameTest implements FabricGameTest {
     final UnleashedDogEntity dog = wearingBags(context, owner);
     bags(dog).setStack(4, new ItemStack(Items.DIAMOND, 3));
     final DogEquipmentScreenHandler handler = open(owner, dog);
-    final int bagsSlot = DogEquipmentSlot.SADDLEBAGS.ordinal();
+    final int bagsSlot = DogEquipmentScreenHandler.gearSlotIndex(DogEquipmentSlot.SADDLEBAGS);
 
     context.assertFalse(
         handler.getSlot(bagsSlot).canTakeItems(owner), "Full bags must stay on the dog");

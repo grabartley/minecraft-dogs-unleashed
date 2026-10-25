@@ -10,47 +10,50 @@ import org.jetbrains.annotations.Nullable;
 
 public class DogEquipmentInventory implements Inventory {
 
-  public static final DogEquipmentSlot[] SLOTS = DogEquipmentSlot.values();
   public static final int MAX_INTERACTION_DISTANCE = 8;
+  private static final int SIZE = 1;
   private static final int MAX_STACK_SIZE = 1;
 
   private final @Nullable UnleashedDogEntity dog;
+  private final DogEquipmentSlot slot;
 
-  public DogEquipmentInventory(final @Nullable UnleashedDogEntity dog) {
+  public DogEquipmentInventory(
+      final @Nullable UnleashedDogEntity dog, final DogEquipmentSlot slot) {
     this.dog = dog;
+    this.slot = slot;
   }
 
-  public @Nullable UnleashedDogEntity dog() {
-    return this.dog;
+  public DogEquipmentSlot slot() {
+    return this.slot;
   }
 
-  public DogEquipmentSlot slotAt(final int index) {
-    return SLOTS[index];
+  public static boolean canReach(
+      final @Nullable UnleashedDogEntity dog, final PlayerEntity player) {
+    return dog != null
+        && dog.isAlive()
+        && dog.isTamed()
+        && (dog.isOwner(player) || DogDeliveries.isWaitingFor(dog, player))
+        && player.canInteractWithEntity(dog, MAX_INTERACTION_DISTANCE);
   }
 
   @Override
   public int size() {
-    return SLOTS.length;
+    return SIZE;
   }
 
   @Override
   public boolean isEmpty() {
-    for (final DogEquipmentSlot slot : SLOTS) {
-      if (!this.stackIn(slot).isEmpty()) {
-        return false;
-      }
-    }
-    return true;
+    return this.stack().isEmpty();
   }
 
   @Override
   public ItemStack getStack(final int index) {
-    return this.stackIn(SLOTS[index]);
+    return this.stack();
   }
 
   @Override
   public ItemStack removeStack(final int index, final int amount) {
-    final ItemStack remaining = this.getStack(index).copy();
+    final ItemStack remaining = this.stack().copy();
     if (remaining.isEmpty()) {
       return ItemStack.EMPTY;
     }
@@ -61,17 +64,17 @@ public class DogEquipmentInventory implements Inventory {
 
   @Override
   public ItemStack removeStack(final int index) {
-    final ItemStack removed = this.getStack(index).copy();
+    final ItemStack removed = this.stack().copy();
     this.setStack(index, ItemStack.EMPTY);
     return removed;
   }
 
   @Override
   public void setStack(final int index, final ItemStack stack) {
-    if (this.dog == null) {
+    if (this.dog == null || !stack.isEmpty() && !this.isValid(index, stack)) {
       return;
     }
-    this.dog.getEquipmentHolder().setStack(SLOTS[index], stack);
+    this.dog.getEquipmentHolder().setStack(this.slot, stack);
   }
 
   @Override
@@ -84,31 +87,25 @@ public class DogEquipmentInventory implements Inventory {
 
   @Override
   public boolean canPlayerUse(final PlayerEntity player) {
-    return this.dog != null
-        && this.dog.isAlive()
-        && this.dog.isTamed()
-        && (this.dog.isOwner(player) || DogDeliveries.isWaitingFor(this.dog, player))
-        && player.canInteractWithEntity(this.dog, MAX_INTERACTION_DISTANCE);
+    return canReach(this.dog, player);
   }
 
   @Override
   public boolean isValid(final int index, final ItemStack stack) {
-    return SLOTS[index].canHold(stack)
-        && (this.dog == null || this.dog.getEquipmentHolder().fits(SLOTS[index]));
+    return this.slot.canHold(stack)
+        && (this.dog == null || this.dog.getEquipmentHolder().fits(this.slot));
   }
 
-  public boolean canTake(final int index, final PlayerEntity player) {
-    return this.dog == null || this.dog.getEquipmentHolder().releases(SLOTS[index], player);
+  public boolean canTake(final PlayerEntity player) {
+    return this.dog == null || this.dog.getEquipmentHolder().releases(this.slot, player);
   }
 
   @Override
   public void clear() {
-    for (int index = 0; index < SLOTS.length; index++) {
-      this.setStack(index, ItemStack.EMPTY);
-    }
+    this.setStack(0, ItemStack.EMPTY);
   }
 
-  private ItemStack stackIn(final DogEquipmentSlot slot) {
-    return this.dog == null ? ItemStack.EMPTY : this.dog.getEquipmentHolder().getStack(slot);
+  private ItemStack stack() {
+    return this.dog == null ? ItemStack.EMPTY : this.dog.getEquipmentHolder().getStack(this.slot);
   }
 }

@@ -141,7 +141,8 @@ public final class DogDeliveryGameTest implements FabricGameTest {
     recipient.getInventory().setStack(1, new ItemStack(Items.COBBLESTONE, 32));
     final DogEquipmentScreenHandler handler = open(recipient, arrived);
 
-    for (int index = 0; index < DogEquipmentScreenHandler.DOG_SLOT_COUNT; index++) {
+    for (final DogEquipmentSlot slot : DogEquipmentSlot.values()) {
+      final int index = DogEquipmentScreenHandler.gearSlotIndex(slot);
       context.assertFalse(handler.getSlot(index).isEnabled(), "Gear slot " + index + " is hidden");
       context.assertFalse(
           handler.getSlot(index).canTakeItems(recipient), "Gear slot " + index + " is locked");

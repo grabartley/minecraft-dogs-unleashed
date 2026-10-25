@@ -56,7 +56,8 @@ public final class DireWolfGameTest implements FabricGameTest {
   private static final String ARENA = "dogs-unleashed:dog_arena";
   private static final BlockPos REL_WOLF = new BlockPos(3, 2, 3);
   private static final int PACK_SIZE = 10;
-  private static final int FIRST_HOTBAR_SLOT_INDEX = DogEquipmentScreenHandler.DOG_SLOT_COUNT + 27;
+  private static final int FIRST_HOTBAR_SLOT_INDEX =
+      DogEquipmentScreenHandler.ROUTING.hotbarStart();
 
   @GameTest(templateName = ARENA, tickLimit = 40)
   public void aYearlingGrowsIntoAnAdultWhenItsTwentyMinutesAreUp(final TestContext context) {

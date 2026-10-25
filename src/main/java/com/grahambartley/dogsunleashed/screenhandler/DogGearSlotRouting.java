@@ -5,10 +5,10 @@ import java.util.List;
 public final class DogGearSlotRouting {
 
   public enum Section {
+    BAGS,
     GEAR,
     MAIN,
-    HOTBAR,
-    BAGS
+    HOTBAR
   }
 
   public enum Target {
@@ -19,46 +19,50 @@ public final class DogGearSlotRouting {
     MAIN
   }
 
+  private final int bagSlots;
   private final int gearSlots;
   private final int mainSlots;
   private final int hotbarSlots;
-  private final int bagSlots;
 
   public DogGearSlotRouting(
-      final int gearSlots, final int mainSlots, final int hotbarSlots, final int bagSlots) {
+      final int bagSlots, final int gearSlots, final int mainSlots, final int hotbarSlots) {
+    this.bagSlots = bagSlots;
     this.gearSlots = gearSlots;
     this.mainSlots = mainSlots;
     this.hotbarSlots = hotbarSlots;
-    this.bagSlots = bagSlots;
+  }
+
+  public int bagStart() {
+    return 0;
+  }
+
+  public int gearStart() {
+    return this.bagStart() + this.bagSlots;
   }
 
   public int mainStart() {
-    return this.gearSlots;
+    return this.gearStart() + this.gearSlots;
   }
 
   public int hotbarStart() {
     return this.mainStart() + this.mainSlots;
   }
 
-  public int bagStart() {
+  public int total() {
     return this.hotbarStart() + this.hotbarSlots;
   }
 
-  public int total() {
-    return this.bagStart() + this.bagSlots;
-  }
-
   public Section sectionOf(final int index) {
+    if (index < this.gearStart()) {
+      return Section.BAGS;
+    }
     if (index < this.mainStart()) {
       return Section.GEAR;
     }
     if (index < this.hotbarStart()) {
       return Section.MAIN;
     }
-    if (index < this.bagStart()) {
-      return Section.HOTBAR;
-    }
-    return Section.BAGS;
+    return Section.HOTBAR;
   }
 
   public static List<Target> targetsFor(
