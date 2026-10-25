@@ -5,7 +5,6 @@ import com.grahambartley.dogsunleashed.entity.DogTricks;
 import com.grahambartley.dogsunleashed.entity.DogWheelSubAction;
 import com.grahambartley.dogsunleashed.entity.DogWheelSubActions;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 public final class DogTrickWheelActions {
@@ -26,7 +25,7 @@ public final class DogTrickWheelActions {
     return new DogWheelSubAction(
         trick.wheelActionId(),
         trick.translationKey(),
-        Identifier.of(trick.iconItemId()),
+        trick.icon(),
         (dog, player) -> refusalKey(performanceOf(dog).readiness()),
         (dog, player) -> performanceOf(dog).perform(trick),
         dog -> dog.getComponents().get(DogTricks.class).progress().isLearned(trick));

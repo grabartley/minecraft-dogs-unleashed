@@ -16,8 +16,6 @@ public class DogEquipmentScreen extends HandledScreen<DogEquipmentScreenHandler>
 
   private static final Identifier BACKGROUND_TEXTURE =
       Identifier.ofVanilla("textures/gui/container/horse.png");
-  private static final Identifier ARMOUR_SLOT_SPRITE =
-      Identifier.ofVanilla("container/horse/armor_slot");
   private static final Identifier SLOT_SPRITE = Identifier.ofVanilla("container/slot");
 
   private static final int SLOT_SPRITE_SIZE = 18;
@@ -38,15 +36,12 @@ public class DogEquipmentScreen extends HandledScreen<DogEquipmentScreenHandler>
         BACKGROUND_TEXTURE, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight);
     if (this.handler.isOwnerView()) {
       for (final DogEquipmentSlot slot : DogEquipmentSlot.values()) {
-        this.drawSlotFrame(
-            context,
-            DogEquipmentScreenHandler.gearSlotIndex(slot),
-            slot == DogEquipmentSlot.ARMOUR);
+        this.drawSlotFrame(context, DogEquipmentScreenHandler.gearSlotIndex(slot));
       }
     }
     if (this.handler.bagsOpen()) {
       for (int index = 0; index < DogSaddlebags.SIZE; index++) {
-        this.drawSlotFrame(context, DogEquipmentScreenHandler.BAG_SLOT_START + index, false);
+        this.drawSlotFrame(context, DogEquipmentScreenHandler.BAG_SLOT_START + index);
       }
     }
     this.drawDogPreview(context, mouseX, mouseY);
@@ -60,11 +55,10 @@ public class DogEquipmentScreen extends HandledScreen<DogEquipmentScreenHandler>
     this.drawEmptyDogSlotTooltip(context, mouseX, mouseY);
   }
 
-  private void drawSlotFrame(final DrawContext context, final int index, final boolean armour) {
+  private void drawSlotFrame(final DrawContext context, final int index) {
     final Slot slot = this.handler.getSlot(index);
-    final Identifier sprite = armour ? ARMOUR_SLOT_SPRITE : SLOT_SPRITE;
     context.drawGuiTexture(
-        sprite,
+        SLOT_SPRITE,
         this.x + slot.x - SLOT_SPRITE_OFFSET,
         this.y + slot.y - SLOT_SPRITE_OFFSET,
         SLOT_SPRITE_SIZE,

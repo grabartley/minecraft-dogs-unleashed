@@ -6,8 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Arrays;
+import java.util.Locale;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -28,6 +31,25 @@ class DogWheelActionTest {
   @DisplayName("unknown wire ids resolve to null so the server drops the packet")
   void unknownIdResolvesToNull(final int id) {
     assertNull(DogWheelAction.fromId(id));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @EnumSource(DogWheelAction.class)
+  @DisplayName("every wheel action shows the wheel sprite named after it")
+  void iconIsNamedAfterTheAction(final DogWheelAction action) {
+    assertEquals(DogWheelIcons.sprite(action.name().toLowerCase(Locale.ROOT)), action.icon());
+  }
+
+  @Test
+  @DisplayName("no two wheel sectors share an icon")
+  void iconsAreDistinct() {
+    assertEquals(
+        DogWheelAction.values().length + 1,
+        Stream.concat(
+                Arrays.stream(DogWheelAction.values()).map(DogWheelAction::icon),
+                Stream.of(DogWheelIcons.ACTIONS))
+            .distinct()
+            .count());
   }
 
   static Stream<Arguments> commandMappings() {

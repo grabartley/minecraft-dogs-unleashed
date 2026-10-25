@@ -91,6 +91,7 @@ public final class DogConnectionsNetworkHandler {
         OwnerNameResolver.resolve(server, pet.getOwnerId()),
         GeneSyncData.visibleGenes(
             pet.getLook().genes(), pet.getLook().rigBreed(), carriedGenesRevealed),
-        carriedGenesRevealed);
+        carriedGenesRevealed,
+        ConnectionDogSyncData.parentIdsOf(pet.getParentAId(), pet.getParentBId()));
   }
 }

@@ -23,7 +23,7 @@ class DogTrickWheelActionsTest {
     final DogWheelSubAction action = DogTrickWheelActions.action(trick);
     assertEquals(trick.wheelActionId(), action.id());
     assertEquals(trick.translationKey(), action.translationKey());
-    assertEquals(trick.iconItemId(), action.iconItemId().toString());
+    assertEquals(trick.icon(), action.icon());
   }
 
   @Test

@@ -6,7 +6,7 @@ import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.util.Identifier;
 
 public record WheelSubActionState(
-    int id, String translationKey, Identifier iconItemId, String refusalKey) {
+    int id, String translationKey, Identifier icon, String refusalKey) {
 
   public static final int MAX_PER_WHEEL = 16;
 
@@ -17,7 +17,7 @@ public record WheelSubActionState(
           PacketCodecs.STRING,
           WheelSubActionState::translationKey,
           Identifier.PACKET_CODEC,
-          WheelSubActionState::iconItemId,
+          WheelSubActionState::icon,
           PacketCodecs.STRING,
           WheelSubActionState::refusalKey,
           WheelSubActionState::new);

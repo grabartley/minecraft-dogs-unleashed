@@ -1,15 +1,89 @@
 package com.grahambartley.dogsunleashed.screen;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.grahambartley.dogsunleashed.entity.DogWheelAction;
+import com.grahambartley.dogsunleashed.entity.DogWheelIcons;
+import com.grahambartley.dogsunleashed.entity.delivery.DogDeliveries;
+import com.grahambartley.dogsunleashed.entity.expedition.DogExpeditions;
+import com.grahambartley.dogsunleashed.entity.trick.DogTrick;
+import com.grahambartley.dogsunleashed.network.payload.WheelSubActionState;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.stream.Stream;
+import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 class DogCommandWheelScreenTest {
+
+  private static final int SMALLEST_GUI_HEIGHT = 240;
+  private static final int FONT_HEIGHT = 9;
+
+  static Stream<Identifier> wheelIcons() {
+    return Stream.of(
+            Arrays.stream(DogWheelAction.values()).map(DogWheelAction::icon),
+            Arrays.stream(DogTrick.values()).map(DogTrick::icon),
+            Stream.of(DogWheelIcons.ACTIONS, DogExpeditions.WHEEL_ICON, DogDeliveries.WHEEL_ICON))
+        .flatMap(icons -> icons);
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("wheelIcons")
+  @DisplayName("every icon the wheel can draw ships as a GUI sprite")
+  void everyIconShipsAsASprite(final Identifier icon) {
+    final Path sprite =
+        Path.of(
+            "src/client/resources/assets",
+            icon.getNamespace(),
+            "textures/gui/sprites",
+            icon.getPath() + ".png");
+    assertTrue(Files.isRegularFile(sprite), sprite + " is missing");
+  }
+
+  @ParameterizedTest(name = "{0} sectors")
+  @ValueSource(ints = {10, 11, WheelSubActionState.MAX_PER_WHEEL})
+  @DisplayName("neighbouring icons never overlap, even on the fullest ring")
+  void iconsFitTheirSectors(final int sectors) {
+    final double iconRadius =
+        (DogCommandWheelScreen.INNER_RADIUS + DogCommandWheelScreen.OUTER_RADIUS) / 2.0;
+    final double gapBetweenCentres = 2 * iconRadius * Math.sin(Math.PI / sectors);
+    assertTrue(gapBetweenCentres >= DogCommandWheelScreen.ICON_SIZE, "gap " + gapBetweenCentres);
+    assertTrue(
+        DogCommandWheelScreen.OUTER_RADIUS - DogCommandWheelScreen.INNER_RADIUS
+            >= DogCommandWheelScreen.ICON_SIZE);
+  }
+
+  @Test
+  @DisplayName("hover detection stops before the caption, so pointing at text selects nothing")
+  void captionSitsOutsideTheHoverBand() {
+    final int captionTop = DogCommandWheelScreen.OUTER_RADIUS + DogCommandWheelScreen.CAPTION_GAP;
+    assertEquals(
+        -1,
+        DogCommandWheelScreen.sectorIndexAt(
+            0,
+            captionTop,
+            11,
+            DogCommandWheelScreen.INNER_RADIUS,
+            DogCommandWheelScreen.OUTER_RADIUS + DogCommandWheelScreen.OUTER_DETECT_MARGIN));
+  }
+
+  @Test
+  @DisplayName("the ring and its two caption lines fit the shortest GUI-scaled screen")
+  void wheelFitsTheSmallestGuiScreen() {
+    final int belowCentre =
+        DogCommandWheelScreen.OUTER_RADIUS
+            + DogCommandWheelScreen.CAPTION_GAP
+            + 2 * FONT_HEIGHT
+            + DogCommandWheelScreen.CAPTION_LINE_GAP;
+    assertTrue(belowCentre <= SMALLEST_GUI_HEIGHT / 2, "wheel reaches " + belowCentre);
+  }
 
   private static final int SECTORS = 8;
   private static final double INNER = 40;

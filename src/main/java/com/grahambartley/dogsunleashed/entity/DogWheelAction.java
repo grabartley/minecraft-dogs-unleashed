@@ -1,27 +1,34 @@
 package com.grahambartley.dogsunleashed.entity;
 
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 public enum DogWheelAction {
-  FOLLOW(0, DogCommand.FOLLOW, null),
-  HEEL(1, DogCommand.HEEL, null),
-  STAY(2, DogCommand.STAY, null),
-  SIT(3, DogCommand.SIT, null),
-  HUNT(4, DogCommand.HUNT, null),
-  GUARD(5, DogCommand.GUARD, null),
-  FREE_ROAM(6, DogCommand.FREE_ROAM, null),
-  GO_TO_BED(7, null, "command.dogs-unleashed.go_to_bed"),
-  EQUIPMENT(8, null, "command.dogs-unleashed.equipment"),
-  RIDE(9, null, "command.dogs-unleashed.ride");
+  FOLLOW(0, DogCommand.FOLLOW, null, "follow"),
+  HEEL(1, DogCommand.HEEL, null, "heel"),
+  STAY(2, DogCommand.STAY, null, "stay"),
+  SIT(3, DogCommand.SIT, null, "sit"),
+  HUNT(4, DogCommand.HUNT, null, "hunt"),
+  GUARD(5, DogCommand.GUARD, null, "guard"),
+  FREE_ROAM(6, DogCommand.FREE_ROAM, null, "free_roam"),
+  GO_TO_BED(7, null, "command.dogs-unleashed.go_to_bed", "go_to_bed"),
+  EQUIPMENT(8, null, "command.dogs-unleashed.equipment", "equipment"),
+  RIDE(9, null, "command.dogs-unleashed.ride", "ride");
 
   private final int id;
   private final DogCommand command;
   private final String oneShotTranslationKey;
+  private final Identifier icon;
 
-  DogWheelAction(final int id, final DogCommand command, final String oneShotTranslationKey) {
+  DogWheelAction(
+      final int id,
+      final DogCommand command,
+      final String oneShotTranslationKey,
+      final String iconName) {
     this.id = id;
     this.command = command;
     this.oneShotTranslationKey = oneShotTranslationKey;
+    this.icon = DogWheelIcons.sprite(iconName);
   }
 
   public int id() {
@@ -30,6 +37,10 @@ public enum DogWheelAction {
 
   public @Nullable DogCommand command() {
     return this.command;
+  }
+
+  public Identifier icon() {
+    return this.icon;
   }
 
   public boolean isOneShot() {

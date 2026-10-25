@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.entity.delivery;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.entity.DogSaddlebags;
+import com.grahambartley.dogsunleashed.entity.DogWheelIcons;
 import com.grahambartley.dogsunleashed.entity.DogWheelSubAction;
 import com.grahambartley.dogsunleashed.entity.DogWheelSubActions;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
@@ -17,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 public final class DogDeliveries {
 
   public static final int WHEEL_ACTION_ID = 1;
+  public static final Identifier WHEEL_ICON = DogWheelIcons.sprite("delivery");
   public static final String WHEEL_LABEL_KEY = "command.dogs-unleashed.deliver";
   public static final String ON_DELIVERY_KEY = "screen.dogs-unleashed.command_wheel.on_delivery";
 
@@ -27,7 +29,7 @@ public final class DogDeliveries {
         new DogWheelSubAction(
             WHEEL_ACTION_ID,
             WHEEL_LABEL_KEY,
-            Identifier.of(DogsUnleashed.MOD_ID, "saddlebags"),
+            WHEEL_ICON,
             DogDeliveries::refusalKey,
             (dog, player) ->
                 ModNetworking.sendOpenDeliveryPicker(player, dog, recipientsFor(player))));
