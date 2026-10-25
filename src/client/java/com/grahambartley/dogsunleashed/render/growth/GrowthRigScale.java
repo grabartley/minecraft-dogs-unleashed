@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.render.growth;
 
+import com.google.common.collect.MapMaker;
 import com.grahambartley.dogsunleashed.entity.DireWolfGrowthStage;
 import com.grahambartley.dogsunleashed.render.rig.CubeGeometry;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile;
@@ -11,7 +12,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.WeakHashMap;
 import org.joml.Vector3f;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
@@ -22,7 +22,7 @@ public final class GrowthRigScale {
   private static final List<Slot> LEG_SLOTS =
       List.of(Slot.LEG_FRONT_LEFT, Slot.LEG_FRONT_RIGHT, Slot.LEG_BACK_LEFT, Slot.LEG_BACK_RIGHT);
   private static final Map<BakedGeoModel, Map<DireWolfGrowthStage.SlotScales, GrowthRigScale>>
-      BY_SCALES = new WeakHashMap<>();
+      BY_SCALES = new MapMaker().weakKeys().makeMap();
 
   private final GrowthScaleTree tree;
   private final GrowthGroundFit fit;
