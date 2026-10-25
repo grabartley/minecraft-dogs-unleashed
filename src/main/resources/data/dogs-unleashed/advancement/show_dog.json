@@ -13,6 +13,18 @@
     "frame": "goal"
   },
   "criteria": {
+    "learned_1": {
+      "trigger": "dogs-unleashed:dog_trick_learned",
+      "conditions": {
+        "min_learned": 1
+      }
+    },
+    "learned_2": {
+      "trigger": "dogs-unleashed:dog_trick_learned",
+      "conditions": {
+        "min_learned": 2
+      }
+    },
     "every_trick_learned": {
       "trigger": "dogs-unleashed:dog_trick_learned",
       "conditions": {
@@ -20,11 +32,7 @@
       }
     }
   },
-  "requirements": [
-    [
-      "every_trick_learned"
-    ]
-  ],
+  "requirements": [["learned_1", "every_trick_learned"], ["learned_2", "every_trick_learned"], ["every_trick_learned"]],
   "rewards": {
     "experience": 50
   }

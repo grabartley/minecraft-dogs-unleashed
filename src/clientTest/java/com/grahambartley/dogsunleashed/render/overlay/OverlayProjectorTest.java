@@ -2,24 +2,35 @@ package com.grahambartley.dogsunleashed.render.overlay;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import com.grahambartley.dogsunleashed.item.costume.DogCostume;
 import com.grahambartley.dogsunleashed.render.overlay.OverlaySheet.Cell;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile.Slot;
 import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
 import com.grahambartley.dogsunleashed.render.rig.ShippedRigs;
 import com.grahambartley.dogsunleashed.render.rig.SlotRegion;
 import com.grahambartley.dogsunleashed.render.rig.SlotRegions;
+import com.grahambartley.dogsunleashed.render.rig.Texel;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
+import java.util.stream.Stream;
+import javax.imageio.ImageIO;
 import net.minecraft.util.math.Direction;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 
 class OverlayProjectorTest {
@@ -204,6 +215,56 @@ class OverlayProjectorTest {
         && b.x() < a.x() + a.width()
         && a.y() < b.y() + b.height()
         && b.y() < a.y() + a.height();
+  }
+
+  static Stream<Arguments> rigsAndCostumes() {
+    return Arrays.stream(UnleashedDogBreed.values())
+        .filter(rig -> rig != UnleashedDogBreed.CROSS_BREED)
+        .flatMap(rig -> Arrays.stream(DogCostume.values()).map(c -> Arguments.of(rig, c)));
+  }
+
+  @ParameterizedTest(name = "{0} {1}")
+  @MethodSource("rigsAndCostumes")
+  @DisplayName("no costume suit paints over a rig's eyes or the texel either side of them")
+  void costumesLeaveTheEyesBare(final UnleashedDogBreed rig, final DogCostume costume)
+      throws IOException {
+    final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
+    final RigProfiles profiles = new RigProfiles(RigProfiles::openBundled);
+    final SlotRegions regions = new SlotRegions(r -> Optional.of(model), profiles::profileOf);
+
+    final PixelGrid projected =
+        OverlayProjector.project(
+            suitOf(costume),
+            (int) model.properties().textureWidth(),
+            (int) model.properties().textureHeight(),
+            ModelFacing.turnedBy(rig.renderTransforms().bodyYawOffsetDegrees()),
+            slot -> regions.suitRegionsOf(rig, slot),
+            slot -> Optional.empty());
+
+    for (final Texel pupil : profiles.profileOf(rig).pupils()) {
+      for (int dx = -1; dx <= 1; dx++) {
+        assertEquals(
+            0,
+            projected.colourAt(pupil.x() + dx, pupil.y()) >>> 24,
+            costume + " covers the eye at " + (pupil.x() + dx) + "," + pupil.y());
+      }
+    }
+  }
+
+  private static PixelGrid suitOf(final DogCostume costume) throws IOException {
+    final String path =
+        "/assets/dogs-unleashed/textures/entity/costume/" + costume.itemId() + ".png";
+    try (InputStream in = OverlayProjectorTest.class.getResourceAsStream(path)) {
+      assertNotNull(in, costume + " has no suit sheet");
+      final BufferedImage image = ImageIO.read(in);
+      final PixelGrid sheet = PixelGrid.blank(image.getWidth(), image.getHeight());
+      for (int y = 0; y < image.getHeight(); y++) {
+        for (int x = 0; x < image.getWidth(); x++) {
+          sheet.set(x, y, image.getRGB(x, y));
+        }
+      }
+      return sheet;
+    }
   }
 
   private static PixelGrid labelledSheet() {

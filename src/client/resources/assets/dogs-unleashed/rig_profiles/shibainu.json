@@ -31,6 +31,10 @@
   "tail": [
     "rabo"
   ],
+  "suit_slots": {
+    "bone4": "neck",
+    "bone5": "neck"
+  },
   "ears": {
     "shape": "pricked"
   },

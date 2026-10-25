@@ -129,6 +129,13 @@ face from the sheet cell for its direction, as `OverlayProjector` does, uses the
 `sheet_overrides`, and turns the directions by `--spin`, so pass `--spin 180` for the dachshund
 here too. It shows the suit only, not the costume's parts model.
 
+A suit's head front cell must stay clear from row 4 to row 11 across its full width. That band
+lands on the eyes of every rig, and on the smallest faces each texel samples a whole column of
+the cell, so even a one pixel rim at the side covers an eye. `OverlayProjectorTest` projects every
+costume onto every rig and fails when a pupil, or the texel either side of it, is painted. A
+small extra cube on the face, such as the shiba's cheeks, takes another slot's cells through the
+profile's `suit_slots` in a suit only, and `suit` follows it.
+
 Views: `front`, `front34`, `left`, `right`, `back`, `back34`, `top`, or `--yaw` and `--pitch`.
 `left` is the dog's own left. The dachshund rig faces the other way (its body yaw offset is 180 in
 `UnleashedDogBreed`), so pass `--spin 180` to get its face in the `front` view.

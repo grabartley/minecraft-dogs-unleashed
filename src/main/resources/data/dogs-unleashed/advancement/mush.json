@@ -13,6 +13,60 @@
     "frame": "goal"
   },
   "criteria": {
+    "travelled_100": {
+      "trigger": "dogs-unleashed:sled_travelled",
+      "conditions": {
+        "min_blocks": 100.0
+      }
+    },
+    "travelled_200": {
+      "trigger": "dogs-unleashed:sled_travelled",
+      "conditions": {
+        "min_blocks": 200.0
+      }
+    },
+    "travelled_300": {
+      "trigger": "dogs-unleashed:sled_travelled",
+      "conditions": {
+        "min_blocks": 300.0
+      }
+    },
+    "travelled_400": {
+      "trigger": "dogs-unleashed:sled_travelled",
+      "conditions": {
+        "min_blocks": 400.0
+      }
+    },
+    "travelled_500": {
+      "trigger": "dogs-unleashed:sled_travelled",
+      "conditions": {
+        "min_blocks": 500.0
+      }
+    },
+    "travelled_600": {
+      "trigger": "dogs-unleashed:sled_travelled",
+      "conditions": {
+        "min_blocks": 600.0
+      }
+    },
+    "travelled_700": {
+      "trigger": "dogs-unleashed:sled_travelled",
+      "conditions": {
+        "min_blocks": 700.0
+      }
+    },
+    "travelled_800": {
+      "trigger": "dogs-unleashed:sled_travelled",
+      "conditions": {
+        "min_blocks": 800.0
+      }
+    },
+    "travelled_900": {
+      "trigger": "dogs-unleashed:sled_travelled",
+      "conditions": {
+        "min_blocks": 900.0
+      }
+    },
     "travelled": {
       "trigger": "dogs-unleashed:sled_travelled",
       "conditions": {
@@ -20,6 +74,7 @@
       }
     }
   },
+  "requirements": [["travelled_100", "travelled"], ["travelled_200", "travelled"], ["travelled_300", "travelled"], ["travelled_400", "travelled"], ["travelled_500", "travelled"], ["travelled_600", "travelled"], ["travelled_700", "travelled"], ["travelled_800", "travelled"], ["travelled_900", "travelled"], ["travelled"]],
   "rewards": {
     "experience": 50
   }

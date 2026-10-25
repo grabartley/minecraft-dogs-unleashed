@@ -14,6 +14,7 @@ import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -192,5 +193,50 @@ class RigProfileTest {
     for (final Slot slot : Slot.values()) {
       assertTrue(profile.sheetOverride(Identifier.of("dogs-unleashed", "rot.png"), slot).isEmpty());
     }
+  }
+
+  private static final RigProfile CHEEKY =
+      RigProfile.parse(
+          JsonParser.parseString(
+                  """
+                  {
+                    "head": ["head", "cheek"],
+                    "neck": ["neck"],
+                    "torso": ["Torso"],
+                    "suit_slots": {"cheek": "neck"}
+                  }
+                  """)
+              .getAsJsonObject());
+
+  @ParameterizedTest(name = "{0} {1}")
+  @CsvSource({"HEAD, head", "NECK, neck;cheek", "MOUTH, ''", "TORSO, Torso"})
+  @DisplayName("a suit slot moves a bone to another slot for costume suits")
+  void suitSlotsMoveBones(final Slot slot, final String expected) {
+    assertEquals(
+        expected.isEmpty() ? Set.of() : Set.of(expected.split(";")), CHEEKY.suitBonesIn(slot));
+  }
+
+  @Test
+  @DisplayName("a suit slot leaves the bone in its own slot for everything else")
+  void suitSlotsKeepTheBonesOwnSlot() {
+    assertEquals(Set.of("head", "cheek"), CHEEKY.bonesIn(Slot.HEAD));
+    assertEquals(Set.of("neck"), CHEEKY.bonesIn(Slot.NECK));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(
+      strings = {
+        "{\"head\": [\"head\", \"cheek\"], \"suit_slots\": \"neck\"}",
+        "{\"head\": [\"head\", \"cheek\"], \"suit_slots\": {\"cheek\": 7}}",
+        "{\"head\": [\"head\", \"cheek\"], \"suit_slots\": {\"cheek\": \"nose\"}}",
+        "{\"head\": [\"head\", \"cheek\"], \"suit_slots\": {\"cheek\": \"fur_shaggy\"}}",
+        "{\"head\": [\"head\", \"cheek\"], \"suit_slots\": {\"chin\": \"neck\"}}"
+      })
+  @DisplayName("a malformed suit slot, or one naming a bone in no slot, is ignored")
+  void malformedSuitSlotsAreIgnored(final String json) {
+    final RigProfile profile = RigProfile.parse(JsonParser.parseString(json).getAsJsonObject());
+
+    assertEquals(Set.of("head", "cheek"), profile.suitBonesIn(Slot.HEAD));
+    assertEquals(Set.of(), profile.suitBonesIn(Slot.NECK));
   }
 }

@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,8 @@ public record RigProfile(
     Map<Identifier, Map<Slot, Identifier>> sheetOverrides,
     List<String> seats,
     RiderPoseRange riderPose,
-    RigEars ears) {
+    RigEars ears,
+    Map<String, Slot> suitSlots) {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RigProfile.class);
 
@@ -34,6 +36,7 @@ public record RigProfile(
   private static final String SEATS_KEY = "seats";
   private static final String RIDER_POSE_KEY = "rider_pose";
   private static final String EARS_KEY = "ears";
+  private static final String SUIT_SLOTS_KEY = "suit_slots";
 
   public static final RigProfile EMPTY = new RigProfile(Map.of(), Map.of(), List.of(), Map.of());
 
@@ -76,6 +79,7 @@ public record RigProfile(
     overlays = Map.copyOf(overlays);
     pupils = List.copyOf(pupils);
     seats = List.copyOf(seats);
+    suitSlots = Map.copyOf(suitSlots);
     sheetOverrides =
         sheetOverrides.entrySet().stream()
             .collect(
@@ -98,7 +102,7 @@ public record RigProfile(
       final Map<Identifier, Map<Slot, Identifier>> sheetOverrides,
       final List<String> seats,
       final RiderPoseRange riderPose) {
-    this(bones, overlays, pupils, sheetOverrides, seats, riderPose, RigEars.NONE);
+    this(bones, overlays, pupils, sheetOverrides, seats, riderPose, RigEars.NONE, Map.of());
   }
 
   public static RigProfile parse(final JsonObject json) {
@@ -133,7 +137,32 @@ public record RigProfile(
         json.get(RIDER_POSE_KEY) instanceof JsonObject pose
             ? RiderPoseRange.parse(pose)
             : RiderPoseRange.UPRIGHT,
-        json.has(EARS_KEY) ? RigEars.parse(json.get(EARS_KEY)) : RigEars.NONE);
+        json.has(EARS_KEY) ? RigEars.parse(json.get(EARS_KEY)) : RigEars.NONE,
+        suitSlotsOf(json, bones));
+  }
+
+  private static Map<String, Slot> suitSlotsOf(
+      final JsonObject json, final Map<Slot, Set<String>> bones) {
+    final Map<String, Slot> slots = new HashMap<>();
+    if (!(json.get(SUIT_SLOTS_KEY) instanceof JsonObject byBone)) {
+      if (json.has(SUIT_SLOTS_KEY)) {
+        LOGGER.warn("Ignoring suit slots {}, expected an object", json.get(SUIT_SLOTS_KEY));
+      }
+      return slots;
+    }
+    for (final Map.Entry<String, JsonElement> entry : byBone.entrySet()) {
+      final Optional<Slot> slot =
+          entry.getValue() instanceof JsonPrimitive value && value.isString()
+              ? slotOf(value.getAsString())
+              : Optional.empty();
+      final boolean named = bones.values().stream().anyMatch(set -> set.contains(entry.getKey()));
+      if (slot.isEmpty() || slot.get().isFur() || !named) {
+        LOGGER.warn("Skipping suit slot {} of bone {}", entry.getValue(), entry.getKey());
+        continue;
+      }
+      slots.put(entry.getKey(), slot.get());
+    }
+    return slots;
   }
 
   private static List<String> seatsOf(final JsonObject json) {
@@ -218,6 +247,16 @@ public record RigProfile(
 
   public Set<String> bonesIn(final Slot slot) {
     return this.bones.getOrDefault(slot, Set.of());
+  }
+
+  public Set<String> suitBonesIn(final Slot slot) {
+    return Stream.concat(
+            this.bonesIn(slot).stream()
+                .filter(bone -> this.suitSlots.getOrDefault(bone, slot) == slot),
+            this.suitSlots.entrySet().stream()
+                .filter(entry -> entry.getValue() == slot)
+                .map(Map.Entry::getKey))
+        .collect(Collectors.toUnmodifiableSet());
   }
 
   public Optional<String> mouthBone() {

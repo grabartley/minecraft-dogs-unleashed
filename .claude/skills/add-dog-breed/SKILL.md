@@ -99,7 +99,10 @@ Shared assets live under `src/main/resources/assets/dogs-unleashed/`:
    checked against dark eye pixels in the art. The body slots are also where shared overlay sheets
    land, so a new breed picks up every sheet effect without new art. If a sheet looks wrong on one
    slot of the new breed, add a hand-made atlas-sized texture under `sheet_overrides`, keyed by
-   the sheet and then the slot (see ADR 0006).
+   the sheet and then the slot (see ADR 0006). If a small extra cube sits on the head or face,
+   such as a cheek, and takes a costume suit's face cell with its face opening, list it under
+   `suit_slots` with the slot whose cells it should take in a suit instead, such as `"neck"`. It
+   stays in its own slot for every other sheet, scaling and fitting.
 8. **Breed filter**: `src/client/java/com/grahambartley/dogsunleashed/screen/PetManagerScreen.java` -
    new `BreedFilterOption` entry.
 9. **Language**: `src/main/resources/assets/dogs-unleashed/lang/en_us.json` - entity name, spawn

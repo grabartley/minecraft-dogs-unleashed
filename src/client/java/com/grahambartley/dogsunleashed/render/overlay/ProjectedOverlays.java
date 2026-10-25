@@ -5,13 +5,17 @@ import static com.grahambartley.dogsunleashed.DogsUnleashed.MOD_ID;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.render.rig.RigModels;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile;
+import com.grahambartley.dogsunleashed.render.rig.RigProfile.Slot;
 import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
+import com.grahambartley.dogsunleashed.render.rig.SlotRegion;
 import com.grahambartley.dogsunleashed.render.rig.SlotRegions;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Stream;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
@@ -49,6 +53,8 @@ public final class ProjectedOverlays {
   private final Registrar registrar;
   private final Map<UnleashedDogBreed, Map<Identifier, Optional<Identifier>>> byRig =
       new EnumMap<>(UnleashedDogBreed.class);
+  private final Map<UnleashedDogBreed, Map<Identifier, Optional<Identifier>>> suitsByRig =
+      new EnumMap<>(UnleashedDogBreed.class);
 
   public ProjectedOverlays(
       final RigModels.Lookup models,
@@ -69,8 +75,27 @@ public final class ProjectedOverlays {
 
   public synchronized Optional<Identifier> textureOf(
       final UnleashedDogBreed rig, final Identifier sheet) {
+    return this.textureOf(rig, sheet, sheet, this.byRig, slot -> this.regions.regionsOf(rig, slot));
+  }
+
+  public synchronized Optional<Identifier> suitTextureOf(
+      final UnleashedDogBreed rig, final Identifier sheet) {
+    return this.textureOf(
+        rig,
+        sheet,
+        sheet.withPrefixedPath("suit/"),
+        this.suitsByRig,
+        slot -> this.regions.suitRegionsOf(rig, slot));
+  }
+
+  private Optional<Identifier> textureOf(
+      final UnleashedDogBreed rig,
+      final Identifier sheet,
+      final Identifier registeredAs,
+      final Map<UnleashedDogBreed, Map<Identifier, Optional<Identifier>>> cache,
+      final Function<Slot, List<SlotRegion>> regionsOf) {
     final Map<Identifier, Optional<Identifier>> sheets =
-        this.byRig.computeIfAbsent(rig, key -> new HashMap<>());
+        cache.computeIfAbsent(rig, key -> new HashMap<>());
     final Optional<Identifier> cached = sheets.get(sheet);
     if (cached != null) {
       return cached;
@@ -79,21 +104,28 @@ public final class ProjectedOverlays {
     if (model.isEmpty()) {
       return Optional.empty();
     }
-    final Optional<Identifier> projected = this.project(rig, sheet, model.get());
+    final Optional<Identifier> projected =
+        this.project(rig, sheet, registeredAs, model.get(), regionsOf);
     sheets.put(sheet, projected);
     return projected;
   }
 
   public synchronized void clear(final TextureManager textureManager) {
-    this.byRig.values().stream()
+    Stream.of(this.byRig, this.suitsByRig)
+        .flatMap(cache -> cache.values().stream())
         .flatMap(sheets -> sheets.values().stream())
         .flatMap(Optional::stream)
         .forEach(textureManager::destroyTexture);
     this.byRig.clear();
+    this.suitsByRig.clear();
   }
 
   private Optional<Identifier> project(
-      final UnleashedDogBreed rig, final Identifier sheet, final BakedGeoModel model) {
+      final UnleashedDogBreed rig,
+      final Identifier sheet,
+      final Identifier registeredAs,
+      final BakedGeoModel model,
+      final Function<Slot, List<SlotRegion>> regionsOf) {
     final Optional<PixelGrid> pixels = this.images.read(sheet);
     if (pixels.isEmpty()) {
       LOGGER.warn("Overlay sheet {} does not exist", sheet);
@@ -118,12 +150,12 @@ public final class ProjectedOverlays {
             atlasWidth,
             atlasHeight,
             ModelFacing.turnedBy(rig.renderTransforms().bodyYawOffsetDegrees()),
-            slot -> this.regions.regionsOf(rig, slot),
+            regionsOf,
             slot ->
                 profile
                     .sheetOverride(sheet, slot)
                     .flatMap(texture -> this.overrideOf(rig, texture, atlasWidth, atlasHeight)));
-    return Optional.of(this.registrar.register(rig, sheet, projected));
+    return Optional.of(this.registrar.register(rig, registeredAs, projected));
   }
 
   private Optional<PixelGrid> overrideOf(

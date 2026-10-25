@@ -29,6 +29,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 
@@ -276,5 +277,23 @@ class SlotRegionsTest {
         .getAsJsonArray("minecraft:geometry")
         .get(0)
         .getAsJsonObject();
+  }
+
+  @ParameterizedTest(name = "{0} {1}")
+  @CsvSource({"HEAD, false, true", "NECK, true, false"})
+  @DisplayName(
+      "the shiba's cheeks take the neck's cells in a costume suit and the head's otherwise")
+  void shibaCheeksMoveForSuitsOnly(final Slot slot, final boolean inSuit, final boolean inOverlay) {
+    final BakedGeoModel model = ShippedRigs.model("shibainu");
+    final RigProfile profile = BUNDLED.profileOf(UnleashedDogBreed.SHIBA_INU);
+
+    assertEquals(
+        inSuit,
+        SlotRegions.suitOf(model, profile, slot).stream()
+            .anyMatch(region -> region.boneName().equals("bone4")));
+    assertEquals(
+        inOverlay,
+        SlotRegions.of(model, profile, slot).stream()
+            .anyMatch(region -> region.boneName().equals("bone4")));
   }
 }
