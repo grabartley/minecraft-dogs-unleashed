@@ -1,9 +1,7 @@
 package com.grahambartley.dogsunleashed.entity;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animation.Animation;
 import software.bernie.geckolib.animation.keyframe.BoneAnimation;
@@ -25,14 +23,18 @@ public final class HeadTiltRules {
     if (!TILTABLE_STANCES.contains(stance.name())) {
       return false;
     }
-    final Set<String> tiltBones = bonesOf(tilt);
-    return otherPlayingClips.stream()
-        .noneMatch(clip -> bonesOf(clip).stream().anyMatch(tiltBones::contains));
+    final BoneAnimation[] tiltBones = tilt.boneAnimations();
+    return otherPlayingClips.stream().noneMatch(clip -> sharesBone(clip, tiltBones));
   }
 
-  private static Set<String> bonesOf(final Animation clip) {
-    return Arrays.stream(clip.boneAnimations())
-        .map(BoneAnimation::boneName)
-        .collect(Collectors.toSet());
+  private static boolean sharesBone(final Animation clip, final BoneAnimation[] tiltBones) {
+    for (final BoneAnimation bone : clip.boneAnimations()) {
+      for (final BoneAnimation tiltBone : tiltBones) {
+        if (bone.boneName().equals(tiltBone.boneName())) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 }

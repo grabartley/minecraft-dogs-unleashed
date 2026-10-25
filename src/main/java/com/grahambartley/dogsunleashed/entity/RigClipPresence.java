@@ -27,7 +27,6 @@ public final class RigClipPresence {
 
   static boolean has(
       final Map<Identifier, BakedAnimations> loaded, final Identifier rig, final String clip) {
-    final BakedAnimations animations = loaded.get(rig);
-    return animations != null && animations.animations().containsKey(clip);
+    return find(loaded, rig, clip) != null;
   }
 }

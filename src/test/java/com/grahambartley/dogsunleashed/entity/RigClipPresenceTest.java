@@ -65,7 +65,11 @@ class RigClipPresenceTest {
 
   private static BakedAnimations clips(final String... names) {
     final Map<String, Animation> animations = new HashMap<>();
-    Arrays.stream(names).forEach(name -> animations.put(name, null));
+    Arrays.stream(names).forEach(name -> animations.put(name, clip(name)));
     return new BakedAnimations(animations);
+  }
+
+  private static Animation clip(final String name) {
+    return new Animation(name, 1.0, Animation.LoopType.LOOP, new BoneAnimation[0], null);
   }
 }

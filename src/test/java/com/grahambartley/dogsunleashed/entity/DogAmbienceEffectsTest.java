@@ -121,18 +121,16 @@ class DogAmbienceEffectsTest {
     assertEquals(1, draws.get());
   }
 
-  @ParameterizedTest(name = "shaking {0}, sitting {1}, asleep {2} -> {3}")
+  @ParameterizedTest(name = "sitting {0}, asleep {1} -> {2}")
   @CsvSource({
-    "false, false, false, true",
-    "true, false, false, false",
-    "false, true, false, false",
-    "false, false, true, false",
-    "false, true, true, false"
+    "false, false, true",
+    "true, false, false",
+    "false, true, false",
+    "true, true, false"
   })
-  @DisplayName("a dog starts shaking off only when standing awake and not already shaking")
-  void mayStartShake(
-      final boolean shaking, final boolean sitting, final boolean asleep, final boolean expected) {
-    assertEquals(expected, DogAmbienceEffects.mayStartShake(shaking, sitting, asleep));
+  @DisplayName("a dog shakes off only while standing awake")
+  void canShake(final boolean sitting, final boolean asleep, final boolean expected) {
+    assertEquals(expected, DogAmbienceEffects.canShake(sitting, asleep));
   }
 
   @Test
