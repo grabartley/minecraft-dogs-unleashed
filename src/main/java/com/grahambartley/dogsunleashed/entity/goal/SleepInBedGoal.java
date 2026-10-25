@@ -9,15 +9,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class SleepInBedGoal extends Goal {
-  private static final double BED_POSITION_OFFSET = 0.5;
-  private static final double MOVE_SPEED = 1.0;
-  private static final double CLOSE_ENOUGH_DISTANCE = 2.0;
 
   private final UnleashedDogEntity dog;
+  private final DogBedTrip trip;
   private BlockPos targetBedPos;
 
   public SleepInBedGoal(UnleashedDogEntity dog) {
     this.dog = dog;
+    this.trip = new DogBedTrip(dog);
     this.setControls(EnumSet.of(Goal.Control.MOVE, Goal.Control.LOOK));
   }
 
@@ -71,20 +70,15 @@ public class SleepInBedGoal extends Goal {
 
   @Override
   public void start() {
-    if (this.targetBedPos != null) {
-      this.dog
-          .getNavigation()
-          .startMovingTo(
-              this.targetBedPos.getX() + BED_POSITION_OFFSET,
-              this.targetBedPos.getY(),
-              this.targetBedPos.getZ() + BED_POSITION_OFFSET,
-              MOVE_SPEED);
+    if (this.targetBedPos != null && !this.dog.getSleepController().isSleepingInBed()) {
+      this.trip.begin(this.targetBedPos);
     }
   }
 
   @Override
   public void stop() {
     this.dog.wakeUp();
+    this.trip.end();
     this.targetBedPos = null;
     this.dog.getNavigation().stop();
   }
@@ -100,18 +94,11 @@ public class SleepInBedGoal extends Goal {
       return;
     }
 
-    final double distanceToBed = this.dog.getBlockPos().getSquaredDistance(this.targetBedPos);
-
-    if (distanceToBed <= CLOSE_ENOUGH_DISTANCE * CLOSE_ENOUGH_DISTANCE) {
+    if (this.trip.hasArrived(this.targetBedPos)) {
+      this.trip.end();
       this.dog.getSleepController().startSleepingInBed(this.targetBedPos);
     } else {
-      this.dog
-          .getNavigation()
-          .startMovingTo(
-              this.targetBedPos.getX() + BED_POSITION_OFFSET,
-              this.targetBedPos.getY(),
-              this.targetBedPos.getZ() + BED_POSITION_OFFSET,
-              MOVE_SPEED);
+      this.trip.keepWalking(this.targetBedPos);
     }
   }
 
