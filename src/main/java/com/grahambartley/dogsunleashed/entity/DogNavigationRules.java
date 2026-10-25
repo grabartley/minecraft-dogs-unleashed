@@ -28,6 +28,11 @@ public final class DogNavigationRules {
     return missedAt > now - WIDE_SEARCH_COOLDOWN_TICKS;
   }
 
+  public static boolean wideSearchMissed(
+      final double searchRange, final double followRange, final boolean reachesTarget) {
+    return searchRange > followRange && !reachesTarget;
+  }
+
   public static double nearestDistance(final BlockPos from, final Set<BlockPos> targets) {
     return targets.stream()
         .mapToDouble(target -> Math.sqrt(from.getSquaredDistance(target)))

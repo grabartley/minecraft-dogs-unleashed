@@ -54,6 +54,23 @@ class DogNavigationRulesTest {
     assertEquals(recentlyMissed, DogNavigationRules.recentlyMissed(missedAt, now));
   }
 
+  @ParameterizedTest
+  @CsvSource({
+    "48, 16, false, true",
+    "48, 16, true, false",
+    "16, 16, false, false",
+    "16, 16, true, false",
+    "64, 64, false, false"
+  })
+  void onlyAWideSearchThatFallsShortCountsAsAMiss(
+      final double searchRange,
+      final double followRange,
+      final boolean reachesTarget,
+      final boolean missed) {
+    assertEquals(
+        missed, DogNavigationRules.wideSearchMissed(searchRange, followRange, reachesTarget));
+  }
+
   static Stream<Arguments> targetSets() {
     return Stream.of(
         Arguments.of(Set.of(), 0.0),

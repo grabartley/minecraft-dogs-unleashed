@@ -37,7 +37,10 @@ public final class DogNavigation extends MobNavigation {
     final Path previous = this.currentPath;
     final Path path =
         this.findPathToAny(positions, range, useHeadPos, distance, (float) searchRange);
-    if (path != null && path != previous && searchRange > followRange && !path.reachesTarget()) {
+    this.resetRangeMultiplier();
+    if (path != null
+        && path != previous
+        && DogNavigationRules.wideSearchMissed(searchRange, followRange, path.reachesTarget())) {
       this.wideSearchMissedAt = now;
     }
     return path;
