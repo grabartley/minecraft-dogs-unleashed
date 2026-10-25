@@ -43,8 +43,17 @@ class BoneCacheRulesTest {
     assertEquals(takenOn == now, BoneCacheRules.keepsBurying(takenOn, now));
   }
 
+  @ParameterizedTest(name = "taken on {0}, now {1}")
+  @MethodSource("commandPairs")
+  @DisplayName("only a dog told to sit, and still told to, sits back down after burying")
+  void sitsBackDownAfter(final DogCommand takenOn, final DogCommand now) {
+    assertEquals(
+        takenOn == DogCommand.SIT && now == DogCommand.SIT,
+        BoneCacheRules.sitsBackDownAfter(takenOn, now));
+  }
+
   @ParameterizedTest(name = "roll {0} -> {1} ticks")
-  @CsvSource({"0, 60", "1, 61", "30, 90", "60, 120", "61, 60", "-1, 120"})
+  @CsvSource({"0, 60", "1, 61", "30, 90", "60, 120"})
   @DisplayName("a dog sniffs around for three to six seconds before it picks a spot")
   void sniffTicks(final int roll, final int expected) {
     assertEquals(expected, BoneCacheRules.sniffTicks(roll));

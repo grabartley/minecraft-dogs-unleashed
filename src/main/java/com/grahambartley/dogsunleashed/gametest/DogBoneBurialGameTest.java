@@ -4,11 +4,13 @@ import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.entity.DogBoneBurial;
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.DogDeathWatch;
+import com.grahambartley.dogsunleashed.entity.DogSledHarness;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.burial.BoneCache;
 import com.grahambartley.dogsunleashed.entity.burial.BoneCacheRules;
 import com.grahambartley.dogsunleashed.entity.burial.BoneCaches;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
+import com.grahambartley.dogsunleashed.entity.sled.SledEntity;
 import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import java.util.UUID;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -23,6 +25,7 @@ import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 
 public final class DogBoneBurialGameTest implements FabricGameTest {
@@ -124,6 +127,24 @@ public final class DogBoneBurialGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 20)
+  public void aHitchedDogDoesNotTakeTheBone(TestContext context) {
+    final ServerPlayerEntity owner = placeOwner(context);
+    final UnleashedDogEntity dog = spawnOwnedDog(context, owner, DogCommand.FOLLOW);
+    dog.setAiDisabled(true);
+    final SledEntity sled = context.spawnEntity(ModEntities.SLED, new Vec3d(1.5, 2, 4.5));
+    sled.placeFacing(-90.0f);
+    dog.attachLeash(owner, true);
+    sled.interact(owner, Hand.MAIN_HAND);
+    context.assertTrue(dog.getComponents().get(DogSledHarness.class).isHitched(), "Hitched");
+
+    giveBone(dog, owner);
+
+    context.assertFalse(burial(dog).isCarryingBone(), "A dog pulling a sled is busy");
+    context.assertTrue(owner.getMainHandStack().isOf(Items.BONE), "The bone should stay in hand");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 20)
   public void aDogKeepingWatchDoesNotTakeTheBone(TestContext context) {
     final ServerPlayerEntity owner = placeOwner(context);
     final UnleashedDogEntity dog = spawnOwnedDog(context, owner, DogCommand.FOLLOW);
@@ -155,6 +176,7 @@ public final class DogBoneBurialGameTest implements FabricGameTest {
     dog.setAiDisabled(false);
 
     context.assertTrue(burial(dog).isBuryPending(), "The burial should survive a reload");
+    context.assertFalse(dog.isInSittingPose(), "The reloaded dog should stay standing");
     context.runAtEveryTick(
         () -> {
           final boolean buried = !caches(context).buriedBy(dog.getUuid()).isEmpty();
@@ -198,7 +220,7 @@ public final class DogBoneBurialGameTest implements FabricGameTest {
         });
   }
 
-  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 300)
+  @GameTest(templateName = ARENA, batchId = BATCH + "-no-ground", tickLimit = 300)
   public void aSittingDogWithNoSoftGroundDropsTheBoneAndSits(TestContext context) {
     final ServerPlayerEntity owner = placeOwner(context);
     final UnleashedDogEntity dog = spawnOwnedDog(context, owner, DogCommand.SIT);

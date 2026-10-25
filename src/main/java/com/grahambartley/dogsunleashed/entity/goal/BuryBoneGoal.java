@@ -99,7 +99,10 @@ public class BuryBoneGoal extends Goal {
   public void stop() {
     this.dog.getNavigation().stop();
     this.visit = null;
-    this.burial().abandonBurial();
+    this.burial().setDigging(false);
+    if (this.burial().isCalledOff()) {
+      this.burial().abandonBurial();
+    }
   }
 
   private void finish() {

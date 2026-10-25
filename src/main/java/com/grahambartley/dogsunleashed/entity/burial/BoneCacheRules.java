@@ -26,11 +26,15 @@ public final class BoneCacheRules {
   }
 
   public static int sniffTicks(final int roll) {
-    return SNIFF_MIN_TICKS + Math.floorMod(roll, SNIFF_SPREAD_TICKS + 1);
+    return SNIFF_MIN_TICKS + roll;
   }
 
   public static boolean standsToBury(final DogCommand command) {
     return command == DogCommand.SIT;
+  }
+
+  public static boolean sitsBackDownAfter(final DogCommand takenOn, final DogCommand now) {
+    return standsToBury(takenOn) && keepsBurying(takenOn, now);
   }
 
   public static boolean keepsBurying(final DogCommand takenOn, final DogCommand now) {

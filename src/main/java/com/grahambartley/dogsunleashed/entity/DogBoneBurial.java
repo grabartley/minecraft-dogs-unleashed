@@ -30,6 +30,7 @@ public final class DogBoneBurial extends DogComponent {
         && this.dog.getOwner() != null
         && !this.dog.getFetchCarry().isCarrying()
         && !this.dog.getComponents().get(DogDeathWatch.class).isKeepingWatch()
+        && !this.dog.getComponents().get(DogSledHarness.class).isHitched()
         && DogIdleness.isFreeIgnoringSitPose(this.dog);
   }
 
@@ -52,12 +53,27 @@ public final class DogBoneBurial extends DogComponent {
         && DogIdleness.isFreeForChores(this.dog);
   }
 
+  public boolean isCalledOff() {
+    return this.takenOn == null
+        || !BoneCacheRules.keepsBurying(this.takenOn, this.dog.getCommand());
+  }
+
+  @Override
+  void tick() {
+    if (this.buryPending && !this.isCarryingBone()) {
+      this.abandonBurial();
+    }
+  }
+
   public boolean isBuryPending() {
     return this.buryPending && this.isCarryingBone();
   }
 
   public void abandonBurial() {
-    final boolean sitsBackDown = this.buryPending && this.returnsToSitting();
+    final boolean sitsBackDown =
+        this.buryPending
+            && this.takenOn != null
+            && BoneCacheRules.sitsBackDownAfter(this.takenOn, this.dog.getCommand());
     this.buryPending = false;
     this.takenOn = null;
     this.setDigging(false);
@@ -130,12 +146,6 @@ public final class DogBoneBurial extends DogComponent {
     return this.dog.getOwner() != null
         && BoneCacheRules.digsUpOn(this.dog.getCommand())
         && DogIdleness.isFreeForChores(this.dog);
-  }
-
-  private boolean returnsToSitting() {
-    return this.takenOn != null
-        && BoneCacheRules.standsToBury(this.takenOn)
-        && BoneCacheRules.keepsBurying(this.takenOn, this.dog.getCommand());
   }
 
   private void dropBone() {
