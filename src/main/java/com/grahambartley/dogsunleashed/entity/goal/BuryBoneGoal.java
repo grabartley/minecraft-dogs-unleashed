@@ -2,19 +2,26 @@ package com.grahambartley.dogsunleashed.entity.goal;
 
 import com.grahambartley.dogsunleashed.entity.DogBoneBurial;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.burial.BoneCacheRules;
 import com.grahambartley.dogsunleashed.entity.burial.BurialGround;
 import java.util.EnumSet;
+import net.minecraft.entity.ai.NoPenaltyTargeting;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
 public class BuryBoneGoal extends Goal {
 
   private static final int SEARCH_TICKS = 40;
+  private static final int SNIFF_RADIUS = 3;
+  private static final int SNIFF_HEIGHT = 2;
+  private static final double SNIFF_SPEED = 0.8;
 
   private final UnleashedDogEntity dog;
   private @Nullable DigSiteVisit visit;
   private int searchTicks;
+  private int sniffTicks;
 
   public BuryBoneGoal(final UnleashedDogEntity dog) {
     this.dog = dog;
@@ -23,7 +30,7 @@ public class BuryBoneGoal extends Goal {
 
   @Override
   public boolean canStart() {
-    return this.burial().isBuryPending() && this.burial().isFreeToDig();
+    return this.burial().canBuryNow();
   }
 
   @Override
@@ -40,11 +47,18 @@ public class BuryBoneGoal extends Goal {
   public void start() {
     this.visit = null;
     this.searchTicks = 0;
+    this.sniffTicks =
+        BoneCacheRules.sniffTicks(
+            this.dog.getRandom().nextInt(BoneCacheRules.SNIFF_SPREAD_TICKS + 1));
   }
 
   @Override
   public void tick() {
     if (!this.burial().isBuryPending()) {
+      return;
+    }
+    if (this.sniffTicks > 0) {
+      this.sniff();
       return;
     }
     if (this.visit == null) {
@@ -55,6 +69,18 @@ public class BuryBoneGoal extends Goal {
       case DUG -> this.finish();
       case UNREACHABLE -> this.giveUp();
       case WALKING, DIGGING -> {}
+    }
+  }
+
+  private void sniff() {
+    this.sniffTicks--;
+    if (!this.dog.getNavigation().isIdle()) {
+      return;
+    }
+    final Vec3d spot = NoPenaltyTargeting.find(this.dog, SNIFF_RADIUS, SNIFF_HEIGHT);
+    if (spot != null) {
+      this.dog.getNavigation().startMovingTo(spot.x, spot.y, spot.z, SNIFF_SPEED);
+      this.dog.getLookControl().lookAt(spot.x, spot.y - 1, spot.z);
     }
   }
 
@@ -73,7 +99,10 @@ public class BuryBoneGoal extends Goal {
   public void stop() {
     this.dog.getNavigation().stop();
     this.visit = null;
-    this.burial().abandonBurial();
+    this.burial().setDigging(false);
+    if (this.burial().isCalledOff()) {
+      this.burial().abandonBurial();
+    }
   }
 
   private void finish() {

@@ -3,20 +3,60 @@ package com.grahambartley.dogsunleashed.entity.burial;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.grahambartley.dogsunleashed.entity.DogCommand;
+import java.util.Arrays;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class BoneCacheRulesTest {
 
   @ParameterizedTest(name = "{0}")
   @EnumSource(DogCommand.class)
-  @DisplayName("only roaming and staying dogs bury bones")
-  void buriesOnlyWhenRoamingOrStaying(final DogCommand command) {
+  @DisplayName("only roaming and staying dogs dig up bones")
+  void digsUpOnlyWhenRoamingOrStaying(final DogCommand command) {
     assertEquals(
         command == DogCommand.FREE_ROAM || command == DogCommand.STAY,
-        BoneCacheRules.buriesOn(command));
+        BoneCacheRules.digsUpOn(command));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @EnumSource(DogCommand.class)
+  @DisplayName("only a sitting dog has to stand up to bury a bone")
+  void standsToBuryOnlyWhenSitting(final DogCommand command) {
+    assertEquals(command == DogCommand.SIT, BoneCacheRules.standsToBury(command));
+  }
+
+  static Stream<Arguments> commandPairs() {
+    return Arrays.stream(DogCommand.values())
+        .flatMap(
+            takenOn -> Arrays.stream(DogCommand.values()).map(now -> Arguments.of(takenOn, now)));
+  }
+
+  @ParameterizedTest(name = "taken on {0}, now {1}")
+  @MethodSource("commandPairs")
+  @DisplayName("a dog keeps burying only while its command is unchanged")
+  void keepsBuryingOnlyOnTheSameCommand(final DogCommand takenOn, final DogCommand now) {
+    assertEquals(takenOn == now, BoneCacheRules.keepsBurying(takenOn, now));
+  }
+
+  @ParameterizedTest(name = "taken on {0}, now {1}")
+  @MethodSource("commandPairs")
+  @DisplayName("only a dog told to sit, and still told to, sits back down after burying")
+  void sitsBackDownAfter(final DogCommand takenOn, final DogCommand now) {
+    assertEquals(
+        takenOn == DogCommand.SIT && now == DogCommand.SIT,
+        BoneCacheRules.sitsBackDownAfter(takenOn, now));
+  }
+
+  @ParameterizedTest(name = "roll {0} -> {1} ticks")
+  @CsvSource({"0, 60", "1, 61", "30, 90", "60, 120"})
+  @DisplayName("a dog sniffs around for three to six seconds before it picks a spot")
+  void sniffTicks(final int roll, final int expected) {
+    assertEquals(expected, BoneCacheRules.sniffTicks(roll));
   }
 
   @ParameterizedTest(name = "buried at {0}, now {1}: due {2}")
