@@ -59,7 +59,7 @@ hurts one of them. Earn a pup's trust and it grows into a wolf the size of a hor
 </p>
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/main/docs/images/golden_retriever.png" alt="Golden Retriever" width="220">
+<img src="https://raw.githubusercontent.com/grabartley/minecraft-dogs-unleashed/main/docs/images/golden_retriever.png" alt="Golden Retriever" width="280">
 </p>
 
 <p align="center">
@@ -80,8 +80,8 @@ times and it's learned for good.
 - **Follow their nose.** Hand your dog a mob drop, a raw ore, a brush, a treasure map or a trail ruins sherd and it leads
 you to what it smells. Send it off exploring and it comes back with a find and a map of where it went.
 - **Play together.** Throw a stick, a tennis ball or a frisbee and your dog brings it back, or play tug of war with a
-rope toy. Give it a bone and it buries it, then digs it up days later, sometimes with a find.
-- **Give them a home.** Craft a dog bed or a dog house in any colour and your dog goes to bed by itself at night. Set
+rope toy. Give a roaming dog a bone and it buries it, then digs it up days later, sometimes with a find.
+- **Give them a home.** Craft a dog bed or a dog house in any colour, assign it, and your dog goes to bed by itself at night. Set
 out a food bowl and a water bowl too, and a hurt dog will eat or drink there while you're away.
 - **Kit them out.** Craft them armour, dye their collar, and hang a pendant on it to keep mobs away, shield them from
 harm or heal you. Saddlebags let them carry items to another player, even in another dimension, and a team of huskies
@@ -92,14 +92,14 @@ costumes, from a spider or a creeper to an ender dragon.
 dog ends up with a bad hair day.
 - **Never lose them.** Dogs on Follow or Heel come with you through portals and long teleports. Bind a dog whistle to
 call one from anywhere, or open the Pet Manager to see and summon your whole pack.
-- **Raise a family.** Two tamed dogs can have puppies, and mixed parents give a mixed breed puppy that looks like
-both. Puppies take after their parents, rare coats included, and every dog has a family tree. Turn on Dog Aging and
+- **Raise a family.** Two living tamed dogs can have puppies, and mixed parents give a mixed breed puppy that looks like
+both, though dire wolves keep to their own kind. Puppies take after their parents, rare coats included, and every dog has a family tree. Turn on Dog Aging and
 your dogs grow old with you, without ever dying of age.
 - **Bring them back.** A tamed dog that dies leaves a grave, and you can bring it back as an undead dog, then
 cure it. Carve any dog into a statue or paint its portrait for your wall.
 - **Little touches.** Every dog has a personality and grows closer to you over time. Huskies and dire wolves howl at
 the full moon, dogs tilt their heads at food, shake off after a swim, and leave muddy paw prints until you wash them.
-They bark at pillagers and earn a rosette for helping you win a raid, and stick close to you in the Nether.
+Most dogs bark at pillagers and earn a rosette for helping you win a raid, and stick close to you in the Nether.
 
 ## Install
 
