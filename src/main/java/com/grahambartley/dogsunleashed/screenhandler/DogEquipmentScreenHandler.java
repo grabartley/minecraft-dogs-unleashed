@@ -241,9 +241,8 @@ public class DogEquipmentScreenHandler extends ScreenHandler {
     }
 
     @Override
-    public @Nullable Pair<Identifier, Identifier> getBackgroundSprite() {
-      final Identifier icon = this.equipment.slot().emptyIcon();
-      return icon == null ? null : Pair.of(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, icon);
+    public Pair<Identifier, Identifier> getBackgroundSprite() {
+      return Pair.of(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, this.equipment.slot().emptyIcon());
     }
   }
 

@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 public enum DogEquipmentSlot {
   ARMOUR(
       "armour",
-      null,
+      "item/empty_slot_armour",
       stack ->
           stack.getItem() instanceof AnimalArmorItem armour
               && armour.getType() == AnimalArmorItem.Type.CANINE),
@@ -24,16 +24,13 @@ public enum DogEquipmentSlot {
   private static final String TRANSLATION_KEY_PREFIX = "screen.dogs-unleashed.dog_equipment.slot.";
 
   private final String id;
-  private final @Nullable Identifier emptyIcon;
+  private final Identifier emptyIcon;
   private final Predicate<ItemStack> acceptedItems;
 
   DogEquipmentSlot(
-      final String id,
-      final @Nullable String emptyIconPath,
-      final Predicate<ItemStack> acceptedItems) {
+      final String id, final String emptyIconPath, final Predicate<ItemStack> acceptedItems) {
     this.id = id;
-    this.emptyIcon =
-        emptyIconPath == null ? null : Identifier.of(DogsUnleashed.MOD_ID, emptyIconPath);
+    this.emptyIcon = Identifier.of(DogsUnleashed.MOD_ID, emptyIconPath);
     this.acceptedItems = acceptedItems;
   }
 
@@ -49,7 +46,7 @@ public enum DogEquipmentSlot {
     return TRANSLATION_KEY_PREFIX + this.id + ".empty";
   }
 
-  public @Nullable Identifier emptyIcon() {
+  public Identifier emptyIcon() {
     return this.emptyIcon;
   }
 

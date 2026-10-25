@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.grahambartley.dogsunleashed.entity.DogWheelIcons;
 import com.grahambartley.dogsunleashed.entity.delivery.DogDeliveries;
 import com.grahambartley.dogsunleashed.entity.expedition.DogExpeditions;
 import java.io.IOException;
@@ -18,6 +19,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,6 +35,13 @@ class DogTrickTest {
 
   private static final Path ANIMATIONS =
       Path.of("src/client/resources/assets/dogs-unleashed/animations");
+
+  @ParameterizedTest
+  @EnumSource(DogTrick.class)
+  @DisplayName("each trick shows the wheel sprite named after it")
+  void iconIsNamedAfterTheTrick(final DogTrick trick) {
+    assertEquals(DogWheelIcons.sprite(trick.name().toLowerCase(Locale.ROOT)), trick.icon());
+  }
 
   @ParameterizedTest(name = "{0} is saved as {1}, plays {2} and sits in wheel slot {3}")
   @CsvSource({

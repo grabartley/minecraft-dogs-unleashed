@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.entity.expedition;
 
+import com.grahambartley.dogsunleashed.entity.DogWheelIcons;
 import com.grahambartley.dogsunleashed.entity.DogWheelSubAction;
 import com.grahambartley.dogsunleashed.entity.DogWheelSubActions;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
@@ -10,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 public final class DogExpeditions {
 
   public static final int WHEEL_ACTION_ID = 0;
+  public static final Identifier WHEEL_ICON = DogWheelIcons.sprite("expedition");
   public static final String WHEEL_LABEL_KEY = "command.dogs-unleashed.explore";
 
   private DogExpeditions() {}
@@ -19,7 +21,7 @@ public final class DogExpeditions {
         new DogWheelSubAction(
             WHEEL_ACTION_ID,
             WHEEL_LABEL_KEY,
-            Identifier.ofVanilla("filled_map"),
+            WHEEL_ICON,
             DogExpeditions::refusalKey,
             (dog, player) -> ExpeditionDeparture.send(dog, player)));
   }
