@@ -105,7 +105,7 @@ public final class DogResurrection {
 
     final DogStatueLook look = petData.getLook();
     dog.applyGenome(look.genome() != null ? look.genome() : DogGenome.pure(petData.getBreed()));
-    dog.getGenes().set(look.resolvedGenes());
+    dog.getGenes().set(look.genes());
     dog.applyAppearance(
         new DogAppearance(dog.getRigSourceBreed(), look.coatVariant(), look.eyeColorVariant()));
     dog.getComponents()

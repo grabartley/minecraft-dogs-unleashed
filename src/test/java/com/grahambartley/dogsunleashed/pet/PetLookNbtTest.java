@@ -2,7 +2,6 @@ package com.grahambartley.dogsunleashed.pet;
 
 import static com.grahambartley.dogsunleashed.TestRegistries.REGISTRIES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
@@ -20,17 +19,17 @@ import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfit;
 import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfitFixture;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.DyeColor;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(MinecraftBootstrapExtension.class)
@@ -93,32 +92,6 @@ class PetLookNbtTest {
     assertEquals(Set.of(ModNbtKeys.PET_LOOK, ModNbtKeys.PORTRAIT_OUTFIT), nbt.getKeys());
   }
 
-  @Test
-  @DisplayName("a pet saved before looks keeps its breed, size, coat, eyes, fur, growth and genes")
-  void legacyLookMovesIntoOneLook() {
-    final NbtCompound nbt = PetDataFixture.savedBeforeLooks(UnleashedDogBreed.HUSKY);
-    nbt.putBoolean(ModNbtKeys.PORTRAIT_BABY, true);
-    nbt.putInt(ModNbtKeys.PORTRAIT_COAT_VARIANT, 2);
-    nbt.putInt(ModNbtKeys.PORTRAIT_HUSKY_EYE, 1);
-    nbt.putInt(ModNbtKeys.PORTRAIT_FUR_STAGE, 3);
-    nbt.putInt(ModNbtKeys.GROWTH_STAGE, 2);
-    nbt.put(ModNbtKeys.GENES, HUSKY_GENES.toNbt());
-
-    assertEquals(
-        new DogStatueLook(UnleashedDogBreed.HUSKY, true, 2, 1, 3, 2, null, HUSKY_GENES),
-        PetLookNbt.readLook(nbt));
-  }
-
-  @Test
-  @DisplayName("a pet saved before looks with nothing rolled loads as an unseen adult")
-  void bareLegacySaveIsUnseen() {
-    final DogStatueLook look =
-        PetLookNbt.readLook(PetDataFixture.savedBeforeLooks(UnleashedDogBreed.BEAGLE));
-
-    assertEquals(DogStatueLook.unseen(UnleashedDogBreed.BEAGLE), look);
-    assertEquals(UnleashedDogEntity.UNSET_VARIANT, look.coatVariant());
-  }
-
   @ParameterizedTest(name = "saved fur ordinal {0} -> {1}")
   @CsvSource({"0, BOTCHED", "3, SHAGGY", "99, NATURAL", "-1, NATURAL"})
   @DisplayName("a legacy fur stage out of range falls back to a natural coat")
@@ -136,83 +109,113 @@ class PetLookNbtTest {
     return nbt;
   }
 
-  @ParameterizedTest(name = "speed {0}, attack {1}")
-  @CsvSource({"0.31, 4.2", "0.2, 1.5"})
-  @DisplayName("a legacy breed mix with no genome becomes a genome with the saved stats")
-  void legacyCompositionBecomesAGenome(final float speed, final float attack) {
+  @ParameterizedTest(name = "saved speed {0}, attack {1}")
+  @CsvSource({"0.31, 4.2", "0.2, 1.5", ","})
+  @DisplayName(
+      "a legacy breed mix with no genome keeps its mix in a genome, with the stats a resurrection always gave it")
+  void legacyCompositionBecomesAGenome(final Float speed, final Float attack) {
     final NbtCompound nbt = legacyMix();
-    nbt.putFloat(ModNbtKeys.MOVEMENT_SPEED, speed);
-    nbt.putFloat(ModNbtKeys.ATTACK_DAMAGE, attack);
+    if (speed != null) {
+      nbt.putFloat(ModNbtKeys.MOVEMENT_SPEED, speed);
+      nbt.putFloat(ModNbtKeys.ATTACK_DAMAGE, attack);
+    }
 
     final DogGenome genome = PetLookNbt.readLook(nbt).genome();
 
+    final DogGenome pure = DogGenome.pure(UnleashedDogBreed.CROSS_BREED);
     assertEquals(DogGenome.sortedComposition(MOSTLY_BEAGLE), genome.composition());
-    assertEquals(22.0, genome.maxHealth(), 1e-6);
-    assertEquals(speed, genome.movementSpeed(), 1e-6);
-    assertEquals(attack, genome.attackDamage(), 1e-6);
+    assertEquals(pure.maxHealth(), genome.maxHealth(), 1e-6);
+    assertEquals(pure.movementSpeed(), genome.movementSpeed(), 1e-6);
+    assertEquals(pure.attackDamage(), genome.attackDamage(), 1e-6);
+    assertEquals(pure.furGrowthRate(), genome.furGrowthRate(), 1e-6);
     assertEquals(UnleashedDogBreed.BEAGLE, genome.voiceBreed());
   }
 
-  @Test
-  @DisplayName("a legacy breed mix saved without stats takes its main breed's stats")
-  void legacyCompositionWithoutStatsUsesTheMainBreed() {
-    final DogGenome genome = PetLookNbt.readLook(legacyMix()).genome();
-
-    final UnleashedDogBreed.Attributes beagle = UnleashedDogBreed.BEAGLE.attributes();
-    assertEquals(beagle.movementSpeed(), genome.movementSpeed(), 1e-6);
-    assertEquals(beagle.attackDamage(), genome.attackDamage(), 1e-6);
-  }
-
-  @Test
-  @DisplayName("a saved genome wins over an older loose breed mix")
-  void savedGenomeWinsOverLooseComposition() {
-    final DogGenome genome = DogGenome.pure(UnleashedDogBreed.HUSKY);
-    final NbtCompound nbt = PetDataFixture.savedBeforeLooks(UnleashedDogBreed.HUSKY);
-    nbt.put(ModNbtKeys.GENOME, genome.toNbt());
-    nbt.put(ModNbtKeys.COMPOSITION, DogGenome.compositionToNbt(MOSTLY_BEAGLE));
-
-    assertEquals(genome, PetLookNbt.readLook(nbt).genome());
-  }
-
-  @Test
-  @DisplayName("a legacy save with an empty breed mix has no genome")
-  void emptyLegacyCompositionHasNoGenome() {
-    final NbtCompound nbt = PetDataFixture.savedBeforeLooks(UnleashedDogBreed.BEAGLE);
-    nbt.put(ModNbtKeys.COMPOSITION, new NbtCompound());
-
-    assertNull(PetLookNbt.readLook(nbt).genome());
-  }
-
-  @Test
-  @DisplayName("a look naming an unknown breed falls back to the legacy keys")
-  void unreadableLookFallsBackToLegacyKeys() {
-    final NbtCompound nbt = PetDataFixture.savedBeforeLooks(UnleashedDogBreed.BEAGLE);
-    final NbtCompound broken = new NbtCompound();
-    broken.putString(ModNbtKeys.BREED_TYPE, "poodle");
-    nbt.put(ModNbtKeys.PET_LOOK, broken);
-
-    assertEquals(UnleashedDogBreed.BEAGLE, PetLookNbt.readLook(nbt).breed());
+  static Stream<Arguments> legacyLooks() {
+    return Stream.of(
+        Arguments.of(
+            "a full legacy save",
+            UnleashedDogBreed.HUSKY,
+            (Consumer<NbtCompound>)
+                nbt -> {
+                  nbt.putBoolean(ModNbtKeys.PORTRAIT_BABY, true);
+                  nbt.putInt(ModNbtKeys.PORTRAIT_COAT_VARIANT, 2);
+                  nbt.putInt(ModNbtKeys.PORTRAIT_HUSKY_EYE, 1);
+                  nbt.putInt(ModNbtKeys.PORTRAIT_FUR_STAGE, 3);
+                  nbt.putInt(ModNbtKeys.GROWTH_STAGE, 2);
+                  nbt.put(ModNbtKeys.GENES, HUSKY_GENES.toNbt());
+                },
+            new DogStatueLook(UnleashedDogBreed.HUSKY, true, 2, 1, 3, 2, null, HUSKY_GENES)),
+        Arguments.of(
+            "a bare legacy save",
+            UnleashedDogBreed.BEAGLE,
+            (Consumer<NbtCompound>) nbt -> {},
+            DogStatueLook.unseen(UnleashedDogBreed.BEAGLE)),
+        Arguments.of(
+            "a look naming an unknown breed",
+            UnleashedDogBreed.BEAGLE,
+            (Consumer<NbtCompound>)
+                nbt -> {
+                  final NbtCompound broken = new NbtCompound();
+                  broken.putString(ModNbtKeys.BREED_TYPE, "poodle");
+                  nbt.put(ModNbtKeys.PET_LOOK, broken);
+                },
+            DogStatueLook.unseen(UnleashedDogBreed.BEAGLE)),
+        Arguments.of(
+            "a saved genome next to an older loose breed mix",
+            UnleashedDogBreed.HUSKY,
+            (Consumer<NbtCompound>)
+                nbt -> {
+                  nbt.put(ModNbtKeys.GENOME, DogGenome.pure(UnleashedDogBreed.HUSKY).toNbt());
+                  nbt.put(ModNbtKeys.COMPOSITION, DogGenome.compositionToNbt(MOSTLY_BEAGLE));
+                },
+            new DogStatueLook(
+                UnleashedDogBreed.HUSKY,
+                false,
+                UnleashedDogEntity.UNSET_VARIANT,
+                UnleashedDogEntity.UNSET_VARIANT,
+                DogFurStage.NATURAL.ordinal(),
+                0,
+                DogGenome.pure(UnleashedDogBreed.HUSKY),
+                null)),
+        Arguments.of(
+            "an empty loose breed mix",
+            UnleashedDogBreed.BEAGLE,
+            (Consumer<NbtCompound>) nbt -> nbt.put(ModNbtKeys.COMPOSITION, new NbtCompound()),
+            DogStatueLook.unseen(UnleashedDogBreed.BEAGLE)));
   }
 
   @ParameterizedTest(name = "{0}")
-  @EnumSource(
-      value = DyeColor.class,
-      names = {"BLUE", "LIME"})
-  @DisplayName("a pet saved before outfits keeps its collar in its outfit")
-  void legacyCollarMovesIntoTheOutfit(final DyeColor collar) {
-    final NbtCompound nbt = PetDataFixture.savedBeforeLooks(UnleashedDogBreed.BEAGLE);
-    nbt.putInt(ModNbtKeys.PORTRAIT_COLLAR, collar.getId());
+  @MethodSource("legacyLooks")
+  @DisplayName("a pet saved before looks reads its loose look fields into one look")
+  void legacyLookMovesIntoOneLook(
+      final String description,
+      final UnleashedDogBreed breed,
+      final Consumer<NbtCompound> saved,
+      final DogStatueLook expected) {
+    final NbtCompound nbt = PetDataFixture.savedBeforeLooks(breed);
+    saved.accept(nbt);
 
-    assertEquals(
-        DogPortraitOutfitFixture.collarOnly(collar), PetLookNbt.readOutfit(nbt, REGISTRIES));
+    assertEquals(expected, PetLookNbt.readLook(nbt));
   }
 
-  @Test
-  @DisplayName("a pet saved before outfits and collars wears nothing")
-  void bareLegacySaveWearsNothing() {
-    assertEquals(
-        DogPortraitOutfit.NONE,
-        PetLookNbt.readOutfit(
-            PetDataFixture.savedBeforeLooks(UnleashedDogBreed.BEAGLE), REGISTRIES));
+  static Stream<Arguments> legacyCollars() {
+    return Stream.of(
+        Arguments.of(
+            Optional.of(DyeColor.BLUE), DogPortraitOutfitFixture.collarOnly(DyeColor.BLUE)),
+        Arguments.of(
+            Optional.of(DyeColor.LIME), DogPortraitOutfitFixture.collarOnly(DyeColor.LIME)),
+        Arguments.of(Optional.empty(), DogPortraitOutfit.NONE));
+  }
+
+  @ParameterizedTest(name = "collar {0}")
+  @MethodSource("legacyCollars")
+  @DisplayName("a pet saved before outfits keeps its collar in its outfit, and nothing else")
+  void legacyCollarMovesIntoTheOutfit(
+      final Optional<DyeColor> collar, final DogPortraitOutfit expected) {
+    final NbtCompound nbt = PetDataFixture.savedBeforeLooks(UnleashedDogBreed.BEAGLE);
+    collar.ifPresent(colour -> nbt.putInt(ModNbtKeys.PORTRAIT_COLLAR, colour.getId()));
+
+    assertEquals(expected, PetLookNbt.readOutfit(nbt, REGISTRIES));
   }
 }

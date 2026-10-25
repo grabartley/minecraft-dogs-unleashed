@@ -42,5 +42,6 @@ public final class DogLooks {
     dog.prevBodyYaw = yaw;
     dog.prevHeadYaw = yaw;
     dog.setPitch(0.0f);
+    dog.prevPitch = 0.0f;
   }
 }

@@ -42,6 +42,7 @@ public record PetSyncData(
       PacketCodec.of(PetSyncData::write, PetSyncData::read);
 
   public static PetSyncData from(final PetData petData, final PetAwayStatus away) {
+    final DogLook look = petData.portraitLook(DogsUnleashed.SERVER_CONFIG.aging());
     return new PetSyncData(
         petData.getPetId().toString(),
         petData.getName(),
@@ -52,13 +53,12 @@ public record PetSyncData(
         petData.getLastKnownPosition().getZ(),
         petData.getDimension(),
         petData.getLifeState(),
-        petData.getLook().withGenes(null),
-        petData.getOutfit(),
-        petData.isSenior(DogsUnleashed.SERVER_CONFIG.aging()),
+        look.statue().withGenes(null),
+        look.outfit(),
+        look.senior(),
         petData.getMovementSpeed(),
         petData.getAttackDamage(),
-        RidingView.of(
-            petData.getBreed(), petData.getLook().growthStage(), petData.getStaminaPercent()),
+        RidingView.of(petData.getBreed(), look.statue().growthStage(), petData.getStaminaPercent()),
         away,
         DogBondStep.ofPoints(petData.getBondPoints()),
         petData.getPersonality());

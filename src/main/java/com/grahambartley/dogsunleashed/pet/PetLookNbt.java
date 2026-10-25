@@ -78,13 +78,14 @@ final class PetLookNbt {
             ? DogFurStage.fromOrdinal(nbt.getInt(ModNbtKeys.PORTRAIT_FUR_STAGE)).ordinal()
             : DogFurStage.NATURAL.ordinal(),
         nbt.getInt(ModNbtKeys.GROWTH_STAGE),
-        legacyGenome(nbt),
+        legacyGenome(nbt, breed),
         nbt.contains(ModNbtKeys.GENES, NbtElement.COMPOUND_TYPE)
             ? DogGenes.fromNbt(nbt.getCompound(ModNbtKeys.GENES))
             : null);
   }
 
-  private static @Nullable DogGenome legacyGenome(final NbtCompound nbt) {
+  private static @Nullable DogGenome legacyGenome(
+      final NbtCompound nbt, final UnleashedDogBreed breed) {
     if (nbt.contains(ModNbtKeys.GENOME, NbtElement.COMPOUND_TYPE)) {
       return DogGenome.fromNbt(nbt.getCompound(ModNbtKeys.GENOME));
     }
@@ -96,18 +97,13 @@ final class PetLookNbt {
     if (composition.isEmpty()) {
       return null;
     }
-    final UnleashedDogBreed dominant = DogGenome.dominantOf(composition);
-    final UnleashedDogBreed.Attributes attributes = dominant.attributes();
+    final DogGenome pure = DogGenome.pure(breed);
     return new DogGenome(
         composition,
-        nbt.getFloat(ModNbtKeys.MAX_HEALTH),
-        savedOr(nbt, ModNbtKeys.MOVEMENT_SPEED, attributes.movementSpeed()),
-        savedOr(nbt, ModNbtKeys.ATTACK_DAMAGE, attributes.attackDamage()),
-        DogGenome.BASELINE_FUR_GROWTH_RATE,
-        dominant);
-  }
-
-  private static double savedOr(final NbtCompound nbt, final String key, final double fallback) {
-    return nbt.contains(key, NbtElement.NUMBER_TYPE) ? nbt.getFloat(key) : fallback;
+        pure.maxHealth(),
+        pure.movementSpeed(),
+        pure.attackDamage(),
+        pure.furGrowthRate(),
+        DogGenome.dominantOf(composition));
   }
 }

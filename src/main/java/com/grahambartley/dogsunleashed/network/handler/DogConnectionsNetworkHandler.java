@@ -90,7 +90,7 @@ public final class DogConnectionsNetworkHandler {
         pet.getOwnerId().toString(),
         OwnerNameResolver.resolve(server, pet.getOwnerId()),
         GeneSyncData.visibleGenes(
-            pet.getLook().resolvedGenes(), pet.getLook().rigBreed(), carriedGenesRevealed),
+            pet.getLook().genes(), pet.getLook().rigBreed(), carriedGenesRevealed),
         carriedGenesRevealed);
   }
 }
