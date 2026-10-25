@@ -39,7 +39,8 @@ public final class DogEquipmentGameTest implements FabricGameTest {
   private static final int DEATH_ASSERT_TICK = 20;
   private static final int HELD_STACK_COUNT = 3;
   private static final int WORN_ARMOUR_DAMAGE = 5;
-  private static final int FIRST_HOTBAR_SLOT_INDEX = DogEquipmentScreenHandler.DOG_SLOT_COUNT + 27;
+  private static final int FIRST_HOTBAR_SLOT_INDEX =
+      DogEquipmentScreenHandler.ROUTING.hotbarStart();
 
   @CustomTestProvider
   public Collection<TestFunction> directEquipFillsArmourSlotPerBreed() {
@@ -255,7 +256,7 @@ public final class DogEquipmentGameTest implements FabricGameTest {
     dog.getEquipmentHolder().setStack(DogEquipmentSlot.ARMOUR, new ItemStack(Items.WOLF_ARMOR));
     final DogEquipmentScreenHandler handler = openHandler(owner, dog);
 
-    handler.quickMove(owner, 0);
+    handler.quickMove(owner, DogEquipmentScreenHandler.gearSlotIndex(DogEquipmentSlot.ARMOUR));
 
     context.assertTrue(
         dog.getEquipmentHolder().getStack(DogEquipmentSlot.ARMOUR).isEmpty(),
@@ -308,7 +309,11 @@ public final class DogEquipmentGameTest implements FabricGameTest {
     dog.getEquipmentHolder().setStack(DogEquipmentSlot.ARMOUR, new ItemStack(Items.WOLF_ARMOR));
     final DogEquipmentScreenHandler handler = openHandler(owner, dog);
 
-    handler.onSlotClick(0, 0, SlotActionType.PICKUP, owner);
+    handler.onSlotClick(
+        DogEquipmentScreenHandler.gearSlotIndex(DogEquipmentSlot.ARMOUR),
+        0,
+        SlotActionType.PICKUP,
+        owner);
 
     context.assertTrue(
         dog.getEquipmentHolder().getStack(DogEquipmentSlot.ARMOUR).isEmpty(),

@@ -213,7 +213,11 @@ public final class DogAdvancementGameTest implements FabricGameTest {
         new DogEquipmentScreenHandler(1, owner.getInventory(), dog);
     handler.setCursorStack(new ItemStack(Items.WOLF_ARMOR));
 
-    handler.onSlotClick(DogEquipmentSlot.ARMOUR.ordinal(), 0, SlotActionType.PICKUP, owner);
+    handler.onSlotClick(
+        DogEquipmentScreenHandler.gearSlotIndex(DogEquipmentSlot.ARMOUR),
+        0,
+        SlotActionType.PICKUP,
+        owner);
 
     context.assertTrue(
         !dog.getArmour().worn().isEmpty(), "The gear screen should put the armour on the dog");

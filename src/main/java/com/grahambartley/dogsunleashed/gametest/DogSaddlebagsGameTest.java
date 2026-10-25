@@ -1,16 +1,17 @@
 package com.grahambartley.dogsunleashed.gametest;
 
 import static com.grahambartley.dogsunleashed.gametest.util.PendantTestHelper.ARENA;
-import static com.grahambartley.dogsunleashed.gametest.util.PendantTestHelper.DOG_POS;
 import static com.grahambartley.dogsunleashed.gametest.util.PendantTestHelper.OWNER_POS;
+import static com.grahambartley.dogsunleashed.gametest.util.SaddlebagsTestHelper.bags;
+import static com.grahambartley.dogsunleashed.gametest.util.SaddlebagsTestHelper.open;
+import static com.grahambartley.dogsunleashed.gametest.util.SaddlebagsTestHelper.ownedDog;
+import static com.grahambartley.dogsunleashed.gametest.util.SaddlebagsTestHelper.wearingBags;
 
 import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.DogRecreation;
 import com.grahambartley.dogsunleashed.entity.DogSaddlebags;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
-import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
-import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import com.grahambartley.dogsunleashed.gametest.util.PendantTestHelper;
 import com.grahambartley.dogsunleashed.screenhandler.DogEquipmentScreenHandler;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -83,7 +84,7 @@ public final class DogSaddlebagsGameTest implements FabricGameTest {
     final UnleashedDogEntity dog = wearingBags(context, owner);
     bags(dog).setStack(4, new ItemStack(Items.DIAMOND, 3));
     final DogEquipmentScreenHandler handler = open(owner, dog);
-    final int bagsSlot = DogEquipmentSlot.SADDLEBAGS.ordinal();
+    final int bagsSlot = DogEquipmentScreenHandler.gearSlotIndex(DogEquipmentSlot.SADDLEBAGS);
 
     context.assertFalse(
         handler.getSlot(bagsSlot).canTakeItems(owner), "Full bags must stay on the dog");
@@ -132,30 +133,7 @@ public final class DogSaddlebagsGameTest implements FabricGameTest {
         });
   }
 
-  static UnleashedDogEntity ownedDog(final TestContext context, final ServerPlayerEntity owner) {
-    final UnleashedDogEntity dog =
-        DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS, owner.getUuid());
-    dog.setAiDisabled(true);
-    return dog;
-  }
-
-  static UnleashedDogEntity wearingBags(final TestContext context, final ServerPlayerEntity owner) {
-    final UnleashedDogEntity dog = ownedDog(context, owner);
-    dog.getEquipmentHolder()
-        .setStack(DogEquipmentSlot.SADDLEBAGS, new ItemStack(ModItems.SADDLEBAGS));
-    return dog;
-  }
-
-  static SimpleInventory bags(final UnleashedDogEntity dog) {
-    return dog.getComponents().get(DogSaddlebags.class).contents();
-  }
-
-  static DogEquipmentScreenHandler open(
-      final ServerPlayerEntity player, final UnleashedDogEntity dog) {
-    return new DogEquipmentScreenHandler(1, player.getInventory(), dog);
-  }
-
-  static int count(final SimpleInventory inventory, final Item item) {
+  private static int count(final SimpleInventory inventory, final Item item) {
     return inventory.count(item);
   }
 

@@ -39,9 +39,11 @@ public class DogEquipmentScreen extends HandledScreen<DogEquipmentScreenHandler>
     context.drawTexture(
         BACKGROUND_TEXTURE, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight);
     if (this.handler.isOwnerView()) {
-      for (int index = 0; index < DogEquipmentScreenHandler.DOG_SLOT_COUNT; index++) {
+      for (final DogEquipmentSlot slot : DogEquipmentSlot.values()) {
         this.drawSlotFrame(
-            context, index, this.handler.dogSlotAt(index) == DogEquipmentSlot.ARMOUR);
+            context,
+            DogEquipmentScreenHandler.gearSlotIndex(slot),
+            slot == DogEquipmentSlot.ARMOUR);
       }
     }
     if (this.handler.bagsOpen()) {
@@ -106,11 +108,13 @@ public class DogEquipmentScreen extends HandledScreen<DogEquipmentScreenHandler>
     if (!this.handler.getCursorStack().isEmpty()
         || this.focusedSlot == null
         || this.focusedSlot.hasStack()
-        || !this.handler.isOwnerView()
-        || this.focusedSlot.id >= DogEquipmentScreenHandler.DOG_SLOT_COUNT) {
+        || !this.handler.isOwnerView()) {
       return;
     }
-    final DogEquipmentSlot dogSlot = this.handler.dogSlotAt(this.focusedSlot.id);
+    final DogEquipmentSlot dogSlot = DogEquipmentScreenHandler.gearSlotAt(this.focusedSlot.id);
+    if (dogSlot == null) {
+      return;
+    }
     context.drawTooltip(
         this.textRenderer,
         List.of(
