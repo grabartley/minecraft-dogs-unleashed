@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.screen;
 
 import com.grahambartley.dogsunleashed.entity.DogCommand;
 import com.grahambartley.dogsunleashed.entity.DogWheelAction;
+import com.grahambartley.dogsunleashed.entity.DogWheelIcons;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.network.ModNetworkingClient;
 import com.grahambartley.dogsunleashed.network.payload.OpenCommandWheelPayload;
@@ -19,11 +20,9 @@ import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
@@ -33,15 +32,14 @@ public class DogCommandWheelScreen extends Screen {
   private static final DogWheelAction[] ACTIONS = DogWheelAction.values();
   private static final String ACTIONS_SECTOR_KEY = "command.dogs-unleashed.actions";
 
-  private static final float OUTER_RADIUS_FRACTION = 0.32f;
-  private static final int MIN_OUTER_RADIUS = 64;
-  private static final int MAX_OUTER_RADIUS = 140;
-  private static final float INNER_RADIUS_FRACTION = 0.45f;
+  static final int OUTER_RADIUS = 60;
+  static final int INNER_RADIUS = 26;
+  static final int CAPTION_GAP = 6;
   private static final int INNER_DETECT_MARGIN = 4;
   private static final int OUTER_DETECT_MARGIN = 14;
   private static final float SECTOR_GAP_DEGREES = 1.5f;
   private static final float TESSELLATION_STEP_DEGREES = 2.5f;
-  private static final int ICON_HALF_SIZE = 8;
+  static final int ICON_SIZE = 16;
 
   private static final int BACKGROUND_DIM_COLOR = 0x40000000;
   private static final int SECTOR_COLOR = 0xA8101014;
@@ -58,9 +56,7 @@ public class DogCommandWheelScreen extends Screen {
   private final boolean hasBed;
   private final String dogName;
   private final String rideRefusalKey;
-  private final ItemStack[] icons;
-  private final ItemStack actionsIcon = new ItemStack(Items.BELL);
-  private final List<SubEntry> subEntries;
+  private final List<WheelSubActionState> subEntries;
   private final CommandWheelRing ring;
   private DogCommand currentCommand;
   private int rejectedIndex = -1;
@@ -73,29 +69,9 @@ public class DogCommandWheelScreen extends Screen {
     this.dogName = payload.dogName();
     this.rideRefusalKey = payload.rideRefusalKey();
     this.currentCommand = DogCommand.fromId(payload.currentCommandId());
-    this.icons =
-        new ItemStack[] {
-          new ItemStack(Items.LEAD),
-          new ItemStack(Items.NAME_TAG),
-          new ItemStack(Items.ARMOR_STAND),
-          new ItemStack(Items.BONE),
-          new ItemStack(Items.IRON_SWORD),
-          new ItemStack(Items.SHIELD),
-          new ItemStack(Items.GRASS_BLOCK),
-          new ItemStack(Items.RED_BED),
-          new ItemStack(Items.WOLF_ARMOR),
-          new ItemStack(Items.SADDLE)
-        };
-    this.subEntries =
-        payload.subActions().stream()
-            .map(
-                state ->
-                    new SubEntry(state, new ItemStack(Registries.ITEM.get(state.iconItemId()))))
-            .toList();
+    this.subEntries = payload.subActions();
     this.ring = new CommandWheelRing(ACTIONS.length, this.subEntries.size());
   }
-
-  private record SubEntry(WheelSubActionState state, ItemStack icon) {}
 
   @Override
   public boolean shouldPause() {
@@ -123,23 +99,17 @@ public class DogCommandWheelScreen extends Screen {
       return;
     }
 
-    final int outerRadius = this.outerRadius();
-    final int innerRadius = this.innerRadius(outerRadius);
     final int hoveredIndex = this.hoveredSector(mouseX, mouseY);
 
-    this.renderRing(context, innerRadius, outerRadius, hoveredIndex);
-    this.renderIcons(context, innerRadius, outerRadius);
+    this.renderRing(context, hoveredIndex);
+    this.renderIcons(context);
     if (hoveredIndex >= 0) {
       this.rejectedIndex = -1;
     }
-    this.renderHubText(context, hubIndex(hoveredIndex, this.rejectedIndex));
+    this.renderCaption(context, hubIndex(hoveredIndex, this.rejectedIndex));
   }
 
-  private void renderRing(
-      final DrawContext context,
-      final int innerRadius,
-      final int outerRadius,
-      final int hoveredIndex) {
+  private void renderRing(final DrawContext context, final int hoveredIndex) {
     final float windowScale = (float) this.client.getWindow().getScaleFactor();
     context.getMatrices().push();
     context.getMatrices().scale(1f / windowScale, 1f / windowScale, 1f);
@@ -164,8 +134,8 @@ public class DogCommandWheelScreen extends Screen {
           matrix,
           centerX,
           centerY,
-          innerRadius * windowScale,
-          outerRadius * windowScale,
+          INNER_RADIUS * windowScale,
+          OUTER_RADIUS * windowScale,
           startDeg,
           endDeg,
           this.sectorColor(i, hoveredIndex));
@@ -225,18 +195,17 @@ public class DogCommandWheelScreen extends Screen {
     return hovered ? SECTOR_HOVERED_COLOR : SECTOR_COLOR;
   }
 
-  private void renderIcons(
-      final DrawContext context, final int innerRadius, final int outerRadius) {
-    final float iconRadius = (innerRadius + outerRadius) / 2f;
+  private void renderIcons(final DrawContext context) {
+    final float iconRadius = (INNER_RADIUS + OUTER_RADIUS) / 2f;
     final int sectorCount = this.ring.sectorCount();
     final float sectorSpan = (float) (2 * Math.PI / sectorCount);
     for (int i = 0; i < sectorCount; i++) {
       final float angle = (float) (-Math.PI / 2 + i * sectorSpan);
       final int iconX =
-          Math.round(this.width / 2f + iconRadius * MathHelper.cos(angle)) - ICON_HALF_SIZE;
+          Math.round(this.width / 2f + iconRadius * MathHelper.cos(angle)) - ICON_SIZE / 2;
       final int iconY =
-          Math.round(this.height / 2f + iconRadius * MathHelper.sin(angle)) - ICON_HALF_SIZE;
-      context.drawItem(this.iconAt(i), iconX, iconY);
+          Math.round(this.height / 2f + iconRadius * MathHelper.sin(angle)) - ICON_SIZE / 2;
+      context.drawGuiTexture(this.iconAt(i), iconX, iconY, ICON_SIZE, ICON_SIZE);
     }
   }
 
@@ -249,39 +218,28 @@ public class DogCommandWheelScreen extends Screen {
         && wheel.dogEntityId == entityId;
   }
 
-  private void renderHubText(final DrawContext context, final int actionIndex) {
+  private void renderCaption(final DrawContext context, final int actionIndex) {
     final int centerX = this.width / 2;
-    final int centerY = this.height / 2;
+    final int top = this.height / 2 + OUTER_RADIUS + CAPTION_GAP;
     if (actionIndex >= 0) {
-      if (this.isDisabledAt(actionIndex)) {
-        context.drawCenteredTextWithShadow(
-            this.textRenderer,
-            Text.translatable(this.disabledHintKeyAt(actionIndex)),
-            centerX,
-            centerY - this.textRenderer.fontHeight / 2,
-            DISABLED_HINT_COLOR);
-        return;
-      }
+      final boolean disabled = this.isDisabledAt(actionIndex);
       context.drawCenteredTextWithShadow(
           this.textRenderer,
-          Text.translatable(this.labelKeyAt(actionIndex)),
+          Text.translatable(
+              disabled ? this.disabledHintKeyAt(actionIndex) : this.labelKeyAt(actionIndex)),
           centerX,
-          centerY - this.textRenderer.fontHeight / 2,
-          LABEL_COLOR);
+          top,
+          disabled ? DISABLED_HINT_COLOR : LABEL_COLOR);
       return;
     }
     context.drawCenteredTextWithShadow(
-        this.textRenderer,
-        Text.literal(this.dogName),
-        centerX,
-        centerY - this.textRenderer.fontHeight - 1,
-        LABEL_COLOR);
+        this.textRenderer, Text.literal(this.dogName), centerX, top, LABEL_COLOR);
     context.drawCenteredTextWithShadow(
         this.textRenderer,
         Text.translatable(
             this.ring.isSubRingOpen() ? ACTIONS_SECTOR_KEY : this.currentCommand.translationKey()),
         centerX,
-        centerY + 1,
+        top + this.textRenderer.fontHeight + 2,
         SUBTITLE_COLOR);
   }
 
@@ -301,7 +259,7 @@ public class DogCommandWheelScreen extends Screen {
 
   @Override
   public void mouseMoved(final double mouseX, final double mouseY) {
-    final double hubRadius = this.innerRadius(this.outerRadius()) - INNER_DETECT_MARGIN;
+    final double hubRadius = INNER_RADIUS - INNER_DETECT_MARGIN;
     if (this.ring.returnToMainRingIfInHub(
         mouseX - this.width / 2.0, mouseY - this.height / 2.0, hubRadius)) {
       this.rejectedIndex = -1;
@@ -334,8 +292,7 @@ public class DogCommandWheelScreen extends Screen {
       return;
     }
     if (this.ring.isSubRingOpen()) {
-      ModNetworkingClient.sendSelectWheelSubAction(
-          this.dogId, this.subEntries.get(index).state().id());
+      ModNetworkingClient.sendSelectWheelSubAction(this.dogId, this.subEntries.get(index).id());
       this.playClick();
       this.close();
       return;
@@ -366,28 +323,28 @@ public class DogCommandWheelScreen extends Screen {
 
   private boolean isDisabledAt(final int index) {
     if (this.ring.isSubRingOpen()) {
-      return !this.subEntries.get(index).state().available();
+      return !this.subEntries.get(index).available();
     }
     return !this.ring.isActionsSector(index) && this.isDisabled(ACTIONS[index]);
   }
 
-  private ItemStack iconAt(final int index) {
+  private Identifier iconAt(final int index) {
     if (this.ring.isSubRingOpen()) {
       return this.subEntries.get(index).icon();
     }
-    return this.ring.isActionsSector(index) ? this.actionsIcon : this.icons[index];
+    return this.ring.isActionsSector(index) ? DogWheelIcons.ACTIONS : ACTIONS[index].icon();
   }
 
   private String labelKeyAt(final int index) {
     if (this.ring.isSubRingOpen()) {
-      return this.subEntries.get(index).state().translationKey();
+      return this.subEntries.get(index).translationKey();
     }
     return this.ring.isActionsSector(index) ? ACTIONS_SECTOR_KEY : ACTIONS[index].translationKey();
   }
 
   private String disabledHintKeyAt(final int index) {
     if (this.ring.isSubRingOpen()) {
-      return this.subEntries.get(index).state().refusalKey();
+      return this.subEntries.get(index).refusalKey();
     }
     return this.disabledHintKey(ACTIONS[index]);
   }
@@ -407,25 +364,12 @@ public class DogCommandWheelScreen extends Screen {
   }
 
   private int hoveredSector(final double mouseX, final double mouseY) {
-    final int outerRadius = this.outerRadius();
-    final int innerRadius = this.innerRadius(outerRadius);
     return sectorIndexAt(
         mouseX - this.width / 2.0,
         mouseY - this.height / 2.0,
         this.ring.sectorCount(),
-        innerRadius - INNER_DETECT_MARGIN,
-        outerRadius + OUTER_DETECT_MARGIN);
-  }
-
-  private int outerRadius() {
-    return MathHelper.clamp(
-        (int) (Math.min(this.width, this.height) * OUTER_RADIUS_FRACTION),
-        MIN_OUTER_RADIUS,
-        MAX_OUTER_RADIUS);
-  }
-
-  private int innerRadius(final int outerRadius) {
-    return (int) (outerRadius * INNER_RADIUS_FRACTION);
+        INNER_RADIUS - INNER_DETECT_MARGIN,
+        OUTER_RADIUS + OUTER_DETECT_MARGIN);
   }
 
   static int sectorIndexAt(

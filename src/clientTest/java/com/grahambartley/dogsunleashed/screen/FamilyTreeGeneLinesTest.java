@@ -94,6 +94,7 @@ class FamilyTreeGeneLinesTest {
         "owner",
         "Owner",
         genes,
-        revealed);
+        revealed,
+        List.of());
   }
 }

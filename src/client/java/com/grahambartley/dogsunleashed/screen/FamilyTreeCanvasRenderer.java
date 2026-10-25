@@ -66,7 +66,7 @@ final class FamilyTreeCanvasRenderer {
     final Map<String, NodePosition> positions = model.positions();
     final Set<String> visible = positions.keySet();
     final Map<String, Set<String>> parentsByChild =
-        FamilyTreeLayout.visibleParents(model.relations(), visible);
+        FamilyTreeLayout.visibleParents(model.parentIds(), visible);
     final Map<String, Set<String>> matesById =
         FamilyTreeLayout.visibleMates(model.relations(), visible);
     final int thickness = Math.max(1, (int) Math.round(2 * viewport.zoom()));

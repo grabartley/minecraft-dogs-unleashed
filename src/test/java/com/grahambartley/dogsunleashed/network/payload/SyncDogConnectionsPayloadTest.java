@@ -29,14 +29,16 @@ class SyncDogConnectionsPayloadTest {
             List.of(
                 new GeneSyncData(
                     new DogGeneLocus(UnleashedDogBreed.HUSKY, DogGeneTrait.COAT), 0, List.of(5))),
-            true);
+            true,
+            List.of(UUID.randomUUID().toString(), UUID.randomUUID().toString()));
     final ConnectionDogSyncData parent =
         new ConnectionDogSyncData(
             PetSyncDataFixture.pet().breed(UnleashedDogBreed.BEAGLE).name("Max").build(),
             UUID.randomUUID().toString(),
             "",
             List.of(),
-            false);
+            false,
+            List.of());
     final SyncDogConnectionsPayload payload =
         new SyncDogConnectionsPayload(
             self,

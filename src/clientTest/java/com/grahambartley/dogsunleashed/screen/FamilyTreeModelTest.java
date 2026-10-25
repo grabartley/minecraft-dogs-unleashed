@@ -152,6 +152,29 @@ class FamilyTreeModelTest {
   }
 
   @Test
+  @DisplayName(
+      "a child shown from one parent's tree links to both parents before anyone is clicked")
+  void childLinksToBothParentsFromTheFirstPayload() {
+    model = new FamilyTreeModel(dog("dad"), requested::add);
+    model.start();
+
+    model.accept(
+        new SyncDogConnectionsPayload(
+            dog("dad"),
+            List.of(),
+            List.of(),
+            List.of(dog("mum")),
+            List.of(),
+            List.of(dog("pup", List.of("dad", "mum"))),
+            false));
+
+    assertEquals(List.of("dad", "mum"), model.parentIds().get("pup"));
+    final float coupleMidpoint =
+        (model.positions().get("dad").x() + model.positions().get("mum").x()) / 2f;
+    assertEquals(coupleMidpoint, model.positions().get("pup").x(), 0.001f);
+  }
+
+  @Test
   @DisplayName("the node budget matches the documented cap")
   void nodeBudgetIsDocumented() {
     assertEquals(64, FamilyTreeModel.MAX_VISIBLE_NODES);
@@ -173,6 +196,10 @@ class FamilyTreeModelTest {
   }
 
   private static ConnectionDogSyncData dog(final String id) {
+    return dog(id, List.of());
+  }
+
+  private static ConnectionDogSyncData dog(final String id, final List<String> parentIds) {
     return new ConnectionDogSyncData(
         PetSyncDataFixture.pet()
             .id(id)
@@ -184,6 +211,7 @@ class FamilyTreeModelTest {
         "owner",
         "Owner",
         List.of(),
-        false);
+        false,
+        parentIds);
   }
 }

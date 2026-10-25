@@ -18,7 +18,8 @@ class PacketLimitsTest {
             PacketLimits.REQUEST_PETS_SEARCH_QUERY_MAX_LENGTH,
             64),
         Arguments.of("CONNECTIONS_LIST_MAX_SIZE", PacketLimits.CONNECTIONS_LIST_MAX_SIZE, 32),
-        Arguments.of("OWNER_NAME_MAX_LENGTH", PacketLimits.OWNER_NAME_MAX_LENGTH, 16));
+        Arguments.of("OWNER_NAME_MAX_LENGTH", PacketLimits.OWNER_NAME_MAX_LENGTH, 16),
+        Arguments.of("PARENTS_MAX_SIZE", PacketLimits.PARENTS_MAX_SIZE, 2));
   }
 
   @ParameterizedTest(name = "{0} = {2}")

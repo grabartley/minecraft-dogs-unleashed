@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 public record DogWheelSubAction(
     int id,
     String translationKey,
-    Identifier iconItemId,
+    Identifier icon,
     Refusal refusal,
     Runner runner,
     Visibility visibility) {
@@ -17,10 +17,10 @@ public record DogWheelSubAction(
   public DogWheelSubAction(
       final int id,
       final String translationKey,
-      final Identifier iconItemId,
+      final Identifier icon,
       final Refusal refusal,
       final Runner runner) {
-    this(id, translationKey, iconItemId, refusal, runner, ALWAYS_SHOWN);
+    this(id, translationKey, icon, refusal, runner, ALWAYS_SHOWN);
   }
 
   @FunctionalInterface

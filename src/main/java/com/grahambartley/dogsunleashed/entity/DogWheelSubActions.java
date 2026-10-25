@@ -37,7 +37,7 @@ public final class DogWheelSubActions {
                 new WheelSubActionState(
                     action.id(),
                     action.translationKey(),
-                    action.iconItemId(),
+                    action.icon(),
                     Objects.requireNonNullElse(action.refusal().refusalKey(dog, player), "")))
         .toList();
   }

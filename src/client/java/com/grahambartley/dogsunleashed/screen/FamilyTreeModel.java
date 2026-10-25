@@ -20,6 +20,7 @@ final class FamilyTreeModel {
   private final Consumer<String> connectionRequester;
   private final Map<String, ConnectionDogSyncData> nodesById = new HashMap<>();
   private final Map<String, Relations> relationsById = new HashMap<>();
+  private final Map<String, List<String>> parentIdsById = new HashMap<>();
   private final Set<String> expandedIds = new LinkedHashSet<>();
   private final Set<String> requestedIds = new LinkedHashSet<>();
 
@@ -34,7 +35,7 @@ final class FamilyTreeModel {
       final ConnectionDogSyncData focusDog, final Consumer<String> connectionRequester) {
     this.connectionRequester = connectionRequester;
     this.focusId = focusDog.pet().petId();
-    this.nodesById.put(focusId, focusDog);
+    storeNode(focusDog);
     this.expandedIds.add(focusId);
     this.selectedId = focusId;
   }
@@ -116,6 +117,10 @@ final class FamilyTreeModel {
     return Collections.unmodifiableMap(relationsById);
   }
 
+  Map<String, List<String>> parentIds() {
+    return Collections.unmodifiableMap(parentIdsById);
+  }
+
   boolean isExpanded(final String dogId) {
     return expandedIds.contains(dogId);
   }
@@ -151,7 +156,7 @@ final class FamilyTreeModel {
       nodeLimitHit = true;
     }
     lastExpandedId = null;
-    positions = FamilyTreeLayout.layout(focusId, expandedIds, relationsById);
+    positions = FamilyTreeLayout.layout(focusId, expandedIds, relationsById, parentIdsById);
     if (selectedId != null && !positions.containsKey(selectedId)) {
       selectedId = focusId;
     }
@@ -165,6 +170,7 @@ final class FamilyTreeModel {
 
   private void storeNode(final ConnectionDogSyncData dog) {
     nodesById.put(dog.pet().petId(), dog);
+    parentIdsById.put(dog.pet().petId(), dog.parentIds());
   }
 
   private static List<String> petIds(final List<ConnectionDogSyncData> dogs) {

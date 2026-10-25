@@ -2,8 +2,10 @@ package com.grahambartley.dogsunleashed.screen;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -86,11 +88,12 @@ public final class FamilyTreeLayout {
   public static Map<String, NodePosition> layout(
       final String focusId,
       final Set<String> expandedIds,
-      final Map<String, Relations> relationsById) {
+      final Map<String, Relations> relationsById,
+      final Map<String, List<String>> parentIdsById) {
     final Set<String> visible = computeVisible(focusId, expandedIds, relationsById);
     final Map<String, Integer> depthById =
         assignDepths(focusId, expandedIds, relationsById, visible);
-    final Map<String, Set<String>> parentsByChild = visibleParents(relationsById, visible);
+    final Map<String, Set<String>> parentsByChild = visibleParents(parentIdsById, visible);
     final Map<String, Set<String>> matesById = visibleMates(relationsById, visible);
 
     final TreeMap<Integer, List<String>> rows = new TreeMap<>();
@@ -117,30 +120,43 @@ public final class FamilyTreeLayout {
       final Map<String, Set<String>> matesById,
       final Map<String, Float> laidOutSlotById) {
     final Map<String, Float> keyById = new HashMap<>();
+    final Map<String, List<String>> matesBesidePartner = new HashMap<>();
+    final Set<String> besidePartner = new HashSet<>();
     for (int i = 0; i < row.size(); i++) {
-      keyById.put(row.get(i), (float) i);
-    }
-    for (final String id : row) {
+      final String id = row.get(i);
       final Float parentKey = averageSlot(parentsByChild.get(id), laidOutSlotById);
       if (parentKey != null) {
         keyById.put(id, parentKey);
-      }
-    }
-    for (final String id : row) {
-      if (averageSlot(parentsByChild.get(id), laidOutSlotById) != null) {
         continue;
       }
-      for (final String mate : matesById.getOrDefault(id, Set.of())) {
-        final Float mateKey = keyById.get(mate);
-        if (mateKey != null && row.contains(mate)) {
-          keyById.put(id, mateKey + 0.01f);
-          break;
-        }
+      final String partner =
+          matesById.getOrDefault(id, Set.of()).stream()
+              .filter(mate -> row.contains(mate) && !besidePartner.contains(mate))
+              .findFirst()
+              .orElse(null);
+      if (partner == null) {
+        keyById.put(id, (float) i);
+      } else {
+        besidePartner.add(id);
+        matesBesidePartner.computeIfAbsent(partner, k -> new ArrayList<>()).add(id);
       }
     }
-    final List<String> ordered = new ArrayList<>(row);
-    ordered.sort((a, b) -> Float.compare(keyById.getOrDefault(a, 0f), keyById.getOrDefault(b, 0f)));
+    final List<String> ordered = new ArrayList<>(row.size());
+    row.stream()
+        .filter(keyById::containsKey)
+        .sorted(Comparator.comparing(keyById::get))
+        .forEach(id -> appendWithMates(id, matesBesidePartner, ordered));
     return ordered;
+  }
+
+  private static void appendWithMates(
+      final String id,
+      final Map<String, List<String>> matesBesidePartner,
+      final List<String> ordered) {
+    ordered.add(id);
+    for (final String mate : matesBesidePartner.getOrDefault(id, List.of())) {
+      appendWithMates(mate, matesBesidePartner, ordered);
+    }
   }
 
   private static Float averageSlot(
@@ -161,20 +177,12 @@ public final class FamilyTreeLayout {
   }
 
   public static Map<String, Set<String>> visibleParents(
-      final Map<String, Relations> relationsById, final Set<String> visible) {
+      final Map<String, List<String>> parentIdsById, final Set<String> visible) {
     final Map<String, Set<String>> parentsByChild = new LinkedHashMap<>();
-    for (final Map.Entry<String, Relations> entry : relationsById.entrySet()) {
-      final String id = entry.getKey();
-      if (visible.contains(id)) {
-        for (final String parentId : entry.getValue().parents()) {
-          if (visible.contains(parentId)) {
-            parentsByChild.computeIfAbsent(id, k -> new LinkedHashSet<>()).add(parentId);
-          }
-        }
-      }
-      for (final String childId : entry.getValue().children()) {
-        if (visible.contains(childId) && visible.contains(id)) {
-          parentsByChild.computeIfAbsent(childId, k -> new LinkedHashSet<>()).add(id);
+    for (final String childId : visible) {
+      for (final String parentId : parentIdsById.getOrDefault(childId, List.of())) {
+        if (visible.contains(parentId)) {
+          parentsByChild.computeIfAbsent(childId, k -> new LinkedHashSet<>()).add(parentId);
         }
       }
     }
