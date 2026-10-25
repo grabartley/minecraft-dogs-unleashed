@@ -39,6 +39,7 @@ class ModNbtKeysTest {
         Arguments.of(
             "PORTRAIT_COAT_VARIANT", ModNbtKeys.PORTRAIT_COAT_VARIANT, "portraitCoatVariant"),
         Arguments.of("PORTRAIT_HUSKY_EYE", ModNbtKeys.PORTRAIT_HUSKY_EYE, "PortraitHuskyEye"),
+        Arguments.of("PORTRAIT_OUTFIT", ModNbtKeys.PORTRAIT_OUTFIT, "PortraitOutfit"),
         Arguments.of("PARENT_A_ID", ModNbtKeys.PARENT_A_ID, "ParentAId"),
         Arguments.of("PARENT_B_ID", ModNbtKeys.PARENT_B_ID, "ParentBId"),
         Arguments.of("COMPOSITION", ModNbtKeys.COMPOSITION, "Composition"),

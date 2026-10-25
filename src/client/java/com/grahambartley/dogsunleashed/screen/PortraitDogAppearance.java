@@ -34,7 +34,9 @@ record PortraitDogAppearance(
         pet.undead(),
         UUID.fromString(pet.petId()),
         pet.baby(),
-        DyeColor.byId(Math.floorMod(pet.collarColor(), COLLAR_COLOR_COUNT)),
+        pet.outfit()
+            .collar()
+            .orElseGet(() -> DyeColor.byId(Math.floorMod(pet.collarColor(), COLLAR_COLOR_COUNT))),
         genomeOf(pet),
         pet.coatVariant(),
         pet.displayBreed().hasEyeColorVariants()

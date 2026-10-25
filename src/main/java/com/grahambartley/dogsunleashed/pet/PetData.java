@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.pet;
 
+import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.entity.DogAging;
 import com.grahambartley.dogsunleashed.entity.DogAppearance;
@@ -19,7 +20,6 @@ import com.grahambartley.dogsunleashed.entity.trick.TrickProgressNbt;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfit;
-import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfits;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -281,14 +281,16 @@ public final class PetData {
   }
 
   public void syncFrom(final UnleashedDogEntity dog) {
-    this.baby = dog.isBaby();
+    final PortraitLook look = PortraitLook.of(dog);
+    this.baby = look.baby();
+    this.coatVariant = look.coatVariant();
+    this.huskyEyeVariant = look.huskyEyeVariant();
+    this.furStage = look.furStage();
+    this.growthStage = look.growthStage();
+    this.outfit = look.outfit();
     this.collarColor = dog.getComponents().get(DogCollar.class).getColor().getId();
-    this.coatVariant = coatVariantOf(dog);
-    this.huskyEyeVariant = huskyEyeVariantOf(dog);
-    this.furStage = dog.getFur().stage().ordinal();
     this.movementSpeed = (float) dog.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
     this.attackDamage = (float) dog.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
-    this.growthStage = dog.getGrowth().stage().number();
     this.growthBattlesWon = dog.getGrowth().battlesWon();
     this.growthTicksInStage = dog.getGrowth().ticksInStage();
     this.staminaPercent = Math.round(dog.getRiding().staminaFraction() * PERCENT);
@@ -303,7 +305,6 @@ public final class PetData {
     this.genes = dog.getGenes().genes();
     this.personality = dog.getComponents().get(DogPersonality.class).traits();
     this.tricks = dog.getComponents().get(DogTricks.class).progress();
-    this.outfit = DogPortraitOutfits.of(dog);
   }
 
   public static int coatVariantOf(final UnleashedDogEntity dog) {
@@ -375,7 +376,7 @@ public final class PetData {
     nbt.put(ModNbtKeys.TRICKS, TrickProgressNbt.write(tricks));
     DogPortraitOutfit.CODEC
         .encodeStart(registries.getOps(NbtOps.INSTANCE), outfit)
-        .result()
+        .resultOrPartial(DogsUnleashed.log::warn)
         .ifPresent(saved -> nbt.put(ModNbtKeys.PORTRAIT_OUTFIT, saved));
     if (parentAId != null) {
       nbt.putUuid(ModNbtKeys.PARENT_A_ID, parentAId);
@@ -457,7 +458,7 @@ public final class PetData {
       pet.outfit =
           DogPortraitOutfit.CODEC
               .parse(registries.getOps(NbtOps.INSTANCE), nbt.get(ModNbtKeys.PORTRAIT_OUTFIT))
-              .result()
+              .resultOrPartial(DogsUnleashed.log::warn)
               .orElse(DogPortraitOutfit.NONE);
     }
     if (nbt.containsUuid(ModNbtKeys.PARENT_A_ID)) {
