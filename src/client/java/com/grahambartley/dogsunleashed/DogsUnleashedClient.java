@@ -134,7 +134,7 @@ public class DogsUnleashedClient implements ClientModInitializer {
     BuiltinItemRendererRegistry.INSTANCE.register(ModItems.FRISBEE, new FrisbeeItemRenderer());
     BuiltinItemRendererRegistry.INSTANCE.register(
         ModItems.DOG_WHISTLE,
-        new FittedGeoItemRenderer<DogWhistleItem>(DogWhistleModel::new, ModelFit::centredInBlock));
+        new FittedGeoItemRenderer<DogWhistleItem>(DogWhistleModel::new, ModelFit::atModelSize));
     BuiltinItemRendererRegistry.INSTANCE.register(
         ModItems.SLED, new FittedGeoItemRenderer<SledItem>(SledModel::new, ModelFit::intoBlock));
     BuiltinItemRendererRegistry.INSTANCE.register(

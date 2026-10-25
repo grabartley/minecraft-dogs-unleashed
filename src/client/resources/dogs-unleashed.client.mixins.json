@@ -6,10 +6,12 @@
 		"BipedEntityModelMixin",
 		"CameraMixin",
 		"GeoLeashCollarTintMixin",
+		"HeldItemRendererMixin",
 		"InGameHudMixin",
 		"LeashCollarTintMixin",
 		"LivingEntityRendererMixin",
 		"LoomScreenMixin",
+		"PlayerEntityRendererMixin",
 		"WorldRendererMixin"
 	],
 	"injectors": {
