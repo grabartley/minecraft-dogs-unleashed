@@ -719,8 +719,8 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 | LIFE-9 | The dog's pull comes from breed size, bond and a little chance. Win and it lets go and wags. Lose and it runs off with the toy |
 | LIFE-10 | In the Nether dogs whine now and then, cower and follow closer, unless wearing the fire guardian pendant |
 | LIFE-11 | In the End, dogs on Hunt chase endermites and bark at endermen without provoking them |
-| LIFE-12 | Dogs shake off after rain or a swim, splashing |
-| LIFE-13 | Dogs tilt their heads at a nearby player holding a taming food or a treat |
+| LIFE-12 | Dogs shake off after rain or a swim, splashing, unless they are sitting or asleep when they dry |
+| LIFE-13 | Dogs tilt their heads at a nearby player holding a taming food or a treat, while standing or walking with no other clip moving the head |
 | LIFE-14 | Dogs wag at food and treats, and now and then for no reason |
 | LIFE-15 | Huskies and dire wolves, and crosses with their voice, howl at the full moon. An owner within 64 blocks earns "Bark at the Moon" |
 | LIFE-16 | Dogs bark when hungry for attention, hurt, low on health, fighting, or at random, at most every 6 seconds. Puppies bark higher. Huskies howl but never bark |

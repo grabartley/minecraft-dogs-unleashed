@@ -10,6 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 class DogAmbienceEffectsTest {
@@ -118,6 +119,20 @@ class DogAmbienceEffectsTest {
           return false;
         });
     assertEquals(1, draws.get());
+  }
+
+  @ParameterizedTest(name = "shaking {0}, sitting {1}, asleep {2} -> {3}")
+  @CsvSource({
+    "false, false, false, true",
+    "true, false, false, false",
+    "false, true, false, false",
+    "false, false, true, false",
+    "false, true, true, false"
+  })
+  @DisplayName("a dog starts shaking off only when standing awake and not already shaking")
+  void mayStartShake(
+      final boolean shaking, final boolean sitting, final boolean asleep, final boolean expected) {
+    assertEquals(expected, DogAmbienceEffects.mayStartShake(shaking, sitting, asleep));
   }
 
   @Test

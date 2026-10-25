@@ -3,7 +3,10 @@ package com.grahambartley.dogsunleashed.entity;
 import com.grahambartley.dogsunleashed.entity.trick.DogTrick;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.Animation;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.animation.PlayState;
@@ -30,7 +33,7 @@ public final class DogAnimationControllers {
     for (final DogTrick trick : DogTrick.values()) {
       poses.add(pose(dog, trick.animationKey()));
     }
-    controllers.add(
+    final AnimationController<UnleashedDogEntity> movement =
         new AnimationController<>(
             dog,
             "movement",
@@ -47,18 +50,20 @@ public final class DogAnimationControllers {
               }
               sleepClip.release();
               if (state.getAnimatable().isInSittingPose()) {
-                return state.setAndContinue(RawAnimation.begin().thenLoop("sit"));
+                return state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.SIT));
               }
               if (isGalloping(state.getAnimatable())) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.RUN));
               }
               if (isMoving(state)) {
-                return state.setAndContinue(RawAnimation.begin().thenLoop("walk"));
+                return state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.WALK));
               }
-              return state.setAndContinue(RawAnimation.begin().thenLoop("idle"));
-            }));
+              return state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.IDLE));
+            });
+    controllers.add(movement);
+    final List<AnimationController<UnleashedDogEntity>> layers = new ArrayList<>();
 
-    controllers.add(
+    layers.add(
         new AnimationController<>(
                 dog,
                 "tail",
@@ -74,7 +79,7 @@ public final class DogAnimationControllers {
             .setAnimationSpeedHandler(
                 animatable -> animatable.getComponents().get(DogBond.class).step().wagSpeed()));
 
-    controllers.add(
+    layers.add(
         new AnimationController<>(
             dog,
             "shake",
@@ -86,7 +91,7 @@ public final class DogAnimationControllers {
               return PlayState.STOP;
             }));
 
-    controllers.add(
+    layers.add(
         new AnimationController<>(
             dog,
             "howl",
@@ -102,7 +107,7 @@ public final class DogAnimationControllers {
               return PlayState.STOP;
             }));
 
-    controllers.add(
+    layers.add(
         new AnimationController<>(
             dog,
             DogAnimationKeys.GROWL,
@@ -114,7 +119,7 @@ public final class DogAnimationControllers {
               return PlayState.STOP;
             }));
 
-    controllers.add(
+    layers.add(
         new AnimationController<>(
             dog,
             "scent",
@@ -128,7 +133,7 @@ public final class DogAnimationControllers {
                   case POINTING, NONE -> PlayState.STOP;
                 }));
 
-    controllers.add(
+    layers.add(
         new AnimationController<>(
             dog,
             "bone_dig",
@@ -140,7 +145,7 @@ public final class DogAnimationControllers {
               return PlayState.STOP;
             }));
 
-    controllers.add(
+    layers.add(
         new AnimationController<>(
             dog,
             DogAnimationKeys.TUG,
@@ -152,7 +157,7 @@ public final class DogAnimationControllers {
               return PlayState.STOP;
             }));
 
-    controllers.add(
+    layers.add(
         new AnimationController<>(
             dog,
             DogAnimationKeys.EAT,
@@ -165,29 +170,47 @@ public final class DogAnimationControllers {
               return PlayState.STOP;
             }));
 
-    controllers.add(
+    layers.add(
         new AnimationController<>(dog, DogAnimationKeys.BARK, 0, state -> PlayState.STOP)
             .triggerableAnim(
                 DogAnimationKeys.BARK, RawAnimation.begin().thenPlay(DogAnimationKeys.BARK)));
 
-    poses.forEach(controllers::add);
+    layers.addAll(poses);
+    layers.forEach(controllers::add);
 
     controllers.add(
         new AnimationController<>(
             dog,
-            "head_tilt",
+            DogAnimationKeys.HEAD_TILT,
             HEAD_TILT_TRANSITION_TICKS,
             state -> {
               final UnleashedDogEntity animatable = state.getAnimatable();
-              if (animatable.getAnimationState().isHeadTilting()) {
+              if (HeadTiltRules.tilts(
+                  animatable.getAnimationState().isHeadTilting(),
+                  playingClip(movement),
+                  RigClipPresence.find(animatable, DogAnimationKeys.HEAD_TILT),
+                  layers.stream()
+                      .map(DogAnimationControllers::playingClip)
+                      .filter(Objects::nonNull)
+                      .toList())) {
                 if (state.getController().getAnimationState()
                     == AnimationController.State.STOPPED) {
                   state.getController().forceAnimationReset();
                 }
-                return state.setAndContinue(RawAnimation.begin().thenPlayAndHold("head_tilt"));
+                return state.setAndContinue(
+                    RawAnimation.begin().thenPlayAndHold(DogAnimationKeys.HEAD_TILT));
               }
               return PlayState.STOP;
             }));
+  }
+
+  private static @Nullable Animation playingClip(
+      final AnimationController<UnleashedDogEntity> controller) {
+    if (controller.getAnimationState() == AnimationController.State.STOPPED
+        || controller.getCurrentAnimation() == null) {
+      return null;
+    }
+    return controller.getCurrentAnimation().animation();
   }
 
   private static AnimationController<UnleashedDogEntity> pose(
