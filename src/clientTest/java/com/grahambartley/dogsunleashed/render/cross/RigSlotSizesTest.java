@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.render.cross;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -89,6 +90,16 @@ class RigSlotSizesTest {
     assertSame(first, RigSlotSizes.of(model, PROFILE));
     RigSlotSizes.clear();
     assertEquals(first, RigSlotSizes.of(model, PROFILE));
+  }
+
+  @Test
+  @DisplayName("two separately built copies of a rig are measured and cached on their own")
+  void copiesOfARigAreCachedApart() {
+    final BakedGeoModel live = ShippedRigs.model("goldenretriever");
+    final BakedGeoModel copy = ShippedRigs.model("goldenretriever");
+    final RigProfile profile = BUNDLED.profileOf(UnleashedDogBreed.GOLDEN_RETRIEVER);
+
+    assertNotSame(RigSlotSizes.of(live, profile), RigSlotSizes.of(copy, profile));
   }
 
   private static BakedGeoModel wolf() {

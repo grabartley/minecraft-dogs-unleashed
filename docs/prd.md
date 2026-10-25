@@ -709,7 +709,7 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 
 | ID | Requirement |
 |---|---|
-| LIFE-1 | A free-roaming or staying dog given a bone buries it within 16 blocks in grass, dirt, podzol, sand or snow |
+| LIFE-1 | A tamed dog given a bone buries it within 16 blocks in grass, dirt, podzol, sand or snow, whatever its command. A sitting dog stands up to bury it and sits back down after |
 | LIFE-2 | A few days later it digs it up and brings it back. One time in five it finds a bonus from a data loot table |
 | LIFE-3 | Caches survive restarts. If the dog is gone, a shovel digs the cache up |
 | LIFE-4 | At night a wild fox within 24 blocks of a cache may dig it up and run off with the bone in its mouth, dropping it if hurt |
@@ -718,7 +718,7 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 | LIFE-7 | Any command, danger, a hurt dog or the sleep window stops a game |
 | LIFE-8 | A rope toy starts tug of war: hold use on your dog. A strength bar shows who is winning. Tap in rhythm to pull |
 | LIFE-9 | The dog's pull comes from breed size, bond and a little chance. Win and it lets go and wags. Lose and it runs off with the toy |
-| LIFE-10 | In the Nether dogs whine now and then, cower and follow closer, unless wearing the fire guardian pendant |
+| LIFE-10 | In the Nether dogs follow closer. They cower and whine when they arrive or are loaded there, then again now and then, no more than once a minute and about every three minutes on average. The fire guardian pendant stops all of it |
 | LIFE-11 | In the End, dogs on Hunt chase endermites and bark at endermen without provoking them |
 | LIFE-12 | Dogs shake off after rain or a swim, splashing, only while standing awake |
 | LIFE-13 | Dogs tilt their heads at a nearby player holding a taming food or a treat, while standing or walking and not busy with anything else, such as sleeping, sitting, a trick, eating or digging |

@@ -4,8 +4,8 @@ public final class DimensionReactionRules {
 
   public static final double NETHER_FOLLOW_DISTANCE_SCALE = 0.5;
   public static final double CALM_FOLLOW_DISTANCE_SCALE = 1.0;
-  public static final long WHINE_EVERY_TICKS = 30 * 20;
-  public static final long COWER_EVERY_TICKS = 5 * 20;
+  public static final long UNEASE_MIN_GAP_TICKS = 60 * 20;
+  public static final int UNEASE_ONE_IN_TICKS = 120 * 20;
   public static final long ENDERMAN_BARK_EVERY_TICKS = 3 * 20;
   public static final double ENDERMAN_BARK_RANGE = 12.0;
 
@@ -23,12 +23,18 @@ public final class DimensionReactionRules {
     return uneasy ? NETHER_FOLLOW_DISTANCE_SCALE : CALM_FOLLOW_DISTANCE_SCALE;
   }
 
-  public static boolean whinesNow(final long uneasyTicks, final int stagger) {
-    return uneasyTicks > 0 && Math.floorMod(uneasyTicks + stagger, WHINE_EVERY_TICKS) == 0;
+  public static boolean runsUnease(
+      final boolean alive, final boolean asleep, final boolean uneasy) {
+    return alive && !asleep && uneasy;
   }
 
-  public static boolean cowersNow(final long uneasyTicks, final boolean sitting) {
-    return !sitting && uneasyTicks % COWER_EVERY_TICKS == 0;
+  public static boolean actsUneasyNow(
+      final boolean reactedSinceArrival, final long ticksSinceReaction, final int roll) {
+    return !reactedSinceArrival || (ticksSinceReaction >= UNEASE_MIN_GAP_TICKS && roll == 0);
+  }
+
+  public static boolean cowersWhenUneasy(final boolean sitting) {
+    return !sitting;
   }
 
   public static boolean sparesEnderman(final boolean inEnd, final boolean enderman) {

@@ -105,6 +105,7 @@ public final class ModNbtKeys {
   public static final String SLED_PULLER_DOG = "Dog";
   public static final String SLED_PULLER_OWNER = "Owner";
   public static final String SLED_HEADING = "Heading";
+  public static final String BONE_BURY_COMMAND = "BoneBuryCommand";
   public static final String BONE_CACHES = "BoneCaches";
   public static final String BONE_CACHE_POS = "Pos";
   public static final String BONE_CACHE_OWNER = "Owner";
