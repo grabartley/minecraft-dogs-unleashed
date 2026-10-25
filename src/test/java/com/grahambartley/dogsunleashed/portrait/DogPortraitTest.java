@@ -1,10 +1,12 @@
 package com.grahambartley.dogsunleashed.portrait;
 
+import static com.grahambartley.dogsunleashed.TestRegistries.REGISTRIES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
 import com.grahambartley.dogsunleashed.ModItems;
+import com.grahambartley.dogsunleashed.TestRegistries;
 import com.grahambartley.dogsunleashed.block.DogStatue;
 import com.grahambartley.dogsunleashed.block.DogStatueLook;
 import com.grahambartley.dogsunleashed.block.DogStatuePose;
@@ -12,7 +14,6 @@ import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
-import io.netty.buffer.Unpooled;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -21,8 +22,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registries;
 import net.minecraft.util.DyeColor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,9 +35,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 @ExtendWith(MinecraftBootstrapExtension.class)
 class DogPortraitTest {
-
-  private static final DynamicRegistryManager REGISTRIES =
-      DynamicRegistryManager.of(Registries.REGISTRIES);
 
   private static final DogStatueLook BEAGLE =
       new DogStatueLook(UnleashedDogBreed.BEAGLE, false, 1, -1, 0, 0, null, null);
@@ -100,7 +96,7 @@ class DogPortraitTest {
   @MethodSource("portraits")
   @DisplayName("a portrait survives the network codec, so every player sees the same dog")
   void packetRoundTrips(final DogPortrait portrait) {
-    final RegistryByteBuf buffer = new RegistryByteBuf(Unpooled.buffer(), REGISTRIES);
+    final RegistryByteBuf buffer = TestRegistries.buf();
     DogPortrait.PACKET_CODEC.encode(buffer, portrait);
     assertEquals(portrait, DogPortrait.PACKET_CODEC.decode(buffer));
   }

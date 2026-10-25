@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.pet;
 
+import static com.grahambartley.dogsunleashed.TestRegistries.REGISTRIES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
@@ -125,9 +126,9 @@ class BreedCompositionTest {
   private UUID registerDogWithStoredComposition(
       final UUID parentAId, final UUID parentBId, final List<BreedShare> composition) {
     final UUID id = registerDog(UnleashedDogBreed.CROSS_BREED, parentAId, parentBId);
-    final NbtCompound nbt = pets.get(id).toNbt();
+    final NbtCompound nbt = pets.get(id).toNbt(REGISTRIES);
     nbt.put(ModNbtKeys.COMPOSITION, DogGenome.compositionToNbt(composition));
-    pets.put(id, PetData.fromNbt(nbt));
+    pets.put(id, PetData.fromNbt(nbt, REGISTRIES));
     return id;
   }
 

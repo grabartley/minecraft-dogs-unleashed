@@ -220,6 +220,25 @@ public final class DogPortraitGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = ARENA, batchId = "portrait")
+  public void aPlainOutfitUndressesAReusedDog(final TestContext context) {
+    final UnleashedDogEntity dog =
+        DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, REL_DOG, UUID.randomUUID());
+    dog.setAiDisabled(true);
+    dressUp(dog);
+
+    DogPortraitOutfits.dress(dog, DogPortraitOutfit.NONE);
+
+    for (final DogEquipmentSlot slot : DogEquipmentSlot.values()) {
+      context.assertTrue(dog.getEquipmentHolder().getStack(slot).isEmpty(), "undressed " + slot);
+    }
+    context.assertFalse(dog.getComponents().get(DogMud.class).isMuddy(), "washed");
+    context.assertFalse(dog.getComponents().get(DogAging.class).isSenior(), "no senior coat");
+    context.assertFalse(dog.getFetchCarry().isCarrying(), "not carrying");
+    context.assertTrue(dog.getFetchCarry().activeType() == null, "no fetch toy");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = "portrait")
   public void thePortraitIsTitledWithTheDogsName(final TestContext context) {
     final ServerPlayerEntity player = holdingCanvas(context, PortraitSize.SMALL);
     final UnleashedDogEntity dog =

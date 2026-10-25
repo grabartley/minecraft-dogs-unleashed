@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.block;
 
+import static com.grahambartley.dogsunleashed.TestRegistries.REGISTRIES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -137,7 +138,7 @@ class DogStatueLookTest {
     record.putInt(ModNbtKeys.GROWTH_STAGE, 0);
     record.put(ModNbtKeys.GENES, HUSKY_GENES.toNbt());
 
-    final DogStatueLook look = DogStatueLook.of(PetData.fromNbt(record));
+    final DogStatueLook look = DogStatueLook.of(PetData.fromNbt(record, REGISTRIES));
 
     assertEquals(
         new DogStatueLook(UnleashedDogBreed.HUSKY, true, 2, 1, 3, 0, null, HUSKY_GENES), look);

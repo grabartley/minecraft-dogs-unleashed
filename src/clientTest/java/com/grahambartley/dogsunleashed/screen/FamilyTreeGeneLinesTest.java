@@ -4,20 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.grahambartley.dogsunleashed.entity.DogBondStep;
-import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.genome.DogGeneLocus;
 import com.grahambartley.dogsunleashed.entity.genome.DogGeneTrait;
-import com.grahambartley.dogsunleashed.entity.personality.DogTraits;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyCoat;
 import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
 import com.grahambartley.dogsunleashed.network.payload.ConnectionDogSyncData;
 import com.grahambartley.dogsunleashed.network.payload.GeneSyncData;
-import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
-import com.grahambartley.dogsunleashed.network.payload.RidingView;
-import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
-import com.grahambartley.dogsunleashed.pet.PetLifeState;
+import com.grahambartley.dogsunleashed.network.payload.PetSyncDataFixture;
 import com.grahambartley.dogsunleashed.screen.FamilyTreeGeneLines.GeneLine;
 import java.util.Arrays;
 import java.util.List;
@@ -90,30 +84,13 @@ class FamilyTreeGeneLinesTest {
 
   private static ConnectionDogSyncData dog(final List<GeneSyncData> genes, final boolean revealed) {
     return new ConnectionDogSyncData(
-        new PetSyncData(
-            "id",
-            UnleashedDogBreed.HUSKY,
-            "Luna",
-            20,
-            20,
-            0,
-            64,
-            0,
-            "minecraft:overworld",
-            PetLifeState.LIVING,
-            false,
-            0,
-            0,
-            0,
-            DogFurStage.NATURAL.ordinal(),
-            0.3f,
-            4f,
-            List.of(),
-            RidingView.NONE,
-            PetAwayStatus.HOME,
-            false,
-            DogBondStep.STRANGER,
-            DogTraits.NONE),
+        PetSyncDataFixture.pet()
+            .id("id")
+            .name("Luna")
+            .health(20, 20)
+            .stats(0.3f, 4f)
+            .variants(0, 0)
+            .build(),
         "owner",
         "Owner",
         genes,

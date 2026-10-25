@@ -7,27 +7,24 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.ModNbtKeys;
-import com.grahambartley.dogsunleashed.entity.DogBondStep;
 import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
-import com.grahambartley.dogsunleashed.entity.personality.DogTraits;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
-import com.grahambartley.dogsunleashed.network.payload.RidingView;
+import com.grahambartley.dogsunleashed.network.payload.PetSyncDataFixture;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
-import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
+import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfit;
+import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfitFixture;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.DyeColor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 class PortraitDogAppearanceTest {
@@ -74,7 +71,7 @@ class PortraitDogAppearanceTest {
   @DisplayName("a cross-breed portrait carries the pet's full composition")
   void crossBreedCarriesComposition() {
     final DogGenome genome =
-        PortraitDogAppearance.of(pet(UnleashedDogBreed.CROSS_BREED, BEAGLE_GOLDEN)).genome();
+        PortraitDogAppearance.of(pet(UnleashedDogBreed.CROSS_BREED, BEAGLE_GOLDEN)).look().genome();
 
     assertNotNull(genome);
     assertEquals(DogGenome.sortedComposition(BEAGLE_GOLDEN), genome.composition());
@@ -84,7 +81,7 @@ class PortraitDogAppearanceTest {
   @DisplayName("a cross-breed portrait genome takes its attributes from the synced pet")
   void crossBreedGenomeUsesSyncedAttributes() {
     final DogGenome genome =
-        PortraitDogAppearance.of(pet(UnleashedDogBreed.CROSS_BREED, BEAGLE_GOLDEN)).genome();
+        PortraitDogAppearance.of(pet(UnleashedDogBreed.CROSS_BREED, BEAGLE_GOLDEN)).look().genome();
 
     assertNotNull(genome);
     assertEquals(MAX_HEALTH, genome.maxHealth(), 0.0001);
@@ -118,7 +115,7 @@ class PortraitDogAppearanceTest {
   @DisplayName("the portrait genome is present exactly when the pet synced a composition")
   void genomePresenceFollowsComposition(
       final String description, final PetSyncData pet, final boolean expected) {
-    final DogGenome genome = PortraitDogAppearance.of(pet).genome();
+    final DogGenome genome = PortraitDogAppearance.of(pet).look().genome();
 
     if (expected) {
       assertNotNull(genome);
@@ -133,19 +130,6 @@ class PortraitDogAppearanceTest {
     assertEquals(
         UUID.fromString(PET_ID),
         PortraitDogAppearance.of(pet(UnleashedDogBreed.CROSS_BREED, BEAGLE_GOLDEN)).entityId());
-  }
-
-  @ParameterizedTest(name = "collar id {0} maps to {1}")
-  @CsvSource({
-    "0, WHITE",
-    "15, BLACK",
-    "16, WHITE",
-    "-1, BLACK",
-    "-16, WHITE",
-  })
-  @DisplayName("the collar colour wraps into range instead of throwing on out-of-range ids")
-  void collarColorWrapsIntoRange(final int collarColorId, final DyeColor expected) {
-    assertEquals(expected, PortraitDogAppearance.of(pet(collarColorId)).collarColor());
   }
 
   static Stream<Arguments> eyeVariantCases() {
@@ -174,14 +158,14 @@ class PortraitDogAppearanceTest {
   @DisplayName("the eye variant follows the breed whose rig the portrait renders on")
   void eyeVariantFollowsRigBreed(
       final String description, final PetSyncData pet, final int expected) {
-    assertEquals(expected, PortraitDogAppearance.of(pet).eyeColorVariant());
+    assertEquals(expected, PortraitDogAppearance.of(pet).look().eyeColorVariant());
   }
 
   @Test
   @DisplayName("the applied nbt carries the genome so the renderer can blend the cross-breed")
   void nbtCarriesGenomeForCrossBreeds() {
     final NbtCompound nbt =
-        PortraitDogAppearance.of(pet(UnleashedDogBreed.CROSS_BREED, BEAGLE_GOLDEN)).toNbt();
+        PortraitDogAppearance.of(pet(UnleashedDogBreed.CROSS_BREED, BEAGLE_GOLDEN)).look().toNbt();
 
     assertTrue(nbt.contains(ModNbtKeys.GENOME));
     assertEquals(
@@ -195,6 +179,7 @@ class PortraitDogAppearanceTest {
   void nbtOmitsGenomeWithoutComposition() {
     assertFalse(
         PortraitDogAppearance.of(pet(UnleashedDogBreed.BEAGLE, List.of()))
+            .look()
             .toNbt()
             .contains(ModNbtKeys.GENOME));
   }
@@ -203,7 +188,7 @@ class PortraitDogAppearanceTest {
   @DisplayName("the applied nbt carries the coat and eye variants the pet synced")
   void nbtCarriesVariants() {
     final NbtCompound nbt =
-        PortraitDogAppearance.of(pet(UnleashedDogBreed.HUSKY, List.of())).toNbt();
+        PortraitDogAppearance.of(pet(UnleashedDogBreed.HUSKY, List.of())).look().toNbt();
 
     assertEquals(3, nbt.getInt(ModNbtKeys.COAT_VARIANT));
     assertEquals(2, nbt.getInt(ModNbtKeys.EYE_COLOR_VARIANT));
@@ -218,8 +203,8 @@ class PortraitDogAppearanceTest {
                     UnleashedDogBreed.BEAGLE,
                     List.of(),
                     UnleashedDogEntity.UNSET_VARIANT,
-                    UnleashedDogEntity.UNSET_VARIANT,
-                    0))
+                    UnleashedDogEntity.UNSET_VARIANT))
+            .look()
             .toNbt();
 
     assertFalse(nbt.contains(ModNbtKeys.COAT_VARIANT));
@@ -238,109 +223,67 @@ class PortraitDogAppearanceTest {
   @MethodSource("lifeStateCases")
   @DisplayName("only an undead pet's portrait dresses up as the zombie entity type")
   void onlyUndeadPetsPortrayTheZombieType(final PetLifeState lifeState, final boolean expected) {
-    final PetSyncData base = pet(UnleashedDogBreed.BEAGLE, List.of());
     final PetSyncData pet =
-        new PetSyncData(
-            base.petId(),
-            base.breed(),
-            base.name(),
-            base.health(),
-            base.maxHealth(),
-            base.posX(),
-            base.posY(),
-            base.posZ(),
-            base.dimension(),
-            lifeState,
-            base.baby(),
-            base.collarColor(),
-            base.coatVariant(),
-            base.huskyEyeVariant(),
-            base.furStage(),
-            base.movementSpeed(),
-            base.attackDamage(),
-            base.composition(),
-            RidingView.NONE,
-            PetAwayStatus.HOME,
-            false,
-            DogBondStep.STRANGER,
-            DogTraits.NONE);
+        PetSyncDataFixture.pet().breed(UnleashedDogBreed.BEAGLE).lifeState(lifeState).build();
 
     assertEquals(expected, PortraitDogAppearance.of(pet).undead());
   }
 
   private static PetSyncData pet(
       final UnleashedDogBreed breed, final List<BreedShare> composition) {
-    return pet(breed, composition, 3, 2, 0);
-  }
-
-  private static PetSyncData pet(final int collarColorId) {
-    return pet(UnleashedDogBreed.BEAGLE, List.of(), 3, 2, collarColorId);
+    return pet(breed, composition, 3, 2);
   }
 
   private static PetSyncData pet(
       final UnleashedDogBreed breed,
       final List<BreedShare> composition,
       final int coatVariant,
-      final int eyeVariant,
-      final int collarColorId) {
-    return new PetSyncData(
-        PET_ID,
-        breed,
-        "Pixel",
-        12.5f,
-        MAX_HEALTH,
-        10,
-        64,
-        -20,
-        "minecraft:overworld",
-        PetLifeState.LIVING,
-        false,
-        collarColorId,
-        coatVariant,
-        eyeVariant,
-        DogFurStage.NATURAL.ordinal(),
-        MOVEMENT_SPEED,
-        ATTACK_DAMAGE,
-        composition,
-        RidingView.NONE,
-        PetAwayStatus.HOME,
-        false,
-        DogBondStep.STRANGER,
-        DogTraits.NONE);
+      final int eyeVariant) {
+    return PetSyncDataFixture.pet()
+        .id(PET_ID)
+        .breed(breed)
+        .name("Pixel")
+        .health(12.5f, MAX_HEALTH)
+        .stats(MOVEMENT_SPEED, ATTACK_DAMAGE)
+        .composition(composition)
+        .variants(coatVariant, eyeVariant)
+        .build();
   }
 
   @Test
   @DisplayName("the portrait dog is given the pet's fur stage")
   void nbtCarriesFur() {
-    final PetSyncData base = pet(UnleashedDogBreed.HUSKY, List.of());
     final PetSyncData overgrown =
-        new PetSyncData(
-            base.petId(),
-            base.breed(),
-            base.name(),
-            base.health(),
-            base.maxHealth(),
-            base.posX(),
-            base.posY(),
-            base.posZ(),
-            base.dimension(),
-            base.lifeState(),
-            base.baby(),
-            base.collarColor(),
-            base.coatVariant(),
-            base.huskyEyeVariant(),
-            DogFurStage.OVERGROWN.ordinal(),
-            base.movementSpeed(),
-            base.attackDamage(),
-            base.composition(),
-            RidingView.NONE,
-            PetAwayStatus.HOME,
-            false,
-            DogBondStep.STRANGER,
-            DogTraits.NONE);
+        PetSyncDataFixture.pet()
+            .breed(UnleashedDogBreed.HUSKY)
+            .furStage(DogFurStage.OVERGROWN.ordinal())
+            .build();
 
-    final NbtCompound nbt = PortraitDogAppearance.of(overgrown).toNbt();
+    final NbtCompound nbt = PortraitDogAppearance.of(overgrown).look().toNbt();
 
     assertEquals(DogFurStage.OVERGROWN.ordinal(), nbt.getInt(ModNbtKeys.FUR_STAGE));
+  }
+
+  static Stream<Arguments> lookCases() {
+    return Stream.of(
+        Arguments.of(0, DogPortraitOutfit.NONE),
+        Arguments.of(3, DogPortraitOutfitFixture.dressed()));
+  }
+
+  @ParameterizedTest(name = "growth stage {0}")
+  @MethodSource("lookCases")
+  @DisplayName("the portrait dog wears the pet's outfit and grows to its stage")
+  void appearanceCarriesOutfitAndGrowth(final int growthStage, final DogPortraitOutfit outfit) {
+    final PetSyncData dressed =
+        PetSyncDataFixture.pet()
+            .breed(UnleashedDogBreed.DIRE_WOLF)
+            .growthStage(growthStage)
+            .outfit(outfit)
+            .build();
+
+    final PortraitDogAppearance appearance = PortraitDogAppearance.of(dressed);
+
+    assertEquals(outfit, appearance.outfit());
+    assertEquals(growthStage, appearance.look().growthStage());
   }
 }

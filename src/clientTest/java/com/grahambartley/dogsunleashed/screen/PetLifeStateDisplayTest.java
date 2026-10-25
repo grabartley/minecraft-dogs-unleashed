@@ -4,15 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import com.grahambartley.dogsunleashed.entity.DogBondStep;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
-import com.grahambartley.dogsunleashed.entity.personality.DogTraits;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
-import com.grahambartley.dogsunleashed.network.payload.RidingView;
+import com.grahambartley.dogsunleashed.network.payload.PetSyncDataFixture;
 import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
-import java.util.List;
-import java.util.UUID;
 import java.util.stream.Stream;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableTextContent;
@@ -166,29 +162,13 @@ class PetLifeStateDisplayTest {
       final boolean baby,
       final boolean senior,
       final PetAwayStatus away) {
-    return new PetSyncData(
-        UUID.randomUUID().toString(),
-        UnleashedDogBreed.BEAGLE,
-        "Old Tom",
-        10.0f,
-        20.0f,
-        0,
-        64,
-        0,
-        "minecraft:overworld",
-        lifeState,
-        baby,
-        0,
-        0,
-        0,
-        0,
-        0.3f,
-        2.0f,
-        List.of(),
-        RidingView.NONE,
-        away,
-        senior,
-        DogBondStep.STRANGER,
-        DogTraits.NONE);
+    return PetSyncDataFixture.pet()
+        .breed(UnleashedDogBreed.BEAGLE)
+        .name("Old Tom")
+        .lifeState(lifeState)
+        .baby(baby)
+        .senior(senior)
+        .away(away)
+        .build();
   }
 }

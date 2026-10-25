@@ -19,6 +19,7 @@ public final class ModNbtKeys {
   public static final String PORTRAIT_COAT_VARIANT = "portraitCoatVariant";
   public static final String PORTRAIT_HUSKY_EYE = "PortraitHuskyEye";
   public static final String PORTRAIT_FUR_STAGE = "PortraitFurStage";
+  public static final String PORTRAIT_OUTFIT = "PortraitOutfit";
   public static final String PARENT_A_ID = "ParentAId";
   public static final String PARENT_B_ID = "ParentBId";
   public static final String COMPOSITION = "Composition";
@@ -84,7 +85,6 @@ public final class ModNbtKeys {
   public static final String GROWTH_BATTLES_WON = "GrowthBattlesWon";
   public static final String ADULT_AGE_TICKS = "AdultAgeTicks";
   public static final String AGE_LAST_SEEN_TIME = "AgeLastSeenTime";
-  public static final String SENIOR = "Senior";
   public static final String SENIOR_PARENT = "SeniorParent";
   public static final String MUDDY = "Muddy";
   public static final String MUDDY_TICKS = "MuddyTicks";

@@ -231,7 +231,7 @@ public final class PetManager extends PersistentState {
       ownerNbt.putUuid(ModNbtKeys.OWNER_ID, entry.getKey());
       final NbtList petsList = new NbtList();
       for (final PetData pet : entry.getValue()) {
-        petsList.add(pet.toNbt());
+        petsList.add(pet.toNbt(registryLookup));
       }
       ownerNbt.put(ModNbtKeys.PETS, petsList);
       ownersList.add(ownerNbt);
@@ -249,7 +249,7 @@ public final class PetManager extends PersistentState {
       final NbtList petsList = ownerNbt.getList(ModNbtKeys.PETS, NbtElement.COMPOUND_TYPE);
       final List<PetData> pets = new ArrayList<>();
       for (int j = 0; j < petsList.size(); j++) {
-        final PetData pet = PetData.fromNbt(petsList.getCompound(j));
+        final PetData pet = PetData.fromNbt(petsList.getCompound(j), registryLookup);
         pets.add(pet);
         manager.index(pet);
       }

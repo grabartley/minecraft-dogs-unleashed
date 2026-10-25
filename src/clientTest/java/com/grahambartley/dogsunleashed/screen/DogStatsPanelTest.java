@@ -3,15 +3,9 @@ package com.grahambartley.dogsunleashed.screen;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.grahambartley.dogsunleashed.entity.DogBondStep;
-import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
-import com.grahambartley.dogsunleashed.entity.personality.DogTraits;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
-import com.grahambartley.dogsunleashed.network.payload.RidingView;
-import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
-import com.grahambartley.dogsunleashed.pet.PetLifeState;
-import java.util.List;
+import com.grahambartley.dogsunleashed.network.payload.PetSyncDataFixture;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -68,30 +62,13 @@ class DogStatsPanelTest {
       final float maxHealth,
       final float movementSpeed,
       final float attackDamage) {
-    return new PetSyncData(
-        "pet",
-        breed,
-        "Balto",
-        maxHealth,
-        maxHealth,
-        0,
-        64,
-        0,
-        "minecraft:overworld",
-        PetLifeState.LIVING,
-        false,
-        0,
-        0,
-        0,
-        DogFurStage.NATURAL.ordinal(),
-        movementSpeed,
-        attackDamage,
-        List.of(),
-        RidingView.NONE,
-        PetAwayStatus.HOME,
-        false,
-        DogBondStep.STRANGER,
-        DogTraits.NONE);
+    return PetSyncDataFixture.pet()
+        .id("pet")
+        .breed(breed)
+        .health(maxHealth, maxHealth)
+        .stats(movementSpeed, attackDamage)
+        .variants(0, 0)
+        .build();
   }
 
   @Test

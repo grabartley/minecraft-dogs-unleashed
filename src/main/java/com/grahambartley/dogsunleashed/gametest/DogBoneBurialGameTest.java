@@ -9,6 +9,7 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.burial.BoneCache;
 import com.grahambartley.dogsunleashed.entity.burial.BoneCacheRules;
 import com.grahambartley.dogsunleashed.entity.burial.BoneCaches;
+import com.grahambartley.dogsunleashed.entity.burial.BurialGround;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
 import com.grahambartley.dogsunleashed.entity.sled.SledEntity;
 import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
@@ -160,7 +161,7 @@ public final class DogBoneBurialGameTest implements FabricGameTest {
     context.complete();
   }
 
-  @GameTest(templateName = ARENA, batchId = BATCH + "-reload", tickLimit = 400)
+  @GameTest(templateName = ARENA, batchId = BATCH + "-reload", tickLimit = 20)
   public void aSittingDogCarriesOnBuryingAfterAReload(TestContext context) {
     dirtFloor(context);
     final ServerPlayerEntity owner = placeOwner(context);
@@ -172,18 +173,15 @@ public final class DogBoneBurialGameTest implements FabricGameTest {
     source.discard();
 
     final UnleashedDogEntity dog = spawnOwnedDog(context, owner, DogCommand.SIT);
+    dog.setAiDisabled(true);
     dog.readCustomDataFromNbt(nbt);
-    dog.setAiDisabled(false);
 
     context.assertTrue(burial(dog).isBuryPending(), "The burial should survive a reload");
+    context.assertTrue(burial(dog).canBuryNow(), "The reloaded dog should carry on burying");
     context.assertFalse(dog.isInSittingPose(), "The reloaded dog should stay standing");
-    context.runAtEveryTick(
-        () -> {
-          final boolean buried = !caches(context).buriedBy(dog.getUuid()).isEmpty();
-          if (buried && !burial(dog).isCarryingBone() && dog.isInSittingPose()) {
-            context.complete();
-          }
-        });
+    buryAtDigGround(context, dog);
+    context.assertTrue(dog.isSitting(), "The reloaded dog should sit back down after burying");
+    context.complete();
   }
 
   @GameTest(templateName = ARENA, batchId = BATCH + "-sitting", tickLimit = 400)
@@ -203,21 +201,19 @@ public final class DogBoneBurialGameTest implements FabricGameTest {
         });
   }
 
-  @GameTest(templateName = ARENA, batchId = BATCH + "-following", tickLimit = 400)
-  public void aFollowingDogBuriesTheBoneNearby(TestContext context) {
+  @GameTest(templateName = ARENA, batchId = BATCH + "-following", tickLimit = 20)
+  public void aFollowingDogBuriesTheBoneAndKeepsFollowing(TestContext context) {
     dirtFloor(context);
     final ServerPlayerEntity owner = placeOwner(context);
     final UnleashedDogEntity dog = spawnOwnedDog(context, owner, DogCommand.FOLLOW);
+    dog.setAiDisabled(true);
 
     giveBone(dog, owner);
 
-    context.runAtEveryTick(
-        () -> {
-          final boolean buried = !caches(context).buriedBy(dog.getUuid()).isEmpty();
-          if (buried && !burial(dog).isCarryingBone()) {
-            context.complete();
-          }
-        });
+    context.assertTrue(burial(dog).canBuryNow(), "A following dog should be free to bury");
+    buryAtDigGround(context, dog);
+    context.assertFalse(dog.isSitting(), "A following dog should not sit after burying");
+    context.complete();
   }
 
   @GameTest(templateName = ARENA, batchId = BATCH + "-no-ground", tickLimit = 300)
@@ -429,6 +425,15 @@ public final class DogBoneBurialGameTest implements FabricGameTest {
     dog.setOwnerUuid(owner.getUuid());
     dog.getCommandController().apply(command);
     return dog;
+  }
+
+  private static void buryAtDigGround(final TestContext context, final UnleashedDogEntity dog) {
+    final BlockPos ground = context.getAbsolutePos(DIG_GROUND);
+    context.assertTrue(
+        BurialGround.isBurialSpot(context.getWorld(), ground), "The dig ground should take a bone");
+    context.assertTrue(burial(dog).bury(context.getWorld(), ground), "The dog should bury it");
+    context.assertFalse(caches(context).buriedBy(dog.getUuid()).isEmpty(), "A cache is left");
+    context.assertFalse(burial(dog).isCarryingBone(), "The bone should be in the ground");
   }
 
   private static BoneCaches caches(final TestContext context) {

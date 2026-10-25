@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.portrait;
 
+import static com.grahambartley.dogsunleashed.TestRegistries.REGISTRIES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -7,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
 import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.ModItems;
+import com.grahambartley.dogsunleashed.TestRegistries;
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import java.util.Map;
 import java.util.Optional;
@@ -18,8 +20,7 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registries;
+import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.DisplayName;
@@ -32,9 +33,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(MinecraftBootstrapExtension.class)
 class DogPortraitOutfitTest {
-
-  private static final DynamicRegistryManager REGISTRIES =
-      DynamicRegistryManager.of(Registries.REGISTRIES);
 
   private static ItemStack dyedArmour(final int colour) {
     final ItemStack armour = new ItemStack(Items.WOLF_ARMOR);
@@ -69,12 +67,6 @@ class DogPortraitOutfitTest {
                 true)));
   }
 
-  private static NbtElement save(final DogPortraitOutfit outfit) {
-    return DogPortraitOutfit.CODEC
-        .encodeStart(REGISTRIES.getOps(NbtOps.INSTANCE), outfit)
-        .getOrThrow();
-  }
-
   private static DogPortraitOutfit load(final NbtElement saved) {
     return DogPortraitOutfit.CODEC.parse(REGISTRIES.getOps(NbtOps.INSTANCE), saved).getOrThrow();
   }
@@ -83,7 +75,7 @@ class DogPortraitOutfitTest {
   @MethodSource("outfits")
   @DisplayName("an outfit survives saving, gear colours and all")
   void outfitRoundTrips(final DogPortraitOutfit outfit) {
-    final DogPortraitOutfit loaded = load(save(outfit));
+    final DogPortraitOutfit loaded = load(DogPortraitOutfitFixture.save(outfit));
     assertEquals(outfit, loaded);
     assertEquals(outfit.hashCode(), loaded.hashCode());
   }
@@ -180,7 +172,7 @@ class DogPortraitOutfitTest {
   void unknownItemIsDropped() {
     final NbtCompound saved =
         (NbtCompound)
-            save(
+            DogPortraitOutfitFixture.save(
                 new DogPortraitOutfit(
                     Map.of(
                         DogEquipmentSlot.ARMOUR, new ItemStack(Items.WOLF_ARMOR),
@@ -248,6 +240,26 @@ class DogPortraitOutfitTest {
             false,
             false,
             false);
-    assertEquals(DyeColor.PURPLE, load(save(outfit)).carried().get(ModComponents.FRISBEE_COLOR));
+    assertEquals(
+        DyeColor.PURPLE,
+        load(DogPortraitOutfitFixture.save(outfit)).carried().get(ModComponents.FRISBEE_COLOR));
+  }
+
+  @ParameterizedTest
+  @MethodSource("outfits")
+  @DisplayName("an outfit survives the network round trip")
+  void packetRoundTrips(final DogPortraitOutfit outfit) {
+    final RegistryByteBuf buf = TestRegistries.buf();
+    DogPortraitOutfit.PACKET_CODEC.encode(buf, outfit);
+    assertEquals(outfit, DogPortraitOutfit.PACKET_CODEC.decode(buf));
+  }
+
+  @ParameterizedTest
+  @MethodSource("outfits")
+  @DisplayName("withSenior flips only the senior coat")
+  void withSeniorFlipsOnlyTheSeniorCoat(final DogPortraitOutfit outfit) {
+    final DogPortraitOutfit flipped = outfit.withSenior(!outfit.senior());
+    assertEquals(!outfit.senior(), flipped.senior());
+    assertEquals(outfit, flipped.withSenior(outfit.senior()));
   }
 }

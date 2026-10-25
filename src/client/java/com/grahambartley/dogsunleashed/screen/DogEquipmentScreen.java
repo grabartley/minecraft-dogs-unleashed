@@ -2,13 +2,11 @@ package com.grahambartley.dogsunleashed.screen;
 
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.DogSaddlebags;
-import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.screenhandler.DogEquipmentScreenHandler;
 import java.util.List;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.Text;
@@ -78,29 +76,8 @@ public class DogEquipmentScreen extends HandledScreen<DogEquipmentScreenHandler>
     if (dog == null) {
       return;
     }
-    final UnleashedDogBreed.RenderTransforms transforms =
-        dog.getRigSourceBreed().renderTransforms();
-    final float relativeSize =
-        DogPreviewFraming.sizeRelativeToAdult(
-            dog.getGrowth().applies(),
-            dog.getGrowth().stage().renderScaleMultiplier(),
-            dog.isBaby(),
-            transforms.adultScale(),
-            transforms.babyScale());
-    final float framedHeight = transforms.portraitHeight() * relativeSize;
-    final int left = this.x + PREVIEW_LEFT;
-    final int top = this.y + PREVIEW_TOP;
-    InventoryScreen.drawEntity(
-        context,
-        left,
-        top,
-        left + PREVIEW_SIZE,
-        top + PREVIEW_SIZE,
-        DogPreviewFraming.renderSize(PREVIEW_SIZE, framedHeight),
-        DogPreviewFraming.pivotOffset(framedHeight, dog.getHeight(), relativeSize),
-        mouseX,
-        mouseY,
-        dog);
+    DogPreviewFraming.draw(
+        context, this.x + PREVIEW_LEFT, this.y + PREVIEW_TOP, PREVIEW_SIZE, mouseX, mouseY, dog);
   }
 
   private void drawEmptyDogSlotTooltip(
