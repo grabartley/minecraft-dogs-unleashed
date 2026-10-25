@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.portrait;
 
+import static com.grahambartley.dogsunleashed.TestRegistries.REGISTRIES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -20,8 +21,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registries;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.DisplayName;
@@ -34,9 +33,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(MinecraftBootstrapExtension.class)
 class DogPortraitOutfitTest {
-
-  private static final DynamicRegistryManager REGISTRIES =
-      DynamicRegistryManager.of(Registries.REGISTRIES);
 
   private static ItemStack dyedArmour(final int colour) {
     final ItemStack armour = new ItemStack(Items.WOLF_ARMOR);
@@ -260,5 +256,14 @@ class DogPortraitOutfitTest {
     final RegistryByteBuf buf = new RegistryByteBuf(Unpooled.buffer(), REGISTRIES);
     DogPortraitOutfit.PACKET_CODEC.encode(buf, outfit);
     assertEquals(outfit, DogPortraitOutfit.PACKET_CODEC.decode(buf));
+  }
+
+  @ParameterizedTest
+  @MethodSource("outfits")
+  @DisplayName("withSenior flips only the senior coat")
+  void withSeniorFlipsOnlyTheSeniorCoat(final DogPortraitOutfit outfit) {
+    final DogPortraitOutfit flipped = outfit.withSenior(!outfit.senior());
+    assertEquals(!outfit.senior(), flipped.senior());
+    assertEquals(outfit, flipped.withSenior(outfit.senior()));
   }
 }

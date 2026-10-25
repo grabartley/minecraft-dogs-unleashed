@@ -2,11 +2,9 @@ package com.grahambartley.dogsunleashed.network.payload;
 
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.config.AgingSettings;
-import com.grahambartley.dogsunleashed.entity.DogAging;
 import com.grahambartley.dogsunleashed.entity.DogAgingRules;
 import com.grahambartley.dogsunleashed.entity.DogBond;
 import com.grahambartley.dogsunleashed.entity.DogBondStep;
-import com.grahambartley.dogsunleashed.entity.DogCollar;
 import com.grahambartley.dogsunleashed.entity.DogPersonality;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
@@ -17,8 +15,8 @@ import com.grahambartley.dogsunleashed.pet.PetAge;
 import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLifeState;
+import com.grahambartley.dogsunleashed.pet.PortraitLook;
 import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfit;
-import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfits;
 import java.util.List;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.network.RegistryByteBuf;
@@ -36,21 +34,14 @@ public record PetSyncData(
     int posZ,
     String dimension,
     PetLifeState lifeState,
-    boolean baby,
-    int collarColor,
-    int coatVariant,
-    int huskyEyeVariant,
-    int furStage,
+    PortraitLook look,
     float movementSpeed,
     float attackDamage,
     List<BreedShare> composition,
     RidingView riding,
     PetAwayStatus away,
-    boolean senior,
     DogBondStep bond,
-    DogTraits personality,
-    int growthStage,
-    DogPortraitOutfit outfit) {
+    DogTraits personality) {
 
   public static final PacketCodec<RegistryByteBuf, PetSyncData> CODEC =
       PacketCodec.of(PetSyncData::write, PetSyncData::read);
@@ -67,21 +58,14 @@ public record PetSyncData(
         petData.getLastKnownPosition().getZ(),
         petData.getDimension(),
         petData.getLifeState(),
-        petData.isBaby(),
-        petData.getCollarColorId(),
-        petData.getCoatVariant(),
-        petData.getHuskyEyeVariant(),
-        petData.getFurStage(),
+        petData.portraitLook().withSenior(seniorOf(petData)),
         petData.getMovementSpeed(),
         petData.getAttackDamage(),
         petData.getComposition(),
         RidingView.of(petData.getBreed(), petData.getGrowthStage(), petData.getStaminaPercent()),
         away,
-        seniorOf(petData),
         DogBondStep.ofPoints(petData.getBondPoints()),
-        petData.getPersonality(),
-        petData.getGrowthStage(),
-        petData.getOutfit());
+        petData.getPersonality());
   }
 
   public static PetSyncData fromDog(final UnleashedDogEntity dog) {
@@ -98,11 +82,7 @@ public record PetSyncData(
         pos.getZ(),
         dog.getWorld().getRegistryKey().getValue().toString(),
         dog.isUndead() ? PetLifeState.UNDEAD : PetLifeState.LIVING,
-        dog.isBaby(),
-        dog.getComponents().get(DogCollar.class).getColor().getId(),
-        PetData.coatVariantOf(dog),
-        PetData.huskyEyeVariantOf(dog),
-        dog.getFur().stage().ordinal(),
+        PortraitLook.of(dog),
         (float) dog.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED),
         (float) dog.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE),
         genome != null ? genome.composition() : List.of(),
@@ -111,11 +91,8 @@ public record PetSyncData(
             dog.getGrowth().stage().number(),
             Math.round(dog.getRiding().staminaFraction() * 100.0f)),
         PetAwayStatus.HOME,
-        dog.getComponents().get(DogAging.class).isSenior(),
         dog.getComponents().get(DogBond.class).step(),
-        dog.getComponents().get(DogPersonality.class).traits(),
-        dog.getGrowth().stage().number(),
-        DogPortraitOutfits.of(dog));
+        dog.getComponents().get(DogPersonality.class).traits());
   }
 
   static boolean seniorOf(final PetData petData) {
@@ -125,6 +102,34 @@ public record PetSyncData(
         petData.getLifeState() == PetLifeState.UNDEAD,
         petData.getAdultAgeTicks(),
         aging.seniorAfterDays());
+  }
+
+  public boolean baby() {
+    return this.look.baby();
+  }
+
+  public int coatVariant() {
+    return this.look.coatVariant();
+  }
+
+  public int huskyEyeVariant() {
+    return this.look.huskyEyeVariant();
+  }
+
+  public int furStage() {
+    return this.look.furStage();
+  }
+
+  public int growthStage() {
+    return this.look.growthStage();
+  }
+
+  public DogPortraitOutfit outfit() {
+    return this.look.outfit();
+  }
+
+  public boolean senior() {
+    return this.look.outfit().senior();
   }
 
   public boolean alive() {
@@ -140,7 +145,7 @@ public record PetSyncData(
   }
 
   public PetAge age() {
-    return PetAge.of(this.baby, this.senior);
+    return PetAge.of(this.baby(), this.senior());
   }
 
   public UnleashedDogBreed displayBreed() {
@@ -161,21 +166,14 @@ public record PetSyncData(
     buf.writeInt(this.posZ);
     buf.writeString(this.dimension);
     buf.writeString(this.lifeState.serializedName());
-    buf.writeBoolean(this.baby);
-    buf.writeInt(this.collarColor);
-    buf.writeInt(this.coatVariant);
-    buf.writeInt(this.huskyEyeVariant);
-    buf.writeVarInt(this.furStage);
+    PortraitLook.PACKET_CODEC.encode(buf, this.look);
     buf.writeFloat(this.movementSpeed);
     buf.writeFloat(this.attackDamage);
     BreedShareCodec.writeList(buf, this.composition);
     this.riding.write(buf);
     buf.writeVarInt(this.away.ordinal());
-    buf.writeBoolean(this.senior);
     buf.writeVarInt(this.bond.ordinal());
     this.personality.write(buf);
-    buf.writeVarInt(this.growthStage);
-    DogPortraitOutfit.PACKET_CODEC.encode(buf, this.outfit);
   }
 
   static PetSyncData read(final RegistryByteBuf buf) {
@@ -190,20 +188,13 @@ public record PetSyncData(
         buf.readInt(),
         buf.readString(),
         PetLifeState.fromSerializedName(buf.readString()),
-        buf.readBoolean(),
-        buf.readInt(),
-        buf.readInt(),
-        buf.readInt(),
-        buf.readVarInt(),
+        PortraitLook.PACKET_CODEC.decode(buf),
         buf.readFloat(),
         buf.readFloat(),
         BreedShareCodec.readList(buf),
         RidingView.read(buf),
         PetAwayStatus.byId(buf.readVarInt()),
-        buf.readBoolean(),
         DogBondStep.byId(buf.readVarInt()),
-        DogTraits.read(buf),
-        buf.readVarInt(),
-        DogPortraitOutfit.PACKET_CODEC.decode(buf));
+        DogTraits.read(buf));
   }
 }

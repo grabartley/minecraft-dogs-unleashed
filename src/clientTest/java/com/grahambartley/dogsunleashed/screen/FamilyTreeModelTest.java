@@ -5,17 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.grahambartley.dogsunleashed.entity.DogBondStep;
-import com.grahambartley.dogsunleashed.entity.DogFurStage;
-import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
-import com.grahambartley.dogsunleashed.entity.personality.DogTraits;
 import com.grahambartley.dogsunleashed.network.payload.ConnectionDogSyncData;
-import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
-import com.grahambartley.dogsunleashed.network.payload.RidingView;
+import com.grahambartley.dogsunleashed.network.payload.PetSyncDataFixture;
 import com.grahambartley.dogsunleashed.network.payload.SyncDogConnectionsPayload;
-import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
-import com.grahambartley.dogsunleashed.pet.PetLifeState;
-import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -182,32 +174,13 @@ class FamilyTreeModelTest {
 
   private static ConnectionDogSyncData dog(final String id) {
     return new ConnectionDogSyncData(
-        new PetSyncData(
-            id,
-            UnleashedDogBreed.HUSKY,
-            id,
-            20,
-            20,
-            0,
-            64,
-            0,
-            "minecraft:overworld",
-            PetLifeState.LIVING,
-            false,
-            0,
-            0,
-            0,
-            DogFurStage.NATURAL.ordinal(),
-            0.3f,
-            4f,
-            List.of(),
-            RidingView.NONE,
-            PetAwayStatus.HOME,
-            false,
-            DogBondStep.STRANGER,
-            DogTraits.NONE,
-            0,
-            DogPortraitOutfit.NONE),
+        PetSyncDataFixture.pet()
+            .id(id)
+            .name(id)
+            .health(20, 20)
+            .stats(0.3f, 4f)
+            .variants(0, 0)
+            .build(),
         "owner",
         "Owner",
         List.of(),

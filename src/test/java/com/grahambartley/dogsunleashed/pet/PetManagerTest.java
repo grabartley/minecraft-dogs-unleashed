@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.pet;
 
+import static com.grahambartley.dogsunleashed.TestRegistries.REGISTRIES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
@@ -16,8 +17,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registries;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 import org.junit.jupiter.api.DisplayName;
@@ -28,9 +27,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(MinecraftBootstrapExtension.class)
 class PetManagerTest {
-
-  private static final DynamicRegistryManager REGISTRIES =
-      DynamicRegistryManager.of(Registries.REGISTRIES);
 
   static Stream<Arguments> outfits() {
     return Stream.of(

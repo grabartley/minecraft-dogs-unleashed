@@ -11,7 +11,6 @@ import java.util.UUID;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.EntityType;
 
@@ -36,19 +35,8 @@ public final class DogPortraitRenderer {
       drawMissingPortraitPlaceholder(context, textRenderer, pet, x, y, size);
       return;
     }
-    final float portraitHeight = entity.getRigSourceBreed().renderTransforms().portraitHeight();
     context.setShaderColor(FULL_COLOR, FULL_COLOR, FULL_COLOR, FULL_COLOR);
-    InventoryScreen.drawEntity(
-        context,
-        x,
-        y,
-        x + size,
-        y + size,
-        DogPreviewFraming.renderSize(size, portraitHeight),
-        DogPreviewFraming.pivotOffset(portraitHeight, entity.getHeight(), 1.0f),
-        mouseX,
-        mouseY,
-        entity);
+    DogPreviewFraming.draw(context, x, y, size, mouseX, mouseY, entity);
     if (!pet.alive()) {
       context.fill(RenderLayer.getGuiOverlay(), x, y, x + size, y + size, DECEASED_OVERLAY_COLOR);
     }

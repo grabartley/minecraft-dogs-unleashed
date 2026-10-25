@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.pet;
 
+import static com.grahambartley.dogsunleashed.TestRegistries.REGISTRIES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -35,8 +36,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registries;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 import org.junit.jupiter.api.DisplayName;
@@ -51,9 +50,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 @ExtendWith(MinecraftBootstrapExtension.class)
 class PetDataTest {
-
-  private static final DynamicRegistryManager REGISTRIES =
-      DynamicRegistryManager.of(Registries.REGISTRIES);
 
   private static final float BASE_HEALTH = 18.0f;
   private static final BlockPos BASE_POS = new BlockPos(10, 64, -20);
@@ -331,24 +327,34 @@ class PetDataTest {
     assertEquals(TrickProgress.NONE, PetData.fromNbt(nbt, REGISTRIES).getTricks());
   }
 
-  @ParameterizedTest(name = "age {0} ticks, senior {1}, senior parent {2}")
-  @CsvSource({
-    "0, false, false",
-    "24000, false, true",
-    "2400000, true, false",
-    "9000000000, true, true"
-  })
-  @DisplayName("the adult age, senior flag and legacy survive a save and reload")
-  void ageRoundTrips(final long ageTicks, final boolean senior, final boolean seniorParent) {
+  @ParameterizedTest(name = "age {0} ticks, senior parent {1}")
+  @CsvSource({"0, false", "24000, true", "2400000, false", "9000000000, true"})
+  @DisplayName("the adult age and senior legacy survive a save and reload")
+  void ageRoundTrips(final long ageTicks, final boolean seniorParent) {
     final NbtCompound nbt = baselinePet().toNbt(REGISTRIES);
     nbt.putLong(ModNbtKeys.ADULT_AGE_TICKS, ageTicks);
-    nbt.putBoolean(ModNbtKeys.SENIOR, senior);
     nbt.putBoolean(ModNbtKeys.SENIOR_PARENT, seniorParent);
     final PetData reloaded =
         PetData.fromNbt(PetData.fromNbt(nbt, REGISTRIES).toNbt(REGISTRIES), REGISTRIES);
     assertEquals(ageTicks, reloaded.getAdultAgeTicks());
-    assertEquals(senior, reloaded.isSenior());
     assertEquals(seniorParent, reloaded.hasSeniorParent());
+  }
+
+  @ParameterizedTest(name = "collar {0}, senior {1}")
+  @CsvSource({"BLUE, true", "LIME, false"})
+  @DisplayName("a pet saved before outfits moves its collar and senior coat into its outfit")
+  void legacyCollarAndSeniorMoveIntoTheOutfit(final DyeColor collar, final boolean senior) {
+    final NbtCompound nbt = baselinePet().toNbt(REGISTRIES);
+    nbt.remove(ModNbtKeys.PORTRAIT_OUTFIT);
+    nbt.putInt(ModNbtKeys.PORTRAIT_COLLAR, collar.getId());
+    nbt.putBoolean(ModNbtKeys.SENIOR, senior);
+
+    final PetData reloaded =
+        PetData.fromNbt(PetData.fromNbt(nbt, REGISTRIES).toNbt(REGISTRIES), REGISTRIES);
+
+    assertEquals(Optional.of(collar), reloaded.getOutfit().collar());
+    assertEquals(collar.getId(), reloaded.getCollarColorId());
+    assertEquals(senior, reloaded.isSenior());
   }
 
   @Test

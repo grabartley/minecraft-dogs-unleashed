@@ -1,21 +1,14 @@
 package com.grahambartley.dogsunleashed.network.payload;
 
+import static com.grahambartley.dogsunleashed.TestRegistries.REGISTRIES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.grahambartley.dogsunleashed.entity.DogBondStep;
-import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
-import com.grahambartley.dogsunleashed.entity.personality.DogTraits;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
-import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
-import com.grahambartley.dogsunleashed.pet.PetLifeState;
-import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfit;
 import io.netty.buffer.Unpooled;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registries;
 
 final class PayloadTestFixtures {
 
@@ -31,7 +24,7 @@ final class PayloadTestFixtures {
   }
 
   static RegistryByteBuf newRegistryBuf() {
-    return new RegistryByteBuf(Unpooled.buffer(), DynamicRegistryManager.of(Registries.REGISTRIES));
+    return new RegistryByteBuf(Unpooled.buffer(), REGISTRIES);
   }
 
   static PetSyncData samplePet(final UnleashedDogBreed breed, final String name) {
@@ -40,31 +33,11 @@ final class PayloadTestFixtures {
 
   static PetSyncData samplePet(
       final UnleashedDogBreed breed, final String name, final List<BreedShare> composition) {
-    return new PetSyncData(
-        UUID.randomUUID().toString(),
-        breed,
-        name,
-        12.5f,
-        25.0f,
-        10,
-        64,
-        -20,
-        "minecraft:overworld",
-        PetLifeState.LIVING,
-        false,
-        1,
-        2,
-        0,
-        DogFurStage.NATURAL.ordinal(),
-        0.29f,
-        3.5f,
-        composition,
-        RidingView.NONE,
-        PetAwayStatus.HOME,
-        false,
-        DogBondStep.STRANGER,
-        DogTraits.NONE,
-        0,
-        DogPortraitOutfit.NONE);
+    return PetSyncDataFixture.pet()
+        .breed(breed)
+        .name(name)
+        .composition(composition)
+        .variants(2, 0)
+        .build();
   }
 }

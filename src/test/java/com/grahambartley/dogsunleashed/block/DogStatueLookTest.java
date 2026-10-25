@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.block;
 
+import static com.grahambartley.dogsunleashed.TestRegistries.REGISTRIES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -22,8 +23,6 @@ import java.util.UUID;
 import java.util.stream.Stream;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registries;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,9 +33,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(MinecraftBootstrapExtension.class)
 class DogStatueLookTest {
-
-  private static final DynamicRegistryManager REGISTRIES =
-      DynamicRegistryManager.of(Registries.REGISTRIES);
 
   private static final DogGenome MOSTLY_HUSKY =
       new DogGenome(

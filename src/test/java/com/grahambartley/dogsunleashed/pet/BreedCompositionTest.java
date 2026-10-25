@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.pet;
 
+import static com.grahambartley.dogsunleashed.TestRegistries.REGISTRIES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
@@ -12,8 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registries;
 import net.minecraft.util.math.BlockPos;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,9 +22,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 
 @ExtendWith(MinecraftBootstrapExtension.class)
 class BreedCompositionTest {
-
-  private static final DynamicRegistryManager REGISTRIES =
-      DynamicRegistryManager.of(Registries.REGISTRIES);
 
   private final Map<UUID, PetData> pets = new HashMap<>();
 

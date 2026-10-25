@@ -96,6 +96,11 @@ public record DogPortraitOutfit(
     return this.gear.getOrDefault(slot, ItemStack.EMPTY).copy();
   }
 
+  public DogPortraitOutfit withSenior(final boolean senior) {
+    return new DogPortraitOutfit(
+        this.gear, this.collar, this.carried, this.fetchType, this.muddy, senior, this.undead);
+  }
+
   public boolean carrying() {
     return !this.carried.isEmpty() || this.fetchType.isPresent();
   }
