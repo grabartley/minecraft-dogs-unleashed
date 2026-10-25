@@ -14,6 +14,7 @@ import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -192,5 +193,42 @@ class RigProfileTest {
     for (final Slot slot : Slot.values()) {
       assertTrue(profile.sheetOverride(Identifier.of("dogs-unleashed", "rot.png"), slot).isEmpty());
     }
+  }
+
+  @ParameterizedTest(name = "{0} {1}")
+  @CsvSource({"HEAD, head", "NECK, neck;cheek", "MOUTH, ''", "TORSO, Torso"})
+  @DisplayName("an overlay slot moves a bone to another slot for overlays and keeps its own slot")
+  void overlaySlotsMoveBones(final Slot slot, final String expected) {
+    final RigProfile profile =
+        RigProfile.parse(
+            JsonParser.parseString(
+                    """
+                    {
+                      "head": ["head", "cheek"],
+                      "neck": ["neck"],
+                      "torso": ["Torso"],
+                      "overlay_slots": {"cheek": "neck"}
+                    }
+                    """)
+                .getAsJsonObject());
+
+    assertEquals(
+        expected.isEmpty() ? Set.of() : Set.of(expected.split(";")), profile.overlayBonesIn(slot));
+    assertTrue(profile.bonesIn(Slot.HEAD).contains("cheek"));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(
+      strings = {
+        "{\"head\": [\"head\", \"cheek\"], \"overlay_slots\": \"neck\"}",
+        "{\"head\": [\"head\", \"cheek\"], \"overlay_slots\": {\"cheek\": 7}}",
+        "{\"head\": [\"head\", \"cheek\"], \"overlay_slots\": {\"cheek\": \"nose\"}}",
+        "{\"head\": [\"head\", \"cheek\"], \"overlay_slots\": {\"cheek\": \"fur_shaggy\"}}"
+      })
+  @DisplayName("a malformed overlay slot is ignored and the bone stays in its own slot")
+  void malformedOverlaySlotsAreIgnored(final String json) {
+    final RigProfile profile = RigProfile.parse(JsonParser.parseString(json).getAsJsonObject());
+
+    assertEquals(Set.of("head", "cheek"), profile.overlayBonesIn(Slot.HEAD));
   }
 }

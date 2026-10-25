@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -72,20 +73,27 @@ class DogTrickTest {
   }
 
   @Test
-  @DisplayName("the Show Dog advancement asks for every trick")
+  @DisplayName("the Show Dog advancement counts up to every trick, one step per trick")
   void showDogNeedsEveryTrick() throws IOException {
     try (InputStream in =
         DogTrickTest.class.getResourceAsStream("/data/dogs-unleashed/advancement/show_dog.json")) {
       final JsonObject json =
           JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8))
               .getAsJsonObject();
-      assertEquals(
-          DogTrick.values().length,
-          json.getAsJsonObject("criteria")
-              .getAsJsonObject("every_trick_learned")
-              .getAsJsonObject("conditions")
-              .get("min_learned")
-              .getAsInt());
+      final List<Integer> steps =
+          json.getAsJsonObject("criteria").entrySet().stream()
+              .map(
+                  entry ->
+                      entry
+                          .getValue()
+                          .getAsJsonObject()
+                          .getAsJsonObject("conditions")
+                          .get("min_learned")
+                          .getAsInt())
+              .sorted()
+              .toList();
+      assertEquals(IntStream.rangeClosed(1, DogTrick.values().length).boxed().toList(), steps);
+      assertEquals(DogTrick.values().length, json.getAsJsonArray("requirements").size());
     }
   }
 

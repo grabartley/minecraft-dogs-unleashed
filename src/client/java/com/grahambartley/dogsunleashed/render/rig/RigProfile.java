@@ -8,6 +8,7 @@ import com.grahambartley.dogsunleashed.riding.RiderPoseRange;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -25,7 +26,8 @@ public record RigProfile(
     Map<Identifier, Map<Slot, Identifier>> sheetOverrides,
     List<String> seats,
     RiderPoseRange riderPose,
-    RigEars ears) {
+    RigEars ears,
+    Map<String, Slot> overlaySlots) {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RigProfile.class);
 
@@ -34,6 +36,7 @@ public record RigProfile(
   private static final String SEATS_KEY = "seats";
   private static final String RIDER_POSE_KEY = "rider_pose";
   private static final String EARS_KEY = "ears";
+  private static final String OVERLAY_SLOTS_KEY = "overlay_slots";
 
   public static final RigProfile EMPTY = new RigProfile(Map.of(), Map.of(), List.of(), Map.of());
 
@@ -76,6 +79,7 @@ public record RigProfile(
     overlays = Map.copyOf(overlays);
     pupils = List.copyOf(pupils);
     seats = List.copyOf(seats);
+    overlaySlots = Map.copyOf(overlaySlots);
     sheetOverrides =
         sheetOverrides.entrySet().stream()
             .collect(
@@ -99,6 +103,17 @@ public record RigProfile(
       final List<String> seats,
       final RiderPoseRange riderPose) {
     this(bones, overlays, pupils, sheetOverrides, seats, riderPose, RigEars.NONE);
+  }
+
+  public RigProfile(
+      final Map<Slot, Set<String>> bones,
+      final Map<Overlay, Identifier> overlays,
+      final List<Texel> pupils,
+      final Map<Identifier, Map<Slot, Identifier>> sheetOverrides,
+      final List<String> seats,
+      final RiderPoseRange riderPose,
+      final RigEars ears) {
+    this(bones, overlays, pupils, sheetOverrides, seats, riderPose, ears, Map.of());
   }
 
   public static RigProfile parse(final JsonObject json) {
@@ -133,7 +148,30 @@ public record RigProfile(
         json.get(RIDER_POSE_KEY) instanceof JsonObject pose
             ? RiderPoseRange.parse(pose)
             : RiderPoseRange.UPRIGHT,
-        json.has(EARS_KEY) ? RigEars.parse(json.get(EARS_KEY)) : RigEars.NONE);
+        json.has(EARS_KEY) ? RigEars.parse(json.get(EARS_KEY)) : RigEars.NONE,
+        overlaySlotsOf(json));
+  }
+
+  private static Map<String, Slot> overlaySlotsOf(final JsonObject json) {
+    final Map<String, Slot> slots = new HashMap<>();
+    if (!(json.get(OVERLAY_SLOTS_KEY) instanceof JsonObject byBone)) {
+      if (json.has(OVERLAY_SLOTS_KEY)) {
+        LOGGER.warn("Ignoring overlay slots {}, expected an object", json.get(OVERLAY_SLOTS_KEY));
+      }
+      return slots;
+    }
+    for (final Map.Entry<String, JsonElement> entry : byBone.entrySet()) {
+      final Optional<Slot> slot =
+          entry.getValue() instanceof JsonPrimitive value && value.isString()
+              ? slotOf(value.getAsString())
+              : Optional.empty();
+      if (slot.isEmpty() || slot.get().isFur()) {
+        LOGGER.warn("Skipping overlay slot {} of bone {}", entry.getValue(), entry.getKey());
+        continue;
+      }
+      slots.put(entry.getKey(), slot.get());
+    }
+    return slots;
   }
 
   private static List<String> seatsOf(final JsonObject json) {
@@ -218,6 +256,20 @@ public record RigProfile(
 
   public Set<String> bonesIn(final Slot slot) {
     return this.bones.getOrDefault(slot, Set.of());
+  }
+
+  public Set<String> overlayBonesIn(final Slot slot) {
+    final Set<String> bones = new HashSet<>();
+    this.bonesIn(slot).stream()
+        .filter(bone -> this.overlaySlots.getOrDefault(bone, slot) == slot)
+        .forEach(bones::add);
+    this.overlaySlots.forEach(
+        (bone, target) -> {
+          if (target == slot) {
+            bones.add(bone);
+          }
+        });
+    return Set.copyOf(bones);
   }
 
   public Optional<String> mouthBone() {

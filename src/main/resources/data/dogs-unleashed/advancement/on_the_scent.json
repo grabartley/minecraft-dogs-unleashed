@@ -2,7 +2,7 @@
   "parent": "dogs-unleashed:best_friend",
   "display": {
     "icon": {
-      "id": "minecraft:brush"
+      "id": "dogs-unleashed:beagle_spawn_egg"
     },
     "title": {
       "translate": "advancements.dogs-unleashed.on_the_scent.title"

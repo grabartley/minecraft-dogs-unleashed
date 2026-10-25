@@ -130,6 +130,17 @@ class RegionsMatchSlotRegions(unittest.TestCase):
         self.assertLess(high, low)
         self.assertEqual(suit.covered(60, 8, 64), (60, 63))
 
+    def test_overlay_slots_move_a_bone_to_another_slot_for_overlays_only(self):
+        profile = {"head": ["head", "cheek"], "neck": ["neck"], "overlay_slots": {"cheek": "neck"}}
+        for slot, expected in (("head", ["head"]), ("neck", ["neck", "cheek"]), ("tail", [])):
+            with self.subTest(slot=slot):
+                self.assertEqual(suit.overlay_bones(profile, slot), expected)
+
+    def test_shiba_cheeks_take_the_neck_cells(self):
+        geo, profile = shipped("shibainu")
+        self.assertNotIn("bone4", suit.overlay_bones(profile, "head"))
+        self.assertIn("bone4", suit.overlay_bones(profile, "neck"))
+
     def test_beagle_head_matches_its_hand_laid_box_uv(self):
         geo, profile = shipped("beagle")
         self.assertEqual(rects(suit.regions_by_slot(geo, profile)[2]["head"]),
@@ -146,7 +157,7 @@ class RegionsMatchSlotRegions(unittest.TestCase):
             for slot in suit.SLOTS:
                 with self.subTest(rig=rig, slot=slot):
                     regions = suit.regions_by_slot(geo, profile)[2][slot]
-                    self.assertEqual(rects(regions), box_uv_faces(geo, profile.get(slot, [])))
+                    self.assertEqual(rects(regions), box_uv_faces(geo, suit.overlay_bones(profile, slot)))
                     self.assertTrue(regions, f"{rig} {slot} has no texture footprint")
 
 

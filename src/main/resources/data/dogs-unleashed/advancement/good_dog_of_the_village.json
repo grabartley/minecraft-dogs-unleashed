@@ -2,7 +2,7 @@
   "parent": "dogs-unleashed:best_friend",
   "display": {
     "icon": {
-      "id": "dogs-unleashed:rosette"
+      "id": "dogs-unleashed:iron_dog_armor"
     },
     "title": {
       "translate": "advancements.dogs-unleashed.good_dog_of_the_village.title"

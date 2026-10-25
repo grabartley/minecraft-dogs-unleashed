@@ -2,7 +2,7 @@
   "parent": "dogs-unleashed:best_friend",
   "display": {
     "icon": {
-      "id": "minecraft:bone_block"
+      "id": "dogs-unleashed:dog_house"
     },
     "title": {
       "translate": "advancements.dogs-unleashed.the_whole_pack.title"

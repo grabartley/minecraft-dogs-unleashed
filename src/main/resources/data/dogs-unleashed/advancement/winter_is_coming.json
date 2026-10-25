@@ -2,7 +2,7 @@
   "parent": "dogs-unleashed:the_whole_pack",
   "display": {
     "icon": {
-      "id": "minecraft:blue_ice"
+      "id": "dogs-unleashed:direwolf_spawn_egg"
     },
     "title": {
       "translate": "advancements.dogs-unleashed.winter_is_coming.title"

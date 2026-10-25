@@ -13,11 +13,42 @@
     "frame": "task"
   },
   "criteria": {
-    "full_team": {
+    "hitched_1": {
+      "trigger": "dogs-unleashed:sled_team",
+      "conditions": {
+        "min_team": 1
+      }
+    },
+    "hitched_2": {
+      "trigger": "dogs-unleashed:sled_team",
+      "conditions": {
+        "min_team": 2
+      }
+    },
+    "hitched_3": {
+      "trigger": "dogs-unleashed:sled_team",
+      "conditions": {
+        "min_team": 3
+      }
+    },
+    "hitched_4": {
+      "trigger": "dogs-unleashed:sled_team",
+      "conditions": {
+        "min_team": 4
+      }
+    },
+    "hitched_5": {
+      "trigger": "dogs-unleashed:sled_team",
+      "conditions": {
+        "min_team": 5
+      }
+    },
+    "hitched_6": {
       "trigger": "dogs-unleashed:sled_team",
       "conditions": {
         "min_team": 6
       }
     }
-  }
+  },
+  "requirements": [["hitched_1"], ["hitched_2"], ["hitched_3"], ["hitched_4"], ["hitched_5"], ["hitched_6"]]
 }

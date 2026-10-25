@@ -31,6 +31,10 @@
   "tail": [
     "rabo"
   ],
+  "overlay_slots": {
+    "bone4": "neck",
+    "bone5": "neck"
+  },
   "ears": {
     "shape": "pricked"
   },
@@ -58,6 +62,7 @@
     "dogs-unleashed:textures/entity/overlay/grey_muzzle.png": {
       "mouth": "dogs-unleashed:textures/entity/overlay/grey_muzzle_shibainu_mouth.png",
       "head": "dogs-unleashed:textures/entity/overlay/grey_muzzle_shibainu_head.png",
+      "neck": "dogs-unleashed:textures/entity/overlay/grey_muzzle_shibainu_head.png",
       "eyes": "dogs-unleashed:textures/entity/overlay/grey_muzzle_shibainu_eyes.png"
     },
     "dogs-unleashed:textures/entity/overlay/mud.png": {

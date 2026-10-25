@@ -447,6 +447,7 @@ A dog can be dressed up as a Minecraft mob. A vanilla mob head goes in the cosme
 | COSTUME-7 | Costumes move with the dog: the spider's legs step with its walk, the ender dragon's, chicken's and allay's wings flap when it jumps, the bee's wings buzz while it runs, the wither's side skulls look around, the warden's patches pulse when it barks, and the axolotl's gills wiggle in water |
 | COSTUME-8 | Only the owner can put on or take off a costume, through the gear screen or by right-clicking their dog with it |
 | COSTUME-9 | Costumes and mob heads are cosmetic only. They change no stats, and mobs treat a dog in costume exactly as they treat any other dog |
+| COSTUME-10 | A costume never covers the dog's eyes, on any breed |
 
 **Not supported:** gear on other players' dogs; stacking several pendants; wild dogs spawning in costume; more than one costume at a time.
 
@@ -832,9 +833,11 @@ The tab as a whole:
 
 | ID | Requirement |
 |---|---|
-| ADV-8 | The tab branches by theme from Best Friend. Advancements that build on each other chain: The Whole Pack before Winter is Coming, Good Dog! before Show Dog, Mush! before Full Team, Off Exploring before Look What I Found, Puppy Love before Mixed Heritage, and Forever in Our Hearts before Second Leash of Life before Best Friend Again |
+| ADV-8 | The tab branches by theme from Best Friend. Advancements that build on each other chain: The Whole Pack before Winter is Coming, Good Dog! before Show Dog, Sleigh All Day before Full Team, Off Exploring before Look What I Found, Puppy Love before Mixed Heritage, and Forever in Our Hearts before Second Leash of Life before Best Friend Again |
 | ADV-9 | Bad Hair Day, Second Leash of Life and Best Friend Again stay hidden until earned |
 | ADV-10 | Goal advancements give 50 experience and challenge advancements give 100 |
+| ADV-11 | An advancement earned in steps shows its progress, such as breeds tamed, blocks sledded or dogs hitched |
+| ADV-12 | Icons use the mod's own item where one fits the advancement, and the tab icon is the Dog Treat |
 
 **Enforcement:** server.
 

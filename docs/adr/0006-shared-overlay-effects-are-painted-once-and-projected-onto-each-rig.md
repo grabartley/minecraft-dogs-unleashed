@@ -19,6 +19,8 @@ At load, every face of every cube in a slot is filled from the cell for that slo
 
 When the projection does not look right on one slot of one rig, that rig's profile can name a hand-made, atlas-sized texture for that sheet and slot under `sheet_overrides`. The override is used for that slot's texels in place of the projection whenever it exists. Other slots still come from the sheet.
 
+A small extra cube in a slot can take another slot's cells instead. The profile lists it under `overlay_slots`, keyed by bone name, with the slot to take cells from. This was added later for the shiba inu's cheeks, which took the head's front cell and showed its face opening. The bone keeps its own slot for everything else.
+
 Code turns an effect on by registering its sheet with a condition on the dog. No effect is registered yet, so every dog looks exactly as it did before.
 
 ## Consequences

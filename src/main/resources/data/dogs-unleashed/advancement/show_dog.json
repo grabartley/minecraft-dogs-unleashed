@@ -2,7 +2,7 @@
   "parent": "dogs-unleashed:good_dog",
   "display": {
     "icon": {
-      "id": "minecraft:golden_carrot"
+      "id": "dogs-unleashed:rosette"
     },
     "title": {
       "translate": "advancements.dogs-unleashed.show_dog.title"
@@ -13,18 +13,26 @@
     "frame": "goal"
   },
   "criteria": {
-    "every_trick_learned": {
+    "learned_1": {
+      "trigger": "dogs-unleashed:dog_trick_learned",
+      "conditions": {
+        "min_learned": 1
+      }
+    },
+    "learned_2": {
+      "trigger": "dogs-unleashed:dog_trick_learned",
+      "conditions": {
+        "min_learned": 2
+      }
+    },
+    "learned_3": {
       "trigger": "dogs-unleashed:dog_trick_learned",
       "conditions": {
         "min_learned": 3
       }
     }
   },
-  "requirements": [
-    [
-      "every_trick_learned"
-    ]
-  ],
+  "requirements": [["learned_1"], ["learned_2"], ["learned_3"]],
   "rewards": {
     "experience": 50
   }

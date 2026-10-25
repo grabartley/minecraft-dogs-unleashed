@@ -1,7 +1,7 @@
 {
   "display": {
     "icon": {
-      "id": "minecraft:bone"
+      "id": "dogs-unleashed:dog_treat"
     },
     "title": {
       "translate": "advancements.dogs-unleashed.root.title"

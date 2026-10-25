@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.advancement.AdvancementEntry;
+import net.minecraft.advancement.AdvancementProgress;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
@@ -26,6 +27,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.GameTest;
+import net.minecraft.test.GameTestException;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
@@ -425,8 +427,25 @@ public final class SledGameTest implements FabricGameTest {
     context.complete();
   }
 
+  @GameTest(templateName = RANGE, tickLimit = 20)
+  public void hitchingThreeShowsHalfOfFullTeam(final TestContext context) {
+    final ServerPlayerEntity owner = SurvivalTestPlayer.joinAt(context, REL_PLAYER);
+    final SledEntity sled = sled(context, REL_SLED);
+    for (int index = 0; index < 3; index++) {
+      leashedDog(context, owner, ModEntities.HUSKY, 4 + index, 3);
+    }
+    sled.interact(owner, Hand.MAIN_HAND);
+    final AdvancementProgress progress = progress(context, owner, "full_team");
+    context.assertFalse(progress.isDone(), "Three dogs should not unlock Full Team");
+    context.assertTrue(
+        "3/6".equals(progress.getProgressBarFraction().getString()),
+        "Full Team should show 3/6, got " + progress.getProgressBarFraction().getString());
+    SurvivalTestPlayer.leave(context, owner);
+    context.complete();
+  }
+
   @GameTest(templateName = RANGE, tickLimit = RACE_TICKS + 20)
-  public void sleddingThroughSnowCountsTowardMush(final TestContext context) {
+  public void sleddingThroughSnowCountsTowardSleighAllDay(final TestContext context) {
     context.setBiome(BiomeKeys.SNOWY_PLAINS);
     final ServerPlayerEntity rider = SurvivalTestPlayer.joinAt(context, REL_PLAYER);
     rider.setAttached(ModAttachments.SLED_SNOW_BLOCKS, 999.5);
@@ -444,7 +463,7 @@ public final class SledGameTest implements FabricGameTest {
               rider.getAttachedOrElse(ModAttachments.SLED_SNOW_BLOCKS, 0.0) > 1000.0,
               "Snowy distance was not counted");
           context.assertTrue(
-              isDone(context, rider, "mush"), "1000 snowy blocks should unlock Mush!");
+              isDone(context, rider, "mush"), "1000 snowy blocks should unlock Sleigh All Day");
           SurvivalTestPlayer.leave(context, rider);
           context.complete();
         });
@@ -504,12 +523,20 @@ public final class SledGameTest implements FabricGameTest {
 
   private static boolean isDone(
       final TestContext context, final ServerPlayerEntity player, final String advancement) {
+    return progress(context, player, advancement).isDone();
+  }
+
+  private static AdvancementProgress progress(
+      final TestContext context, final ServerPlayerEntity player, final String advancement) {
     final AdvancementEntry entry =
         context
             .getWorld()
             .getServer()
             .getAdvancementLoader()
             .get(Identifier.of(DogsUnleashed.MOD_ID, advancement));
-    return entry != null && player.getAdvancementTracker().getProgress(entry).isDone();
+    if (entry == null) {
+      throw new GameTestException("Missing advancement " + advancement);
+    }
+    return player.getAdvancementTracker().getProgress(entry);
   }
 }

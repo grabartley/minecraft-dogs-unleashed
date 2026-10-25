@@ -50,13 +50,14 @@ class SlotRegionsTest {
 
   @ParameterizedTest(name = "{0} {1}")
   @MethodSource("rigsAndSlots")
-  @DisplayName("naming a slot's bones gives the same regions as naming the slot")
+  @DisplayName("naming a slot's overlay bones gives the same regions as naming the slot")
   void bonesGiveTheSlotsRegions(final UnleashedDogBreed rig, final Slot slot) {
     final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
     final RigProfile profile = BUNDLED.profileOf(rig);
 
     assertEquals(
-        SlotRegions.of(model, profile, slot), SlotRegions.ofBones(model, profile.bonesIn(slot)));
+        SlotRegions.of(model, profile, slot),
+        SlotRegions.ofBones(model, profile.overlayBonesIn(slot)));
   }
 
   @ParameterizedTest(name = "{0} {1}")
@@ -88,10 +89,11 @@ class SlotRegionsTest {
         SlotRegions.of(ShippedRigs.model(rig.serializedId()), profile, slot);
 
     for (final SlotRegion region : regions) {
-      assertTrue(profile.bonesIn(slot).contains(region.boneName()), region + " is off the slot");
+      assertTrue(
+          profile.overlayBonesIn(slot).contains(region.boneName()), region + " is off the slot");
     }
     assertEquals(
-        sorted(boxUvFaces(rig.serializedId(), profile.bonesIn(slot))),
+        sorted(boxUvFaces(rig.serializedId(), profile.overlayBonesIn(slot))),
         sorted(regions.stream().map(r -> new Rect(r.x(), r.y(), r.width(), r.height())).toList()));
   }
 

@@ -2,7 +2,7 @@
   "parent": "dogs-unleashed:best_friend",
   "display": {
     "icon": {
-      "id": "minecraft:shears"
+      "id": "dogs-unleashed:dog_fur"
     },
     "title": {
       "translate": "advancements.dogs-unleashed.bad_hair_day.title"

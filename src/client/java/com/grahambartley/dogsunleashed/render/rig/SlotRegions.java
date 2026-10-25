@@ -59,7 +59,7 @@ public final class SlotRegions {
 
   public static List<SlotRegion> of(
       final BakedGeoModel model, final RigProfile profile, final Slot slot) {
-    return ofBones(model, profile.bonesIn(slot));
+    return ofBones(model, profile.overlayBonesIn(slot));
   }
 
   public static List<SlotRegion> ofBones(
