@@ -7,6 +7,8 @@ import com.grahambartley.dogsunleashed.advancement.DogMilestone;
 import com.grahambartley.dogsunleashed.advancement.DogMilestoneCriterion;
 import com.grahambartley.dogsunleashed.advancement.DogTamedCriterion;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
+import com.grahambartley.dogsunleashed.entity.delivery.DeliveryWaitRules;
+import com.grahambartley.dogsunleashed.entity.delivery.DeliveryWaitRules.BagsClick;
 import com.grahambartley.dogsunleashed.entity.delivery.DogDeliveries;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchItemType;
 import com.grahambartley.dogsunleashed.entity.fetch.FetchTypes;
@@ -19,6 +21,7 @@ import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetNames;
 import com.grahambartley.dogsunleashed.pet.PetRegistrar;
 import com.grahambartley.dogsunleashed.portrait.DogPortrait;
+import com.grahambartley.dogsunleashed.screenhandler.DogEquipmentScreenHandler;
 import java.util.List;
 import java.util.function.Supplier;
 import net.minecraft.entity.EntityStatuses;
@@ -146,10 +149,17 @@ public final class DogInteractions {
   }
 
   private @Nullable ActionResult tryOpenDeliveredBags(final PlayerEntity player) {
-    if (player.isSneaking() || !DogDeliveries.isWaitingFor(this.dog, player)) {
+    final BagsClick click =
+        DeliveryWaitRules.recipientClick(
+            player.isSneaking(),
+            DogDeliveries.isWaitingFor(this.dog, player),
+            DogEquipmentScreenHandler.isViewing(player.currentScreenHandler, this.dog));
+    if (click == BagsClick.PASS) {
       return null;
     }
-    player.openHandledScreen(this.dog);
+    if (click == BagsClick.OPEN) {
+      player.openHandledScreen(this.dog);
+    }
     return ActionResult.SUCCESS;
   }
 

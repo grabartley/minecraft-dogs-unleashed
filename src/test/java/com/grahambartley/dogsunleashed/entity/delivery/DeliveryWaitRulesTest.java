@@ -60,4 +60,22 @@ class DeliveryWaitRulesTest {
   void staleCopy(final boolean tagged, final DeliveryLeg leg, final boolean expected) {
     assertEquals(expected, DeliveryWaitRules.isStaleCopy(tagged, Optional.ofNullable(leg)));
   }
+
+  @ParameterizedTest(name = "sneaking {0}, waiting for them {1}, already viewing {2} -> {3}")
+  @CsvSource({
+    "false, true, false, OPEN",
+    "false, true, true, KEEP_OPEN",
+    "true, true, false, PASS",
+    "true, true, true, PASS",
+    "false, false, false, PASS",
+    "false, false, true, PASS"
+  })
+  @DisplayName("a second packet from the same right-click keeps the recipient's bags open")
+  void recipientClick(
+      final boolean sneaking,
+      final boolean waitingFor,
+      final boolean viewing,
+      final DeliveryWaitRules.BagsClick expected) {
+    assertEquals(expected, DeliveryWaitRules.recipientClick(sneaking, waitingFor, viewing));
+  }
 }

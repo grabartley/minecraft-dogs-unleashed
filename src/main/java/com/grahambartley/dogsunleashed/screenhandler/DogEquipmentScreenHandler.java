@@ -103,6 +103,10 @@ public class DogEquipmentScreenHandler extends ScreenHandler {
     return this.dog;
   }
 
+  public static boolean isViewing(final ScreenHandler handler, final UnleashedDogEntity dog) {
+    return handler instanceof DogEquipmentScreenHandler bags && bags.dog() == dog;
+  }
+
   public boolean isOwnerView() {
     return this.ownerView;
   }
