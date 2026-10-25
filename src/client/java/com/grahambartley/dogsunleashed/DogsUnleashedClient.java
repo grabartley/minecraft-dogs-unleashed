@@ -60,6 +60,7 @@ import com.grahambartley.dogsunleashed.riding.SledInputSync;
 import com.grahambartley.dogsunleashed.screen.DogEquipmentScreen;
 import com.grahambartley.dogsunleashed.tug.TugMeterHud;
 import com.grahambartley.dogsunleashed.whistle.WhistlePointer;
+import java.util.List;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
@@ -101,21 +102,22 @@ public class DogsUnleashedClient implements ClientModInitializer {
       }
     }
     final DogModel liveDogs = new DogModel();
-    EntityRendererRegistry.register(ModEntities.HUSKY, DogRenderer.sharing(liveDogs));
-    EntityRendererRegistry.register(ModEntities.DACHSHUND, DogRenderer.sharing(liveDogs));
-    EntityRendererRegistry.register(ModEntities.BEAGLE, DogRenderer.sharing(liveDogs));
-    EntityRendererRegistry.register(ModEntities.GOLDEN_RETRIEVER, DogRenderer.sharing(liveDogs));
-    EntityRendererRegistry.register(ModEntities.SHIBA_INU, DogRenderer.sharing(liveDogs));
-    EntityRendererRegistry.register(ModEntities.DIRE_WOLF, DogRenderer.sharing(liveDogs));
-    EntityRendererRegistry.register(ModEntities.CROSS_BREED, DogRenderer.sharing(liveDogs));
-    EntityRendererRegistry.register(ModEntities.ZOMBIE_HUSKY, DogRenderer.sharing(liveDogs));
-    EntityRendererRegistry.register(ModEntities.ZOMBIE_DACHSHUND, DogRenderer.sharing(liveDogs));
-    EntityRendererRegistry.register(ModEntities.ZOMBIE_BEAGLE, DogRenderer.sharing(liveDogs));
-    EntityRendererRegistry.register(
-        ModEntities.ZOMBIE_GOLDEN_RETRIEVER, DogRenderer.sharing(liveDogs));
-    EntityRendererRegistry.register(ModEntities.ZOMBIE_SHIBA_INU, DogRenderer.sharing(liveDogs));
-    EntityRendererRegistry.register(ModEntities.ZOMBIE_DIRE_WOLF, DogRenderer.sharing(liveDogs));
-    EntityRendererRegistry.register(ModEntities.ZOMBIE_CROSS_BREED, DogRenderer.sharing(liveDogs));
+    List.of(
+            ModEntities.HUSKY,
+            ModEntities.DACHSHUND,
+            ModEntities.BEAGLE,
+            ModEntities.GOLDEN_RETRIEVER,
+            ModEntities.SHIBA_INU,
+            ModEntities.DIRE_WOLF,
+            ModEntities.CROSS_BREED,
+            ModEntities.ZOMBIE_HUSKY,
+            ModEntities.ZOMBIE_DACHSHUND,
+            ModEntities.ZOMBIE_BEAGLE,
+            ModEntities.ZOMBIE_GOLDEN_RETRIEVER,
+            ModEntities.ZOMBIE_SHIBA_INU,
+            ModEntities.ZOMBIE_DIRE_WOLF,
+            ModEntities.ZOMBIE_CROSS_BREED)
+        .forEach(type -> EntityRendererRegistry.register(type, DogRenderer.sharing(liveDogs)));
 
     BlockEntityRendererFactories.register(ModBlockEntities.DOG_BED, DogBedBlockEntityRenderer::new);
     BlockEntityRendererFactories.register(

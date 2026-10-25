@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.render.growth;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -26,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
@@ -107,6 +109,21 @@ class GrowthRigScaleTest {
     assertSame(first, GrowthRigScale.of(model, PROFILE, new SlotScales(head, 1.0f, legs, 1.0f)));
     assertEquals(head, first.localScale("head"), EPSILON);
     assertEquals(legs, first.localScale("leg"), EPSILON);
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @EnumSource(
+      value = UnleashedDogBreed.class,
+      names = {"GOLDEN_RETRIEVER", "HUSKY", "DIRE_WOLF"})
+  @DisplayName("two separately built copies of a rig never share one scale")
+  void copiesOfARigKeepTheirOwnScale(final UnleashedDogBreed rig) {
+    final BakedGeoModel live = ShippedRigs.model(rig.serializedId());
+    final BakedGeoModel copy = ShippedRigs.model(rig.serializedId());
+    final SlotScales scales = new SlotScales(1.1f, 0.9f, 1.2f, 1.0f);
+
+    assertNotSame(
+        GrowthRigScale.of(live, BUNDLED.profileOf(rig), scales),
+        GrowthRigScale.of(copy, BUNDLED.profileOf(rig), scales));
   }
 
   @ParameterizedTest(name = "{0} {1}")

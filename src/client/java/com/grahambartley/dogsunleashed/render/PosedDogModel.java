@@ -13,7 +13,7 @@ import software.bernie.geckolib.cache.object.BakedGeoModel;
 public class PosedDogModel extends DogModel {
 
   private final PrivateRigBones rigs;
-  private BakedGeoModel posing;
+  private BakedGeoModel activeRig;
   private double poseTick;
   private boolean starting;
 
@@ -28,9 +28,9 @@ public class PosedDogModel extends DogModel {
   @Override
   public BakedGeoModel getBakedModel(final Identifier location) {
     final BakedGeoModel own = this.rigs.of(location);
-    if (own != this.posing) {
+    if (own != this.activeRig) {
       this.getAnimationProcessor().setActiveModel(own);
-      this.posing = own;
+      this.activeRig = own;
     }
     return own;
   }
