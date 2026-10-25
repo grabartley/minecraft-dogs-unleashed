@@ -10,24 +10,41 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+import org.jetbrains.annotations.Nullable;
 
 public final class DogBoneBurial extends DogComponent {
 
   private final UnleashedDogEntity dog;
   private boolean buryPending;
+  private @Nullable DogCommand takenOn;
 
   DogBoneBurial(final UnleashedDogEntity dog) {
     this.dog = dog;
   }
 
   public boolean canTakeBone() {
-    return this.dog.isTamed() && !this.dog.getFetchCarry().isCarrying() && this.isFreeToDig();
+    return this.dog.isTamed()
+        && this.dog.getOwner() != null
+        && !this.dog.getFetchCarry().isCarrying()
+        && DogIdleness.isFreeOnceStanding(this.dog);
   }
 
   void takeBone(final PlayerEntity player, final ItemStack stack) {
     stack.decrementUnlessCreative(1, player);
     this.carryBone();
     this.buryPending = true;
+    this.takenOn = this.dog.getCommand();
+    if (BoneCacheRules.standsToBury(this.takenOn)) {
+      this.dog.setSitting(false);
+      this.dog.setInSittingPose(false);
+    }
+  }
+
+  public boolean canBuryNow() {
+    return this.isBuryPending()
+        && this.takenOn != null
+        && BoneCacheRules.keepsBurying(this.takenOn, this.dog.getCommand())
+        && DogIdleness.isFreeForChores(this.dog);
   }
 
   public boolean isBuryPending() {
@@ -35,8 +52,14 @@ public final class DogBoneBurial extends DogComponent {
   }
 
   public void abandonBurial() {
+    final boolean sitsBackDown = this.buryPending && this.returnsToSitting();
     this.buryPending = false;
+    this.takenOn = null;
     this.setDigging(false);
+    if (sitsBackDown) {
+      this.dropBone();
+      this.dog.setSitting(true);
+    }
   }
 
   public boolean bury(final ServerWorld world, final BlockPos ground) {
@@ -85,8 +108,22 @@ public final class DogBoneBurial extends DogComponent {
 
   public boolean isFreeToDig() {
     return this.dog.getOwner() != null
-        && BoneCacheRules.buriesOn(this.dog.getCommand())
+        && BoneCacheRules.digsUpOn(this.dog.getCommand())
         && DogIdleness.isFreeForChores(this.dog);
+  }
+
+  private boolean returnsToSitting() {
+    return this.takenOn != null
+        && BoneCacheRules.standsToBury(this.takenOn)
+        && BoneCacheRules.keepsBurying(this.takenOn, this.dog.getCommand());
+  }
+
+  private void dropBone() {
+    if (!this.isCarryingBone()) {
+      return;
+    }
+    this.dog.dropStack(this.dog.getFetchCarry().carriedStack().copy());
+    this.dog.getFetchCarry().setCarrying(false);
   }
 
   private void carryBone() {

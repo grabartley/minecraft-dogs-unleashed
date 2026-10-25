@@ -14,13 +14,21 @@ public final class BoneCacheRules {
   public static final double OWNER_RANGE = 32.0;
   public static final double DIG_UP_RANGE = 48.0;
 
-  private static final Set<DogCommand> BURYING_COMMANDS =
+  private static final Set<DogCommand> DIGGING_UP_COMMANDS =
       EnumSet.of(DogCommand.FREE_ROAM, DogCommand.STAY);
 
   private BoneCacheRules() {}
 
-  public static boolean buriesOn(final DogCommand command) {
-    return BURYING_COMMANDS.contains(command);
+  public static boolean digsUpOn(final DogCommand command) {
+    return DIGGING_UP_COMMANDS.contains(command);
+  }
+
+  public static boolean standsToBury(final DogCommand command) {
+    return command == DogCommand.SIT;
+  }
+
+  public static boolean keepsBurying(final DogCommand takenOn, final DogCommand now) {
+    return takenOn == now;
   }
 
   public static boolean isDue(final long buriedAt, final long now) {

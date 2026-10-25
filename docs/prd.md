@@ -708,7 +708,7 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 
 | ID | Requirement |
 |---|---|
-| LIFE-1 | A free-roaming or staying dog given a bone buries it within 16 blocks in grass, dirt, podzol, sand or snow |
+| LIFE-1 | A tamed dog given a bone buries it within 16 blocks in grass, dirt, podzol, sand or snow, whatever its command. A sitting dog stands up to bury it and sits back down after |
 | LIFE-2 | A few days later it digs it up and brings it back. One time in five it finds a bonus from a data loot table |
 | LIFE-3 | Caches survive restarts. If the dog is gone, a shovel digs the cache up |
 | LIFE-4 | At night a wild fox within 24 blocks of a cache may dig it up and run off with the bone in its mouth, dropping it if hurt |

@@ -23,7 +23,7 @@ public class BuryBoneGoal extends Goal {
 
   @Override
   public boolean canStart() {
-    return this.burial().isBuryPending() && this.burial().isFreeToDig();
+    return this.burial().canBuryNow();
   }
 
   @Override

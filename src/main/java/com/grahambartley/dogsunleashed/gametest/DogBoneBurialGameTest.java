@@ -49,16 +49,97 @@ public final class DogBoneBurialGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 20)
-  public void aFollowingDogDoesNotTakeTheBone(TestContext context) {
+  public void aFollowingDogTakesTheBone(TestContext context) {
     final ServerPlayerEntity owner = placeOwner(context);
     final UnleashedDogEntity dog = spawnOwnedDog(context, owner, DogCommand.FOLLOW);
     dog.setAiDisabled(true);
 
     giveBone(dog, owner);
 
-    context.assertFalse(burial(dog).isCarryingBone(), "Only roaming or staying dogs bury bones");
+    context.assertTrue(burial(dog).isBuryPending(), "A following dog should take the bone");
+    context.assertTrue(owner.getMainHandStack().isEmpty(), "The bone should leave the hand");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 20)
+  public void aSittingDogStandsUpToTakeTheBone(TestContext context) {
+    final ServerPlayerEntity owner = placeOwner(context);
+    final UnleashedDogEntity dog = spawnOwnedDog(context, owner, DogCommand.SIT);
+    dog.setInSittingPose(true);
+    dog.setAiDisabled(true);
+
+    giveBone(dog, owner);
+
+    context.assertTrue(burial(dog).isBuryPending(), "A sitting dog should take the bone");
+    context.assertFalse(dog.isInSittingPose(), "The dog should stand up to bury it");
+    context.assertTrue(dog.getCommand() == DogCommand.SIT, "The dog should keep its command");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 20)
+  public void aLeashedDogDoesNotTakeTheBone(TestContext context) {
+    final ServerPlayerEntity owner = placeOwner(context);
+    final UnleashedDogEntity dog = spawnOwnedDog(context, owner, DogCommand.FOLLOW);
+    dog.setAiDisabled(true);
+    dog.attachLeash(owner, true);
+
+    giveBone(dog, owner);
+
+    context.assertFalse(burial(dog).isCarryingBone(), "A leashed dog is busy");
     context.assertTrue(owner.getMainHandStack().isOf(Items.BONE), "The bone should stay in hand");
     context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 400)
+  public void aSittingDogBuriesTheBoneAndSitsBackDown(TestContext context) {
+    dirtFloor(context);
+    final ServerPlayerEntity owner = placeOwner(context);
+    final UnleashedDogEntity dog = spawnOwnedDog(context, owner, DogCommand.SIT);
+
+    giveBone(dog, owner);
+
+    context.runAtEveryTick(
+        () -> {
+          final boolean buried = !caches(context).buriedBy(dog.getUuid()).isEmpty();
+          if (buried && !burial(dog).isCarryingBone() && dog.isInSittingPose()) {
+            context.complete();
+          }
+        });
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 400)
+  public void aFollowingDogBuriesTheBoneNearby(TestContext context) {
+    dirtFloor(context);
+    final ServerPlayerEntity owner = placeOwner(context);
+    final UnleashedDogEntity dog = spawnOwnedDog(context, owner, DogCommand.FOLLOW);
+
+    giveBone(dog, owner);
+
+    context.runAtEveryTick(
+        () -> {
+          final boolean buried = !caches(context).buriedBy(dog.getUuid()).isEmpty();
+          if (buried && !burial(dog).isCarryingBone()) {
+            context.complete();
+          }
+        });
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 200)
+  public void aSittingDogWithNoSoftGroundDropsTheBoneAndSits(TestContext context) {
+    final ServerPlayerEntity owner = placeOwner(context);
+    final UnleashedDogEntity dog = spawnOwnedDog(context, owner, DogCommand.SIT);
+
+    giveBone(dog, owner);
+
+    context.runAtEveryTick(
+        () -> {
+          assertOneBone(context, owner, dog, "while looking for soft ground");
+          if (!burial(dog).isCarryingBone()
+              && caches(context).buriedBy(dog.getUuid()).isEmpty()
+              && dog.isInSittingPose()) {
+            context.complete();
+          }
+        });
   }
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 20)
