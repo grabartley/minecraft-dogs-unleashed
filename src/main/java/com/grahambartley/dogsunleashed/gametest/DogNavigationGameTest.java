@@ -8,7 +8,10 @@ import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.DogHouseTestHelper;
 import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
 import com.grahambartley.dogsunleashed.gametest.util.SleepBatchFixture;
+import com.grahambartley.dogsunleashed.item.WhistlePointTarget;
+import com.grahambartley.dogsunleashed.item.WhistlePointing;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -20,16 +23,17 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.AfterBatch;
 import net.minecraft.test.BeforeBatch;
 import net.minecraft.test.CustomTestProvider;
+import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.test.TestFunction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
-public final class DogBedTripGameTest implements FabricGameTest {
+public final class DogNavigationGameTest implements FabricGameTest {
 
   private static final String YARD = "dogs-unleashed:dog_yard";
-  private static final String BATCH = "bed-trip";
+  private static final String BATCH = "dog-navigation";
   private static final int TICK_LIMIT = 600;
   private static final int FLOOR_Y = 2;
   private static final int WALL_TOP_Y = 4;
@@ -41,6 +45,7 @@ public final class DogBedTripGameTest implements FabricGameTest {
   private static final BlockPos REL_OWNER = new BlockPos(4, FLOOR_Y, 5);
   private static final BlockPos REL_BED = new BlockPos(13, FLOOR_Y, 9);
   private static final BlockPos REL_HOUSE = new BlockPos(14, FLOOR_Y, 8);
+  private static final BlockPos REL_GARDEN_FLOOR = new BlockPos(13, FLOOR_Y - 1, 9);
 
   private record SleepSpot(String name, BlockPos relPos, Consumer<TestContext> placer) {}
 
@@ -96,9 +101,39 @@ public final class DogBedTripGameTest implements FabricGameTest {
         });
   }
 
+  @GameTest(templateName = YARD, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void aWhistledDogWalksOutOfTheRoomAndRoundToTheSpot(final TestContext context) {
+    final UnleashedDogEntity dog = dogInRoom(context);
+    final Optional<Vec3d> marker =
+        WhistlePointing.order(
+            dog,
+            WhistlePointTarget.atBlock(context.getAbsolutePos(REL_GARDEN_FLOOR), Direction.UP));
+    context.assertTrue(marker.isPresent(), "The whistle found no spot beside the garden floor");
+    final BlockPos spot = dog.getCommandController().getAnchorPos();
+    context.runAtEveryTick(
+        () -> {
+          assertFollowRangeUntouched(context, dog, "the whistled spot");
+          if (dog.getBlockPos().getSquaredDistance(spot) <= 1.0
+              && !dog.getCommandController().isHeadingToAnchor()) {
+            context.complete();
+          }
+        });
+    context.runAtTick(
+        TICK_LIMIT - 1,
+        () ->
+            context.assertTrue(
+                dog.getBlockPos().getSquaredDistance(spot) <= 1.0,
+                "The whistled dog never walked out of the room and round to its spot, it stopped at "
+                    + dog.getBlockPos().subtract(context.getAbsolutePos(BlockPos.ORIGIN))));
+  }
+
   private static UnleashedDogEntity dogInRoom(final TestContext context, final SleepSpot spot) {
-    buildRoom(context);
     spot.placer().accept(context);
+    return dogInRoom(context);
+  }
+
+  private static UnleashedDogEntity dogInRoom(final TestContext context) {
+    buildRoom(context);
     final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     final Vec3d ownerPos = Vec3d.ofBottomCenter(context.getAbsolutePos(REL_OWNER));
     owner.refreshPositionAndAngles(ownerPos.x, ownerPos.y, ownerPos.z, 0.0f, 0.0f);
@@ -128,11 +163,8 @@ public final class DogBedTripGameTest implements FabricGameTest {
       final TestContext context, final UnleashedDogEntity dog, final SleepSpot spot) {
     context.runAtEveryTick(
         () -> {
+          assertFollowRangeUntouched(context, dog, "its " + spot.name());
           if (dog.getSleepController().isSleepingInBed()) {
-            context.assertTrue(
-                followRange(dog).getValue() == followRange(dog).getBaseValue(),
-                "The dog kept its wider bed trip search after it fell asleep in the "
-                    + spot.name());
             context.complete();
           }
         });
@@ -147,8 +179,13 @@ public final class DogBedTripGameTest implements FabricGameTest {
                     + dog.getBlockPos().subtract(context.getAbsolutePos(BlockPos.ORIGIN))));
   }
 
-  private static EntityAttributeInstance followRange(final UnleashedDogEntity dog) {
-    return dog.getAttributeInstance(EntityAttributes.GENERIC_FOLLOW_RANGE);
+  private static void assertFollowRangeUntouched(
+      final TestContext context, final UnleashedDogEntity dog, final String destination) {
+    final EntityAttributeInstance followRange =
+        dog.getAttributeInstance(EntityAttributes.GENERIC_FOLLOW_RANGE);
+    context.assertTrue(
+        followRange.getValue() == followRange.getBaseValue(),
+        "The wider path search leaked into the dog's follow range on the way to " + destination);
   }
 
   private static List<TestFunction> perSpot(
@@ -158,7 +195,7 @@ public final class DogBedTripGameTest implements FabricGameTest {
             spot ->
                 GeneratedGameTest.of(
                     BATCH,
-                    "dogbedtripgametest." + testName + "." + spot.name(),
+                    "dognavigationgametest." + testName + "." + spot.name(),
                     YARD,
                     TICK_LIMIT,
                     context -> body.accept(context, spot)))

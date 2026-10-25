@@ -12,13 +12,13 @@ import net.minecraft.world.World;
 
 public class AutoSleepGoal extends Goal {
 
+  private static final double CLOSE_ENOUGH_DISTANCE = 2.0;
+
   private final UnleashedDogEntity dog;
-  private final DogBedTrip trip;
   private BlockPos targetBedPos;
 
   public AutoSleepGoal(UnleashedDogEntity dog) {
     this.dog = dog;
-    this.trip = new DogBedTrip(dog);
     this.setControls(EnumSet.of(Goal.Control.MOVE, Goal.Control.LOOK));
   }
 
@@ -110,8 +110,14 @@ public class AutoSleepGoal extends Goal {
 
   @Override
   public void start() {
-    if (this.targetBedPos != null && !this.dog.getSleepController().isSleepingInBed()) {
-      this.trip.begin(this.targetBedPos);
+    if (this.targetBedPos != null) {
+      this.dog
+          .getNavigation()
+          .startMovingTo(
+              this.targetBedPos.getX() + 0.5,
+              this.targetBedPos.getY(),
+              this.targetBedPos.getZ() + 0.5,
+              1.0);
     }
   }
 
@@ -120,7 +126,6 @@ public class AutoSleepGoal extends Goal {
     if (this.dog.getSleepController().isSleepingInBed()) {
       this.dog.wakeUp();
     }
-    this.trip.end();
     this.targetBedPos = null;
     this.dog.getNavigation().stop();
   }
@@ -136,11 +141,18 @@ public class AutoSleepGoal extends Goal {
       return;
     }
 
-    if (this.trip.hasArrived(this.targetBedPos)) {
-      this.trip.end();
+    final double distanceToBed = this.dog.getBlockPos().getSquaredDistance(this.targetBedPos);
+
+    if (distanceToBed <= CLOSE_ENOUGH_DISTANCE * CLOSE_ENOUGH_DISTANCE) {
       this.dog.getSleepController().startSleepingInBed(this.targetBedPos);
     } else {
-      this.trip.keepWalking(this.targetBedPos);
+      this.dog
+          .getNavigation()
+          .startMovingTo(
+              this.targetBedPos.getX() + 0.5,
+              this.targetBedPos.getY(),
+              this.targetBedPos.getZ() + 0.5,
+              1.0);
     }
   }
 

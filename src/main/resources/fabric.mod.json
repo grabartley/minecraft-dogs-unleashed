@@ -35,7 +35,7 @@
     "fabric-gametest": [
       "com.grahambartley.dogsunleashed.gametest.DogAdvancementGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogBowlGameTest",
-      "com.grahambartley.dogsunleashed.gametest.DogBedTripGameTest",
+      "com.grahambartley.dogsunleashed.gametest.DogNavigationGameTest",
       "com.grahambartley.dogsunleashed.gametest.SledGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogStatueGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogPortraitGameTest",

@@ -22,6 +22,8 @@ public final class DogSleepController {
   public static final String NOT_SLEEPY_MESSAGE_KEY = "message.dogs-unleashed.not_sleepy";
 
   private static final long NOT_SUPPRESSED = Long.MIN_VALUE;
+  private static final double POSITION_CENTER_OFFSET = 0.5;
+  private static final double BED_APPROACH_SPEED = 1.0;
 
   private final UnleashedDogEntity dog;
 
@@ -64,6 +66,13 @@ public final class DogSleepController {
     this.dog.getCommandController().demoteSitToFollow();
     this.autoSleepSuppressedUntil = NOT_SUPPRESSED;
     this.dog.getDataTracker().set(UnleashedDogEntity.COMMANDED_TO_SLEEP, true);
+    this.dog
+        .getNavigation()
+        .startMovingTo(
+            bedPos.getX() + POSITION_CENTER_OFFSET,
+            bedPos.getY(),
+            bedPos.getZ() + POSITION_CENTER_OFFSET,
+            BED_APPROACH_SPEED);
     return true;
   }
 
