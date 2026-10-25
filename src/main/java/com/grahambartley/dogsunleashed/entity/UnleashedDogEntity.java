@@ -48,7 +48,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.DyeColor;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TimeHelper;
 import net.minecraft.util.math.BlockPos;
@@ -67,7 +66,6 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 public class UnleashedDogEntity extends DogMountEntity
     implements GeoEntity, Angerable, ExtendedScreenHandlerFactory<Integer> {
 
-  public static final int DEFAULT_COLLAR_COLOR_ID = DyeColor.RED.getId();
   public static final int UNSET_VARIANT = -1;
 
   static final TrackedData<Integer> ANGER_TIME = data(INTEGER);

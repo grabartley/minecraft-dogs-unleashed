@@ -46,7 +46,7 @@ public final class PortraitTextures {
     if (!addLayer(layers, Identifier.of(MOD_ID, portrait.background().texturePath(size)))) {
       return null;
     }
-    try (NativeImage dog = BAKER.bake(portrait.look(), portrait.shownPose(), portrait.outfit())) {
+    try (NativeImage dog = BAKER.bake(portrait.look(), portrait.shownPose())) {
       if (dog == null) {
         return null;
       }

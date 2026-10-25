@@ -1,16 +1,23 @@
 package com.grahambartley.dogsunleashed.block;
 
 import com.grahambartley.dogsunleashed.ModNbtKeys;
+import com.grahambartley.dogsunleashed.entity.DogAppearance;
+import com.grahambartley.dogsunleashed.entity.DogEntityNbt;
+import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenes;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
-import com.grahambartley.dogsunleashed.pet.PetData;
+import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
+import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import java.util.List;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
 import org.jetbrains.annotations.Nullable;
 
 public record DogStatueLook(
@@ -33,28 +40,69 @@ public record DogStatueLook(
           },
           DogStatueLook::toNbt);
 
+  public static final PacketCodec<RegistryByteBuf, DogStatueLook> PACKET_CODEC =
+      PacketCodecs.registryCodec(CODEC);
+
   public static DogStatueLook of(final UnleashedDogEntity dog) {
     return new DogStatueLook(
         dog.getBreed(),
         dog.isBaby(),
-        PetData.coatVariantOf(dog),
-        PetData.huskyEyeVariantOf(dog),
+        coatVariantOf(dog),
+        eyeColorVariantOf(dog),
         dog.getFur().stage().ordinal(),
         dog.getGrowth().stage().number(),
         dog.getGenome(),
         dog.getGenes().genes());
   }
 
-  public static DogStatueLook of(final PetData pet) {
+  public static DogStatueLook unseen(final UnleashedDogBreed breed) {
     return new DogStatueLook(
-        pet.getBreed(),
-        pet.isBaby(),
-        pet.getCoatVariant(),
-        pet.getHuskyEyeVariant(),
-        pet.getFurStage(),
-        pet.getGrowthStage(),
-        pet.getGenome(),
-        pet.getGenes());
+        breed,
+        false,
+        UnleashedDogEntity.UNSET_VARIANT,
+        UnleashedDogEntity.UNSET_VARIANT,
+        DogFurStage.NATURAL.ordinal(),
+        0,
+        null,
+        null);
+  }
+
+  public List<BreedShare> composition() {
+    return this.genome == null ? List.of() : this.genome.composition();
+  }
+
+  public DogGenes resolvedGenes() {
+    if (this.genes != null) {
+      return this.genes;
+    }
+    final UnleashedDogBreed rigBreed = this.rigBreed();
+    return DogGenes.matching(
+        new DogAppearance(rigBreed, this.coatVariant, this.eyeColorVariant),
+        DogGenes.lociFor(rigBreed, this.composition()));
+  }
+
+  public DogStatueLook withGenes(final @Nullable DogGenes genes) {
+    return new DogStatueLook(
+        this.breed,
+        this.baby,
+        this.coatVariant,
+        this.eyeColorVariant,
+        this.furStage,
+        this.growthStage,
+        this.genome,
+        genes);
+  }
+
+  public DogStatueLook withEyeColorVariant(final int eyeColorVariant) {
+    return new DogStatueLook(
+        this.breed,
+        this.baby,
+        this.coatVariant,
+        eyeColorVariant,
+        this.furStage,
+        this.growthStage,
+        this.genome,
+        this.genes);
   }
 
   public void applyTo(final UnleashedDogEntity dog) {
@@ -63,8 +111,7 @@ public record DogStatueLook(
   }
 
   public UnleashedDogBreed rigBreed() {
-    return DogGenome.rigBreedOf(
-        this.breed, this.genome == null ? List.of() : this.genome.composition());
+    return DogGenome.rigBreedOf(this.breed, this.composition());
   }
 
   public boolean howls() {
@@ -101,8 +148,10 @@ public record DogStatueLook(
     return new DogStatueLook(
         breed,
         nbt.getBoolean(ModNbtKeys.PORTRAIT_BABY),
-        intOrUnset(nbt, ModNbtKeys.COAT_VARIANT),
-        intOrUnset(nbt, ModNbtKeys.EYE_COLOR_VARIANT),
+        DogEntityNbt.variantOrdinalOr(
+            nbt, ModNbtKeys.COAT_VARIANT, UnleashedDogEntity.UNSET_VARIANT),
+        DogEntityNbt.variantOrdinalOr(
+            nbt, ModNbtKeys.EYE_COLOR_VARIANT, UnleashedDogEntity.UNSET_VARIANT),
         nbt.getInt(ModNbtKeys.FUR_STAGE),
         nbt.getInt(ModNbtKeys.GROWTH_STAGE),
         nbt.contains(ModNbtKeys.GENOME, NbtElement.COMPOUND_TYPE)
@@ -113,9 +162,14 @@ public record DogStatueLook(
             : null);
   }
 
-  private static int intOrUnset(final NbtCompound nbt, final String key) {
-    return nbt.contains(key, NbtElement.NUMBER_TYPE)
-        ? nbt.getInt(key)
+  private static int coatVariantOf(final UnleashedDogEntity dog) {
+    return dog.getCoatVariant() != null
+        ? dog.getCoatVariant().getOrdinal()
         : UnleashedDogEntity.UNSET_VARIANT;
+  }
+
+  private static int eyeColorVariantOf(final UnleashedDogEntity dog) {
+    final HuskyEyeColor eyeColor = dog.getEyeColorVariant();
+    return eyeColor != null ? eyeColor.ordinal() : UnleashedDogEntity.UNSET_VARIANT;
   }
 }

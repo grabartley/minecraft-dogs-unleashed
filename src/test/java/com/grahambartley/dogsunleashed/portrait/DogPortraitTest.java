@@ -2,27 +2,21 @@ package com.grahambartley.dogsunleashed.portrait;
 
 import static com.grahambartley.dogsunleashed.TestRegistries.REGISTRIES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
-import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.TestRegistries;
 import com.grahambartley.dogsunleashed.block.DogStatue;
 import com.grahambartley.dogsunleashed.block.DogStatueLook;
 import com.grahambartley.dogsunleashed.block.DogStatuePose;
-import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Stream;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.util.DyeColor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -68,20 +62,16 @@ class DogPortraitTest {
                 DogStatuePose.STAND)),
         Arguments.of(
             new DogPortrait(
-                BEAGLE,
+                new DogLook(BEAGLE, DogPortraitOutfitFixture.dressed(), false, true),
                 "Pumpkin",
                 PortraitSize.WIDE,
-                DogStatuePose.STAND,
-                new DogPortraitOutfit(
-                    Map.of(
-                        DogEquipmentSlot.ARMOUR, new ItemStack(Items.WOLF_ARMOR),
-                        DogEquipmentSlot.SADDLEBAGS, new ItemStack(ModItems.SADDLEBAGS)),
-                    Optional.of(DyeColor.PINK),
-                    new ItemStack(ModItems.FRISBEE),
-                    Optional.empty(),
-                    true,
-                    true,
-                    false))));
+                DogStatuePose.STAND)),
+        Arguments.of(
+            new DogPortrait(
+                new DogLook(BEAGLE, DogPortraitOutfit.NONE, true, false),
+                "Bones",
+                PortraitSize.SMALL,
+                DogStatuePose.SIT)));
   }
 
   @ParameterizedTest(name = "[{index}] {0}")
@@ -116,7 +106,7 @@ class DogPortraitTest {
   @DisplayName("a painted portrait keeps the dog's name, cut like a statue's")
   void paintedKeepsTheName(final String name, final String title) {
     final DogPortrait portrait =
-        DogPortrait.painted(BEAGLE, name, PortraitSize.WIDE, DogPortraitOutfit.NONE);
+        DogPortrait.painted(DogLook.plain(BEAGLE), name, PortraitSize.WIDE);
     assertEquals(title, portrait.name());
     assertEquals(DogStatue.cut(name), portrait.name());
     assertEquals(PortraitSize.WIDE, portrait.size());
@@ -204,20 +194,35 @@ class DogPortraitTest {
 
   @ParameterizedTest(name = "{0}")
   @EnumSource(DogStatuePose.class)
-  @DisplayName("posing a portrait keeps the outfit the dog was painted in")
-  void poseKeepsTheOutfit(final DogStatuePose pose) {
-    final DogPortraitOutfit outfit =
-        new DogPortraitOutfit(
-            Map.of(DogEquipmentSlot.SADDLEBAGS, new ItemStack(ModItems.SADDLEBAGS)),
-            Optional.of(DyeColor.BLUE),
-            ItemStack.EMPTY,
-            Optional.empty(),
-            true,
-            false,
-            false);
-    final DogPortrait portrait = DogPortrait.painted(BEAGLE, "Bentley", PortraitSize.SMALL, outfit);
-    assertEquals(outfit, portrait.withPose(pose).outfit());
-    assertEquals(outfit, portrait.nextPose().outfit());
+  @DisplayName("posing a portrait keeps the look the dog was painted with")
+  void poseKeepsTheLook(final DogStatuePose pose) {
+    final DogLook look = new DogLook(BEAGLE, DogPortraitOutfitFixture.dressed(), true, true);
+    final DogPortrait portrait = DogPortrait.painted(look, "Bentley", PortraitSize.SMALL);
+    assertEquals(look, portrait.withPose(pose).look());
+    assertEquals(look, portrait.nextPose().look());
+  }
+
+  @ParameterizedTest(name = "saved outfit undead {0}, senior {1}")
+  @CsvSource({"true, false", "false, true", "true, true", "false, false"})
+  @DisplayName("a portrait saved with undead and senior inside its outfit keeps them")
+  void legacyOutfitFlagsMoveOntoThePortrait(final boolean undead, final boolean senior) {
+    final NbtCompound saved =
+        DogPortrait.painted(
+                new DogLook(BEAGLE, DogPortraitOutfitFixture.dressed(), false, false),
+                "Bentley",
+                PortraitSize.SMALL)
+            .toNbt(REGISTRIES);
+    saved.getCompound("outfit").putBoolean("undead", undead);
+    saved.getCompound("outfit").putBoolean("senior", senior);
+
+    final DogPortrait loaded = DogPortrait.fromNbt(REGISTRIES, saved).orElseThrow();
+
+    assertEquals(
+        new DogLook(BEAGLE, DogPortraitOutfitFixture.dressed(), undead, senior), loaded.look());
+    final NbtCompound resaved = loaded.toNbt(REGISTRIES);
+    assertFalse(resaved.getCompound("outfit").contains("undead"), "undead saved once");
+    assertFalse(resaved.getCompound("outfit").contains("senior"), "senior saved once");
+    assertEquals(loaded, DogPortrait.fromNbt(REGISTRIES, resaved).orElseThrow());
   }
 
   @ParameterizedTest(name = "an outfit saved as {0}")
@@ -229,7 +234,6 @@ class DogPortraitTest {
             .toNbt(REGISTRIES);
     saved.putString("outfit", garbage);
     final DogPortrait loaded = DogPortrait.fromNbt(REGISTRIES, saved).orElseThrow();
-    assertEquals(BEAGLE, loaded.look());
-    assertEquals(DogPortraitOutfit.NONE, loaded.outfit());
+    assertEquals(DogLook.plain(BEAGLE), loaded.look());
   }
 }

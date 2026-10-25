@@ -89,7 +89,8 @@ public final class DogConnectionsNetworkHandler {
         PetSyncData.from(pet, AwayDogs.statusOf(server, pet.getPetId())),
         pet.getOwnerId().toString(),
         OwnerNameResolver.resolve(server, pet.getOwnerId()),
-        GeneSyncData.visibleGenes(pet.getGenes(), pet.getRigSourceBreed(), carriedGenesRevealed),
+        GeneSyncData.visibleGenes(
+            pet.getLook().resolvedGenes(), pet.getLook().rigBreed(), carriedGenesRevealed),
         carriedGenesRevealed);
   }
 }

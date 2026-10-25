@@ -55,6 +55,6 @@ public final class PetLifeStateDisplay {
   }
 
   public static int statusColor(final PetLifeState lifeState) {
-    return lifeState == PetLifeState.UNDEAD ? UNDEAD_COLOR : GONE_COLOR;
+    return lifeState.isUndead() ? UNDEAD_COLOR : GONE_COLOR;
   }
 }

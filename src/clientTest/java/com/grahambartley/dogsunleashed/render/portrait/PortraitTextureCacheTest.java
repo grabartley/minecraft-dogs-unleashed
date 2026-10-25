@@ -12,6 +12,7 @@ import com.grahambartley.dogsunleashed.block.DogStatueLook;
 import com.grahambartley.dogsunleashed.block.DogStatuePose;
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import com.grahambartley.dogsunleashed.portrait.DogLook;
 import com.grahambartley.dogsunleashed.portrait.DogPortrait;
 import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfit;
 import com.grahambartley.dogsunleashed.portrait.PortraitSize;
@@ -134,18 +135,48 @@ class PortraitTextureCacheTest {
 
   private static DogPortrait dressed(final boolean muddy, final DyeColor collar) {
     return new DogPortrait(
-        BEAGLE,
+        new DogLook(
+            BEAGLE,
+            new DogPortraitOutfit(
+                Map.of(DogEquipmentSlot.SADDLEBAGS, new ItemStack(ModItems.SADDLEBAGS)),
+                Optional.of(collar),
+                ItemStack.EMPTY,
+                Optional.empty(),
+                muddy),
+            false,
+            false),
         "Bentley",
         PortraitSize.SMALL,
-        DogStatuePose.SIT,
-        new DogPortraitOutfit(
-            Map.of(DogEquipmentSlot.SADDLEBAGS, new ItemStack(ModItems.SADDLEBAGS)),
-            Optional.of(collar),
-            ItemStack.EMPTY,
-            Optional.empty(),
-            muddy,
-            false,
-            false));
+        DogStatuePose.SIT);
+  }
+
+  private static DogPortrait aged(final boolean undead, final boolean senior) {
+    return new DogPortrait(
+        new DogLook(BEAGLE, DogPortraitOutfit.NONE, undead, senior),
+        "Bentley",
+        PortraitSize.SMALL,
+        DogStatuePose.SIT);
+  }
+
+  @ParameterizedTest(name = "undead {0} then {1}, senior {2} then {3}, bakes {4}")
+  @CsvSource({
+    "false, false, false, false, 1",
+    "false, true, false, false, 2",
+    "false, false, false, true, 2",
+    "true, true, true, true, 1"
+  })
+  @DisplayName("an undead or senior painting gets its own texture")
+  void undeadAndSeniorAreBakedApart(
+      final boolean firstUndead,
+      final boolean secondUndead,
+      final boolean firstSenior,
+      final boolean secondSenior,
+      final int textures) {
+    final PortraitTextureCache cache = cache(true);
+    cache.textureOf(aged(firstUndead, firstSenior));
+    cache.textureOf(aged(secondUndead, secondSenior));
+    bakeTicks(cache, 2);
+    assertEquals(textures, this.bakes.size());
   }
 
   @ParameterizedTest(name = "muddy {0} then {1}, collar {2} then {3}, bakes {4}")

@@ -224,7 +224,7 @@ public final class DogCrossBreedingGameTest implements FabricGameTest {
         petData.getBreed() == UnleashedDogBreed.CROSS_BREED,
         "The pet record should carry the cross-breed");
     context.assertTrue(
-        petData.getComposition().equals(baby.getGenome().composition()),
+        petData.getLook().composition().equals(baby.getGenome().composition()),
         "The pet record should store the genome composition");
     context.assertTrue(
         petData.getMovementSpeed()

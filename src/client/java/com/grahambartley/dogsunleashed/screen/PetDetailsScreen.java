@@ -149,7 +149,7 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
             DogAppearanceFormat.formatComposition(
                 composition(), breed -> Text.translatable(breed.translationKey()).getString()),
             VALUE_COLOR);
-    final UnleashedDogCoat coat = DogCoats.coatOf(pet.displayBreed(), pet.coatVariant());
+    final UnleashedDogCoat coat = DogCoats.coatOf(pet.displayBreed(), pet.look().coatVariant());
     if (coat != null) {
       y =
           drawInfoLine(
@@ -161,7 +161,7 @@ public class PetDetailsScreen extends Screen implements DogConnectionsListener {
               VALUE_COLOR);
     }
     final int rarityChance =
-        DogRarityClassifier.chancePercent(pet.displayBreed(), pet.coatVariant());
+        DogRarityClassifier.chancePercent(pet.displayBreed(), pet.look().coatVariant());
     final DogRarity rarity = DogRarityClassifier.classify(rarityChance);
     y =
         drawInfoLine(

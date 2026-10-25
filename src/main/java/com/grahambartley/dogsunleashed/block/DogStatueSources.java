@@ -58,7 +58,7 @@ public final class DogStatueSources {
         graves.add(
             new Candidate<>(
                 DogStatue.carved(
-                    DogStatueLook.of(pet),
+                    pet.getLook(),
                     grave.getDogName().isEmpty() ? pet.getName() : grave.getDogName()),
                 pos.getSquaredDistance(base)));
       }

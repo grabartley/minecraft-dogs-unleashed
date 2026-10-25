@@ -44,21 +44,23 @@ class PetLifeStateTest {
 
   static Stream<Arguments> predicateCases() {
     return Stream.of(
-        Arguments.of(PetLifeState.LIVING, true, false, false),
-        Arguments.of(PetLifeState.UNDEAD, true, false, true),
-        Arguments.of(PetLifeState.DECEASED, false, true, false),
-        Arguments.of(PetLifeState.LOST, false, false, false));
+        Arguments.of(PetLifeState.LIVING, true, false, false, false),
+        Arguments.of(PetLifeState.UNDEAD, true, false, true, true),
+        Arguments.of(PetLifeState.DECEASED, false, true, false, false),
+        Arguments.of(PetLifeState.LOST, false, false, false, false));
   }
 
-  @ParameterizedTest(name = "{0}: alive={1} resurrectable={2} curable={3}")
+  @ParameterizedTest(name = "{0}: alive={1} resurrectable={2} curable={3} undead={4}")
   @MethodSource("predicateCases")
   @DisplayName("only the deceased can be raised, and only the undead can be cured")
   void statePredicatesMatchTheLifecycle(
       final PetLifeState state,
       final boolean alive,
       final boolean resurrectable,
-      final boolean curable) {
+      final boolean curable,
+      final boolean undead) {
     assertEquals(alive, state.isAlive(), "isAlive");
+    assertEquals(undead, state.isUndead(), "isUndead");
     assertEquals(resurrectable, state.isResurrectable(), "isResurrectable");
     assertEquals(curable, state.isCurable(), "isCurable");
   }

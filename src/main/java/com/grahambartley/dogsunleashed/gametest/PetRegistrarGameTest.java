@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModEntities;
+import com.grahambartley.dogsunleashed.block.DogStatueLook;
 import com.grahambartley.dogsunleashed.entity.DogCollar;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.pet.PetData;
@@ -57,10 +58,11 @@ public final class PetRegistrarGameTest implements FabricGameTest {
     final PetData petData = petManager(context).getPetByEntityId(baby.getUuid());
     context.assertTrue(petData != null, "Baby should have a pet record to carry appearance");
     context.assertTrue(
-        petData.isBaby(), "Record for a freshly bred puppy should be flagged as a baby");
+        petData.getLook().baby(), "Record for a freshly bred puppy should be flagged as a baby");
     context.assertTrue(
-        petData.getCoatVariant() == PetData.coatVariantOf(baby),
-        "Record coat variant should match the live puppy, but was " + petData.getCoatVariant());
+        petData.getLook().coatVariant() == DogStatueLook.of(baby).coatVariant(),
+        "Record coat variant should match the live puppy, but was "
+            + petData.getLook().coatVariant());
     context.complete();
   }
 

@@ -53,18 +53,11 @@ class DogPortraitOutfitTest {
                 Optional.of(DyeColor.LIME),
                 ItemStack.EMPTY,
                 Optional.of(Identifier.of("dogs-unleashed", "tennis_ball")),
-                true,
-                false,
-                false)),
+                true)),
         Arguments.of(
-            new DogPortraitOutfit(
-                Map.of(DogEquipmentSlot.COSMETIC, new ItemStack(Items.CARVED_PUMPKIN)),
-                Optional.empty(),
-                ItemStack.EMPTY,
-                Optional.empty(),
-                false,
-                true,
-                true)));
+            DogPortraitOutfitFixture.wearing(
+                Map.of(DogEquipmentSlot.COSMETIC, new ItemStack(Items.CARVED_PUMPKIN)))),
+        Arguments.of(DogPortraitOutfitFixture.dressed()));
   }
 
   private static DogPortraitOutfit load(final NbtElement saved) {
@@ -86,13 +79,7 @@ class DogPortraitOutfitTest {
   void equalByValue(final DogPortraitOutfit outfit) {
     final DogPortraitOutfit copy =
         new DogPortraitOutfit(
-            outfit.gear(),
-            outfit.collar(),
-            outfit.carried(),
-            outfit.fetchType(),
-            outfit.muddy(),
-            outfit.senior(),
-            outfit.undead());
+            outfit.gear(), outfit.collar(), outfit.carried(), outfit.fetchType(), outfit.muddy());
     assertEquals(outfit, copy);
     assertEquals(outfit.hashCode(), copy.hashCode());
   }
@@ -102,23 +89,9 @@ class DogPortraitOutfitTest {
   @DisplayName("armour dyed a different colour is a different outfit")
   void dyeColourMatters(final int first, final int second) {
     final DogPortraitOutfit one =
-        new DogPortraitOutfit(
-            Map.of(DogEquipmentSlot.ARMOUR, dyedArmour(first)),
-            Optional.empty(),
-            ItemStack.EMPTY,
-            Optional.empty(),
-            false,
-            false,
-            false);
+        DogPortraitOutfitFixture.wearing(Map.of(DogEquipmentSlot.ARMOUR, dyedArmour(first)));
     final DogPortraitOutfit two =
-        new DogPortraitOutfit(
-            Map.of(DogEquipmentSlot.ARMOUR, dyedArmour(second)),
-            Optional.empty(),
-            ItemStack.EMPTY,
-            Optional.empty(),
-            false,
-            false,
-            false);
+        DogPortraitOutfitFixture.wearing(Map.of(DogEquipmentSlot.ARMOUR, dyedArmour(second)));
     assertNotEquals(one, two);
   }
 
@@ -130,14 +103,7 @@ class DogPortraitOutfitTest {
   @DisplayName("empty slots are dropped, so a bare dog is the same as no outfit")
   void emptySlotsAreDropped() {
     final DogPortraitOutfit bare =
-        new DogPortraitOutfit(
-            Map.of(DogEquipmentSlot.ARMOUR, ItemStack.EMPTY),
-            Optional.empty(),
-            ItemStack.EMPTY,
-            Optional.empty(),
-            false,
-            false,
-            false);
+        DogPortraitOutfitFixture.wearing(Map.of(DogEquipmentSlot.ARMOUR, ItemStack.EMPTY));
     assertTrue(bare.gear().isEmpty());
     assertEquals(DogPortraitOutfit.NONE, bare);
     assertTrue(bare.worn(DogEquipmentSlot.ARMOUR).isEmpty());
@@ -148,14 +114,7 @@ class DogPortraitOutfitTest {
   void outfitKeepsItsOwnCopies() {
     final ItemStack saddlebags = new ItemStack(ModItems.SADDLEBAGS);
     final DogPortraitOutfit outfit =
-        new DogPortraitOutfit(
-            Map.of(DogEquipmentSlot.SADDLEBAGS, saddlebags),
-            Optional.empty(),
-            ItemStack.EMPTY,
-            Optional.empty(),
-            false,
-            false,
-            false);
+        DogPortraitOutfitFixture.wearing(Map.of(DogEquipmentSlot.SADDLEBAGS, saddlebags));
     saddlebags.setCount(0);
     assertEquals(1, outfit.worn(DogEquipmentSlot.SADDLEBAGS).getCount());
   }
@@ -180,9 +139,7 @@ class DogPortraitOutfitTest {
                     Optional.of(DyeColor.LIME),
                     ItemStack.EMPTY,
                     Optional.empty(),
-                    true,
-                    false,
-                    false));
+                    true));
     saved.getCompound("gear").getCompound("saddlebags").putString("id", "gone:old_bag");
     final DogPortraitOutfit loaded = load(saved);
     assertTrue(loaded.worn(DogEquipmentSlot.ARMOUR).isOf(Items.WOLF_ARMOR));
@@ -196,14 +153,9 @@ class DogPortraitOutfitTest {
   @DisplayName("a dog is carrying when it holds an item or a fetch toy")
   void carryingFollowsTheToy(final boolean item, final boolean type, final boolean carrying) {
     final DogPortraitOutfit outfit =
-        new DogPortraitOutfit(
-            Map.of(),
-            Optional.empty(),
+        DogPortraitOutfitFixture.carrying(
             item ? new ItemStack(Items.STICK) : ItemStack.EMPTY,
-            type ? Optional.of(Identifier.of("dogs-unleashed", "frisbee")) : Optional.empty(),
-            false,
-            false,
-            false);
+            type ? Optional.of(Identifier.of("dogs-unleashed", "frisbee")) : Optional.empty());
     assertEquals(carrying, outfit.carrying());
   }
 
@@ -216,8 +168,6 @@ class DogPortraitOutfitTest {
             Optional.empty(),
             new ItemStack(Items.STICK),
             Optional.empty(),
-            false,
-            false,
             false);
     final int hash = outfit.hashCode();
     outfit.carried().setCount(0);
@@ -232,14 +182,8 @@ class DogPortraitOutfitTest {
     final ItemStack frisbee = new ItemStack(ModItems.FRISBEE);
     frisbee.set(ModComponents.FRISBEE_COLOR, DyeColor.PURPLE);
     final DogPortraitOutfit outfit =
-        new DogPortraitOutfit(
-            Map.of(),
-            Optional.empty(),
-            frisbee,
-            Optional.of(Identifier.of("dogs-unleashed", "frisbee")),
-            false,
-            false,
-            false);
+        DogPortraitOutfitFixture.carrying(
+            frisbee, Optional.of(Identifier.of("dogs-unleashed", "frisbee")));
     assertEquals(
         DyeColor.PURPLE,
         load(DogPortraitOutfitFixture.save(outfit)).carried().get(ModComponents.FRISBEE_COLOR));
@@ -254,12 +198,12 @@ class DogPortraitOutfitTest {
     assertEquals(outfit, DogPortraitOutfit.PACKET_CODEC.decode(buf));
   }
 
-  @ParameterizedTest
-  @MethodSource("outfits")
-  @DisplayName("withSenior flips only the senior coat")
-  void withSeniorFlipsOnlyTheSeniorCoat(final DogPortraitOutfit outfit) {
-    final DogPortraitOutfit flipped = outfit.withSenior(!outfit.senior());
-    assertEquals(!outfit.senior(), flipped.senior());
-    assertEquals(outfit, flipped.withSenior(outfit.senior()));
+  @Test
+  @DisplayName("an outfit saved with the old senior and undead flags loads without them")
+  void legacyFlagsAreIgnored() {
+    final NbtCompound saved = (NbtCompound) DogPortraitOutfitFixture.save(DogPortraitOutfit.NONE);
+    saved.putBoolean("senior", true);
+    saved.putBoolean("undead", true);
+    assertEquals(DogPortraitOutfit.NONE, load(saved));
   }
 }

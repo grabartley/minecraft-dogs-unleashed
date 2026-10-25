@@ -12,6 +12,7 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.util.DyeColor;
+import net.minecraft.util.Identifier;
 
 public final class DogPortraitOutfitFixture {
 
@@ -29,14 +30,21 @@ public final class DogPortraitOutfitFixture {
         Optional.of(DyeColor.LIME),
         ItemStack.EMPTY,
         Optional.empty(),
-        true,
-        true,
-        false);
+        true);
   }
 
   public static DogPortraitOutfit collarOnly(final DyeColor collar) {
     return new DogPortraitOutfit(
-        Map.of(), Optional.of(collar), ItemStack.EMPTY, Optional.empty(), false, false, false);
+        Map.of(), Optional.of(collar), ItemStack.EMPTY, Optional.empty(), false);
+  }
+
+  public static DogPortraitOutfit wearing(final Map<DogEquipmentSlot, ItemStack> gear) {
+    return new DogPortraitOutfit(gear, Optional.empty(), ItemStack.EMPTY, Optional.empty(), false);
+  }
+
+  public static DogPortraitOutfit carrying(
+      final ItemStack carried, final Optional<Identifier> fetchType) {
+    return new DogPortraitOutfit(Map.of(), Optional.empty(), carried, fetchType, false);
   }
 
   public static Stream<DogPortraitOutfit> samples() {

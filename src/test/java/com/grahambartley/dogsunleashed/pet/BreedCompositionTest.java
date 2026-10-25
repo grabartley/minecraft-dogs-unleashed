@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.math.BlockPos;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,17 +31,7 @@ class BreedCompositionTest {
   private UUID registerDog(
       final UnleashedDogBreed breed, final UUID parentAId, final UUID parentBId) {
     final UUID id = UUID.randomUUID();
-    final PetData pet =
-        new PetData(
-            id,
-            UUID.randomUUID(),
-            breed,
-            "Dog",
-            10.0f,
-            10.0f,
-            new BlockPos(0, 64, 0),
-            "minecraft:overworld",
-            PetLifeState.LIVING);
+    final PetData pet = PetDataFixture.pet(id, breed, "Dog", PetLifeState.LIVING);
     pet.recordParents(parentAId, parentBId);
     pets.put(id, pet);
     return id;
@@ -126,7 +115,7 @@ class BreedCompositionTest {
   private UUID registerDogWithStoredComposition(
       final UUID parentAId, final UUID parentBId, final List<BreedShare> composition) {
     final UUID id = registerDog(UnleashedDogBreed.CROSS_BREED, parentAId, parentBId);
-    final NbtCompound nbt = pets.get(id).toNbt(REGISTRIES);
+    final NbtCompound nbt = PetDataFixture.savedBeforeLooks(pets.get(id));
     nbt.put(ModNbtKeys.COMPOSITION, DogGenome.compositionToNbt(composition));
     pets.put(id, PetData.fromNbt(nbt, REGISTRIES));
     return id;
@@ -174,29 +163,9 @@ class BreedCompositionTest {
   void cyclicLineageTerminates() {
     final UUID a = UUID.randomUUID();
     final UUID b = UUID.randomUUID();
-    final PetData dogA =
-        new PetData(
-            a,
-            UUID.randomUUID(),
-            UnleashedDogBreed.HUSKY,
-            "A",
-            10.0f,
-            10.0f,
-            new BlockPos(0, 64, 0),
-            "minecraft:overworld",
-            PetLifeState.LIVING);
+    final PetData dogA = PetDataFixture.pet(a, UnleashedDogBreed.HUSKY, "A", PetLifeState.LIVING);
     dogA.recordParents(b, null);
-    final PetData dogB =
-        new PetData(
-            b,
-            UUID.randomUUID(),
-            UnleashedDogBreed.BEAGLE,
-            "B",
-            10.0f,
-            10.0f,
-            new BlockPos(0, 64, 0),
-            "minecraft:overworld",
-            PetLifeState.LIVING);
+    final PetData dogB = PetDataFixture.pet(b, UnleashedDogBreed.BEAGLE, "B", PetLifeState.LIVING);
     dogB.recordParents(a, null);
     pets.put(a, dogA);
     pets.put(b, dogB);
