@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.render.growth;
 
+import com.grahambartley.dogsunleashed.render.rig.CubeGeometry;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile.Slot;
 import java.util.Comparator;
@@ -11,10 +12,30 @@ import java.util.Optional;
 import java.util.Set;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
+import software.bernie.geckolib.cache.object.GeoBone;
 
 public record RigAnchors(@Nullable String root, Map<String, String> anchors) {
 
-  public record Extent(Vector3f center, float volume) {}
+  public record Extent(Vector3f center, float volume) {
+
+    public Extent {
+      center = new Vector3f(center);
+    }
+
+    public static Optional<Extent> of(final GeoBone bone) {
+      final CubeGeometry.Bounds bounds = CubeGeometry.posedBoundsOf(bone);
+      if (bounds.isEmpty()) {
+        return Optional.empty();
+      }
+      final Vector3f size = bounds.max().sub(bounds.min());
+      return Optional.of(new Extent(bounds.center(), size.x * size.y * size.z));
+    }
+
+    @Override
+    public Vector3f center() {
+      return new Vector3f(this.center);
+    }
+  }
 
   public static final RigAnchors NONE = new RigAnchors(null, Map.of());
 
@@ -80,6 +101,9 @@ public record RigAnchors(@Nullable String root, Map<String, String> anchors) {
 
     String anchorOf(final String bone, final String root) {
       Slot slot = this.slotOf(bone).orElseGet(() -> this.nearestBodySlot(bone, root));
+      if (slot == Slot.EAR_LEFT || slot == Slot.EAR_RIGHT) {
+        slot = Slot.HEAD;
+      }
       while (slot != Slot.TORSO) {
         final Optional<String> candidate = this.slotTop(slot);
         if (candidate.isPresent() && !candidate.get().equals(bone)) {
@@ -91,11 +115,7 @@ public record RigAnchors(@Nullable String root, Map<String, String> anchors) {
     }
 
     Optional<String> slotTop(final Slot slot) {
-      final Set<String> bones = new HashSet<>(this.profile.bonesIn(slot));
-      if (slot == Slot.EAR_LEFT || slot == Slot.EAR_RIGHT) {
-        bones.addAll(this.profile.ears().variantBones());
-      }
-      return bones.stream()
+      return this.profile.bonesIn(slot).stream()
           .filter(this.parents::containsKey)
           .map(this::topOf)
           .distinct()

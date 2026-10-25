@@ -6,10 +6,31 @@ import org.joml.Vector3f;
 
 public record AnchoredPlacement(RigAnchors anchors, Vector3f rootPivot, GrowthScaleTree tree) {
 
-  public record Shift(Vector3f to, float scale, Vector3f from) {}
+  public record Shift(Vector3f to, float scale, Vector3f from) {
+
+    public Shift {
+      to = new Vector3f(to);
+      from = new Vector3f(from);
+    }
+
+    @Override
+    public Vector3f to() {
+      return new Vector3f(this.to);
+    }
+
+    @Override
+    public Vector3f from() {
+      return new Vector3f(this.from);
+    }
+  }
 
   public AnchoredPlacement {
     rootPivot = new Vector3f(rootPivot);
+  }
+
+  @Override
+  public Vector3f rootPivot() {
+    return new Vector3f(this.rootPivot);
   }
 
   public Optional<Shift> shiftOf(final String bone, final Function<String, Vector3f> posedPivot) {

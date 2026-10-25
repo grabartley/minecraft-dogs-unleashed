@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.google.gson.JsonParser;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.render.growth.RigAnchors.Extent;
-import com.grahambartley.dogsunleashed.render.rig.CubeGeometry;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile;
 import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
 import com.grahambartley.dogsunleashed.render.rig.ShippedRigs;
@@ -146,11 +145,7 @@ class RigAnchorsTest {
       final List<GeoBone> bones, final Map<String, String> parents, final Map<String, Extent> out) {
     for (final GeoBone bone : bones) {
       parents.put(bone.getName(), bone.getParent() == null ? null : bone.getParent().getName());
-      final CubeGeometry.Bounds bounds = CubeGeometry.posedBoundsOf(bone);
-      if (!bounds.isEmpty()) {
-        final Vector3f size = bounds.max().sub(bounds.min());
-        out.put(bone.getName(), new Extent(bounds.center(), size.x * size.y * size.z));
-      }
+      Extent.of(bone).ifPresent(extent -> out.put(bone.getName(), extent));
       collect(bone.getChildBones(), parents, out);
     }
   }

@@ -62,7 +62,7 @@ public final class GrowthRigScale {
     return this.placement.shiftOf(bone, name -> posedPivotOf(this.bones.get(name)));
   }
 
-  public Optional<String> anchorOf(final String bone) {
+  Optional<String> anchorOf(final String bone) {
     return Optional.ofNullable(this.placement.anchors().anchors().get(bone));
   }
 
@@ -122,13 +122,7 @@ public final class GrowthRigScale {
   private static Map<String, RigAnchors.Extent> extentsOf(final Map<String, GeoBone> bones) {
     final Map<String, RigAnchors.Extent> extents = new HashMap<>();
     bones.forEach(
-        (name, bone) -> {
-          final CubeGeometry.Bounds own = CubeGeometry.posedBoundsOf(bone);
-          if (!own.isEmpty()) {
-            final Vector3f size = own.max().sub(own.min());
-            extents.put(name, new RigAnchors.Extent(own.center(), size.x * size.y * size.z));
-          }
-        });
+        (name, bone) -> RigAnchors.Extent.of(bone).ifPresent(extent -> extents.put(name, extent)));
     return extents;
   }
 
@@ -138,7 +132,7 @@ public final class GrowthRigScale {
         : new Vector3f(bone.getPivotX(), bone.getPivotY(), bone.getPivotZ());
   }
 
-  static Vector3f posedPivotOf(final GeoBone bone) {
+  private static Vector3f posedPivotOf(final GeoBone bone) {
     return bone == null
         ? new Vector3f()
         : new Vector3f(

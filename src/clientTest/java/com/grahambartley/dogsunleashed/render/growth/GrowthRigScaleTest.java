@@ -11,10 +11,10 @@ import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile;
 import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
 import com.grahambartley.dogsunleashed.render.rig.ShippedRigs;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Stream;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Direction;
@@ -38,6 +38,7 @@ class GrowthRigScaleTest {
 
   private static final float EPSILON = 1.0e-5f;
   private static final float JOINT_EPSILON = 1.0e-4f;
+  private static final float GROUND_EPSILON = 1.0e-3f;
   private static final RigProfiles BUNDLED = new RigProfiles(RigProfiles::openBundled);
   private static final RigProfile PROFILE =
       RigProfile.parse(
@@ -134,16 +135,80 @@ class GrowthRigScaleTest {
     }
   }
 
-  @Test
-  @DisplayName("shorter legs on a flat rig lower the body so the feet stay on the ground")
-  void flatRigLegsKeepFeetOnTheGround() {
-    final GrowthRigScale scale =
-        GrowthRigScale.build(
-            ShippedRigs.model("beagle"),
-            BUNDLED.profileOf(UnleashedDogBreed.BEAGLE),
-            new SlotScales(1.0f, 1.0f, 0.8f, 1.0f));
+  @ParameterizedTest(name = "{0} legs x{1}")
+  @MethodSource("flatRigLegScales")
+  @DisplayName("on a flat rig the lowest paw still touches the ground after the legs are scaled")
+  void flatRigPawsStayOnTheGround(final UnleashedDogBreed rig, final float legs) {
+    final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
+    final RigProfile profile = BUNDLED.profileOf(rig);
+    final float ground = lowestPaw(model, profile, null);
 
-    assertTrue(scale.lift() < 0.0f, "lift " + scale.lift());
+    final GrowthRigScale scale =
+        GrowthRigScale.build(model, profile, new SlotScales(1.0f, 1.0f, legs, 1.0f));
+
+    assertEquals(ground, lowestPaw(model, profile, scale), GROUND_EPSILON);
+  }
+
+  static Stream<Arguments> flatRigLegScales() {
+    return Stream.of(
+            UnleashedDogBreed.BEAGLE,
+            UnleashedDogBreed.DACHSHUND,
+            UnleashedDogBreed.GOLDEN_RETRIEVER,
+            UnleashedDogBreed.SHIBA_INU,
+            UnleashedDogBreed.HUSKY)
+        .flatMap(rig -> Stream.of(0.8f, 1.25f).map(legs -> Arguments.of(rig, legs)));
+  }
+
+  private static float lowestPaw(
+      final BakedGeoModel model, final RigProfile profile, final GrowthRigScale scale) {
+    float lowest = Float.POSITIVE_INFINITY;
+    for (final RigProfile.Slot slot :
+        List.of(
+            RigProfile.Slot.LEG_FRONT_LEFT,
+            RigProfile.Slot.LEG_FRONT_RIGHT,
+            RigProfile.Slot.LEG_BACK_LEFT,
+            RigProfile.Slot.LEG_BACK_RIGHT)) {
+      for (final String name : profile.bonesIn(slot)) {
+        final GeoBone bone = model.getBone(name).orElseThrow();
+        for (final GeoCube cube : bone.getCubes()) {
+          final MatrixStack stack = new MatrixStack();
+          stack.translate(0.0f, scale == null ? 0.0f : scale.lift(), 0.0f);
+          chainOf(bone)
+              .forEach(
+                  link -> {
+                    GrowthBoneTransform.push(stack, scale, link);
+                    RenderUtil.prepMatrixForBone(stack, link);
+                  });
+          RenderUtil.translateToPivotPoint(stack, cube);
+          RenderUtil.rotateMatrixAroundCube(stack, cube);
+          RenderUtil.translateAwayFromPivotPoint(stack, cube);
+          for (final GeoQuad quad : cube.quads()) {
+            if (quad == null) {
+              continue;
+            }
+            for (final GeoVertex vertex : quad.vertices()) {
+              lowest =
+                  Math.min(
+                      lowest,
+                      stack
+                          .peek()
+                          .getPositionMatrix()
+                          .transformPosition(new Vector3f(vertex.position()))
+                          .y);
+            }
+          }
+        }
+      }
+    }
+    return lowest;
+  }
+
+  private static List<GeoBone> chainOf(final GeoBone bone) {
+    final List<GeoBone> chain = new ArrayList<>();
+    for (GeoBone at = bone; at != null; at = at.getParent()) {
+      chain.add(0, at);
+    }
+    return chain;
   }
 
   @Test
@@ -193,20 +258,7 @@ class GrowthRigScaleTest {
 
   private static Matrix4f rendered(final GrowthRigScale scale, final GeoBone bone) {
     final MatrixStack stack = new MatrixStack();
-    final Optional<AnchoredPlacement.Shift> shift = scale.shiftOf(bone.getName());
-    if (shift.isPresent()) {
-      final Vector3f to = shift.get().to().div(16.0f);
-      final Vector3f from = shift.get().from().div(16.0f);
-      stack.translate(to.x, to.y, to.z);
-      stack.scale(shift.get().scale(), shift.get().scale(), shift.get().scale());
-      stack.translate(-from.x, -from.y, -from.z);
-    } else {
-      final Vector3f pivot = pivotOf(bone);
-      final float local = scale.localScale(bone.getName());
-      stack.translate(pivot.x, pivot.y, pivot.z);
-      stack.scale(local, local, local);
-      stack.translate(-pivot.x, -pivot.y, -pivot.z);
-    }
+    GrowthBoneTransform.push(stack, scale, bone);
     RenderUtil.prepMatrixForBone(stack, bone);
     return new Matrix4f(stack.peek().getPositionMatrix());
   }
