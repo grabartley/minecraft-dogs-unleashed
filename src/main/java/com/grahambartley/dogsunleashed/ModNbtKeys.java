@@ -85,7 +85,6 @@ public final class ModNbtKeys {
   public static final String GROWTH_BATTLES_WON = "GrowthBattlesWon";
   public static final String ADULT_AGE_TICKS = "AdultAgeTicks";
   public static final String AGE_LAST_SEEN_TIME = "AgeLastSeenTime";
-  public static final String SENIOR = "Senior";
   public static final String SENIOR_PARENT = "SeniorParent";
   public static final String MUDDY = "Muddy";
   public static final String MUDDY_TICKS = "MuddyTicks";
