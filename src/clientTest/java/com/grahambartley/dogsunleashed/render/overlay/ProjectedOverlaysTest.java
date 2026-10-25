@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.render.overlay;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -263,16 +264,19 @@ class ProjectedOverlaysTest {
   }
 
   @Test
-  @DisplayName("a sheet asked for as a suit and as an overlay is projected and cached apart")
+  @DisplayName(
+      "a sheet asked for as a suit and as an overlay is projected, cached and registered apart")
   void suitAndOverlayAreCachedApart() {
     this.images.put(SHEET, labelledHeadSheet());
     final ProjectedOverlays overlays = overlays(shipped(), BUNDLED::profileOf);
 
-    overlays.suitTextureOf(UnleashedDogBreed.SHIBA_INU, SHEET);
-    overlays.textureOf(UnleashedDogBreed.SHIBA_INU, SHEET);
+    final Identifier suit =
+        overlays.suitTextureOf(UnleashedDogBreed.SHIBA_INU, SHEET).orElseThrow();
+    final Identifier overlay = overlays.textureOf(UnleashedDogBreed.SHIBA_INU, SHEET).orElseThrow();
     overlays.suitTextureOf(UnleashedDogBreed.SHIBA_INU, SHEET);
 
     assertEquals(2, this.registered.size());
+    assertNotEquals(suit, overlay);
   }
 
   private ProjectedOverlays overlays(

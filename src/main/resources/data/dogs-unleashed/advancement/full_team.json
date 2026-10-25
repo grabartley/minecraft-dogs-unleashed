@@ -43,12 +43,12 @@
         "min_team": 5
       }
     },
-    "hitched_6": {
+    "full_team": {
       "trigger": "dogs-unleashed:sled_team",
       "conditions": {
         "min_team": 6
       }
     }
   },
-  "requirements": [["hitched_1"], ["hitched_2"], ["hitched_3"], ["hitched_4"], ["hitched_5"], ["hitched_6"]]
+  "requirements": [["hitched_1", "full_team"], ["hitched_2", "full_team"], ["hitched_3", "full_team"], ["hitched_4", "full_team"], ["hitched_5", "full_team"], ["full_team"]]
 }

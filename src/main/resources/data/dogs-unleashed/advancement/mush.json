@@ -67,14 +67,14 @@
         "min_blocks": 900.0
       }
     },
-    "travelled_1000": {
+    "travelled": {
       "trigger": "dogs-unleashed:sled_travelled",
       "conditions": {
         "min_blocks": 1000.0
       }
     }
   },
-  "requirements": [["travelled_100"], ["travelled_200"], ["travelled_300"], ["travelled_400"], ["travelled_500"], ["travelled_600"], ["travelled_700"], ["travelled_800"], ["travelled_900"], ["travelled_1000"]],
+  "requirements": [["travelled_100", "travelled"], ["travelled_200", "travelled"], ["travelled_300", "travelled"], ["travelled_400", "travelled"], ["travelled_500", "travelled"], ["travelled_600", "travelled"], ["travelled_700", "travelled"], ["travelled_800", "travelled"], ["travelled_900", "travelled"], ["travelled"]],
   "rewards": {
     "experience": 50
   }

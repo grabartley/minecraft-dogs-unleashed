@@ -75,18 +75,23 @@ public final class ProjectedOverlays {
 
   public synchronized Optional<Identifier> textureOf(
       final UnleashedDogBreed rig, final Identifier sheet) {
-    return this.textureOf(rig, sheet, this.byRig, slot -> this.regions.regionsOf(rig, slot));
+    return this.textureOf(rig, sheet, sheet, this.byRig, slot -> this.regions.regionsOf(rig, slot));
   }
 
   public synchronized Optional<Identifier> suitTextureOf(
       final UnleashedDogBreed rig, final Identifier sheet) {
     return this.textureOf(
-        rig, sheet, this.suitsByRig, slot -> this.regions.suitRegionsOf(rig, slot));
+        rig,
+        sheet,
+        sheet.withPrefixedPath("suit/"),
+        this.suitsByRig,
+        slot -> this.regions.suitRegionsOf(rig, slot));
   }
 
   private Optional<Identifier> textureOf(
       final UnleashedDogBreed rig,
       final Identifier sheet,
+      final Identifier registeredAs,
       final Map<UnleashedDogBreed, Map<Identifier, Optional<Identifier>>> cache,
       final Function<Slot, List<SlotRegion>> regionsOf) {
     final Map<Identifier, Optional<Identifier>> sheets =
@@ -99,7 +104,8 @@ public final class ProjectedOverlays {
     if (model.isEmpty()) {
       return Optional.empty();
     }
-    final Optional<Identifier> projected = this.project(rig, sheet, model.get(), regionsOf);
+    final Optional<Identifier> projected =
+        this.project(rig, sheet, registeredAs, model.get(), regionsOf);
     sheets.put(sheet, projected);
     return projected;
   }
@@ -117,6 +123,7 @@ public final class ProjectedOverlays {
   private Optional<Identifier> project(
       final UnleashedDogBreed rig,
       final Identifier sheet,
+      final Identifier registeredAs,
       final BakedGeoModel model,
       final Function<Slot, List<SlotRegion>> regionsOf) {
     final Optional<PixelGrid> pixels = this.images.read(sheet);
@@ -148,7 +155,7 @@ public final class ProjectedOverlays {
                 profile
                     .sheetOverride(sheet, slot)
                     .flatMap(texture -> this.overrideOf(rig, texture, atlasWidth, atlasHeight)));
-    return Optional.of(this.registrar.register(rig, sheet, projected));
+    return Optional.of(this.registrar.register(rig, registeredAs, projected));
   }
 
   private Optional<PixelGrid> overrideOf(
