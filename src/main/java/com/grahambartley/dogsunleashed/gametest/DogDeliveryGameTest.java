@@ -30,6 +30,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 
 public final class DogDeliveryGameTest implements FabricGameTest {
@@ -190,6 +191,34 @@ public final class DogDeliveryGameTest implements FabricGameTest {
           context.assertEquals(
               AwayDogs.statusOf(server(context), arrived.getUuid()),
               PetAwayStatus.RETURNING,
+              "Status");
+          finish(context, arrived);
+        });
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void oneRightClickOpensTheBagsAndTheDogStays(final TestContext context) {
+    final ServerPlayerEntity owner = PendantTestHelper.survivalOwnerAt(context, OWNER_POS);
+    final ServerPlayerEntity recipient = PendantTestHelper.survivalOwnerAt(context, RECIPIENT_POS);
+    final UnleashedDogEntity arrived =
+        arriveAtRecipient(context, wearingBags(context, owner), owner, recipient);
+
+    context.assertTrue(
+        arrived.interact(recipient, Hand.MAIN_HAND).isAccepted(), "The main hand opens the bags");
+    context.assertTrue(
+        arrived.interact(recipient, Hand.OFF_HAND).isAccepted(),
+        "The off hand from the same click is taken too");
+
+    context.runAtTick(
+        3,
+        () -> {
+          context.assertTrue(
+              DogEquipmentScreenHandler.isViewing(recipient.currentScreenHandler, arrived),
+              "The bags stay open");
+          context.assertFalse(arrived.isRemoved(), "The dog waits while the bags are open");
+          context.assertEquals(
+              AwayDogs.statusOf(server(context), arrived.getUuid()),
+              PetAwayStatus.WAITING,
               "Status");
           finish(context, arrived);
         });
