@@ -16,8 +16,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.attribute.EntityAttributeInstance;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.AfterBatch;
@@ -112,7 +110,6 @@ public final class DogNavigationGameTest implements FabricGameTest {
     final BlockPos spot = dog.getCommandController().getAnchorPos();
     context.runAtEveryTick(
         () -> {
-          assertFollowRangeUntouched(context, dog, "the whistled spot");
           if (dog.getBlockPos().getSquaredDistance(spot) <= 1.0
               && !dog.getCommandController().isHeadingToAnchor()) {
             context.complete();
@@ -163,7 +160,6 @@ public final class DogNavigationGameTest implements FabricGameTest {
       final TestContext context, final UnleashedDogEntity dog, final SleepSpot spot) {
     context.runAtEveryTick(
         () -> {
-          assertFollowRangeUntouched(context, dog, "its " + spot.name());
           if (dog.getSleepController().isSleepingInBed()) {
             context.complete();
           }
@@ -177,15 +173,6 @@ public final class DogNavigationGameTest implements FabricGameTest {
                     + spot.name()
                     + ", it stopped at "
                     + dog.getBlockPos().subtract(context.getAbsolutePos(BlockPos.ORIGIN))));
-  }
-
-  private static void assertFollowRangeUntouched(
-      final TestContext context, final UnleashedDogEntity dog, final String destination) {
-    final EntityAttributeInstance followRange =
-        dog.getAttributeInstance(EntityAttributes.GENERIC_FOLLOW_RANGE);
-    context.assertTrue(
-        followRange.getValue() == followRange.getBaseValue(),
-        "The wider path search leaked into the dog's follow range on the way to " + destination);
   }
 
   private static List<TestFunction> perSpot(

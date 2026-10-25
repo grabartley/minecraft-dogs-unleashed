@@ -12,8 +12,7 @@ import org.jetbrains.annotations.Nullable;
 public final class DogNavigation extends MobNavigation {
 
   private final double nodeBudgetRange;
-  private Set<BlockPos> missedTargets = Set.of();
-  private long missedAt;
+  private long wideSearchMissedAt = Long.MIN_VALUE;
 
   public DogNavigation(final MobEntity dog, final World world) {
     super(dog, world);
@@ -27,32 +26,20 @@ public final class DogNavigation extends MobNavigation {
       final boolean useHeadPos,
       final int distance) {
     final long now = this.world.getTime();
-    if (this.isIdle()
-        && positions.equals(this.missedTargets)
-        && !DogNavigationRules.mayRetryUnreachable(this.missedAt, now)) {
-      return null;
-    }
+    final double followRange = this.entity.getAttributeValue(EntityAttributes.GENERIC_FOLLOW_RANGE);
+    final BlockPos from = useHeadPos ? this.entity.getBlockPos().up() : this.entity.getBlockPos();
     final double searchRange =
         DogNavigationRules.searchRange(
-            this.distanceToNearest(positions),
-            this.entity.getAttributeValue(EntityAttributes.GENERIC_FOLLOW_RANGE));
+            DogNavigationRules.nearestDistance(from, positions),
+            followRange,
+            DogNavigationRules.recentlyMissed(this.wideSearchMissedAt, now));
     this.setRangeMultiplier(DogNavigationRules.nodeBudgetScale(searchRange, this.nodeBudgetRange));
+    final Path previous = this.currentPath;
     final Path path =
         this.findPathToAny(positions, range, useHeadPos, distance, (float) searchRange);
-    if (path != null && !path.reachesTarget()) {
-      this.missedTargets = Set.copyOf(positions);
-      this.missedAt = now;
-    } else {
-      this.missedTargets = Set.of();
+    if (path != null && path != previous && searchRange > followRange && !path.reachesTarget()) {
+      this.wideSearchMissedAt = now;
     }
     return path;
-  }
-
-  private double distanceToNearest(final Set<BlockPos> positions) {
-    final BlockPos from = this.entity.getBlockPos();
-    return positions.stream()
-        .mapToDouble(pos -> Math.sqrt(from.getSquaredDistance(pos)))
-        .min()
-        .orElse(0.0);
   }
 }
