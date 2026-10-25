@@ -12,6 +12,7 @@ import com.grahambartley.dogsunleashed.render.cosmetic.MobHeadFits;
 import com.grahambartley.dogsunleashed.render.cross.CrossBreedRendering;
 import com.grahambartley.dogsunleashed.render.fur.DrawnFur;
 import com.grahambartley.dogsunleashed.render.fur.FurCover;
+import com.grahambartley.dogsunleashed.render.growth.GrowthBoneTransform;
 import com.grahambartley.dogsunleashed.render.growth.GrowthRigScale;
 import com.grahambartley.dogsunleashed.render.layer.DogArmourLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogCarryFetchItemLayer;
@@ -54,8 +55,6 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import software.bernie.geckolib.util.RenderUtil;
 
 public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
-
-  private static final float MODEL_UNITS_PER_BLOCK = 16.0f;
 
   private RigProfile frameProfile = RigProfile.EMPTY;
   private DogFurStage frameStage = DogFurStage.NATURAL;
@@ -222,17 +221,7 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
             bone.getParent() == null ? null : bone.getParent().getName())) {
       return;
     }
-    final float growthScale =
-        this.frameGrowth == null ? 1.0f : this.frameGrowth.localScale(bone.getName());
-    if (growthScale != 1.0f) {
-      poseStack.push();
-      final float pivotX = bone.getPivotX() / MODEL_UNITS_PER_BLOCK;
-      final float pivotY = bone.getPivotY() / MODEL_UNITS_PER_BLOCK;
-      final float pivotZ = bone.getPivotZ() / MODEL_UNITS_PER_BLOCK;
-      poseStack.translate(pivotX, pivotY, pivotZ);
-      poseStack.scale(growthScale, growthScale, growthScale);
-      poseStack.translate(-pivotX, -pivotY, -pivotZ);
-    }
+    final boolean scaled = GrowthBoneTransform.push(poseStack, this.frameGrowth, bone);
     if (!isReRender && this.frameProfile.seats().contains(bone.getName())) {
       this.captureSeat(poseStack, animatable, bone);
     }
@@ -251,7 +240,7 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
         packedLight,
         packedOverlay,
         colour);
-    if (growthScale != 1.0f) {
+    if (scaled) {
       poseStack.pop();
     }
   }

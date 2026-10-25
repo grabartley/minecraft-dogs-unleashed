@@ -1,28 +1,45 @@
 package com.grahambartley.dogsunleashed.render.growth;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.gson.JsonParser;
 import com.grahambartley.dogsunleashed.entity.DireWolfGrowthStage.SlotScales;
+import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile;
+import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
+import com.grahambartley.dogsunleashed.render.rig.ShippedRigs;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.cache.object.GeoCube;
 import software.bernie.geckolib.cache.object.GeoQuad;
 import software.bernie.geckolib.cache.object.GeoVertex;
+import software.bernie.geckolib.util.RenderUtil;
 
 class GrowthRigScaleTest {
 
   private static final float EPSILON = 1.0e-5f;
+  private static final float JOINT_EPSILON = 1.0e-4f;
+  private static final float GROUND_EPSILON = 1.0e-3f;
+  private static final RigProfiles BUNDLED = new RigProfiles(RigProfiles::openBundled);
   private static final RigProfile PROFILE =
       RigProfile.parse(
           JsonParser.parseString(
@@ -90,6 +107,160 @@ class GrowthRigScaleTest {
     assertSame(first, GrowthRigScale.of(model, PROFILE, new SlotScales(head, 1.0f, legs, 1.0f)));
     assertEquals(head, first.localScale("head"), EPSILON);
     assertEquals(legs, first.localScale("leg"), EPSILON);
+  }
+
+  @ParameterizedTest(name = "{0} {1}")
+  @MethodSource("flatRigPoses")
+  @DisplayName("on a flat rig every loose part stays joined to the part it hangs off")
+  void looseRigPartsStayJoined(final UnleashedDogBreed rig, final String animation) {
+    final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
+    final GrowthRigScale scale =
+        GrowthRigScale.build(
+            model, BUNDLED.profileOf(rig), new SlotScales(1.2f, 0.8f, 1.25f, 0.8f));
+    ShippedRigs.pose(model, rig.serializedId(), animation, name -> model.getBone(name).isPresent());
+
+    assertFalse(anchorsOf(model, scale).isEmpty(), rig + " has loose parts");
+    for (final Map.Entry<String, String> joint : anchorsOf(model, scale).entrySet()) {
+      final GeoBone part = model.getBone(joint.getKey()).orElseThrow();
+      final GeoBone anchor = model.getBone(joint.getValue()).orElseThrow();
+      final Vector3f joinedAt = animated(part).transformPosition(pivotOf(part));
+      final Vector3f onPart = rendered(scale, part).transformPosition(pivotOf(part));
+      final Vector3f onAnchor =
+          rendered(scale, anchor)
+              .transformPosition(animated(anchor).invert().transformPosition(joinedAt));
+
+      assertEquals(onAnchor.x, onPart.x, JOINT_EPSILON, joint + " x");
+      assertEquals(onAnchor.y, onPart.y, JOINT_EPSILON, joint + " y");
+      assertEquals(onAnchor.z, onPart.z, JOINT_EPSILON, joint + " z");
+    }
+  }
+
+  @ParameterizedTest(name = "{0} legs x{1}")
+  @MethodSource("flatRigLegScales")
+  @DisplayName("on a flat rig the lowest paw still touches the ground after the legs are scaled")
+  void flatRigPawsStayOnTheGround(final UnleashedDogBreed rig, final float legs) {
+    final BakedGeoModel model = ShippedRigs.model(rig.serializedId());
+    final RigProfile profile = BUNDLED.profileOf(rig);
+    final float ground = lowestPaw(model, profile, null);
+
+    final GrowthRigScale scale =
+        GrowthRigScale.build(model, profile, new SlotScales(1.0f, 1.0f, legs, 1.0f));
+
+    assertEquals(ground, lowestPaw(model, profile, scale), GROUND_EPSILON);
+  }
+
+  static Stream<Arguments> flatRigLegScales() {
+    return Stream.of(
+            UnleashedDogBreed.BEAGLE,
+            UnleashedDogBreed.DACHSHUND,
+            UnleashedDogBreed.GOLDEN_RETRIEVER,
+            UnleashedDogBreed.SHIBA_INU,
+            UnleashedDogBreed.HUSKY)
+        .flatMap(rig -> Stream.of(0.8f, 1.25f).map(legs -> Arguments.of(rig, legs)));
+  }
+
+  private static float lowestPaw(
+      final BakedGeoModel model, final RigProfile profile, final GrowthRigScale scale) {
+    float lowest = Float.POSITIVE_INFINITY;
+    for (final RigProfile.Slot slot :
+        List.of(
+            RigProfile.Slot.LEG_FRONT_LEFT,
+            RigProfile.Slot.LEG_FRONT_RIGHT,
+            RigProfile.Slot.LEG_BACK_LEFT,
+            RigProfile.Slot.LEG_BACK_RIGHT)) {
+      for (final String name : profile.bonesIn(slot)) {
+        final GeoBone bone = model.getBone(name).orElseThrow();
+        for (final GeoCube cube : bone.getCubes()) {
+          final MatrixStack stack = new MatrixStack();
+          stack.translate(0.0f, scale == null ? 0.0f : scale.lift(), 0.0f);
+          chainOf(bone)
+              .forEach(
+                  link -> {
+                    GrowthBoneTransform.push(stack, scale, link);
+                    RenderUtil.prepMatrixForBone(stack, link);
+                  });
+          RenderUtil.translateToPivotPoint(stack, cube);
+          RenderUtil.rotateMatrixAroundCube(stack, cube);
+          RenderUtil.translateAwayFromPivotPoint(stack, cube);
+          for (final GeoQuad quad : cube.quads()) {
+            if (quad == null) {
+              continue;
+            }
+            for (final GeoVertex vertex : quad.vertices()) {
+              lowest =
+                  Math.min(
+                      lowest,
+                      stack
+                          .peek()
+                          .getPositionMatrix()
+                          .transformPosition(new Vector3f(vertex.position()))
+                          .y);
+            }
+          }
+        }
+      }
+    }
+    return lowest;
+  }
+
+  private static List<GeoBone> chainOf(final GeoBone bone) {
+    final List<GeoBone> chain = new ArrayList<>();
+    for (GeoBone at = bone; at != null; at = at.getParent()) {
+      chain.add(0, at);
+    }
+    return chain;
+  }
+
+  @Test
+  @DisplayName("a rig nested under one root bone anchors nothing and shifts nothing")
+  void nestedRigShiftsNothing() {
+    final GrowthRigScale scale =
+        GrowthRigScale.build(wolf(), PROFILE, new SlotScales(1.25f, 1.0f, 0.8f, 1.0f));
+
+    assertTrue(scale.shiftOf("head").isEmpty());
+    assertTrue(scale.shiftOf("leg").isEmpty());
+  }
+
+  static Stream<Arguments> flatRigPoses() {
+    return Stream.of(
+            UnleashedDogBreed.BEAGLE,
+            UnleashedDogBreed.DACHSHUND,
+            UnleashedDogBreed.GOLDEN_RETRIEVER,
+            UnleashedDogBreed.SHIBA_INU,
+            UnleashedDogBreed.HUSKY)
+        .flatMap(
+            rig ->
+                Stream.of("idle", "sit", "sleep", "play_dead")
+                    .map(animation -> Arguments.of(rig, animation)));
+  }
+
+  private static Map<String, String> anchorsOf(
+      final BakedGeoModel model, final GrowthRigScale scale) {
+    final Map<String, String> anchors = new HashMap<>();
+    for (final GeoBone bone : model.topLevelBones()) {
+      scale
+          .shiftOf(bone.getName())
+          .flatMap(ignored -> scale.anchorOf(bone.getName()))
+          .ifPresent(anchor -> anchors.put(bone.getName(), anchor));
+    }
+    return anchors;
+  }
+
+  private static Vector3f pivotOf(final GeoBone bone) {
+    return new Vector3f(bone.getPivotX(), bone.getPivotY(), bone.getPivotZ()).div(16.0f);
+  }
+
+  private static Matrix4f animated(final GeoBone bone) {
+    final MatrixStack stack = new MatrixStack();
+    RenderUtil.prepMatrixForBone(stack, bone);
+    return new Matrix4f(stack.peek().getPositionMatrix());
+  }
+
+  private static Matrix4f rendered(final GrowthRigScale scale, final GeoBone bone) {
+    final MatrixStack stack = new MatrixStack();
+    GrowthBoneTransform.push(stack, scale, bone);
+    RenderUtil.prepMatrixForBone(stack, bone);
+    return new Matrix4f(stack.peek().getPositionMatrix());
   }
 
   private static BakedGeoModel wolf() {
