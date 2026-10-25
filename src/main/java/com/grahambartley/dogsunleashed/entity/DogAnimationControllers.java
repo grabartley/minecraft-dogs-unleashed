@@ -72,7 +72,8 @@ public final class DogAnimationControllers {
                   final UnleashedDogEntity animatable = state.getAnimatable();
                   if (animatable.getAnimationState().getTailWagTimerTicks() > 0
                       && !animatable.getSleepController().isAsleep()) {
-                    return state.setAndContinue(RawAnimation.begin().thenLoop("tail_wag"));
+                    return state.setAndContinue(
+                        RawAnimation.begin().thenLoop(DogAnimationKeys.TAIL_WAG));
                   }
                   return PlayState.STOP;
                 })
@@ -86,7 +87,7 @@ public final class DogAnimationControllers {
             0,
             state -> {
               if (state.getAnimatable().getAnimationState().isShaking()) {
-                return state.setAndContinue(RawAnimation.begin().thenLoop("shake"));
+                return state.setAndContinue(RawAnimation.begin().thenLoop(DogAnimationKeys.SHAKE));
               }
               return PlayState.STOP;
             }));

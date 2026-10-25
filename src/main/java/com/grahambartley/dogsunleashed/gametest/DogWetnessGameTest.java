@@ -5,6 +5,8 @@ import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiConsumer;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -31,6 +33,7 @@ public final class DogWetnessGameTest implements FabricGameTest {
   private static final int DRY_ASSERT_TICK = 60;
   private static final int TICK_LIMIT = 140;
   private static final int DRY_TICK_LIMIT = 80;
+  private static final long NOT_INTERRUPTED = -1L;
 
   @BeforeBatch(batchId = BATCH)
   public void startRaining(final ServerWorld world) {
@@ -142,6 +145,54 @@ public final class DogWetnessGameTest implements FabricGameTest {
         () -> {
           context.assertTrue(
               shookWhileDry.get(), "A dog should still shake the water off after leaving water");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = DRY_TICK_LIMIT)
+  public void dogStopsShakingWhenItSitsDown(final TestContext context) {
+    assertShakeStopsWhen(context, (dog, absDogPos) -> dog.setInSittingPose(true));
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = DRY_TICK_LIMIT)
+  public void dogStopsShakingWhenItFallsAsleep(final TestContext context) {
+    assertShakeStopsWhen(
+        context, (dog, absDogPos) -> dog.getSleepController().startSleepingInBed(absDogPos));
+  }
+
+  private static void assertShakeStopsWhen(
+      final TestContext context, final BiConsumer<UnleashedDogEntity, BlockPos> interrupt) {
+    for (final Direction side : Direction.Type.HORIZONTAL) {
+      context.setBlockState(DOG_POS.offset(side), Blocks.STONE);
+    }
+    context.setBlockState(DOG_POS, Blocks.WATER);
+    final UnleashedDogEntity dog = spawnStationaryDog(context);
+    final AtomicLong interruptedAt = new AtomicLong(NOT_INTERRUPTED);
+    final AtomicBoolean shookAfterInterrupt = new AtomicBoolean(false);
+
+    context.runAtTick(WATER_SOAK_TICKS, () -> context.setBlockState(DOG_POS, Blocks.AIR));
+
+    context.runAtEveryTick(
+        () -> {
+          final long interrupted = interruptedAt.get();
+          if (interrupted == NOT_INTERRUPTED) {
+            if (dog.getAnimationState().isShaking()) {
+              interrupt.accept(dog, context.getAbsolutePos(DOG_POS));
+              interruptedAt.set(context.getTick());
+            }
+          } else if (context.getTick() > interrupted + 1 && dog.getAnimationState().isShaking()) {
+            shookAfterInterrupt.set(true);
+          }
+        });
+
+    context.runAtTick(
+        DRY_ASSERT_TICK,
+        () -> {
+          context.assertTrue(
+              interruptedAt.get() != NOT_INTERRUPTED,
+              "The dog should have started shaking after leaving the water");
+          context.assertFalse(
+              shookAfterInterrupt.get(), "A dog that stops standing should stop shaking at once");
           context.complete();
         });
   }
