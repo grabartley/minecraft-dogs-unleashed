@@ -12,6 +12,7 @@
 		"LivingEntityRendererMixin",
 		"LoomScreenMixin",
 		"PlayerEntityRendererMixin",
+		"PlayerHeldItemFeatureRendererMixin",
 		"WorldRendererMixin"
 	],
 	"injectors": {

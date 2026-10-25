@@ -1,10 +1,13 @@
 package com.grahambartley.dogsunleashed.whistle;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Arm;
 import org.joml.Vector3f;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -43,5 +46,17 @@ class WhistleBlowHoldTest {
     assertEquals(right.z, left.z, 1.0e-6f);
     assertEquals(
         -WhistleBlowHold.turn(Arm.RIGHT, lift), WhistleBlowHold.turn(Arm.LEFT, lift), 1.0e-6f);
+  }
+
+  @Test
+  @DisplayName("while blowing, the whistle sits in the lower half of the head, out past the face")
+  void sitsAtTheMouth() {
+    final MatrixStack matrices = new MatrixStack();
+    WhistleBlowHold.atMouth(matrices);
+    final Vector3f centre = matrices.peek().getPositionMatrix().transformPosition(new Vector3f());
+    final float pixel = 1.0f / 16.0f;
+    assertTrue(centre.y > -4 * pixel && centre.y < 0.0f);
+    assertTrue(centre.z < -4 * pixel && centre.z > -8 * pixel);
+    assertEquals(0.0f, centre.x, 1.0e-6f);
   }
 }
