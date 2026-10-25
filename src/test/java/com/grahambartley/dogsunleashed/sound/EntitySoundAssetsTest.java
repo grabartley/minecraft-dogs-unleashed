@@ -4,10 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -18,27 +15,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class EntitySoundAssetsTest {
 
-  private static final String ASSETS = "/assets/dogs-unleashed";
   private static final double MAX_BARK_SECONDS = 2.5;
-  private static final JsonObject SOUNDS = readJson("sounds.json");
-  private static final JsonObject ENGLISH = readJson("lang/en_us.json");
-
-  private static Path assetPath(final String relative) throws URISyntaxException {
-    return Path.of(EntitySoundAssetsTest.class.getResource(ASSETS + "/" + relative).toURI());
-  }
-
-  private static JsonObject readJson(final String relative) {
-    try {
-      return JsonParser.parseString(Files.readString(assetPath(relative), StandardCharsets.UTF_8))
-          .getAsJsonObject();
-    } catch (IOException | URISyntaxException ex) {
-      throw new IllegalStateException("cannot read " + relative, ex);
-    }
-  }
+  private static final JsonObject SOUNDS = SoundAssets.readJson("sounds.json");
+  private static final JsonObject ENGLISH = SoundAssets.readJson("lang/en_us.json");
 
   static Stream<Path> entitySoundFiles() throws Exception {
     final List<Path> files;
-    try (Stream<Path> walk = Files.walk(assetPath("sounds/entity"))) {
+    try (Stream<Path> walk = Files.walk(SoundAssets.path("sounds/entity"))) {
       files = walk.filter(path -> path.toString().endsWith(".ogg")).sorted().toList();
     }
     return files.stream();

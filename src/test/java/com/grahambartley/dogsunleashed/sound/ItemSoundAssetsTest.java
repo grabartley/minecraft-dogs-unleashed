@@ -7,10 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -22,28 +19,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class ItemSoundAssetsTest {
 
-  private static final String ASSETS = "/assets/dogs-unleashed";
-  private static final String NAMESPACE = "dogs-unleashed:";
   private static final double MAX_WHISTLE_SECONDS = 0.5;
   private static final int SAMPLE_RATE = 44100;
-  private static final JsonObject SOUNDS = readJson("sounds.json");
-
-  private static Path assetPath(final String relative) throws URISyntaxException {
-    return Path.of(ItemSoundAssetsTest.class.getResource(ASSETS + "/" + relative).toURI());
-  }
-
-  private static JsonObject readJson(final String relative) {
-    try {
-      return JsonParser.parseString(Files.readString(assetPath(relative), StandardCharsets.UTF_8))
-          .getAsJsonObject();
-    } catch (IOException | URISyntaxException ex) {
-      throw new IllegalStateException("cannot read " + relative, ex);
-    }
-  }
+  private static final JsonObject SOUNDS = SoundAssets.readJson("sounds.json");
 
   static Stream<Path> whistleSoundFiles() throws Exception {
     final List<Path> files;
-    try (Stream<Path> walk = Files.list(assetPath("sounds/item/dog_whistle"))) {
+    try (Stream<Path> walk = Files.list(SoundAssets.path("sounds/item/dog_whistle"))) {
       files = walk.filter(path -> path.toString().endsWith(".ogg")).sorted().toList();
     }
     return files.stream();
@@ -92,12 +74,11 @@ class ItemSoundAssetsTest {
   @ParameterizedTest(name = "{0} plays files that exist, unshifted")
   @MethodSource("itemSoundEvents")
   @DisplayName("every item sound event plays clips that exist at their recorded pitch")
-  void itemSoundEventPlaysExistingClipsUnshifted(final String event) throws URISyntaxException {
+  void itemSoundEventPlaysExistingClipsUnshifted(final String event) {
     for (final JsonElement entry : entries(event)) {
       final String name = clipName(entry);
-      assertTrue(name.startsWith(NAMESPACE), name + " namespace");
-      final String relative = "sounds/" + name.substring(NAMESPACE.length()) + ".ogg";
-      assertTrue(Files.isRegularFile(assetPath(relative)), relative + " must exist");
+      assertTrue(name.startsWith(SoundAssets.NAMESPACE), name + " namespace");
+      assertTrue(Files.isRegularFile(SoundAssets.clipPath(name)), name + " must exist");
       if (entry.isJsonObject() && entry.getAsJsonObject().has("pitch")) {
         assertEquals(1.0f, entry.getAsJsonObject().get("pitch").getAsFloat(), event + " pitch");
       }
