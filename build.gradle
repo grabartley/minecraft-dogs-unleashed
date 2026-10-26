@@ -150,9 +150,9 @@ java {
 test {
 	useJUnitPlatform()
 	inputs
-		.file(rootProject.file("config/checkstyle/checkstyle.xml"))
-		.withPropertyName("noCommentsGateConfig")
-		.withPathSensitivity(PathSensitivity.RELATIVE)
+			.file(rootProject.file("config/checkstyle/checkstyle.xml"))
+			.withPropertyName("noCommentsGateConfig")
+			.withPathSensitivity(PathSensitivity.RELATIVE)
 	testLogging {
 		events "passed", "skipped", "failed"
 		exceptionFormat "full"
@@ -202,16 +202,16 @@ tasks.register("verifyMainSourceSideSafety") {
 
 	doLast {
 		def disallowedPatterns = [
-			"net.minecraft.client.",
-			"com.grahambartley.dogsunleashed.compat.",
-			"com.grahambartley.dogsunleashed.render.",
-			"com.grahambartley.dogsunleashed.model.",
-			"com.grahambartley.dogsunleashed.screen.",
-			"com.grahambartley.dogsunleashed.mixin.client.",
-			"com.grahambartley.dogsunleashed.DogsUnleashedClient",
-			"com.grahambartley.dogsunleashed.DogsUnleashedModMenu",
-			"com.grahambartley.dogsunleashed.ModKeyBindings",
-			"com.grahambartley.dogsunleashed.network.ModNetworkingClient"
+				"net.minecraft.client.",
+				"com.grahambartley.dogsunleashed.compat.",
+				"com.grahambartley.dogsunleashed.render.",
+				"com.grahambartley.dogsunleashed.model.",
+				"com.grahambartley.dogsunleashed.screen.",
+				"com.grahambartley.dogsunleashed.mixin.client.",
+				"com.grahambartley.dogsunleashed.DogsUnleashedClient",
+				"com.grahambartley.dogsunleashed.DogsUnleashedModMenu",
+				"com.grahambartley.dogsunleashed.ModKeyBindings",
+				"com.grahambartley.dogsunleashed.network.ModNetworkingClient"
 		]
 		def violations = []
 
@@ -241,7 +241,7 @@ jar {
 	exclude "resourcepacks/gametest_fixtures/**"
 
 	from("LICENSE") {
-		rename { "${it}_${inputs.properties.archivesName}"}
+		rename { "${it}_${inputs.properties.archivesName}" }
 	}
 }
 
@@ -290,8 +290,8 @@ modrinth {
 	gameVersions = ['1.21.1']
 	loaders = ['fabric']
 	changelog = rootProject.file('release-notes.md').exists()
-		? rootProject.file('release-notes.md').text
-		: 'No changelog provided.'
+			? rootProject.file('release-notes.md').text
+			: 'No changelog provided.'
 	dependencies {
 		required.project 'fabric-api'
 		required.project 'geckolib'
@@ -304,7 +304,6 @@ tasks.register('curseforge', TaskPublishCurseForge) {
 	dependsOn remapJar
 	apiToken = System.getenv('CURSEFORGE_TOKEN')
 
-	// Configured at execution time so a missing project ID only fails this task, not every build.
 	doFirst {
 		def projectId = project.findProperty('curseforge_project_id')?.toString()
 		if (!projectId?.isLong()) {
@@ -315,8 +314,8 @@ tasks.register('curseforge', TaskPublishCurseForge) {
 		mainFile.releaseType = System.getenv('MOD_RELEASE_TYPE') ?: 'alpha'
 		mainFile.changelogType = 'markdown'
 		mainFile.changelog = rootProject.file('release-notes.md').exists()
-			? rootProject.file('release-notes.md').text
-			: 'No changelog provided.'
+				? rootProject.file('release-notes.md').text
+				: 'No changelog provided.'
 		mainFile.addGameVersion(project.minecraft_version)
 		mainFile.addModLoader('Fabric')
 		mainFile.addJavaVersion('Java 21')
