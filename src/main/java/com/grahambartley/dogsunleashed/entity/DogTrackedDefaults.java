@@ -12,7 +12,7 @@ final class DogTrackedDefaults {
 
   static void addTo(final DataTracker.Builder builder) {
     builder.add(UnleashedDogEntity.ANGER_TIME, 0);
-    builder.add(UnleashedDogEntity.COLLAR_COLOR, UnleashedDogEntity.DEFAULT_COLLAR_COLOR_ID);
+    builder.add(UnleashedDogEntity.COLLAR_COLOR, DogCollar.DEFAULT_COLOR.getId());
     builder.add(UnleashedDogEntity.TAIL_WAG_TIMER, 0);
     builder.add(UnleashedDogEntity.SHAKE_PROGRESS, 0);
     builder.add(UnleashedDogEntity.TREAT_BUFF_TICKS, 0);

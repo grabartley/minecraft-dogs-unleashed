@@ -1,49 +1,37 @@
 package com.grahambartley.dogsunleashed.pet;
 
-import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModNbtKeys;
 import com.grahambartley.dogsunleashed.block.DogStatueLook;
+import com.grahambartley.dogsunleashed.config.AgingSettings;
 import com.grahambartley.dogsunleashed.entity.DogAging;
-import com.grahambartley.dogsunleashed.entity.DogAppearance;
+import com.grahambartley.dogsunleashed.entity.DogAgingRules;
 import com.grahambartley.dogsunleashed.entity.DogBond;
 import com.grahambartley.dogsunleashed.entity.DogBondRules;
-import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.DogPersonality;
 import com.grahambartley.dogsunleashed.entity.DogTricks;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
-import com.grahambartley.dogsunleashed.entity.genome.DogGenes;
-import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.entity.personality.DogTraits;
 import com.grahambartley.dogsunleashed.entity.trick.TrickProgress;
 import com.grahambartley.dogsunleashed.entity.trick.TrickProgressNbt;
-import com.grahambartley.dogsunleashed.entity.variant.HuskyEyeColor;
-import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
+import com.grahambartley.dogsunleashed.portrait.DogLook;
 import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfit;
 import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfits;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
 public final class PetData {
 
-  private static final int DEFAULT_COLLAR_COLOR_ID = DyeColor.RED.getId();
   private static final float PERCENT = 100.0f;
 
   private final UUID petId;
   private final UUID ownerId;
-  private final UnleashedDogBreed breed;
   private String name;
   private float health;
   private float maxHealth;
@@ -52,9 +40,8 @@ public final class PetData {
   private PetLifeState lifeState;
   private UUID parentAId;
   private UUID parentBId;
-  private List<BreedShare> composition;
-  private DogGenome genome;
-  private @Nullable DogGenes genes;
+  private DogStatueLook look;
+  private DogPortraitOutfit outfit = DogPortraitOutfit.NONE;
   private float movementSpeed;
   private float attackDamage;
   private int growthBattlesWon;
@@ -65,12 +52,6 @@ public final class PetData {
   private int bondPoints;
   private DogTraits personality = DogTraits.NONE;
   private TrickProgress tricks = TrickProgress.NONE;
-  private boolean baby;
-  private int coatVariant = UnleashedDogEntity.UNSET_VARIANT;
-  private int huskyEyeVariant = UnleashedDogEntity.UNSET_VARIANT;
-  private int furStage = DogFurStage.NATURAL.ordinal();
-  private int growthStage;
-  private DogPortraitOutfit outfit = DogPortraitOutfit.NONE;
 
   public PetData(
       UUID petId,
@@ -84,14 +65,13 @@ public final class PetData {
       PetLifeState lifeState) {
     this.petId = petId;
     this.ownerId = ownerId;
-    this.breed = breed;
+    this.setLook(DogStatueLook.unseen(breed));
     this.name = name;
     this.health = health;
     this.maxHealth = maxHealth;
     this.lastKnownPosition = lastKnownPosition;
     this.dimension = dimension;
     this.lifeState = lifeState;
-    this.composition = List.of();
   }
 
   public UUID getPetId() {
@@ -103,11 +83,11 @@ public final class PetData {
   }
 
   public UnleashedDogBreed getBreed() {
-    return breed;
+    return look.breed();
   }
 
   public String getBreedType() {
-    return breed.serializedId();
+    return look.breed().serializedId();
   }
 
   public String getName() {
@@ -162,36 +142,12 @@ public final class PetData {
     return lifeState.isAlive();
   }
 
-  public boolean isBaby() {
-    return baby;
+  public DogStatueLook getLook() {
+    return look;
   }
 
-  public int getCollarColorId() {
-    return outfit.collar().map(DyeColor::getId).orElse(DEFAULT_COLLAR_COLOR_ID);
-  }
-
-  public int getCoatVariant() {
-    return coatVariant;
-  }
-
-  public int getHuskyEyeVariant() {
-    return huskyEyeVariant;
-  }
-
-  public int getFurStage() {
-    return furStage;
-  }
-
-  public List<BreedShare> getComposition() {
-    return composition;
-  }
-
-  public DogGenome getGenome() {
-    return genome;
-  }
-
-  public UnleashedDogBreed getRigSourceBreed() {
-    return DogGenome.rigBreedOf(breed, composition);
+  private void setLook(final DogStatueLook look) {
+    this.look = look.withGenes(look.resolvedGenes());
   }
 
   public DogTraits getPersonality() {
@@ -200,16 +156,6 @@ public final class PetData {
 
   public TrickProgress getTricks() {
     return tricks;
-  }
-
-  public DogGenes getGenes() {
-    if (genes != null) {
-      return genes;
-    }
-    final UnleashedDogBreed rigBreed = getRigSourceBreed();
-    return DogGenes.matching(
-        new DogAppearance(rigBreed, coatVariant, huskyEyeVariant),
-        DogGenes.lociFor(rigBreed, composition));
   }
 
   public float getMovementSpeed() {
@@ -222,10 +168,6 @@ public final class PetData {
 
   public DogPortraitOutfit getOutfit() {
     return outfit;
-  }
-
-  public int getGrowthStage() {
-    return growthStage;
   }
 
   public int getStaminaPercent() {
@@ -294,15 +236,7 @@ public final class PetData {
   }
 
   public void syncFrom(final UnleashedDogEntity dog) {
-    final DogStatueLook statue = DogStatueLook.of(dog);
-    this.baby = statue.baby();
-    this.coatVariant = statue.coatVariant();
-    this.huskyEyeVariant = statue.eyeColorVariant();
-    this.furStage = statue.furStage();
-    this.growthStage = statue.growthStage();
-    this.genome = statue.genome();
-    this.composition = statue.genome() != null ? statue.genome().composition() : List.of();
-    this.genes = statue.genes();
+    this.setLook(DogStatueLook.of(dog));
     this.outfit = DogPortraitOutfits.of(dog);
     this.movementSpeed = (float) dog.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
     this.attackDamage = (float) dog.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
@@ -317,39 +251,29 @@ public final class PetData {
     this.tricks = dog.getComponents().get(DogTricks.class).progress();
   }
 
-  public static int coatVariantOf(final UnleashedDogEntity dog) {
-    return dog.getCoatVariant() != null
-        ? dog.getCoatVariant().getOrdinal()
-        : UnleashedDogEntity.UNSET_VARIANT;
+  public boolean isSenior(final AgingSettings aging) {
+    return DogAgingRules.isSenior(
+        aging.dogAgingEnabled(), lifeState.isUndead(), adultAgeTicks, aging.seniorAfterDays());
   }
 
-  public static int huskyEyeVariantOf(final UnleashedDogEntity dog) {
-    final HuskyEyeColor eyeColor = dog.getEyeColorVariant();
-    return eyeColor != null ? eyeColor.ordinal() : UnleashedDogEntity.UNSET_VARIANT;
+  public DogLook portraitLook(final AgingSettings aging) {
+    return new DogLook(look, outfit, lifeState.isUndead(), isSenior(aging));
   }
 
-  public PortraitLook portraitLook() {
-    return new PortraitLook(DogStatueLook.of(this), outfit);
-  }
-
-  public boolean differsFrom(
-      final float health,
-      final BlockPos pos,
-      final String dimension,
-      final PortraitLook look,
-      final int bondPoints) {
-    return Float.compare(this.health, health) != 0
-        || this.bondPoints != bondPoints
-        || !this.lastKnownPosition.equals(pos)
-        || !Objects.equals(this.dimension, dimension)
-        || !this.portraitLook().equals(look);
+  public boolean differsFrom(final PetData current, final AgingSettings aging) {
+    return Float.compare(this.health, current.health) != 0
+        || this.bondPoints != current.bondPoints
+        || !this.lastKnownPosition.equals(current.lastKnownPosition)
+        || !Objects.equals(this.dimension, current.dimension)
+        || !this.look.equals(current.look)
+        || !this.outfit.equals(current.outfit)
+        || this.isSenior(aging) != current.isSenior(aging);
   }
 
   public NbtCompound toNbt(final RegistryWrapper.WrapperLookup registries) {
     final NbtCompound nbt = new NbtCompound();
     nbt.putUuid(ModNbtKeys.PET_ID, petId);
     nbt.putUuid(ModNbtKeys.OWNER_ID, ownerId);
-    nbt.putString(ModNbtKeys.BREED_TYPE, breed.serializedId());
     nbt.putString(ModNbtKeys.NAME, name);
     nbt.putFloat(ModNbtKeys.HEALTH, health);
     nbt.putFloat(ModNbtKeys.MAX_HEALTH, maxHealth);
@@ -358,34 +282,17 @@ public final class PetData {
     nbt.putInt(ModNbtKeys.POS_Z, lastKnownPosition.getZ());
     nbt.putString(ModNbtKeys.DIMENSION, dimension);
     nbt.putString(ModNbtKeys.LIFE_STATE, lifeState.serializedName());
-    nbt.putBoolean(ModNbtKeys.PORTRAIT_BABY, baby);
-    nbt.putInt(ModNbtKeys.PORTRAIT_COAT_VARIANT, coatVariant);
-    nbt.putInt(ModNbtKeys.PORTRAIT_HUSKY_EYE, huskyEyeVariant);
-    nbt.putInt(ModNbtKeys.PORTRAIT_FUR_STAGE, furStage);
     nbt.putFloat(ModNbtKeys.MOVEMENT_SPEED, movementSpeed);
     nbt.putFloat(ModNbtKeys.ATTACK_DAMAGE, attackDamage);
-    nbt.putInt(ModNbtKeys.GROWTH_STAGE, growthStage);
     nbt.putInt(ModNbtKeys.GROWTH_BATTLES_WON, growthBattlesWon);
     nbt.putInt(ModNbtKeys.GROWTH_TICKS_IN_STAGE, growthTicksInStage);
     nbt.putInt(ModNbtKeys.STAMINA, staminaPercent);
     nbt.putLong(ModNbtKeys.ADULT_AGE_TICKS, adultAgeTicks);
     nbt.putBoolean(ModNbtKeys.SENIOR_PARENT, seniorParent);
     nbt.putInt(ModNbtKeys.BOND_POINTS, bondPoints);
-    if (!composition.isEmpty()) {
-      nbt.put(ModNbtKeys.COMPOSITION, DogGenome.compositionToNbt(composition));
-    }
-    if (genome != null) {
-      nbt.put(ModNbtKeys.GENOME, genome.toNbt());
-    }
-    if (genes != null) {
-      nbt.put(ModNbtKeys.GENES, genes.toNbt());
-    }
     nbt.put(ModNbtKeys.PERSONALITY, personality.toNbt());
     nbt.put(ModNbtKeys.TRICKS, TrickProgressNbt.write(tricks));
-    DogPortraitOutfit.CODEC
-        .encodeStart(registries.getOps(NbtOps.INSTANCE), outfit)
-        .resultOrPartial(DogsUnleashed.log::warn)
-        .ifPresent(saved -> nbt.put(ModNbtKeys.PORTRAIT_OUTFIT, saved));
+    PetLookNbt.write(nbt, look, outfit, registries);
     if (parentAId != null) {
       nbt.putUuid(ModNbtKeys.PARENT_A_ID, parentAId);
     }
@@ -403,11 +310,12 @@ public final class PetData {
 
   public static PetData fromNbt(
       final NbtCompound nbt, final RegistryWrapper.WrapperLookup registries) {
+    final DogStatueLook look = PetLookNbt.readLook(nbt);
     final PetData pet =
         new PetData(
             nbt.getUuid(ModNbtKeys.PET_ID),
             nbt.getUuid(ModNbtKeys.OWNER_ID),
-            UnleashedDogBreed.fromSerializedId(nbt.getString(ModNbtKeys.BREED_TYPE)),
+            look.breed(),
             nbt.getString(ModNbtKeys.NAME),
             nbt.getFloat(ModNbtKeys.HEALTH),
             nbt.getFloat(ModNbtKeys.MAX_HEALTH),
@@ -429,15 +337,6 @@ public final class PetData {
     pet.adultAgeTicks = Math.max(0L, nbt.getLong(ModNbtKeys.ADULT_AGE_TICKS));
     pet.seniorParent = nbt.getBoolean(ModNbtKeys.SENIOR_PARENT);
     pet.bondPoints = DogBondRules.clamp(nbt.getInt(ModNbtKeys.BOND_POINTS));
-    if (nbt.contains(ModNbtKeys.COMPOSITION, NbtElement.COMPOUND_TYPE)) {
-      pet.composition = DogGenome.compositionFromNbt(nbt.getCompound(ModNbtKeys.COMPOSITION));
-    }
-    if (nbt.contains(ModNbtKeys.GENOME, NbtElement.COMPOUND_TYPE)) {
-      pet.genome = DogGenome.fromNbt(nbt.getCompound(ModNbtKeys.GENOME));
-    }
-    if (nbt.contains(ModNbtKeys.GENES, NbtElement.COMPOUND_TYPE)) {
-      pet.genes = DogGenes.fromNbt(nbt.getCompound(ModNbtKeys.GENES));
-    }
     if (nbt.contains(ModNbtKeys.PERSONALITY, NbtElement.LIST_TYPE)) {
       pet.personality =
           DogTraits.fromNbt(nbt.getList(ModNbtKeys.PERSONALITY, NbtElement.STRING_TYPE));
@@ -445,18 +344,8 @@ public final class PetData {
     if (nbt.contains(ModNbtKeys.TRICKS, NbtElement.COMPOUND_TYPE)) {
       pet.tricks = TrickProgressNbt.read(nbt.getCompound(ModNbtKeys.TRICKS));
     }
-    pet.baby = nbt.getBoolean(ModNbtKeys.PORTRAIT_BABY);
-    if (nbt.contains(ModNbtKeys.PORTRAIT_COAT_VARIANT, NbtElement.NUMBER_TYPE)) {
-      pet.coatVariant = nbt.getInt(ModNbtKeys.PORTRAIT_COAT_VARIANT);
-    }
-    if (nbt.contains(ModNbtKeys.PORTRAIT_HUSKY_EYE, NbtElement.NUMBER_TYPE)) {
-      pet.huskyEyeVariant = nbt.getInt(ModNbtKeys.PORTRAIT_HUSKY_EYE);
-    }
-    if (nbt.contains(ModNbtKeys.PORTRAIT_FUR_STAGE, NbtElement.NUMBER_TYPE)) {
-      pet.furStage = DogFurStage.fromOrdinal(nbt.getInt(ModNbtKeys.PORTRAIT_FUR_STAGE)).ordinal();
-    }
-    pet.growthStage = nbt.getInt(ModNbtKeys.GROWTH_STAGE);
-    pet.outfit = outfitFrom(nbt, registries);
+    pet.setLook(look);
+    pet.outfit = PetLookNbt.readOutfit(nbt, registries);
     if (nbt.containsUuid(ModNbtKeys.PARENT_A_ID)) {
       pet.parentAId = nbt.getUuid(ModNbtKeys.PARENT_A_ID);
     }
@@ -464,25 +353,5 @@ public final class PetData {
       pet.parentBId = nbt.getUuid(ModNbtKeys.PARENT_B_ID);
     }
     return pet;
-  }
-
-  private static DogPortraitOutfit outfitFrom(
-      final NbtCompound nbt, final RegistryWrapper.WrapperLookup registries) {
-    if (nbt.contains(ModNbtKeys.PORTRAIT_OUTFIT, NbtElement.COMPOUND_TYPE)) {
-      return DogPortraitOutfit.CODEC
-          .parse(registries.getOps(NbtOps.INSTANCE), nbt.get(ModNbtKeys.PORTRAIT_OUTFIT))
-          .resultOrPartial(DogsUnleashed.log::warn)
-          .orElse(DogPortraitOutfit.NONE);
-    }
-    return new DogPortraitOutfit(
-        Map.of(),
-        nbt.contains(ModNbtKeys.PORTRAIT_COLLAR, NbtElement.NUMBER_TYPE)
-            ? Optional.of(DyeColor.byId(nbt.getInt(ModNbtKeys.PORTRAIT_COLLAR)))
-            : Optional.empty(),
-        ItemStack.EMPTY,
-        Optional.empty(),
-        false,
-        false,
-        false);
   }
 }

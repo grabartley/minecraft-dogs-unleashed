@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.entity;
 
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.advancement.PetResurrectedCriterion;
+import com.grahambartley.dogsunleashed.block.DogStatueLook;
 import com.grahambartley.dogsunleashed.block.entity.DogGraveBlockEntity;
 import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.pet.PetData;
@@ -16,7 +17,6 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
-import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
@@ -103,23 +103,21 @@ public final class DogResurrection {
         world.getRandom().nextFloat() * 360.0f,
         0.0f);
 
-    final DogGenome genome =
-        petData.getGenome() != null ? petData.getGenome() : DogGenome.pure(petData.getBreed());
-    dog.applyGenome(genome);
-    dog.getGenes().set(petData.getGenes());
+    final DogStatueLook look = petData.getLook();
+    dog.applyGenome(look.genome() != null ? look.genome() : DogGenome.pure(petData.getBreed()));
+    dog.getGenes().set(look.genes());
     dog.applyAppearance(
-        new DogAppearance(
-            dog.getRigSourceBreed(), petData.getCoatVariant(), petData.getHuskyEyeVariant()));
-    dog.getComponents().get(DogCollar.class).setColor(DyeColor.byId(petData.getCollarColorId()));
+        new DogAppearance(dog.getRigSourceBreed(), look.coatVariant(), look.eyeColorVariant()));
+    dog.getComponents()
+        .get(DogCollar.class)
+        .setColor(petData.getOutfit().collar().orElse(DogCollar.DEFAULT_COLOR));
     dog.getLineage().setParentDogUuid(petData.getParentAId());
     dog.getLineage().setSecondParentDogUuid(petData.getParentBId());
-    dog.setBaby(petData.isBaby());
+    dog.setBaby(look.baby());
     dog.getGrowth()
         .restore(
-            petData.getGrowthStage(),
-            petData.getGrowthBattlesWon(),
-            petData.getGrowthTicksInStage());
-    dog.getFur().setStage(DogFurStage.fromOrdinal(petData.getFurStage()));
+            look.growthStage(), petData.getGrowthBattlesWon(), petData.getGrowthTicksInStage());
+    dog.getFur().setStage(DogFurStage.fromOrdinal(look.furStage()));
     dog.getComponents()
         .get(DogAging.class)
         .restore(petData.getAdultAgeTicks(), petData.hasSeniorParent());

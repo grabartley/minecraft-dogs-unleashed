@@ -105,7 +105,7 @@ public class DogInspectScreen extends Screen {
             DogAppearanceFormat.formatComposition(
                 data.composition(), breed -> Text.translatable(breed.translationKey()).getString()),
             VALUE_COLOR);
-    final UnleashedDogCoat coat = DogCoats.coatOf(pet.displayBreed(), pet.coatVariant());
+    final UnleashedDogCoat coat = DogCoats.coatOf(pet.displayBreed(), pet.look().coatVariant());
     if (coat != null) {
       infoY =
           drawInfoLine(
@@ -117,7 +117,7 @@ public class DogInspectScreen extends Screen {
               VALUE_COLOR);
     }
     final int rarityChance =
-        DogRarityClassifier.chancePercent(pet.displayBreed(), pet.coatVariant());
+        DogRarityClassifier.chancePercent(pet.displayBreed(), pet.look().coatVariant());
     final DogRarity rarity = DogRarityClassifier.classify(rarityChance);
     infoY =
         drawInfoLine(

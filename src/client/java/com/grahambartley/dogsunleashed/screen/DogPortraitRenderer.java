@@ -1,9 +1,10 @@
 package com.grahambartley.dogsunleashed.screen;
 
-import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
+import com.grahambartley.dogsunleashed.portrait.DogLook;
+import com.grahambartley.dogsunleashed.portrait.DogLooks;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -55,31 +56,25 @@ public final class DogPortraitRenderer {
     if (client.world == null) {
       return null;
     }
-    if (pet.breed() == null) {
-      return null;
-    }
-    final PortraitDogAppearance appearance = PortraitDogAppearance.of(pet);
-    final EntityType<? extends UnleashedDogEntity> type =
-        appearance.undead()
-            ? ModEntities.getZombieDogEntityType(appearance.entityBreed())
-            : ModEntities.getDogEntityType(appearance.entityBreed());
+    final DogLook look = pet.portraitLook();
+    final EntityType<UnleashedDogEntity> type = DogLooks.entityType(look);
     if (type == null) {
       return null;
     }
-    final UUID id = appearance.entityId();
+    final UUID id = UUID.fromString(pet.petId());
     UnleashedDogEntity entity = portraitEntities.get(id);
     if (entity == null || entity.getType() != type) {
       if (entity != null) {
         entity.discard();
       }
-      final UnleashedDogEntity created = (UnleashedDogEntity) type.create(client.world);
+      final UnleashedDogEntity created = type.create(client.world);
       if (created == null) {
         return null;
       }
       portraitEntities.put(id, created);
       entity = created;
     }
-    appearance.applyTo(entity);
+    DogLooks.dress(entity, look);
     if (client.player != null) {
       entity.setPosition(client.player.getX(), client.player.getY(), client.player.getZ());
     }

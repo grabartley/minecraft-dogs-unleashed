@@ -1,6 +1,5 @@
 package com.grahambartley.dogsunleashed.portrait;
 
-import com.grahambartley.dogsunleashed.entity.DogAging;
 import com.grahambartley.dogsunleashed.entity.DogCollar;
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.DogFetchCarry;
@@ -32,9 +31,7 @@ public final class DogPortraitOutfits {
         carry.isCarrying()
             ? Optional.ofNullable(carry.activeType()).map(FetchItemType::id)
             : Optional.empty(),
-        dog.getComponents().get(DogMud.class).isMuddy(),
-        dog.getComponents().get(DogAging.class).isSenior(),
-        dog.isUndead());
+        dog.getComponents().get(DogMud.class).isMuddy());
   }
 
   public static void dress(final UnleashedDogEntity dog, final DogPortraitOutfit outfit) {
@@ -62,6 +59,5 @@ public final class DogPortraitOutfits {
     } else {
       mud.wash();
     }
-    dog.getComponents().get(DogAging.class).showSeniorCoat(outfit.senior());
   }
 }

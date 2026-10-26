@@ -46,7 +46,8 @@ final class DogAppearanceFormat {
   }
 
   static String furLine(final PetSyncData pet) {
-    return Text.translatable(DogFurStage.fromOrdinal(pet.furStage()).translationKey()).getString();
+    return Text.translatable(DogFurStage.fromOrdinal(pet.look().furStage()).translationKey())
+        .getString();
   }
 
   static String formatRarity(final String rarityName, final int chancePercent) {

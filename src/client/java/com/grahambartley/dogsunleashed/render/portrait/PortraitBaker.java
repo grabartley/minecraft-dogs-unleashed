@@ -1,11 +1,10 @@
 package com.grahambartley.dogsunleashed.render.portrait;
 
-import com.grahambartley.dogsunleashed.ModEntities;
-import com.grahambartley.dogsunleashed.block.DogStatueLook;
 import com.grahambartley.dogsunleashed.block.DogStatuePose;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
-import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfit;
-import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfits;
+import com.grahambartley.dogsunleashed.portrait.DogFacing;
+import com.grahambartley.dogsunleashed.portrait.DogLook;
+import com.grahambartley.dogsunleashed.portrait.DogLooks;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.VertexSorter;
 import net.minecraft.client.MinecraftClient;
@@ -18,7 +17,6 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.util.BufferAllocator;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.EntityType;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fStack;
@@ -42,10 +40,9 @@ public final class PortraitBaker {
     this.renderer = null;
   }
 
-  public @Nullable NativeImage bake(
-      final DogStatueLook look, final DogStatuePose pose, final DogPortraitOutfit outfit) {
+  public @Nullable NativeImage bake(final DogLook look, final DogStatuePose pose) {
     final MinecraftClient client = MinecraftClient.getInstance();
-    final UnleashedDogEntity dog = posedDogOf(client, look, pose, outfit);
+    final UnleashedDogEntity dog = posedDogOf(client, look, pose);
     if (dog == null) {
       return null;
     }
@@ -80,28 +77,14 @@ public final class PortraitBaker {
   }
 
   private static @Nullable UnleashedDogEntity posedDogOf(
-      final MinecraftClient client,
-      final DogStatueLook look,
-      final DogStatuePose pose,
-      final DogPortraitOutfit outfit) {
-    final EntityType<UnleashedDogEntity> type =
-        outfit.undead()
-            ? ModEntities.getZombieDogEntityType(look.breed())
-            : ModEntities.getDogEntityType(look.breed());
+      final MinecraftClient client, final DogLook look, final DogStatuePose pose) {
     final UnleashedDogEntity dog =
-        client.world == null || type == null ? null : type.create(client.world);
+        client.world == null ? null : DogLooks.create(client.world, look);
     if (dog == null) {
       return null;
     }
-    look.applyTo(dog);
-    DogPortraitOutfits.dress(dog, outfit);
     pose.applyTo(dog);
-    dog.setYaw(FACING_YAW);
-    dog.setBodyYaw(FACING_YAW);
-    dog.setHeadYaw(FACING_YAW);
-    dog.prevYaw = FACING_YAW;
-    dog.prevBodyYaw = FACING_YAW;
-    dog.prevHeadYaw = FACING_YAW;
+    DogFacing.face(dog, FACING_YAW);
     return dog;
   }
 

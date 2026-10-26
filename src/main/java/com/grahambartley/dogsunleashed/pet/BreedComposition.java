@@ -43,8 +43,8 @@ public final class BreedComposition {
     if (pet == null) {
       return null;
     }
-    if (!pet.getComposition().isEmpty()) {
-      return storedShares(pet.getComposition());
+    if (!pet.getLook().composition().isEmpty()) {
+      return storedShares(pet.getLook().composition());
     }
     if (remainingGenerations == 0 || (pet.getParentAId() == null && pet.getParentBId() == null)) {
       return pureShares(pet.getBreed());

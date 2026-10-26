@@ -1,9 +1,11 @@
 package com.grahambartley.dogsunleashed.network.payload;
 
+import com.grahambartley.dogsunleashed.block.DogStatueLook;
 import com.grahambartley.dogsunleashed.entity.DogBondStep;
 import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.genome.DogGenome;
 import com.grahambartley.dogsunleashed.entity.personality.DogTraits;
 import com.grahambartley.dogsunleashed.pet.BreedComposition.BreedShare;
 import com.grahambartley.dogsunleashed.pet.PetAwayStatus;
@@ -11,6 +13,7 @@ import com.grahambartley.dogsunleashed.pet.PetLifeState;
 import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfit;
 import java.util.List;
 import java.util.UUID;
+import org.jetbrains.annotations.Nullable;
 
 public final class PetSyncDataFixture {
 
@@ -26,6 +29,7 @@ public final class PetSyncDataFixture {
   private int furStage = DogFurStage.NATURAL.ordinal();
   private int growthStage;
   private DogPortraitOutfit outfit = DogPortraitOutfit.NONE;
+  private boolean senior;
   private float movementSpeed = 0.29f;
   private float attackDamage = 3.5f;
   private List<BreedShare> composition = List.of();
@@ -93,7 +97,7 @@ public final class PetSyncDataFixture {
   }
 
   public PetSyncDataFixture senior(final boolean senior) {
-    this.outfit = this.outfit.withSenior(senior);
+    this.senior = senior;
     return this;
   }
 
@@ -126,7 +130,6 @@ public final class PetSyncDataFixture {
   public PetSyncData build() {
     return new PetSyncData(
         this.petId,
-        this.breed,
         this.name,
         this.health,
         this.maxHealth,
@@ -135,18 +138,35 @@ public final class PetSyncDataFixture {
         -20,
         "minecraft:overworld",
         this.lifeState,
-        this.baby,
-        this.coatVariant,
-        this.huskyEyeVariant,
-        this.furStage,
-        this.growthStage,
+        new DogStatueLook(
+            this.breed,
+            this.baby,
+            this.coatVariant,
+            this.huskyEyeVariant,
+            this.furStage,
+            this.growthStage,
+            this.genome(),
+            null),
         this.outfit,
+        this.senior,
         this.movementSpeed,
         this.attackDamage,
-        this.composition,
         this.riding,
         this.away,
         this.bond,
         this.personality);
+  }
+
+  private @Nullable DogGenome genome() {
+    if (this.composition.isEmpty()) {
+      return null;
+    }
+    return new DogGenome(
+        this.composition,
+        this.maxHealth,
+        this.movementSpeed,
+        this.attackDamage,
+        DogGenome.BASELINE_FUR_GROWTH_RATE,
+        DogGenome.dominantOf(this.composition));
   }
 }

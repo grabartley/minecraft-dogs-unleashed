@@ -17,12 +17,16 @@ public enum PetLifeState {
     return this == LIVING || this == UNDEAD;
   }
 
+  public boolean isUndead() {
+    return this == UNDEAD;
+  }
+
   public boolean isResurrectable() {
     return this == DECEASED;
   }
 
   public boolean isCurable() {
-    return this == UNDEAD;
+    return this.isUndead();
   }
 
   public static PetLifeState fromLegacyAliveFlag(final boolean alive) {

@@ -18,10 +18,11 @@ import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import com.grahambartley.dogsunleashed.gametest.util.SurvivalTestPlayer;
 import com.grahambartley.dogsunleashed.item.BlankCanvasItem;
+import com.grahambartley.dogsunleashed.portrait.DogLook;
+import com.grahambartley.dogsunleashed.portrait.DogLooks;
 import com.grahambartley.dogsunleashed.portrait.DogPortrait;
 import com.grahambartley.dogsunleashed.portrait.DogPortraitEntity;
 import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfit;
-import com.grahambartley.dogsunleashed.portrait.DogPortraitOutfits;
 import com.grahambartley.dogsunleashed.portrait.PortraitSize;
 import java.util.List;
 import java.util.Map;
@@ -67,10 +68,9 @@ public final class DogPortraitGameTest implements FabricGameTest {
 
   private static DogPortrait huskyPortrait(final PortraitSize size) {
     return DogPortrait.painted(
-        new DogStatueLook(UnleashedDogBreed.HUSKY, false, 1, 0, 2, 0, null, null),
+        DogLook.plain(new DogStatueLook(UnleashedDogBreed.HUSKY, false, 1, 0, 2, 0, null, null)),
         "Rex",
-        size,
-        DogPortraitOutfit.NONE);
+        size);
   }
 
   private static ServerPlayerEntity holdingCanvas(
@@ -127,7 +127,7 @@ public final class DogPortraitGameTest implements FabricGameTest {
         player.getInventory().contains(new ItemStack(ModPortraits.BLANK_CANVAS));
     SurvivalTestPlayer.leave(context, player);
     context.assertTrue(portrait != null, "Using a canvas on your dog should paint its portrait");
-    context.assertEquals(portrait.look(), DogStatueLook.of(dog), "painted look");
+    context.assertEquals(portrait.look().statue(), DogStatueLook.of(dog), "painted look");
     context.assertEquals(portrait.size(), PortraitSize.WIDE, "painted size");
     context.assertFalse(canvasLeft, "Painting should use up the blank canvas");
     context.complete();
@@ -172,7 +172,7 @@ public final class DogPortraitGameTest implements FabricGameTest {
     final DogPortrait portrait = portraitIn(player).get(ModComponents.DOG_PORTRAIT);
     SurvivalTestPlayer.leave(context, player);
     context.assertTrue(portrait != null, "the portrait");
-    final DogPortraitOutfit outfit = portrait.outfit();
+    final DogPortraitOutfit outfit = portrait.look().outfit();
     context.assertTrue(
         outfit.worn(DogEquipmentSlot.ARMOUR).isOf(Items.WOLF_ARMOR), "painted armour");
     context.assertTrue(!outfit.worn(DogEquipmentSlot.COSMETIC).isEmpty(), "painted cosmetic");
@@ -182,24 +182,24 @@ public final class DogPortraitGameTest implements FabricGameTest {
     context.assertTrue(outfit.muddy(), "painted mud");
     context.assertTrue(!outfit.worn(DogEquipmentSlot.PENDANT).isEmpty(), "painted pendant");
     context.assertTrue(!outfit.worn(DogEquipmentSlot.COSTUME).isEmpty(), "painted costume");
-    context.assertTrue(outfit.senior(), "painted senior coat");
+    context.assertTrue(portrait.look().senior(), "painted senior coat");
     context.assertEquals(
         outfit.fetchType().orElse(null), FetchTypes.TENNIS_BALL.id(), "painted fetch toy");
     context.complete();
   }
 
   @GameTest(templateName = ARENA, batchId = "portrait")
-  public void aPaintedOutfitDressesAnotherDogTheSameWay(final TestContext context) {
+  public void aPaintedLookDressesAnotherDogTheSameWay(final TestContext context) {
     final UnleashedDogEntity source =
         DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, REL_DOG, UUID.randomUUID());
     source.setAiDisabled(true);
     dressUp(source);
-    final DogPortraitOutfit outfit = DogPortraitOutfits.of(source);
+    final DogLook look = DogLook.of(source);
 
     final UnleashedDogEntity model =
         context.spawnEntity(ModEntities.getDogEntityType(UnleashedDogBreed.HUSKY), REL_DOG.east());
     model.setAiDisabled(true);
-    DogPortraitOutfits.dress(model, outfit);
+    DogLooks.dress(model, look);
 
     context.assertEquals(
         model.getEquipmentHolder().getStack(DogEquipmentSlot.ARMOUR).getItem(),
@@ -220,13 +220,13 @@ public final class DogPortraitGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = ARENA, batchId = "portrait")
-  public void aPlainOutfitUndressesAReusedDog(final TestContext context) {
+  public void aPlainLookUndressesAReusedDog(final TestContext context) {
     final UnleashedDogEntity dog =
         DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, REL_DOG, UUID.randomUUID());
     dog.setAiDisabled(true);
     dressUp(dog);
 
-    DogPortraitOutfits.dress(dog, DogPortraitOutfit.NONE);
+    DogLooks.dress(dog, DogLook.plain(DogStatueLook.of(dog)));
 
     for (final DogEquipmentSlot slot : DogEquipmentSlot.values()) {
       context.assertTrue(dog.getEquipmentHolder().getStack(slot).isEmpty(), "undressed " + slot);
@@ -318,7 +318,8 @@ public final class DogPortraitGameTest implements FabricGameTest {
     SurvivalTestPlayer.leave(context, player);
 
     context.assertFalse(dog.isAlive(), "the dog is gone");
-    context.assertEquals(hung.portrait().map(DogPortrait::look).orElse(null), look, "hung look");
+    context.assertEquals(
+        hung.portrait().map(painting -> painting.look().statue()).orElse(null), look, "hung look");
     context.complete();
   }
 

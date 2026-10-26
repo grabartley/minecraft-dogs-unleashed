@@ -1,12 +1,13 @@
 package com.grahambartley.dogsunleashed.render.statue;
 
-import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.block.DogStatue;
 import com.grahambartley.dogsunleashed.block.entity.DogStatueBlockEntity;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.portrait.DogFacing;
+import com.grahambartley.dogsunleashed.portrait.DogLook;
+import com.grahambartley.dogsunleashed.portrait.DogLooks;
 import java.util.HashMap;
 import java.util.Map;
-import net.minecraft.entity.EntityType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
@@ -53,7 +54,7 @@ public final class StatueFigures {
     }
     final Figure current = this.figures.get(base.getPos());
     if (current != null && current.statue().equals(statue)) {
-      face(current.dog(), facing);
+      DogFacing.face(current.dog(), facing.asRotation());
       return current;
     }
     final UnleashedDogEntity dog = world == null ? null : carve(world, base.getPos(), statue);
@@ -61,7 +62,7 @@ public final class StatueFigures {
       this.figures.remove(base.getPos());
       return null;
     }
-    face(dog, facing);
+    DogFacing.face(dog, facing.asRotation());
     final Figure figure = new Figure(statue, dog);
     this.figures.put(base.getPos(), figure);
     return figure;
@@ -73,26 +74,12 @@ public final class StatueFigures {
 
   private static @Nullable UnleashedDogEntity carve(
       final World world, final BlockPos pos, final DogStatue statue) {
-    final EntityType<UnleashedDogEntity> type = ModEntities.getDogEntityType(statue.look().breed());
-    final UnleashedDogEntity dog = type == null ? null : type.create(world);
+    final UnleashedDogEntity dog = DogLooks.create(world, DogLook.plain(statue.look()));
     if (dog == null) {
       return null;
     }
     dog.setPosition(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
-    statue.look().applyTo(dog);
     statue.shownPose().applyTo(dog);
     return dog;
-  }
-
-  private static void face(final UnleashedDogEntity dog, final Direction facing) {
-    final float yaw = facing.asRotation();
-    dog.setYaw(yaw);
-    dog.setBodyYaw(yaw);
-    dog.setHeadYaw(yaw);
-    dog.prevYaw = yaw;
-    dog.prevBodyYaw = yaw;
-    dog.prevHeadYaw = yaw;
-    dog.setPitch(0.0f);
-    dog.prevPitch = 0.0f;
   }
 }

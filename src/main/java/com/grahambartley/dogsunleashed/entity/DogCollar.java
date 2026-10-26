@@ -7,6 +7,8 @@ import net.minecraft.util.DyeColor;
 
 public final class DogCollar extends DogComponent {
 
+  public static final DyeColor DEFAULT_COLOR = DyeColor.RED;
+
   private final UnleashedDogEntity dog;
 
   DogCollar(final UnleashedDogEntity dog) {

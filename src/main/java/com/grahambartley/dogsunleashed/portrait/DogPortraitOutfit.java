@@ -20,13 +20,10 @@ public record DogPortraitOutfit(
     Optional<DyeColor> collar,
     ItemStack carried,
     Optional<Identifier> fetchType,
-    boolean muddy,
-    boolean senior,
-    boolean undead) {
+    boolean muddy) {
 
   public static final DogPortraitOutfit NONE =
-      new DogPortraitOutfit(
-          Map.of(), Optional.empty(), ItemStack.EMPTY, Optional.empty(), false, false, false);
+      new DogPortraitOutfit(Map.of(), Optional.empty(), ItemStack.EMPTY, Optional.empty(), false);
 
   private static final Codec<DogEquipmentSlot> SLOT_CODEC =
       Codec.STRING.comapFlatMap(
@@ -55,13 +52,7 @@ public record DogPortraitOutfit(
                           .forGetter(DogPortraitOutfit::fetchType),
                       Codec.BOOL
                           .optionalFieldOf("muddy", false)
-                          .forGetter(DogPortraitOutfit::muddy),
-                      Codec.BOOL
-                          .optionalFieldOf("senior", false)
-                          .forGetter(DogPortraitOutfit::senior),
-                      Codec.BOOL
-                          .optionalFieldOf("undead", false)
-                          .forGetter(DogPortraitOutfit::undead))
+                          .forGetter(DogPortraitOutfit::muddy))
                   .apply(instance, DogPortraitOutfit::new));
 
   public static final PacketCodec<RegistryByteBuf, DogPortraitOutfit> PACKET_CODEC =
@@ -96,11 +87,6 @@ public record DogPortraitOutfit(
     return this.gear.getOrDefault(slot, ItemStack.EMPTY).copy();
   }
 
-  public DogPortraitOutfit withSenior(final boolean senior) {
-    return new DogPortraitOutfit(
-        this.gear, this.collar, this.carried, this.fetchType, this.muddy, senior, this.undead);
-  }
-
   public boolean carrying() {
     return !this.carried.isEmpty() || this.fetchType.isPresent();
   }
@@ -111,8 +97,6 @@ public record DogPortraitOutfit(
       return false;
     }
     return this.muddy == that.muddy
-        && this.senior == that.senior
-        && this.undead == that.undead
         && this.collar.equals(that.collar)
         && this.fetchType.equals(that.fetchType)
         && ItemStack.areEqual(this.carried, that.carried)
@@ -128,12 +112,6 @@ public record DogPortraitOutfit(
       gearHash += entry.getKey().hashCode() ^ ItemStack.hashCode(entry.getValue());
     }
     return Objects.hash(
-        gearHash,
-        this.collar,
-        ItemStack.hashCode(this.carried),
-        this.fetchType,
-        this.muddy,
-        this.senior,
-        this.undead);
+        gearHash, this.collar, ItemStack.hashCode(this.carried), this.fetchType, this.muddy);
   }
 }

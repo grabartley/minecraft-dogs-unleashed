@@ -141,7 +141,7 @@ public final class DogStatueGameTest implements FabricGameTest {
 
     final DogStatue statue = base.statue();
     context.assertTrue(statue != null, "The grave's dog should be carved when no dog is near");
-    context.assertEquals(statue.look(), DogStatueLook.of(pet), "carved look");
+    context.assertEquals(statue.look(), pet.getLook(), "carved look");
     context.assertEquals(statue.name(), "Bentley", "engraved name");
     context.complete();
   }

@@ -1,17 +1,14 @@
 package com.grahambartley.dogsunleashed.network.handler;
 
-import com.grahambartley.dogsunleashed.entity.DogBond;
+import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.entity.away.AwayDogs;
 import com.grahambartley.dogsunleashed.network.payload.PetSyncData;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLocationService;
 import com.grahambartley.dogsunleashed.pet.PetManager;
-import com.grahambartley.dogsunleashed.pet.PortraitLook;
 import java.util.List;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
 
 public final class PetSyncRefresher {
 
@@ -23,19 +20,12 @@ public final class PetSyncRefresher {
       if (pet.isAlive()) {
         final UnleashedDogEntity dog = PetLocationService.findLoadedDog(server, pet);
         if (dog != null) {
-          final float newHealth = dog.getHealth();
-          final BlockPos newPos = dog.getBlockPos();
-          final String newDim =
-              ((ServerWorld) dog.getWorld()).getRegistryKey().getValue().toString();
-          if (pet.differsFrom(
-              newHealth,
-              newPos,
-              newDim,
-              PortraitLook.of(dog),
-              dog.getComponents().get(DogBond.class).points())) {
-            pet.setHealth(newHealth);
-            pet.setLastKnownPosition(newPos);
-            pet.setDimension(newDim);
+          final PetData current =
+              PetData.snapshotOf(dog, pet.getOwnerId(), pet.getName(), pet.getLifeState());
+          if (pet.differsFrom(current, DogsUnleashed.SERVER_CONFIG.aging())) {
+            pet.setHealth(current.getHealth());
+            pet.setLastKnownPosition(current.getLastKnownPosition());
+            pet.setDimension(current.getDimension());
             pet.syncFrom(dog);
             petManager.updatePet(pet);
           }
