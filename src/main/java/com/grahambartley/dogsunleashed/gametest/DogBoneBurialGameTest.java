@@ -184,21 +184,19 @@ public final class DogBoneBurialGameTest implements FabricGameTest {
     context.complete();
   }
 
-  @GameTest(templateName = ARENA, batchId = BATCH + "-sitting", tickLimit = 400)
+  @GameTest(templateName = ARENA, batchId = BATCH + "-sitting", tickLimit = 20)
   public void aSittingDogBuriesTheBoneAndSitsBackDown(TestContext context) {
     dirtFloor(context);
     final ServerPlayerEntity owner = placeOwner(context);
     final UnleashedDogEntity dog = spawnOwnedDog(context, owner, DogCommand.SIT);
+    dog.setAiDisabled(true);
 
     giveBone(dog, owner);
 
-    context.runAtEveryTick(
-        () -> {
-          final boolean buried = !caches(context).buriedBy(dog.getUuid()).isEmpty();
-          if (buried && !burial(dog).isCarryingBone() && dog.isInSittingPose()) {
-            context.complete();
-          }
-        });
+    context.assertTrue(burial(dog).canBuryNow(), "A sitting dog should stand up to bury");
+    buryAtDigGround(context, dog);
+    context.assertTrue(dog.isSitting(), "A sitting dog should sit back down after burying");
+    context.complete();
   }
 
   @GameTest(templateName = ARENA, batchId = BATCH + "-following", tickLimit = 20)
@@ -257,21 +255,19 @@ public final class DogBoneBurialGameTest implements FabricGameTest {
     context.complete();
   }
 
-  @GameTest(templateName = ARENA, batchId = BATCH + "-staying", tickLimit = 400)
+  @GameTest(templateName = ARENA, batchId = BATCH + "-staying", tickLimit = 20)
   public void aStayingDogBuriesTheBoneNearby(TestContext context) {
     dirtFloor(context);
     final ServerPlayerEntity owner = placeOwner(context);
     final UnleashedDogEntity dog = spawnOwnedDog(context, owner, DogCommand.STAY);
+    dog.setAiDisabled(true);
 
     giveBone(dog, owner);
 
-    context.runAtEveryTick(
-        () -> {
-          final boolean buried = !caches(context).buriedBy(dog.getUuid()).isEmpty();
-          if (buried && !burial(dog).isCarryingBone()) {
-            context.complete();
-          }
-        });
+    context.assertTrue(burial(dog).canBuryNow(), "A staying dog should be free to bury");
+    buryAtDigGround(context, dog);
+    context.assertFalse(dog.isSitting(), "A staying dog should not sit after burying");
+    context.complete();
   }
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 400)
