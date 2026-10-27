@@ -40,16 +40,18 @@ public final class DogSleepApproach {
   }
 
   public static void step(final UnleashedDogEntity dog, final BlockPos bedPos) {
-    final Vec3d spot = walkTo(dog, bedPos);
-    final Step next =
-        next(
-            distance(dog.getPos(), spot),
-            pathEndTo(dog.getNavigation().getCurrentPath(), spot),
-            dog.isOnGround());
-    switch (next) {
+    final BlockPos cell = DogSleepSpotAnchor.approachCell(dog.getWorld(), bedPos);
+    final Vec3d spot = Vec3d.ofBottomCenter(cell);
+    final double dogToSpot = distance(dog.getPos(), spot);
+    final boolean arrived = dogToSpot <= ARRIVED_BLOCKS;
+    if (!arrived && !dog.getNavigation().isIdle()) {
+      return;
+    }
+    final Path fresh = arrived ? null : dog.getNavigation().findPathTo(cell, 0);
+    switch (next(dogToSpot, pathEndTo(fresh, spot), dog.isOnGround())) {
       case SLEEP -> dog.getSleepController().startSleepingInBed(bedPos);
       case GIVE_UP -> dog.getSleepController().giveUpOnBed();
-      case WALK -> {}
+      case WALK -> dog.getNavigation().startMovingAlong(fresh, SPEED);
     }
   }
 
