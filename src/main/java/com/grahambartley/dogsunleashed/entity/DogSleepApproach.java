@@ -22,7 +22,16 @@ public final class DogSleepApproach {
 
   public static boolean hasArrived(
       final BlockView world, final Vec3d dogPos, final BlockPos bedPos) {
-    return hasArrived(dogPos, DogSleepSpotAnchor.approachPoint(world, bedPos));
+    return hasArrived(dogPos, DogSleepSpotAnchor.approachPoint(world, bedPos))
+        || hasArrived(dogPos, Vec3d.ofBottomCenter(bedPos));
+  }
+
+  public static void step(final UnleashedDogEntity dog, final BlockPos bedPos) {
+    if (hasArrived(dog.getWorld(), dog.getPos(), bedPos)) {
+      dog.getSleepController().startSleepingInBed(bedPos);
+    } else {
+      walkTo(dog.getWorld(), dog.getNavigation(), bedPos);
+    }
   }
 
   public static void walkTo(

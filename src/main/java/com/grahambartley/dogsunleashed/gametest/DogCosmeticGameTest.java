@@ -196,9 +196,9 @@ public final class DogCosmeticGameTest implements FabricGameTest {
     for (final MobHead head : MobHead.values()) {
       wearables.add(new ItemStack(head.item()));
     }
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
+    owner.changeGameMode(GameMode.SURVIVAL);
     for (final ItemStack wearable : wearables) {
-      final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
-      owner.changeGameMode(GameMode.SURVIVAL);
       final UnleashedDogEntity dog =
           DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS, owner.getUuid());
       dog.setAiDisabled(true);

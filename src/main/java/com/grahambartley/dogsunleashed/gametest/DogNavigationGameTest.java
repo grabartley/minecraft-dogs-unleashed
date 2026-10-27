@@ -48,16 +48,17 @@ public final class DogNavigationGameTest implements FabricGameTest {
 
   private record SleepSpot(String name, BlockPos relPos, Consumer<TestContext> placer) {}
 
-  private static final List<SleepSpot> SPOTS =
-      List.of(
-          new SleepSpot(
-              "bed",
-              REL_BED,
-              context -> context.setBlockState(REL_BED, ModBlocks.DOG_BED.getDefaultState())),
-          new SleepSpot(
-              "house",
-              REL_HOUSE,
-              context -> DogHouseTestHelper.placeHouse(context, REL_HOUSE, Direction.EAST)));
+  private static final SleepSpot BED =
+      new SleepSpot(
+          "bed",
+          REL_BED,
+          context -> context.setBlockState(REL_BED, ModBlocks.DOG_BED.getDefaultState()));
+  private static final SleepSpot HOUSE =
+      new SleepSpot(
+          "house",
+          REL_HOUSE,
+          context -> DogHouseTestHelper.placeHouse(context, REL_HOUSE, Direction.EAST));
+  private static final List<SleepSpot> SPOTS = List.of(BED, HOUSE);
 
   @BeforeBatch(batchId = BATCH)
   public void beforeBatch(final ServerWorld world) {
@@ -102,23 +103,21 @@ public final class DogNavigationGameTest implements FabricGameTest {
 
   @GameTest(templateName = YARD, batchId = BATCH, tickLimit = TICK_LIMIT)
   public void goToBedFromBehindTheHouseWalksRoundToTheDoor(final TestContext context) {
-    final SleepSpot house = SPOTS.get(1);
-    final UnleashedDogEntity dog = dogBehindTheHouse(context, house);
+    final UnleashedDogEntity dog = dogBehindTheHouse(context, HOUSE);
     context.runAtTick(
         5,
         () ->
             context.assertTrue(
-                dog.getSleepController().commandToSleep(context.getAbsolutePos(house.relPos())),
+                dog.getSleepController().commandToSleep(context.getAbsolutePos(HOUSE.relPos())),
                 "The dog refused Go to Bed at night"));
-    expectAsleepBeforeTheEnd(context, dog, house);
+    expectAsleepBeforeTheEnd(context, dog, HOUSE);
   }
 
   @GameTest(templateName = YARD, batchId = BATCH, tickLimit = TICK_LIMIT)
   public void autoSleepFromBehindTheHouseWalksRoundToTheDoor(final TestContext context) {
-    final SleepSpot house = SPOTS.get(1);
-    final UnleashedDogEntity dog = dogBehindTheHouse(context, house);
-    dog.getSleepController().setAssignedBedPos(context.getAbsolutePos(house.relPos()));
-    expectAsleepBeforeTheEnd(context, dog, house);
+    final UnleashedDogEntity dog = dogBehindTheHouse(context, HOUSE);
+    dog.getSleepController().setAssignedBedPos(context.getAbsolutePos(HOUSE.relPos()));
+    expectAsleepBeforeTheEnd(context, dog, HOUSE);
   }
 
   @GameTest(templateName = YARD, batchId = BATCH, tickLimit = TICK_LIMIT)

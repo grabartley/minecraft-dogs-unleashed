@@ -134,11 +134,7 @@ public class AutoSleepGoal extends Goal {
       return;
     }
 
-    if (DogSleepApproach.hasArrived(this.dog.getWorld(), this.dog.getPos(), this.targetBedPos)) {
-      this.dog.getSleepController().startSleepingInBed(this.targetBedPos);
-    } else {
-      DogSleepApproach.walkTo(this.dog.getWorld(), this.dog.getNavigation(), this.targetBedPos);
-    }
+    DogSleepApproach.step(this.dog, this.targetBedPos);
   }
 
   @Override
