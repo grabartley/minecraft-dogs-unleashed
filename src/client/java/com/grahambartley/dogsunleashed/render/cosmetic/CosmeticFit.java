@@ -16,7 +16,7 @@ public final class CosmeticFit {
 
   static float headShare(final DogCosmetic cosmetic) {
     return switch (cosmetic) {
-      case STRAW_HAT -> 0.85f;
+      case STRAW_HAT -> 1.6f;
       case PARTY_HAT -> 0.5f;
       case BANDANA, COLLAR_BOW, ROSETTE -> 0.0f;
     };

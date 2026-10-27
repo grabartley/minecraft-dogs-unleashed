@@ -77,17 +77,10 @@ public enum DogEquipmentSlot {
   }
 
   public static @Nullable DogEquipmentSlot directEquipSlotFor(final ItemStack stack) {
-    if (ARMOUR.canHold(stack)) {
-      return ARMOUR;
-    }
-    if (PENDANT.canHold(stack)) {
-      return PENDANT;
-    }
-    if (COSTUME.canHold(stack)) {
-      return COSTUME;
-    }
-    if (SADDLEBAGS.canHold(stack)) {
-      return SADDLEBAGS;
+    for (final DogEquipmentSlot slot : values()) {
+      if (slot.canHold(stack)) {
+        return slot;
+      }
     }
     return null;
   }

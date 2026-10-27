@@ -87,6 +87,30 @@ class DogHouseLayoutTest {
   @EnumSource(
       value = Direction.class,
       names = {"NORTH", "SOUTH", "EAST", "WEST"})
+  @DisplayName("the doorstep is half a block in front of the door, between the two front cells")
+  void theDoorstepSitsJustOutsideTheDoor(final Direction facing) {
+    final Vec3d doorstep = DogHouseLayout.doorstep(ORIGIN, facing);
+    final BlockPos frontLeft =
+        ORIGIN.add(DogHouseLayout.offsetFromOrigin(DogHousePart.FRONT_LEFT_LOWER, facing));
+    final BlockPos frontRight =
+        ORIGIN.add(DogHouseLayout.offsetFromOrigin(DogHousePart.FRONT_RIGHT_LOWER, facing));
+    final Vec3d betweenFrontCells =
+        Vec3d.ofBottomCenter(frontLeft).add(Vec3d.ofBottomCenter(frontRight)).multiply(0.5);
+    final Vec3d expected = betweenFrontCells.add(facing.getOffsetX(), 0.0, facing.getOffsetZ());
+
+    assertEquals(expected.x, doorstep.x, 1.0e-9, "x");
+    assertEquals(expected.z, doorstep.z, 1.0e-9, "z");
+    assertEquals(ORIGIN.getY(), doorstep.y, 1.0e-9, "the doorstep is at floor level");
+    for (final BlockPos cell : DogHouseLayout.cellsOf(ORIGIN, facing)) {
+      assertFalse(
+          BlockPos.ofFloored(doorstep).equals(cell), "the doorstep must sit outside the house");
+    }
+  }
+
+  @ParameterizedTest(name = "facing {0}")
+  @EnumSource(
+      value = Direction.class,
+      names = {"NORTH", "SOUTH", "EAST", "WEST"})
   @DisplayName("a waking dog tries the two cells in front of the door first")
   void wakeCellsStartAtTheDoor(final Direction facing) {
     final List<BlockPos> wakeCells = DogHouseLayout.wakeCells(ORIGIN, facing);

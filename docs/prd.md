@@ -381,7 +381,7 @@ The gear screen, opened from the wheel, has slots for armour, a pendant, a cosme
 
 | Gesture | Result |
 |---|---|
-| Right-click your dog with armour or a pendant | Equips it, handing back what it wore |
+| Right-click your dog with armour, a pendant, a cosmetic, a costume or saddlebags | Equips it, handing back what it wore |
 | Right-click your dog with the armour's material | Repairs it |
 | Right-click your dog with a dye | Dyes its collar |
 | Feed your dog a Dog Treat | A short boost |
@@ -468,7 +468,7 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 | GROOM-5 | A trim goes wrong 5% of the time from natural, 12% from shaggy and 20% from overgrown, scaled by Bad Haircut Chance. A botched dog whines, earns "Bad Hair Day", gives double fur and looks botched until it grows back |
 | GROOM-6 | Wild adults spawn natural 70%, shaggy 25% and overgrown 5% of the time, up to their breed's maximum |
 | GROOM-7 | Each fur stage is clearly visible on every breed through hand-made fur, never generated |
-| GROOM-8 | A dog gets muddy walking on mud, through swamp water, or in rain on dirt, grass, podzol or farmland. Muddy dogs show mud and leave paw prints that fade in 30 seconds |
+| GROOM-8 | A dog gets muddy walking on mud, through swamp water, or in rain on dirt, grass, podzol or farmland. Muddy dogs show mud and leave paw prints on solid ground that fade in 30 seconds. Prints never show on water, in the air or on narrow tops like fences |
 | GROOM-9 | Using a water cauldron on a muddy dog cleans it and uses one level of water. Swimming in clean water cleans it over time, and mud wears off in a few days |
 | GROOM-10 | Muddy Dogs is a setting, on by default |
 

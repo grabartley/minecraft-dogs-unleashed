@@ -44,6 +44,7 @@ public final class DogNavigationGameTest implements FabricGameTest {
   private static final BlockPos REL_BED = new BlockPos(13, FLOOR_Y, 9);
   private static final BlockPos REL_HOUSE = new BlockPos(14, FLOOR_Y, 8);
   private static final BlockPos REL_GARDEN_FLOOR = new BlockPos(13, FLOOR_Y - 1, 9);
+  private static final BlockPos REL_BEHIND_HOUSE = new BlockPos(11, FLOOR_Y, 9);
 
   private record SleepSpot(String name, BlockPos relPos, Consumer<TestContext> placer) {}
 
@@ -100,6 +101,27 @@ public final class DogNavigationGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = YARD, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void goToBedFromBehindTheHouseWalksRoundToTheDoor(final TestContext context) {
+    final SleepSpot house = SPOTS.get(1);
+    final UnleashedDogEntity dog = dogBehindTheHouse(context, house);
+    context.runAtTick(
+        5,
+        () ->
+            context.assertTrue(
+                dog.getSleepController().commandToSleep(context.getAbsolutePos(house.relPos())),
+                "The dog refused Go to Bed at night"));
+    expectAsleepBeforeTheEnd(context, dog, house);
+  }
+
+  @GameTest(templateName = YARD, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void autoSleepFromBehindTheHouseWalksRoundToTheDoor(final TestContext context) {
+    final SleepSpot house = SPOTS.get(1);
+    final UnleashedDogEntity dog = dogBehindTheHouse(context, house);
+    dog.getSleepController().setAssignedBedPos(context.getAbsolutePos(house.relPos()));
+    expectAsleepBeforeTheEnd(context, dog, house);
+  }
+
+  @GameTest(templateName = YARD, batchId = BATCH, tickLimit = TICK_LIMIT)
   public void aWhistledDogWalksOutOfTheRoomAndRoundToTheSpot(final TestContext context) {
     final UnleashedDogEntity dog = dogInRoom(context);
     final Optional<Vec3d> marker =
@@ -129,12 +151,23 @@ public final class DogNavigationGameTest implements FabricGameTest {
     return dogInRoom(context);
   }
 
+  private static UnleashedDogEntity dogBehindTheHouse(
+      final TestContext context, final SleepSpot house) {
+    house.placer().accept(context);
+    buildRoom(context);
+    return ownedDogAt(context, REL_BEHIND_HOUSE);
+  }
+
   private static UnleashedDogEntity dogInRoom(final TestContext context) {
     buildRoom(context);
+    return ownedDogAt(context, REL_DOG);
+  }
+
+  private static UnleashedDogEntity ownedDogAt(final TestContext context, final BlockPos relPos) {
     final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
     final Vec3d ownerPos = Vec3d.ofBottomCenter(context.getAbsolutePos(REL_OWNER));
     owner.refreshPositionAndAngles(ownerPos.x, ownerPos.y, ownerPos.z, 0.0f, 0.0f);
-    final UnleashedDogEntity dog = context.spawnEntity(ModEntities.HUSKY, REL_DOG);
+    final UnleashedDogEntity dog = context.spawnEntity(ModEntities.HUSKY, relPos);
     dog.setTamed(true, true);
     dog.setOwnerUuid(owner.getUuid());
     dog.setInvulnerable(true);
