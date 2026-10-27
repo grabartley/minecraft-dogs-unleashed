@@ -48,7 +48,8 @@ public final class PawPrints {
     if (!dog.getComponents().get(DogMud.class).isMuddy()
         || !dog.isOnGround()
         || dog.isTouchingWater()
-        || dog.hasVehicle()) {
+        || dog.hasVehicle()
+        || !PawPrintGround.holdsPrint(dog.getWorld(), dog.getX(), dog.getY(), dog.getZ())) {
       TRAIL.forget(dog.getId());
       return;
     }

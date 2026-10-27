@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,22 @@ class DogEquipmentSlotTest {
   @DisplayName("an empty hand has no direct-equip target")
   void directEquipRejectsEmptyStack() {
     assertNull(DogEquipmentSlot.directEquipSlotFor(ItemStack.EMPTY));
+  }
+
+  @ParameterizedTest(name = "{0} -> {1}")
+  @CsvSource({"minecraft:wolf_armor, ARMOUR", "dogs-unleashed:saddlebags, SADDLEBAGS"})
+  @DisplayName("an item that fits a slot equips straight from the hand into that slot")
+  void anyFittingItemEquipsFromTheHand(final String itemId, final DogEquipmentSlot slot) {
+    final ItemStack stack = new ItemStack(Registries.ITEM.get(Identifier.of(itemId)));
+    assertSame(slot, DogEquipmentSlot.directEquipSlotFor(stack));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(strings = {"minecraft:stick", "minecraft:bone", "minecraft:iron_horse_armor"})
+  @DisplayName("an item no slot holds has no direct-equip target")
+  void unfittingItemsHaveNoDirectEquipTarget(final String itemId) {
+    final ItemStack stack = new ItemStack(Registries.ITEM.get(Identifier.of(itemId)));
+    assertNull(DogEquipmentSlot.directEquipSlotFor(stack));
   }
 
   @ParameterizedTest(name = "{0}")

@@ -34,7 +34,12 @@ final class PawPrintRenderer {
       final double dx = print.x() - camera.x;
       final double dy = print.y() - camera.y;
       final double dz = print.z() - camera.z;
-      if (!PawPrintRules.inRange(dx * dx + dy * dy + dz * dz)) {
+      if (!PawPrintRules.inRange(dx * dx + dy * dy + dz * dz)
+          || !PawPrintGround.holdsPrint(
+              context.world(),
+              PawPrintRules.pawX(print.x(), print.yaw(), print.sideOffset()),
+              print.y(),
+              PawPrintRules.pawZ(print.z(), print.yaw(), print.sideOffset()))) {
         continue;
       }
       final float alpha = PawPrintRules.alpha(trail.tick() - print.bornTick());

@@ -34,6 +34,14 @@ public final class PawPrintRules {
     return (left ? -1.0f : 1.0f) * dogWidth * SIDE_OFFSET_PER_DOG_WIDTH;
   }
 
+  public static double pawX(final double x, final float yaw, final float sideOffset) {
+    return x + sideOffset * Math.cos(Math.toRadians(180.0f - yaw));
+  }
+
+  public static double pawZ(final double z, final float yaw, final float sideOffset) {
+    return z - sideOffset * Math.sin(Math.toRadians(180.0f - yaw));
+  }
+
   public static boolean inRange(final double distanceSquared) {
     return distanceSquared <= RENDER_DISTANCE_BLOCKS * RENDER_DISTANCE_BLOCKS;
   }

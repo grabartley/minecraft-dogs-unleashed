@@ -4,11 +4,13 @@ import com.grahambartley.dogsunleashed.ModCosmeticItems;
 import com.grahambartley.dogsunleashed.entity.DogEquipmentSlot;
 import com.grahambartley.dogsunleashed.entity.DogVocalization;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import com.grahambartley.dogsunleashed.item.cosmetic.DogCosmetic;
 import com.grahambartley.dogsunleashed.item.cosmetic.DogCosmeticItem;
 import com.grahambartley.dogsunleashed.item.cosmetic.MobHead;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -27,10 +29,12 @@ import net.minecraft.recipe.input.CraftingRecipeInput;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.screen.LoomScreenHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.DyeColor;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameMode;
 
@@ -184,6 +188,37 @@ public final class DogCosmeticGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void everyCosmeticGoesOnWithARightClick(final TestContext context) {
+    final List<ItemStack> wearables = new ArrayList<>();
+    for (final DogCosmetic cosmetic : DogCosmetic.values()) {
+      wearables.add(cosmetic(cosmetic));
+    }
+    for (final MobHead head : MobHead.values()) {
+      wearables.add(new ItemStack(head.item()));
+    }
+    final ServerPlayerEntity owner = CreativeTestPlayer.join(context);
+    owner.changeGameMode(GameMode.SURVIVAL);
+    for (final ItemStack wearable : wearables) {
+      final UnleashedDogEntity dog =
+          DogTestHelper.spawnTamedDog(context, DogTestData.HUSKY, DOG_POS, owner.getUuid());
+      dog.setAiDisabled(true);
+      owner.setStackInHand(Hand.MAIN_HAND, wearable.copyWithCount(2));
+
+      dog.interactMob(owner, Hand.MAIN_HAND);
+
+      context.assertTrue(
+          ItemStack.areItemsEqual(
+              dog.getEquipmentHolder().getStack(DogEquipmentSlot.COSMETIC), wearable),
+          wearable.getItem() + " should go on the dog with a right click");
+      context.assertTrue(
+          owner.getStackInHand(Hand.MAIN_HAND).getCount() == 1,
+          wearable.getItem() + " should cost one item from the hand");
+      dog.discard();
+    }
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
   public void everyMobHeadFitsTheCosmeticSlotAndNoOther(final TestContext context) {
     for (final MobHead head : MobHead.values()) {
       final ItemStack stack = new ItemStack(head.item());
@@ -192,8 +227,8 @@ public final class DogCosmeticGameTest implements FabricGameTest {
       context.assertFalse(
           DogEquipmentSlot.PENDANT.canHold(stack), head + " should not fit the pendant slot");
       context.assertTrue(
-          DogEquipmentSlot.directEquipSlotFor(stack) == null,
-          head + " should only go on through the gear screen");
+          DogEquipmentSlot.directEquipSlotFor(stack) == DogEquipmentSlot.COSMETIC,
+          head + " should go straight on with a right click");
       context.assertTrue(
           MobHead.of(stack).equals(Optional.of(head)), head + " stack should name its head");
     }

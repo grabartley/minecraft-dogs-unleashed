@@ -40,6 +40,10 @@ public final class DogHouseLayout {
     return footprintMiddle(origin, facing).add(towardDoor(facing, CUSHION_TOWARD_DOOR));
   }
 
+  public static BlockPos doorstepCell(final BlockPos origin, final Direction facing) {
+    return origin.offset(facing);
+  }
+
   public static List<BlockPos> wakeCells(final BlockPos origin, final Direction facing) {
     final Set<BlockPos> footprint = Set.copyOf(cellsOf(origin, facing));
     final Set<BlockPos> ring = new LinkedHashSet<>();

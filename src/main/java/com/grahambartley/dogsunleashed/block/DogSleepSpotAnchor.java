@@ -29,6 +29,15 @@ public final class DogSleepSpotAnchor {
         currentYaw);
   }
 
+  public static BlockPos approachCell(final BlockView world, final BlockPos bedPos) {
+    final BlockState state = world.getBlockState(bedPos);
+    if (state.getBlock() instanceof DogHouseBlock) {
+      return DogHouseLayout.doorstepCell(
+          DogHouseBlock.originOf(state, bedPos), state.get(DogHouseBlock.FACING));
+    }
+    return bedPos;
+  }
+
   public static List<BlockPos> wakeCellsFor(final BlockView world, final BlockPos bedPos) {
     final BlockState state = world.getBlockState(bedPos);
     if (!(state.getBlock() instanceof DogHouseBlock)) {

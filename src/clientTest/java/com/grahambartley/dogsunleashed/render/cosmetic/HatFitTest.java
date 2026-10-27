@@ -98,14 +98,14 @@ class HatFitTest {
   }
 
   @Test
-  @DisplayName("a straw hat is 85 percent as wide as the husky's head bones")
+  @DisplayName("a straw hat brim is 1.6 times as wide as the husky's head bones")
   void widthComesFromTheHeadBones() {
     final BakedGeoModel husky = ShippedRigs.model("husky");
     final CubeGeometry.Bounds head =
         SlotBounds.of(husky, BUNDLED.profileOf(UnleashedDogBreed.HUSKY).bonesIn(Slot.HEAD));
 
     assertEquals(
-        0.85f * (head.max().x - head.min().x),
+        1.6f * (head.max().x - head.min().x),
         fitOf(UnleashedDogBreed.HUSKY, DogCosmetic.STRAW_HAT).width(),
         1.0e-4f);
   }

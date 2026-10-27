@@ -11,6 +11,7 @@ import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.pathing.NavigationType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemPlacementContext;
@@ -124,6 +125,11 @@ public class DogHouseBlock extends HorizontalFacingBlock implements BlockEntityP
   protected VoxelShape getCollisionShape(
       BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
     return DogHouseShape.collision(state.get(PART), state.get(FACING));
+  }
+
+  @Override
+  protected boolean canPathfindThrough(final BlockState state, final NavigationType type) {
+    return false;
   }
 
   @Override

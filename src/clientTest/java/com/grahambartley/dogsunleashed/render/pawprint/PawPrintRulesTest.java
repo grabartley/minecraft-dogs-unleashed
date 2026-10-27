@@ -52,4 +52,19 @@ class PawPrintRulesTest {
   void inRange(final double distanceSquared, final boolean drawn) {
     assertEquals(drawn, PawPrintRules.inRange(distanceSquared));
   }
+
+  @ParameterizedTest(name = "yaw {0}, side {1} -> paw offset ({2}, {3})")
+  @CsvSource({
+    "180, 0.2, 0.2, 0.0",
+    "180, -0.2, -0.2, 0.0",
+    "90, 0.2, 0.0, -0.2",
+    "0, 0.2, -0.2, 0.0",
+    "270, 0.2, 0.0, 0.2"
+  })
+  @DisplayName("a print's ground is checked where the paw lands, beside the dog's centre")
+  void pawSitsBesideTheCentre(
+      final float yaw, final float side, final double offsetX, final double offsetZ) {
+    assertEquals(10.0 + offsetX, PawPrintRules.pawX(10.0, yaw, side), 1.0e-5);
+    assertEquals(-4.0 + offsetZ, PawPrintRules.pawZ(-4.0, yaw, side), 1.0e-5);
+  }
 }

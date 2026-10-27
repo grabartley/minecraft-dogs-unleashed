@@ -1,17 +1,23 @@
 package com.grahambartley.dogsunleashed.block;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
 import com.grahambartley.dogsunleashed.ModBlocks;
+import java.util.Arrays;
+import java.util.stream.Stream;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.ai.pathing.NavigationType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(MinecraftBootstrapExtension.class)
 class DogHouseBlockTest {
@@ -58,5 +64,19 @@ class DogHouseBlockTest {
     for (final DogHousePart part : DogHousePart.values()) {
       assertEquals(facing, origin.with(DogHouseBlock.PART, part).get(DogHouseBlock.FACING));
     }
+  }
+
+  @ParameterizedTest(name = "{0} {1}")
+  @MethodSource("partsAndNavigation")
+  @DisplayName("no mob plans a path through any cell of the house, so dogs walk round to the door")
+  void noMobPathsThroughTheHouse(final DogHousePart part, final NavigationType type) {
+    final BlockState state = ModBlocks.DOG_HOUSE.getDefaultState().with(DogHouseBlock.PART, part);
+    assertFalse(state.canPathfindThrough(type));
+  }
+
+  static Stream<Arguments> partsAndNavigation() {
+    return Arrays.stream(DogHousePart.values())
+        .flatMap(
+            part -> Arrays.stream(NavigationType.values()).map(type -> Arguments.of(part, type)));
   }
 }

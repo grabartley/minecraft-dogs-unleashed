@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
 import com.grahambartley.dogsunleashed.ModBlockTags;
+import com.grahambartley.dogsunleashed.entity.DogSleepApproach;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.EnumSet;
 import net.minecraft.block.BlockState;
@@ -9,9 +10,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class SleepInBedGoal extends Goal {
-  private static final double BED_POSITION_OFFSET = 0.5;
-  private static final double MOVE_SPEED = 1.0;
-  private static final double CLOSE_ENOUGH_DISTANCE = 2.0;
 
   private final UnleashedDogEntity dog;
   private BlockPos targetBedPos;
@@ -72,13 +70,7 @@ public class SleepInBedGoal extends Goal {
   @Override
   public void start() {
     if (this.targetBedPos != null) {
-      this.dog
-          .getNavigation()
-          .startMovingTo(
-              this.targetBedPos.getX() + BED_POSITION_OFFSET,
-              this.targetBedPos.getY(),
-              this.targetBedPos.getZ() + BED_POSITION_OFFSET,
-              MOVE_SPEED);
+      DogSleepApproach.walkTo(this.dog, this.targetBedPos);
     }
   }
 
@@ -100,19 +92,7 @@ public class SleepInBedGoal extends Goal {
       return;
     }
 
-    final double distanceToBed = this.dog.getBlockPos().getSquaredDistance(this.targetBedPos);
-
-    if (distanceToBed <= CLOSE_ENOUGH_DISTANCE * CLOSE_ENOUGH_DISTANCE) {
-      this.dog.getSleepController().startSleepingInBed(this.targetBedPos);
-    } else {
-      this.dog
-          .getNavigation()
-          .startMovingTo(
-              this.targetBedPos.getX() + BED_POSITION_OFFSET,
-              this.targetBedPos.getY(),
-              this.targetBedPos.getZ() + BED_POSITION_OFFSET,
-              MOVE_SPEED);
-    }
+    DogSleepApproach.step(this.dog, this.targetBedPos);
   }
 
   @Override

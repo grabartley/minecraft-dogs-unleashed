@@ -12,6 +12,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 
 class DogHouseLayoutTest {
@@ -81,6 +82,16 @@ class DogHouseLayoutTest {
     assertEquals(midX + facing.getOffsetX() * towardDoor, anchor.x, 1.0e-9, "x");
     assertEquals(midZ + facing.getOffsetZ() * towardDoor, anchor.z, 1.0e-9, "z");
     assertEquals(ORIGIN.getY(), anchor.y, 1.0e-9, "an occupant lies on the floor");
+  }
+
+  @ParameterizedTest(name = "facing {0} -> ({1}, {2})")
+  @CsvSource({"NORTH, 10, -31", "EAST, 11, -30", "SOUTH, 10, -29", "WEST, 9, -30"})
+  @DisplayName("the doorstep is the cell straight out of the door from the origin cell")
+  void theDoorstepIsTheCellOutsideTheDoor(final Direction facing, final int x, final int z) {
+    final BlockPos doorstep = DogHouseLayout.doorstepCell(ORIGIN, facing);
+
+    assertEquals(new BlockPos(x, ORIGIN.getY(), z), doorstep);
+    assertFalse(DogHouseLayout.cellsOf(ORIGIN, facing).contains(doorstep));
   }
 
   @ParameterizedTest(name = "facing {0}")

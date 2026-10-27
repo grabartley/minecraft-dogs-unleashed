@@ -19,6 +19,10 @@ public final class DogNavigation extends MobNavigation {
     this.nodeBudgetRange = dog.getAttributeValue(EntityAttributes.GENERIC_FOLLOW_RANGE);
   }
 
+  public boolean searchesFullRange() {
+    return !DogNavigationRules.recentlyMissed(this.wideSearchMissedAt, this.world.getTime());
+  }
+
   @Override
   protected @Nullable Path findPathTo(
       final Set<BlockPos> positions,
