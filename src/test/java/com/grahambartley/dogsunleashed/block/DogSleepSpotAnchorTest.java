@@ -12,7 +12,6 @@ import java.util.stream.Stream;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockView;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,8 +32,8 @@ class DogSleepSpotAnchorTest {
     final BlockPos cell = ORIGIN.add(DogHouseLayout.offsetFromOrigin(part, facing));
 
     assertEquals(
-        DogHouseLayout.doorstep(ORIGIN, facing),
-        DogSleepSpotAnchor.approachPoint(worldWith(houseCell(part, facing)), cell));
+        DogHouseLayout.doorstepCell(ORIGIN, facing),
+        DogSleepSpotAnchor.approachCell(worldWith(houseCell(part, facing)), cell));
   }
 
   static Stream<Arguments> partsAndFacings() {
@@ -51,13 +50,12 @@ class DogSleepSpotAnchorTest {
   }
 
   @Test
-  @DisplayName("a dog heads for the middle of a dog bed")
+  @DisplayName("a dog heads straight for a dog bed")
   void bedApproachIsItsCentre() {
     final BlockPos bed = new BlockPos(3, 64, 7);
 
     assertEquals(
-        new Vec3d(3.5, 64.0, 7.5),
-        DogSleepSpotAnchor.approachPoint(worldWith(ModBlocks.DOG_BED.getDefaultState()), bed));
+        bed, DogSleepSpotAnchor.approachCell(worldWith(ModBlocks.DOG_BED.getDefaultState()), bed));
   }
 
   static BlockView worldWith(final BlockState state) {

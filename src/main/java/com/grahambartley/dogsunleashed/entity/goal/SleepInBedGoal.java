@@ -70,7 +70,7 @@ public class SleepInBedGoal extends Goal {
   @Override
   public void start() {
     if (this.targetBedPos != null) {
-      DogSleepApproach.walkTo(this.dog.getWorld(), this.dog.getNavigation(), this.targetBedPos);
+      DogSleepApproach.walkTo(this.dog, this.targetBedPos);
     }
   }
 

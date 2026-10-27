@@ -40,8 +40,8 @@ public final class DogHouseLayout {
     return footprintMiddle(origin, facing).add(towardDoor(facing, CUSHION_TOWARD_DOOR));
   }
 
-  public static Vec3d doorstep(final BlockPos origin, final Direction facing) {
-    return footprintMiddle(origin, facing).add(towardDoor(facing, MIDDLE_TO_DOORSTEP));
+  public static BlockPos doorstepCell(final BlockPos origin, final Direction facing) {
+    return origin.offset(facing);
   }
 
   public static List<BlockPos> wakeCells(final BlockPos origin, final Direction facing) {
@@ -57,7 +57,8 @@ public final class DogHouseLayout {
         }
       }
     }
-    final Vec3d doorstep = doorstep(origin, facing);
+    final Vec3d doorstep =
+        footprintMiddle(origin, facing).add(towardDoor(facing, MIDDLE_TO_DOORSTEP));
     return ring.stream()
         .sorted(
             Comparator.comparingDouble(

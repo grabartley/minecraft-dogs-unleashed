@@ -12,6 +12,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 
 class DogHouseLayoutTest {
@@ -83,28 +84,14 @@ class DogHouseLayoutTest {
     assertEquals(ORIGIN.getY(), anchor.y, 1.0e-9, "an occupant lies on the floor");
   }
 
-  @ParameterizedTest(name = "facing {0}")
-  @EnumSource(
-      value = Direction.class,
-      names = {"NORTH", "SOUTH", "EAST", "WEST"})
-  @DisplayName("the doorstep is half a block in front of the door, between the two front cells")
-  void theDoorstepSitsJustOutsideTheDoor(final Direction facing) {
-    final Vec3d doorstep = DogHouseLayout.doorstep(ORIGIN, facing);
-    final BlockPos frontLeft =
-        ORIGIN.add(DogHouseLayout.offsetFromOrigin(DogHousePart.FRONT_LEFT_LOWER, facing));
-    final BlockPos frontRight =
-        ORIGIN.add(DogHouseLayout.offsetFromOrigin(DogHousePart.FRONT_RIGHT_LOWER, facing));
-    final Vec3d betweenFrontCells =
-        Vec3d.ofBottomCenter(frontLeft).add(Vec3d.ofBottomCenter(frontRight)).multiply(0.5);
-    final Vec3d expected = betweenFrontCells.add(facing.getOffsetX(), 0.0, facing.getOffsetZ());
+  @ParameterizedTest(name = "facing {0} -> ({1}, {2})")
+  @CsvSource({"NORTH, 10, -31", "EAST, 11, -30", "SOUTH, 10, -29", "WEST, 9, -30"})
+  @DisplayName("the doorstep is the cell straight out of the door from the origin cell")
+  void theDoorstepIsTheCellOutsideTheDoor(final Direction facing, final int x, final int z) {
+    final BlockPos doorstep = DogHouseLayout.doorstepCell(ORIGIN, facing);
 
-    assertEquals(expected.x, doorstep.x, 1.0e-9, "x");
-    assertEquals(expected.z, doorstep.z, 1.0e-9, "z");
-    assertEquals(ORIGIN.getY(), doorstep.y, 1.0e-9, "the doorstep is at floor level");
-    for (final BlockPos cell : DogHouseLayout.cellsOf(ORIGIN, facing)) {
-      assertFalse(
-          BlockPos.ofFloored(doorstep).equals(cell), "the doorstep must sit outside the house");
-    }
+    assertEquals(new BlockPos(x, ORIGIN.getY(), z), doorstep);
+    assertFalse(DogHouseLayout.cellsOf(ORIGIN, facing).contains(doorstep));
   }
 
   @ParameterizedTest(name = "facing {0}")

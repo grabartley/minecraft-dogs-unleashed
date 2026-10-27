@@ -29,13 +29,13 @@ public final class DogSleepSpotAnchor {
         currentYaw);
   }
 
-  public static Vec3d approachPoint(final BlockView world, final BlockPos bedPos) {
+  public static BlockPos approachCell(final BlockView world, final BlockPos bedPos) {
     final BlockState state = world.getBlockState(bedPos);
     if (state.getBlock() instanceof DogHouseBlock) {
-      return DogHouseLayout.doorstep(
+      return DogHouseLayout.doorstepCell(
           DogHouseBlock.originOf(state, bedPos), state.get(DogHouseBlock.FACING));
     }
-    return Vec3d.ofBottomCenter(bedPos);
+    return bedPos;
   }
 
   public static List<BlockPos> wakeCellsFor(final BlockView world, final BlockPos bedPos) {

@@ -65,7 +65,7 @@ public final class DogSleepController {
     this.dog.getCommandController().demoteSitToFollow();
     this.autoSleepSuppressedUntil = NOT_SUPPRESSED;
     this.dog.getDataTracker().set(UnleashedDogEntity.COMMANDED_TO_SLEEP, true);
-    DogSleepApproach.walkTo(this.dog.getWorld(), this.dog.getNavigation(), bedPos);
+    DogSleepApproach.walkTo(this.dog, bedPos);
     return true;
   }
 
