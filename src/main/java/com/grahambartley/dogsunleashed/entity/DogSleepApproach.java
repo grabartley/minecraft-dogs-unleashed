@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.entity;
 
 import com.grahambartley.dogsunleashed.block.DogSleepSpotAnchor;
 import net.minecraft.entity.ai.pathing.EntityNavigation;
+import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockView;
@@ -20,17 +21,31 @@ public final class DogSleepApproach {
         && Math.abs(dogPos.y - approachPoint.y) <= CLOSE_ENOUGH_BLOCKS;
   }
 
-  public static boolean hasArrived(
-      final BlockView world, final Vec3d dogPos, final BlockPos bedPos) {
-    return hasArrived(dogPos, DogSleepSpotAnchor.approachPoint(world, bedPos))
-        || hasArrived(dogPos, Vec3d.ofBottomCenter(bedPos));
+  public enum Step {
+    SLEEP,
+    WALK,
+    GIVE_UP
+  }
+
+  public static Step next(
+      final boolean arrived, final boolean onGround, final boolean pathReaches) {
+    if (arrived) {
+      return Step.SLEEP;
+    }
+    return onGround && !pathReaches ? Step.GIVE_UP : Step.WALK;
   }
 
   public static void step(final UnleashedDogEntity dog, final BlockPos bedPos) {
-    if (hasArrived(dog.getWorld(), dog.getPos(), bedPos)) {
+    final boolean arrived =
+        hasArrived(dog.getPos(), DogSleepSpotAnchor.approachPoint(dog.getWorld(), bedPos));
+    if (arrived) {
       dog.getSleepController().startSleepingInBed(bedPos);
-    } else {
-      walkTo(dog.getWorld(), dog.getNavigation(), bedPos);
+      return;
+    }
+    walkTo(dog.getWorld(), dog.getNavigation(), bedPos);
+    final Path path = dog.getNavigation().getCurrentPath();
+    if (next(false, dog.isOnGround(), path != null && path.reachesTarget()) == Step.GIVE_UP) {
+      dog.getSleepController().giveUpOnBed();
     }
   }
 

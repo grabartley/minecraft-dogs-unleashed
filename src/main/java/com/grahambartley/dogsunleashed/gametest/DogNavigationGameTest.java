@@ -121,6 +121,52 @@ public final class DogNavigationGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = YARD, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void goToBedGivesUpWhenTheHouseDoorIsWalledOff(final TestContext context) {
+    final UnleashedDogEntity dog = dogBehindTheHouse(context, HOUSE);
+    wallOffTheDoor(context);
+    context.runAtTick(
+        5,
+        () ->
+            context.assertTrue(
+                dog.getSleepController().commandToSleep(context.getAbsolutePos(HOUSE.relPos())),
+                "The dog refused Go to Bed at night"));
+    expectToGiveUp(context, dog);
+  }
+
+  @GameTest(templateName = YARD, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void autoSleepGivesUpWhenTheHouseDoorIsWalledOff(final TestContext context) {
+    final UnleashedDogEntity dog = dogBehindTheHouse(context, HOUSE);
+    wallOffTheDoor(context);
+    dog.getSleepController().setAssignedBedPos(context.getAbsolutePos(HOUSE.relPos()));
+    expectToGiveUp(context, dog);
+  }
+
+  private static void wallOffTheDoor(final TestContext context) {
+    for (int y = FLOOR_Y; y <= FLOOR_Y + 1; y++) {
+      for (int z = REL_HOUSE.getZ(); z <= REL_HOUSE.getZ() + 1; z++) {
+        context.setBlockState(new BlockPos(REL_HOUSE.getX() + 1, y, z), Blocks.STONE);
+      }
+    }
+  }
+
+  private static void expectToGiveUp(final TestContext context, final UnleashedDogEntity dog) {
+    context.runAtEveryTick(
+        () -> {
+          context.assertFalse(
+              dog.getSleepController().isSleepingInBed(),
+              "The dog lay down in a house whose door it could not reach");
+          if (context.getTick() > 5
+              && !dog.getSleepController().isCommandedToSleep()
+              && dog.getSleepController().isAutoSleepSuppressed()) {
+            context.complete();
+          }
+        });
+    context.runAtTick(
+        TICK_LIMIT - 1,
+        () -> context.assertTrue(false, "The dog never gave up on a house it could not reach"));
+  }
+
+  @GameTest(templateName = YARD, batchId = BATCH, tickLimit = TICK_LIMIT)
   public void aWhistledDogWalksOutOfTheRoomAndRoundToTheSpot(final TestContext context) {
     final UnleashedDogEntity dog = dogInRoom(context);
     final Optional<Vec3d> marker =

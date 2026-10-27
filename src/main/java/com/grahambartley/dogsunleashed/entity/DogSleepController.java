@@ -13,6 +13,7 @@ import java.util.Optional;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -66,6 +67,13 @@ public final class DogSleepController {
     this.dog.getDataTracker().set(UnleashedDogEntity.COMMANDED_TO_SLEEP, true);
     DogSleepApproach.walkTo(this.dog.getWorld(), this.dog.getNavigation(), bedPos);
     return true;
+  }
+
+  public void giveUpOnBed() {
+    this.dog.getDataTracker().set(UnleashedDogEntity.COMMANDED_TO_SLEEP, false);
+    this.dog.getNavigation().stop();
+    this.markManuallyWoken();
+    this.dog.playSoundIfNotSilent(SoundEvents.ENTITY_WOLF_WHINE);
   }
 
   public void markManuallyWoken() {
