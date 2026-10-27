@@ -21,11 +21,14 @@ public final class DogSleepApproach {
   }
 
   public static Step next(
-      final double dogToSpot, final OptionalDouble pathEndToSpot, final boolean onGround) {
+      final double dogToSpot,
+      final OptionalDouble pathEndToSpot,
+      final boolean onGround,
+      final boolean fullSearch) {
     if (dogToSpot <= ARRIVED_BLOCKS) {
       return Step.SLEEP;
     }
-    if (!onGround) {
+    if (!onGround || !fullSearch) {
       return Step.WALK;
     }
     final boolean getsCloser =
@@ -47,8 +50,10 @@ public final class DogSleepApproach {
     if (!arrived && !dog.getNavigation().isIdle()) {
       return;
     }
+    final boolean fullSearch =
+        dog.getNavigation() instanceof DogNavigation navigation && navigation.searchesFullRange();
     final Path fresh = arrived ? null : dog.getNavigation().findPathTo(cell, 0);
-    switch (next(dogToSpot, pathEndTo(fresh, spot), dog.isOnGround())) {
+    switch (next(dogToSpot, pathEndTo(fresh, spot), dog.isOnGround(), fullSearch)) {
       case SLEEP -> dog.getSleepController().startSleepingInBed(bedPos);
       case GIVE_UP -> dog.getSleepController().giveUpOnBed();
       case WALK -> dog.getNavigation().startMovingAlong(fresh, SPEED);
