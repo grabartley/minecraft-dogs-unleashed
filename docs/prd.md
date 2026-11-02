@@ -976,6 +976,7 @@ These follow the Dog Rig Profiles plan. Where that plan and a later decision rec
 | LOOK-11 | Blocks and items look like vanilla ones wherever they are held or shown: GUI, first and third person, item frames and the ground |
 | LOOK-12 | Animal voices come from real recordings, never synthesis |
 | LOOK-13 | Every breed has a paw raise and more than one sleep pose |
+| LOOK-14 | Every breed lifts its head and opens its mouth when it barks |
 
 ### Accessibility
 
