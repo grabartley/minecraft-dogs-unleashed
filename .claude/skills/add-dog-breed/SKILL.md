@@ -33,7 +33,7 @@ sheet before the game is launched. Commit the exports, never the project file.
 Ensure you have these assets ready. Client-only assets live under
 `src/client/resources/assets/dogs-unleashed/`:
 - `geo/{breed_id}.geo.json` - GeckoLib model file
-- `animations/{breed_id}.animation.json` - GeckoLib animation file
+- `animations/{breed_id}.animation.json` - GeckoLib animation file, with a `bark` clip like every other rig
 - `textures/entity/{breed_id}_{coat_prefix}.png` - one texture per coat variant, or a single
   `textures/entity/{breed_id}.png` if the breed has no coat variants (texture naming is derived in
   `DogModel`: base id, then `_{coatPrefix}` if the breed has coats, then `_{eyeSuffix}` if it has

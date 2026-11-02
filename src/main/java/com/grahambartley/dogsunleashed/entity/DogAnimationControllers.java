@@ -64,6 +64,11 @@ public final class DogAnimationControllers {
     final List<AnimationController<UnleashedDogEntity>> layers = new ArrayList<>();
 
     layers.add(
+        new AnimationController<>(dog, DogAnimationKeys.BARK, 0, state -> PlayState.STOP)
+            .triggerableAnim(
+                DogAnimationKeys.BARK, RawAnimation.begin().thenPlay(DogAnimationKeys.BARK)));
+
+    layers.add(
         new AnimationController<>(
                 dog,
                 "tail",
@@ -170,11 +175,6 @@ public final class DogAnimationControllers {
               }
               return PlayState.STOP;
             }));
-
-    layers.add(
-        new AnimationController<>(dog, DogAnimationKeys.BARK, 0, state -> PlayState.STOP)
-            .triggerableAnim(
-                DogAnimationKeys.BARK, RawAnimation.begin().thenPlay(DogAnimationKeys.BARK)));
 
     layers.addAll(poses);
     layers.forEach(controllers::add);

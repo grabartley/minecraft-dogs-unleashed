@@ -33,7 +33,7 @@ public enum UnleashedDogBreed {
           BiomeKeys.SNOWY_SLOPES,
           BiomeKeys.GROVE),
       new Attributes(25.0, 0.30, 5.0),
-      new Voice(true, null, null, () -> ModSounds.HUSKY_HOWL, null, false),
+      new Voice(true, null, null, () -> ModSounds.HUSKY_HOWL, null),
       true,
       new RenderTransforms(1.3f, 0.5f, 0.0f, 1.31f),
       new FurProfile(DogFurStage.OVERGROWN, 144000, 2),
@@ -45,13 +45,7 @@ public enum UnleashedDogBreed {
       new Dimensions(0.8f, 1.1f),
       new SpawnSettings(10, 1, 2, BiomeKeys.PLAINS, BiomeKeys.SUNFLOWER_PLAINS, BiomeKeys.MEADOW),
       new Attributes(10.0, 0.25, 2.0),
-      new Voice(
-          false,
-          () -> ModSounds.DACHSHUND_BARK,
-          () -> ModSounds.DACHSHUND_ALERT,
-          null,
-          null,
-          false),
+      new Voice(false, () -> ModSounds.DACHSHUND_BARK, () -> ModSounds.DACHSHUND_ALERT, null, null),
       false,
       new RenderTransforms(1.3f, 0.75f, 180.0f, 0.57f),
       new FurProfile(DogFurStage.NATURAL, 216000, 1),
@@ -71,8 +65,7 @@ public enum UnleashedDogBreed {
           BiomeKeys.OLD_GROWTH_BIRCH_FOREST,
           BiomeKeys.MEADOW),
       new Attributes(17.0, 0.29, 3.0),
-      new Voice(
-          false, () -> ModSounds.BEAGLE_BARK, () -> ModSounds.BEAGLE_ALERT, null, null, false),
+      new Voice(false, () -> ModSounds.BEAGLE_BARK, () -> ModSounds.BEAGLE_ALERT, null, null),
       false,
       new RenderTransforms(1.5f, 0.75f, 0.0f, 0.88f),
       new FurProfile(DogFurStage.NATURAL, 216000, 1),
@@ -89,8 +82,7 @@ public enum UnleashedDogBreed {
           () -> ModSounds.GOLDEN_RETRIEVER_BARK,
           () -> ModSounds.GOLDEN_RETRIEVER_ALERT,
           null,
-          null,
-          false),
+          null),
       false,
       new RenderTransforms(1.7f, 0.85f, 0.0f, 1.31f),
       new FurProfile(DogFurStage.OVERGROWN, 144000, 2),
@@ -102,13 +94,7 @@ public enum UnleashedDogBreed {
       new Dimensions(0.8f, 1.1f),
       new SpawnSettings(10, 1, 2, BiomeKeys.CHERRY_GROVE),
       new Attributes(18.0, 0.32, 3.5),
-      new Voice(
-          false,
-          () -> ModSounds.SHIBA_INU_BARK,
-          () -> ModSounds.SHIBA_INU_ALERT,
-          null,
-          null,
-          false),
+      new Voice(false, () -> ModSounds.SHIBA_INU_BARK, () -> ModSounds.SHIBA_INU_ALERT, null, null),
       false,
       new RenderTransforms(1.5f, 0.75f, 0.0f, 0.88f),
       new FurProfile(DogFurStage.NATURAL, 180000, 2),
@@ -133,8 +119,7 @@ public enum UnleashedDogBreed {
           () -> ModSounds.DIRE_WOLF_BARK,
           () -> ModSounds.DIRE_WOLF_ALERT,
           () -> ModSounds.DIRE_WOLF_HOWL,
-          () -> ModSounds.DIRE_WOLF_GROWL,
-          true),
+          () -> ModSounds.DIRE_WOLF_GROWL),
       false,
       new RenderTransforms(1.47f, 0.735f, 0.0f, 1.31f),
       new FurProfile(DogFurStage.OVERGROWN, 144000, 2),
@@ -151,7 +136,7 @@ public enum UnleashedDogBreed {
       new Dimensions(0.8f, 1.1f),
       null,
       new Attributes(18.0, 0.29, 3.5),
-      new Voice(false, null, null, null, null, false),
+      new Voice(false, null, null, null, null),
       false,
       new RenderTransforms(1.5f, 0.75f, 0.0f, 0.88f),
       new FurProfile(DogFurStage.SHAGGY, 180000, 1),
@@ -273,10 +258,6 @@ public enum UnleashedDogBreed {
     return growlSound == null ? null : growlSound.get();
   }
 
-  public boolean barkMovesJaw() {
-    return this.voice.barkMovesJaw();
-  }
-
   public boolean hasEyeColorVariants() {
     return this.hasEyeColorVariants;
   }
@@ -336,8 +317,7 @@ public enum UnleashedDogBreed {
       @Nullable Supplier<SoundEvent> barkSound,
       @Nullable Supplier<SoundEvent> alertSound,
       @Nullable Supplier<SoundEvent> howlSound,
-      @Nullable Supplier<SoundEvent> growlSound,
-      boolean barkMovesJaw) {}
+      @Nullable Supplier<SoundEvent> growlSound) {}
 
   public record RenderTransforms(
       float adultScale, float babyScale, float bodyYawOffsetDegrees, float portraitHeight) {}

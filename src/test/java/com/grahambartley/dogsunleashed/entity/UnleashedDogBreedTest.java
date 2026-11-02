@@ -5,8 +5,16 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
+import java.io.IOException;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -22,6 +30,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(MinecraftBootstrapExtension.class)
 class UnleashedDogBreedTest {
+
+  private static final Path ASSETS = Path.of("src/client/resources/assets/dogs-unleashed");
 
   static Stream<Arguments> serializedIdAliases() {
     return Stream.of(
@@ -292,6 +302,12 @@ class UnleashedDogBreedTest {
     assertEquals("geo/" + id + ".geo.json", breed.geoPath());
   }
 
+  private static JsonObject readAsset(final String path) throws IOException {
+    try (Reader reader = Files.newBufferedReader(ASSETS.resolve(path), StandardCharsets.UTF_8)) {
+      return JsonParser.parseReader(reader).getAsJsonObject();
+    }
+  }
+
   static Stream<Arguments> furProfiles() {
     return Stream.of(
         Arguments.of(UnleashedDogBreed.HUSKY, DogFurStage.OVERGROWN, 144000, 2),
@@ -331,10 +347,26 @@ class UnleashedDogBreedTest {
   }
 
   @ParameterizedTest
-  @EnumSource(UnleashedDogBreed.class)
-  @DisplayName("only the dire wolf rig opens its jaw to bark")
-  void onlyTheDireWolfMovesItsJawToBark(final UnleashedDogBreed breed) {
-    assertEquals(breed == UnleashedDogBreed.DIRE_WOLF, breed.barkMovesJaw());
+  @EnumSource(
+      value = UnleashedDogBreed.class,
+      names = "CROSS_BREED",
+      mode = EnumSource.Mode.EXCLUDE)
+  @DisplayName("every rig has a bark clip that only moves bones the rig has")
+  void everyRigHasABarkClip(final UnleashedDogBreed breed) throws IOException {
+    final String id = breed.serializedId();
+    final JsonObject clips =
+        readAsset("animations/" + id + ".animation.json").getAsJsonObject("animations");
+    assertTrue(clips.has(DogAnimationKeys.BARK), id + " has no bark clip");
+    final Set<String> rigBones = new HashSet<>();
+    readAsset(breed.geoPath())
+        .getAsJsonArray("minecraft:geometry")
+        .get(0)
+        .getAsJsonObject()
+        .getAsJsonArray("bones")
+        .forEach(bone -> rigBones.add(bone.getAsJsonObject().get("name").getAsString()));
+    final Set<String> barkBones =
+        clips.getAsJsonObject(DogAnimationKeys.BARK).getAsJsonObject("bones").keySet();
+    assertTrue(rigBones.containsAll(barkBones), id + " bark moves " + barkBones);
   }
 
   @ParameterizedTest
