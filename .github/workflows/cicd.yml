@@ -209,6 +209,7 @@ jobs:
       # Runs after publishing and never fails the build: the artifacts are already live,
       # so a bookkeeping problem must not red-X a shipped release.
       - name: Create and apply release milestone
+        timeout-minutes: 5
         if: github.event_name == 'workflow_dispatch'
         continue-on-error: true
         env:
