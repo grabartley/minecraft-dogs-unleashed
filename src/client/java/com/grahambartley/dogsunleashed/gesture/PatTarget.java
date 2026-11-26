@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.gesture;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.render.DogFrame;
+import com.grahambartley.dogsunleashed.render.pat.DogCrowns;
 import com.grahambartley.dogsunleashed.render.rig.HeadTopLocator;
 import com.grahambartley.dogsunleashed.render.rig.RigModels;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile;
@@ -25,6 +26,21 @@ public final class PatTarget {
       final UnleashedDogEntity dog,
       final Arm arm,
       final float tickDelta) {
+    return crownOf(dog, tickDelta)
+        .map(
+            crown ->
+                inBodyFrame(
+                    crown.subtract(player.getLerpedPos(tickDelta)),
+                    MathHelper.lerp(tickDelta, player.prevBodyYaw, player.bodyYaw),
+                    arm));
+  }
+
+  public static Optional<Vec3d> crownOf(final UnleashedDogEntity dog, final float tickDelta) {
+    final Optional<Vec3d> live = DogCrowns.SHARED.of(dog.getId(), dog.getWorld().getTime());
+    return live.isPresent() ? live : restCrownOf(dog, tickDelta);
+  }
+
+  private static Optional<Vec3d> restCrownOf(final UnleashedDogEntity dog, final float tickDelta) {
     final UnleashedDogBreed rig = dog.getRigSourceBreed();
     final RigProfile profile = RigProfiles.of(rig);
     return RigModels.loaded(rig)
@@ -37,14 +53,7 @@ public final class PatTarget {
                               onDog(
                                   DogFrame.of(dog, model, profile).toEntity(top.crown()),
                                   MathHelper.lerp(tickDelta, dog.prevBodyYaw, dog.bodyYaw));
-                          final Vec3d offset =
-                              dog.getLerpedPos(tickDelta)
-                                  .add(onDog.x, onDog.y, onDog.z)
-                                  .subtract(player.getLerpedPos(tickDelta));
-                          return inBodyFrame(
-                              offset,
-                              MathHelper.lerp(tickDelta, player.prevBodyYaw, player.bodyYaw),
-                              arm);
+                          return dog.getLerpedPos(tickDelta).add(onDog.x, onDog.y, onDog.z);
                         }));
   }
 

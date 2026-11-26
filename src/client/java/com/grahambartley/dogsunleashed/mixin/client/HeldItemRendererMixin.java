@@ -1,7 +1,7 @@
 package com.grahambartley.dogsunleashed.mixin.client;
 
 import com.grahambartley.dogsunleashed.ModItems;
-import com.grahambartley.dogsunleashed.gesture.PatArmPose;
+import com.grahambartley.dogsunleashed.gesture.PatFirstPerson;
 import com.grahambartley.dogsunleashed.gesture.PlayerGesture;
 import com.grahambartley.dogsunleashed.gesture.PlayerGesturePoses;
 import com.grahambartley.dogsunleashed.whistle.WhistleBlowHold;
@@ -69,7 +69,7 @@ public abstract class HeldItemRendererMixin {
       final CallbackInfo info) {
     final MinecraftClient client = MinecraftClient.getInstance();
     if (client.player != null) {
-      PatArmPose.applyFirstPerson(
+      PatFirstPerson.applyTo(
           matrices, client.player, arm, client.getRenderTickCounter().getTickDelta(true));
     }
   }

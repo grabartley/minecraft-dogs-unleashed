@@ -116,7 +116,7 @@ class PettingRulesTest {
   }
 
   @ParameterizedTest(name = "asked {0} ticks ago -> still walking over {1}")
-  @CsvSource({"0, true", "59, true", "60, false", "-5, false"})
+  @CsvSource({"0, true", "67, true", "68, false", "-5, false"})
   @DisplayName("a dog walks over to the petter for a short while, then gives up")
   void theWalkOverEnds(final long ticksAgo, final boolean expected) {
     assertEquals(expected, PettingRules.isApproaching(NOW, NOW - ticksAgo));
@@ -144,5 +144,51 @@ class PettingRulesTest {
   void aDogCloseEnoughIsInReach(
       final double distance, final double halfWidth, final boolean expected) {
     assertEquals(expected, PettingRules.inReach(distance, halfWidth));
+  }
+
+  @ParameterizedTest(name = "asked {0} ticks ago -> knelt {1}")
+  @CsvSource({"0, false", "7, false", "8, true", "40, true"})
+  @DisplayName("the pat waits for the player to finish kneeling")
+  void thePatWaitsForTheKneel(final long ticksAgo, final boolean expected) {
+    assertEquals(expected, PettingRules.hasSettled(NOW, NOW - ticksAgo));
+  }
+
+  @ParameterizedTest(name = "moved {0} blocks -> walked away {1}")
+  @CsvSource({"0, false", "0.4, false", "1.0, false", "1.01, true", "5, true"})
+  @DisplayName("a petter who walks off calls the pat off")
+  void aPetterWhoWalksOffCallsItOff(final double moved, final boolean expected) {
+    assertEquals(expected, PettingRules.walkedAway(moved));
+  }
+
+  @ParameterizedTest(name = "yaw {0}, right handed {1} -> {2}, {3}")
+  @CsvSource({
+    "0, true, -0.2, 0.68",
+    "0, false, 0.2, 0.68",
+    "180, true, 0.2, -0.68",
+    "90, true, -0.68, -0.2",
+    "-90, false, 0.68, -0.2"
+  })
+  @DisplayName("the dog comes to a spot in front of the player, beside the patting hand")
+  void theDogComesToTheHandSide(
+      final float yaw, final boolean rightHanded, final double x, final double z) {
+    final PettingRules.Spot spot = PettingRules.handSpot(0.0, 0.0, yaw, rightHanded, 0.4);
+    assertEquals(x, spot.x(), 1.0e-6);
+    assertEquals(z, spot.z(), 1.0e-6);
+  }
+
+  @ParameterizedTest(name = "half width {0}, yaw {1}")
+  @CsvSource({"0.2, 0", "0.4, 45", "0.4, -120", "0.6, 200", "0.9, 10"})
+  @DisplayName("a dog standing on its hand spot is in reach of the hand")
+  void theHandSpotIsInReach(final double halfWidth, final float yaw) {
+    final PettingRules.Spot spot = PettingRules.handSpot(0.0, 0.0, yaw, true, halfWidth);
+    assertEquals(
+        true, PettingRules.inReach(Math.hypot(spot.x(), spot.z()), halfWidth), "spot " + spot);
+  }
+
+  @ParameterizedTest(name = "{0} blocks from the spot -> step straight in {1}")
+  @CsvSource({"0.2, true", "1.5, true", "1.6, false", "6, false"})
+  @DisplayName("the last stretch to the hand is a straight step, not a path")
+  void theLastStretchIsAStraightStep(final double blocks, final boolean expected) {
+    assertEquals(expected, PettingRules.closeEnoughToStep(blocks));
   }
 }

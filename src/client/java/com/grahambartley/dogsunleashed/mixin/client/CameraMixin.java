@@ -1,6 +1,6 @@
 package com.grahambartley.dogsunleashed.mixin.client;
 
-import com.grahambartley.dogsunleashed.gesture.PatArmPose;
+import com.grahambartley.dogsunleashed.gesture.PatBodyPose;
 import com.grahambartley.dogsunleashed.riding.SeatedRiders;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -33,7 +33,7 @@ public abstract class CameraMixin {
       final boolean inverseView,
       final float tickDelta) {
     final Vec3d eye = SeatedRiders.eyeOf(focusedEntity, new Vec3d(x, y, z), tickDelta);
-    final double kneel = thirdPerson ? 0.0 : PatArmPose.eyeDrop(focusedEntity, tickDelta);
+    final double kneel = thirdPerson ? 0.0 : PatBodyPose.eyeDrop(focusedEntity, tickDelta);
     original.call(camera, eye.x, eye.y - kneel, eye.z);
   }
 }

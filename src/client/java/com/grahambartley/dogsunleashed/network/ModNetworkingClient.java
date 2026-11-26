@@ -3,6 +3,8 @@ package com.grahambartley.dogsunleashed.network;
 import com.grahambartley.dogsunleashed.config.SyncedServerConfig;
 import com.grahambartley.dogsunleashed.entity.DogWheelAction;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import com.grahambartley.dogsunleashed.gesture.PatSessions;
+import com.grahambartley.dogsunleashed.gesture.PlayerGesture;
 import com.grahambartley.dogsunleashed.gesture.PlayerGesturePoses;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.SyncServerConfigS2CPayload;
 import com.grahambartley.dogsunleashed.network.payload.DeliverDogPayload;
@@ -22,6 +24,7 @@ import com.grahambartley.dogsunleashed.network.payload.SyncDogConnectionsPayload
 import com.grahambartley.dogsunleashed.network.payload.SyncPetManagerStatePayload;
 import com.grahambartley.dogsunleashed.network.payload.SyncPetsPayload;
 import com.grahambartley.dogsunleashed.pet.PetAliveFilter;
+import com.grahambartley.dogsunleashed.render.pat.DogCrowns;
 import com.grahambartley.dogsunleashed.screen.DeliveryPickerScreen;
 import com.grahambartley.dogsunleashed.screen.DogBreedNames;
 import com.grahambartley.dogsunleashed.screen.DogCommandWheelScreen;
@@ -58,19 +61,25 @@ public final class ModNetworkingClient {
     ClientPlayNetworking.registerGlobalReceiver(
         PlayerGesturePayload.ID, ModNetworkingClient::handlePlayerGesture);
     ClientPlayConnectionEvents.DISCONNECT.register(
-        (handler, client) -> PlayerGesturePoses.SHARED.clear());
+        (handler, client) -> {
+          PlayerGesturePoses.SHARED.clear();
+          PatSessions.SHARED.clear();
+          DogCrowns.SHARED.clear();
+        });
   }
 
   private static void handlePlayerGesture(
       PlayerGesturePayload payload, ClientPlayNetworking.Context context) {
     final ClientWorld world = context.client().world;
-    if (world != null) {
+    if (world == null) {
+      return;
+    }
+    if (payload.gesture() == PlayerGesture.WHISTLE) {
       PlayerGesturePoses.SHARED.start(
-          payload.entityId(),
-          payload.hand(),
-          payload.gesture(),
-          payload.targetEntityId(),
-          world.getTime());
+          payload.entityId(), payload.hand(), payload.gesture(), world.getTime());
+    } else {
+      PatSessions.SHARED.show(
+          payload.entityId(), payload.gesture(), payload.targetEntityId(), world.getTime());
     }
   }
 

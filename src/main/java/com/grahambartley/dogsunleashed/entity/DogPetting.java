@@ -10,6 +10,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
 public final class DogPetting extends DogComponent {
@@ -18,6 +19,7 @@ public final class DogPetting extends DogComponent {
   private long lastPettedAt = PettingRules.NEVER;
   private long requestedAt = PettingRules.NEVER;
   private @Nullable UUID petterUuid;
+  private Vec3d askedFrom = Vec3d.ZERO;
 
   DogPetting(final UnleashedDogEntity dog) {
     this.dog = dog;
@@ -29,15 +31,14 @@ public final class DogPetting extends DogComponent {
         player.isSneaking(), hand == Hand.MAIN_HAND, player.getStackInHand(hand).isEmpty())) {
       return null;
     }
-    if (!this.welcomes(player)) {
+    if (!PettingRules.welcomes(
+        this.stateFor(player), this.now(), this.lastPettedAt, this.requestedAt)) {
       return null;
     }
     this.petterUuid = player.getUuid();
-    if (this.canReach(player)) {
-      this.begin(player);
-    } else {
-      this.requestedAt = this.now();
-    }
+    this.askedFrom = player.getPos();
+    this.requestedAt = this.now();
+    this.show(player, PlayerGesture.INVITE);
     return ActionResult.CONSUME;
   }
 
@@ -53,15 +54,45 @@ public final class DogPetting extends DogComponent {
         : Optional.empty();
   }
 
-  public boolean arriveAt(final PlayerEntity player) {
-    if (!this.canReach(player)) {
-      return false;
+  public boolean isAtHandOf(final PlayerEntity player) {
+    return PettingRules.inReach(
+        this.dog.getPos().subtract(player.getPos()).horizontalLength(), this.dog.getWidth() / 2.0);
+  }
+
+  public void settleAt(final PlayerEntity player) {
+    if (!this.isAtHandOf(player) || !PettingRules.hasSettled(this.now(), this.requestedAt)) {
+      return;
     }
     this.requestedAt = PettingRules.NEVER;
-    if (this.welcomes(player)) {
+    final PettingRules.DogState state = this.stateFor(player);
+    if (state.calm() && state.free()) {
       this.begin(player);
+    } else {
+      this.release(player);
     }
-    return true;
+  }
+
+  @Override
+  void tick() {
+    if (this.petterUuid == null) {
+      return;
+    }
+    final boolean asking = this.requestedAt != PettingRules.NEVER;
+    final boolean petting = PettingRules.isBeingPetted(this.now(), this.lastPettedAt);
+    if (!asking && !petting) {
+      this.petterUuid = null;
+      return;
+    }
+    final Optional<PlayerEntity> petter = this.petter();
+    if (petter.isEmpty()
+        || !petter.get().isAlive()
+        || PettingRules.walkedAway(petter.get().getPos().distanceTo(this.askedFrom))
+        || (asking && !PettingRules.isApproaching(this.now(), this.requestedAt))) {
+      petter.ifPresent(this::release);
+      this.requestedAt = PettingRules.NEVER;
+      this.lastPettedAt = PettingRules.NEVER;
+      this.petterUuid = null;
+    }
   }
 
   private void begin(final PlayerEntity player) {
@@ -76,19 +107,17 @@ public final class DogPetting extends DogComponent {
     if (this.dog.isOwner(player)) {
       this.dog.getComponents().get(DogBond.class).reward(DogBondRules.Source.PET);
     }
+    this.show(player, PlayerGesture.PAT);
+  }
+
+  private void release(final PlayerEntity player) {
+    this.show(player, PlayerGesture.RELEASE);
+  }
+
+  private void show(final PlayerEntity player, final PlayerGesture gesture) {
     if (player instanceof ServerPlayerEntity serverPlayer) {
-      PlayerGestures.show(serverPlayer, Hand.MAIN_HAND, PlayerGesture.PAT, this.dog.getId());
+      PlayerGestures.show(serverPlayer, Hand.MAIN_HAND, gesture, this.dog.getId());
     }
-  }
-
-  private boolean welcomes(final PlayerEntity player) {
-    return PettingRules.welcomes(
-        this.stateFor(player), this.now(), this.lastPettedAt, this.requestedAt);
-  }
-
-  private boolean canReach(final PlayerEntity player) {
-    return PettingRules.inReach(
-        this.dog.getPos().subtract(player.getPos()).horizontalLength(), this.dog.getWidth() / 2.0);
   }
 
   private Optional<PlayerEntity> petter() {

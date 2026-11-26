@@ -1,6 +1,6 @@
 package com.grahambartley.dogsunleashed.mixin.client;
 
-import com.grahambartley.dogsunleashed.gesture.PatArmPose;
+import com.grahambartley.dogsunleashed.gesture.PatBodyPose;
 import com.grahambartley.dogsunleashed.riding.SeatedRiders;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
@@ -39,7 +39,7 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
       final int light,
       final CallbackInfo info) {
     if (entity instanceof PlayerEntity && this.model instanceof PlayerEntityModel<?> player) {
-      PatArmPose.applyTo(player, entity, tickDelta);
+      PatBodyPose.applyTo(player, entity, tickDelta);
     }
   }
 

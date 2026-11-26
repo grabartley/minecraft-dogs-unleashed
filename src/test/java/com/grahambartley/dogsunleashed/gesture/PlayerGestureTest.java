@@ -9,7 +9,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 class PlayerGestureTest {
 
   @ParameterizedTest(name = "{0} lasts {1} ticks")
-  @CsvSource({"WHISTLE, 14", "PAT, 30"})
+  @CsvSource({"WHISTLE, 14", "PAT, 30", "INVITE, 68", "RELEASE, 8"})
   @DisplayName("each gesture has its own length")
   void eachGestureHasItsOwnLength(final PlayerGesture gesture, final int ticks) {
     assertEquals(ticks, gesture.ticks());

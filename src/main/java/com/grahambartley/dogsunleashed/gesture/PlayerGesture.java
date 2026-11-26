@@ -2,7 +2,9 @@ package com.grahambartley.dogsunleashed.gesture;
 
 public enum PlayerGesture {
   WHISTLE(14),
-  PAT(30);
+  PAT(30),
+  INVITE(68),
+  RELEASE(8);
 
   private final int ticks;
 
