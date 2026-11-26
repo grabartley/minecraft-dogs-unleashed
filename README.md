@@ -98,7 +98,7 @@ both, though dire wolves keep to their own kind. Puppies take after their parent
 your dogs grow old with you, without ever dying of age.
 - **Bring them back.** A tamed dog that dies leaves a grave, and you can bring it back as an undead dog, then
 cure it. Carve any dog into a statue or paint its portrait for your wall.
-- **Little touches.** Every dog has a personality and grows closer to you over time. Huskies and dire wolves howl at
+- **Little touches.** Every dog has a personality, leans into a pat and grows closer to you over time. Huskies and dire wolves howl at
 the full moon, dogs tilt their heads at food, shake off after a swim, and leave muddy paw prints until you wash them.
 Most dogs bark at pillagers and earn a rosette for helping you win a raid, and stick close to you in the Nether.
 

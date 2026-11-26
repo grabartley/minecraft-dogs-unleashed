@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed;
 
 import com.grahambartley.dogsunleashed.config.SyncedServerConfig;
+import com.grahambartley.dogsunleashed.gesture.PlayerPoseClips;
 import com.grahambartley.dogsunleashed.item.DogWhistleItem;
 import com.grahambartley.dogsunleashed.item.RopeToyItem;
 import com.grahambartley.dogsunleashed.item.SledItem;
@@ -195,6 +196,8 @@ public class DogsUnleashedClient implements ClientModInitializer {
     ClientTickEvents.END_CLIENT_TICK.register(client -> PortraitTextures.cache().bakeNextPending());
     resources.registerReloadListener(
         new CacheReloader(RigProfiles.RELOADER_ID, RigProfiles.shared()::clear));
+    resources.registerReloadListener(
+        new CacheReloader(PlayerPoseClips.RELOADER_ID, PlayerPoseClips::clear));
     resources.registerReloadListener(
         new CacheReloader(SledAnchors.RELOADER_ID, SledAnchors.shared()::clear));
     resources.registerReloadListener(

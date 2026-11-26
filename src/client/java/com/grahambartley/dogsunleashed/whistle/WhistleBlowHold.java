@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.whistle;
 
+import com.grahambartley.dogsunleashed.gesture.PlayerGesture;
 import net.minecraft.client.render.entity.feature.HeadFeatureRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Arm;
@@ -16,6 +17,7 @@ public final class WhistleBlowHold {
   static final float OUT_FROM_FACE = 0.6f;
   static final float TRUE_SIZE = 1.6f;
   static final float POINT_OUT_DEGREES = -90.0f;
+  static final float RAISE_TICKS = 3.0f;
 
   private WhistleBlowHold() {}
 
@@ -30,6 +32,10 @@ public final class WhistleBlowHold {
     matrices.translate(0.0f, -MOUTH_DROP, -OUT_FROM_FACE);
     matrices.scale(TRUE_SIZE, TRUE_SIZE, TRUE_SIZE);
     matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(POINT_OUT_DEGREES));
+  }
+
+  public static float liftAt(final float elapsedTicks) {
+    return PlayerGesture.WHISTLE.ramp(elapsedTicks, RAISE_TICKS);
   }
 
   static Vector3f shift(final Arm arm, final float lift) {

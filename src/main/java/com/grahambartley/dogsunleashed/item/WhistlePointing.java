@@ -8,6 +8,8 @@ import com.grahambartley.dogsunleashed.advancement.DogMilestoneCriterion;
 import com.grahambartley.dogsunleashed.entity.DogPointedOrders;
 import com.grahambartley.dogsunleashed.entity.DogStandingSpot;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gesture.PlayerGesture;
+import com.grahambartley.dogsunleashed.gesture.PlayerGestures;
 import com.grahambartley.dogsunleashed.item.WhistlePointRules.Unavailable;
 import com.grahambartley.dogsunleashed.network.payload.PointWithWhistlePayload;
 import com.grahambartley.dogsunleashed.pet.PetData;
@@ -78,7 +80,7 @@ public final class WhistlePointing {
     }
     player.getItemCooldownManager().set(ModItems.DOG_WHISTLE, DogWhistleItem.BLOW_COOLDOWN_TICKS);
     playPointNote(player);
-    WhistleBlowing.show(player, payload.hand());
+    PlayerGestures.show(player, payload.hand(), PlayerGesture.WHISTLE);
     showMarker(player, marker.get());
     dog.getCommandController().acknowledge();
     DogMilestoneCriterion.INSTANCE.trigger(player, DogMilestone.WHISTLE_POINT);

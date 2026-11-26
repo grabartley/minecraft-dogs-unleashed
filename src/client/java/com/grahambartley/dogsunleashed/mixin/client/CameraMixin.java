@@ -1,17 +1,23 @@
 package com.grahambartley.dogsunleashed.mixin.client;
 
+import com.grahambartley.dogsunleashed.gesture.PatBodyPose;
 import com.grahambartley.dogsunleashed.riding.SeatedRiders;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockView;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(Camera.class)
 public abstract class CameraMixin {
+
+  @Shadow private float cameraY;
+  @Shadow private float lastCameraY;
 
   @WrapOperation(
       method = "update",
@@ -32,6 +38,13 @@ public abstract class CameraMixin {
       final boolean inverseView,
       final float tickDelta) {
     final Vec3d eye = SeatedRiders.eyeOf(focusedEntity, new Vec3d(x, y, z), tickDelta);
-    original.call(camera, eye.x, eye.y, eye.z);
+    final double kneel =
+        thirdPerson
+            ? 0.0
+            : PatBodyPose.cameraLowering(
+                focusedEntity,
+                tickDelta,
+                MathHelper.lerp(tickDelta, this.lastCameraY, this.cameraY));
+    original.call(camera, eye.x, eye.y - kneel, eye.z);
   }
 }

@@ -54,12 +54,25 @@ class Layout(unittest.TestCase):
         self.assertEqual(spliced["animations"]["idle"]["bones"], {})
         self.assertEqual(spliced["animations"]["walk"]["bones"], {"old": {"rotation": [2, 0, 0]}})
 
-    def test_a_clip_missing_from_either_file_is_refused(self):
-        for shipped_clips, exported_clips in ((["idle"], ["idle", "beg"]), (["idle", "beg"], ["idle"])):
+    def test_a_clip_missing_from_either_file_is_refused_unless_adding(self):
+        for shipped_clips, exported_clips, add in ((["idle"], ["idle", "beg"], False),
+                                                   (["idle", "beg"], ["idle"], False),
+                                                   (["idle", "beg"], ["idle"], True)):
             shipped = {"animations": {name: {"bones": {}} for name in shipped_clips}}
             exported = {"animations": {name: {"bones": {}} for name in exported_clips}}
             with self.assertRaisesRegex(ValueError, "beg"):
-                layout.splice_tracks(shipped, exported, ["tail"], clips=["idle", "beg"])
+                layout.splice_tracks(shipped, exported, ["tail"], clips=["idle", "beg"], add_clips=add)
+
+    def test_a_new_clip_is_added_with_only_the_named_bones_and_its_settings(self):
+        shipped = {"animations": {"idle": {"bones": {"tail": {"rotation": [1, 0, 0]}}}}}
+        exported = {"animations": {"idle": {"bones": {"tail": {"rotation": [9, 9, 9]}}},
+                                   "petted": {"animation_length": 1.5, "loop": "hold_on_last_frame",
+                                              "bones": {"head": {"rotation": [5, 0, 0]}, "tail": {"rotation": [7, 0, 0]}}}}}
+        spliced = layout.splice_tracks(shipped, exported, ["head"], clips=["petted"], add_clips=True)
+        self.assertEqual(list(spliced["animations"]), ["idle", "petted"])
+        self.assertEqual(spliced["animations"]["idle"]["bones"], {"tail": {"rotation": [1, 0, 0]}})
+        self.assertEqual(spliced["animations"]["petted"],
+                         {"animation_length": 1.5, "loop": "hold_on_last_frame", "bones": {"head": {"rotation": [5, 0, 0]}}})
 
 
 if __name__ == "__main__":

@@ -1,8 +1,9 @@
 package com.grahambartley.dogsunleashed.mixin.client;
 
 import com.grahambartley.dogsunleashed.ModItems;
+import com.grahambartley.dogsunleashed.gesture.PlayerGesture;
+import com.grahambartley.dogsunleashed.gesture.PlayerGesturePoses;
 import com.grahambartley.dogsunleashed.whistle.WhistleBlowHold;
-import com.grahambartley.dogsunleashed.whistle.WhistleBlowPoses;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.PlayerHeldItemFeatureRenderer;
@@ -38,7 +39,8 @@ public abstract class PlayerHeldItemFeatureRendererMixin {
       final CallbackInfo info) {
     final Hand hand = arm == entity.getMainArm() ? Hand.MAIN_HAND : Hand.OFF_HAND;
     if (!stack.isOf(ModItems.DOG_WHISTLE)
-        || !WhistleBlowPoses.SHARED.isBlowing(entity.getId(), hand, entity.getWorld().getTime())
+        || !PlayerGesturePoses.SHARED.isPlaying(
+            entity.getId(), hand, PlayerGesture.WHISTLE, entity.getWorld().getTime())
         || !(((FeatureRenderer<?, ?>) (Object) this).getContextModel()
             instanceof ModelWithHead model)) {
       return;

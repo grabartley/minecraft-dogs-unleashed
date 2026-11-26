@@ -4,8 +4,8 @@ import com.google.common.collect.Sets;
 import com.grahambartley.dogsunleashed.config.SyncedServerConfig;
 import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.DogSledHarness;
-import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.gesture.PatSessions;
 import com.grahambartley.dogsunleashed.model.DogModel;
 import com.grahambartley.dogsunleashed.render.cosmetic.HatFits;
 import com.grahambartley.dogsunleashed.render.cosmetic.MobHeadFits;
@@ -27,6 +27,8 @@ import com.grahambartley.dogsunleashed.render.layer.DogPendantLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogSaddlebagsLayer;
 import com.grahambartley.dogsunleashed.render.layer.DogSheetOverlayLayer;
 import com.grahambartley.dogsunleashed.render.layer.UndeadEyeGlowLayer;
+import com.grahambartley.dogsunleashed.render.pat.DogCrowns;
+import com.grahambartley.dogsunleashed.render.rig.HeadTopLocator;
 import com.grahambartley.dogsunleashed.render.rig.RigProfile;
 import com.grahambartley.dogsunleashed.render.rig.RigProfiles;
 import com.grahambartley.dogsunleashed.render.sled.HarnessRing;
@@ -66,6 +68,7 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
   private final Matrix4f frameOrigin = new Matrix4f();
   private final Map<String, SeatTransform> frameSeats = new HashMap<>();
   private @Nullable String frameHarnessRing;
+  private @Nullable HeadTopLocator.HeadTop frameCrown;
 
   public static EntityRendererFactory<UnleashedDogEntity> sharing(final DogModel model) {
     return context -> {
@@ -161,21 +164,19 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
             Sets.union(
                 this.hatFits.earsHiddenOn(animatable, model, this.frameProfile),
                 this.mobHeadFits.earsHiddenOn(animatable, model, this.frameProfile)));
-    this.frameGrowth =
-        animatable.getGrowth().applies()
-            ? GrowthRigScale.of(model, this.frameProfile, animatable.getGrowth().stage())
-            : CrossBreedRendering.shapeOf(animatable, model, this.frameProfile);
+    this.frameCrown =
+        PatSessions.SHARED.targets(animatable.getId())
+            ? HeadTopLocator.locate(model, this.frameProfile).orElse(null)
+            : null;
+    final DogFrame frame = DogFrame.of(animatable, model, this.frameProfile);
+    this.frameGrowth = frame.growth();
     if (!isReRender) {
-      final UnleashedDogBreed.RenderTransforms transforms =
-          animatable.getRigSourceBreed().renderTransforms();
-      final float scale = this.frameScale(animatable, transforms);
-      poseStack.scale(scale, scale, scale);
-      if (transforms.bodyYawOffsetDegrees() != 0.0f) {
-        poseStack.multiply(
-            RotationAxis.POSITIVE_Y.rotationDegrees(transforms.bodyYawOffsetDegrees()));
+      poseStack.scale(frame.scale(), frame.scale(), frame.scale());
+      if (frame.yawOffsetDegrees() != 0.0f) {
+        poseStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(frame.yawOffsetDegrees()));
       }
       if (this.frameGrowth != null) {
-        poseStack.translate(0.0f, this.frameGrowth.lift(), 0.0f);
+        poseStack.translate(0.0f, frame.lift(), 0.0f);
       }
     }
     super.preRender(
@@ -189,17 +190,6 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
         packedLight,
         packedOverlay,
         colour);
-  }
-
-  private float frameScale(
-      final UnleashedDogEntity animatable, final UnleashedDogBreed.RenderTransforms transforms) {
-    return DogFrameScale.of(
-        transforms,
-        animatable.isBaby(),
-        animatable.getGrowth().applies()
-            ? animatable.getGrowth().stage().renderScaleMultiplier()
-            : null,
-        this.frameGrowth == null ? 1.0f : this.frameGrowth.heightScale());
   }
 
   @Override
@@ -230,6 +220,11 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
     }
     if (!isReRender && bone.getName().equals(this.frameHarnessRing)) {
       this.captureHarnessRing(poseStack, animatable, bone);
+    }
+    if (!isReRender
+        && this.frameCrown != null
+        && bone.getName().equals(this.frameCrown.boneName())) {
+      this.captureCrown(poseStack, animatable, bone, partialTick);
     }
     super.renderRecursively(
         poseStack,
@@ -272,5 +267,23 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
     poseStack.pop();
     final Vec3d camera = MinecraftClient.getInstance().gameRenderer.getCamera().getPos();
     HarnessRumps.record(animatable, camera.add(ring.x, ring.y, ring.z));
+  }
+
+  private void captureCrown(
+      final MatrixStack poseStack,
+      final UnleashedDogEntity animatable,
+      final GeoBone bone,
+      final float partialTick) {
+    poseStack.push();
+    RenderUtil.prepMatrixForBone(poseStack, bone);
+    final Vector3f crown =
+        poseStack.peek().getPositionMatrix().transformPosition(this.frameCrown.crown());
+    poseStack.pop();
+    final Vec3d camera = MinecraftClient.getInstance().gameRenderer.getCamera().getPos();
+    DogCrowns.SHARED.record(
+        animatable.getId(),
+        animatable.getLerpedPos(partialTick),
+        camera.add(crown.x, crown.y, crown.z),
+        animatable.getWorld().getTime());
   }
 }

@@ -73,7 +73,7 @@ public final class RigProfiles {
     }
   }
 
-  static Optional<Reader> openShipped(final Identifier id) throws IOException {
+  public static Optional<Reader> openShipped(final Identifier id) throws IOException {
     final MinecraftClient client = MinecraftClient.getInstance();
     if (client != null && client.getResourceManager() != null) {
       final Optional<Resource> resource = client.getResourceManager().getResource(id);

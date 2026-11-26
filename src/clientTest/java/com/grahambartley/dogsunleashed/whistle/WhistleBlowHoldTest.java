@@ -14,6 +14,13 @@ import org.junit.jupiter.params.provider.EnumSource;
 
 class WhistleBlowHoldTest {
 
+  @ParameterizedTest(name = "{0} ticks in, lift {1}")
+  @CsvSource({"-1, 0", "0, 0", "1.5, 0.5", "3, 1", "7, 1", "11, 1", "12.5, 0.5", "14, 0", "40, 0"})
+  @DisplayName("the whistle rises to the mouth, holds, then drops back")
+  void liftFollowsTheBlow(final float elapsedTicks, final float expected) {
+    assertEquals(expected, WhistleBlowHold.liftAt(elapsedTicks), 1.0e-5f);
+  }
+
   @ParameterizedTest(name = "{0}")
   @EnumSource(Arm.class)
   @DisplayName("at rest the whistle stays where vanilla holds it")

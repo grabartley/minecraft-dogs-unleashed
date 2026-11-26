@@ -298,7 +298,7 @@ public final class DogTreatGameTest implements FabricGameTest {
 
     context.assertFalse(
         dog.getComponents().get(DogTreatBuffState.class).isActive(),
-        "Sneak-right-click is the bed assignment gesture, not a feed");
+        "A sneaking owner does not hand over a treat");
     context.assertEquals(
         owner.getStackInHand(Hand.MAIN_HAND).getCount(),
         HELD_STACK_COUNT,

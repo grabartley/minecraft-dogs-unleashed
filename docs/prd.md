@@ -93,6 +93,7 @@ Decisions the product owner has made where the sources could be read more than o
 | Do mob costumes change how mobs treat the dog? | No. Costumes and mob heads are cosmetic only | COSTUME-9 |
 | Can a costume be worn with armour? | Yes. Armour covers it, and it shows again when the armour comes off | COSTUME-5 |
 | Where does the command wheel get room for new actions? | One Actions sector opens a second ring. Existing sectors keep their places | CMD-14 |
+| Who can pet a dog, and why is bed assignment on the wheel? | Anyone may pet any calm dog with a sneak click and an empty hand, the most natural gesture for it. Bed assignment moved to the wheel's Actions ring to free that click | LIFE-18, LIFE-20 |
 | Where the Dog Rig Profiles plan and a decision record disagree, which wins? | The decision record: fur is hand made, armour is painted per torso | LOOK-5 |
 
 ## 3. Actors
@@ -227,7 +228,8 @@ Most breeds are tamed with meat or a bone. A dire wolf can only be won as a pup,
 |---|---|
 | Right-click a wild founding breed with a taming food | 1 in 3 chance to tame. Hearts on success, smoke on failure. The food is used either way |
 | Right-click a wild dire wolf pup with meat or a bone | Adds trust if the pup will take it |
-| Sneak and right-click a wild dog | Opens a read-only inspect card |
+| Sneak and right-click a wild dog while holding something | Opens a read-only inspect card |
+| Sneak and right-click any dog with an empty hand | Pets it (LIFE-18) |
 
 | ID | Requirement |
 |---|---|
@@ -265,7 +267,7 @@ Right-clicking your own dog opens the command wheel. The dog takes a standing co
 | Go to Bed | Goes to its bed if it is sleepy |
 | Equipment | Opens the gear screen |
 | Ride | Mounts a prime or alpha dire wolf |
-| Actions | Opens a second ring with one-shot actions: learned tricks, Explore, Deliver |
+| Actions | Opens a second ring with one-shot actions: learned tricks, Explore, Deliver, Assign Bed |
 
 | ID | Requirement |
 |---|---|
@@ -347,7 +349,7 @@ Right-clicking your own dog opens the command wheel. The dog takes a standing co
 
 | Gesture | Result |
 |---|---|
-| Sneak and right-click your dog, then right-click a dog bed or house | Assigns the bed |
+| Choose Assign Bed under Actions on your dog's wheel, then right-click a dog bed or house | Assigns the bed |
 | Right-click an assigned bed | Sends the dog to bed, or wakes it |
 | Sneak and right-click an assigned bed with an empty hand | Unassigns it |
 | Right-click a bed or house with a dye | Recolours it |
@@ -648,7 +650,7 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 | ID | Requirement |
 |---|---|
 | BOND-1 | Every tamed dog has a bond with its owner in five named steps from Stranger to Devoted. Pet details show the step's name, never a number |
-| BOND-2 | Bond grows from walks together, play, fights won together, treats and grooming. Each source has a daily cap |
+| BOND-2 | Bond grows from walks together, play, fights won together, treats, grooming and petting. Each source has a daily cap |
 | BOND-3 | Bond never drops from neglect. It resets only if the dog changes owner |
 | BOND-4 | Bond shows in body language: tail wag speed, a play bow when the owner returns after a while, and following closer |
 | BOND-5 | A closer bond gives a longer follow and teleport range and faster responses. At Devoted the dog comes to its owner when they are hurt |
@@ -705,7 +707,7 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 
 ### 5.18 Everyday Dog Life
 
-**Actor:** Owner, and nearby dogs.
+**Actor:** Owner, other players, and nearby dogs.
 
 | ID | Requirement |
 |---|---|
@@ -726,6 +728,9 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 | LIFE-15 | Huskies and dire wolves, and crosses with their voice, howl at the full moon. An owner within 64 blocks earns "Bark at the Moon" |
 | LIFE-16 | Dogs bark when hungry for attention, hurt, low on health, fighting, or at random, at most every 6 seconds. Puppies bark higher. Huskies howl but never bark |
 | LIFE-17 | Bark Volume and Howl Volume are settings |
+| LIFE-18 | Any player pets any dog, tamed or wild, of any breed, age or growth stage, by sneaking and right-clicking it with an empty main hand while standing on the ground. The player turns side-on and gets low: down on one knee for a dog smaller than the player, standing at the shoulder for a big one, with a crouch between. The dog walks up so its neck is at the patting hand, coming alongside rather than into the player. The player strokes along the side of the neck twice, scratches under the chin and stands back up, while the dog lifts its chin into the hand, closes its eyes, wags, shows hearts and pants. A dog taller than the player stands side-on and bows its head down into the hand instead. Knees and elbows bend with the skin and armor, the hand and eyes follow the dog's head, the strokes scale with its head, and left-handed players mirror the pat. Everyone nearby sees both |
+| LIFE-19 | A dog takes a pat only while awake, not fighting, not angry at that player, and free: no trick, errand, meal, dig, vehicle, rider, sled harness, howl, shake or growl. It takes one pat at a time, a pat from anyone that arrives while one is under way is ignored, and a player pets one dog at a time. While petted a standing dog stops and faces alongside the player, and a sitting dog stays seated, so a sitting dog is petted only when its neck is already in reach. The pat is called off, and the player stands up, if the player walks or turns away, fills their main hand, leaves the ground, or the dog cannot reach the hand within about 3 seconds |
+| LIFE-20 | Only the owner's pats grow the bond (BOND-2) |
 
 **Enforcement:** server decides every behaviour. Sounds and particles are played to nearby clients.
 
@@ -859,6 +864,7 @@ The adversary is a modified client that can send any packet with any value. Hidi
 | Start a cure | yes | yes | yes | yes |
 | Place or take a grave totem, trigger the ritual | yes | yes | yes | yes |
 | Inspect a dog | sees the same in pet details (FIND-8) | yes, read-only | yes | yes |
+| Pet a dog | yes | yes | yes | yes |
 | Rename, summon, list in Pet Manager | yes | no | no | no |
 | View a family tree | yes, or a dog related to one they own | if related to a dog they own | same as a player | same as a player |
 | Assign or unassign a bed | yes | no | no | no |
@@ -968,7 +974,7 @@ These follow the Dog Rig Profiles plan. Where that plan and a later decision rec
 | LOOK-3 | The texture region for each role is worked out from the rig's geometry, never measured by hand |
 | LOOK-4 | An effect shown on every breed (undead, mud, grey muzzle) is painted once on a shared sheet and projected onto each rig (ADR 0006). A rig may override any role with hand-made art where the projection looks wrong |
 | LOOK-5 | Fur is hand made on each rig and named in its profile (ADR 0005). Armour is painted onto each breed's own torso (ADR 0003). A pendant is one model, placed from the collar on every breed (ADR 0002, 0004). Harnesses, saddlebags and cosmetics are placed from profile roles |
-| LOOK-6 | Every breed answers to the same animation names. A new animation (sniff, dig, play bow, cower, growl, beg, roll over, play dead, tug, run) is added under one name on every rig that uses it, using rotation rather than position keys where it must hold up across sizes |
+| LOOK-6 | Every breed answers to the same animation names. A new animation (sniff, dig, play bow, cower, growl, beg, roll over, play dead, tug, run, petted) is added under one name on every rig that uses it, using rotation rather than position keys where it must hold up across sizes |
 | LOOK-7 | Adding a breed takes a breed preset entry, a rig, coats and a profile. Armour, pendants, carried items, fur, overlays and gear then work on it from the profile, with no per-breed code in any feature |
 | LOOK-8 | A dire wolf is one rig at every growth stage, grown by scaling its profile roles (ADR 0007) |
 | LOOK-9 | A cross (FAM-7) stands on one parent's rig. Ears are inherited whole and never averaged. Colour and shape are inherited separately. Proportions are scaled while drawing, never by changing the model every dog of that breed shares |

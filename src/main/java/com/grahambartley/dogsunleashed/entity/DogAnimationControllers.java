@@ -28,6 +28,8 @@ public final class DogAnimationControllers {
     final List<AnimationController<UnleashedDogEntity>> poses = new ArrayList<>();
     poses.add(pose(dog, DogAnimationKeys.PLAY_BOW));
     poses.add(pose(dog, DogAnimationKeys.COWER));
+    poses.add(pose(dog, DogAnimationKeys.PETTED));
+    poses.add(pose(dog, DogAnimationKeys.PETTED_BOW));
     for (final DogTrick trick : DogTrick.values()) {
       poses.add(pose(dog, trick.animationKey()));
     }
