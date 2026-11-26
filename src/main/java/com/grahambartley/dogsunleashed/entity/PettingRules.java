@@ -71,19 +71,16 @@ public final class PettingRules {
     return requestedAt != NEVER && now - requestedAt >= SETTLE_TICKS;
   }
 
-  public static boolean closeEnoughToStep(final double blocksToSpot) {
-    return blocksToSpot <= CLOSE_IN_BLOCKS;
+  public static boolean closeEnoughToStep(final double blocksToSpot, final double dogHalfWidth) {
+    return blocksToSpot <= CLOSE_IN_BLOCKS + dogHalfWidth;
   }
 
   public static boolean walkedAway(final double movedBlocks) {
     return movedBlocks > WALK_AWAY_BLOCKS;
   }
 
-  public static boolean turnedAway(
-      final float yawDegrees, final double towardDogX, final double towardDogZ) {
-    final double facing = Math.toDegrees(Math.atan2(-towardDogX, towardDogZ));
-    final double off = Math.abs(((facing - yawDegrees) % 360.0 + 540.0) % 360.0 - 180.0);
-    return off > TURN_AWAY_DEGREES;
+  public static boolean turnedAway(final float yawDegrees, final float askedYawDegrees) {
+    return Math.abs(MathHelper.wrapDegrees(yawDegrees - askedYawDegrees)) > TURN_AWAY_DEGREES;
   }
 
   public static boolean welcomes(

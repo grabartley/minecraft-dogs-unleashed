@@ -28,11 +28,9 @@ class PetSpotTest {
     "0, true, 1, false",
     "90, true, 1, false",
     "-135, false, 1, false",
-    "0, true, 0, true",
-    "200, false, 0, true"
+    "200, false, 1, false"
   })
-  @DisplayName(
-      "for a kneel or a bow the dog stops in front, clear of the body, facing past the hand")
+  @DisplayName("for a kneel the dog stops in front, clear of the body, facing past the hand")
   void theDogStopsInFront(
       final float yaw, final boolean right, final float kneel, final boolean bows) {
     final PetSpot.Place place = PetSpot.of(0, 0, yaw, right, SMALL, 0.4, kneel, bows);
@@ -61,20 +59,31 @@ class PetSpotTest {
     }
   }
 
-  @ParameterizedTest(name = "yaw {0}")
-  @CsvSource({"0", "90", "-60"})
-  @DisplayName("a bowing dog's head passes beside the player, not into them")
-  void aBowingHeadPassesBeside(final float yaw) {
-    final PetSpot.Place place = PetSpot.of(0, 0, yaw, true, HUGE, 0.575, 0.0f, true);
+  @ParameterizedTest(name = "yaw {0}, right handed {1}")
+  @CsvSource({"0, true", "90, false", "-60, true", "200, false"})
+  @DisplayName(
+      "a bowing dog stands side-on at the patting side with its head passing in front of the player")
+  void aBowingDogStandsSideOn(final float yaw, final boolean right) {
+    final PetSpot.Place place = PetSpot.of(0, 0, yaw, right, HUGE, 0.8, 0.0f, true);
+    final double side = right ? 1.0 : -1.0;
+    assertEquals(side, Math.signum(rightOf(place.x(), place.z(), yaw)), "on the patting side");
+    assertTrue(
+        Math.hypot(place.x(), place.z()) >= PetSpot.PLAYER_HALF_WIDTH + 0.8 - 1.0e-6,
+        "the bodies do not overlap");
     final double dx = place.faceX() - place.x();
     final double dz = place.faceZ() - place.z();
     final double length = Math.hypot(dx, dz);
+    final double neckX = place.x() + dx / length * HUGE.neck();
+    final double neckZ = place.z() + dz / length * HUGE.neck();
     final double snoutX = place.x() + dx / length * HUGE.snout();
     final double snoutZ = place.z() + dz / length * HUGE.snout();
+    assertTrue(PetSpot.reachesNeck(Math.hypot(neckX, neckZ), 0.0, 0.0f), "neck at the hand");
+    assertTrue(forwardOf(new PetSpot.Place(snoutX, snoutZ, 0, 0), yaw) > PetSpot.PLAYER_HALF_WIDTH);
     assertTrue(
-        Math.hypot(snoutX, snoutZ) > PetSpot.PLAYER_HALF_WIDTH,
-        "snout at " + snoutX + ", " + snoutZ);
-    assertTrue(rightOf(snoutX, snoutZ, yaw) > 0.0, "the head passes on the patting side");
+        side * rightOf(snoutX, snoutZ, yaw) < side * rightOf(neckX, neckZ, yaw),
+        "the head points across in front of the player");
+    final double across = Math.abs(dx * neckZ - dz * neckX) / length;
+    assertTrue(across > PetSpot.PLAYER_HALF_WIDTH, "the head clears the body by " + across);
   }
 
   @ParameterizedTest(name = "yaw {0}, right handed {1}")

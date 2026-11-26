@@ -25,6 +25,7 @@ public final class DogPetting extends DogComponent {
   private long requestedAt = PettingRules.NEVER;
   private @Nullable UUID petterUuid;
   private Vec3d askedFrom = Vec3d.ZERO;
+  private float askedYaw;
 
   DogPetting(final UnleashedDogEntity dog) {
     this.dog = dog;
@@ -47,6 +48,7 @@ public final class DogPetting extends DogComponent {
     }
     this.petterUuid = player.getUuid();
     this.askedFrom = player.getPos();
+    this.askedYaw = player.getHeadYaw();
     this.requestedAt = this.now();
     this.show(player, PlayerGesture.INVITE);
     return ActionResult.CONSUME;
@@ -130,7 +132,7 @@ public final class DogPetting extends DogComponent {
         || !petter.getMainHandStack().isEmpty()
         || !standsSteady(petter)
         || PettingRules.walkedAway(petter.getPos().distanceTo(this.askedFrom))
-        || this.turnedAwayFrom(petter)
+        || PettingRules.turnedAway(petter.getHeadYaw(), this.askedYaw)
         || (asking && !PettingRules.isApproaching(this.now(), this.requestedAt));
   }
 
@@ -153,12 +155,6 @@ public final class DogPetting extends DogComponent {
             spot.faceZ(),
             LOOK_TURN_DEGREES,
             LOOK_TURN_DEGREES);
-  }
-
-  private boolean turnedAwayFrom(final PlayerEntity petter) {
-    final Vec3d neck = this.neck();
-    return PettingRules.turnedAway(
-        petter.getHeadYaw(), neck.x - petter.getX(), neck.z - petter.getZ());
   }
 
   private boolean canReachNeck(final PlayerEntity player) {

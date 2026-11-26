@@ -147,28 +147,35 @@ class PettingRulesTest {
     assertEquals(expected, PettingRules.walkedAway(moved));
   }
 
-  @ParameterizedTest(name = "yaw {0}, dog at {1},{2} -> turned away {3}")
+  @ParameterizedTest(name = "facing {0}, asked facing {1} -> turned away {2}")
   @CsvSource({
-    "0, 0, 1, false",
-    "0, 1, 1, false",
-    "0, 1, 0, false",
-    "0, 0, -1, true",
-    "90, -1, 0, false",
-    "90, 1, 0, true",
-    "-170, 0.1, -1, false",
-    "350, 0, 1, false"
+    "0, 0, false",
+    "60, 0, false",
+    "100, 0, false",
+    "101, 0, true",
+    "-150, 0, true",
+    "-170, 170, false",
+    "350, -5, false",
+    "90, -90, true"
   })
-  @DisplayName("a petter who turns their back on the dog calls the pat off")
-  void turningAwayCallsItOff(
-      final float yaw, final double dx, final double dz, final boolean expected) {
-    assertEquals(expected, PettingRules.turnedAway(yaw, dx, dz));
+  @DisplayName("a petter who turns their back on the pat they asked for calls it off")
+  void turningAwayCallsItOff(final float yaw, final float askedYaw, final boolean expected) {
+    assertEquals(expected, PettingRules.turnedAway(yaw, askedYaw));
   }
 
-  @ParameterizedTest(name = "{0} blocks from the spot -> step straight in {1}")
-  @CsvSource({"0.2, true", "1.5, true", "1.6, false", "6, false"})
-  @DisplayName("the last stretch to the hand is a straight step, not a path")
-  void theLastStretchIsAStraightStep(final double blocks, final boolean expected) {
-    assertEquals(expected, PettingRules.closeEnoughToStep(blocks));
+  @ParameterizedTest(name = "{0} blocks from the spot, half width {1} -> step straight in {2}")
+  @CsvSource({
+    "0.2, 0.2, true",
+    "1.7, 0.2, true",
+    "1.8, 0.2, false",
+    "2.4, 1.0, true",
+    "2.6, 1.0, false",
+    "6, 1.0, false"
+  })
+  @DisplayName("the last stretch to the hand is a straight step, longer for a wider dog")
+  void theLastStretchIsAStraightStep(
+      final double blocks, final double halfWidth, final boolean expected) {
+    assertEquals(expected, PettingRules.closeEnoughToStep(blocks, halfWidth));
   }
 
   @ParameterizedTest(name = "body {0} toward {1} -> {2}")

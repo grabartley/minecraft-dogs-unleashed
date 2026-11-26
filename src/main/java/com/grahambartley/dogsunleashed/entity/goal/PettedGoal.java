@@ -59,7 +59,8 @@ public class PettedGoal extends Goal {
     this.dog.getLookControl().lookAt(petter, LOOK_TURN_DEGREES, LOOK_TURN_DEGREES);
     final PetSpot.Place spot = this.petting().spotBeside(petter);
     if (PettingRules.closeEnoughToStep(
-        Math.hypot(spot.x() - this.dog.getX(), spot.z() - this.dog.getZ()))) {
+        Math.hypot(spot.x() - this.dog.getX(), spot.z() - this.dog.getZ()),
+        this.dog.getWidth() / 2.0)) {
       this.dog.getNavigation().stop();
       this.dog.getMoveControl().moveTo(spot.x(), petter.getY(), spot.z(), APPROACH_SPEED);
       return;
