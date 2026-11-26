@@ -52,14 +52,14 @@ public final class DogsUnleashedInfoEntries {
     definitions.add(item("tennis_ball", () -> ModItems.TENNIS_BALL));
     definitions.add(item("stick", () -> Items.STICK));
     definitions.add(dyed("frisbee", () -> ModItems.FRISBEE, () -> ModComponents.FRISBEE_COLOR));
-    definitions.add(dyed("dog_bed", () -> ModItems.DOG_BED, () -> ModComponents.DOG_BED_COLOR));
-    definitions.add(item("dog_house", () -> ModItems.DOG_HOUSE));
+    definitions.add(wooden("dog_bed", () -> ModItems.DOG_BED));
+    definitions.add(wooden("dog_house", () -> ModItems.DOG_HOUSE));
     definitions.add(item("dog_grave", () -> ModItems.DOG_GRAVE));
     definitions.add(
         text("dog_statue", () -> ModStatueBlocks.all().stream().map(ItemStack::new).toList()));
     definitions.add(item("dog_treat", () -> ModItems.DOG_TREAT));
     definitions.add(item("dog_whistle", () -> ModItems.DOG_WHISTLE));
-    definitions.add(item("sled", () -> ModItems.SLED));
+    definitions.add(wooden("sled", () -> ModItems.SLED));
     definitions.add(item("rope_toy", () -> ModItems.ROPE_TOY));
     definitions.add(text("taming_food", () -> matchingStacks(DogFoods.tamingIngredient())));
     definitions.add(text("breeding_food", () -> matchingStacks(DogFoods.breedingIngredient())));
@@ -85,6 +85,10 @@ public final class DogsUnleashedInfoEntries {
 
   private static Definition item(final String id, final Supplier<Item> item) {
     return text(id, () -> List.of(new ItemStack(item.get())));
+  }
+
+  private static Definition wooden(final String id, final Supplier<Item> item) {
+    return text(id, () -> ModItems.woodVariantsOf(item.get()));
   }
 
   private static Definition dyed(

@@ -4,9 +4,8 @@ import static com.grahambartley.dogsunleashed.DogsUnleashed.MOD_ID;
 
 import com.grahambartley.dogsunleashed.block.entity.DogBedBlockEntity;
 import net.minecraft.util.Identifier;
-import software.bernie.geckolib.model.GeoModel;
 
-public class DogBedModel extends GeoModel<DogBedBlockEntity> {
+public class DogBedModel extends PlanksGeoModel<DogBedBlockEntity> {
 
   @Override
   public Identifier getModelResource(DogBedBlockEntity animatable) {

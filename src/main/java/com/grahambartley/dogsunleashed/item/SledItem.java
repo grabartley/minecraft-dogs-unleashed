@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.item;
 
 import com.grahambartley.dogsunleashed.ModEntities;
+import com.grahambartley.dogsunleashed.block.WoodPlanks;
 import com.grahambartley.dogsunleashed.entity.sled.SledEntity;
 import java.util.List;
 import java.util.function.Consumer;
@@ -10,9 +11,11 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.stat.Stats;
+import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.hit.HitResult;
@@ -50,6 +53,7 @@ public class SledItem extends Item implements GeoItem {
     final SledEntity sled = new SledEntity(ModEntities.SLED, world);
     sled.refreshPositionAndAngles(at.x, at.y, at.z, user.getYaw(), 0.0f);
     sled.placeFacing(user.getYaw());
+    sled.setWood(WoodPlanks.of(stack));
     if (world instanceof ServerWorld serverWorld) {
       final Consumer<SledEntity> copier = EntityType.copier(serverWorld, stack, user);
       copier.accept(sled);
@@ -79,6 +83,16 @@ public class SledItem extends Item implements GeoItem {
       }
     }
     return false;
+  }
+
+  @Override
+  public void appendTooltip(
+      final ItemStack stack,
+      final TooltipContext context,
+      final List<Text> tooltip,
+      final TooltipType type) {
+    super.appendTooltip(stack, context, tooltip, type);
+    tooltip.add(WoodPlanks.tooltipOf(WoodPlanks.of(stack)));
   }
 
   @Override

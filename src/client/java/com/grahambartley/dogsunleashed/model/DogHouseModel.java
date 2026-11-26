@@ -3,9 +3,8 @@ package com.grahambartley.dogsunleashed.model;
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.block.entity.DogHouseBlockEntity;
 import net.minecraft.util.Identifier;
-import software.bernie.geckolib.model.GeoModel;
 
-public class DogHouseModel extends GeoModel<DogHouseBlockEntity> {
+public class DogHouseModel extends PlanksGeoModel<DogHouseBlockEntity> {
 
   private static final Identifier MODEL =
       Identifier.of(DogsUnleashed.MOD_ID, "geo/dog_house.geo.json");

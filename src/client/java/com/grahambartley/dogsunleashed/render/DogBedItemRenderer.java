@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.render;
 
 import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModComponents;
+import com.grahambartley.dogsunleashed.block.WoodPlanks;
 import com.grahambartley.dogsunleashed.block.entity.DogBedBlockEntity;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.minecraft.client.render.RenderLayer;
@@ -32,6 +33,7 @@ public class DogBedItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
       final int light,
       final int overlay) {
     this.dummyEntity.setColor(stack.getOrDefault(ModComponents.DOG_BED_COLOR, DyeColor.WHITE));
+    this.dummyEntity.setWood(WoodPlanks.of(stack));
 
     matrices.push();
     PlacedBlockItemPose.apply(matrices, DogBedBlockEntityRenderer.BED_SCALE);

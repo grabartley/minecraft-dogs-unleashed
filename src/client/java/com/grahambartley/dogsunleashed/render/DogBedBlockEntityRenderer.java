@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.render;
 
 import com.grahambartley.dogsunleashed.block.entity.DogBedBlockEntity;
 import com.grahambartley.dogsunleashed.model.DogBedModel;
+import com.grahambartley.dogsunleashed.render.layer.PlanksLayer;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -17,6 +18,7 @@ public class DogBedBlockEntityRenderer extends GeoBlockRenderer<DogBedBlockEntit
 
   public DogBedBlockEntityRenderer(BlockEntityRendererFactory.Context context) {
     super(new DogBedModel());
+    this.addRenderLayer(new PlanksLayer<>(this, DogBedBlockEntity::getWood));
   }
 
   @Override

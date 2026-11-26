@@ -2,9 +2,11 @@ package com.grahambartley.dogsunleashed.block.entity;
 
 import com.grahambartley.dogsunleashed.ModBlockEntities;
 import com.grahambartley.dogsunleashed.ModComponents;
+import com.grahambartley.dogsunleashed.block.WoodPlanks;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.UUID;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.WoodType;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.component.ComponentMap;
 import net.minecraft.entity.Entity;
@@ -29,6 +31,7 @@ public class DogBedBlockEntity extends BlockEntity implements GeoBlockEntity, As
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
   private DyeColor color = DyeColor.WHITE;
+  private WoodType wood = WoodPlanks.DEFAULT;
   private UUID assignedDogUuid = null;
 
   public DogBedBlockEntity(BlockPos pos, BlockState state) {
@@ -41,6 +44,16 @@ public class DogBedBlockEntity extends BlockEntity implements GeoBlockEntity, As
 
   public void setColor(DyeColor color) {
     this.color = color;
+    this.markDirty();
+    this.syncToClients();
+  }
+
+  public WoodType getWood() {
+    return this.wood;
+  }
+
+  public void setWood(final WoodType wood) {
+    this.wood = wood;
     this.markDirty();
     this.syncToClients();
   }
@@ -98,6 +111,7 @@ public class DogBedBlockEntity extends BlockEntity implements GeoBlockEntity, As
   protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
     super.writeNbt(nbt, registryLookup);
     nbt.putInt(NBT_COLOR, this.color.getId());
+    WoodPlanks.write(nbt, this.wood);
     if (this.assignedDogUuid != null) {
       nbt.putUuid(NBT_ASSIGNED_DOG, this.assignedDogUuid);
     }
@@ -109,6 +123,7 @@ public class DogBedBlockEntity extends BlockEntity implements GeoBlockEntity, As
     if (nbt.contains(NBT_COLOR)) {
       this.color = DyeColor.byId(nbt.getInt(NBT_COLOR));
     }
+    this.wood = WoodPlanks.read(nbt);
     if (nbt.containsUuid(NBT_ASSIGNED_DOG)) {
       this.assignedDogUuid = nbt.getUuid(NBT_ASSIGNED_DOG);
     } else {
@@ -120,12 +135,14 @@ public class DogBedBlockEntity extends BlockEntity implements GeoBlockEntity, As
   protected void addComponents(ComponentMap.Builder builder) {
     super.addComponents(builder);
     builder.add(ModComponents.DOG_BED_COLOR, this.color);
+    builder.add(ModComponents.WOOD, this.wood);
   }
 
   @Override
   protected void readComponents(BlockEntity.ComponentsAccess components) {
     super.readComponents(components);
     this.color = components.getOrDefault(ModComponents.DOG_BED_COLOR, DyeColor.WHITE);
+    this.wood = components.getOrDefault(ModComponents.WOOD, WoodPlanks.DEFAULT);
   }
 
   @Override

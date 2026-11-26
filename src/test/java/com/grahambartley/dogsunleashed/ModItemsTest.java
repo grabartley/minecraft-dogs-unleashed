@@ -6,10 +6,13 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import java.util.List;
 import java.util.stream.Stream;
 import net.minecraft.block.Block;
+import net.minecraft.block.WoodType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.SpawnEggItem;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
@@ -54,5 +57,35 @@ class ModItemsTest {
     assertEquals(
         ModEntities.getDogEntityType(breed),
         assertInstanceOf(SpawnEggItem.class, egg).getEntityType(egg.getDefaultStack()));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("woodenItems")
+  @DisplayName("a wooden item has one creative entry per vanilla wood, in vanilla's order")
+  void woodVariantsListEveryVanillaWood(final String path, final Item item) {
+    final List<ItemStack> variants = ModItems.woodVariantsOf(item);
+
+    assertEquals(
+        List.of(
+            WoodType.OAK,
+            WoodType.SPRUCE,
+            WoodType.BIRCH,
+            WoodType.ACACIA,
+            WoodType.CHERRY,
+            WoodType.JUNGLE,
+            WoodType.DARK_OAK,
+            WoodType.CRIMSON,
+            WoodType.WARPED,
+            WoodType.MANGROVE,
+            WoodType.BAMBOO),
+        variants.stream().map(stack -> stack.get(ModComponents.WOOD)).toList());
+    variants.forEach(stack -> assertSame(item, stack.getItem()));
+  }
+
+  static Stream<Arguments> woodenItems() {
+    return Stream.of(
+        Arguments.of("dog_house", ModItems.DOG_HOUSE),
+        Arguments.of("dog_bed", ModItems.DOG_BED),
+        Arguments.of("sled", ModItems.SLED));
   }
 }

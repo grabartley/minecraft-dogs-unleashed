@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed;
 
+import com.grahambartley.dogsunleashed.block.WoodPlanks;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.item.DogBedItem;
 import com.grahambartley.dogsunleashed.item.DogGraveItem;
@@ -12,6 +13,7 @@ import com.grahambartley.dogsunleashed.item.RopeToyItem;
 import com.grahambartley.dogsunleashed.item.SledItem;
 import com.grahambartley.dogsunleashed.item.StickThrowHandler;
 import com.grahambartley.dogsunleashed.item.TennisBallItem;
+import java.util.List;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -182,6 +184,17 @@ public class ModItems {
     };
   }
 
+  public static List<ItemStack> woodVariantsOf(final Item item) {
+    return WoodPlanks.all().stream()
+        .map(
+            wood -> {
+              final ItemStack stack = new ItemStack(item);
+              stack.set(ModComponents.WOOD, wood);
+              return stack;
+            })
+        .toList();
+  }
+
   public static void initialize() {
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS)
         .register(entries -> entries.add(TENNIS_BALL));
@@ -205,26 +218,13 @@ public class ModItems {
         .register(entries -> entries.add(PUPPY_BASKET));
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS)
         .register(entries -> entries.add(SADDLEBAGS));
-    ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(entries -> entries.add(SLED));
+    ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS)
+        .register(entries -> entries.addAll(woodVariantsOf(SLED)));
     StickThrowHandler.register();
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL)
-        .register(
-            entries -> {
-              for (DyeColor color : DyeColor.values()) {
-                ItemStack stack = new ItemStack(DOG_BED);
-                stack.set(ModComponents.DOG_BED_COLOR, color);
-                entries.add(stack);
-              }
-            });
+        .register(entries -> entries.addAll(woodVariantsOf(DOG_BED)));
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL)
-        .register(
-            entries -> {
-              for (DyeColor color : DyeColor.values()) {
-                ItemStack stack = new ItemStack(DOG_HOUSE);
-                stack.set(ModComponents.DOG_HOUSE_COLOR, color);
-                entries.add(stack);
-              }
-            });
+        .register(entries -> entries.addAll(woodVariantsOf(DOG_HOUSE)));
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL)
         .register(
             entries -> {

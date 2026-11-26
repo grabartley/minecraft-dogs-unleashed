@@ -4,9 +4,8 @@ import static com.grahambartley.dogsunleashed.DogsUnleashed.MOD_ID;
 
 import net.minecraft.util.Identifier;
 import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.model.GeoModel;
 
-public class SledModel<T extends GeoAnimatable> extends GeoModel<T> {
+public class SledModel<T extends GeoAnimatable> extends PlanksGeoModel<T> {
 
   public static final Identifier GEOMETRY = Identifier.of(MOD_ID, "geo/sled.geo.json");
   public static final Identifier TEXTURE = Identifier.of(MOD_ID, "textures/entity/sled.png");

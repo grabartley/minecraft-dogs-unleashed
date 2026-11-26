@@ -1,7 +1,7 @@
 {
   "parent": "block/thin_block",
   "textures": {
-    "particle": "dogs-unleashed:block/dog_bed"
+    "particle": "minecraft:block/oak_planks"
   }
 }
 

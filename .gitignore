@@ -43,3 +43,4 @@ TODO.md
 .codex/
 *.bbmodel
 .playwright-mcp/
+src/main/generated/.cache/

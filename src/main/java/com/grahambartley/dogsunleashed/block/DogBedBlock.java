@@ -9,6 +9,7 @@ import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.ShapeContext;
+import net.minecraft.block.WoodType;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.DyeItem;
@@ -31,7 +32,7 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 
-public class DogBedBlock extends HorizontalFacingBlock implements BlockEntityProvider {
+public class DogBedBlock extends HorizontalFacingBlock implements BlockEntityProvider, WoodenBlock {
 
   public static final MapCodec<DogBedBlock> CODEC = createCodec(DogBedBlock::new);
   public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
@@ -95,8 +96,16 @@ public class DogBedBlock extends HorizontalFacingBlock implements BlockEntityPro
     final ItemStack stack = super.getPickStack(world, pos, state);
     if (world.getBlockEntity(pos) instanceof DogBedBlockEntity dogBedBlockEntity) {
       stack.set(ModComponents.DOG_BED_COLOR, dogBedBlockEntity.getColor());
+      stack.set(ModComponents.WOOD, dogBedBlockEntity.getWood());
     }
     return stack;
+  }
+
+  @Override
+  public WoodType woodAt(final BlockView world, final BlockPos pos, final BlockState state) {
+    return world.getBlockEntity(pos) instanceof DogBedBlockEntity bed
+        ? bed.getWood()
+        : WoodPlanks.DEFAULT;
   }
 
   @Override

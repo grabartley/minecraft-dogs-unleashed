@@ -17,6 +17,7 @@ class ModComponentsTest {
 
   static Stream<Arguments> components() {
     return Stream.of(
+        Arguments.of("wood", ModComponents.WOOD),
         Arguments.of("dog_grave_uuid", ModComponents.DOG_GRAVE_UUID),
         Arguments.of("dog_grave_name", ModComponents.DOG_GRAVE_NAME),
         Arguments.of("dog_statue", ModComponents.DOG_STATUE),

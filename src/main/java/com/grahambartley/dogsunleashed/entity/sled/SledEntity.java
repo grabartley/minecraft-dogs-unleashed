@@ -1,6 +1,9 @@
 package com.grahambartley.dogsunleashed.entity.sled;
 
+import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.ModItems;
+import com.grahambartley.dogsunleashed.block.WoodPlanks;
+import net.minecraft.block.WoodType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -49,6 +52,8 @@ public class SledEntity extends Entity implements GeoEntity {
       DataTracker.registerData(SledEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
   static final TrackedData<Integer> WOBBLE_TICKS =
       DataTracker.registerData(SledEntity.class, TrackedDataHandlerRegistry.INTEGER);
+  static final TrackedData<String> WOOD =
+      DataTracker.registerData(SledEntity.class, TrackedDataHandlerRegistry.STRING);
 
   private final SledTeam team = new SledTeam(this);
   private final SledDrive drive = new SledDrive(this);
@@ -114,6 +119,7 @@ public class SledEntity extends Entity implements GeoEntity {
     builder.add(STAMINA, 0.0f);
     builder.add(STAMINA_LOCKED_OUT, false);
     builder.add(WOBBLE_TICKS, 0);
+    builder.add(WOOD, WoodPlanks.DEFAULT.name());
   }
 
   @Override
@@ -198,7 +204,7 @@ public class SledEntity extends Entity implements GeoEntity {
   private void breakApart() {
     this.kill();
     if (this.getWorld().getGameRules().getBoolean(GameRules.DO_ENTITY_DROPS)) {
-      final ItemStack stack = new ItemStack(ModItems.SLED);
+      final ItemStack stack = this.getPickBlockStack();
       stack.set(DataComponentTypes.CUSTOM_NAME, this.getCustomName());
       this.dropStack(stack);
     }
@@ -284,7 +290,17 @@ public class SledEntity extends Entity implements GeoEntity {
 
   @Override
   public ItemStack getPickBlockStack() {
-    return new ItemStack(ModItems.SLED);
+    final ItemStack stack = new ItemStack(ModItems.SLED);
+    stack.set(ModComponents.WOOD, this.wood());
+    return stack;
+  }
+
+  public WoodType wood() {
+    return WoodPlanks.byName(this.dataTracker.get(WOOD));
+  }
+
+  public void setWood(final WoodType wood) {
+    this.dataTracker.set(WOOD, wood.name());
   }
 
   @Override
@@ -337,12 +353,14 @@ public class SledEntity extends Entity implements GeoEntity {
 
   @Override
   protected void readCustomDataFromNbt(final NbtCompound nbt) {
+    this.setWood(WoodPlanks.read(nbt));
     this.team.readNbt(nbt);
     this.drive.readNbt(nbt);
   }
 
   @Override
   protected void writeCustomDataToNbt(final NbtCompound nbt) {
+    WoodPlanks.write(nbt, this.wood());
     this.team.writeNbt(nbt);
     this.drive.writeNbt(nbt);
   }

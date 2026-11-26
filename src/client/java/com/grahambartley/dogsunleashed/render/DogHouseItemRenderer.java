@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.render;
 
 import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModComponents;
+import com.grahambartley.dogsunleashed.block.WoodPlanks;
 import com.grahambartley.dogsunleashed.block.entity.DogHouseBlockEntity;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.minecraft.client.render.RenderLayer;
@@ -40,6 +41,7 @@ public class DogHouseItemRenderer implements BuiltinItemRendererRegistry.Dynamic
       int overlay) {
 
     dummyEntity.setColor(stack.getOrDefault(ModComponents.DOG_HOUSE_COLOR, DyeColor.WHITE));
+    dummyEntity.setWood(WoodPlanks.of(stack));
 
     matrices.push();
     matrices.translate(ITEM_CENTRE, ITEM_CENTRE, ITEM_CENTRE);

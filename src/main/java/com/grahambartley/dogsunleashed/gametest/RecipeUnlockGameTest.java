@@ -44,6 +44,7 @@ public final class RecipeUnlockGameTest implements FabricGameTest {
 
     final Set<Identifier> locked =
         server.getRecipeManager().values().stream()
+            .filter(entry -> !entry.value().isIgnoredInRecipeBook())
             .map(RecipeEntry::id)
             .filter(id -> id.getNamespace().equals(DogsUnleashed.MOD_ID))
             .filter(id -> !unlocked.contains(id))

@@ -82,7 +82,7 @@ you to what it smells. Send it off exploring and it comes back with a find and a
 - **Play together.** Throw a stick, a tennis ball or a frisbee and your dog brings it back, or play tug of war with a
 rope toy. Give your dog a bone and it buries it nearby. A roaming or staying dog digs it up days later, sometimes
 with a find.
-- **Give them a home.** Craft a dog bed or a dog house in any colour, assign it, and your dog goes to bed by itself at night. Set
+- **Give them a home.** Craft a dog bed or a dog house in any wood and colour, assign it, and your dog goes to bed by itself at night. Set
 out a food bowl and a water bowl too, and a hurt dog will eat or drink there while you're away.
 - **Kit them out.** Craft them armour, dye their collar, and hang a pendant on it to keep mobs away, shield them from
 harm or heal you. Saddlebags let them carry items to another player, even in another dimension, and a team of huskies

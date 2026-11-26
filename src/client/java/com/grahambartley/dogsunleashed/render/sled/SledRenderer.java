@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.render.sled;
 
 import com.grahambartley.dogsunleashed.entity.sled.SledEntity;
 import com.grahambartley.dogsunleashed.model.SledModel;
+import com.grahambartley.dogsunleashed.render.layer.PlanksLayer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.MathHelper;
@@ -14,6 +15,7 @@ public class SledRenderer extends GeoEntityRenderer<SledEntity> {
 
   public SledRenderer(final EntityRendererFactory.Context context) {
     super(context, new SledModel<>());
+    this.addRenderLayer(new PlanksLayer<>(this, SledEntity::wood));
     this.shadowRadius = 0.8f;
   }
 

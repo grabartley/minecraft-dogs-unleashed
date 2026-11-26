@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed;
 
+import com.grahambartley.dogsunleashed.block.WoodPlanks;
 import com.grahambartley.dogsunleashed.config.SyncedServerConfig;
 import com.grahambartley.dogsunleashed.gesture.PlayerPoseClips;
 import com.grahambartley.dogsunleashed.item.DogWhistleItem;
@@ -40,6 +41,7 @@ import com.grahambartley.dogsunleashed.render.cosmetic.BandanaPrints;
 import com.grahambartley.dogsunleashed.render.costume.CostumePartsAnimator;
 import com.grahambartley.dogsunleashed.render.cross.CrossCoatTextures;
 import com.grahambartley.dogsunleashed.render.cross.RigSlotSizes;
+import com.grahambartley.dogsunleashed.render.layer.PlanksLayer;
 import com.grahambartley.dogsunleashed.render.layer.WolfDogArmourFeatureRenderer;
 import com.grahambartley.dogsunleashed.render.overlay.MuddyCoat;
 import com.grahambartley.dogsunleashed.render.overlay.ProjectedOverlays;
@@ -143,7 +145,14 @@ public class DogsUnleashedClient implements ClientModInitializer {
         ModItems.DOG_WHISTLE,
         new FittedGeoItemRenderer<DogWhistleItem>(DogWhistleModel::new, ModelFit::atModelSize));
     BuiltinItemRendererRegistry.INSTANCE.register(
-        ModItems.SLED, new FittedGeoItemRenderer<SledItem>(SledModel::new, ModelFit::intoBlock));
+        ModItems.SLED,
+        new FittedGeoItemRenderer<SledItem>(
+            SledModel::new,
+            ModelFit::intoBlock,
+            List.of(
+                renderer ->
+                    new PlanksLayer<>(
+                        renderer, sled -> WoodPlanks.of(renderer.getCurrentItemStack())))));
     BuiltinItemRendererRegistry.INSTANCE.register(
         ModItems.ROPE_TOY,
         new FittedGeoItemRenderer<RopeToyItem>(RopeToyModel::new, ModelFit::acrossBlock));
