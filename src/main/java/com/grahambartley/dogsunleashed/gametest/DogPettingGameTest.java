@@ -170,6 +170,7 @@ public final class DogPettingGameTest implements FabricGameTest {
     final UnleashedDogEntity dog = wildDog(context, ModEntities.HUSKY);
     final PettedGoal hold = new PettedGoal(dog);
     dog.interactMob(player, Hand.MAIN_HAND);
+    arriveBeside(dog, player);
 
     context.runAtTick(
         PettingRules.SETTLE_TICKS + 1L,
@@ -269,6 +270,7 @@ public final class DogPettingGameTest implements FabricGameTest {
     final PettedGoal hold = new PettedGoal(dog);
 
     dog.interactMob(player, Hand.MAIN_HAND);
+    arriveBeside(dog, player);
     context.runAtTick(PettingRules.SETTLE_TICKS + 1L, hold::start);
     context.runAtTick(
         PettingRules.SETTLE_TICKS + PettingRules.COOLDOWN_TICKS + 2L,

@@ -72,7 +72,8 @@ public final class DogPetting extends DogComponent {
         player.getMainArm() == Arm.RIGHT,
         this.headReach(),
         this.dog.getWidth() / 2.0,
-        this.kneelFor(player));
+        this.kneelFor(player),
+        PetStance.bows(this.headTopAbove(player)));
   }
 
   public boolean isAtHandOf(final PlayerEntity player) {
@@ -102,7 +103,11 @@ public final class DogPetting extends DogComponent {
     if (atHand || petting) {
       this.face(petter.get());
     }
-    if (asking && atHand && PettingRules.hasSettled(this.now(), this.requestedAt)) {
+    if (asking
+        && atHand
+        && PettingRules.hasSettled(this.now(), this.requestedAt)
+        && PettingRules.facesSpot(
+            this.dog.getBodyYaw(), this.spotBeside(petter.get()).faceYawDegrees())) {
       this.requestedAt = PettingRules.NEVER;
       final PettingRules.DogState state = this.stateFor(petter.get());
       if (state.calm() && state.free()) {
@@ -125,8 +130,7 @@ public final class DogPetting extends DogComponent {
         || !petter.getMainHandStack().isEmpty()
         || !standsSteady(petter)
         || PettingRules.walkedAway(petter.getPos().distanceTo(this.askedFrom))
-        || PettingRules.turnedAway(
-            petter.getHeadYaw(), this.dog.getX() - petter.getX(), this.dog.getZ() - petter.getZ())
+        || this.turnedAwayFrom(petter)
         || (asking && !PettingRules.isApproaching(this.now(), this.requestedAt));
   }
 
@@ -138,6 +142,9 @@ public final class DogPetting extends DogComponent {
 
   private void face(final PlayerEntity petter) {
     final PetSpot.Place spot = this.spotBeside(petter);
+    final float turned = PettingRules.turnedInToward(this.dog.getBodyYaw(), spot.faceYawDegrees());
+    this.dog.setYaw(turned);
+    this.dog.setBodyYaw(turned);
     this.dog
         .getLookControl()
         .lookAt(
@@ -148,15 +155,27 @@ public final class DogPetting extends DogComponent {
             LOOK_TURN_DEGREES);
   }
 
+  private boolean turnedAwayFrom(final PlayerEntity petter) {
+    final Vec3d neck = this.neck();
+    return PettingRules.turnedAway(
+        petter.getHeadYaw(), neck.x - petter.getX(), neck.z - petter.getZ());
+  }
+
   private boolean canReachNeck(final PlayerEntity player) {
-    final DogHeadReach head = this.headReach();
-    final float yaw = this.dog.getBodyYaw() * MathHelper.RADIANS_PER_DEGREE;
-    final double neckX = this.dog.getX() - MathHelper.sin(yaw) * head.neck();
-    final double neckZ = this.dog.getZ() + MathHelper.cos(yaw) * head.neck();
+    final Vec3d neck = this.neck();
     return PetSpot.reachesNeck(
-        Math.hypot(neckX - player.getX(), neckZ - player.getZ()),
+        Math.hypot(neck.x - player.getX(), neck.z - player.getZ()),
         this.dog.getY() - player.getY(),
         this.kneelFor(player));
+  }
+
+  private Vec3d neck() {
+    final float yaw = this.dog.getBodyYaw() * MathHelper.RADIANS_PER_DEGREE;
+    final double reach = this.headReach().neck();
+    return new Vec3d(
+        this.dog.getX() - MathHelper.sin(yaw) * reach,
+        this.dog.getY(),
+        this.dog.getZ() + MathHelper.cos(yaw) * reach);
   }
 
   private boolean pettingAnotherDog(final PlayerEntity player) {
@@ -171,8 +190,17 @@ public final class DogPetting extends DogComponent {
   }
 
   private float kneelFor(final PlayerEntity player) {
-    return PetStance.kneelWeight(
-        (float) (this.dog.getY() - player.getY()) + this.headReach().top());
+    return PetStance.kneelWeight(this.headTopAbove(player));
+  }
+
+  private float headTopAbove(final PlayerEntity player) {
+    return (float) (this.dog.getY() - player.getY()) + this.headReach().top();
+  }
+
+  private String pettedClipFor(final PlayerEntity player) {
+    return PetStance.bows(this.headTopAbove(player))
+        ? DogAnimationKeys.PETTED_BOW
+        : DogAnimationKeys.PETTED;
   }
 
   private DogHeadReach headReach() {
@@ -181,7 +209,8 @@ public final class DogPetting extends DogComponent {
 
   private void begin(final PlayerEntity player) {
     this.lastPettedAt = this.now();
-    this.dog.triggerAnim(DogAnimationKeys.PETTED, DogAnimationKeys.PETTED);
+    final String clip = this.pettedClipFor(player);
+    this.dog.triggerAnim(clip, clip);
     this.dog.getAmbienceEffects().startTailWag();
     this.dog.getAmbienceEffects().burstHearts();
     this.dog.playSound(
@@ -196,6 +225,7 @@ public final class DogPetting extends DogComponent {
 
   private void release(final PlayerEntity player) {
     this.dog.stopTriggeredAnim(DogAnimationKeys.PETTED, DogAnimationKeys.PETTED);
+    this.dog.stopTriggeredAnim(DogAnimationKeys.PETTED_BOW, DogAnimationKeys.PETTED_BOW);
     this.show(player, PlayerGesture.RELEASE);
   }
 

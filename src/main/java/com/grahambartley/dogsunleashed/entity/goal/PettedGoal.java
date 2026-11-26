@@ -68,7 +68,11 @@ public class PettedGoal extends Goal {
       return;
     }
     this.repathIn = REPATH_TICKS;
-    this.dog.getNavigation().startMovingTo(spot.x(), petter.getY(), spot.z(), APPROACH_SPEED);
+    this.dog
+        .getNavigation()
+        .startMovingAlong(
+            this.dog.getNavigation().findPathTo(spot.x(), petter.getY(), spot.z(), 0),
+            APPROACH_SPEED);
   }
 
   private void holdStill() {

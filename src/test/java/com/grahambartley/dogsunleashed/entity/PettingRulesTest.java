@@ -170,4 +170,32 @@ class PettingRulesTest {
   void theLastStretchIsAStraightStep(final double blocks, final boolean expected) {
     assertEquals(expected, PettingRules.closeEnoughToStep(blocks));
   }
+
+  @ParameterizedTest(name = "body {0} toward {1} -> {2}")
+  @CsvSource({
+    "0, 0, 0",
+    "0, 15, 15",
+    "0, 90, 20",
+    "0, -90, -20",
+    "170, -170, 190",
+    "-170, 170, -190"
+  })
+  @DisplayName("a dog at its spot turns into place a step at a time, the short way round")
+  void aDogTurnsIntoPlace(final float body, final float spot, final float expected) {
+    assertEquals(expected, PettingRules.turnedInToward(body, spot), 1.0e-4f);
+  }
+
+  @ParameterizedTest(name = "body {0}, spot {1} -> facing {2}")
+  @CsvSource({
+    "0, 0, true",
+    "0, 15, true",
+    "0, 16, false",
+    "54, 123, false",
+    "350, -5, true",
+    "180, -175, true"
+  })
+  @DisplayName("the pat waits until the dog faces along its spot")
+  void thePatWaitsUntilTheDogFacesAlong(final float body, final float spot, final boolean facing) {
+    assertEquals(facing, PettingRules.facesSpot(body, spot));
+  }
 }

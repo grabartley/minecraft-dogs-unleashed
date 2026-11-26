@@ -8,11 +8,39 @@ public final class PetSpot {
   static final double KNEEL_HAND_SIDE = 0.22;
   static final double STAND_HAND_FORWARD = 0.5;
   static final double STAND_HAND_SIDE = 0.3;
+  static final double ALONGSIDE_NECK_FORWARD = 0.25;
+  static final double ALONGSIDE_LOOK_AHEAD = 2.5;
+  static final double ALONGSIDE_TURN_IN = 0.4;
   static final double ARRIVE_BLOCKS = 0.3;
   static final double NECK_SLACK_BLOCKS = 0.25;
   static final double VERTICAL_REACH_BLOCKS = 1.0;
 
-  public record Place(double x, double z, double faceX, double faceZ) {}
+  public record Place(double x, double z, double faceX, double faceZ) {
+
+    public float faceYawDegrees() {
+      return (float) Math.toDegrees(Math.atan2(this.faceZ - this.z, this.faceX - this.x)) - 90.0f;
+    }
+  }
+
+  private record Local(double forward, double right, double faceForward, double faceRight) {
+
+    Local towards(final Local other, final double weight) {
+      return new Local(
+          lerp(weight, this.forward, other.forward),
+          lerp(weight, this.right, other.right),
+          lerp(weight, this.faceForward, other.faceForward),
+          lerp(weight, this.faceRight, other.faceRight));
+    }
+
+    Local clearOf(final double nearest) {
+      final double distance = Math.hypot(this.forward, this.right);
+      if (distance >= nearest) {
+        return this;
+      }
+      final double push = nearest / distance;
+      return new Local(this.forward * push, this.right * push, this.faceForward, this.faceRight);
+    }
+  }
 
   private PetSpot() {}
 
@@ -23,30 +51,42 @@ public final class PetSpot {
       final boolean rightHanded,
       final DogHeadReach head,
       final double dogHalfWidth,
-      final float kneel) {
+      final float kneel,
+      final boolean bows) {
     final double side = rightHanded ? 1.0 : -1.0;
-    final double handForward = lerp(kneel, STAND_HAND_FORWARD, KNEEL_HAND_FORWARD);
-    final double handSide = side * lerp(kneel, STAND_HAND_SIDE, KNEEL_HAND_SIDE);
-    final double faceSide = side * (PLAYER_HALF_WIDTH + head.halfWidth() + CLEARANCE);
-    final double towardForward = handForward;
-    final double towardSide = handSide - faceSide;
-    final double length = Math.hypot(towardForward, towardSide);
-    double forward = handForward + towardForward / length * head.neck();
-    double right = handSide + towardSide / length * head.neck();
-    final double distance = Math.hypot(forward, right);
-    final double nearest = PLAYER_HALF_WIDTH + dogHalfWidth + CLEARANCE;
-    if (distance < nearest) {
-      forward *= nearest / distance;
-      right *= nearest / distance;
-    }
+    final Local spot =
+        facingPast(side, head, kneel)
+            .towards(alongside(side, head, dogHalfWidth), bows ? 0.0 : 1.0 - kneel)
+            .clearOf(PLAYER_HALF_WIDTH + dogHalfWidth + CLEARANCE);
     final double yaw = Math.toRadians(yawDegrees);
     final double sin = Math.sin(yaw);
     final double cos = Math.cos(yaw);
     return new Place(
-        playerX - sin * forward - cos * right,
-        playerZ + cos * forward - sin * right,
-        playerX - cos * faceSide,
-        playerZ - sin * faceSide);
+        playerX - sin * spot.forward() - cos * spot.right(),
+        playerZ + cos * spot.forward() - sin * spot.right(),
+        playerX - sin * spot.faceForward() - cos * spot.faceRight(),
+        playerZ + cos * spot.faceForward() - sin * spot.faceRight());
+  }
+
+  private static Local facingPast(final double side, final DogHeadReach head, final float kneel) {
+    final double handForward = lerp(kneel, STAND_HAND_FORWARD, KNEEL_HAND_FORWARD);
+    final double handSide = side * lerp(kneel, STAND_HAND_SIDE, KNEEL_HAND_SIDE);
+    final double faceSide = side * (PLAYER_HALF_WIDTH + head.halfWidth() + CLEARANCE);
+    final double towardSide = handSide - faceSide;
+    final double length = Math.hypot(handForward, towardSide);
+    return new Local(
+        handForward + handForward / length * head.neck(),
+        handSide + towardSide / length * head.neck(),
+        0.0,
+        faceSide);
+  }
+
+  private static Local alongside(
+      final double side, final DogHeadReach head, final double dogHalfWidth) {
+    final double forward = ALONGSIDE_NECK_FORWARD - head.neck();
+    final double right = side * (PLAYER_HALF_WIDTH + dogHalfWidth + CLEARANCE);
+    return new Local(
+        forward, right, forward + ALONGSIDE_LOOK_AHEAD, right - side * ALONGSIDE_TURN_IN);
   }
 
   public static boolean arrived(final double blocksFromSpot) {
@@ -63,7 +103,7 @@ public final class PetSpot {
         && Math.abs(neckRise) <= VERTICAL_REACH_BLOCKS;
   }
 
-  private static double lerp(final float t, final double from, final double to) {
+  private static double lerp(final double t, final double from, final double to) {
     return from + (to - from) * t;
   }
 }

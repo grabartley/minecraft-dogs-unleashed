@@ -366,6 +366,35 @@ class UnleashedDogBreedTest {
     assertRigClipMovesOnlyItsOwnBones(breed, DogAnimationKeys.PETTED);
   }
 
+  @ParameterizedTest
+  @EnumSource(
+      value = UnleashedDogBreed.class,
+      names = "CROSS_BREED",
+      mode = EnumSource.Mode.EXCLUDE)
+  @DisplayName("exactly the rigs that grow taller than the bow height have a bowing petted clip")
+  void towersHaveABowingPettedClip(final UnleashedDogBreed breed) throws IOException {
+    final float tallest =
+        breed.nature().growsThroughStages()
+            ? (float)
+                Arrays.stream(DireWolfGrowthStage.values())
+                    .mapToDouble(DireWolfGrowthStage::renderScaleMultiplier)
+                    .max()
+                    .orElseThrow()
+            : 1.0f;
+    final float headTop =
+        DogHeadReach.rigUnits(breed)
+            .scaled(breed.renderTransforms().adultScale() * tallest / 16.0f)
+            .top();
+    final boolean shipped =
+        readAsset("animations/" + breed.serializedId() + ".animation.json")
+            .getAsJsonObject("animations")
+            .has(DogAnimationKeys.PETTED_BOW);
+    assertEquals(PetStance.bows(headTop), shipped, breed + " head top " + headTop);
+    if (shipped) {
+      assertRigClipMovesOnlyItsOwnBones(breed, DogAnimationKeys.PETTED_BOW);
+    }
+  }
+
   private static void assertRigClipMovesOnlyItsOwnBones(
       final UnleashedDogBreed breed, final String clip) throws IOException {
     final String id = breed.serializedId();

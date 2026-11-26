@@ -21,7 +21,8 @@ class DogAnimationKeysTest {
         Arguments.of(DogAnimationKeys.PLAY_DEAD, "play_dead"),
         Arguments.of(DogAnimationKeys.TUG, "tug"),
         Arguments.of(DogAnimationKeys.EAT, "eat"),
-        Arguments.of(DogAnimationKeys.PETTED, "petted"));
+        Arguments.of(DogAnimationKeys.PETTED, "petted"),
+        Arguments.of(DogAnimationKeys.PETTED_BOW, "petted_bow"));
   }
 
   @ParameterizedTest(name = "{1}")

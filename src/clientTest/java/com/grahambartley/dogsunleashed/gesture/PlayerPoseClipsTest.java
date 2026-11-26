@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import org.joml.Vector3f;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -65,11 +66,13 @@ class PlayerPoseClipsTest {
 
   @ParameterizedTest(name = "{0}s")
   @ValueSource(floats = {0.6f, 1.0f, 1.4f, 1.8f, 2.1f})
-  @DisplayName("the standing clip stays on its feet and reaches out")
+  @DisplayName("the standing clip stays on its feet and rests the hand down beside it")
   void theStandStaysUp(final float time) throws IOException {
     final PlayerPoseClip clip = shipped(PlayerPoseClips.STAND_CLIP);
+    final Vector3f arm = clip.sample("right_arm", Channel.ROTATION, time);
     assertTrue(clip.sample("hips", Channel.POSITION, time).y > -1.0f);
-    assertTrue(clip.sample("right_arm", Channel.ROTATION, time).x < -60.0f);
+    assertTrue(arm.z > 20.0f, "the arm swings out to the dog's side, got " + arm.z);
+    assertTrue(Math.abs(arm.x) < 60.0f, "the hand stays low, got " + arm.x);
   }
 
   @ParameterizedTest(name = "{0} {1}")

@@ -3,6 +3,7 @@ package com.grahambartley.dogsunleashed.entity;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import net.minecraft.util.math.MathHelper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -22,11 +23,19 @@ class PetSpotTest {
     return -x * Math.cos(rad) - z * Math.sin(rad);
   }
 
-  @ParameterizedTest(name = "yaw {0}, right handed {1}, kneel {2}")
-  @CsvSource({"0, true, 1", "90, true, 1", "-135, false, 1", "0, true, 0", "200, false, 0.5"})
-  @DisplayName("the dog stops in front of the player, clear of their body, facing past the hand")
-  void theDogStopsInFront(final float yaw, final boolean right, final float kneel) {
-    final PetSpot.Place place = PetSpot.of(0, 0, yaw, right, SMALL, 0.4, kneel);
+  @ParameterizedTest(name = "yaw {0}, right handed {1}, kneel {2}, bows {3}")
+  @CsvSource({
+    "0, true, 1, false",
+    "90, true, 1, false",
+    "-135, false, 1, false",
+    "0, true, 0, true",
+    "200, false, 0, true"
+  })
+  @DisplayName(
+      "for a kneel or a bow the dog stops in front, clear of the body, facing past the hand")
+  void theDogStopsInFront(
+      final float yaw, final boolean right, final float kneel, final boolean bows) {
+    final PetSpot.Place place = PetSpot.of(0, 0, yaw, right, SMALL, 0.4, kneel, bows);
     assertTrue(forwardOf(place, yaw) > 0.0, "in front");
     assertTrue(
         Math.hypot(place.x(), place.z()) >= PetSpot.PLAYER_HALF_WIDTH + 0.4 - 1.0e-6,
@@ -37,10 +46,10 @@ class PetSpotTest {
 
   @ParameterizedTest(name = "yaw {0}, right handed {1}")
   @CsvSource({"0, true", "45, false", "180, true"})
-  @DisplayName("its neck lands at the patting hand")
+  @DisplayName("for a kneel or a bow its neck lands at the patting hand")
   void theNeckLandsAtTheHand(final float yaw, final boolean right) {
     for (final float kneel : new float[] {0.0f, 1.0f}) {
-      final PetSpot.Place place = PetSpot.of(0, 0, yaw, right, SMALL, 0.2, kneel);
+      final PetSpot.Place place = PetSpot.of(0, 0, yaw, right, SMALL, 0.2, kneel, kneel == 0.0f);
       final double dx = place.faceX() - place.x();
       final double dz = place.faceZ() - place.z();
       final double length = Math.hypot(dx, dz);
@@ -54,9 +63,9 @@ class PetSpotTest {
 
   @ParameterizedTest(name = "yaw {0}")
   @CsvSource({"0", "90", "-60"})
-  @DisplayName("a huge dog comes alongside, so its head passes beside the player, not into them")
-  void aHugeDogComesAlongside(final float yaw) {
-    final PetSpot.Place place = PetSpot.of(0, 0, yaw, true, HUGE, 0.575, 0.0f);
+  @DisplayName("a bowing dog's head passes beside the player, not into them")
+  void aBowingHeadPassesBeside(final float yaw) {
+    final PetSpot.Place place = PetSpot.of(0, 0, yaw, true, HUGE, 0.575, 0.0f, true);
     final double dx = place.faceX() - place.x();
     final double dz = place.faceZ() - place.z();
     final double length = Math.hypot(dx, dz);
@@ -66,6 +75,21 @@ class PetSpotTest {
         Math.hypot(snoutX, snoutZ) > PetSpot.PLAYER_HALF_WIDTH,
         "snout at " + snoutX + ", " + snoutZ);
     assertTrue(rightOf(snoutX, snoutZ, yaw) > 0.0, "the head passes on the patting side");
+  }
+
+  @ParameterizedTest(name = "yaw {0}, right handed {1}")
+  @CsvSource({"0, true", "90, false", "-135, true", "200, false"})
+  @DisplayName(
+      "a dog the player stands for comes alongside on the patting side, its neck by the hand")
+  void aStandingPatBringsTheDogAlongside(final float yaw, final boolean right) {
+    final PetSpot.Place place = PetSpot.of(0, 0, yaw, right, HUGE, 0.575, 0.0f, false);
+    final double side = rightOf(place.x(), place.z(), yaw);
+    assertEquals(right ? 1.0 : -1.0, Math.signum(side), "on the patting side");
+    assertTrue(Math.abs(side) >= PetSpot.PLAYER_HALF_WIDTH + 0.575 - 1.0e-6, "clear of the player");
+    final float turn = MathHelper.wrapDegrees(place.faceYawDegrees() - yaw);
+    assertTrue(Math.abs(turn) < 20.0f, "it faces the way the player faces, turned " + turn);
+    final double neckForward = forwardOf(place, yaw) + HUGE.neck() * Math.cos(Math.toRadians(turn));
+    assertEquals(PetSpot.ALONGSIDE_NECK_FORWARD, neckForward, 0.05, "its neck is by the hand");
   }
 
   @ParameterizedTest(name = "{0} blocks from the spot -> arrived {1}")
@@ -88,5 +112,13 @@ class PetSpotTest {
   void aNeckInReachIsPettedInPlace(
       final double away, final double rise, final float kneel, final boolean reach) {
     assertEquals(reach, PetSpot.reachesNeck(away, rise, kneel));
+  }
+
+  @ParameterizedTest(name = "face point {0},{1} -> yaw {2}")
+  @CsvSource({"0, 1, 0", "-1, 0, 90", "0, -1, 180", "1, 0, -90", "1, 1, -45"})
+  @DisplayName("the facing yaw points the dog at its face point")
+  void theFacingYawPointsAtTheFacePoint(final double dx, final double dz, final float yaw) {
+    final float faced = new PetSpot.Place(2.0, 3.0, 2.0 + dx, 3.0 + dz).faceYawDegrees();
+    assertEquals(0.0f, MathHelper.wrapDegrees(faced - yaw), 1.0e-4f);
   }
 }

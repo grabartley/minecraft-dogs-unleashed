@@ -1,6 +1,7 @@
 package com.grahambartley.dogsunleashed.entity;
 
 import com.grahambartley.dogsunleashed.gesture.PlayerGesture;
+import net.minecraft.util.math.MathHelper;
 
 public final class PettingRules {
 
@@ -11,6 +12,8 @@ public final class PettingRules {
   public static final double WALK_AWAY_BLOCKS = 1.0;
   public static final double CLOSE_IN_BLOCKS = 1.5;
   public static final double TURN_AWAY_DEGREES = 100.0;
+  public static final float TURN_IN_DEGREES_PER_TICK = 20.0f;
+  public static final float FACING_SLACK_DEGREES = 15.0f;
 
   public record DogState(
       boolean asleep,
@@ -89,5 +92,13 @@ public final class PettingRules {
         && dog.free()
         && cooledDown(now, lastPettedAt)
         && !isApproaching(now, requestedAt);
+  }
+
+  public static float turnedInToward(final float bodyYaw, final float spotYaw) {
+    return MathHelper.stepUnwrappedAngleTowards(bodyYaw, spotYaw, TURN_IN_DEGREES_PER_TICK);
+  }
+
+  public static boolean facesSpot(final float bodyYaw, final float spotYaw) {
+    return Math.abs(MathHelper.wrapDegrees(spotYaw - bodyYaw)) <= FACING_SLACK_DEGREES;
   }
 }
