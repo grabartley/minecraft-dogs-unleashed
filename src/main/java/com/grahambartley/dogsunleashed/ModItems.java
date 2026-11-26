@@ -13,7 +13,6 @@ import com.grahambartley.dogsunleashed.item.RopeToyItem;
 import com.grahambartley.dogsunleashed.item.SledItem;
 import com.grahambartley.dogsunleashed.item.StickThrowHandler;
 import com.grahambartley.dogsunleashed.item.TennisBallItem;
-import java.util.List;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -184,17 +183,6 @@ public class ModItems {
     };
   }
 
-  public static List<ItemStack> woodVariantsOf(final Item item) {
-    return WoodPlanks.all().stream()
-        .map(
-            wood -> {
-              final ItemStack stack = new ItemStack(item);
-              stack.set(ModComponents.WOOD, wood);
-              return stack;
-            })
-        .toList();
-  }
-
   public static void initialize() {
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS)
         .register(entries -> entries.add(TENNIS_BALL));
@@ -219,12 +207,12 @@ public class ModItems {
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS)
         .register(entries -> entries.add(SADDLEBAGS));
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS)
-        .register(entries -> entries.addAll(woodVariantsOf(SLED)));
+        .register(entries -> entries.addAll(WoodPlanks.stacksOf(SLED)));
     StickThrowHandler.register();
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL)
-        .register(entries -> entries.addAll(woodVariantsOf(DOG_BED)));
+        .register(entries -> entries.addAll(WoodPlanks.stacksOf(DOG_BED)));
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL)
-        .register(entries -> entries.addAll(woodVariantsOf(DOG_HOUSE)));
+        .register(entries -> entries.addAll(WoodPlanks.stacksOf(DOG_HOUSE)));
     ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL)
         .register(
             entries -> {

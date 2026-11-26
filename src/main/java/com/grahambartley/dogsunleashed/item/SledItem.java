@@ -92,7 +92,7 @@ public class SledItem extends Item implements GeoItem {
       final List<Text> tooltip,
       final TooltipType type) {
     super.appendTooltip(stack, context, tooltip, type);
-    tooltip.add(WoodPlanks.tooltipOf(WoodPlanks.of(stack)));
+    WoodPlanks.appendTooltip(stack, tooltip);
   }
 
   @Override

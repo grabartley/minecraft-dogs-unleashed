@@ -19,6 +19,11 @@ import net.minecraft.world.World;
 
 public class DogFurnitureDyeRecipe extends SpecialCraftingRecipe {
 
+  private static final Map<Item, ComponentType<DyeColor>> COLOURS =
+      Map.of(
+          ModItems.DOG_HOUSE, ModComponents.DOG_HOUSE_COLOR,
+          ModItems.DOG_BED, ModComponents.DOG_BED_COLOR);
+
   public DogFurnitureDyeRecipe(final CraftingRecipeCategory category) {
     super(category);
   }
@@ -69,9 +74,6 @@ public class DogFurnitureDyeRecipe extends SpecialCraftingRecipe {
   }
 
   private static ComponentType<DyeColor> colourOf(final Item item) {
-    return Map.of(
-            ModItems.DOG_HOUSE, ModComponents.DOG_HOUSE_COLOR,
-            ModItems.DOG_BED, ModComponents.DOG_BED_COLOR)
-        .get(item);
+    return COLOURS.get(item);
   }
 }

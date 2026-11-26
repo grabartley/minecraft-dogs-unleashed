@@ -24,6 +24,7 @@ import net.minecraft.block.WoodType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.recipe.CraftingRecipe;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.RecipeEntry;
@@ -33,6 +34,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.DyeColor;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
@@ -47,6 +49,8 @@ public final class WoodenFurnitureGameTest implements FabricGameTest {
   private static final Vec3d REL_SLED = new Vec3d(2.5, 2, 2.5);
   private static final Vec3d REL_PLAYER = new Vec3d(2.5, 2, 4.5);
   private static final int SLED_BREAKING_HITS = 5;
+  private static final float LOOK_DOWN = 45.0f;
+  private static final float LOOK_NORTH = 180.0f;
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = 20)
   public void everyWoodsRecipeCraftsThatWood(final TestContext context) {
@@ -113,6 +117,32 @@ public final class WoodenFurnitureGameTest implements FabricGameTest {
     SurvivalTestPlayer.leave(context, player);
 
     context.addInstantFinalTask(() -> expectOneDropOf(context, ModItems.SLED, WoodType.BIRCH));
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 20)
+  public void aSledPlacedFromAnItemKeepsItsWoodThroughASave(final TestContext context) {
+    final ServerPlayerEntity player = SurvivalTestPlayer.joinAt(context, REL_PLAYER);
+    player.setPitch(LOOK_DOWN);
+    player.setYaw(LOOK_NORTH);
+    final ItemStack item = new ItemStack(ModItems.SLED);
+    item.set(ModComponents.WOOD, WoodType.ACACIA);
+    player.setStackInHand(Hand.MAIN_HAND, item);
+
+    ModItems.SLED.use(context.getWorld(), player, Hand.MAIN_HAND);
+    SurvivalTestPlayer.leave(context, player);
+
+    final List<SledEntity> sleds =
+        context.getWorld().getEntitiesByClass(SledEntity.class, context.getTestBox(), sled -> true);
+    context.assertTrue(sleds.size() == 1, "expected one placed sled but got " + sleds.size());
+    final NbtCompound saved = new NbtCompound();
+    sleds.get(0).writeNbt(saved);
+    final SledEntity loaded = new SledEntity(ModEntities.SLED, context.getWorld());
+    loaded.readNbt(saved);
+    context.assertTrue(
+        sleds.get(0).wood() == WoodType.ACACIA, "the placed sled is " + sleds.get(0).wood().name());
+    context.assertTrue(
+        loaded.wood() == WoodType.ACACIA, "the loaded sled is " + loaded.wood().name());
+    context.complete();
   }
 
   private static void expectOneDropOf(

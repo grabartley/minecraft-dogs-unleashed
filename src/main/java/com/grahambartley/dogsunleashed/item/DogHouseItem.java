@@ -32,6 +32,6 @@ public class DogHouseItem extends BlockItem {
       final List<Text> tooltip,
       final TooltipType type) {
     super.appendTooltip(stack, context, tooltip, type);
-    tooltip.add(WoodPlanks.tooltipOf(WoodPlanks.of(stack)));
+    WoodPlanks.appendTooltip(stack, tooltip);
   }
 }

@@ -40,7 +40,7 @@ public class ModComponents {
           Registries.DATA_COMPONENT_TYPE,
           Identifier.of(DogsUnleashed.MOD_ID, "wood"),
           ComponentType.<WoodType>builder()
-              .codec(WoodType.CODEC)
+              .codec(WoodPlanks.CODEC)
               .packetCodec(WoodPlanks.PACKET_CODEC)
               .build());
 

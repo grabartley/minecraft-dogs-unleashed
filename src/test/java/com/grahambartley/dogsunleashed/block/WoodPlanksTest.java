@@ -6,18 +6,24 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.gson.JsonPrimitive;
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
 import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.block.entity.DogBedBlockEntity;
+import com.mojang.serialization.JsonOps;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.WoodType;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -135,6 +141,66 @@ class WoodPlanksTest {
     assertSame(WoodType.OAK, WoodPlanks.byName(name));
     assertSame(WoodType.OAK, WoodPlanks.read(new NbtCompound()));
     assertSame(WoodType.OAK, WoodPlanks.of(new ItemStack(ModItems.DOG_HOUSE)));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("woodenItems")
+  @DisplayName("a wooden item has one stack per vanilla wood, in vanilla's order")
+  void stacksListEveryVanillaWood(final Item item) {
+    final List<ItemStack> stacks = WoodPlanks.stacksOf(item);
+
+    assertEquals(
+        List.of(
+            WoodType.OAK,
+            WoodType.SPRUCE,
+            WoodType.BIRCH,
+            WoodType.ACACIA,
+            WoodType.CHERRY,
+            WoodType.JUNGLE,
+            WoodType.DARK_OAK,
+            WoodType.CRIMSON,
+            WoodType.WARPED,
+            WoodType.MANGROVE,
+            WoodType.BAMBOO),
+        stacks.stream().map(stack -> stack.get(ModComponents.WOOD)).toList());
+    stacks.forEach(stack -> assertSame(item, stack.getItem()));
+  }
+
+  static Stream<Item> woodenItems() {
+    return Stream.of(ModItems.DOG_HOUSE, ModItems.DOG_BED, ModItems.SLED);
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("woods")
+  @DisplayName("the tooltip line added to an item names the wood stored on it")
+  void appendedTooltipNamesTheWood(final WoodType wood, final Block planks, final String texture) {
+    final ItemStack stack = new ItemStack(ModItems.SLED);
+    stack.set(ModComponents.WOOD, wood);
+    final List<Text> tooltip = new ArrayList<>();
+
+    WoodPlanks.appendTooltip(stack, tooltip);
+
+    assertEquals(List.of(WoodPlanks.tooltipOf(wood)), tooltip);
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("woods")
+  @DisplayName("a wood saved in an item component loads back as the same wood")
+  void codecRoundTrips(final WoodType wood, final Block planks, final String texture) {
+    final var json = WoodPlanks.CODEC.encodeStart(JsonOps.INSTANCE, wood).getOrThrow();
+
+    assertEquals(new JsonPrimitive(wood.name()), json);
+    assertSame(wood, WoodPlanks.CODEC.parse(JsonOps.INSTANCE, json).getOrThrow());
+  }
+
+  @ParameterizedTest(name = "\"{0}\" loads as oak")
+  @ValueSource(strings = {"", "pale_oak", "redwood", "not a wood"})
+  @DisplayName("an item component naming a wood with no vanilla planks loads as oak")
+  void codecFallsBackToOak(final String name) {
+    assertSame(
+        WoodType.OAK,
+        WoodPlanks.CODEC.parse(JsonOps.INSTANCE, new JsonPrimitive(name)).getOrThrow());
+    assertEquals(WoodPlanks.textureOf(WoodType.OAK), WoodPlanks.textureOf(WoodPlanks.byName(name)));
   }
 
   @ParameterizedTest(name = "{0}")

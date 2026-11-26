@@ -4,6 +4,7 @@ import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.ModStatueBlocks;
+import com.grahambartley.dogsunleashed.block.WoodPlanks;
 import com.grahambartley.dogsunleashed.entity.DogFoods;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import java.util.ArrayList;
@@ -88,7 +89,7 @@ public final class DogsUnleashedInfoEntries {
   }
 
   private static Definition wooden(final String id, final Supplier<Item> item) {
-    return text(id, () -> ModItems.woodVariantsOf(item.get()));
+    return text(id, () -> WoodPlanks.stacksOf(item.get()));
   }
 
   private static Definition dyed(
