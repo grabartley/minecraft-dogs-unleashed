@@ -11,7 +11,6 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
@@ -75,7 +74,7 @@ public final class DogPetting extends DogComponent {
         this.headReach(),
         this.dog.getWidth() / 2.0,
         this.kneelFor(player),
-        PetStance.bows(this.headTopAbove(player)));
+        PetStance.bows(this.headReach().top()));
   }
 
   public boolean isAtHandOf(final PlayerEntity player) {
@@ -158,20 +157,13 @@ public final class DogPetting extends DogComponent {
   }
 
   private boolean canReachNeck(final PlayerEntity player) {
-    final Vec3d neck = this.neck();
+    final PetSpot.Point neck =
+        PetSpot.neckOf(
+            this.dog.getX(), this.dog.getZ(), this.dog.getBodyYaw(), this.headReach().neck());
     return PetSpot.reachesNeck(
-        Math.hypot(neck.x - player.getX(), neck.z - player.getZ()),
+        Math.hypot(neck.x() - player.getX(), neck.z() - player.getZ()),
         this.dog.getY() - player.getY(),
         this.kneelFor(player));
-  }
-
-  private Vec3d neck() {
-    final float yaw = this.dog.getBodyYaw() * MathHelper.RADIANS_PER_DEGREE;
-    final double reach = this.headReach().neck();
-    return new Vec3d(
-        this.dog.getX() - MathHelper.sin(yaw) * reach,
-        this.dog.getY(),
-        this.dog.getZ() + MathHelper.cos(yaw) * reach);
   }
 
   private boolean pettingAnotherDog(final PlayerEntity player) {
@@ -193,8 +185,8 @@ public final class DogPetting extends DogComponent {
     return (float) (this.dog.getY() - player.getY()) + this.headReach().top();
   }
 
-  private String pettedClipFor(final PlayerEntity player) {
-    return PetStance.bows(this.headTopAbove(player))
+  private String pettedClip() {
+    return PetStance.bows(this.headReach().top())
         ? DogAnimationKeys.PETTED_BOW
         : DogAnimationKeys.PETTED;
   }
@@ -205,7 +197,7 @@ public final class DogPetting extends DogComponent {
 
   private void begin(final PlayerEntity player) {
     this.lastPettedAt = this.now();
-    final String clip = this.pettedClipFor(player);
+    final String clip = this.pettedClip();
     this.dog.triggerAnim(clip, clip);
     this.dog.getAmbienceEffects().startTailWag();
     this.dog.getAmbienceEffects().burstHearts();
@@ -242,12 +234,11 @@ public final class DogPetting extends DogComponent {
   }
 
   private static boolean standsSteady(final PlayerEntity player) {
-    return player.isOnGround()
-        && !player.hasVehicle()
-        && !player.getAbilities().flying
-        && !player.isSwimming()
-        && !player.isFallFlying()
-        && !player.isTouchingWater();
+    return PettingRules.standsSteady(
+        player.isOnGround(),
+        player.hasVehicle(),
+        player.getAbilities().flying,
+        player.isSwimming() || player.isFallFlying() || player.isTouchingWater());
   }
 
   private PettingRules.DogState stateFor(final PlayerEntity player) {

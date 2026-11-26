@@ -30,4 +30,14 @@ class DogCrownsTest {
     crowns.record(2, DOG, DOG.add(0.0, offset, 0.0), 50L);
     assertEquals(kept, crowns.of(2, 50L).isPresent());
   }
+
+  @ParameterizedTest(name = "next record {0} ticks later -> {1} kept")
+  @CsvSource({"1, 2", "2, 2", "3, 1", "500, 1"})
+  @DisplayName("crowns of dogs that stop rendering are dropped, not kept for the session")
+  void staleCrownsAreDropped(final long later, final int kept) {
+    final DogCrowns crowns = new DogCrowns();
+    crowns.record(1, Vec3d.ZERO, new Vec3d(0, 1, 0), 100L);
+    crowns.record(2, Vec3d.ZERO, new Vec3d(0, 1, 0), 100L + later);
+    assertEquals(kept, crowns.size());
+  }
 }

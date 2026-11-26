@@ -135,4 +135,24 @@ class PetSpotTest {
     final float faced = new PetSpot.Place(2.0, 3.0, 2.0 + dx, 3.0 + dz).faceYawDegrees();
     assertEquals(0.0f, MathHelper.wrapDegrees(faced - yaw), 1.0e-4f);
   }
+
+  @ParameterizedTest(name = "dog at {0},{1} yaw {2}, neck {3} -> neck at {4},{5}")
+  @CsvSource({
+    "0, 0, 0, 1, 0, 1",
+    "0, 0, 90, 1, -1, 0",
+    "2, 3, 180, 0.5, 2, 2.5",
+    "1, 1, -90, 2, 3, 1"
+  })
+  @DisplayName("the neck sits ahead of the dog along the way it faces")
+  void theNeckSitsAheadOfTheDog(
+      final double x,
+      final double z,
+      final float yaw,
+      final double neck,
+      final double neckX,
+      final double neckZ) {
+    final PetSpot.Point point = PetSpot.neckOf(x, z, yaw, neck);
+    assertEquals(neckX, point.x(), 1.0e-9);
+    assertEquals(neckZ, point.z(), 1.0e-9);
+  }
 }

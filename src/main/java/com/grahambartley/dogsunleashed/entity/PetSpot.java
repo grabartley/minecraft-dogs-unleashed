@@ -26,6 +26,8 @@ public final class PetSpot {
     }
   }
 
+  public record Point(double x, double z) {}
+
   private record Local(double forward, double right, double faceForward, double faceRight) {
 
     Local towards(final Local other, final double weight) {
@@ -103,6 +105,12 @@ public final class PetSpot {
         right,
         forward + BOW_FACE_FORWARD * LOOK_AHEAD,
         right - side * BOW_FACE_ACROSS * LOOK_AHEAD);
+  }
+
+  public static Point neckOf(
+      final double dogX, final double dogZ, final float bodyYawDegrees, final double neck) {
+    final double yaw = Math.toRadians(bodyYawDegrees);
+    return new Point(dogX - Math.sin(yaw) * neck, dogZ + Math.cos(yaw) * neck);
   }
 
   public static boolean arrived(final double blocksFromSpot) {

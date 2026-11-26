@@ -98,4 +98,9 @@ public final class PettingRules {
   public static boolean facesSpot(final float bodyYaw, final float spotYaw) {
     return Math.abs(MathHelper.wrapDegrees(spotYaw - bodyYaw)) <= FACING_SLACK_DEGREES;
   }
+
+  public static boolean standsSteady(
+      final boolean onGround, final boolean riding, final boolean flying, final boolean afloat) {
+    return onGround && !riding && !flying && !afloat;
+  }
 }

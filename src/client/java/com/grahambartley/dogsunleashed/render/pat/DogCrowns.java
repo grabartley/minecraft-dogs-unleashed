@@ -16,6 +16,7 @@ public final class DogCrowns {
   private final Map<Integer, Seen> byDog = new HashMap<>();
 
   public void record(final int dogId, final Vec3d dogPos, final Vec3d crown, final long worldTime) {
+    this.byDog.values().removeIf(seen -> worldTime - seen.worldTime() > FRESH_TICKS);
     if (crown.squaredDistanceTo(dogPos) <= MAX_DRIFT_BLOCKS * MAX_DRIFT_BLOCKS) {
       this.byDog.put(dogId, new Seen(crown, worldTime));
     }
@@ -27,6 +28,10 @@ public final class DogCrowns {
       return Optional.empty();
     }
     return Optional.of(seen.crown());
+  }
+
+  int size() {
+    return this.byDog.size();
   }
 
   public void clear() {

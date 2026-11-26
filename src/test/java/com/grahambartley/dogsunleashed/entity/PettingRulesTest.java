@@ -205,4 +205,22 @@ class PettingRulesTest {
   void thePatWaitsUntilTheDogFacesAlong(final float body, final float spot, final boolean facing) {
     assertEquals(facing, PettingRules.facesSpot(body, spot));
   }
+
+  @ParameterizedTest(name = "on ground {0}, riding {1}, flying {2}, afloat {3} -> steady {4}")
+  @CsvSource({
+    "true, false, false, false, true",
+    "false, false, false, false, false",
+    "true, true, false, false, false",
+    "true, false, true, false, false",
+    "true, false, false, true, false"
+  })
+  @DisplayName("only a player standing on solid ground can pet")
+  void onlyAPlayerOnSolidGroundIsSteady(
+      final boolean onGround,
+      final boolean riding,
+      final boolean flying,
+      final boolean afloat,
+      final boolean expected) {
+    assertEquals(expected, PettingRules.standsSteady(onGround, riding, flying, afloat));
+  }
 }
