@@ -18,6 +18,7 @@ import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Arm;
 import net.minecraft.util.math.Vec3d;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -130,5 +131,17 @@ class PatBodyPoseTest {
     assertEquals(0.1f, model.head.pitch, EPSILON);
     assertEquals(12.0f, model.leftLeg.pivotY, EPSILON);
     assertEquals(0.0f, bendOf(model.leftLeg), EPSILON);
+  }
+
+  @ParameterizedTest(name = "dog crown at {0},{1},{2}")
+  @CsvSource({"0, 13, 12", "8, 13, 4", "-8, 13, 4", "0, 13, -12"})
+  @DisplayName("the player's head never turns further than a real neck can")
+  void theHeadTurnsOnlyAsFarAsANeckCan(final float x, final float y, final float z) {
+    final Quaternionf look =
+        PatBodyPose.lookAt(
+            new Vector3f(0.0f, 0.0f, 0.0f), new Quaternionf(), new Vector3f(x, y, z));
+    final Vector3f facing = look.transform(new Vector3f(0.0f, 0.0f, -1.0f));
+    final float turn = (float) Math.toDegrees(Math.atan2(-facing.x, -facing.z));
+    assertTrue(Math.abs(turn) <= 75.0f + 1.0e-3f, "turned " + turn);
   }
 }

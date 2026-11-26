@@ -18,6 +18,8 @@ import org.joml.Vector3f;
 public final class PatBodyPose {
 
   static final float EYE_ABOVE_NECK = 4.0f;
+
+  static final float HEAD_TURN_LIMIT = 75.0f * MathHelper.RADIANS_PER_DEGREE;
   static final float BLOCKS_PER_PIXEL = 0.9375f / 16.0f;
 
   public record Frame(
@@ -128,7 +130,17 @@ public final class PatBodyPose {
   static Quaternionf lookAt(final Vector3f neck, final Quaternionf torso, final Vector3f crown) {
     final Vector3f eye = torso.transform(new Vector3f(0.0f, -EYE_ABOVE_NECK, 0.0f)).add(neck);
     final Vector3f toward = new Vector3f(crown).sub(eye);
-    final float yaw = (float) Math.atan2(-toward.x, -toward.z);
+    final Vector3f facing = torso.transform(new Vector3f(0.0f, 0.0f, -1.0f));
+    final float torsoYaw = (float) Math.atan2(-facing.x, -facing.z);
+    final float yaw =
+        torsoYaw
+            + MathHelper.clamp(
+                MathHelper.wrapDegrees(
+                        ((float) Math.atan2(-toward.x, -toward.z) - torsoYaw)
+                            * MathHelper.DEGREES_PER_RADIAN)
+                    * MathHelper.RADIANS_PER_DEGREE,
+                -HEAD_TURN_LIMIT,
+                HEAD_TURN_LIMIT);
     final float pitch =
         (float) Math.atan2(toward.y, Math.max(1.0e-3, Math.hypot(toward.x, toward.z)));
     return new Quaternionf().rotationZYX(0.0f, yaw, pitch);
