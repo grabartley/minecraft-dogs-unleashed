@@ -4,13 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import net.minecraft.util.Arm;
-import net.minecraft.util.math.MathHelper;
 import org.joml.Vector3f;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.junit.jupiter.params.provider.ValueSource;
 
 class PatStrokeTest {
 
@@ -30,30 +28,11 @@ class PatStrokeTest {
     assertEquals(expected, PatStroke.patLift(elapsed), EPSILON);
   }
 
-  @ParameterizedTest(name = "rest pitch {0}")
-  @ValueSource(floats = {-0.6f, 0.0f, 0.4f, 1.2f})
-  @DisplayName("before and after the pat the arm keeps its own pose")
-  void outsideThePatTheArmKeepsItsPose(final float restPitch) {
-    assertEquals(restPitch, PatStroke.armPitch(restPitch, 0.3f, -1.0f), EPSILON);
-    assertEquals(restPitch, PatStroke.armPitch(restPitch, 0.3f, 0.0f), EPSILON);
-    assertEquals(restPitch, PatStroke.armPitch(restPitch, 0.3f, 30.0f), EPSILON);
-  }
-
-  @ParameterizedTest(name = "looking {0} radians down")
-  @ValueSource(floats = {-0.4f, 0.0f, 0.5f, 1.0f})
-  @DisplayName("with the hand on the head the arm points where the player looks")
-  void theLandedHandPointsWhereThePlayerLooks(final float headPitch) {
-    assertEquals(
-        -MathHelper.HALF_PI + headPitch, PatStroke.armPitch(0.2f, headPitch, 10.0f), EPSILON);
-  }
-
-  @ParameterizedTest(name = "looking {0} radians down")
-  @ValueSource(floats = {-0.4f, 0.0f, 0.5f})
+  @ParameterizedTest(name = "{0} ticks in, lift {1} radians")
+  @CsvSource({"0, 0", "5, 0.3", "10, 0", "30, 0"})
   @DisplayName("between pats the hand lifts off the head")
-  void betweenPatsTheHandLifts(final float headPitch) {
-    final float landed = PatStroke.armPitch(0.0f, headPitch, 10.0f);
-    final float lifted = PatStroke.armPitch(0.0f, headPitch, 15.0f);
-    assertTrue(lifted < landed, "a lifted arm is raised further than a landed one");
+  void betweenPatsTheHandLifts(final float elapsed, final float expected) {
+    assertEquals(expected, PatStroke.liftRadians(elapsed), EPSILON);
   }
 
   @ParameterizedTest(name = "{0}")
@@ -62,32 +41,15 @@ class PatStrokeTest {
   void firstPersonRestsOutsideThePat(final Arm arm) {
     final Vector3f shift = PatStroke.firstPersonShift(arm, 30.0f);
     assertEquals(0.0f, shift.length(), EPSILON);
-    assertEquals(0.0f, PatStroke.firstPersonTiltDegrees(30.0f), EPSILON);
   }
 
   @ParameterizedTest(name = "{0} arm moves {1} on x")
   @CsvSource({"RIGHT, -1", "LEFT, 1"})
-  @DisplayName("in first person the hand reaches in, down and forward from its own side")
-  void firstPersonReachesInDownAndForward(final Arm arm, final float inward) {
+  @DisplayName("in first person the hand rises in to the middle of the view and reaches out")
+  void firstPersonReachesInUpAndForward(final Arm arm, final float inward) {
     final Vector3f shift = PatStroke.firstPersonShift(arm, 10.0f);
     assertEquals(Math.signum(inward), Math.signum(shift.x), EPSILON);
-    assertTrue(shift.y < 0.0f, "the hand drops towards the dog");
+    assertTrue(shift.y > 0.0f, "the hand rises into view");
     assertTrue(shift.z < 0.0f, "the hand reaches away from the camera");
-    assertTrue(PatStroke.firstPersonTiltDegrees(10.0f) > 0.0f, "the palm turns down");
-  }
-
-  @ParameterizedTest(name = "{0} arm, head turned {1} radians")
-  @CsvSource({"RIGHT, 0, -0.3", "LEFT, 0, 0.3", "RIGHT, 0.5, 0.2", "LEFT, -0.4, -0.1"})
-  @DisplayName("in third person the hand follows the head and reaches in to the dog")
-  void thirdPersonFollowsTheHeadAndReachesIn(
-      final Arm arm, final float headYaw, final float expected) {
-    assertEquals(expected, PatStroke.armYaw(0.0f, headYaw, arm, 10.0f), EPSILON);
-  }
-
-  @ParameterizedTest(name = "{0} ticks in")
-  @ValueSource(floats = {-1.0f, 0.0f, 30.0f})
-  @DisplayName("outside the pat the arm keeps its own turn")
-  void outsideThePatTheArmKeepsItsTurn(final float elapsed) {
-    assertEquals(0.4f, PatStroke.armYaw(0.4f, 1.0f, Arm.RIGHT, elapsed), EPSILON);
   }
 }

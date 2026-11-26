@@ -4,7 +4,6 @@ import com.google.common.collect.Sets;
 import com.grahambartley.dogsunleashed.config.SyncedServerConfig;
 import com.grahambartley.dogsunleashed.entity.DogFurStage;
 import com.grahambartley.dogsunleashed.entity.DogSledHarness;
-import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.model.DogModel;
 import com.grahambartley.dogsunleashed.render.cosmetic.HatFits;
@@ -161,21 +160,15 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
             Sets.union(
                 this.hatFits.earsHiddenOn(animatable, model, this.frameProfile),
                 this.mobHeadFits.earsHiddenOn(animatable, model, this.frameProfile)));
-    this.frameGrowth =
-        animatable.getGrowth().applies()
-            ? GrowthRigScale.of(model, this.frameProfile, animatable.getGrowth().stage())
-            : CrossBreedRendering.shapeOf(animatable, model, this.frameProfile);
+    final DogFrame frame = DogFrame.of(animatable, model, this.frameProfile);
+    this.frameGrowth = frame.growth();
     if (!isReRender) {
-      final UnleashedDogBreed.RenderTransforms transforms =
-          animatable.getRigSourceBreed().renderTransforms();
-      final float scale = this.frameScale(animatable, transforms);
-      poseStack.scale(scale, scale, scale);
-      if (transforms.bodyYawOffsetDegrees() != 0.0f) {
-        poseStack.multiply(
-            RotationAxis.POSITIVE_Y.rotationDegrees(transforms.bodyYawOffsetDegrees()));
+      poseStack.scale(frame.scale(), frame.scale(), frame.scale());
+      if (frame.yawOffsetDegrees() != 0.0f) {
+        poseStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(frame.yawOffsetDegrees()));
       }
       if (this.frameGrowth != null) {
-        poseStack.translate(0.0f, this.frameGrowth.lift(), 0.0f);
+        poseStack.translate(0.0f, frame.lift(), 0.0f);
       }
     }
     super.preRender(
@@ -189,17 +182,6 @@ public class DogRenderer extends GeoEntityRenderer<UnleashedDogEntity> {
         packedLight,
         packedOverlay,
         colour);
-  }
-
-  private float frameScale(
-      final UnleashedDogEntity animatable, final UnleashedDogBreed.RenderTransforms transforms) {
-    return DogFrameScale.of(
-        transforms,
-        animatable.isBaby(),
-        animatable.getGrowth().applies()
-            ? animatable.getGrowth().stage().renderScaleMultiplier()
-            : null,
-        this.frameGrowth == null ? 1.0f : this.frameGrowth.heightScale());
   }
 
   @Override

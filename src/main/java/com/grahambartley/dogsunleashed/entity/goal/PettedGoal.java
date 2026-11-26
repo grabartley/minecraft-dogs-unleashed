@@ -3,13 +3,18 @@ package com.grahambartley.dogsunleashed.entity.goal;
 import com.grahambartley.dogsunleashed.entity.DogPetting;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.EnumSet;
+import java.util.Optional;
 import net.minecraft.entity.ai.goal.Goal;
+import net.minecraft.entity.player.PlayerEntity;
 
 public class PettedGoal extends Goal {
 
   private static final float LOOK_TURN_DEGREES = 30.0f;
+  private static final double APPROACH_SPEED = 1.0;
+  private static final int REPATH_TICKS = 10;
 
   private final UnleashedDogEntity dog;
+  private int repathIn;
 
   public PettedGoal(final UnleashedDogEntity dog) {
     this.dog = dog;
@@ -18,7 +23,8 @@ public class PettedGoal extends Goal {
 
   @Override
   public boolean canStart() {
-    return this.petting().currentPetter().isPresent();
+    return this.petting().approachingPetter().isPresent()
+        || this.petting().currentPetter().isPresent();
   }
 
   @Override
@@ -28,23 +34,38 @@ public class PettedGoal extends Goal {
 
   @Override
   public void start() {
-    this.holdStillFacingThePetter();
+    this.repathIn = 0;
+    this.tick();
+  }
+
+  @Override
+  public void stop() {
+    this.dog.getNavigation().stop();
   }
 
   @Override
   public void tick() {
-    this.holdStillFacingThePetter();
+    final Optional<PlayerEntity> approaching = this.petting().approachingPetter();
+    if (approaching.isPresent() && !this.petting().arriveAt(approaching.get())) {
+      this.walkTo(approaching.get());
+      return;
+    }
+    this.petting().currentPetter().ifPresent(this::holdStillFacing);
   }
 
-  private void holdStillFacingThePetter() {
+  private void walkTo(final PlayerEntity petter) {
+    this.dog.getLookControl().lookAt(petter, LOOK_TURN_DEGREES, LOOK_TURN_DEGREES);
+    if (--this.repathIn <= 0 || this.dog.getNavigation().isIdle()) {
+      this.repathIn = REPATH_TICKS;
+      this.dog.getNavigation().startMovingTo(petter, APPROACH_SPEED);
+    }
+  }
+
+  private void holdStillFacing(final PlayerEntity petter) {
     this.dog.getNavigation().stop();
     this.dog.setForwardSpeed(0.0f);
     this.dog.setSidewaysSpeed(0.0f);
-    this.petting()
-        .currentPetter()
-        .ifPresent(
-            petter ->
-                this.dog.getLookControl().lookAt(petter, LOOK_TURN_DEGREES, LOOK_TURN_DEGREES));
+    this.dog.getLookControl().lookAt(petter, LOOK_TURN_DEGREES, LOOK_TURN_DEGREES);
   }
 
   private DogPetting petting() {

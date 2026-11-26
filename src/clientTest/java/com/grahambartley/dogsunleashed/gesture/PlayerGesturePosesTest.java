@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.gesture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.grahambartley.dogsunleashed.network.payload.PlayerGesturePayload;
 import net.minecraft.util.Hand;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -11,6 +12,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 class PlayerGesturePosesTest {
 
   private static final long START = 1000L;
+  private static final int NO_TARGET = PlayerGesturePayload.NO_TARGET;
 
   @ParameterizedTest(name = "{0}, {1} ticks after it starts -> playing {2}")
   @CsvSource({
@@ -27,7 +29,7 @@ class PlayerGesturePosesTest {
   void aPoseLastsItsGesture(
       final PlayerGesture gesture, final long elapsedTicks, final boolean expected) {
     final PlayerGesturePoses poses = new PlayerGesturePoses();
-    poses.start(5, Hand.MAIN_HAND, gesture, START);
+    poses.start(5, Hand.MAIN_HAND, gesture, NO_TARGET, START);
     assertEquals(expected, poses.isPlaying(5, Hand.MAIN_HAND, gesture, START + elapsedTicks));
   }
 
@@ -36,7 +38,7 @@ class PlayerGesturePosesTest {
   @DisplayName("the elapsed time includes the partial tick")
   void elapsedIncludesThePartialTick(final long ticks, final float delta, final float expected) {
     final PlayerGesturePoses poses = new PlayerGesturePoses();
-    poses.start(5, Hand.MAIN_HAND, PlayerGesture.PAT, START);
+    poses.start(5, Hand.MAIN_HAND, PlayerGesture.PAT, NO_TARGET, START);
     assertEquals(
         expected,
         poses.elapsedTicks(5, Hand.MAIN_HAND, PlayerGesture.PAT, START + ticks, delta),
@@ -48,7 +50,7 @@ class PlayerGesturePosesTest {
   @DisplayName("only the hand that gestured moves")
   void onlyTheGesturingHandMoves(final Hand hand) {
     final PlayerGesturePoses poses = new PlayerGesturePoses();
-    poses.start(5, hand, PlayerGesture.WHISTLE, START);
+    poses.start(5, hand, PlayerGesture.WHISTLE, NO_TARGET, START);
     final Hand other = hand == Hand.MAIN_HAND ? Hand.OFF_HAND : Hand.MAIN_HAND;
     assertEquals(true, poses.isPlaying(5, hand, PlayerGesture.WHISTLE, START + 5));
     assertEquals(false, poses.isPlaying(5, other, PlayerGesture.WHISTLE, START + 5));
@@ -63,7 +65,7 @@ class PlayerGesturePosesTest {
   @DisplayName("one gesture never shows as another")
   void oneGestureNeverShowsAsAnother(final PlayerGesture asked, final PlayerGesture started) {
     final PlayerGesturePoses poses = new PlayerGesturePoses();
-    poses.start(5, Hand.MAIN_HAND, started, START);
+    poses.start(5, Hand.MAIN_HAND, started, NO_TARGET, START);
     assertEquals(false, poses.isPlaying(5, Hand.MAIN_HAND, asked, START + 2));
   }
 
@@ -72,8 +74,8 @@ class PlayerGesturePosesTest {
   @DisplayName("each player gestures on their own, and a reset stops them all")
   void playersAreTrackedApart(final int otherId) {
     final PlayerGesturePoses poses = new PlayerGesturePoses();
-    poses.start(0, Hand.MAIN_HAND, PlayerGesture.PAT, START);
-    poses.start(otherId, Hand.OFF_HAND, PlayerGesture.WHISTLE, START + 2);
+    poses.start(0, Hand.MAIN_HAND, PlayerGesture.PAT, NO_TARGET, START);
+    poses.start(otherId, Hand.OFF_HAND, PlayerGesture.WHISTLE, NO_TARGET, START + 2);
     assertEquals(true, poses.isPlaying(0, Hand.MAIN_HAND, PlayerGesture.PAT, START + 5));
     assertEquals(true, poses.isPlaying(otherId, Hand.OFF_HAND, PlayerGesture.WHISTLE, START + 5));
     poses.clear();
@@ -86,9 +88,20 @@ class PlayerGesturePosesTest {
   @DisplayName("starting again restarts the gesture")
   void startingAgainRestarts(final long later) {
     final PlayerGesturePoses poses = new PlayerGesturePoses();
-    poses.start(3, Hand.MAIN_HAND, PlayerGesture.PAT, START);
-    poses.start(3, Hand.MAIN_HAND, PlayerGesture.PAT, START + later);
+    poses.start(3, Hand.MAIN_HAND, PlayerGesture.PAT, NO_TARGET, START);
+    poses.start(3, Hand.MAIN_HAND, PlayerGesture.PAT, NO_TARGET, START + later);
     assertEquals(true, poses.isPlaying(3, Hand.MAIN_HAND, PlayerGesture.PAT, START + later + 29));
     assertEquals(false, poses.isPlaying(3, Hand.MAIN_HAND, PlayerGesture.PAT, START + later + 30));
+  }
+
+  @ParameterizedTest(name = "target {0}, {1} ticks in -> {2}")
+  @CsvSource({"12, 0, 12", "12, 29, 12", "12, 30, -1", "-1, 5, -1"})
+  @DisplayName("a pat remembers the dog it is aimed at while it plays")
+  void aPatRemembersItsDog(final int target, final long elapsed, final int expected) {
+    final PlayerGesturePoses poses = new PlayerGesturePoses();
+    poses.start(5, Hand.MAIN_HAND, PlayerGesture.PAT, target, START);
+    assertEquals(expected, poses.targetOf(5, PlayerGesture.PAT, START + elapsed).orElse(NO_TARGET));
+    assertEquals(
+        NO_TARGET, poses.targetOf(5, PlayerGesture.WHISTLE, START + elapsed).orElse(NO_TARGET));
   }
 }

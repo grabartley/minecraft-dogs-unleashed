@@ -72,7 +72,8 @@ class PettingRulesTest {
   @DisplayName("a dog takes a pat only when it is calm and free")
   void aDogTakesAPatOnlyWhenCalmAndFree(
       final String label, final PettingRules.DogState state, final boolean expected) {
-    assertEquals(expected, PettingRules.welcomes(state, NOW, PettingRules.NEVER));
+    assertEquals(
+        expected, PettingRules.welcomes(state, NOW, PettingRules.NEVER, PettingRules.NEVER));
   }
 
   @ParameterizedTest(name = "last pat {0} ticks ago -> cooled down {1}")
@@ -81,7 +82,8 @@ class PettingRulesTest {
   void aPatArrivingMidPatIsIgnored(final long ticksAgo, final boolean expected) {
     assertEquals(expected, PettingRules.cooledDown(NOW, NOW - ticksAgo));
     assertEquals(!expected, PettingRules.isBeingPetted(NOW, NOW - ticksAgo));
-    assertEquals(expected, PettingRules.welcomes(state(-1), NOW, NOW - ticksAgo));
+    assertEquals(
+        expected, PettingRules.welcomes(state(-1), NOW, NOW - ticksAgo, PettingRules.NEVER));
   }
 
   @ParameterizedTest(name = "last pat stored at {0}")
@@ -111,5 +113,36 @@ class PettingRulesTest {
               .getAsDouble();
       assertEquals(Math.round(seconds * TICKS_PER_SECOND), PettingRules.COOLDOWN_TICKS);
     }
+  }
+
+  @ParameterizedTest(name = "asked {0} ticks ago -> still walking over {1}")
+  @CsvSource({"0, true", "59, true", "60, false", "-5, false"})
+  @DisplayName("a dog walks over to the petter for a short while, then gives up")
+  void theWalkOverEnds(final long ticksAgo, final boolean expected) {
+    assertEquals(expected, PettingRules.isApproaching(NOW, NOW - ticksAgo));
+    assertEquals(
+        !expected, PettingRules.welcomes(state(-1), NOW, PettingRules.NEVER, NOW - ticksAgo));
+  }
+
+  @ParameterizedTest(name = "a dog walking over to someone takes no other pat")
+  @CsvSource({"-9223372036854775808, false"})
+  @DisplayName("a dog never asked is not walking over")
+  void aDogNeverAskedIsNotWalking(final long requestedAt, final boolean expected) {
+    assertEquals(expected, PettingRules.isApproaching(NOW, requestedAt));
+  }
+
+  @ParameterizedTest(name = "{0} blocks apart, half width {1} -> in reach {2}")
+  @CsvSource({
+    "0.5, 0.4, true",
+    "0.85, 0.4, true",
+    "0.86, 0.4, false",
+    "0.6, 0.2, true",
+    "0.66, 0.2, false",
+    "3.0, 0.4, false"
+  })
+  @DisplayName("a dog close enough to the hand is petted where it stands")
+  void aDogCloseEnoughIsInReach(
+      final double distance, final double halfWidth, final boolean expected) {
+    assertEquals(expected, PettingRules.inReach(distance, halfWidth));
   }
 }

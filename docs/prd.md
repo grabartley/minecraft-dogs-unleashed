@@ -728,8 +728,8 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 | LIFE-15 | Huskies and dire wolves, and crosses with their voice, howl at the full moon. An owner within 64 blocks earns "Bark at the Moon" |
 | LIFE-16 | Dogs bark when hungry for attention, hurt, low on health, fighting, or at random, at most every 6 seconds. Puppies bark higher. Huskies howl but never bark |
 | LIFE-17 | Bark Volume and Howl Volume are settings |
-| LIFE-18 | Any player pets any dog, tamed or wild, of any breed, age or growth stage, by sneaking and right-clicking it with an empty main hand. The dog pushes its head into the hand, wags, shows hearts and pants, and the player's arm pats it. Everyone nearby sees both |
-| LIFE-19 | A dog takes a pat only while awake, not angry at that player, and free: no trick, errand, meal, dig, vehicle, rider, sled harness, howl, shake or growl. It takes one pat at a time, and a pat from anyone that arrives while one plays is ignored. While petted a standing dog stops and turns to face the player, and a sitting dog stays seated |
+| LIFE-18 | Any player pets any dog, tamed or wild, of any breed, age or growth stage, by sneaking and right-clicking it with an empty main hand. A dog out of reach walks up to the player first. The dog pushes its head into the hand, wags, shows hearts and pants. The player goes down on one knee for a low dog, or stands and leans for a tall one, and pats the top of its head. Everyone nearby sees both |
+| LIFE-19 | A dog takes a pat only while awake, not angry at that player, and free: no trick, errand, meal, dig, vehicle, rider, sled harness, howl, shake or growl. It takes one pat at a time, and a pat from anyone that arrives while one plays is ignored. While petted a standing dog stops and turns to face the player, and a sitting dog stays seated, so a sitting dog is petted only from close by. A dog that cannot reach the player within 3 seconds gives up |
 | LIFE-20 | Only the owner's pats grow the bond (BOND-2) |
 
 **Enforcement:** server decides every behaviour. Sounds and particles are played to nearby clients.

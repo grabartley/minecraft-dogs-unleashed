@@ -66,7 +66,11 @@ public final class ModNetworkingClient {
     final ClientWorld world = context.client().world;
     if (world != null) {
       PlayerGesturePoses.SHARED.start(
-          payload.entityId(), payload.hand(), payload.gesture(), world.getTime());
+          payload.entityId(),
+          payload.hand(),
+          payload.gesture(),
+          payload.targetEntityId(),
+          world.getTime());
     }
   }
 

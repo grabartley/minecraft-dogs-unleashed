@@ -16,6 +16,7 @@ public final class DogPetting extends DogComponent {
 
   private final UnleashedDogEntity dog;
   private long lastPettedAt = PettingRules.NEVER;
+  private long requestedAt = PettingRules.NEVER;
   private @Nullable UUID petterUuid;
 
   DogPetting(final UnleashedDogEntity dog) {
@@ -28,12 +29,43 @@ public final class DogPetting extends DogComponent {
         player.isSneaking(), hand == Hand.MAIN_HAND, player.getStackInHand(hand).isEmpty())) {
       return null;
     }
-    final long now = this.dog.getWorld().getTime();
-    if (!PettingRules.welcomes(this.stateFor(player), now, this.lastPettedAt)) {
+    if (!this.welcomes(player)) {
       return null;
     }
-    this.lastPettedAt = now;
     this.petterUuid = player.getUuid();
+    if (this.canReach(player)) {
+      this.begin(player);
+    } else {
+      this.requestedAt = this.now();
+    }
+    return ActionResult.CONSUME;
+  }
+
+  public Optional<PlayerEntity> approachingPetter() {
+    return PettingRules.isApproaching(this.now(), this.requestedAt)
+        ? this.petter()
+        : Optional.empty();
+  }
+
+  public Optional<PlayerEntity> currentPetter() {
+    return PettingRules.isBeingPetted(this.now(), this.lastPettedAt)
+        ? this.petter()
+        : Optional.empty();
+  }
+
+  public boolean arriveAt(final PlayerEntity player) {
+    if (!this.canReach(player)) {
+      return false;
+    }
+    this.requestedAt = PettingRules.NEVER;
+    if (this.welcomes(player)) {
+      this.begin(player);
+    }
+    return true;
+  }
+
+  private void begin(final PlayerEntity player) {
+    this.lastPettedAt = this.now();
     this.dog.triggerAnim(DogAnimationKeys.PETTED, DogAnimationKeys.PETTED);
     this.dog.getAmbienceEffects().startTailWag();
     this.dog.getAmbienceEffects().burstHearts();
@@ -45,17 +77,28 @@ public final class DogPetting extends DogComponent {
       this.dog.getComponents().get(DogBond.class).reward(DogBondRules.Source.PET);
     }
     if (player instanceof ServerPlayerEntity serverPlayer) {
-      PlayerGestures.show(serverPlayer, hand, PlayerGesture.PAT);
+      PlayerGestures.show(serverPlayer, Hand.MAIN_HAND, PlayerGesture.PAT, this.dog.getId());
     }
-    return ActionResult.CONSUME;
   }
 
-  public Optional<PlayerEntity> currentPetter() {
-    if (this.petterUuid == null
-        || !PettingRules.isBeingPetted(this.dog.getWorld().getTime(), this.lastPettedAt)) {
-      return Optional.empty();
-    }
-    return Optional.ofNullable(this.dog.getWorld().getPlayerByUuid(this.petterUuid));
+  private boolean welcomes(final PlayerEntity player) {
+    return PettingRules.welcomes(
+        this.stateFor(player), this.now(), this.lastPettedAt, this.requestedAt);
+  }
+
+  private boolean canReach(final PlayerEntity player) {
+    return PettingRules.inReach(
+        this.dog.getPos().subtract(player.getPos()).horizontalLength(), this.dog.getWidth() / 2.0);
+  }
+
+  private Optional<PlayerEntity> petter() {
+    return this.petterUuid == null
+        ? Optional.empty()
+        : Optional.ofNullable(this.dog.getWorld().getPlayerByUuid(this.petterUuid));
+  }
+
+  private long now() {
+    return this.dog.getWorld().getTime();
   }
 
   private PettingRules.DogState stateFor(final PlayerEntity player) {

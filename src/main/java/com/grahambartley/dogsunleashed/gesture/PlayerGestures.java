@@ -12,7 +12,16 @@ public final class PlayerGestures {
 
   public static void show(
       final ServerPlayerEntity player, final Hand hand, final PlayerGesture gesture) {
-    final PlayerGesturePayload payload = PlayerGesturePayload.of(player.getId(), hand, gesture);
+    show(player, hand, gesture, PlayerGesturePayload.NO_TARGET);
+  }
+
+  public static void show(
+      final ServerPlayerEntity player,
+      final Hand hand,
+      final PlayerGesture gesture,
+      final int targetEntityId) {
+    final PlayerGesturePayload payload =
+        PlayerGesturePayload.of(player.getId(), hand, gesture, targetEntityId);
     ServerPlayNetworking.send(player, payload);
     for (final ServerPlayerEntity watcher : PlayerLookup.tracking(player)) {
       ServerPlayNetworking.send(watcher, payload);

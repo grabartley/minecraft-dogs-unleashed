@@ -41,10 +41,11 @@ public final class DogPettingGameTest implements FabricGameTest {
   private static final String ARENA = "dogs-unleashed:dog_arena";
   private static final String BATCH = "petting";
   private static final int TICK_LIMIT = 20;
-  private static final int HOLD_TICK_LIMIT = 60;
+  private static final int HOLD_TICK_LIMIT = 80;
   private static final BlockPos REL_DOG = new BlockPos(3, 2, 3);
-  private static final Vec3d REL_PLAYER = new Vec3d(3.5, 2, 1.5);
-  private static final Vec3d REL_OTHER_PLAYER = new Vec3d(1.5, 2, 3.5);
+  private static final Vec3d REL_PLAYER = new Vec3d(3.5, 2, 2.9);
+  private static final Vec3d REL_OTHER_PLAYER = new Vec3d(2.9, 2, 3.5);
+  private static final Vec3d REL_FAR_PLAYER = new Vec3d(3.5, 2, 0.5);
   private static final Vec3d REL_FAR_CORNER = new Vec3d(0.5, 2, 5.5);
 
   @BeforeBatch(batchId = BATCH)
@@ -162,6 +163,55 @@ public final class DogPettingGameTest implements FabricGameTest {
             && dog.getLookControl().getLookZ() == player.getZ(),
         "The petted dog turns to the player petting it");
     context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void aDogOutOfReachWalksOverForThePat(final TestContext context) {
+    final ServerPlayerEntity player = sneakingPlayerAt(context, REL_FAR_PLAYER);
+    final UnleashedDogEntity dog = wildDog(context, ModEntities.BEAGLE);
+    final PettedGoal walkOver = new PettedGoal(dog);
+    dog.setOnGround(true);
+
+    context.assertTrue(
+        dog.interactMob(player, Hand.MAIN_HAND) == ActionResult.CONSUME,
+        "A pat out of reach is still taken");
+    context.assertTrue(
+        dog.getAnimationState().getTailWagTimerTicks() == 0,
+        "The pat waits until the dog reaches the hand");
+    context.assertTrue(walkOver.canStart(), "The dog sets off to the petter");
+    walkOver.start();
+    context.assertFalse(dog.getNavigation().isIdle(), "The dog walks over to the petter");
+
+    final Vec3d besideThePlayer = context.getAbsolute(REL_FAR_PLAYER.add(0.0, 0.0, 0.6));
+    dog.refreshPositionAndAngles(
+        besideThePlayer.x, besideThePlayer.y, besideThePlayer.z, 180.0f, 0.0f);
+    walkOver.tick();
+
+    context.assertTrue(
+        dog.getAnimationState().getTailWagTimerTicks() > 0, "The pat lands once the dog arrives");
+    context.assertTrue(
+        dog.getComponents().get(DogPetting.class).currentPetter().isPresent(),
+        "The arrived dog holds still for the pat");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = HOLD_TICK_LIMIT)
+  public void aDogThatNeverArrivesGivesUp(final TestContext context) {
+    final ServerPlayerEntity player = sneakingPlayerAt(context, REL_FAR_PLAYER);
+    final UnleashedDogEntity dog = wildDog(context, ModEntities.BEAGLE);
+    final PettedGoal walkOver = new PettedGoal(dog);
+
+    dog.interactMob(player, Hand.MAIN_HAND);
+
+    context.runAtTick(
+        PettingRules.APPROACH_TICKS + 1L,
+        () -> {
+          context.assertFalse(walkOver.canStart(), "The dog stops walking over after a while");
+          context.assertTrue(
+              dog.interactMob(player, Hand.MAIN_HAND) == ActionResult.CONSUME,
+              "A new pat can be asked for once the dog gives up");
+          context.complete();
+        });
   }
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = HOLD_TICK_LIMIT)

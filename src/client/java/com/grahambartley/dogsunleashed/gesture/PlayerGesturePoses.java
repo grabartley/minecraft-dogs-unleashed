@@ -1,7 +1,9 @@
 package com.grahambartley.dogsunleashed.gesture;
 
+import com.grahambartley.dogsunleashed.network.payload.PlayerGesturePayload;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.OptionalInt;
 import net.minecraft.util.Hand;
 
 public final class PlayerGesturePoses {
@@ -12,9 +14,25 @@ public final class PlayerGesturePoses {
   private final Map<Integer, Pose> poses = new HashMap<>();
 
   public void start(
-      final int entityId, final Hand hand, final PlayerGesture gesture, final long worldTime) {
+      final int entityId,
+      final Hand hand,
+      final PlayerGesture gesture,
+      final int targetEntityId,
+      final long worldTime) {
     this.poses.values().removeIf(pose -> !pose.isPlaying(worldTime));
-    this.poses.put(entityId, new Pose(hand, gesture, worldTime));
+    this.poses.put(entityId, new Pose(hand, gesture, targetEntityId, worldTime));
+  }
+
+  public OptionalInt targetOf(
+      final int entityId, final PlayerGesture gesture, final long worldTime) {
+    final Pose pose = this.poses.get(entityId);
+    if (pose == null
+        || pose.gesture() != gesture
+        || !pose.isPlaying(worldTime)
+        || pose.targetEntityId() == PlayerGesturePayload.NO_TARGET) {
+      return OptionalInt.empty();
+    }
+    return OptionalInt.of(pose.targetEntityId());
   }
 
   public boolean isPlaying(
@@ -40,7 +58,7 @@ public final class PlayerGesturePoses {
     this.poses.clear();
   }
 
-  private record Pose(Hand hand, PlayerGesture gesture, long startTime) {
+  private record Pose(Hand hand, PlayerGesture gesture, int targetEntityId, long startTime) {
 
     boolean isPlaying(final long worldTime) {
       return this.gesture.isPlaying(worldTime - this.startTime);

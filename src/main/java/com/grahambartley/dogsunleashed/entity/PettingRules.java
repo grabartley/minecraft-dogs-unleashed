@@ -6,6 +6,8 @@ public final class PettingRules {
 
   public static final int COOLDOWN_TICKS = PlayerGesture.PAT.ticks();
   public static final long NEVER = Long.MIN_VALUE;
+  public static final double REACH_BLOCKS = 0.45;
+  public static final int APPROACH_TICKS = 60;
 
   public record DogState(
       boolean asleep,
@@ -50,7 +52,19 @@ public final class PettingRules {
     return !cooledDown(now, lastPettedAt);
   }
 
-  public static boolean welcomes(final DogState dog, final long now, final long lastPettedAt) {
-    return dog.calm() && dog.free() && cooledDown(now, lastPettedAt);
+  public static boolean isApproaching(final long now, final long requestedAt) {
+    return requestedAt != NEVER && now >= requestedAt && now - requestedAt < APPROACH_TICKS;
+  }
+
+  public static boolean inReach(final double horizontalDistance, final double dogHalfWidth) {
+    return horizontalDistance <= REACH_BLOCKS + dogHalfWidth;
+  }
+
+  public static boolean welcomes(
+      final DogState dog, final long now, final long lastPettedAt, final long requestedAt) {
+    return dog.calm()
+        && dog.free()
+        && cooledDown(now, lastPettedAt)
+        && !isApproaching(now, requestedAt);
   }
 }

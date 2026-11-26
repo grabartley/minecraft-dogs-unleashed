@@ -9,8 +9,11 @@ import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 
-public record PlayerGesturePayload(int entityId, boolean mainHand, PlayerGesture gesture)
+public record PlayerGesturePayload(
+    int entityId, boolean mainHand, PlayerGesture gesture, int targetEntityId)
     implements CustomPayload {
+
+  public static final int NO_TARGET = -1;
 
   public static final Identifier PACKET_ID = Identifier.of(DogsUnleashed.MOD_ID, "player_gesture");
   public static final CustomPayload.Id<PlayerGesturePayload> ID = new CustomPayload.Id<>(PACKET_ID);
@@ -23,11 +26,13 @@ public record PlayerGesturePayload(int entityId, boolean mainHand, PlayerGesture
           PacketCodecs.indexed(index -> PlayerGesture.values()[index], PlayerGesture::ordinal)
               .cast(),
           PlayerGesturePayload::gesture,
+          PacketCodecs.VAR_INT,
+          PlayerGesturePayload::targetEntityId,
           PlayerGesturePayload::new);
 
   public static PlayerGesturePayload of(
-      final int entityId, final Hand hand, final PlayerGesture gesture) {
-    return new PlayerGesturePayload(entityId, hand == Hand.MAIN_HAND, gesture);
+      final int entityId, final Hand hand, final PlayerGesture gesture, final int targetEntityId) {
+    return new PlayerGesturePayload(entityId, hand == Hand.MAIN_HAND, gesture, targetEntityId);
   }
 
   public Hand hand() {
