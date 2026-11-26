@@ -10,48 +10,77 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 class PlayerPoseClipsTest {
 
   private static final Path SHIPPED =
       Path.of("src/client/resources/assets/dogs-unleashed/player_poses/pat.json");
+  private static final List<String> BONES =
+      List.of(
+          "hips",
+          "torso",
+          "head",
+          "right_arm",
+          "right_forearm",
+          "left_arm",
+          "left_forearm",
+          "right_leg",
+          "right_shin",
+          "left_leg",
+          "left_shin");
 
-  private static PlayerPoseClip shipped() throws IOException {
+  private static PlayerPoseClip shipped(final String name) throws IOException {
     try (Reader reader = Files.newBufferedReader(SHIPPED, StandardCharsets.UTF_8)) {
-      return PlayerPoseClip.parse(
-          JsonParser.parseReader(reader).getAsJsonObject(), PlayerPoseClips.PAT_CLIP);
+      return PlayerPoseClip.parse(JsonParser.parseReader(reader).getAsJsonObject(), name);
     }
   }
 
-  @Test
-  @DisplayName("the clip kneels, strokes for exactly one pat, then rises")
-  void theClipFitsThePat() throws IOException {
-    final PlayerPoseClip clip = shipped();
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(strings = {PlayerPoseClips.KNEEL_CLIP, PlayerPoseClips.STAND_CLIP})
+  @DisplayName("each clip settles, strokes for exactly one pat, rises and ends at rest")
+  void eachClipFitsThePat(final String name) throws IOException {
+    final PlayerPoseClip clip = shipped(name);
     assertTrue(clip.length() > PatTimeline.STROKES_END, "the rise follows the strokes");
-    assertEquals(0.0f, clip.sample("hips", Channel.POSITION, 0.0f).length(), 1.0e-4f);
-    assertEquals(0.0f, clip.sample("hips", Channel.POSITION, clip.length()).length(), 1.0e-4f);
+    for (final String bone : BONES) {
+      assertEquals(0.0f, clip.sample(bone, Channel.ROTATION, 0.0f).length(), 1.0e-3f, bone);
+      assertEquals(
+          0.0f, clip.sample(bone, Channel.ROTATION, clip.length()).length(), 1.0e-3f, bone);
+    }
+    assertEquals(0.0f, clip.sample("hips", Channel.POSITION, clip.length()).length(), 1.0e-3f);
   }
 
   @ParameterizedTest(name = "{0}s")
-  @ValueSource(floats = {0.4f, 0.8f, 1.2f, 1.6f, 1.9f})
-  @DisplayName("the player stays knelt for the whole pat")
-  void thePlayerStaysKnelt(final float time) throws IOException {
-    assertTrue(shipped().sample("hips", Channel.POSITION, time).y < -5.0f);
+  @ValueSource(floats = {0.6f, 1.0f, 1.4f, 1.8f, 2.1f})
+  @DisplayName("the kneel clip stays down on one knee for the whole pat")
+  void theKneelStaysDown(final float time) throws IOException {
+    final PlayerPoseClip clip = shipped(PlayerPoseClips.KNEEL_CLIP);
+    assertTrue(clip.sample("hips", Channel.POSITION, time).y < -3.5f);
+    assertTrue(clip.sample("right_shin", Channel.ROTATION, time).x > 75.0f);
   }
 
-  @ParameterizedTest(name = "{0}")
-  @ValueSource(
-      strings = {"hips", "torso", "head", "right_arm", "left_arm", "right_leg", "left_leg"})
-  @DisplayName("every bone the pose reads is keyed")
-  void everyBoneIsKeyed(final String bone) throws IOException {
-    final PlayerPoseClip clip = shipped();
-    final float sum =
-        clip.sample(bone, Channel.ROTATION, 1.0f).length()
-            + clip.sample(bone, Channel.POSITION, 1.0f).length();
-    assertTrue(sum > 0.0f, bone + " moves mid pat");
+  @ParameterizedTest(name = "{0}s")
+  @ValueSource(floats = {0.6f, 1.0f, 1.4f, 1.8f, 2.1f})
+  @DisplayName("the standing clip stays on its feet and reaches out")
+  void theStandStaysUp(final float time) throws IOException {
+    final PlayerPoseClip clip = shipped(PlayerPoseClips.STAND_CLIP);
+    assertTrue(clip.sample("hips", Channel.POSITION, time).y > -1.0f);
+    assertTrue(clip.sample("right_arm", Channel.ROTATION, time).x < -60.0f);
+  }
+
+  @ParameterizedTest(name = "{0} {1}")
+  @CsvSource({"pat, right_forearm", "pat, left_shin", "pat_tall, right_forearm"})
+  @DisplayName("knees and elbows only fold the way real ones do")
+  void jointsFoldOneWay(final String name, final String bone) throws IOException {
+    final PlayerPoseClip clip = shipped(name);
+    final boolean knee = bone.endsWith("shin");
+    for (float time = 0.0f; time <= clip.length(); time += 0.05f) {
+      final float bend = clip.sample(bone, Channel.ROTATION, time).x;
+      assertTrue(knee ? bend >= -1.0f : bend <= 1.0f, bone + " at " + time + " is " + bend);
+    }
   }
 }

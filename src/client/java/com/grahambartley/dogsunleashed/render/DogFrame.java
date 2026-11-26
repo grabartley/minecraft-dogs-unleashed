@@ -1,5 +1,6 @@
 package com.grahambartley.dogsunleashed.render;
 
+import com.grahambartley.dogsunleashed.entity.DogFrameScale;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed.RenderTransforms;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.render.cross.CrossBreedRendering;

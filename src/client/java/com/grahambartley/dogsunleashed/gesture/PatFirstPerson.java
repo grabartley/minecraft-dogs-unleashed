@@ -14,7 +14,6 @@ import org.joml.Vector3f;
 public final class PatFirstPerson {
 
   static final float MAX_REACH = 0.85f;
-  static final float STROKE_REACH = 0.9f;
   private static final float PIXEL = 1.0f / 16.0f;
 
   private PatFirstPerson() {}
@@ -28,21 +27,12 @@ public final class PatFirstPerson {
         .ifPresent(
             frame -> {
               final Camera camera = MinecraftClient.getInstance().gameRenderer.getCamera();
-              PatTarget.crownOf(frame.dog(), tickDelta)
-                  .ifPresent(
-                      crown -> {
-                        final Vector3f stroke = frame.rotation("right_arm");
-                        placement(
-                                arm,
-                                toView(
-                                    crown.subtract(camera.getPos()),
-                                    camera.getYaw(),
-                                    camera.getPitch()),
-                                stroke.x,
-                                stroke.y * frame.mirror(),
-                                frame.moment().aim())
-                            .applyTo(matrices);
-                      });
+              final Vec3d palm = frame.space().toWorld(PatBodyPose.solve(frame).palmTarget());
+              placement(
+                      arm,
+                      toView(palm.subtract(camera.getPos()), camera.getYaw(), camera.getPitch()),
+                      frame.moment().aim())
+                  .applyTo(matrices);
             });
   }
 
@@ -66,23 +56,14 @@ public final class PatFirstPerson {
     }
   }
 
-  static Placement placement(
-      final Arm arm,
-      final Vector3f crownInView,
-      final float strokePitch,
-      final float strokeYaw,
-      final float aim) {
+  static Placement placement(final Arm arm, final Vector3f palmInView, final float aim) {
     final Vector3f shoulder = restShoulder(arm);
     final Vector3f tip = restTip(arm);
-    final float distance = crownInView.length();
+    final float distance = palmInView.length();
     if (distance < 1.0e-4f || aim <= 0.0f) {
       return new Placement(shoulder, new Quaternionf(), new Vector3f());
     }
-    final Vector3f toward = new Vector3f(crownInView).div(distance);
-    final Vector3f target =
-        new Vector3f(toward)
-            .mul(Math.min(distance, MAX_REACH) - strokePitch * STROKE_REACH)
-            .add(strokeYaw * STROKE_REACH, 0.0f, 0.0f);
+    final Vector3f target = new Vector3f(palmInView).mul(Math.min(distance, MAX_REACH) / distance);
     final Vector3f restArm = new Vector3f(tip).sub(shoulder);
     final Vector3f wantArm = new Vector3f(target).sub(shoulder);
     final Quaternionf turn =

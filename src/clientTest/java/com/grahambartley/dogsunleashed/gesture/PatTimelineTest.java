@@ -10,11 +10,11 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 class PatTimelineTest {
 
-  private static final float LENGTH = 2.3f;
+  private static final float LENGTH = 2.5f;
   private static final long START = 1000L;
 
   @ParameterizedTest(name = "{0} ticks after the click -> clip at {1}s")
-  @CsvSource({"0, 0", "4, 0.2", "8, 0.4", "30, 0.4", "60, 0.4"})
+  @CsvSource({"0, 0", "6, 0.3", "12, 0.6", "30, 0.6", "60, 0.6"})
   @DisplayName("while the dog walks over the player kneels, then holds the kneel")
   void theInviteKneelsThenHolds(final float ticks, final float clipTime) {
     final PatTimeline.Moment moment =
@@ -23,7 +23,7 @@ class PatTimelineTest {
   }
 
   @ParameterizedTest(name = "pat {0} ticks in -> clip at {1}s")
-  @CsvSource({"0, 0.4", "10, 0.9", "30, 1.9", "36, 2.2"})
+  @CsvSource({"0, 0.6", "10, 1.1", "30, 2.1", "36, 2.4"})
   @DisplayName("the strokes start when the dog arrives and run into the rise")
   void theStrokesRunFromArrival(final float ticks, final float clipTime) {
     final PatTimeline.Session session = PatTimeline.invited(START).patted(START + 20);
@@ -37,8 +37,8 @@ class PatTimelineTest {
   @CsvSource({"38", "60"})
   @DisplayName("the pose ends once the player has stood up")
   void thePoseEndsAfterTheRise(final float ticks) {
-    final PatTimeline.Session session = PatTimeline.invited(START).patted(START + 8);
-    assertEquals(Optional.empty(), PatTimeline.at(session, START + 8 + ticks, LENGTH));
+    final PatTimeline.Session session = PatTimeline.invited(START).patted(START + 12);
+    assertEquals(Optional.empty(), PatTimeline.at(session, START + 12 + ticks, LENGTH));
   }
 
   @ParameterizedTest(name = "released {0} ticks after the click")
@@ -67,14 +67,14 @@ class PatTimelineTest {
   }
 
   @ParameterizedTest(name = "clip at {0}s -> aim {1}")
-  @CsvSource({"0, 0", "0.2, 0.5", "0.4, 1", "1.0, 1", "1.9, 1", "2.05, 0.5", "2.2, 0"})
+  @CsvSource({"0, 0", "0.3, 0.5", "0.6, 1", "1.0, 1", "2.1, 1", "2.25, 0.5", "2.4, 0"})
   @DisplayName("the hand eases onto the dog and off it again")
   void theAimEasesInAndOut(final float time, final float aim) {
     assertEquals(aim, PatTimeline.aimAt(time), 1.0e-4f);
   }
 
   @ParameterizedTest(name = "clip at {0}s -> body {1}")
-  @CsvSource({"0, 0", "0.05, 0.5", "0.1, 1", "1.0, 1", "2.25, 0.5", "2.3, 0"})
+  @CsvSource({"0, 0", "0.05, 0.5", "0.1, 1", "1.0, 1", "2.45, 0.5", "2.5, 0"})
   @DisplayName("the body takes over from walking and hands back to it smoothly")
   void theBodyBlendsInAndOut(final float time, final float body) {
     assertEquals(body, PatTimeline.bodyAt(time, LENGTH), 1.0e-4f);

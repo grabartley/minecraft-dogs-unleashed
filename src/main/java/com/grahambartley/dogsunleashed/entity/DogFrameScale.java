@@ -1,4 +1,4 @@
-package com.grahambartley.dogsunleashed.render;
+package com.grahambartley.dogsunleashed.entity;
 
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed.RenderTransforms;
 import org.jetbrains.annotations.Nullable;

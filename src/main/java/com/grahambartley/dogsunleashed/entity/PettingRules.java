@@ -6,19 +6,15 @@ public final class PettingRules {
 
   public static final int COOLDOWN_TICKS = PlayerGesture.PAT.ticks();
   public static final long NEVER = Long.MIN_VALUE;
-  public static final double REACH_BLOCKS = 0.45;
-  public static final int SETTLE_TICKS = 8;
+  public static final int SETTLE_TICKS = 12;
   public static final int APPROACH_TICKS = PlayerGesture.INVITE.ticks() - SETTLE_TICKS;
   public static final double WALK_AWAY_BLOCKS = 1.0;
-  public static final double HAND_SIDE_BLOCKS = 0.2;
-  public static final double HAND_SPOT_FRACTION = 0.8;
   public static final double CLOSE_IN_BLOCKS = 1.5;
-
-  public record Spot(double x, double z) {}
+  public static final double TURN_AWAY_DEGREES = 100.0;
 
   public record DogState(
       boolean asleep,
-      boolean targetsPetter,
+      boolean fighting,
       boolean angryAtPetter,
       boolean occupied,
       boolean performingTrick,
@@ -30,7 +26,7 @@ public final class PettingRules {
       boolean growling) {
 
     boolean calm() {
-      return !this.asleep && !this.targetsPetter && !this.angryAtPetter && !this.growling;
+      return !this.asleep && !this.fighting && !this.angryAtPetter && !this.growling;
     }
 
     boolean free() {
@@ -47,8 +43,11 @@ public final class PettingRules {
   private PettingRules() {}
 
   public static boolean isPetGesture(
-      final boolean sneaking, final boolean mainHand, final boolean emptyHand) {
-    return sneaking && mainHand && emptyHand;
+      final boolean sneaking,
+      final boolean mainHand,
+      final boolean emptyHand,
+      final boolean standingSteady) {
+    return sneaking && mainHand && emptyHand && standingSteady;
   }
 
   public static boolean cooledDown(final long now, final long lastPettedAt) {
@@ -77,22 +76,11 @@ public final class PettingRules {
     return movedBlocks > WALK_AWAY_BLOCKS;
   }
 
-  public static Spot handSpot(
-      final double x,
-      final double z,
-      final float yawDegrees,
-      final boolean rightHanded,
-      final double dogHalfWidth) {
-    final double yaw = Math.toRadians(yawDegrees);
-    final double forward = (REACH_BLOCKS + dogHalfWidth) * HAND_SPOT_FRACTION;
-    final double side = rightHanded ? HAND_SIDE_BLOCKS : -HAND_SIDE_BLOCKS;
-    return new Spot(
-        x - Math.sin(yaw) * forward - Math.cos(yaw) * side,
-        z + Math.cos(yaw) * forward - Math.sin(yaw) * side);
-  }
-
-  public static boolean inReach(final double horizontalDistance, final double dogHalfWidth) {
-    return horizontalDistance <= REACH_BLOCKS + dogHalfWidth;
+  public static boolean turnedAway(
+      final float yawDegrees, final double towardDogX, final double towardDogZ) {
+    final double facing = Math.toDegrees(Math.atan2(-towardDogX, towardDogZ));
+    final double off = Math.abs(((facing - yawDegrees) % 360.0 + 540.0) % 360.0 - 180.0);
+    return off > TURN_AWAY_DEGREES;
   }
 
   public static boolean welcomes(

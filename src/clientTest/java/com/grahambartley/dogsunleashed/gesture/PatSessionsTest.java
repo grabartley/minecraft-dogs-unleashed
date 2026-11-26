@@ -3,13 +3,14 @@ package com.grahambartley.dogsunleashed.gesture;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.joml.Vector3f;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 class PatSessionsTest {
 
-  private static final float LENGTH = 2.3f;
+  private static final float LENGTH = 2.5f;
   private static final long START = 500L;
 
   @ParameterizedTest(name = "dog {0}")
@@ -24,7 +25,7 @@ class PatSessionsTest {
   }
 
   @ParameterizedTest(name = "pat with no invite seen, {0} ticks in")
-  @CsvSource({"0, 0.4", "10, 0.9"})
+  @CsvSource({"0, 0.6", "10, 1.1"})
   @DisplayName("a player who only sees the pat starts it already knelt")
   void aPatWithoutAnInviteStartsKnelt(final long ticks, final float clipTime) {
     final PatSessions sessions = new PatSessions();
@@ -56,5 +57,31 @@ class PatSessionsTest {
     assertTrue(sessions.of(5, START + ticks, 0.0f, LENGTH).isEmpty());
     sessions.clear();
     assertTrue(sessions.of(6, START + 1, 0.0f, LENGTH).isEmpty());
+  }
+
+  @ParameterizedTest(name = "dog lost {0} ticks into the pat")
+  @CsvSource({"5", "20"})
+  @DisplayName("a dog that vanishes mid pat leaves the player rising toward where it was")
+  void aLostDogRisesTowardItsLastSpot(final long ticks) {
+    final PatSessions sessions = new PatSessions();
+    final PatTarget.Aim aim =
+        new PatTarget.Aim(new Vector3f(0, 12, -8), new Vector3f(-3, 14, -7), 1.0f, 1.0f);
+    sessions.show(7, PlayerGesture.PAT, 9, START);
+    sessions.remember(7, aim);
+    sessions.lose(7, START + ticks);
+    final PatSessions.Active active = sessions.of(7, START + ticks + 1, 0.0f, LENGTH).orElseThrow();
+    assertEquals(aim, active.lastAim().orElseThrow());
+    assertTrue(active.moment().clipTime() >= PatTimeline.STROKES_END, "the player gets up");
+  }
+
+  @ParameterizedTest(name = "{0} ticks later")
+  @CsvSource({"201", "5000"})
+  @DisplayName("sessions for players no longer drawn are dropped when the next gesture arrives")
+  void staleSessionsAreDropped(final long later) {
+    final PatSessions sessions = new PatSessions();
+    sessions.show(8, PlayerGesture.INVITE, 3, START);
+    sessions.show(9, PlayerGesture.INVITE, 4, START + later);
+    assertEquals(false, sessions.targets(3));
+    assertTrue(sessions.targets(4));
   }
 }

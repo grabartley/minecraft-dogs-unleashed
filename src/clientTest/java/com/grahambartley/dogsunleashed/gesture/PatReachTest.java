@@ -3,59 +3,43 @@ package com.grahambartley.dogsunleashed.gesture;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import net.minecraft.util.math.MathHelper;
+import com.grahambartley.dogsunleashed.gesture.PatSkeleton.Bones;
+import org.joml.Vector3f;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 class PatReachTest {
 
-  private static final float EPSILON = 0.05f;
-  private static final float HAND_ON_HEAD = 1.0f;
-  private static final float DROP = 6.0f;
-  private static final float LEAN = (float) Math.toRadians(10.0);
+  private static final Bones STANDING = PatSkeletonTest.standing();
 
-  @ParameterizedTest(name = "crown {0} blocks up -> kneels {1}")
-  @CsvSource({"0.3, true", "0.62, true", "0.7, true", "0.83, false", "0.95, false", "1.6, false"})
-  @DisplayName("the player kneels for a low head and stands for a tall one")
-  void kneelsOnlyForALowHead(final float up, final boolean kneels) {
-    assertEquals(kneels, PatReach.toward(up, 0.55f, 0.0f, DROP, LEAN).drop() > 0.0f);
+  @ParameterizedTest(name = "target {0},{1},{2}")
+  @CsvSource({"-6, 8, -5", "-5, 4, -6", "-7, 10, -3"})
+  @DisplayName("a target the arm already reaches needs no lean")
+  void aCloseTargetNeedsNoLean(final float x, final float y, final float z) {
+    assertEquals(0.0f, PatReach.extraLean(STANDING, new Vector3f(x, y, z)), 1.0e-5f);
   }
 
-  @ParameterizedTest(name = "crown {0} up, {1} forward")
-  @CsvSource({"0.31, 0.53", "0.62, 0.6", "0.95, 0.55", "1.05, 0.6"})
-  @DisplayName("the hand comes to rest on the crown when it can")
-  void theHandRestsOnTheCrown(final float up, final float forward) {
-    final PatReach.Pose pose = PatReach.toward(up, forward, 0.0f, DROP, LEAN);
-    final float shoulderUp = PatReach.shoulderHeight(pose.drop(), pose.lean());
-    final float shoulderForward = PatReach.HIP_TO_SHOULDER * MathHelper.sin(pose.lean());
-    final float handUp = shoulderUp - PatReach.ARM_REACH * MathHelper.cos(pose.armPitch());
-    final float handForward =
-        shoulderForward - PatReach.ARM_REACH * MathHelper.sin(pose.armPitch());
-    assertEquals(up * PatReach.PIXELS_PER_BLOCK, handUp, HAND_ON_HEAD);
-    assertEquals(forward * PatReach.PIXELS_PER_BLOCK, handForward, HAND_ON_HEAD);
+  @ParameterizedTest(name = "target {0},{1},{2}")
+  @CsvSource({"-6, 12, -9", "-5, 11, -10", "-6, 10, -11"})
+  @DisplayName("a low, far target gets just enough lean for the arm to reach it")
+  void aFarTargetGetsJustEnoughLean(final float x, final float y, final float z) {
+    final Vector3f target = new Vector3f(x, y, z);
+    final float lean = PatReach.extraLean(STANDING, target);
+    assertTrue(lean > 0.0f, "leans in");
+    final Vector3f shoulder = PatSkeleton.of(PatBones.leanedIn(STANDING, lean)).rightArm().pivot();
+    assertTrue(shoulder.distance(target) <= ArmReach.reach(), "the arm reaches");
+    final float step = PatReach.MAX_EXTRA_LEAN / PatReach.LEAN_STEPS;
+    final Vector3f lessLean =
+        PatSkeleton.of(PatBones.leanedIn(STANDING, lean - step)).rightArm().pivot();
+    assertTrue(lessLean.distance(target) > ArmReach.reach(), "no more lean than needed");
   }
 
-  @ParameterizedTest(name = "crown {0} up")
-  @CsvSource({"1.6", "2.0"})
-  @DisplayName("a head above the shoulder gets a raised arm from a standing player")
-  void aHighHeadGetsARaisedArm(final float up) {
-    final PatReach.Pose pose = PatReach.toward(up, 0.6f, 0.0f, DROP, LEAN);
-    assertEquals(0.0f, pose.drop(), EPSILON);
-    assertTrue(pose.armPitch() < -MathHelper.HALF_PI, "the arm points up past level");
-  }
-
-  @ParameterizedTest(name = "crown {0} blocks to the patting side -> inward {1}")
-  @CsvSource({"0.0, true", "0.1, true", "0.4, false"})
-  @DisplayName("the arm turns in towards a crown on the body's centre line")
-  void theArmTurnsInTowardsTheCrown(final float side, final boolean inward) {
-    assertEquals(inward, PatReach.toward(0.62f, 0.55f, side, DROP, LEAN).armInward() > 0.0f);
-  }
-
-  @ParameterizedTest(name = "crown {0} blocks up -> kneel {1}")
-  @CsvSource({"0.3, 1", "0.7, 1", "0.7617, 0.5", "0.83, 0", "1.2, 0"})
-  @DisplayName("the kneel blends smoothly around the height where a person would kneel")
-  void theKneelBlendsSmoothly(final float up, final float expected) {
-    assertEquals(expected, PatReach.kneelWeight(up), 0.01f);
+  @ParameterizedTest(name = "target {0},{1},{2}")
+  @CsvSource({"-6, 23, -30", "-6, -20, -30"})
+  @DisplayName("a target no lean can reach gets the lean that comes closest, capped")
+  void anUnreachableTargetIsCapped(final float x, final float y, final float z) {
+    final float lean = PatReach.extraLean(STANDING, new Vector3f(x, y, z));
+    assertTrue(lean <= PatReach.MAX_EXTRA_LEAN + 1.0e-5f);
   }
 }

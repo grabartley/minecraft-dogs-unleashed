@@ -9,11 +9,16 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
 public final class DogPetting extends DogComponent {
+
+  static final double OTHER_PAT_SEARCH_BLOCKS = 16.0;
+  private static final float LOOK_TURN_DEGREES = 30.0f;
 
   private final UnleashedDogEntity dog;
   private long lastPettedAt = PettingRules.NEVER;
@@ -28,11 +33,16 @@ public final class DogPetting extends DogComponent {
   @Nullable
   ActionResult tryPet(final PlayerEntity player, final Hand hand) {
     if (!PettingRules.isPetGesture(
-        player.isSneaking(), hand == Hand.MAIN_HAND, player.getStackInHand(hand).isEmpty())) {
+        player.isSneaking(),
+        hand == Hand.MAIN_HAND,
+        player.getStackInHand(hand).isEmpty(),
+        standsSteady(player))) {
       return null;
     }
     if (!PettingRules.welcomes(
-        this.stateFor(player), this.now(), this.lastPettedAt, this.requestedAt)) {
+            this.stateFor(player), this.now(), this.lastPettedAt, this.requestedAt)
+        || (this.dog.isInSittingPose() && !this.canReachNeck(player))
+        || this.pettingAnotherDog(player)) {
       return null;
     }
     this.petterUuid = player.getUuid();
@@ -54,22 +64,21 @@ public final class DogPetting extends DogComponent {
         : Optional.empty();
   }
 
-  public boolean isAtHandOf(final PlayerEntity player) {
-    return PettingRules.inReach(
-        this.dog.getPos().subtract(player.getPos()).horizontalLength(), this.dog.getWidth() / 2.0);
+  public PetSpot.Place spotBeside(final PlayerEntity player) {
+    return PetSpot.of(
+        player.getX(),
+        player.getZ(),
+        player.getHeadYaw(),
+        player.getMainArm() == Arm.RIGHT,
+        this.headReach(),
+        this.dog.getWidth() / 2.0,
+        this.kneelFor(player));
   }
 
-  public void settleAt(final PlayerEntity player) {
-    if (!this.isAtHandOf(player) || !PettingRules.hasSettled(this.now(), this.requestedAt)) {
-      return;
-    }
-    this.requestedAt = PettingRules.NEVER;
-    final PettingRules.DogState state = this.stateFor(player);
-    if (state.calm() && state.free()) {
-      this.begin(player);
-    } else {
-      this.release(player);
-    }
+  public boolean isAtHandOf(final PlayerEntity player) {
+    final PetSpot.Place spot = this.spotBeside(player);
+    return PetSpot.arrived(Math.hypot(spot.x() - this.dog.getX(), spot.z() - this.dog.getZ()))
+        || this.canReachNeck(player);
   }
 
   @Override
@@ -84,15 +93,90 @@ public final class DogPetting extends DogComponent {
       return;
     }
     final Optional<PlayerEntity> petter = this.petter();
-    if (petter.isEmpty()
-        || !petter.get().isAlive()
-        || PettingRules.walkedAway(petter.get().getPos().distanceTo(this.askedFrom))
-        || (asking && !PettingRules.isApproaching(this.now(), this.requestedAt))) {
+    if (petter.isEmpty() || this.callsItOff(petter.get(), asking)) {
       petter.ifPresent(this::release);
-      this.requestedAt = PettingRules.NEVER;
-      this.lastPettedAt = PettingRules.NEVER;
-      this.petterUuid = null;
+      this.forget();
+      return;
     }
+    final boolean atHand = this.isAtHandOf(petter.get());
+    if (atHand || petting) {
+      this.face(petter.get());
+    }
+    if (asking && atHand && PettingRules.hasSettled(this.now(), this.requestedAt)) {
+      this.requestedAt = PettingRules.NEVER;
+      final PettingRules.DogState state = this.stateFor(petter.get());
+      if (state.calm() && state.free()) {
+        this.begin(petter.get());
+      } else {
+        this.release(petter.get());
+        this.forget();
+      }
+    }
+  }
+
+  boolean isPettedBy(final PlayerEntity player) {
+    return player.getUuid().equals(this.petterUuid)
+        && (this.requestedAt != PettingRules.NEVER
+            || PettingRules.isBeingPetted(this.now(), this.lastPettedAt));
+  }
+
+  private boolean callsItOff(final PlayerEntity petter, final boolean asking) {
+    return !petter.isAlive()
+        || !petter.getMainHandStack().isEmpty()
+        || !standsSteady(petter)
+        || PettingRules.walkedAway(petter.getPos().distanceTo(this.askedFrom))
+        || PettingRules.turnedAway(
+            petter.getHeadYaw(), this.dog.getX() - petter.getX(), this.dog.getZ() - petter.getZ())
+        || (asking && !PettingRules.isApproaching(this.now(), this.requestedAt));
+  }
+
+  private void forget() {
+    this.requestedAt = PettingRules.NEVER;
+    this.lastPettedAt = PettingRules.NEVER;
+    this.petterUuid = null;
+  }
+
+  private void face(final PlayerEntity petter) {
+    final PetSpot.Place spot = this.spotBeside(petter);
+    this.dog
+        .getLookControl()
+        .lookAt(
+            spot.faceX(),
+            petter.getY() + this.dog.getStandingEyeHeight(),
+            spot.faceZ(),
+            LOOK_TURN_DEGREES,
+            LOOK_TURN_DEGREES);
+  }
+
+  private boolean canReachNeck(final PlayerEntity player) {
+    final DogHeadReach head = this.headReach();
+    final float yaw = this.dog.getBodyYaw() * MathHelper.RADIANS_PER_DEGREE;
+    final double neckX = this.dog.getX() - MathHelper.sin(yaw) * head.neck();
+    final double neckZ = this.dog.getZ() + MathHelper.cos(yaw) * head.neck();
+    return PetSpot.reachesNeck(
+        Math.hypot(neckX - player.getX(), neckZ - player.getZ()),
+        this.dog.getY() - player.getY(),
+        this.kneelFor(player));
+  }
+
+  private boolean pettingAnotherDog(final PlayerEntity player) {
+    return !this.dog
+        .getWorld()
+        .getEntitiesByClass(
+            UnleashedDogEntity.class,
+            player.getBoundingBox().expand(OTHER_PAT_SEARCH_BLOCKS),
+            other ->
+                other != this.dog && other.getComponents().get(DogPetting.class).isPettedBy(player))
+        .isEmpty();
+  }
+
+  private float kneelFor(final PlayerEntity player) {
+    return PetStance.kneelWeight(
+        (float) (this.dog.getY() - player.getY()) + this.headReach().top());
+  }
+
+  private DogHeadReach headReach() {
+    return DogHeadReach.of(this.dog);
   }
 
   private void begin(final PlayerEntity player) {
@@ -111,6 +195,7 @@ public final class DogPetting extends DogComponent {
   }
 
   private void release(final PlayerEntity player) {
+    this.dog.stopTriggeredAnim(DogAnimationKeys.PETTED, DogAnimationKeys.PETTED);
     this.show(player, PlayerGesture.RELEASE);
   }
 
@@ -130,10 +215,19 @@ public final class DogPetting extends DogComponent {
     return this.dog.getWorld().getTime();
   }
 
+  private static boolean standsSteady(final PlayerEntity player) {
+    return player.isOnGround()
+        && !player.hasVehicle()
+        && !player.getAbilities().flying
+        && !player.isSwimming()
+        && !player.isFallFlying()
+        && !player.isTouchingWater();
+  }
+
   private PettingRules.DogState stateFor(final PlayerEntity player) {
     return new PettingRules.DogState(
         this.dog.getSleepController().isAsleep(),
-        this.dog.getTarget() == player,
+        this.dog.getTarget() != null && this.dog.getTarget().isAlive(),
         this.dog.shouldAngerAt(player),
         DogIdleness.isOccupied(this.dog),
         this.dog.getComponents().get(DogTrickPerformance.class).isPerforming(),

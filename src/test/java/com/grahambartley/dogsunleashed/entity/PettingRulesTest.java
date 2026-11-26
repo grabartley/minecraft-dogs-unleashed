@@ -23,29 +23,31 @@ class PettingRulesTest {
       Path.of("src/client/resources/assets/dogs-unleashed/animations");
   private static final int TICKS_PER_SECOND = 20;
 
-  @ParameterizedTest(name = "sneaking {0}, main hand {1}, empty hand {2} -> pat {3}")
+  @ParameterizedTest(name = "sneaking {0}, main hand {1}, empty hand {2}, steady {3} -> pat {4}")
   @CsvSource({
-    "true, true, true, true",
-    "false, true, true, false",
-    "true, false, true, false",
-    "true, true, false, false",
-    "false, false, false, false",
-    "true, false, false, false"
+    "true, true, true, true, true",
+    "false, true, true, true, false",
+    "true, false, true, true, false",
+    "true, true, false, true, false",
+    "true, true, true, false, false",
+    "false, false, false, false, false",
+    "true, false, false, true, false"
   })
-  @DisplayName("only a sneak click with an empty main hand is a pat")
-  void onlyASneakClickWithAnEmptyMainHandIsAPat(
+  @DisplayName("only a sneak click with an empty main hand, standing on the ground, is a pat")
+  void onlyASteadySneakClickWithAnEmptyMainHandIsAPat(
       final boolean sneaking,
       final boolean mainHand,
       final boolean emptyHand,
+      final boolean steady,
       final boolean expected) {
-    assertEquals(expected, PettingRules.isPetGesture(sneaking, mainHand, emptyHand));
+    assertEquals(expected, PettingRules.isPetGesture(sneaking, mainHand, emptyHand, steady));
   }
 
   static Stream<Arguments> dogStates() {
     return Stream.of(
         Arguments.of("a calm, free dog", state(-1), true),
         Arguments.of("a sleeping dog", state(0), false),
-        Arguments.of("a dog targeting the petter", state(1), false),
+        Arguments.of("a dog in a fight", state(1), false),
         Arguments.of("a dog angry at the petter", state(2), false),
         Arguments.of("a dog on an errand, a meal or a dig", state(3), false),
         Arguments.of("a dog doing a trick", state(4), false),
@@ -131,23 +133,8 @@ class PettingRulesTest {
     assertEquals(expected, PettingRules.isApproaching(NOW, requestedAt));
   }
 
-  @ParameterizedTest(name = "{0} blocks apart, half width {1} -> in reach {2}")
-  @CsvSource({
-    "0.5, 0.4, true",
-    "0.85, 0.4, true",
-    "0.86, 0.4, false",
-    "0.6, 0.2, true",
-    "0.66, 0.2, false",
-    "3.0, 0.4, false"
-  })
-  @DisplayName("a dog close enough to the hand is petted where it stands")
-  void aDogCloseEnoughIsInReach(
-      final double distance, final double halfWidth, final boolean expected) {
-    assertEquals(expected, PettingRules.inReach(distance, halfWidth));
-  }
-
   @ParameterizedTest(name = "asked {0} ticks ago -> knelt {1}")
-  @CsvSource({"0, false", "7, false", "8, true", "40, true"})
+  @CsvSource({"0, false", "11, false", "12, true", "40, true"})
   @DisplayName("the pat waits for the player to finish kneeling")
   void thePatWaitsForTheKneel(final long ticksAgo, final boolean expected) {
     assertEquals(expected, PettingRules.hasSettled(NOW, NOW - ticksAgo));
@@ -160,29 +147,21 @@ class PettingRulesTest {
     assertEquals(expected, PettingRules.walkedAway(moved));
   }
 
-  @ParameterizedTest(name = "yaw {0}, right handed {1} -> {2}, {3}")
+  @ParameterizedTest(name = "yaw {0}, dog at {1},{2} -> turned away {3}")
   @CsvSource({
-    "0, true, -0.2, 0.68",
-    "0, false, 0.2, 0.68",
-    "180, true, 0.2, -0.68",
-    "90, true, -0.68, -0.2",
-    "-90, false, 0.68, -0.2"
+    "0, 0, 1, false",
+    "0, 1, 1, false",
+    "0, 1, 0, false",
+    "0, 0, -1, true",
+    "90, -1, 0, false",
+    "90, 1, 0, true",
+    "-170, 0.1, -1, false",
+    "350, 0, 1, false"
   })
-  @DisplayName("the dog comes to a spot in front of the player, beside the patting hand")
-  void theDogComesToTheHandSide(
-      final float yaw, final boolean rightHanded, final double x, final double z) {
-    final PettingRules.Spot spot = PettingRules.handSpot(0.0, 0.0, yaw, rightHanded, 0.4);
-    assertEquals(x, spot.x(), 1.0e-6);
-    assertEquals(z, spot.z(), 1.0e-6);
-  }
-
-  @ParameterizedTest(name = "half width {0}, yaw {1}")
-  @CsvSource({"0.2, 0", "0.4, 45", "0.4, -120", "0.6, 200", "0.9, 10"})
-  @DisplayName("a dog standing on its hand spot is in reach of the hand")
-  void theHandSpotIsInReach(final double halfWidth, final float yaw) {
-    final PettingRules.Spot spot = PettingRules.handSpot(0.0, 0.0, yaw, true, halfWidth);
-    assertEquals(
-        true, PettingRules.inReach(Math.hypot(spot.x(), spot.z()), halfWidth), "spot " + spot);
+  @DisplayName("a petter who turns their back on the dog calls the pat off")
+  void turningAwayCallsItOff(
+      final float yaw, final double dx, final double dz, final boolean expected) {
+    assertEquals(expected, PettingRules.turnedAway(yaw, dx, dz));
   }
 
   @ParameterizedTest(name = "{0} blocks from the spot -> step straight in {1}")

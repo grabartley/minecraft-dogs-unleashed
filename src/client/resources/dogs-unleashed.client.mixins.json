@@ -11,6 +11,7 @@
 		"LeashCollarTintMixin",
 		"LivingEntityRendererMixin",
 		"LoomScreenMixin",
+		"ModelPartMixin",
 		"PlayerEntityRendererMixin",
 		"PlayerHeldItemFeatureRendererMixin",
 		"WorldRendererMixin"

@@ -1,13 +1,13 @@
 package com.grahambartley.dogsunleashed.entity.goal;
 
 import com.grahambartley.dogsunleashed.entity.DogPetting;
+import com.grahambartley.dogsunleashed.entity.PetSpot;
 import com.grahambartley.dogsunleashed.entity.PettingRules;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import java.util.EnumSet;
 import java.util.Optional;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Arm;
 
 public class PettedGoal extends Goal {
 
@@ -48,27 +48,16 @@ public class PettedGoal extends Goal {
   @Override
   public void tick() {
     final Optional<PlayerEntity> approaching = this.petting().approachingPetter();
-    if (approaching.isPresent()) {
-      if (this.petting().isAtHandOf(approaching.get())) {
-        this.holdStillFacing(approaching.get());
-        this.petting().settleAt(approaching.get());
-      } else {
-        this.walkToHandOf(approaching.get());
-      }
+    if (approaching.isPresent() && !this.petting().isAtHandOf(approaching.get())) {
+      this.walkToHandOf(approaching.get());
       return;
     }
-    this.petting().currentPetter().ifPresent(this::holdStillFacing);
+    this.holdStill();
   }
 
   private void walkToHandOf(final PlayerEntity petter) {
     this.dog.getLookControl().lookAt(petter, LOOK_TURN_DEGREES, LOOK_TURN_DEGREES);
-    final PettingRules.Spot spot =
-        PettingRules.handSpot(
-            petter.getX(),
-            petter.getZ(),
-            petter.getHeadYaw(),
-            petter.getMainArm() == Arm.RIGHT,
-            this.dog.getWidth() / 2.0);
+    final PetSpot.Place spot = this.petting().spotBeside(petter);
     if (PettingRules.closeEnoughToStep(
         Math.hypot(spot.x() - this.dog.getX(), spot.z() - this.dog.getZ()))) {
       this.dog.getNavigation().stop();
@@ -82,11 +71,10 @@ public class PettedGoal extends Goal {
     this.dog.getNavigation().startMovingTo(spot.x(), petter.getY(), spot.z(), APPROACH_SPEED);
   }
 
-  private void holdStillFacing(final PlayerEntity petter) {
+  private void holdStill() {
     this.dog.getNavigation().stop();
     this.dog.setForwardSpeed(0.0f);
     this.dog.setSidewaysSpeed(0.0f);
-    this.dog.getLookControl().lookAt(petter, LOOK_TURN_DEGREES, LOOK_TURN_DEGREES);
   }
 
   private DogPetting petting() {

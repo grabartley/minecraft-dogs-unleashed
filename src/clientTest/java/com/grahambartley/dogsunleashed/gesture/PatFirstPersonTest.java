@@ -51,14 +51,13 @@ class PatFirstPersonTest {
     assertEquals(vz, view.z, EPSILON);
   }
 
-  @ParameterizedTest(name = "crown at {0},{1},{2}")
+  @ParameterizedTest(name = "palm target at {0},{1},{2}")
   @CsvSource({"0, -0.5, -1.0", "0.3, -0.6, -0.6", "-0.2, -0.3, -2.5"})
-  @DisplayName("with no stroke the hand tip lands on the sightline to the dog's head")
+  @DisplayName("the hand tip lands on the patting spot, or as far toward it as the arm reaches")
   void theHandLandsOnTheSightline(final float x, final float y, final float z) {
     final Vector3f crown = new Vector3f(x, y, z);
     final Vector3f tip =
-        PatFirstPerson.placement(Arm.RIGHT, crown, 0, 0, 1)
-            .place(PatFirstPerson.restTip(Arm.RIGHT));
+        PatFirstPerson.placement(Arm.RIGHT, crown, 1).place(PatFirstPerson.restTip(Arm.RIGHT));
     final Vector3f expected =
         new Vector3f(crown).normalize().mul(Math.min(crown.length(), PatFirstPerson.MAX_REACH));
     assertEquals(expected.x, tip.x, EPSILON);
@@ -66,12 +65,12 @@ class PatFirstPersonTest {
     assertEquals(expected.z, tip.z, EPSILON);
   }
 
-  @ParameterizedTest(name = "crown at {0},{1},{2}")
+  @ParameterizedTest(name = "palm target at {0},{1},{2}")
   @CsvSource({"0, -0.5, -1.0", "0.3, -0.6, -0.6"})
   @DisplayName("the arm swings from the shoulder to point at the dog, not up like a pole")
   void theArmPointsAtTheDog(final float x, final float y, final float z) {
     final PatFirstPerson.Placement placement =
-        PatFirstPerson.placement(Arm.RIGHT, new Vector3f(x, y, z), 0, 0, 1);
+        PatFirstPerson.placement(Arm.RIGHT, new Vector3f(x, y, z), 1);
     final Vector3f shoulder = placement.place(PatFirstPerson.restShoulder(Arm.RIGHT));
     final Vector3f tip = placement.place(PatFirstPerson.restTip(Arm.RIGHT));
     final Vector3f arm = tip.sub(shoulder).normalize();
@@ -88,7 +87,7 @@ class PatFirstPersonTest {
   @DisplayName("with no aim the hand stays where vanilla holds it")
   void noAimLeavesTheHandAlone() {
     final PatFirstPerson.Placement placement =
-        PatFirstPerson.placement(Arm.RIGHT, new Vector3f(0, -0.5f, -1), 0.1f, 0.1f, 0.0f);
+        PatFirstPerson.placement(Arm.RIGHT, new Vector3f(0, -0.5f, -1), 0.0f);
     final Vector3f tip = PatFirstPerson.restTip(Arm.RIGHT);
     assertEquals(0.0f, placement.place(tip).sub(tip).length(), EPSILON);
   }
