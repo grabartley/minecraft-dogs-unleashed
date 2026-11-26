@@ -49,8 +49,9 @@ jobs:
 
       - name: Check generated data is up to date
         run: |
+          rm -rf src/main/generated
           ./gradlew runDatagen --no-configuration-cache
-          git diff --exit-code -- src/main/generated
+          git status --porcelain -- src/main/generated
           test -z "$(git status --porcelain -- src/main/generated)"
 
       - name: Publish unit test report

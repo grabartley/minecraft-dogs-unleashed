@@ -1,4 +1,4 @@
-package com.grahambartley.dogsunleashed.block;
+package com.grahambartley.dogsunleashed.wood;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.WoodType;

@@ -9,7 +9,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
-import com.grahambartley.dogsunleashed.block.WoodPlanks;
+import com.grahambartley.dogsunleashed.wood.WoodPlanks;
+import com.grahambartley.dogsunleashed.wood.WoodenItems;
 import com.mojang.serialization.JsonOps;
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,7 +52,7 @@ class WoodenFurnitureRecipeProviderTest {
     final JsonObject recipe = read("recipe/" + id.getPath());
 
     assertEquals("minecraft:crafting_shaped", recipe.get("type").getAsString());
-    assertEquals(piece.group(), recipe.get("group").getAsString());
+    assertEquals(piece.name(), recipe.get("group").getAsString());
     assertEquals(piece.pattern(), strings(recipe.getAsJsonArray("pattern")));
     assertEquals(
         Registries.BLOCK.getId(WoodPlanks.planksOf(wood)).toString(),
@@ -63,7 +64,7 @@ class WoodenFurnitureRecipeProviderTest {
     final ItemStack result =
         ItemStack.CODEC.parse(JsonOps.INSTANCE, recipe.get("result")).getOrThrow();
     assertSame(piece.item(), result.getItem());
-    assertSame(wood, WoodPlanks.of(result));
+    assertSame(wood, WoodenItems.of(result));
   }
 
   @ParameterizedTest(name = "{1} {0}")

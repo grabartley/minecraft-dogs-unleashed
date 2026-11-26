@@ -1,6 +1,6 @@
 package com.grahambartley.dogsunleashed.mixin.client;
 
-import com.grahambartley.dogsunleashed.block.WoodPlanks;
+import com.grahambartley.dogsunleashed.wood.WoodParticles;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.particle.BlockDustParticle;
@@ -25,6 +25,6 @@ public abstract class BlockDustParticleMixin {
       final BlockState state,
       @Local(argsOnly = true) final ClientWorld world,
       @Local(argsOnly = true) final BlockPos pos) {
-    return WoodPlanks.appearanceOf(state, world, pos);
+    return WoodParticles.appearanceOf(state, world, pos);
   }
 }

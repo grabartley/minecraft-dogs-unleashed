@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
 import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.block.entity.DogHouseBlockEntity;
+import com.grahambartley.dogsunleashed.wood.WoodenBlock;
 import java.util.Arrays;
 import java.util.stream.Stream;
 import net.minecraft.block.BlockState;

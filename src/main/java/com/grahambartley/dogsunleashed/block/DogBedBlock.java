@@ -1,7 +1,8 @@
 package com.grahambartley.dogsunleashed.block;
 
-import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.block.entity.DogBedBlockEntity;
+import com.grahambartley.dogsunleashed.wood.WoodPlanks;
+import com.grahambartley.dogsunleashed.wood.WoodenBlock;
 import com.mojang.serialization.MapCodec;
 import java.util.UUID;
 import net.minecraft.block.Block;
@@ -95,8 +96,7 @@ public class DogBedBlock extends HorizontalFacingBlock implements BlockEntityPro
   public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state) {
     final ItemStack stack = super.getPickStack(world, pos, state);
     if (world.getBlockEntity(pos) instanceof DogBedBlockEntity dogBedBlockEntity) {
-      stack.set(ModComponents.DOG_BED_COLOR, dogBedBlockEntity.getColor());
-      stack.set(ModComponents.WOOD, dogBedBlockEntity.getWood());
+      stack.applyComponentsFrom(dogBedBlockEntity.createComponentMap());
     }
     return stack;
   }

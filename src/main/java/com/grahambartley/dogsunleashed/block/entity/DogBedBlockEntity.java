@@ -2,8 +2,9 @@ package com.grahambartley.dogsunleashed.block.entity;
 
 import com.grahambartley.dogsunleashed.ModBlockEntities;
 import com.grahambartley.dogsunleashed.ModComponents;
-import com.grahambartley.dogsunleashed.block.WoodPlanks;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.item.DogFurnitureItem;
+import com.grahambartley.dogsunleashed.wood.WoodPlanks;
 import java.util.UUID;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.WoodType;
@@ -30,7 +31,7 @@ public class DogBedBlockEntity extends BlockEntity implements GeoBlockEntity, As
   private static final String NBT_ASSIGNED_DOG = "AssignedDog";
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-  private DyeColor color = DyeColor.WHITE;
+  private DyeColor color = DogFurnitureItem.DEFAULT_COLOUR;
   private WoodType wood = WoodPlanks.DEFAULT;
   private UUID assignedDogUuid = null;
 
@@ -141,7 +142,8 @@ public class DogBedBlockEntity extends BlockEntity implements GeoBlockEntity, As
   @Override
   protected void readComponents(BlockEntity.ComponentsAccess components) {
     super.readComponents(components);
-    this.color = components.getOrDefault(ModComponents.DOG_BED_COLOR, DyeColor.WHITE);
+    this.color =
+        components.getOrDefault(ModComponents.DOG_BED_COLOR, DogFurnitureItem.DEFAULT_COLOUR);
     this.wood = components.getOrDefault(ModComponents.WOOD, WoodPlanks.DEFAULT);
   }
 

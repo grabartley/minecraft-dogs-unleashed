@@ -2,7 +2,7 @@ package com.grahambartley.dogsunleashed.entity.sled;
 
 import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.ModItems;
-import com.grahambartley.dogsunleashed.block.WoodPlanks;
+import com.grahambartley.dogsunleashed.wood.WoodPlanks;
 import net.minecraft.block.WoodType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.Entity;

@@ -3,8 +3,8 @@ package com.grahambartley.dogsunleashed.datagen;
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.ModItems;
-import com.grahambartley.dogsunleashed.block.WoodPlanks;
 import com.grahambartley.dogsunleashed.recipe.DogFurnitureDyeRecipe;
+import com.grahambartley.dogsunleashed.wood.WoodPlanks;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -42,7 +42,6 @@ public class WoodenFurnitureRecipeProvider extends FabricRecipeProvider {
     return List.of(
         new WoodenFurniture(
             ModItems.DOG_HOUSE,
-            "dog_house",
             RecipeCategory.DECORATIONS,
             List.of("PPP", "PCP", "WPW"),
             Map.of(
@@ -52,13 +51,11 @@ public class WoodenFurnitureRecipeProvider extends FabricRecipeProvider {
                 Ingredient.fromTag(ItemTags.WOOL))),
         new WoodenFurniture(
             ModItems.DOG_BED,
-            "dog_bed",
             RecipeCategory.DECORATIONS,
             List.of("CC", "PP"),
             Map.of('C', Ingredient.ofItems(Items.WHITE_CARPET))),
         new WoodenFurniture(
             ModItems.SLED,
-            "sled",
             RecipeCategory.TRANSPORTATION,
             List.of("P P", "PPP", "I I"),
             Map.of('I', Ingredient.ofItems(Items.IRON_INGOT))));
@@ -83,7 +80,7 @@ public class WoodenFurnitureRecipeProvider extends FabricRecipeProvider {
     result.set(ModComponents.WOOD, wood);
     final ShapedRecipe recipe =
         new ShapedRecipe(
-            piece.group(),
+            piece.name(),
             CraftingRecipeJsonBuilder.toCraftingCategory(piece.category()),
             RawShapedRecipe.create(piece.keyWith(Ingredient.ofItems(planks)), piece.pattern()),
             result,

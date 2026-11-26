@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
 import com.grahambartley.dogsunleashed.ModBlocks;
 import com.grahambartley.dogsunleashed.block.entity.DogBedBlockEntity;
+import com.grahambartley.dogsunleashed.wood.WoodenBlock;
 import java.util.UUID;
 import net.minecraft.block.WoodType;
 import net.minecraft.util.math.BlockPos;

@@ -6,7 +6,6 @@ import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.ModItems;
 import com.grahambartley.dogsunleashed.block.DogHouseLayout;
 import com.grahambartley.dogsunleashed.block.DogHousePart;
-import com.grahambartley.dogsunleashed.block.WoodPlanks;
 import com.grahambartley.dogsunleashed.block.entity.DogBedBlockEntity;
 import com.grahambartley.dogsunleashed.block.entity.DogHouseBlockEntity;
 import com.grahambartley.dogsunleashed.datagen.WoodenFurniture;
@@ -15,6 +14,8 @@ import com.grahambartley.dogsunleashed.entity.sled.SledEntity;
 import com.grahambartley.dogsunleashed.gametest.util.DogHouseTestHelper;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestHelper;
 import com.grahambartley.dogsunleashed.gametest.util.SurvivalTestPlayer;
+import com.grahambartley.dogsunleashed.wood.WoodPlanks;
+import com.grahambartley.dogsunleashed.wood.WoodenItems;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -59,9 +60,37 @@ public final class WoodenFurnitureGameTest implements FabricGameTest {
         final ItemStack result = craft(context, grid(piece, wood));
         context.assertTrue(
             result.isOf(piece.item()) && result.get(ModComponents.WOOD) == wood,
-            wood.name() + " planks in the " + piece.group() + " pattern made " + result);
+            wood.name() + " planks in the " + piece.name() + " pattern made " + result);
       }
     }
+    context.complete();
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = 20)
+  public void handLaidGridsCraftTheirWood(final TestContext context) {
+    final ItemStack none = ItemStack.EMPTY;
+    final ItemStack spruce = new ItemStack(Items.SPRUCE_PLANKS);
+    final ItemStack cherry = new ItemStack(Items.CHERRY_PLANKS);
+    final ItemStack crimson = new ItemStack(Items.CRIMSON_PLANKS);
+    final ItemStack carpet = new ItemStack(Items.WHITE_CARPET);
+    final ItemStack wool = new ItemStack(Items.LIME_WOOL);
+    final ItemStack iron = new ItemStack(Items.IRON_INGOT);
+
+    expectCrafted(
+        context,
+        input(List.of(spruce, spruce, spruce, spruce, carpet, spruce, wool, spruce, wool), 3, 3),
+        ModItems.DOG_HOUSE,
+        WoodType.SPRUCE);
+    expectCrafted(
+        context,
+        input(List.of(carpet, carpet, cherry, cherry), 2, 2),
+        ModItems.DOG_BED,
+        WoodType.CHERRY);
+    expectCrafted(
+        context,
+        input(List.of(crimson, none, crimson, crimson, crimson, crimson, iron, none, iron), 3, 3),
+        ModItems.SLED,
+        WoodType.CRIMSON);
     context.complete();
   }
 
@@ -169,6 +198,17 @@ public final class WoodenFurnitureGameTest implements FabricGameTest {
     context.assertTrue(
         loaded.wood() == WoodType.ACACIA, "the loaded sled is " + loaded.wood().name());
     context.complete();
+  }
+
+  private static void expectCrafted(
+      final TestContext context,
+      final CraftingRecipeInput input,
+      final Item item,
+      final WoodType wood) {
+    final ItemStack result = craft(context, input);
+    context.assertTrue(
+        result.isOf(item) && WoodenItems.of(result) == wood,
+        "expected a " + wood.name() + " " + item + " but made " + result);
   }
 
   private static void expectOneDropOf(

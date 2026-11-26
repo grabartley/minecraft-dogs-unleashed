@@ -2,8 +2,9 @@ package com.grahambartley.dogsunleashed.block.entity;
 
 import com.grahambartley.dogsunleashed.ModBlockEntities;
 import com.grahambartley.dogsunleashed.ModComponents;
-import com.grahambartley.dogsunleashed.block.WoodPlanks;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.item.DogFurnitureItem;
+import com.grahambartley.dogsunleashed.wood.WoodPlanks;
 import java.util.UUID;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.WoodType;
@@ -31,7 +32,7 @@ public class DogHouseBlockEntity extends BlockEntity implements GeoBlockEntity, 
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
   private UUID assignedDogUuid = null;
-  private DyeColor color = DyeColor.WHITE;
+  private DyeColor color = DogFurnitureItem.DEFAULT_COLOUR;
   private WoodType wood = WoodPlanks.DEFAULT;
 
   public DogHouseBlockEntity(BlockPos pos, BlockState state) {
@@ -143,7 +144,8 @@ public class DogHouseBlockEntity extends BlockEntity implements GeoBlockEntity, 
   @Override
   protected void readComponents(BlockEntity.ComponentsAccess components) {
     super.readComponents(components);
-    this.color = components.getOrDefault(ModComponents.DOG_HOUSE_COLOR, DyeColor.WHITE);
+    this.color =
+        components.getOrDefault(ModComponents.DOG_HOUSE_COLOR, DogFurnitureItem.DEFAULT_COLOUR);
     this.wood = components.getOrDefault(ModComponents.WOOD, WoodPlanks.DEFAULT);
   }
 

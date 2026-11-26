@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import net.minecraft.block.WoodType;
+import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.book.RecipeCategory;
@@ -26,19 +27,19 @@ class WoodenFurnitureTest {
     return Stream.of(
         Arguments.of(
             WoodType.SPRUCE,
-            "dog_house",
+            ModItems.DOG_HOUSE,
             RecipeCategory.DECORATIONS,
             "dogs-unleashed:spruce_dog_house",
             "dogs-unleashed:recipes/decorations/spruce_dog_house"),
         Arguments.of(
             WoodType.DARK_OAK,
-            "dog_bed",
+            ModItems.DOG_BED,
             RecipeCategory.DECORATIONS,
             "dogs-unleashed:dark_oak_dog_bed",
             "dogs-unleashed:recipes/decorations/dark_oak_dog_bed"),
         Arguments.of(
             WoodType.BAMBOO,
-            "sled",
+            ModItems.SLED,
             RecipeCategory.TRANSPORTATION,
             "dogs-unleashed:bamboo_sled",
             "dogs-unleashed:recipes/transportation/bamboo_sled"));
@@ -49,12 +50,11 @@ class WoodenFurnitureTest {
   @DisplayName("each wood's recipe and unlock advancement are named after the wood and the item")
   void idsNameTheWood(
       final WoodType wood,
-      final String group,
+      final Item item,
       final RecipeCategory category,
       final String recipe,
       final String advancement) {
-    final WoodenFurniture piece =
-        new WoodenFurniture(ModItems.DOG_HOUSE, group, category, List.of("PP"), Map.of());
+    final WoodenFurniture piece = new WoodenFurniture(item, category, List.of("PP"), Map.of());
 
     assertEquals(Identifier.of(recipe), piece.recipeId(wood));
     assertEquals(Identifier.of(advancement), piece.advancementId(wood));
@@ -65,15 +65,14 @@ class WoodenFurnitureTest {
   @DisplayName("the planks key joins the item's other keys without replacing them")
   void planksJoinTheOtherKeys(
       final WoodType wood,
-      final String group,
+      final Item item,
       final RecipeCategory category,
       final String recipe,
       final String advancement) {
     final Ingredient carpet = Ingredient.ofItems(Items.WHITE_CARPET);
     final Ingredient planks = Ingredient.ofItems(Items.SPRUCE_PLANKS);
     final WoodenFurniture piece =
-        new WoodenFurniture(
-            ModItems.DOG_BED, group, category, List.of("CC", "PP"), Map.of('C', carpet));
+        new WoodenFurniture(item, category, List.of("CC", "PP"), Map.of('C', carpet));
 
     final Map<Character, Ingredient> key = piece.keyWith(planks);
 

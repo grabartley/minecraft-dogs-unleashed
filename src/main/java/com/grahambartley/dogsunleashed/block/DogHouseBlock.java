@@ -1,7 +1,8 @@
 package com.grahambartley.dogsunleashed.block;
 
-import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.block.entity.DogHouseBlockEntity;
+import com.grahambartley.dogsunleashed.wood.WoodPlanks;
+import com.grahambartley.dogsunleashed.wood.WoodenBlock;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
@@ -178,8 +179,7 @@ public class DogHouseBlock extends HorizontalFacingBlock
     final ItemStack stack = super.getPickStack(world, pos, state);
     if (world.getBlockEntity(originOf(state, pos))
         instanceof DogHouseBlockEntity houseBlockEntity) {
-      stack.set(ModComponents.DOG_HOUSE_COLOR, houseBlockEntity.getColor());
-      stack.set(ModComponents.WOOD, houseBlockEntity.getWood());
+      stack.applyComponentsFrom(houseBlockEntity.createComponentMap());
     }
     return stack;
   }

@@ -1,6 +1,5 @@
 package com.grahambartley.dogsunleashed;
 
-import com.grahambartley.dogsunleashed.block.WoodPlanks;
 import com.grahambartley.dogsunleashed.config.SyncedServerConfig;
 import com.grahambartley.dogsunleashed.gesture.PlayerPoseClips;
 import com.grahambartley.dogsunleashed.item.DogWhistleItem;
@@ -63,6 +62,7 @@ import com.grahambartley.dogsunleashed.riding.SledInputSync;
 import com.grahambartley.dogsunleashed.screen.DogEquipmentScreen;
 import com.grahambartley.dogsunleashed.tug.TugMeterHud;
 import com.grahambartley.dogsunleashed.whistle.WhistlePointer;
+import com.grahambartley.dogsunleashed.wood.WoodenItems;
 import java.util.List;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -152,7 +152,7 @@ public class DogsUnleashedClient implements ClientModInitializer {
             List.of(
                 renderer ->
                     new PlanksLayer<>(
-                        renderer, sled -> WoodPlanks.of(renderer.getCurrentItemStack())))));
+                        renderer, sled -> WoodenItems.of(renderer.getCurrentItemStack())))));
     BuiltinItemRendererRegistry.INSTANCE.register(
         ModItems.ROPE_TOY,
         new FittedGeoItemRenderer<RopeToyItem>(RopeToyModel::new, ModelFit::acrossBlock));

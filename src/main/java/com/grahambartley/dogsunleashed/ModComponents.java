@@ -1,9 +1,9 @@
 package com.grahambartley.dogsunleashed;
 
 import com.grahambartley.dogsunleashed.block.DogStatue;
-import com.grahambartley.dogsunleashed.block.WoodPlanks;
 import com.grahambartley.dogsunleashed.portrait.DogPortrait;
 import com.grahambartley.dogsunleashed.portrait.PortraitSize;
+import com.grahambartley.dogsunleashed.wood.WoodPlanks;
 import com.mojang.serialization.Codec;
 import java.util.UUID;
 import net.minecraft.block.WoodType;

@@ -1,6 +1,5 @@
 package com.grahambartley.dogsunleashed.render.layer;
 
-import com.grahambartley.dogsunleashed.block.WoodPlanks;
 import com.grahambartley.dogsunleashed.render.PlanksBones;
 import java.util.function.Function;
 import net.minecraft.block.WoodType;
@@ -41,7 +40,7 @@ public class PlanksLayer<T extends GeoAnimatable> extends GeoRenderLayer<T> {
     }
     final VertexConsumer planks =
         bufferSource.getBuffer(
-            RenderLayer.getEntityCutoutNoCull(WoodPlanks.textureOf(this.woodOf.apply(animatable))));
+            RenderLayer.getEntityCutoutNoCull(PlanksTextures.of(this.woodOf.apply(animatable))));
     for (final GeoCube cube : bone.getCubes()) {
       poseStack.push();
       this.getRenderer()

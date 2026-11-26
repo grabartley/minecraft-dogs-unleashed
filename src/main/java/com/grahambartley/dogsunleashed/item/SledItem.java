@@ -1,8 +1,8 @@
 package com.grahambartley.dogsunleashed.item;
 
 import com.grahambartley.dogsunleashed.ModEntities;
-import com.grahambartley.dogsunleashed.block.WoodPlanks;
 import com.grahambartley.dogsunleashed.entity.sled.SledEntity;
+import com.grahambartley.dogsunleashed.wood.WoodenItems;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -53,7 +53,7 @@ public class SledItem extends Item implements GeoItem {
     final SledEntity sled = new SledEntity(ModEntities.SLED, world);
     sled.refreshPositionAndAngles(at.x, at.y, at.z, user.getYaw(), 0.0f);
     sled.placeFacing(user.getYaw());
-    sled.setWood(WoodPlanks.of(stack));
+    sled.setWood(WoodenItems.of(stack));
     if (world instanceof ServerWorld serverWorld) {
       final Consumer<SledEntity> copier = EntityType.copier(serverWorld, stack, user);
       copier.accept(sled);
@@ -92,7 +92,7 @@ public class SledItem extends Item implements GeoItem {
       final List<Text> tooltip,
       final TooltipType type) {
     super.appendTooltip(stack, context, tooltip, type);
-    WoodPlanks.appendTooltip(stack, tooltip);
+    WoodenItems.appendTooltip(stack, tooltip);
   }
 
   @Override

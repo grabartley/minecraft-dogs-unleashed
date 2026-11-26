@@ -1,8 +1,6 @@
 package com.grahambartley.dogsunleashed.render;
 
 import com.grahambartley.dogsunleashed.ModBlocks;
-import com.grahambartley.dogsunleashed.ModComponents;
-import com.grahambartley.dogsunleashed.block.WoodPlanks;
 import com.grahambartley.dogsunleashed.block.entity.DogHouseBlockEntity;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.minecraft.client.render.RenderLayer;
@@ -10,7 +8,6 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 
@@ -40,8 +37,7 @@ public class DogHouseItemRenderer implements BuiltinItemRendererRegistry.Dynamic
       int light,
       int overlay) {
 
-    dummyEntity.setColor(stack.getOrDefault(ModComponents.DOG_HOUSE_COLOR, DyeColor.WHITE));
-    dummyEntity.setWood(WoodPlanks.of(stack));
+    dummyEntity.readComponents(stack);
 
     matrices.push();
     matrices.translate(ITEM_CENTRE, ITEM_CENTRE, ITEM_CENTRE);
