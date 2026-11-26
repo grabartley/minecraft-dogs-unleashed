@@ -2,6 +2,7 @@ package com.grahambartley.dogsunleashed.datagen;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -9,6 +10,7 @@ import com.google.gson.JsonParser;
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
 import com.grahambartley.dogsunleashed.block.WoodPlanks;
+import com.mojang.serialization.JsonOps;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -16,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Stream;
 import net.minecraft.block.WoodType;
+import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.DisplayName;
@@ -57,11 +60,10 @@ class WoodenFurnitureRecipeProviderTest {
             .getAsJsonObject(String.valueOf(WoodenFurniture.PLANKS_KEY))
             .get("item")
             .getAsString());
-    final JsonObject result = recipe.getAsJsonObject("result");
-    assertEquals(Registries.ITEM.getId(piece.item()).toString(), result.get("id").getAsString());
-    assertEquals(
-        wood.name(),
-        result.getAsJsonObject("components").get(DogsUnleashed.MOD_ID + ":wood").getAsString());
+    final ItemStack result =
+        ItemStack.CODEC.parse(JsonOps.INSTANCE, recipe.get("result")).getOrThrow();
+    assertSame(piece.item(), result.getItem());
+    assertSame(wood, WoodPlanks.of(result));
   }
 
   @ParameterizedTest(name = "{1} {0}")

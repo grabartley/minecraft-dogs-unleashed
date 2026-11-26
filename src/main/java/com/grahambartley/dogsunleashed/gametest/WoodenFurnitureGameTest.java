@@ -83,6 +83,32 @@ public final class WoodenFurnitureGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 40)
+  public void aCraftedBedStacksWithTheSameBedMinedBack(final TestContext context) {
+    final WoodenFurniture bed =
+        WoodenFurnitureRecipeProvider.furniture().stream()
+            .filter(piece -> piece.item() == ModItems.DOG_BED)
+            .findFirst()
+            .orElseThrow();
+    final ItemStack crafted = craft(context, grid(bed, WoodType.OAK));
+    context.setBlockState(REL_BED, ModBlocks.DOG_BED.getDefaultState());
+    final DogBedBlockEntity placed = context.getBlockEntity(REL_BED);
+    placed.readComponents(crafted);
+    context.getWorld().breakBlock(context.getAbsolutePos(REL_BED), true);
+
+    context.addInstantFinalTask(
+        () -> {
+          final List<ItemStack> dropped = DogTestHelper.droppedStacksOf(context, ModItems.DOG_BED);
+          context.assertTrue(dropped.size() == 1, "expected one drop but got " + dropped.size());
+          context.assertTrue(
+              ItemStack.areItemsAndComponentsEqual(crafted, dropped.get(0)),
+              "the mined bed "
+                  + dropped.get(0).getComponentChanges()
+                  + " does not stack with the crafted one "
+                  + crafted.getComponentChanges());
+        });
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = 40)
   public void aBrokenBedDropsItsWood(final TestContext context) {
     context.setBlockState(REL_BED, ModBlocks.DOG_BED.getDefaultState());
     final DogBedBlockEntity bed = context.getBlockEntity(REL_BED);

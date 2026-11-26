@@ -129,7 +129,25 @@ class WoodPlanksTest {
     final DogBedBlockEntity entity = new DogBedBlockEntity(POS, bed);
     entity.setWood(wood);
     final BlockView world = mock(BlockView.class);
+    when(world.getBlockState(POS)).thenReturn(bed);
     when(world.getBlockEntity(POS)).thenReturn(entity);
+
+    assertEquals(planks.getDefaultState(), WoodPlanks.appearanceOf(bed, world, POS));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("woods")
+  @DisplayName("particles kicked up by running on top of a wooden block look like its planks")
+  void runningParticlesAppearAsThePlanksBelow(
+      final WoodType wood, final Block planks, final String texture) {
+    final BlockState bed = ModBlocks.DOG_BED.getDefaultState();
+    final BlockPos below = POS.down();
+    final DogBedBlockEntity entity = new DogBedBlockEntity(below, bed);
+    entity.setWood(wood);
+    final BlockView world = mock(BlockView.class);
+    when(world.getBlockState(POS)).thenReturn(Blocks.AIR.getDefaultState());
+    when(world.getBlockState(below)).thenReturn(bed);
+    when(world.getBlockEntity(below)).thenReturn(entity);
 
     assertEquals(planks.getDefaultState(), WoodPlanks.appearanceOf(bed, world, POS));
   }

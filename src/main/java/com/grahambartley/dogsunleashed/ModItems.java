@@ -61,19 +61,28 @@ public class ModItems {
       Registry.register(
           Registries.ITEM,
           Identifier.of(DogsUnleashed.MOD_ID, "sled"),
-          new SledItem(new Item.Settings().maxCount(1)));
+          new SledItem(
+              new Item.Settings().maxCount(1).component(ModComponents.WOOD, WoodPlanks.DEFAULT)));
 
   public static final Item DOG_BED =
       Registry.register(
           Registries.ITEM,
           Identifier.of(DogsUnleashed.MOD_ID, "dog_bed"),
-          new DogBedItem(ModBlocks.DOG_BED, new Item.Settings()));
+          new DogBedItem(
+              ModBlocks.DOG_BED,
+              new Item.Settings()
+                  .component(ModComponents.DOG_BED_COLOR, DyeColor.WHITE)
+                  .component(ModComponents.WOOD, WoodPlanks.DEFAULT)));
 
   public static final Item DOG_HOUSE =
       Registry.register(
           Registries.ITEM,
           Identifier.of(DogsUnleashed.MOD_ID, "dog_house"),
-          new DogHouseItem(ModBlocks.DOG_HOUSE, new Item.Settings()));
+          new DogHouseItem(
+              ModBlocks.DOG_HOUSE,
+              new Item.Settings()
+                  .component(ModComponents.DOG_HOUSE_COLOR, DyeColor.WHITE)
+                  .component(ModComponents.WOOD, WoodPlanks.DEFAULT)));
 
   public static final Item FOOD_BOWL =
       Registry.register(

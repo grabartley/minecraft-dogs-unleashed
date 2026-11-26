@@ -89,8 +89,15 @@ public final class WoodPlanks {
   public static BlockState appearanceOf(
       final BlockState state, final BlockView world, final BlockPos pos) {
     return state.getBlock() instanceof WoodenBlock wooden
-        ? planksOf(wooden.woodAt(world, pos, state)).getDefaultState()
+        ? planksOf(wooden.woodAt(world, sourceOf(state, world, pos), state)).getDefaultState()
         : state;
+  }
+
+  private static BlockPos sourceOf(
+      final BlockState state, final BlockView world, final BlockPos pos) {
+    return world.getBlockState(pos) != state && world.getBlockState(pos.down()) == state
+        ? pos.down()
+        : pos;
   }
 
   public static Text tooltipOf(final WoodType wood) {
