@@ -94,11 +94,16 @@ class PetSpotTest {
     final PetSpot.Place place = PetSpot.of(0, 0, yaw, right, HUGE, 0.575, 0.0f, false);
     final double side = rightOf(place.x(), place.z(), yaw);
     assertEquals(right ? 1.0 : -1.0, Math.signum(side), "on the patting side");
-    assertTrue(Math.abs(side) >= PetSpot.PLAYER_HALF_WIDTH + 0.575 - 1.0e-6, "clear of the player");
+    assertTrue(
+        Math.hypot(place.x(), place.z()) >= PetSpot.PLAYER_HALF_WIDTH + 0.575 - 1.0e-6,
+        "clear of the player");
     final float turn = MathHelper.wrapDegrees(place.faceYawDegrees() - yaw);
-    assertTrue(Math.abs(turn) < 20.0f, "it faces the way the player faces, turned " + turn);
-    final double neckForward = forwardOf(place, yaw) + HUGE.neck() * Math.cos(Math.toRadians(turn));
-    assertEquals(PetSpot.ALONGSIDE_NECK_FORWARD, neckForward, 0.05, "its neck is by the hand");
+    assertEquals(0.0f, turn, 1.0e-3f, "it faces the way the player faces");
+    assertEquals(
+        PetSpot.ALONGSIDE_FORWARD_PER_NECK * HUGE.neck(),
+        forwardOf(place, yaw),
+        1.0e-6,
+        "it stands where the approved still puts it");
   }
 
   @ParameterizedTest(name = "{0} blocks from the spot -> arrived {1}")
