@@ -2,6 +2,8 @@ package com.grahambartley.dogsunleashed.item;
 
 import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.ModSounds;
+import com.grahambartley.dogsunleashed.gesture.PlayerGesture;
+import com.grahambartley.dogsunleashed.gesture.PlayerGestures;
 import com.grahambartley.dogsunleashed.pet.PetData;
 import com.grahambartley.dogsunleashed.pet.PetLocationService;
 import com.grahambartley.dogsunleashed.pet.PetManager;
@@ -75,7 +77,7 @@ public class DogWhistleItem extends Item implements GeoItem {
   }
 
   private static void playWhistle(final ServerPlayerEntity player, final Hand hand) {
-    WhistleBlowing.show(player, hand);
+    PlayerGestures.show(player, hand, PlayerGesture.WHISTLE);
     player
         .getWorld()
         .playSound(

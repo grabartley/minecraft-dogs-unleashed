@@ -353,10 +353,25 @@ class UnleashedDogBreedTest {
       mode = EnumSource.Mode.EXCLUDE)
   @DisplayName("every rig has a bark clip that only moves bones the rig has")
   void everyRigHasABarkClip(final UnleashedDogBreed breed) throws IOException {
+    assertRigClipMovesOnlyItsOwnBones(breed, DogAnimationKeys.BARK);
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = UnleashedDogBreed.class,
+      names = "CROSS_BREED",
+      mode = EnumSource.Mode.EXCLUDE)
+  @DisplayName("every rig has a petted clip that only moves bones the rig has")
+  void everyRigHasAPettedClip(final UnleashedDogBreed breed) throws IOException {
+    assertRigClipMovesOnlyItsOwnBones(breed, DogAnimationKeys.PETTED);
+  }
+
+  private static void assertRigClipMovesOnlyItsOwnBones(
+      final UnleashedDogBreed breed, final String clip) throws IOException {
     final String id = breed.serializedId();
     final JsonObject clips =
         readAsset("animations/" + id + ".animation.json").getAsJsonObject("animations");
-    assertTrue(clips.has(DogAnimationKeys.BARK), id + " has no bark clip");
+    assertTrue(clips.has(clip), id + " has no " + clip + " clip");
     final Set<String> rigBones = new HashSet<>();
     readAsset(breed.geoPath())
         .getAsJsonArray("minecraft:geometry")
@@ -364,9 +379,8 @@ class UnleashedDogBreedTest {
         .getAsJsonObject()
         .getAsJsonArray("bones")
         .forEach(bone -> rigBones.add(bone.getAsJsonObject().get("name").getAsString()));
-    final Set<String> barkBones =
-        clips.getAsJsonObject(DogAnimationKeys.BARK).getAsJsonObject("bones").keySet();
-    assertTrue(rigBones.containsAll(barkBones), id + " bark moves " + barkBones);
+    final Set<String> clipBones = clips.getAsJsonObject(clip).getAsJsonObject("bones").keySet();
+    assertTrue(rigBones.containsAll(clipBones), id + " " + clip + " moves " + clipBones);
   }
 
   @ParameterizedTest

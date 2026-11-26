@@ -35,7 +35,11 @@ class DogBondRulesTest {
     "TREAT, 4, 12, 0",
     "GROOM, 10, 0, 10",
     "GROOM, 10, 10, 0",
-    "GROOM, 10, 25, 0"
+    "GROOM, 10, 25, 0",
+    "PET, 2, 0, 2",
+    "PET, 2, 8, 2",
+    "PET, 2, 9, 1",
+    "PET, 2, 10, 0"
   })
   @DisplayName("each source only gives bond up to its daily cap")
   void allowedGain(

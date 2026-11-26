@@ -32,6 +32,28 @@ class DogInteractionsTest {
     assertEquals(expected, DogInteractions.shouldConsumeOnClient(owner, tamed, sneaking));
   }
 
+  static Stream<Arguments> inspectCases() {
+    return Stream.of(
+        Arguments.of("a stranger sneaking with an item", false, true, false, true),
+        Arguments.of(
+            "a stranger sneaking with an empty hand pets instead", false, true, true, false),
+        Arguments.of("a stranger clicking without sneaking", false, false, false, false),
+        Arguments.of("the owner sneaking with an item", true, true, false, false),
+        Arguments.of("the owner sneaking with an empty hand", true, true, true, false));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("inspectCases")
+  @DisplayName("A stranger inspects a dog by sneak clicking it with something in hand")
+  void onlyAStrangerSneakingWithAnItemInspects(
+      final String description,
+      final boolean owner,
+      final boolean sneaking,
+      final boolean emptyHand,
+      final boolean expected) {
+    assertEquals(expected, DogInteractions.opensInspect(owner, sneaking, emptyHand));
+  }
+
   static Stream<Arguments> breedingFoodCases() {
     return Stream.of(
         Arguments.of("the owner feeding their adult dog", true, false, true),

@@ -16,6 +16,7 @@ import com.grahambartley.dogsunleashed.advancement.SledTravelledCriterion;
 import com.grahambartley.dogsunleashed.block.DogBedBlock;
 import com.grahambartley.dogsunleashed.command.DogsUnleashedCommand;
 import com.grahambartley.dogsunleashed.config.DogsUnleashedConfig;
+import com.grahambartley.dogsunleashed.entity.DogBedWheelAction;
 import com.grahambartley.dogsunleashed.entity.DogPlaySession;
 import com.grahambartley.dogsunleashed.entity.DogWheelSubActions;
 import com.grahambartley.dogsunleashed.entity.delivery.DogDeliveries;
@@ -97,6 +98,7 @@ public class DogsUnleashed implements ModInitializer {
     DogExpeditions.registerWheelAction();
     DogDeliveries.registerWheelAction();
     DogTrickWheelActions.register(DogWheelSubActions.REGISTERED);
+    DogBedWheelAction.register(DogWheelSubActions.REGISTERED);
     ModNetworking.registerPayloads();
     ModNetworking.registerServerReceivers();
     GameTestFixturePack.registerWhenTesting();

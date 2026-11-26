@@ -1,8 +1,11 @@
 package com.grahambartley.dogsunleashed.mixin.client;
 
 import com.grahambartley.dogsunleashed.ModItems;
+import com.grahambartley.dogsunleashed.gesture.PatArmPose;
+import com.grahambartley.dogsunleashed.gesture.PlayerGesture;
+import com.grahambartley.dogsunleashed.gesture.PlayerGesturePoses;
 import com.grahambartley.dogsunleashed.whistle.WhistleBlowHold;
-import com.grahambartley.dogsunleashed.whistle.WhistleBlowPoses;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.HeldItemRenderer;
@@ -41,11 +44,33 @@ public abstract class HeldItemRendererMixin {
       return;
     }
     final float lift =
-        WhistleBlowPoses.SHARED.lift(player.getId(), hand, player.getWorld().getTime(), tickDelta);
+        WhistleBlowHold.liftAt(
+            PlayerGesturePoses.SHARED.elapsedTicks(
+                player.getId(),
+                hand,
+                PlayerGesture.WHISTLE,
+                player.getWorld().getTime(),
+                tickDelta));
     if (lift > 0.0f) {
       final Arm arm =
           hand == Hand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite();
       WhistleBlowHold.apply(matrices, arm, lift);
+    }
+  }
+
+  @Inject(method = "renderArmHoldingItem", at = @At("HEAD"))
+  private void dogsUnleashed$reachDownToPat(
+      final MatrixStack matrices,
+      final VertexConsumerProvider vertexConsumers,
+      final int light,
+      final float equipProgress,
+      final float swingProgress,
+      final Arm arm,
+      final CallbackInfo info) {
+    final MinecraftClient client = MinecraftClient.getInstance();
+    if (client.player != null) {
+      PatArmPose.applyFirstPerson(
+          matrices, client.player, arm, client.getRenderTickCounter().getTickDelta(true));
     }
   }
 }

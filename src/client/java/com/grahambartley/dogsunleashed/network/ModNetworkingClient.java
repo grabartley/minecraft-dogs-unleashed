@@ -3,12 +3,14 @@ package com.grahambartley.dogsunleashed.network;
 import com.grahambartley.dogsunleashed.config.SyncedServerConfig;
 import com.grahambartley.dogsunleashed.entity.DogWheelAction;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
+import com.grahambartley.dogsunleashed.gesture.PlayerGesturePoses;
 import com.grahambartley.dogsunleashed.network.ServerConfigPayloads.SyncServerConfigS2CPayload;
 import com.grahambartley.dogsunleashed.network.payload.DeliverDogPayload;
 import com.grahambartley.dogsunleashed.network.payload.OpenCommandWheelPayload;
 import com.grahambartley.dogsunleashed.network.payload.OpenDeliveryPickerPayload;
 import com.grahambartley.dogsunleashed.network.payload.OpenDogInspectPayload;
 import com.grahambartley.dogsunleashed.network.payload.OpenNamingScreenPayload;
+import com.grahambartley.dogsunleashed.network.payload.PlayerGesturePayload;
 import com.grahambartley.dogsunleashed.network.payload.RequestDogConnectionsPayload;
 import com.grahambartley.dogsunleashed.network.payload.RequestPetManagerStatePayload;
 import com.grahambartley.dogsunleashed.network.payload.RequestPetsPayload;
@@ -19,7 +21,6 @@ import com.grahambartley.dogsunleashed.network.payload.SummonPetPayload;
 import com.grahambartley.dogsunleashed.network.payload.SyncDogConnectionsPayload;
 import com.grahambartley.dogsunleashed.network.payload.SyncPetManagerStatePayload;
 import com.grahambartley.dogsunleashed.network.payload.SyncPetsPayload;
-import com.grahambartley.dogsunleashed.network.payload.WhistleBlowPayload;
 import com.grahambartley.dogsunleashed.pet.PetAliveFilter;
 import com.grahambartley.dogsunleashed.screen.DeliveryPickerScreen;
 import com.grahambartley.dogsunleashed.screen.DogBreedNames;
@@ -27,7 +28,6 @@ import com.grahambartley.dogsunleashed.screen.DogCommandWheelScreen;
 import com.grahambartley.dogsunleashed.screen.DogInspectScreen;
 import com.grahambartley.dogsunleashed.screen.PetManagerScreen;
 import com.grahambartley.dogsunleashed.screen.PetNamingScreen;
-import com.grahambartley.dogsunleashed.whistle.WhistleBlowPoses;
 import java.util.UUID;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -56,16 +56,17 @@ public final class ModNetworkingClient {
         OpenDeliveryPickerPayload.ID,
         (payload, context) -> context.client().setScreen(new DeliveryPickerScreen(payload)));
     ClientPlayNetworking.registerGlobalReceiver(
-        WhistleBlowPayload.ID, ModNetworkingClient::handleWhistleBlow);
+        PlayerGesturePayload.ID, ModNetworkingClient::handlePlayerGesture);
     ClientPlayConnectionEvents.DISCONNECT.register(
-        (handler, client) -> WhistleBlowPoses.SHARED.clear());
+        (handler, client) -> PlayerGesturePoses.SHARED.clear());
   }
 
-  private static void handleWhistleBlow(
-      WhistleBlowPayload payload, ClientPlayNetworking.Context context) {
+  private static void handlePlayerGesture(
+      PlayerGesturePayload payload, ClientPlayNetworking.Context context) {
     final ClientWorld world = context.client().world;
     if (world != null) {
-      WhistleBlowPoses.SHARED.start(payload.entityId(), payload.hand(), world.getTime());
+      PlayerGesturePoses.SHARED.start(
+          payload.entityId(), payload.hand(), payload.gesture(), world.getTime());
     }
   }
 

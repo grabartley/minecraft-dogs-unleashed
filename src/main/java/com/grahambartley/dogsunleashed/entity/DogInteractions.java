@@ -6,7 +6,6 @@ import com.grahambartley.dogsunleashed.ModPortraits;
 import com.grahambartley.dogsunleashed.advancement.DogMilestone;
 import com.grahambartley.dogsunleashed.advancement.DogMilestoneCriterion;
 import com.grahambartley.dogsunleashed.advancement.DogTamedCriterion;
-import com.grahambartley.dogsunleashed.block.DogBedBlock;
 import com.grahambartley.dogsunleashed.entity.delivery.DeliveryWaitRules;
 import com.grahambartley.dogsunleashed.entity.delivery.DeliveryWaitRules.BagsClick;
 import com.grahambartley.dogsunleashed.entity.delivery.DogDeliveries;
@@ -50,6 +49,11 @@ public final class DogInteractions {
     return owner || !tamed || sneaking;
   }
 
+  public static boolean opensInspect(
+      final boolean owner, final boolean sneaking, final boolean emptyHand) {
+    return !owner && sneaking && !emptyHand;
+  }
+
   public static boolean mayFeedBreedingItem(final boolean owner, final boolean baby) {
     return owner || baby;
   }
@@ -69,7 +73,8 @@ public final class DogInteractions {
             List.of(
                 () -> this.dog.getComponents().get(DogTug.class).interact(player, itemStack),
                 () -> this.tryOpenDeliveredBags(player),
-                () -> this.tryOpenInspect(player),
+                () -> this.dog.getComponents().get(DogPetting.class).tryPet(player, hand),
+                () -> this.tryOpenInspect(player, itemStack),
                 () -> this.tryTogglePlayMode(player, itemStack)));
     if (untamedResult != null) {
       return untamedResult;
@@ -136,7 +141,7 @@ public final class DogInteractions {
                 () -> this.tryTrimFur(player, hand, itemStack),
                 () -> this.tryGiveScent(player, itemStack),
                 () -> this.tryGiveBone(player, itemStack),
-                () -> this.tryAssignBedOrOpenWheel(player, itemStack)));
+                () -> this.tryOpenWheel(player, itemStack)));
     if (handled != null) {
       return handled;
     }
@@ -164,8 +169,9 @@ public final class DogInteractions {
     };
   }
 
-  private @Nullable ActionResult tryOpenInspect(final PlayerEntity player) {
-    if (this.dog.isOwner(player) || !player.isSneaking()) {
+  private @Nullable ActionResult tryOpenInspect(
+      final PlayerEntity player, final ItemStack itemStack) {
+    if (!opensInspect(this.dog.isOwner(player), player.isSneaking(), itemStack.isEmpty())) {
       return null;
     }
     if (player instanceof ServerPlayerEntity serverPlayer) {
@@ -332,15 +338,10 @@ public final class DogInteractions {
     return ActionResult.SUCCESS;
   }
 
-  private @Nullable ActionResult tryAssignBedOrOpenWheel(
+  private @Nullable ActionResult tryOpenWheel(
       final PlayerEntity player, final ItemStack itemStack) {
-    if (!this.dog.isOwner(player) || DogFoods.isTamingItem(itemStack)) {
+    if (!this.isDirectOwnerInteraction(player) || DogFoods.isTamingItem(itemStack)) {
       return null;
-    }
-    if (player.isSneaking()) {
-      DogBedBlock.setPendingAssignment(player.getUuid(), this.dog.getUuid());
-      this.sendFeedback(player, "message.dogs-unleashed.pending_bed_assignment");
-      return ActionResult.SUCCESS;
     }
     if (player instanceof ServerPlayerEntity serverPlayer) {
       ModNetworking.sendOpenCommandWheel(serverPlayer, this.dog);

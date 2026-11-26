@@ -24,6 +24,7 @@ public final class DogAnimationKeys {
   public static final String HEAD_TILT = "head_tilt";
   public static final String TAIL_WAG = "tail_wag";
   public static final String SHAKE = "shake";
+  public static final String PETTED = "petted";
 
   private DogAnimationKeys() {}
 }

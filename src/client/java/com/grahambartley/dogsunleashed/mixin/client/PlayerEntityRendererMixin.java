@@ -1,7 +1,8 @@
 package com.grahambartley.dogsunleashed.mixin.client;
 
 import com.grahambartley.dogsunleashed.ModItems;
-import com.grahambartley.dogsunleashed.whistle.WhistleBlowPoses;
+import com.grahambartley.dogsunleashed.gesture.PlayerGesture;
+import com.grahambartley.dogsunleashed.gesture.PlayerGesturePoses;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
@@ -20,7 +21,8 @@ public abstract class PlayerEntityRendererMixin {
       final Hand hand,
       final CallbackInfoReturnable<BipedEntityModel.ArmPose> info) {
     if (player.getStackInHand(hand).isOf(ModItems.DOG_WHISTLE)
-        && WhistleBlowPoses.SHARED.isBlowing(player.getId(), hand, player.getWorld().getTime())) {
+        && PlayerGesturePoses.SHARED.isPlaying(
+            player.getId(), hand, PlayerGesture.WHISTLE, player.getWorld().getTime())) {
       info.setReturnValue(BipedEntityModel.ArmPose.TOOT_HORN);
     }
   }

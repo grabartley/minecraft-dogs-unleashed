@@ -56,7 +56,9 @@ maps, checks and diffs the exports. The workflow is:
    clips into a copy of a project so they can be rendered and edited there. When only some bones'
    keys changed, `animexport ... --bones a,b [--drop old] [--clips c,d]` replaces just those tracks in the
    shipped file, only in the named clips when `--clips` is given (`--drop` then drops only inside
-   those clips), and keeps the rest and its layout as they were.
+   those clips), and keeps the rest and its layout as they were. A clip named in `--clips` that
+   the shipped file lacks is added from the project with its length and loop, carrying only the
+   named bones, which is how a new clip goes onto a rig without re-exporting the clips it has.
    In game a clip rarely plays alone. The movement controller plays `sit`, `idle`, `walk`, `run`
    or `sleep` underneath, other controllers such as `tail_wag` sit between it and the tricks,
    and a later controller only replaces the bone channels its clip keys, so any channel a trick

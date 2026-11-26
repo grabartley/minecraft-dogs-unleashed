@@ -21,7 +21,8 @@ public final class DogBondRules {
     PLAY(4, 20),
     FIGHT(5, 20),
     TREAT(4, 12),
-    GROOM(10, 10);
+    GROOM(10, 10),
+    PET(2, 10);
 
     private final int points;
     private final int dailyCap;
