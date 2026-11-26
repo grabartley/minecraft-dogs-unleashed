@@ -6,7 +6,9 @@ import com.grahambartley.dogsunleashed.entity.DireWolfGrowthStage;
 import com.grahambartley.dogsunleashed.entity.DogBedWheelAction;
 import com.grahambartley.dogsunleashed.entity.DogBond;
 import com.grahambartley.dogsunleashed.entity.DogBondRules;
+import com.grahambartley.dogsunleashed.entity.DogPetting;
 import com.grahambartley.dogsunleashed.entity.DogWheelSubActions;
+import com.grahambartley.dogsunleashed.entity.PetSpot;
 import com.grahambartley.dogsunleashed.entity.PettingRules;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
@@ -20,6 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -33,6 +36,7 @@ import net.minecraft.test.TestFunction;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 public final class DogPettingGameTest implements FabricGameTest {
@@ -178,12 +182,13 @@ public final class DogPettingGameTest implements FabricGameTest {
           hold.start();
           hold.tick();
 
+          final PetSpot.Place spot = petting(dog).spotBeside(player);
           context.assertTrue(dog.getNavigation().isIdle(), "The petted dog stops walking");
           context.assertTrue(
               dog.getLookControl().isLookingAtSpecificPosition()
-                  && dog.getLookControl().getLookX() == player.getX()
-                  && dog.getLookControl().getLookZ() == player.getZ(),
-              "The petted dog turns to the player petting it");
+                  && dog.getLookControl().getLookX() == spot.faceX()
+                  && dog.getLookControl().getLookZ() == spot.faceZ(),
+              "The petted dog turns to stand alongside the player petting it");
           context.complete();
         });
   }
@@ -206,9 +211,12 @@ public final class DogPettingGameTest implements FabricGameTest {
         PettingRules.SETTLE_TICKS + 1L,
         () -> {
           context.assertFalse(wags(dog), "The pat waits until the dog reaches the hand");
-          final Vec3d atTheHand = context.getAbsolute(REL_FAR_PLAYER.add(0.0, 0.0, 0.6));
-          dog.refreshPositionAndAngles(atTheHand.x, atTheHand.y, atTheHand.z, 180.0f, 0.0f);
+          arriveBeside(dog, player);
           walkOver.tick();
+        });
+    context.runAtTick(
+        PettingRules.SETTLE_TICKS + 3L,
+        () -> {
           context.assertTrue(wags(dog), "The pat lands once the dog arrives");
           context.complete();
         });
@@ -342,6 +350,7 @@ public final class DogPettingGameTest implements FabricGameTest {
 
   private static void afterTheKneel(
       final TestContext context, final UnleashedDogEntity dog, final Runnable check) {
+    petting(dog).approachingPetter().ifPresent(petter -> arriveBeside(dog, petter));
     context.runAtTick(
         PettingRules.SETTLE_TICKS + 1L,
         () -> {
@@ -349,6 +358,22 @@ public final class DogPettingGameTest implements FabricGameTest {
           check.run();
           context.complete();
         });
+  }
+
+  private static void arriveBeside(final UnleashedDogEntity dog, final PlayerEntity petter) {
+    final PetSpot.Place spot = petting(dog).spotBeside(petter);
+    final float yaw =
+        (float)
+                (MathHelper.atan2(spot.faceZ() - spot.z(), spot.faceX() - spot.x())
+                    * MathHelper.DEGREES_PER_RADIAN)
+            - 90.0f;
+    dog.refreshPositionAndAngles(spot.x(), petter.getY(), spot.z(), yaw, 0.0f);
+    dog.setBodyYaw(yaw);
+    dog.setHeadYaw(yaw);
+  }
+
+  private static DogPetting petting(final UnleashedDogEntity dog) {
+    return dog.getComponents().get(DogPetting.class);
   }
 
   private static boolean wags(final UnleashedDogEntity dog) {
@@ -361,6 +386,7 @@ public final class DogPettingGameTest implements FabricGameTest {
     player.refreshPositionAndAngles(context.getAbsolute(relative), 0.0f, 0.0f);
     player.setStackInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
     player.setSneaking(true);
+    player.setOnGround(true);
     return player;
   }
 
