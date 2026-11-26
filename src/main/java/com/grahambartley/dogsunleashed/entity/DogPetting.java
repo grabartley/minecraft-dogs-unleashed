@@ -3,6 +3,8 @@ package com.grahambartley.dogsunleashed.entity;
 import com.grahambartley.dogsunleashed.DogsUnleashed;
 import com.grahambartley.dogsunleashed.gesture.PlayerGesture;
 import com.grahambartley.dogsunleashed.gesture.PlayerGestures;
+import java.util.Optional;
+import java.util.UUID;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvents;
@@ -12,11 +14,9 @@ import org.jetbrains.annotations.Nullable;
 
 public final class DogPetting extends DogComponent {
 
-  private static final float LOOK_TURN_DEGREES = 30.0f;
-
   private final UnleashedDogEntity dog;
   private long lastPettedAt = PettingRules.NEVER;
-  private @Nullable PlayerEntity petter;
+  private @Nullable UUID petterUuid;
 
   DogPetting(final UnleashedDogEntity dog) {
     this.dog = dog;
@@ -33,8 +33,7 @@ public final class DogPetting extends DogComponent {
       return null;
     }
     this.lastPettedAt = now;
-    this.petter = player;
-    this.holdStillFacing(player);
+    this.petterUuid = player.getUuid();
     this.dog.triggerAnim(DogAnimationKeys.PETTED, DogAnimationKeys.PETTED);
     this.dog.getAmbienceEffects().startTailWag();
     this.dog.getAmbienceEffects().burstHearts();
@@ -51,22 +50,12 @@ public final class DogPetting extends DogComponent {
     return ActionResult.CONSUME;
   }
 
-  @Override
-  void tick() {
-    if (this.petter == null) {
-      return;
+  public Optional<PlayerEntity> currentPetter() {
+    if (this.petterUuid == null
+        || !PettingRules.isBeingPetted(this.dog.getWorld().getTime(), this.lastPettedAt)) {
+      return Optional.empty();
     }
-    if (!PettingRules.isBeingPetted(this.dog.getWorld().getTime(), this.lastPettedAt)
-        || this.petter.isRemoved()) {
-      this.petter = null;
-      return;
-    }
-    this.holdStillFacing(this.petter);
-  }
-
-  private void holdStillFacing(final PlayerEntity player) {
-    this.dog.getNavigation().stop();
-    this.dog.getLookControl().lookAt(player, LOOK_TURN_DEGREES, LOOK_TURN_DEGREES);
+    return Optional.ofNullable(this.dog.getWorld().getPlayerByUuid(this.petterUuid));
   }
 
   private PettingRules.DogState stateFor(final PlayerEntity player) {

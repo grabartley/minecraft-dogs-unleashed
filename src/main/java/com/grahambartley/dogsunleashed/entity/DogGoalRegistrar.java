@@ -29,6 +29,7 @@ import com.grahambartley.dogsunleashed.entity.goal.PackGrudgeGoal;
 import com.grahambartley.dogsunleashed.entity.goal.PackGuardGoal;
 import com.grahambartley.dogsunleashed.entity.goal.PackShelterGoal;
 import com.grahambartley.dogsunleashed.entity.goal.PerformTrickGoal;
+import com.grahambartley.dogsunleashed.entity.goal.PettedGoal;
 import com.grahambartley.dogsunleashed.entity.goal.PlayChaseGoal;
 import com.grahambartley.dogsunleashed.entity.goal.PointedAttackGoal;
 import com.grahambartley.dogsunleashed.entity.goal.PointedFetchGoal;
@@ -80,6 +81,7 @@ public final class DogGoalRegistrar {
     goalSelector.add(1, new SwimGoal(dog));
     goalSelector.add(1, new PerformTrickGoal(dog));
     goalSelector.add(2, new DogSitGoal(dog));
+    goalSelector.add(2, new PettedGoal(dog));
     goalSelector.add(2, new BuryBoneGoal(dog));
     goalSelector.add(2, new TugGoal(dog));
     goalSelector.add(3, new SleepInBedGoal(dog));

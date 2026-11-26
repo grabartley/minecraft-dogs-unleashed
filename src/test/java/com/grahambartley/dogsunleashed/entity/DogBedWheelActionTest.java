@@ -36,7 +36,7 @@ class DogBedWheelActionTest {
 
   @Test
   @DisplayName("assign bed has its own label and icon")
-  void assignBedIsAlwaysOffered() {
+  void assignBedHasItsOwnLabelAndIcon() {
     final DogWheelSubAction action = DogBedWheelAction.action();
     assertEquals(DogBedWheelAction.WHEEL_ACTION_ID, action.id());
     assertEquals("command.dogs-unleashed.assign_bed", action.translationKey());

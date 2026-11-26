@@ -75,4 +75,19 @@ class PatStrokeTest {
     assertTrue(shift.z < 0.0f, "the hand reaches away from the camera");
     assertTrue(PatStroke.firstPersonTiltDegrees(10.0f) > 0.0f, "the palm turns down");
   }
+
+  @ParameterizedTest(name = "{0} arm, head turned {1} radians")
+  @CsvSource({"RIGHT, 0, -0.3", "LEFT, 0, 0.3", "RIGHT, 0.5, 0.2", "LEFT, -0.4, -0.1"})
+  @DisplayName("in third person the hand follows the head and reaches in to the dog")
+  void thirdPersonFollowsTheHeadAndReachesIn(
+      final Arm arm, final float headYaw, final float expected) {
+    assertEquals(expected, PatStroke.armYaw(0.0f, headYaw, arm, 10.0f), EPSILON);
+  }
+
+  @ParameterizedTest(name = "{0} ticks in")
+  @ValueSource(floats = {-1.0f, 0.0f, 30.0f})
+  @DisplayName("outside the pat the arm keeps its own turn")
+  void outsideThePatTheArmKeepsItsTurn(final float elapsed) {
+    assertEquals(0.4f, PatStroke.armYaw(0.4f, 1.0f, Arm.RIGHT, elapsed), EPSILON);
+  }
 }

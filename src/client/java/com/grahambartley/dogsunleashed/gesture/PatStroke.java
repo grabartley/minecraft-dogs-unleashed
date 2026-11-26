@@ -10,6 +10,7 @@ public final class PatStroke {
   static final int PATS = 3;
   static final float AIM_RADIANS = -MathHelper.HALF_PI;
   static final float PAT_LIFT_RADIANS = 0.3f;
+  static final float INWARD_YAW_RADIANS = 0.3f;
   static final float FIRST_PERSON_INWARD = 0.3f;
   static final float FIRST_PERSON_DROP = 0.2f;
   static final float FIRST_PERSON_FORWARD = 0.1f;
@@ -35,6 +36,11 @@ public final class PatStroke {
   public static float armPitch(final float restPitch, final float headPitch, final float elapsed) {
     final float aimed = AIM_RADIANS + headPitch - PAT_LIFT_RADIANS * patLift(elapsed);
     return MathHelper.lerp(reach(elapsed), restPitch, aimed);
+  }
+
+  public static float armYaw(
+      final float restYaw, final float headYaw, final Arm arm, final float elapsed) {
+    return MathHelper.lerp(reach(elapsed), restYaw, headYaw - side(arm) * INWARD_YAW_RADIANS);
   }
 
   public static Vector3f firstPersonShift(final Arm arm, final float elapsed) {

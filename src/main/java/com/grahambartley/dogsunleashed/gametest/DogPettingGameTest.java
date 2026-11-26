@@ -6,9 +6,12 @@ import com.grahambartley.dogsunleashed.entity.DireWolfGrowthStage;
 import com.grahambartley.dogsunleashed.entity.DogBedWheelAction;
 import com.grahambartley.dogsunleashed.entity.DogBond;
 import com.grahambartley.dogsunleashed.entity.DogBondRules;
+import com.grahambartley.dogsunleashed.entity.DogPetting;
 import com.grahambartley.dogsunleashed.entity.DogWheelSubActions;
+import com.grahambartley.dogsunleashed.entity.PettingRules;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.entity.goal.PettedGoal;
 import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
 import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
@@ -38,9 +41,11 @@ public final class DogPettingGameTest implements FabricGameTest {
   private static final String ARENA = "dogs-unleashed:dog_arena";
   private static final String BATCH = "petting";
   private static final int TICK_LIMIT = 20;
+  private static final int HOLD_TICK_LIMIT = 60;
   private static final BlockPos REL_DOG = new BlockPos(3, 2, 3);
   private static final Vec3d REL_PLAYER = new Vec3d(3.5, 2, 1.5);
   private static final Vec3d REL_OTHER_PLAYER = new Vec3d(1.5, 2, 3.5);
+  private static final Vec3d REL_FAR_CORNER = new Vec3d(0.5, 2, 5.5);
 
   @BeforeBatch(batchId = BATCH)
   public void clearPendingBeds(final ServerWorld world) {
@@ -135,6 +140,47 @@ public final class DogPettingGameTest implements FabricGameTest {
   }
 
   @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
+  public void aPettedDogHoldsStillFacingThePetter(final TestContext context) {
+    final ServerPlayerEntity player = sneakingPlayerAt(context, REL_PLAYER);
+    final UnleashedDogEntity dog = wildDog(context, ModEntities.HUSKY);
+    final PettedGoal hold = new PettedGoal(dog);
+
+    dog.setOnGround(true);
+    final Vec3d farCorner = context.getAbsolute(REL_FAR_CORNER);
+    dog.getNavigation().startMovingTo(farCorner.x, farCorner.y, farCorner.z, 1.0);
+    context.assertFalse(dog.getNavigation().isIdle(), "The dog is walking before the pat");
+
+    dog.interactMob(player, Hand.MAIN_HAND);
+    context.assertTrue(hold.canStart(), "A landed pat makes the dog hold still");
+    hold.start();
+    hold.tick();
+
+    context.assertTrue(dog.getNavigation().isIdle(), "The petted dog stops walking");
+    context.assertTrue(
+        dog.getLookControl().isLookingAtSpecificPosition()
+            && dog.getLookControl().getLookX() == player.getX()
+            && dog.getLookControl().getLookZ() == player.getZ(),
+        "The petted dog turns to the player petting it");
+    context.complete();
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = HOLD_TICK_LIMIT)
+  public void theHoldEndsWithThePat(final TestContext context) {
+    final ServerPlayerEntity player = sneakingPlayerAt(context, REL_PLAYER);
+    final UnleashedDogEntity dog = wildDog(context, ModEntities.HUSKY);
+    final PettedGoal hold = new PettedGoal(dog);
+
+    dog.interactMob(player, Hand.MAIN_HAND);
+
+    context.runAtTick(
+        PettingRules.COOLDOWN_TICKS + 1L,
+        () -> {
+          context.assertFalse(hold.shouldContinue(), "The dog is free once the pat ends");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = ARENA, batchId = BATCH, tickLimit = TICK_LIMIT)
   public void aNappingDogIsLeftToSleep(final TestContext context) {
     final ServerPlayerEntity player = sneakingPlayerAt(context, REL_PLAYER);
     final UnleashedDogEntity dog = wildDog(context, ModEntities.BEAGLE);
@@ -143,6 +189,9 @@ public final class DogPettingGameTest implements FabricGameTest {
     context.assertTrue(
         dog.interactMob(player, Hand.MAIN_HAND) != ActionResult.CONSUME,
         "A napping dog is not woken by a pat");
+    context.assertTrue(
+        dog.getComponents().get(DogPetting.class).currentPetter().isEmpty(),
+        "A refused pat starts no hold");
     context.complete();
   }
 
@@ -184,6 +233,8 @@ public final class DogPettingGameTest implements FabricGameTest {
     context.assertTrue(
         dog.interactMob(player, Hand.MAIN_HAND) == ActionResult.CONSUME,
         "A sneaking player with an empty hand pets the dog");
+    context.assertTrue(
+        dog.getAnimationState().getTailWagTimerTicks() > 0, "The petted dog wags its tail");
     context.complete();
   }
 
@@ -196,6 +247,8 @@ public final class DogPettingGameTest implements FabricGameTest {
     context.assertTrue(
         wolf.interactMob(player, Hand.MAIN_HAND) == ActionResult.CONSUME,
         "A dire wolf takes a pat at stage " + stage);
+    context.assertTrue(
+        wolf.getAnimationState().getTailWagTimerTicks() > 0, "The petted dire wolf wags its tail");
     context.complete();
   }
 

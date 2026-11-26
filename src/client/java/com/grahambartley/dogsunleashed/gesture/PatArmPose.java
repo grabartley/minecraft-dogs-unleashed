@@ -1,7 +1,6 @@
 package com.grahambartley.dogsunleashed.gesture;
 
 import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Arm;
@@ -14,13 +13,16 @@ public final class PatArmPose {
   private PatArmPose() {}
 
   public static void applyTo(
-      final BipedEntityModel<?> model, final LivingEntity entity, final float tickDelta) {
+      final ModelPart mainArm,
+      final ModelPart head,
+      final LivingEntity entity,
+      final float tickDelta) {
     final float elapsed = elapsed(entity, tickDelta);
     if (elapsed == PlayerGesturePoses.NOT_PLAYING) {
       return;
     }
-    final ModelPart part = entity.getMainArm() == Arm.RIGHT ? model.rightArm : model.leftArm;
-    part.pitch = PatStroke.armPitch(part.pitch, model.head.pitch, elapsed);
+    mainArm.pitch = PatStroke.armPitch(mainArm.pitch, head.pitch, elapsed);
+    mainArm.yaw = PatStroke.armYaw(mainArm.yaw, head.yaw, entity.getMainArm(), elapsed);
   }
 
   public static void applyFirstPerson(
