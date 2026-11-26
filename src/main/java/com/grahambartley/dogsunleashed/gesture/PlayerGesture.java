@@ -17,4 +17,13 @@ public enum PlayerGesture {
   public boolean isPlaying(final double elapsedTicks) {
     return elapsedTicks >= 0.0 && elapsedTicks < this.ticks;
   }
+
+  public float ramp(final float elapsedTicks, final float rampTicks) {
+    if (!this.isPlaying(elapsedTicks)) {
+      return 0.0f;
+    }
+    final float rising = elapsedTicks / rampTicks;
+    final float falling = (this.ticks - elapsedTicks) / rampTicks;
+    return Math.max(0.0f, Math.min(1.0f, Math.min(rising, falling)));
+  }
 }

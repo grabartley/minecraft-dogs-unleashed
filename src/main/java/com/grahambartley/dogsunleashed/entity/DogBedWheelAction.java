@@ -23,7 +23,12 @@ public final class DogBedWheelAction {
         WHEEL_LABEL_KEY,
         WHEEL_ICON,
         (dog, player) -> null,
-        DogBedWheelAction::pickBedFor);
+        DogBedWheelAction::pickBedFor,
+        dog -> isShownFor(dog.getBreed()));
+  }
+
+  static boolean isShownFor(final UnleashedDogBreed breed) {
+    return breed.nature().sleepsInBeds();
   }
 
   private static void pickBedFor(final UnleashedDogEntity dog, final ServerPlayerEntity player) {

@@ -2,18 +2,26 @@ package com.grahambartley.dogsunleashed.entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.google.gson.JsonParser;
+import java.io.IOException;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 class PettingRulesTest {
 
   private static final long NOW = 48_000L;
-  private static final PettingRules.DogState CALM =
-      new PettingRules.DogState(false, false, false, false);
+  private static final Path ANIMATIONS =
+      Path.of("src/client/resources/assets/dogs-unleashed/animations");
+  private static final int TICKS_PER_SECOND = 20;
 
   @ParameterizedTest(name = "sneaking {0}, main hand {1}, empty hand {2} -> pat {3}")
   @CsvSource({
@@ -35,22 +43,28 @@ class PettingRulesTest {
 
   static Stream<Arguments> dogStates() {
     return Stream.of(
-        Arguments.of("a calm dog", CALM, true),
-        Arguments.of("a sleeping dog", new PettingRules.DogState(true, false, false, false), false),
-        Arguments.of(
-            "a dog angry at the player",
-            new PettingRules.DogState(false, true, false, false),
-            false),
-        Arguments.of(
-            "a dog busy with a trick or errand",
-            new PettingRules.DogState(false, false, true, false),
-            false),
-        Arguments.of(
-            "a dog the player is riding",
-            new PettingRules.DogState(false, false, false, true),
-            false),
-        Arguments.of(
-            "an angry sleeping dog", new PettingRules.DogState(true, true, false, false), false));
+        Arguments.of("a calm, free dog", state(-1), true),
+        Arguments.of("a sleeping dog", state(0), false),
+        Arguments.of("a dog targeting the petter", state(1), false),
+        Arguments.of("a dog angry at the petter", state(2), false),
+        Arguments.of("a dog on an errand, a meal or a dig", state(3), false),
+        Arguments.of("a dog doing a trick", state(4), false),
+        Arguments.of("a dog in a vehicle", state(5), false),
+        Arguments.of("a dog carrying a rider", state(6), false),
+        Arguments.of("a dog hitched to a sled", state(7), false),
+        Arguments.of("a howling dog", state(8), false),
+        Arguments.of("a dog shaking off", state(9), false),
+        Arguments.of("a growling dog", state(10), false));
+  }
+
+  private static PettingRules.DogState state(final int setFact) {
+    final boolean[] facts = new boolean[11];
+    if (setFact >= 0) {
+      facts[setFact] = true;
+    }
+    return new PettingRules.DogState(
+        facts[0], facts[1], facts[2], facts[3], facts[4], facts[5], facts[6], facts[7], facts[8],
+        facts[9], facts[10]);
   }
 
   @ParameterizedTest(name = "{0}")
@@ -63,10 +77,11 @@ class PettingRulesTest {
 
   @ParameterizedTest(name = "last pat {0} ticks ago -> cooled down {1}")
   @CsvSource({"0, false", "1, false", "29, false", "30, true", "31, true", "6000, true"})
-  @DisplayName("a dog waits one pat before taking the next")
-  void aDogWaitsOnePatBeforeTheNext(final long ticksAgo, final boolean expected) {
+  @DisplayName("a pat that arrives while another plays is ignored until it ends")
+  void aPatArrivingMidPatIsIgnored(final long ticksAgo, final boolean expected) {
     assertEquals(expected, PettingRules.cooledDown(NOW, NOW - ticksAgo));
-    assertEquals(expected, PettingRules.welcomes(CALM, NOW, NOW - ticksAgo));
+    assertEquals(!expected, PettingRules.isBeingPetted(NOW, NOW - ticksAgo));
+    assertEquals(expected, PettingRules.welcomes(state(-1), NOW, NOW - ticksAgo));
   }
 
   @ParameterizedTest(name = "last pat stored at {0}")
@@ -76,10 +91,25 @@ class PettingRulesTest {
     assertEquals(true, PettingRules.cooledDown(NOW, lastPettedAt));
   }
 
-  @ParameterizedTest(name = "cooldown {0} ticks")
-  @CsvSource({"30"})
-  @DisplayName("the cooldown lasts as long as the player's pat")
-  void theCooldownLastsAsLongAsThePat(final int ticks) {
-    assertEquals(ticks, PettingRules.COOLDOWN_TICKS);
+  @ParameterizedTest(name = "{0}")
+  @EnumSource(
+      value = UnleashedDogBreed.class,
+      names = "CROSS_BREED",
+      mode = EnumSource.Mode.EXCLUDE)
+  @DisplayName("the cooldown lasts exactly as long as each rig's petted clip")
+  void theCooldownLastsAsLongAsEachRigsPettedClip(final UnleashedDogBreed breed)
+      throws IOException {
+    try (Reader reader =
+        Files.newBufferedReader(
+            ANIMATIONS.resolve(breed.serializedId() + ".animation.json"), StandardCharsets.UTF_8)) {
+      final double seconds =
+          JsonParser.parseReader(reader)
+              .getAsJsonObject()
+              .getAsJsonObject("animations")
+              .getAsJsonObject(DogAnimationKeys.PETTED)
+              .get("animation_length")
+              .getAsDouble();
+      assertEquals(Math.round(seconds * TICKS_PER_SECOND), PettingRules.COOLDOWN_TICKS);
+    }
   }
 }

@@ -3,7 +3,6 @@ package com.grahambartley.dogsunleashed.entity;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.grahambartley.dogsunleashed.entity.delivery.DogDeliveries;
@@ -17,6 +16,7 @@ import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 class DogBedWheelActionTest {
@@ -35,14 +35,29 @@ class DogBedWheelActionTest {
   }
 
   @Test
-  @DisplayName("assign bed is always offered, with its own label and icon")
+  @DisplayName("assign bed has its own label and icon")
   void assignBedIsAlwaysOffered() {
     final DogWheelSubAction action = DogBedWheelAction.action();
     assertEquals(DogBedWheelAction.WHEEL_ACTION_ID, action.id());
     assertEquals("command.dogs-unleashed.assign_bed", action.translationKey());
     assertEquals("dogs-unleashed:command_wheel/assign_bed", action.icon().toString());
     assertNull(action.refusal().refusalKey(null, null));
-    assertSame(DogWheelSubAction.ALWAYS_SHOWN, action.visibility());
+  }
+
+  @ParameterizedTest(name = "{0} -> shown {1}")
+  @CsvSource({
+    "HUSKY, true",
+    "DACHSHUND, true",
+    "BEAGLE, true",
+    "GOLDEN_RETRIEVER, true",
+    "SHIBA_INU, true",
+    "CROSS_BREED, true",
+    "DIRE_WOLF, false"
+  })
+  @DisplayName("assign bed is offered only for breeds that sleep in beds")
+  void assignBedIsOfferedOnlyForBreedsThatSleepInBeds(
+      final UnleashedDogBreed breed, final boolean shown) {
+    assertEquals(shown, DogBedWheelAction.isShownFor(breed));
   }
 
   @Test

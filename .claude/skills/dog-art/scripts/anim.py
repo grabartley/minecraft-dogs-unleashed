@@ -129,8 +129,12 @@ def point_of(frame):
     return [float(v) for v in frame]
 
 
-def import_animations(project, animations, replace=False):
-    if project.get("animations") and not replace:
+def import_animations(project, animations, replace=False, only=None):
+    if only is not None:
+        missing = [name for name in only if name not in animations["animations"]]
+        if missing:
+            raise ValueError(f"no such clips in the animation file: {', '.join(missing)}")
+    elif project.get("animations") and not replace:
         raise ValueError(f"the project already has clips: {', '.join(c['name'] for c in project['animations'])}")
     v5 = is_v5(project)
     groups = {group["name"]: group["uuid"] for group in project.get("groups", [])}
@@ -138,6 +142,8 @@ def import_animations(project, animations, replace=False):
     eased = set()
     clips = []
     for name, clip in animations["animations"].items():
+        if only is not None and name not in only:
+            continue
         animators = {}
         for bone, channels in clip.get("bones", {}).items():
             if bone not in groups:
@@ -155,6 +161,9 @@ def import_animations(project, animations, replace=False):
                       "override": False, "length": float(clip.get("animation_length", 0)), "snapping": 24,
                       "selected": False, "anim_time_update": "", "blend_weight": "", "start_delay": "",
                       "loop_delay": "", "animators": animators})
+    if only is not None:
+        kept = [clip for clip in project.get("animations", []) if clip["name"] not in only]
+        clips = kept + clips
     project["animations"] = clips
     return sorted(skipped), sorted(eased)
 

@@ -12,8 +12,11 @@ import org.jetbrains.annotations.Nullable;
 
 public final class DogPetting extends DogComponent {
 
+  private static final float LOOK_TURN_DEGREES = 30.0f;
+
   private final UnleashedDogEntity dog;
   private long lastPettedAt = PettingRules.NEVER;
+  private @Nullable PlayerEntity petter;
 
   DogPetting(final UnleashedDogEntity dog) {
     this.dog = dog;
@@ -30,7 +33,8 @@ public final class DogPetting extends DogComponent {
       return null;
     }
     this.lastPettedAt = now;
-    this.dog.getNavigation().stop();
+    this.petter = player;
+    this.holdStillFacing(player);
     this.dog.triggerAnim(DogAnimationKeys.PETTED, DogAnimationKeys.PETTED);
     this.dog.getAmbienceEffects().startTailWag();
     this.dog.getAmbienceEffects().burstHearts();
@@ -47,13 +51,36 @@ public final class DogPetting extends DogComponent {
     return ActionResult.CONSUME;
   }
 
+  @Override
+  void tick() {
+    if (this.petter == null) {
+      return;
+    }
+    if (!PettingRules.isBeingPetted(this.dog.getWorld().getTime(), this.lastPettedAt)
+        || this.petter.isRemoved()) {
+      this.petter = null;
+      return;
+    }
+    this.holdStillFacing(this.petter);
+  }
+
+  private void holdStillFacing(final PlayerEntity player) {
+    this.dog.getNavigation().stop();
+    this.dog.getLookControl().lookAt(player, LOOK_TURN_DEGREES, LOOK_TURN_DEGREES);
+  }
+
   private PettingRules.DogState stateFor(final PlayerEntity player) {
     return new PettingRules.DogState(
         this.dog.getSleepController().isAsleep(),
-        this.dog.getTarget() == player || this.dog.shouldAngerAt(player),
-        DogIdleness.isOccupied(this.dog)
-            || this.dog.getComponents().get(DogTrickPerformance.class).isPerforming()
-            || this.dog.hasVehicle(),
-        player.getVehicle() == this.dog);
+        this.dog.getTarget() == player,
+        this.dog.shouldAngerAt(player),
+        DogIdleness.isOccupied(this.dog),
+        this.dog.getComponents().get(DogTrickPerformance.class).isPerforming(),
+        this.dog.hasVehicle(),
+        this.dog.hasPassengers(),
+        this.dog.getComponents().get(DogSledHarness.class).isHitched(),
+        this.dog.getAnimationState().isHowling(),
+        this.dog.getAnimationState().isShaking(),
+        this.dog.getGrowl().isGrowling());
   }
 }

@@ -20,12 +20,7 @@ public final class PatStroke {
   private PatStroke() {}
 
   public static float reach(final float elapsedTicks) {
-    if (!PlayerGesture.PAT.isPlaying(elapsedTicks)) {
-      return 0.0f;
-    }
-    final float rising = elapsedTicks / REACH_TICKS;
-    final float falling = (PlayerGesture.PAT.ticks() - elapsedTicks) / REACH_TICKS;
-    final float linear = MathHelper.clamp(Math.min(rising, falling), 0.0f, 1.0f);
+    final float linear = PlayerGesture.PAT.ramp(elapsedTicks, REACH_TICKS);
     return linear * linear * (3.0f - 2.0f * linear);
   }
 

@@ -123,6 +123,20 @@ class AnimationImport(unittest.TestCase):
         anim.import_animations(target, self.geckolib(), replace=True)
         self.assertEqual([clip["name"] for clip in target["animations"]], ["idle", "sleep"])
 
+    def test_importing_named_clips_keeps_the_projects_other_clips(self):
+        target = self.target()
+        target["animations"] = [{"name": "walk"}, {"name": "sleep", "length": 9.0}]
+        anim.import_animations(target, self.geckolib(), only=["sleep"])
+        self.assertEqual([clip["name"] for clip in target["animations"]], ["walk", "sleep"])
+        self.assertEqual(target["animations"][1]["loop"], "hold")
+
+    def test_importing_a_clip_the_file_lacks_is_refused(self):
+        target = self.target()
+        target["animations"] = [{"name": "walk"}]
+        with self.assertRaisesRegex(ValueError, "petted"):
+            anim.import_animations(target, self.geckolib(), only=["petted"])
+        self.assertEqual(target["animations"], [{"name": "walk"}])
+
 
 if __name__ == "__main__":
     unittest.main()

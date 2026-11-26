@@ -261,7 +261,7 @@ def cmd_animexport(args):
         with open(args.out) as handle:
             try:
                 exported = layout.splice_tracks(json.load(handle), exported, bones, args.drop.split(",") if args.drop else (),
-                                                args.clips.split(",") if args.clips else None)
+                                                args.clips.split(",") if args.clips else None, args.add_clips)
             except ValueError as error:
                 print(error, file=sys.stderr)
                 return 1
@@ -281,7 +281,8 @@ def cmd_animimport(args):
     project = anim.load_project(args.project)
     with open(args.animations) as handle:
         try:
-            skipped, eased = anim.import_animations(project, json.load(handle), args.replace)
+            skipped, eased = anim.import_animations(project, json.load(handle), args.replace,
+                                                    args.clips.split(",") if args.clips else None)
         except ValueError as error:
             print(f"{error}; pass --replace to drop them", file=sys.stderr)
             return 1
@@ -422,6 +423,7 @@ def main(argv=None):
     p.add_argument("--bones", help="comma-separated bones whose tracks replace the ones in the existing out file; every other track stays")
     p.add_argument("--drop", help="comma-separated bones to remove from the existing out file, such as renamed ones")
     p.add_argument("--clips", help="comma-separated clips to splice into; every other clip stays as it is")
+    p.add_argument("--add-clips", action="store_true", help="add a --clips clip the shipped file lacks")
     p.set_defaults(func=cmd_animexport)
 
     p = commands.add_parser("animlayer", help="clips as the game draws them over a base clip, for review in Blockbench")
@@ -442,6 +444,7 @@ def main(argv=None):
     p.add_argument("animations")
     p.add_argument("out")
     p.add_argument("--replace", action="store_true", help="drop clips the project already has")
+    p.add_argument("--clips", help="comma-separated clips to import; the project keeps its other clips")
     p.set_defaults(func=cmd_animimport)
 
     args = parser.parse_args(argv)

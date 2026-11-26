@@ -4,7 +4,6 @@ import com.grahambartley.dogsunleashed.gesture.PlayerGesture;
 import net.minecraft.client.render.entity.feature.HeadFeatureRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Arm;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import org.joml.Vector3f;
 
@@ -36,12 +35,7 @@ public final class WhistleBlowHold {
   }
 
   public static float liftAt(final float elapsedTicks) {
-    if (!PlayerGesture.WHISTLE.isPlaying(elapsedTicks)) {
-      return 0.0f;
-    }
-    final float rising = elapsedTicks / RAISE_TICKS;
-    final float falling = (PlayerGesture.WHISTLE.ticks() - elapsedTicks) / RAISE_TICKS;
-    return MathHelper.clamp(Math.min(rising, falling), 0.0f, 1.0f);
+    return PlayerGesture.WHISTLE.ramp(elapsedTicks, RAISE_TICKS);
   }
 
   static Vector3f shift(final Arm arm, final float lift) {

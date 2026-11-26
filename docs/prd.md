@@ -729,7 +729,7 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 | LIFE-16 | Dogs bark when hungry for attention, hurt, low on health, fighting, or at random, at most every 6 seconds. Puppies bark higher. Huskies howl but never bark |
 | LIFE-17 | Bark Volume and Howl Volume are settings |
 | LIFE-18 | Any player pets any dog, tamed or wild, of any breed, age or growth stage, by sneaking and right-clicking it with an empty main hand. The dog pushes its head into the hand, wags, shows hearts and pants, and the player's arm pats it. Everyone nearby sees both |
-| LIFE-19 | A dog takes a pat only while awake, not angry at that player, not busy with a trick, errand, meal or vehicle, and not carrying that player. It takes one pat at a time: a second pat from anyone waits until the first is done |
+| LIFE-19 | A dog takes a pat only while awake, not angry at that player, and free: no trick, errand, meal, dig, vehicle, rider, sled harness, howl, shake or growl. It takes one pat at a time, and a pat from anyone that arrives while one plays is ignored. While petted it stops and turns to face the player |
 | LIFE-20 | Only the owner's pats grow the bond (BOND-2) |
 
 **Enforcement:** server decides every behaviour. Sounds and particles are played to nearby clients.

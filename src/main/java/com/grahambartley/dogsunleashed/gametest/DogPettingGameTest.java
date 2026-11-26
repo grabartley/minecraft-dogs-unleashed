@@ -2,10 +2,12 @@ package com.grahambartley.dogsunleashed.gametest;
 
 import com.grahambartley.dogsunleashed.ModEntities;
 import com.grahambartley.dogsunleashed.block.DogSleepSpotAssignment;
+import com.grahambartley.dogsunleashed.entity.DireWolfGrowthStage;
 import com.grahambartley.dogsunleashed.entity.DogBedWheelAction;
 import com.grahambartley.dogsunleashed.entity.DogBond;
 import com.grahambartley.dogsunleashed.entity.DogBondRules;
 import com.grahambartley.dogsunleashed.entity.DogWheelSubActions;
+import com.grahambartley.dogsunleashed.entity.UnleashedDogBreed;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
 import com.grahambartley.dogsunleashed.gametest.util.CreativeTestPlayer;
 import com.grahambartley.dogsunleashed.gametest.util.DogTestData;
@@ -13,6 +15,7 @@ import com.grahambartley.dogsunleashed.gametest.util.GeneratedGameTest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemStack;
@@ -53,6 +56,9 @@ public final class DogPettingGameTest implements FabricGameTest {
   public Collection<TestFunction> everyDogCanBePetted() {
     final List<TestFunction> tests = new ArrayList<>();
     for (final DogTestData data : DogTestData.getAllBreeds()) {
+      if (data.breed() == UnleashedDogBreed.DIRE_WOLF) {
+        continue;
+      }
       for (final boolean puppy : List.of(false, true)) {
         tests.add(
             GeneratedGameTest.of(
@@ -74,6 +80,15 @@ public final class DogPettingGameTest implements FabricGameTest {
               ARENA,
               TICK_LIMIT,
               context -> assertAWildDogTakesAPet(context, type, false)));
+    }
+    for (final DireWolfGrowthStage stage : DireWolfGrowthStage.values()) {
+      tests.add(
+          GeneratedGameTest.of(
+              BATCH,
+              "dogpettinggametest.pets.direwolf." + stage.name().toLowerCase(Locale.ROOT),
+              ARENA,
+              TICK_LIMIT,
+              context -> assertADireWolfTakesAPetAt(context, stage)));
     }
     return tests;
   }
@@ -169,6 +184,18 @@ public final class DogPettingGameTest implements FabricGameTest {
     context.assertTrue(
         dog.interactMob(player, Hand.MAIN_HAND) == ActionResult.CONSUME,
         "A sneaking player with an empty hand pets the dog");
+    context.complete();
+  }
+
+  private static void assertADireWolfTakesAPetAt(
+      final TestContext context, final DireWolfGrowthStage stage) {
+    final ServerPlayerEntity player = sneakingPlayerAt(context, REL_PLAYER);
+    final UnleashedDogEntity wolf = wildDog(context, ModEntities.DIRE_WOLF);
+    wolf.getGrowth().setStage(stage);
+
+    context.assertTrue(
+        wolf.interactMob(player, Hand.MAIN_HAND) == ActionResult.CONSUME,
+        "A dire wolf takes a pat at stage " + stage);
     context.complete();
   }
 

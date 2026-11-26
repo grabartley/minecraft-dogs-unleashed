@@ -33,4 +33,23 @@ class PlayerGestureTest {
       final PlayerGesture gesture, final double elapsed, final boolean expected) {
     assertEquals(expected, gesture.isPlaying(elapsed));
   }
+
+  @ParameterizedTest(name = "{0} at {1} ticks with a {2} tick ramp -> {3}")
+  @CsvSource({
+    "WHISTLE, -1, 3, 0",
+    "WHISTLE, 0, 3, 0",
+    "WHISTLE, 1.5, 3, 0.5",
+    "WHISTLE, 3, 3, 1",
+    "WHISTLE, 12.5, 3, 0.5",
+    "WHISTLE, 14, 3, 0",
+    "PAT, 2.5, 5, 0.5",
+    "PAT, 15, 5, 1",
+    "PAT, 27.5, 5, 0.5",
+    "PAT, 30, 5, 0"
+  })
+  @DisplayName("a gesture ramps in at its start, holds, and ramps out at its end")
+  void aGestureRampsInHoldsAndRampsOut(
+      final PlayerGesture gesture, final float elapsed, final float ramp, final float expected) {
+    assertEquals(expected, gesture.ramp(elapsed, ramp), 1.0e-5f);
+  }
 }
