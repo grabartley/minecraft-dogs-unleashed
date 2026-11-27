@@ -2,19 +2,16 @@ package com.grahambartley.dogsunleashed.render;
 
 import com.grahambartley.dogsunleashed.block.entity.DogHouseBlockEntity;
 import com.grahambartley.dogsunleashed.model.DogHouseModel;
-import com.grahambartley.dogsunleashed.render.layer.PlanksLayer;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.renderer.GeoBlockRenderer;
 
-public class CushionTintedDogHouseRenderer extends GeoBlockRenderer<DogHouseBlockEntity> {
+public class CushionTintedDogHouseRenderer extends PlanksBlockRenderer<DogHouseBlockEntity> {
 
   public CushionTintedDogHouseRenderer() {
-    super(new DogHouseModel());
-    this.addRenderLayer(new PlanksLayer<>(this, DogHouseBlockEntity::getWood));
+    super(new DogHouseModel(), DogHouseBlockEntity::getWood);
   }
 
   @Override

@@ -2,7 +2,6 @@ package com.grahambartley.dogsunleashed.render;
 
 import com.grahambartley.dogsunleashed.block.entity.DogBedBlockEntity;
 import com.grahambartley.dogsunleashed.model.DogBedModel;
-import com.grahambartley.dogsunleashed.render.layer.PlanksLayer;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -10,15 +9,13 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.DyeColor;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.renderer.GeoBlockRenderer;
 
-public class DogBedBlockEntityRenderer extends GeoBlockRenderer<DogBedBlockEntity> {
+public class DogBedBlockEntityRenderer extends PlanksBlockRenderer<DogBedBlockEntity> {
 
   static final float BED_SCALE = 2.0f;
 
   public DogBedBlockEntityRenderer(BlockEntityRendererFactory.Context context) {
-    super(new DogBedModel());
-    this.addRenderLayer(new PlanksLayer<>(this, DogBedBlockEntity::getWood));
+    super(new DogBedModel(), DogBedBlockEntity::getWood);
   }
 
   @Override
