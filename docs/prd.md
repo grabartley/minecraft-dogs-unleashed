@@ -356,7 +356,7 @@ Right-clicking your own dog opens the command wheel. The dog takes a standing co
 
 | ID | Requirement |
 |---|---|
-| SLEEP-1 | Dog beds are crafted in any carpet colour. Dog houses are 2 by 2 by 2 and crafted with a cushion of any carpet colour |
+| SLEEP-1 | Dog beds and dog houses are crafted from the planks of any vanilla wood and look like that wood, using the game's own planks texture so resource packs change them too. Dog houses are 2 by 2 by 2. Both come out with a white cushion, and a dye recolours the cushion, in the crafting grid or on the placed bed or house, keeping the wood |
 | SLEEP-2 | A bed or house holds one dog. Assigning a new dog clears the old dog's link |
 | SLEEP-3 | Only the owner can assign their dog |
 | SLEEP-4 | A dog with a bed goes to it by itself in its sleep window when within the Auto-Sleep Range, unless leashed, sitting, or woken by hand earlier in the same window |
@@ -371,7 +371,7 @@ Right-clicking your own dog opens the command wheel. The dog takes a standing co
 | SLEEP-13 | A dog picks one of its breed's sleep poses and keeps it for that nap, so a sleeping pack doesn't look cloned |
 | SLEEP-14 | Dire wolves can't be given beds. A tamed dire wolf naps on the ground for about 3 in-game minutes in the day and about 3 at night, only when idle and safe: on Follow, Stay, Guard or Free Roam with nothing to do, no hostile mob within 16 blocks, not hurt in the last 30 seconds, not ridden, leashed or playing, on solid ground. If it cannot nap safely it skips the nap. A command, damage, a hostile coming near or its owner mounting it wakes it |
 
-**Not supported:** two dogs in one bed; beds that work across dimensions.
+**Not supported:** two dogs in one bed; beds that work across dimensions; woods added by other mods.
 
 **Enforcement:** server.
 
@@ -689,7 +689,7 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 
 | ID | Requirement |
 |---|---|
-| SLED-1 | A sled is crafted and placed like a boat |
+| SLED-1 | A sled is crafted from the planks of any vanilla wood, looks like that wood, and is placed like a boat |
 | SLED-2 | A lead hitches one of your huskies, or a dire wolf at adult stage or above, to the sled. Up to six dogs, in pairs |
 | SLED-3 | The player rides the sled and steers with the movement keys. The team pulls |
 | SLED-4 | Speed grows with team size and the surface: fastest on ice, fast on snow, slow on grass and dirt, crawling on sand |
@@ -701,7 +701,7 @@ Coats grow out over time. A long coat slows a dog down, and shears trim it.
 | SLED-10 | Only the owner can hitch their own dogs |
 | SLED-11 | Harness lines are drawn from the sled to each dog |
 
-**Not supported:** other breeds pulling; sleds pulled by players.
+**Not supported:** other breeds pulling; sleds pulled by players; woods added by other mods.
 
 **Enforcement:** server. Sled movement follows the vanilla vehicle model, with speed and stamina decided on the server.
 

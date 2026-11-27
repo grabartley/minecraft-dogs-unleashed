@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "sled",
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "P": {
+      "item": "minecraft:birch_planks"
+    }
+  },
+  "pattern": [
+    "P P",
+    "PPP",
+    "I I"
+  ],
+  "result": {
+    "components": {
+      "dogs-unleashed:wood": "birch"
+    },
+    "count": 1,
+    "id": "dogs-unleashed:sled"
+  }
+}

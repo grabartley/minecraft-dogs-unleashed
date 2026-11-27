@@ -77,6 +77,12 @@ loom {
 	}
 }
 
+fabricApi {
+	configureDataGeneration {
+		client = false
+	}
+}
+
 sourceSets {
 	clientTest {
 		compileClasspath += sourceSets.client.compileClasspath + sourceSets.client.output + sourceSets.main.output + sourceSets.test.output

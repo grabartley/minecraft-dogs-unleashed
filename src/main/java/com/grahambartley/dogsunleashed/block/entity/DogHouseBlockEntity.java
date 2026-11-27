@@ -3,8 +3,11 @@ package com.grahambartley.dogsunleashed.block.entity;
 import com.grahambartley.dogsunleashed.ModBlockEntities;
 import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.entity.UnleashedDogEntity;
+import com.grahambartley.dogsunleashed.item.DogFurnitureItem;
+import com.grahambartley.dogsunleashed.wood.WoodPlanks;
 import java.util.UUID;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.WoodType;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.component.ComponentMap;
 import net.minecraft.entity.Entity;
@@ -29,7 +32,8 @@ public class DogHouseBlockEntity extends BlockEntity implements GeoBlockEntity, 
 
   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
   private UUID assignedDogUuid = null;
-  private DyeColor color = DyeColor.WHITE;
+  private DyeColor color = DogFurnitureItem.DEFAULT_COLOUR;
+  private WoodType wood = WoodPlanks.DEFAULT;
 
   public DogHouseBlockEntity(BlockPos pos, BlockState state) {
     super(ModBlockEntities.DOG_HOUSE, pos, state);
@@ -41,6 +45,16 @@ public class DogHouseBlockEntity extends BlockEntity implements GeoBlockEntity, 
 
   public void setColor(DyeColor color) {
     this.color = color;
+    this.markDirty();
+    this.syncToClients();
+  }
+
+  public WoodType getWood() {
+    return this.wood;
+  }
+
+  public void setWood(final WoodType wood) {
+    this.wood = wood;
     this.markDirty();
     this.syncToClients();
   }
@@ -100,6 +114,7 @@ public class DogHouseBlockEntity extends BlockEntity implements GeoBlockEntity, 
   protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
     super.writeNbt(nbt, registryLookup);
     nbt.putInt(NBT_COLOR, this.color.getId());
+    WoodPlanks.write(nbt, this.wood);
     if (this.assignedDogUuid != null) {
       nbt.putUuid(NBT_ASSIGNED_DOG, this.assignedDogUuid);
     }
@@ -111,6 +126,7 @@ public class DogHouseBlockEntity extends BlockEntity implements GeoBlockEntity, 
     if (nbt.contains(NBT_COLOR)) {
       this.color = DyeColor.byId(nbt.getInt(NBT_COLOR));
     }
+    this.wood = WoodPlanks.read(nbt);
     if (nbt.containsUuid(NBT_ASSIGNED_DOG)) {
       this.assignedDogUuid = nbt.getUuid(NBT_ASSIGNED_DOG);
     } else {
@@ -122,12 +138,15 @@ public class DogHouseBlockEntity extends BlockEntity implements GeoBlockEntity, 
   protected void addComponents(ComponentMap.Builder builder) {
     super.addComponents(builder);
     builder.add(ModComponents.DOG_HOUSE_COLOR, this.color);
+    builder.add(ModComponents.WOOD, this.wood);
   }
 
   @Override
   protected void readComponents(BlockEntity.ComponentsAccess components) {
     super.readComponents(components);
-    this.color = components.getOrDefault(ModComponents.DOG_HOUSE_COLOR, DyeColor.WHITE);
+    this.color =
+        components.getOrDefault(ModComponents.DOG_HOUSE_COLOR, DogFurnitureItem.DEFAULT_COLOUR);
+    this.wood = components.getOrDefault(ModComponents.WOOD, WoodPlanks.DEFAULT);
   }
 
   @Override

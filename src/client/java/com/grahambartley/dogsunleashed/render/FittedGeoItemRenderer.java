@@ -1,6 +1,8 @@
 package com.grahambartley.dogsunleashed.render;
 
 import com.grahambartley.dogsunleashed.render.rig.CubeGeometry;
+import java.util.List;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.minecraft.client.render.VertexConsumer;
@@ -15,17 +17,27 @@ import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoItemRenderer;
+import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 
 public class FittedGeoItemRenderer<T extends Item & GeoItem>
     implements BuiltinItemRendererRegistry.DynamicItemRenderer {
 
   private final Supplier<GeoModel<T>> model;
   private final Fitter fitter;
+  private final List<Function<GeoItemRenderer<T>, GeoRenderLayer<T>>> layers;
   private FittedRenderer<T> renderer;
 
   public FittedGeoItemRenderer(final Supplier<GeoModel<T>> model, final Fitter fitter) {
+    this(model, fitter, List.of());
+  }
+
+  public FittedGeoItemRenderer(
+      final Supplier<GeoModel<T>> model,
+      final Fitter fitter,
+      final List<Function<GeoItemRenderer<T>, GeoRenderLayer<T>>> layers) {
     this.model = model;
     this.fitter = fitter;
+    this.layers = layers;
   }
 
   @FunctionalInterface
@@ -43,6 +55,9 @@ public class FittedGeoItemRenderer<T extends Item & GeoItem>
       final int overlay) {
     if (this.renderer == null) {
       this.renderer = new FittedRenderer<>(this.model.get(), this.fitter);
+      for (final Function<GeoItemRenderer<T>, GeoRenderLayer<T>> layer : this.layers) {
+        this.renderer.addRenderLayer(layer.apply(this.renderer));
+      }
     }
     this.renderer.render(stack, mode, matrices, vertexConsumers, light, overlay);
   }

@@ -2,15 +2,22 @@ package com.grahambartley.dogsunleashed.block;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.grahambartley.dogsunleashed.MinecraftBootstrapExtension;
 import com.grahambartley.dogsunleashed.ModBlocks;
+import com.grahambartley.dogsunleashed.block.entity.DogHouseBlockEntity;
+import com.grahambartley.dogsunleashed.wood.WoodenBlock;
 import java.util.Arrays;
 import java.util.stream.Stream;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.WoodType;
 import net.minecraft.entity.ai.pathing.NavigationType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.BlockView;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +25,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 @ExtendWith(MinecraftBootstrapExtension.class)
 class DogHouseBlockTest {
@@ -78,5 +86,34 @@ class DogHouseBlockTest {
     return Arrays.stream(DogHousePart.values())
         .flatMap(
             part -> Arrays.stream(NavigationType.values()).map(type -> Arguments.of(part, type)));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(strings = {"oak", "spruce", "acacia", "crimson", "bamboo"})
+  @DisplayName("the block reports the wood its block entity was built from")
+  void woodComesFromTheBlockEntity(final String name) {
+    final WoodType wood =
+        WoodType.stream().filter(type -> type.name().equals(name)).findFirst().orElseThrow();
+    final BlockPos origin = new BlockPos(5, 64, 5);
+    final DogHouseBlockEntity entity =
+        new DogHouseBlockEntity(origin, ModBlocks.DOG_HOUSE.getDefaultState());
+    entity.setWood(wood);
+    final BlockView world = mock(BlockView.class);
+    when(world.getBlockEntity(origin)).thenReturn(entity);
+
+    assertSame(
+        wood,
+        ((WoodenBlock) ModBlocks.DOG_HOUSE)
+            .woodAt(world, origin, ModBlocks.DOG_HOUSE.getDefaultState()));
+  }
+
+  @Test
+  @DisplayName("with no block entity to ask, the block counts as oak")
+  void missingBlockEntityIsOak() {
+    final BlockPos pos = new BlockPos(5, 64, 5);
+    assertSame(
+        WoodType.OAK,
+        ((WoodenBlock) ModBlocks.DOG_HOUSE)
+            .woodAt(mock(BlockView.class), pos, ModBlocks.DOG_HOUSE.getDefaultState()));
   }
 }

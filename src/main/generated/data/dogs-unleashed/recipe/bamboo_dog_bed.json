@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "dog_bed",
+  "key": {
+    "C": {
+      "item": "minecraft:white_carpet"
+    },
+    "P": {
+      "item": "minecraft:bamboo_planks"
+    }
+  },
+  "pattern": [
+    "CC",
+    "PP"
+  ],
+  "result": {
+    "components": {
+      "dogs-unleashed:wood": "bamboo"
+    },
+    "count": 1,
+    "id": "dogs-unleashed:dog_bed"
+  }
+}

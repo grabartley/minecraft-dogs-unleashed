@@ -32,11 +32,15 @@
     "emi": [
       "com.grahambartley.dogsunleashed.compat.emi.DogsUnleashedEmiPlugin"
     ],
+    "fabric-datagen": [
+      "com.grahambartley.dogsunleashed.datagen.DogsUnleashedDataGenerator"
+    ],
     "fabric-gametest": [
       "com.grahambartley.dogsunleashed.gametest.DogAdvancementGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogBowlGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogNavigationGameTest",
       "com.grahambartley.dogsunleashed.gametest.SledGameTest",
+      "com.grahambartley.dogsunleashed.gametest.WoodenFurnitureGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogStatueGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogPortraitGameTest",
       "com.grahambartley.dogsunleashed.gametest.DogExpeditionGameTest",

@@ -47,6 +47,13 @@ jobs:
       - name: Run tests with coverage
         run: ./gradlew check --configuration-cache --build-cache
 
+      - name: Check generated data is up to date
+        run: |
+          rm -rf src/main/generated
+          ./gradlew runDatagen --no-configuration-cache
+          git status --porcelain -- src/main/generated
+          test -z "$(git status --porcelain -- src/main/generated)"
+
       - name: Publish unit test report
         uses: mikepenz/action-junit-report@v4
         if: success() || failure()

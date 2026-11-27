@@ -1,7 +1,8 @@
 package com.grahambartley.dogsunleashed.block;
 
-import com.grahambartley.dogsunleashed.ModComponents;
 import com.grahambartley.dogsunleashed.block.entity.DogHouseBlockEntity;
+import com.grahambartley.dogsunleashed.wood.WoodPlanks;
+import com.grahambartley.dogsunleashed.wood.WoodenBlock;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
@@ -9,6 +10,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.ShapeContext;
+import net.minecraft.block.WoodType;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.pathing.NavigationType;
@@ -35,7 +37,8 @@ import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.Nullable;
 
-public class DogHouseBlock extends HorizontalFacingBlock implements BlockEntityProvider {
+public class DogHouseBlock extends HorizontalFacingBlock
+    implements BlockEntityProvider, WoodenBlock {
 
   public static final MapCodec<DogHouseBlock> CODEC = createCodec(DogHouseBlock::new);
   public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
@@ -176,9 +179,16 @@ public class DogHouseBlock extends HorizontalFacingBlock implements BlockEntityP
     final ItemStack stack = super.getPickStack(world, pos, state);
     if (world.getBlockEntity(originOf(state, pos))
         instanceof DogHouseBlockEntity houseBlockEntity) {
-      stack.set(ModComponents.DOG_HOUSE_COLOR, houseBlockEntity.getColor());
+      stack.applyComponentsFrom(houseBlockEntity.createComponentMap());
     }
     return stack;
+  }
+
+  @Override
+  public WoodType woodAt(final BlockView world, final BlockPos pos, final BlockState state) {
+    return world.getBlockEntity(originOf(state, pos)) instanceof DogHouseBlockEntity house
+        ? house.getWood()
+        : WoodPlanks.DEFAULT;
   }
 
   @Override
